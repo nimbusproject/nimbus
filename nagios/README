@@ -1,0 +1,35 @@
+Nimbus plug ins for Nagios
+------------------------------
+Author: Michael Paterson <mhp@uvic.ca>
+Date: 2008-11-07
+
+The purpose of these plug ins is to provide information about the status
+and availability of workspaces. The work was done at the University of 
+Victoria.
+
+
+Installation
+--------------
+
+Please reffer to the documention at:
+https://wiki.gridx1.ca/twiki/bin/view/Main/NagiosNimbusPluginInstall
+
+
+Notes
+-------
+There are three seperate plugins available:
+
+check_nimbus_consistent.py 
+    - monitors that workspace's VMs are correctly running
+ 
+check_nimbus_vm_running.py 
+    - a count of how many workspaces are running 
+
+check_nimbus_vm_slots.py
+    - watches non-private network-pools and reports how many IPs remain
+
+Support 
+-----------
+Support can be obtained from Michael Paterson (mhp@uvic.ca) or Ian Gable 
+(igable@uvic.ca). Users are also encouraged to seek support on the 
+Nimbus mailing lists workspace-user@globus.org.
