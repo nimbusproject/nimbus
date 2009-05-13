@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<wsdl:definitions name="NimbusContextBroker" targetNamespace="http://www.globus.org/2008/12/nimbus/contextualization/bindings" xmlns:porttype="http://www.globus.org/2008/12/nimbus/contextualization" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions name="NimbusContextBroker" targetNamespace="http://www.globus.org/2008/12/nimbus/contextualization/bindings" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:porttype="http://www.globus.org/2008/12/nimbus/contextualization" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
   <wsdl:import namespace="http://www.globus.org/2008/12/nimbus/contextualization" location="nimbus_ctx_port_type.wsdl"/>
   <wsdl:binding name="NimbusContextBrokerPortTypeSOAPBinding" type="porttype:NimbusContextBrokerPortType">
     <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
@@ -95,20 +95,20 @@
       <wsdl:output>
         <soap:body use="literal"/>
       </wsdl:output>
-      <wsdl:fault name="InvalidResourcePropertyQNameFault">
-        <soap:fault name="InvalidResourcePropertyQNameFault" use="literal"/>
-      </wsdl:fault>
-      <wsdl:fault name="InvalidQueryExpressionFault">
-        <soap:fault name="InvalidQueryExpressionFault" use="literal"/>
+      <wsdl:fault name="UnknownQueryExpressionDialectFault">
+        <soap:fault name="UnknownQueryExpressionDialectFault" use="literal"/>
       </wsdl:fault>
       <wsdl:fault name="QueryEvaluationErrorFault">
         <soap:fault name="QueryEvaluationErrorFault" use="literal"/>
       </wsdl:fault>
+      <wsdl:fault name="InvalidQueryExpressionFault">
+        <soap:fault name="InvalidQueryExpressionFault" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="InvalidResourcePropertyQNameFault">
+        <soap:fault name="InvalidResourcePropertyQNameFault" use="literal"/>
+      </wsdl:fault>
       <wsdl:fault name="ResourceUnknownFault">
         <soap:fault name="ResourceUnknownFault" use="literal"/>
-      </wsdl:fault>
-      <wsdl:fault name="UnknownQueryExpressionDialectFault">
-        <soap:fault name="UnknownQueryExpressionDialectFault" use="literal"/>
       </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="GetResourceProperty">

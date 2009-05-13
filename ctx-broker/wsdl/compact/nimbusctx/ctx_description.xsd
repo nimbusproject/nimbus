@@ -98,6 +98,10 @@
                         maxOccurs="unbounded" />
             <xs:element name="ctx"
                         type="Contextualization_Type" />
+            <xs:element name="deploy"
+                        type="clouddeploy_Type"
+                        minOccurs="0"
+                        maxOccurs="unbounded" />
         </xs:sequence>
     </xs:complexType>
 
@@ -112,6 +116,15 @@
                               use="optional" />
             </xs:extension>
         </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="clouddeploy_Type">
+        <xs:sequence>
+            <xs:element name="cloud"
+                        type="xs:string" />
+            <xs:element name="quantity"
+                        type="xs:short" />
+        </xs:sequence>
     </xs:complexType>
 
 
