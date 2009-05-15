@@ -67,7 +67,7 @@
 
 
     <!--==================================================-->
-    <!--          Cluster description                     -->
+    <!--          Cluster and deployment descriptions     -->
     <!--==================================================-->
 
     <xs:element name="cluster"
@@ -77,6 +77,17 @@
         <xs:sequence>
             <xs:element name="workspace"
                         type="cloudworkspace_Type"
+                        maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="deployment"
+                type="clouddeployment_Type" />
+
+    <xs:complexType name="clouddeployment_Type">
+        <xs:sequence>
+            <xs:element name="workspace"
+                        type="clouddeployworkspace_Type"
                         maxOccurs="unbounded" />
         </xs:sequence>
     </xs:complexType>
@@ -105,6 +116,17 @@
         </xs:sequence>
     </xs:complexType>
 
+    <xs:complexType name="clouddeployworkspace_Type">
+        <xs:sequence>
+            <xs:element name="name"
+                        type="xs:string" />
+            <xs:element name="deploy"
+                        type="clouddeploy_Type"
+                        minOccurs="0"
+                        maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+
     <xs:complexType name="cloudnic_Type">
         <xs:simpleContent>
             <xs:extension base="xs:string">
@@ -122,10 +144,15 @@
         <xs:sequence>
             <xs:element name="cloud"
                         type="xs:string" />
+            <xs:element name="image"
+                        type="xs:string"
+                        minOccurs="0" />
             <xs:element name="quantity"
                         type="xs:short" />
         </xs:sequence>
     </xs:complexType>
+
+
 
 
     <!--==================================================-->

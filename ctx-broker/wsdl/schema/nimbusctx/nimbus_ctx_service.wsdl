@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<wsdl:definitions name="NimbusContextBroker" targetNamespace="http://www.globus.org/2008/12/nimbus/contextualization/service" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:binding="http://www.globus.org/2008/12/nimbus/contextualization/bindings" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+<wsdl:definitions name="NimbusContextBroker" targetNamespace="http://www.globus.org/2008/12/nimbus/contextualization/service" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:binding="http://www.globus.org/2008/12/nimbus/contextualization/bindings" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:import namespace="http://www.globus.org/2008/12/nimbus/contextualization/bindings" location="nimbus_ctx_bindings.wsdl"/>
   <wsdl:service name="NimbusContextBrokerService">
     <wsdl:port name="NimbusContextBrokerPortTypePort" binding="binding:NimbusContextBrokerPortTypeSOAPBinding">
