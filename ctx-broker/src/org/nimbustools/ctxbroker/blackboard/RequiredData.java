@@ -30,7 +30,7 @@ public class RequiredData {
     private final String name;
     
     // list of filled Requires_TypeData objects
-    private final List values = new ArrayList();
+    private final List<Requires_TypeData> values = new ArrayList<Requires_TypeData>();
 
     
     // -------------------------------------------------------------------------
@@ -70,13 +70,13 @@ public class RequiredData {
     }
 
     // never returns null
-    List getDataList() {
+    List<Requires_TypeData> getDataList() {
         return this.values;
     }
 
     // never returns null
     Requires_TypeData[] getAllData() {
-        return (Requires_TypeData[])this.values.toArray(
+        return this.values.toArray(
                         new Requires_TypeData[this.values.size()]);
     }
     

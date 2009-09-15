@@ -22,7 +22,6 @@ import org.nimbustools.ctxbroker.generated.gt4_0.description.Requires_TypeIdenti
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.util.Iterator;
 import java.util.ArrayList;
 
 /**
@@ -48,7 +47,7 @@ public class RequiredRole {
     // cached response, only non-null if filled
     private Requires_TypeRole[] roleResponse = null;
 
-    private final ArrayList providers = new ArrayList(); // list of Identity
+    private final ArrayList<Identity> providers = new ArrayList<Identity>(); // list of Identity
 
     private final String name;
     private final boolean hostnameRequired;
@@ -196,29 +195,27 @@ public class RequiredRole {
                 return null;
             }
 
-            final ArrayList rolePieces = new ArrayList();
+            final ArrayList<Requires_TypeRole> rolePieces = new ArrayList<Requires_TypeRole>();
 
-            ArrayList idPieces = null;
+            ArrayList<Requires_TypeIdentity> idPieces = null;
             if (identitiesNeeded) {
-                idPieces = new ArrayList();
+                idPieces = new ArrayList<Requires_TypeIdentity>();
                 if (tracebuf != null) {
                     tracebuf.append("  - identities needed, made idPieces\n");
                 }
             }
 
             boolean allFilled = true;
-            final Iterator iter = this.providers.iterator();
-            
-            while (iter.hasNext()) {
 
-                final Identity id = (Identity) iter.next();
+            for (final Identity id : this.providers) {
+
                 if (tracebuf != null) {
                     tracebuf.append("  - examining identity: ")
                             .append(id.toString())
                             .append("\n");
                 }
                 boolean filled = true;
-                
+
                 if (id.getIp() == null) {
                     if (tracebuf != null) {
                         tracebuf.append("  - IP null, setting filled false\n");
@@ -254,16 +251,16 @@ public class RequiredRole {
                                 .append(id.getIp())
                                 .append("\n");
                     }
-                    
+
                     if (idPieces != null) {
                         final Requires_TypeIdentity idpiece =
-                                                new Requires_TypeIdentity();
+                                new Requires_TypeIdentity();
                         idpiece.setIp(id.getIp());
                         idpiece.setHostname(id.getHostname());
                         idpiece.setPubkey(id.getPubkey());
                         idPieces.add(idpiece);
                     }
-                    
+
                 } else {
 
                     allFilled = false;
@@ -295,8 +292,7 @@ public class RequiredRole {
                 return null;
             }
 
-            this.roleResponse = (Requires_TypeRole[])
-                  rolePieces.toArray(new Requires_TypeRole[rolePieces.size()]);
+            this.roleResponse = rolePieces.toArray(new Requires_TypeRole[rolePieces.size()]);
 
             if (idPieces == null) {
                 if (tracebuf != null) {
@@ -309,7 +305,7 @@ public class RequiredRole {
             }
 
             final Requires_TypeIdentity[] ids =
-                    (Requires_TypeIdentity[]) idPieces.toArray(
+                    idPieces.toArray(
                             new Requires_TypeIdentity[idPieces.size()]);
 
             if (tracebuf != null) {

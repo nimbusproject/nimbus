@@ -49,10 +49,12 @@ public class Node {
     private final CtxResult ctxResult = new CtxResult();
 
     // String interface name --> Identity
-    private final Hashtable identities = new Hashtable();
+    private final Hashtable<String, Identity> identities =
+            new Hashtable<String, Identity>();
 
     // RequiredRole objects
-    private final Set requiredRoles = new HashSet();
+    private final Set<RequiredRole> requiredRoles =
+            new HashSet<RequiredRole>();
 
     // data names
     private final String[] requiredDatas;
@@ -87,12 +89,12 @@ public class Node {
         return this.identities.size();
     }
 
-    Enumeration getIdentities() {
+    Enumeration<Identity> getIdentities() {
         return this.identities.elements();
     }
 
     Identity getParticularIdentity(String iface) {
-        return (Identity) this.identities.get(iface);
+        return this.identities.get(iface);
     }
 
     boolean isAllIdentitiesRequired() {
@@ -103,7 +105,7 @@ public class Node {
         this.allIdentitiesRequired = allIdentitiesRequired;
     }
 
-    Iterator getRequiredRoles() {
+    Iterator<RequiredRole> getRequiredRoles() {
         return this.requiredRoles.iterator();
     }
 
@@ -126,7 +128,7 @@ public class Node {
     synchronized void addIdentity(String iface, Identity id)
             throws ContextBrokerException {
 
-        Identity perhaps = (Identity)this.identities.get(iface);
+        Identity perhaps = this.identities.get(iface);
         if (perhaps != null) {
             // Binding does not allow different NIC names in the real id's,
             // it must be the provides section's fault

@@ -30,7 +30,7 @@ public class ProvidedRole {
 
     private final String name;
 
-    private final ArrayList providers = new ArrayList(); // list of Identity
+    private final ArrayList<Identity> providers = new ArrayList<Identity>(); // list of Identity
     private final Object listLock = new Object();
 
     public ProvidedRole(String name) {
@@ -57,7 +57,7 @@ public class ProvidedRole {
         }
     }
 
-    public Iterator getProviders() {
+    public Iterator<Identity> getProviders() {
         synchronized(this.listLock) {
             return this.providers.iterator();
         }

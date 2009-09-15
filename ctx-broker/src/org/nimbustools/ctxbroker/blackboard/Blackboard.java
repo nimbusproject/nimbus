@@ -31,14 +31,7 @@ import org.nimbustools.ctxbroker.ContextBrokerException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.util.Hashtable;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Enumeration;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * Each resource gets one blackboard. Setting this up to keep its own
@@ -55,7 +48,7 @@ public class Blackboard {
 
     // The "database" of Blackboard objects
     // String ID --> Blackboard object
-    private static Hashtable all = new Hashtable(8);
+    private static Hashtable<String,Blackboard> all = new Hashtable<String, Blackboard>(8);
 
     private static final Node_Type[] NO_NODES_RESPONSE = new Node_Type[0];
 
@@ -65,24 +58,29 @@ public class Blackboard {
 
     private Requires_TypeIdentity[] allIdentityResponseCache = null;
 
+
     // All nodes this blackboard knows about.
     // Integer workspaceID --> Node object
-    private final Hashtable allNodes = new Hashtable(64);
+    private final Hashtable<Integer, Node> allNodes =
+            new Hashtable<Integer, Node>(64);
 
     // All provided roles this blackboard knows about.
     // String roleName --> ProvidedRole object
-    private final Hashtable allProvidedRoles = new Hashtable(16);
+    private final Hashtable<String, ProvidedRole> allProvidedRoles =
+            new Hashtable<String, ProvidedRole>(16);
 
     // All data this blackboard knows about.
     // String roleName --> RequiredData object
-    private final Hashtable allRequiredDatas = new Hashtable(16);
+    private final Hashtable<String, RequiredData> allRequiredDatas =
+            new Hashtable<String, RequiredData>(16);
 
     // All RequiredRole objects this blackboard knows about.
     // No key to use for a hashtable because each is not only the
     // name but host and key requirements also.  See RequiredRole
     // equals/hashCode method.  No need for a set lock because set is
     // always accessed and mutated under this.dbLock.
-    private final Set allRequiredRoles = new HashSet(16);
+    private final Set<RequiredRole> allRequiredRoles =
+            new HashSet<RequiredRole>(16);
 
     private boolean needsRefresh = true;
 
@@ -131,7 +129,7 @@ public class Blackboard {
             throw new IllegalArgumentException("id cannot be null");
         }
 
-        Blackboard bb = (Blackboard) all.get(id);
+        Blackboard bb = all.get(id);
         if (bb == null) {
             bb = new Blackboard(id);
             all.put(id, bb);
@@ -161,12 +159,11 @@ public class Blackboard {
 
             final MatchedRole_Type[] matchedRoles =
                     new MatchedRole_Type[this.allRequiredRoles.size()];
-            final Iterator iter = this.allRequiredRoles.iterator();
 
             int idx = 0;
-            while (iter.hasNext()) {
-                
-                final RequiredRole role = (RequiredRole) iter.next();
+            for (Object allRequiredRole : this.allRequiredRoles) {
+
+                final RequiredRole role = (RequiredRole) allRequiredRole;
                 final MatchedRole_Type matchedRole = new MatchedRole_Type();
 
                 matchedRole.setName(role.getName());
@@ -241,10 +238,7 @@ public class Blackboard {
         // look for provided roles not matched yet with required roles
 
         boolean oneNotCached = false;
-        final Iterator iter = this.allRequiredRoles.iterator();
-        while (iter.hasNext()) {
-
-            final RequiredRole requiredRole = (RequiredRole) iter.next();
+        for (RequiredRole requiredRole : this.allRequiredRoles) {
 
             if (tracebuf != null) {
                 tracebuf.append("Required role: ")
@@ -255,9 +249,8 @@ public class Blackboard {
             // delete old list and start over:
             requiredRole.clearProviders();
 
-            final ProvidedRole providedRole = (ProvidedRole)
-                        this.allProvidedRoles.get(requiredRole.getName());
-            
+            final ProvidedRole providedRole = this.allProvidedRoles.get(requiredRole.getName());
+
             if (providedRole == null) {
                 if (tracebuf != null) {
                     tracebuf.append("  - Found no providers\n");
@@ -267,9 +260,9 @@ public class Blackboard {
             }
 
             int count = 0;
-            final Iterator iter2 = providedRole.getProviders();
+            final Iterator<Identity> iter2 = providedRole.getProviders();
             while (iter2.hasNext()) {
-                requiredRole.addProvider((Identity) iter2.next());
+                requiredRole.addProvider(iter2.next());
                 count += 1;
             }
 
@@ -332,10 +325,10 @@ public class Blackboard {
 
             boolean invalid = false;
 
-            ArrayList allIdentities = new ArrayList();
-            Enumeration nodes = this.allNodes.elements();
+            ArrayList<Requires_TypeIdentity> allIdentities = new ArrayList<Requires_TypeIdentity>();
+            Enumeration<Node> nodes = this.allNodes.elements();
             while (nodes.hasMoreElements()) {
-                Node node = (Node) nodes.nextElement();
+                Node node = nodes.nextElement();
                 Enumeration ids = node.getIdentities();
                 while (ids.hasMoreElements()) {
 
@@ -403,7 +396,7 @@ public class Blackboard {
             } else {
                 
                 this.allIdentityResponseCache =
-                        (Requires_TypeIdentity[]) allIdentities.toArray(
+                        allIdentities.toArray(
                               new Requires_TypeIdentity[allIdentities.size()]);
                 
                 if (tracebuf != null) {
@@ -464,6 +457,7 @@ public class Blackboard {
      *        (avoids needing to clone it).
      * @param requires the provided requires document if it exists
      * @param provides the provided provides document if it exists
+     * @param totalNodesFromAgent total number of nodes reported by ctx agent
      * @throws ContextBrokerException illegalities
      */
     public void addWorkspace(Integer workspaceID,
@@ -520,7 +514,7 @@ public class Blackboard {
             // invalidate cache if it existed
             this.allIdentityResponseCache = null;
 
-            Node node = (Node) this.allNodes.get(workspaceID);
+            Node node = this.allNodes.get(workspaceID);
             if (node != null) {
                 throw new ContextBrokerException("Blackboard has " +
                         "already added node with ID #" + workspaceID);
@@ -573,7 +567,7 @@ public class Blackboard {
                                    Identity[] identities)
             throws ContextBrokerException {
 
-        int workspaceID = node.getId().intValue();
+        int workspaceID = node.getId();
 
         IdentityProvides_Type[] givenIDs = provides.getIdentity();
         if (givenIDs == null || givenIDs.length == 0) {
@@ -603,11 +597,10 @@ public class Blackboard {
 
         // match a real identity to each identity in provides
 
-        ArrayList homeless = new ArrayList();
-        for (int i = 0; i < givenIDs.length; i++) {
-            IdentityProvides_Type givenID = givenIDs[i];
+        ArrayList<IdentityProvides_Type> homeless = new ArrayList<IdentityProvides_Type>();
+        for (IdentityProvides_Type givenID : givenIDs) {
             String iface = givenID.get_interface();
-            
+
             boolean matched = false;
 
             // (if iface is null, put it into homeless via matched being false)
@@ -620,7 +613,7 @@ public class Blackboard {
                     }
 
                     if (identities[j].getIface() != null &&
-                        identities[j].getIface().equals(iface)) {
+                            identities[j].getIface().equals(iface)) {
 
                         matched = true;
                         node.addIdentity(iface, identities[j]);
@@ -652,12 +645,12 @@ public class Blackboard {
         if (logger.isDebugEnabled()) {
             int count = 0;
             StringBuffer buf = new StringBuffer();
-            for (int i = 0; i < identities.length; i++) {
-                if (identities[i] != null) {
+            for (Identity identity : identities) {
+                if (identity != null) {
                     count += 1;
                     buf.append("NIC not matched: ")
-                       .append(identities[i])
-                       .append("\n");
+                            .append(identity)
+                            .append("\n");
                 }
             }
             if (count == 0) {
@@ -677,14 +670,11 @@ public class Blackboard {
     // no args are null, but some identity array entries could be
     // returns number of identities not matched to a given (for sanity check)
     private static void placeHomelessGivens(Node node,
-                                            ArrayList homeless,
+                                            ArrayList<IdentityProvides_Type> homeless,
                                             Identity[] identities)
             throws ContextBrokerException {
 
-        Iterator iter = homeless.iterator();
-        while (iter.hasNext()) {
-            IdentityProvides_Type givenID =
-                            (IdentityProvides_Type) iter.next();
+        for (IdentityProvides_Type givenID : homeless) {
 
             if (givenID.get_interface() != null) {
                 throw new ContextBrokerException("An interface " +
@@ -719,9 +709,9 @@ public class Blackboard {
                                      Provides_TypeRole[] roles)
             throws ContextBrokerException {
 
-        for (int i = 0; i < roles.length; i++) {
+        for (Provides_TypeRole typeRole : roles) {
 
-            String roleName = roles[i].get_value();
+            String roleName = typeRole.get_value();
             if (roleName == null || roleName.trim().equals("")) {
                 // would not happen when object is created via XML
                 throw new ContextBrokerException("Empty role name (?)");
@@ -729,17 +719,17 @@ public class Blackboard {
 
             // we are still under this.dbLock lock, check then act here is ok
             ProvidedRole role =
-                    (ProvidedRole) this.allProvidedRoles.get(roleName);
+                    this.allProvidedRoles.get(roleName);
             if (role == null) {
                 role = new ProvidedRole(roleName);
                 this.allProvidedRoles.put(roleName, role);
             }
 
-            final String iface = roles[i].get_interface();
+            final String iface = typeRole.get_interface();
             if (iface != null) {
 
                 // only this specific interface provides the role
-                
+
                 final Identity identity = node.getParticularIdentity(iface);
                 if (identity == null) {
                     throw new ContextBrokerException("There is an " +
@@ -750,14 +740,14 @@ public class Blackboard {
                             "contextualize #" + node.getId());
                 }
                 role.addProvider(identity);
-                
+
             } else {
 
                 // each identity provides this role
 
                 final Enumeration identities = node.getIdentities();
                 while (identities.hasMoreElements()) {
-                    role.addProvider((Identity)identities.nextElement());
+                    role.addProvider((Identity) identities.nextElement());
                 }
             }
         }
@@ -768,7 +758,7 @@ public class Blackboard {
                                    Requires_Type requires)
             throws ContextBrokerException {
 
-        final int workspaceID = node.getId().intValue();
+        final int workspaceID = node.getId();
 
         final Requires_TypeIdentity[] givenID = requires.getIdentity();
         if (givenID == null || givenID.length == 0) {
@@ -831,15 +821,15 @@ public class Blackboard {
     private void _intakeData(Requires_TypeData[] datas)
             throws ContextBrokerException {
 
-        for (int i = 0; i < datas.length; i++) {
+        for (Requires_TypeData data : datas) {
 
-            final String dataName = datas[i].getName();
+            final String dataName = data.getName();
 
             if (dataName == null || dataName.trim().length() == 0) {
                 // does not happen when object is created via XML (which is usual)
                 throw new ContextBrokerException("Empty data element name (?)");
             }
-            this._newData(dataName, datas[i].get_value());
+            this._newData(dataName, data.get_value());
         }
     }
 
@@ -851,7 +841,7 @@ public class Blackboard {
         }
 
         // we are under this.dbLock lock, check then act here is ok
-        RequiredData data = (RequiredData) this.allRequiredDatas.get(name);
+        RequiredData data = this.allRequiredDatas.get(name);
         
         if (data == null) {
             data = new RequiredData(name);
@@ -865,14 +855,14 @@ public class Blackboard {
 
     private boolean isOneDataValuePresent(String dataname) {
         final RequiredData data =
-                (RequiredData) this.allRequiredDatas.get(dataname);
+                this.allRequiredDatas.get(dataname);
         return data != null && data.numValues() > 0;
     }
 
     // returns List of Requires_TypeData
-    private List getDataValues(String dataname) {
+    private List<Requires_TypeData> getDataValues(String dataname) {
         final RequiredData data =
-                (RequiredData) this.allRequiredDatas.get(dataname);
+                this.allRequiredDatas.get(dataname);
         if (data != null) {
             return data.getDataList();
         } else {
@@ -893,24 +883,24 @@ public class Blackboard {
         //     <role name="nfsserver" />
         //  </requires>
 
-        for (int i = 0; i < roles.length; i++) {
+        for (Requires_TypeRole typeRole : roles) {
 
             // name attribute is relevant for given requires roles, NOT value
-            final String roleName = roles[i].getName();
+            final String roleName = typeRole.getName();
             if (roleName == null || roleName.trim().equals("")) {
                 // does not happen when object is created via XML (which is usual)
                 throw new ContextBrokerException("Empty role name (?)");
             }
 
             boolean hostRequired = false;
-            if (roles[i].getHostname() != null &&
-                roles[i].getHostname().booleanValue()) {
+            if (typeRole.getHostname() != null &&
+                    typeRole.getHostname()) {
                 hostRequired = true;
             }
 
             boolean keyRequired = false;
-            if (roles[i].getPubkey() != null &&
-                roles[i].getPubkey().booleanValue()) {
+            if (typeRole.getPubkey() != null &&
+                    typeRole.getPubkey()) {
                 keyRequired = true;
             }
 
@@ -920,16 +910,16 @@ public class Blackboard {
             // exists (if so, throw away reference).  Not going to be 100s of
             // roles (yet...).
             RequiredRole role = new RequiredRole(roleName,
-                                                 hostRequired,
-                                                 keyRequired);
+                    hostRequired,
+                    keyRequired);
 
             // We expect a lot of duplicates, HashSet does not add if exists
             // in list already.
             boolean didNotExist = this.allRequiredRoles.add(role);
             if (didNotExist && logger.isTraceEnabled()) {
                 logger.trace("Found new RequiredRole for blackboard '" +
-                             this.id + "': " + role + " -- cardinality now " +
-                             this.allRequiredRoles.size());
+                        this.id + "': " + role + " -- cardinality now " +
+                        this.allRequiredRoles.size());
             }
 
             // Copy reference to node specific list.
@@ -942,9 +932,7 @@ public class Blackboard {
                 // It existed already.  We need to add the exact object to the
                 // node's required role's, not the duplicate we created above.
                 boolean found = false;
-                final Iterator iter = this.allRequiredRoles.iterator();
-                while (iter.hasNext()) {
-                    final RequiredRole aRole = (RequiredRole) iter.next();
+                for (RequiredRole aRole : this.allRequiredRoles) {
                     if (aRole.equals(role)) {
                         role = aRole;
                         found = true;
@@ -953,11 +941,11 @@ public class Blackboard {
                 }
                 if (!found) {
                     throw new ContextBrokerException("Set contained a " +
-                           "required role already but we cannot find the " +
-                           "object in the set's iterator (?).  Role: " + role);
+                            "required role already but we cannot find the " +
+                            "object in the set's iterator (?).  Role: " + role);
                 }
             }
-            
+
             didNotExist = node.addRequiredRole(role);
             if (!didNotExist) {
                 logger.warn("Client provided requires document with " +
@@ -986,7 +974,7 @@ public class Blackboard {
             throw new IllegalArgumentException("workspaceID cannot be null");
         }
         
-        final Node node = (Node) this.allNodes.get(workspaceID);
+        final Node node = this.allNodes.get(workspaceID);
         if (node == null) {
             throw new ContextBrokerException("Blackboard is not aware " +
                     "of node with ID #" + workspaceID);
@@ -998,9 +986,8 @@ public class Blackboard {
             if (identities != null) {
 
                 // trusting nodes' self assertions are sane/correct, for now
-                for (int i = 0; i < identities.length; i++) {
-                    
-                    final IdentityProvides_Type ident = identities[i];
+                for (final IdentityProvides_Type ident : identities) {
+
                     if (ident == null) {
                         // would not happen if objects come from XML
                         logger.warn("CTX retrieve request concerning node #" +
@@ -1022,11 +1009,11 @@ public class Blackboard {
                         // i.e., one that is not involved in contextualization
                         if (logger.isTraceEnabled()) {
                             logger.trace("Node #" + node.getId() +
-                                 " reporting about interface '" +
-                                 ident.get_interface() + "' that is not in " +
-                                 "its provides document (that's OK): ip = " +
-                                ident.getIp() + ", hostname = " +
-                                ident.getHostname());
+                                    " reporting about interface '" +
+                                    ident.get_interface() + "' that is not in " +
+                                    "its provides document (that's OK): ip = " +
+                                    ident.getIp() + ", hostname = " +
+                                    ident.getHostname());
                         }
                         continue;
                     }
@@ -1137,10 +1124,10 @@ public class Blackboard {
             }
         }
 
-        final ArrayList roleParts = new ArrayList();
-        ArrayList idParts = null;
+        final ArrayList<Requires_TypeRole> roleParts = new ArrayList<Requires_TypeRole>();
+        ArrayList<Requires_TypeIdentity> idParts = null;
         if (!node.isAllIdentitiesRequired()) {
-            idParts = new ArrayList();
+            idParts = new ArrayList<Requires_TypeIdentity>();
         }
 
         final Iterator iter = node.getRequiredRoles();
@@ -1186,8 +1173,7 @@ public class Blackboard {
         // there are no roles filled yet, there was already a return above.
         if (!roleParts.isEmpty()) {
             final Requires_TypeRole[] roles =
-                (Requires_TypeRole[]) roleParts.toArray(
-                                    new Requires_TypeRole[roleParts.size()]);
+                    roleParts.toArray(new Requires_TypeRole[roleParts.size()]);
 
             requires.setRole(roles);
         }
@@ -1197,7 +1183,7 @@ public class Blackboard {
 
         if (idParts != null) {
             final Requires_TypeIdentity[] ids =
-                    (Requires_TypeIdentity[]) idParts.toArray(
+                    idParts.toArray(
                             new Requires_TypeIdentity[idParts.size()]);
             requires.setIdentity(ids);
             if (logger.isTraceEnabled()) {
@@ -1209,16 +1195,16 @@ public class Blackboard {
         final String[] reqs = node.getRequiredDataNames();
         if (reqs != null && reqs.length > 0) {
 
-            final ArrayList reqDataList = new ArrayList();
-            for (int i = 0; i < reqs.length; i++) {
-                final List reqData = this.getDataValues(reqs[i]);
+            final ArrayList<Requires_TypeData> reqDataList = new ArrayList<Requires_TypeData>();
+            for (String req : reqs) {
+                final List<Requires_TypeData> reqData = this.getDataValues(req);
                 if (reqData != null) {
                     reqDataList.addAll(reqData);
                 }
             }
 
             final Requires_TypeData[] wsReqData =
-                    (Requires_TypeData[]) reqDataList.toArray(
+                    reqDataList.toArray(
                             new Requires_TypeData[reqDataList.size()]);
 
             requires.setData(wsReqData);
@@ -1235,7 +1221,7 @@ public class Blackboard {
     public void okExit(Integer workspaceID)
             throws ContextBrokerException {
 
-        final Node node = (Node) this.allNodes.get(workspaceID); 
+        final Node node = this.allNodes.get(workspaceID);
         if (node == null) {
             throw new ContextBrokerException("unknown workspace #" + workspaceID);
         }
@@ -1250,8 +1236,8 @@ public class Blackboard {
             result.okOccurred = true;
 
             // check if all are now OK
-            for (Enumeration e = this.allNodes.elements(); e.hasMoreElements();) {
-                final Node aNode = (Node) e.nextElement();
+            for (Enumeration<Node> e = this.allNodes.elements(); e.hasMoreElements();) {
+                final Node aNode = e.nextElement();
                 if (!aNode.getCtxResult().okOccurred) {
                     return;
                 }
@@ -1265,7 +1251,7 @@ public class Blackboard {
                           String errorMessage)
             throws ContextBrokerException {
 
-        final Node node = (Node) this.allNodes.get(workspaceID);
+        final Node node = this.allNodes.get(workspaceID);
         if (node == null) {
             throw new ContextBrokerException("unknown workspace #" + workspaceID);
         }
@@ -1288,17 +1274,17 @@ public class Blackboard {
 
     public Node_Type[] identities(boolean allNodess, String host, String ip) {
 
-        final List nodeList;
+        final List<Node> nodeList;
         if (allNodess) {
-            nodeList = new ArrayList(this.allNodes.size());
+            nodeList = new ArrayList<Node>(this.allNodes.size());
         } else {
-            nodeList = new ArrayList(1);
+            nodeList = new ArrayList<Node>(1);
         }
 
         synchronized (this.dbLock) {
 
             if (allNodess) {
-                for (Enumeration e = this.allNodes.elements(); e.hasMoreElements();) {
+                for (Enumeration<Node> e = this.allNodes.elements(); e.hasMoreElements();) {
                     nodeList.add(e.nextElement());
                 }
             } else {
@@ -1312,18 +1298,17 @@ public class Blackboard {
         }
     }
 
-    private static Node_Type[] getNodeResponse(List nodeList) {
+    private static Node_Type[] getNodeResponse(List<Node> nodeList) {
         if (nodeList.isEmpty()) {
             return NO_NODES_RESPONSE;
         }
-        final List resultList = new ArrayList(nodeList.size());
-        for (int i = 0; i < nodeList.size(); i++) {
-            final Node node = (Node) nodeList.get(i);
+        final List<Node_Type> resultList = new ArrayList<Node_Type>(nodeList.size());
+        for (final Node node : nodeList) {
             if (node != null) {
                 resultList.add(getOneNodeResponse(node));
             }
         }
-        return (Node_Type[]) resultList.toArray(
+        return resultList.toArray(
                         new Node_Type[resultList.size()]);
     }
 
@@ -1332,15 +1317,15 @@ public class Blackboard {
         final Node_Type xmlNode = new Node_Type();
 
         /* identities */
-        final List xmlIdentsList = new ArrayList(3);
+        final List<IdentityProvides_Type> xmlIdentsList = new ArrayList<IdentityProvides_Type>(3);
         for (Enumeration e = node.getIdentities(); e.hasMoreElements();) {
             final Identity ident = (Identity) e.nextElement();
             if (ident != null) {
                 xmlIdentsList.add(idToXML(ident));
             }
         }
-        final IdentityProvides_Type[] xmlIdents = 
-                (IdentityProvides_Type[]) xmlIdentsList.toArray(
+        final IdentityProvides_Type[] xmlIdents =
+                xmlIdentsList.toArray(
                         new IdentityProvides_Type[xmlIdentsList.size()]);
 
         xmlNode.setIdentity(xmlIdents);
@@ -1352,7 +1337,7 @@ public class Blackboard {
             xmlNode.setOk(true);
         } else if (status.errorOccurred) {
             xmlNode.setExited(true);
-            xmlNode.setErrorCode(new Short(status.errorCode));
+            xmlNode.setErrorCode(status.errorCode);
             xmlNode.setErrorMessage(status.errorMessage);
         } else {
             xmlNode.setExited(false);
@@ -1376,9 +1361,9 @@ public class Blackboard {
             return null;
         }
 
-        for (Enumeration e = this.allNodes.elements(); e.hasMoreElements();) {
+        for (Enumeration<Node> e = this.allNodes.elements(); e.hasMoreElements();) {
 
-            final Node node = (Node) e.nextElement();
+            final Node node = e.nextElement();
 
             for (Enumeration e2 = node.getIdentities(); e2.hasMoreElements();) {
                 final Identity ident = (Identity) e2.nextElement();
