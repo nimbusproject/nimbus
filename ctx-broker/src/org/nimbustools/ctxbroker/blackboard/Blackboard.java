@@ -455,28 +455,29 @@ public class Blackboard {
      *        What 'is' already based on creation request or initialization.
      *        Once passed to this method, caller must discard pointers
      *        (avoids needing to clone it).
-     * @param requires the provided requires document if it exists
-     * @param provides the provided provides document if it exists
      * @param totalNodesFromAgent total number of nodes reported by ctx agent
      * @throws ContextBrokerException illegalities
      */
     public void addWorkspace(Integer workspaceID,
                              Identity[] identities,
-                             Requires_Type requires,
-                             Provides_Type provides,
+                             Boolean allIdentitiesRequired,
+                             RequiredRole[] requiredRoles,
+                             DataPair[] requiredData,
+                             String[] providedInterfaces,
+                             ProvidedRoleDescription[] providedRoles,
                              int totalNodesFromAgent)
             throws ContextBrokerException {
 
         if (workspaceID == null) {
             throw new IllegalArgumentException("workspaceID cannot be null");
         }
-
+        /*
         if (provides == null && requires == null) {
             throw new IllegalArgumentException("Both provides and requires " +
                    "are null?  Don't add this workspace to the " +
                    "contextualization resource.  workspaceID #" + workspaceID);
         }
-
+        */
         if (identities == null || identities.length == 0) {
             throw new IllegalArgumentException("'real' identities cannot be " +
                         "null or empty, contextualization is not possible. " +
@@ -520,36 +521,28 @@ public class Blackboard {
                         "already added node with ID #" + workspaceID);
             }
 
-            String[] requiredDatas = null;
-            if (requires != null) {
-                final Requires_TypeData[] datas = requires.getData();
-                if (datas != null && datas.length > 0) {
+            String[] requiredDataNames = null;
+            if (requiredData != null && requiredData.length > 0) {
 
-                    // set up names of data this node needs
+                // set up names of data this node needs
 
-                    requiredDatas = new String[datas.length];
-                    for (int i = 0; i < datas.length; i++) {
-                        final String name = datas[i].getName();
-                        if (name == null || name.trim().length() == 0) {
-                            // does not happen when object is created via XML (which is usual)
-                            throw new ContextBrokerException("Empty data element name (?)");
-                        }
-                        requiredDatas[i] = name;
-                    }
-
-                    // If the contextualization definition included a value for
-                    // the data already, register it into the known-data store.
-                    // _intakeData also creates new RequiredData objects for any
-                    // newly seen data name (no matter if the value is present
-                    // or not).
-                    _intakeData(datas);
+                requiredDataNames = new String[requiredData.length];
+                for (int i = 0; i < requiredData.length; i++) {
+                    requiredDataNames[i] = requiredData[i].getName();
                 }
+
+                // If the contextualization definition included a value for
+                // the data already, register it into the known-data store.
+                // _intakeData also creates new RequiredData objects for any
+                // newly seen data name (no matter if the value is present
+                // or not).
+                _intakeData(requiredData);
             }
 
-            node = new Node(workspaceID, requiredDatas);
+            node = new Node(workspaceID, requiredDataNames);
 
             if (provides != null) {
-                this.handleNewProvides(node, provides, identities);
+                this.handleProvides(node, provides, identities);
                 // TODO: if problem, back out additions
             }
             if (requires != null) {
@@ -561,14 +554,15 @@ public class Blackboard {
         }
     }
 
-    // no args are null
-    private void handleNewProvides(Node node,
-                                   Provides_Type provides,
-                                   Identity[] identities)
+    private void handleProvides(Node node,
+                                Identity[] identities,
+                                String[] providesInterfaces,
+                                ProvidedRoleDescription[] providesRoles)
             throws ContextBrokerException {
 
-        int workspaceID = node.getId();
+        final int workspaceID = node.getId();
 
+        /* TODO move this check to WS layer
         IdentityProvides_Type[] givenIDs = provides.getIdentity();
         if (givenIDs == null || givenIDs.length == 0) {
             throw new ContextBrokerException("Provides section is " +
@@ -584,22 +578,18 @@ public class Blackboard {
                     "into contextualization context's all-identity " +
                     "list.");
         }
+        */
 
-        // Given ID length doesn't need to match real identity length, but it
-        // does need to at least equal it.
-        if (givenIDs.length > identities.length) {
-            throw new ContextBrokerException("Provides section has " +
-                    "more identities than the VM has NICs.  Cannot " +
-                    "contextualize #" + workspaceID + ".  Provides section " +
-                    "has " + givenIDs.length + " but there are only " +
-                    identities.length + " NICs from Logistics.");
+        if (providesInterfaces.length > identities.length) {
+            throw new ContextBrokerException("# "+workspaceID+" has more " +
+                    "provided interfaces ("+providesInterfaces.length +
+                    ") than identities"+identities.length+")");
         }
 
         // match a real identity to each identity in provides
 
-        ArrayList<IdentityProvides_Type> homeless = new ArrayList<IdentityProvides_Type>();
-        for (IdentityProvides_Type givenID : givenIDs) {
-            String iface = givenID.get_interface();
+        ArrayList<String> homeless = new ArrayList<String>();
+        for (String iface : providesInterfaces) {
 
             boolean matched = false;
 
@@ -623,7 +613,7 @@ public class Blackboard {
             }
 
             if (!matched) {
-                homeless.add(givenID);
+                homeless.add(iface);
             }
         }
 
@@ -634,12 +624,12 @@ public class Blackboard {
         }
 
         // sanity check
-        if (node.numIdentities() != givenIDs.length) {
+        if (node.numIdentities() != providesInterfaces.length) {
             throw new ContextBrokerException("Programming error, " +
                     "number of identities assigned does not equal number " +
                     "needed (?).  Cannot contextualize #" + workspaceID +
                     ". Assigned " + node.numIdentities() + " but " +
-                    givenIDs.length + " were needed.");
+                    providesInterfaces.length + " were needed.");
         }
 
         if (logger.isDebugEnabled()) {
@@ -662,24 +652,25 @@ public class Blackboard {
             }
         }
 
-        if (roles != null && roles.length > 0) {
-            this.handleProvidesRoles(node, roles);
+        if (providesRoles != null && providesRoles.length > 0) {
+            this.handleProvidesRoles(node, providesRoles);
         }
     }
+
 
     // no args are null, but some identity array entries could be
     // returns number of identities not matched to a given (for sanity check)
     private static void placeHomelessGivens(Node node,
-                                            ArrayList<IdentityProvides_Type> homeless,
+                                            ArrayList<String> homeless,
                                             Identity[] identities)
             throws ContextBrokerException {
+        //TODO look at this more carefully, I'm pretty sure I broke it
+        for (String iface : homeless) {
 
-        for (IdentityProvides_Type givenID : homeless) {
-
-            if (givenID.get_interface() != null) {
+            if (iface != null) {
                 throw new ContextBrokerException("An interface " +
                         "specified in the provides section has no match in " +
-                        "logistics: '" + givenID.get_interface() + "'");
+                        "logistics: '" + iface + "'");
             }
 
             boolean matched = false;
@@ -706,16 +697,12 @@ public class Blackboard {
 
     // no args are null and roles.length > 0
     private void handleProvidesRoles(Node node,
-                                     Provides_TypeRole[] roles)
+                                     ProvidedRoleDescription[] roles)
             throws ContextBrokerException {
 
-        for (Provides_TypeRole typeRole : roles) {
+        for (ProvidedRoleDescription roleDesc : roles) {
 
-            String roleName = typeRole.get_value();
-            if (roleName == null || roleName.trim().equals("")) {
-                // would not happen when object is created via XML
-                throw new ContextBrokerException("Empty role name (?)");
-            }
+            final String roleName = roleDesc.getRoleName();
 
             // we are still under this.dbLock lock, check then act here is ok
             ProvidedRole role =
@@ -725,7 +712,7 @@ public class Blackboard {
                 this.allProvidedRoles.put(roleName, role);
             }
 
-            final String iface = typeRole.get_interface();
+            final String iface = roleDesc.getIface();
             if (iface != null) {
 
                 // only this specific interface provides the role
@@ -745,9 +732,9 @@ public class Blackboard {
 
                 // each identity provides this role
 
-                final Enumeration identities = node.getIdentities();
+                final Enumeration<Identity> identities = node.getIdentities();
                 while (identities.hasMoreElements()) {
-                    role.addProvider((Identity) identities.nextElement());
+                    role.addProvider(identities.nextElement());
                 }
             }
         }
@@ -760,6 +747,7 @@ public class Blackboard {
 
         final int workspaceID = node.getId();
 
+        boolean allIdentitiesRequired;
         final Requires_TypeIdentity[] givenID = requires.getIdentity();
         if (givenID == null || givenID.length == 0) {
             
@@ -767,7 +755,7 @@ public class Blackboard {
                     "identities, no identity element in given requires " +
                     "section");
 
-            node.setAllIdentitiesRequired(false);
+            allIdentitiesRequired = false;
 
         } else {
 
@@ -798,8 +786,10 @@ public class Blackboard {
                         "not contextualize #" + workspaceID + ".");
             }
 
-            node.setAllIdentitiesRequired(true);
+            allIdentitiesRequired = true;
         }
+
+        node.setAllIdentitiesRequired(allIdentitiesRequired);
 
         final Requires_TypeRole[] requiredRoles = requires.getRole();
 
@@ -818,18 +808,12 @@ public class Blackboard {
     }
 
     // no args are null and datas.length > 0, always call under this.dbLock
-    private void _intakeData(Requires_TypeData[] datas)
+    private void _intakeData(DataPair[] datas)
             throws ContextBrokerException {
 
-        for (Requires_TypeData data : datas) {
-
+        for (DataPair data : datas) {
             final String dataName = data.getName();
-
-            if (dataName == null || dataName.trim().length() == 0) {
-                // does not happen when object is created via XML (which is usual)
-                throw new ContextBrokerException("Empty data element name (?)");
-            }
-            this._newData(dataName, data.get_value());
+            this._newData(dataName, data.getValue());
         }
     }
 
@@ -872,46 +856,11 @@ public class Blackboard {
 
     // no args are null and roles.length > 0
     private void handleRequiredRoles(Node node,
-                                     Requires_TypeRole[] roles)
+                                     RequiredRole[] roles)
             throws ContextBrokerException {
 
 
-        // SAMPLE
-        //   <requires>
-        //     <identity />
-        //     <role name="torqueserver" hostname="true" pubkey="true" />
-        //     <role name="nfsserver" />
-        //  </requires>
-
-        for (Requires_TypeRole typeRole : roles) {
-
-            // name attribute is relevant for given requires roles, NOT value
-            final String roleName = typeRole.getName();
-            if (roleName == null || roleName.trim().equals("")) {
-                // does not happen when object is created via XML (which is usual)
-                throw new ContextBrokerException("Empty role name (?)");
-            }
-
-            boolean hostRequired = false;
-            if (typeRole.getHostname() != null &&
-                    typeRole.getHostname()) {
-                hostRequired = true;
-            }
-
-            boolean keyRequired = false;
-            if (typeRole.getPubkey() != null &&
-                    typeRole.getPubkey()) {
-                keyRequired = true;
-            }
-
-            // we are still under this.dbLock lock, check then act here is ok
-
-            // Create potential new one and use hashCode() to see if it already
-            // exists (if so, throw away reference).  Not going to be 100s of
-            // roles (yet...).
-            RequiredRole role = new RequiredRole(roleName,
-                    hostRequired,
-                    keyRequired);
+        for (RequiredRole role : roles) {
 
             // We expect a lot of duplicates, HashSet does not add if exists
             // in list already.
@@ -957,6 +906,46 @@ public class Blackboard {
         }
     }
 
+    // TODO should be moved to WS layer
+    private RequiredRole getRequiredRole(Requires_TypeRole typeRole) throws ContextBrokerException {
+
+
+        // SAMPLE
+        //   <requires>
+        //     <identity />
+        //     <role name="torqueserver" hostname="true" pubkey="true" />
+        //     <role name="nfsserver" />
+        //  </requires>
+
+        // name attribute is relevant for given requires roles, NOT value
+        final String roleName = typeRole.getName();
+        if (roleName == null || roleName.trim().equals("")) {
+            // does not happen when object is created via XML (which is usual)
+            throw new ContextBrokerException("Empty role name (?)");
+        }
+
+        boolean hostRequired = false;
+        if (typeRole.getHostname() != null &&
+                typeRole.getHostname()) {
+            hostRequired = true;
+        }
+
+        boolean keyRequired = false;
+        if (typeRole.getPubkey() != null &&
+                typeRole.getPubkey()) {
+            keyRequired = true;
+        }
+
+        // we are still under this.dbLock lock, check then act here is ok
+
+        // Create potential new one and use hashCode() to see if it already
+        // exists (if so, throw away reference).  Not going to be 100s of
+        // roles (yet...).
+        return new RequiredRole(roleName,
+                hostRequired,
+                keyRequired);
+    }
+
 
     // -------------------------------------------------------------------------
     // NODE RETRIEVAL/UPDATES
@@ -965,7 +954,7 @@ public class Blackboard {
     // (no service or client updates, VM assertions allowed)
     
     public Requires_Type retrieve(Integer workspaceID,
-                                  IdentityProvides_Type[] identities,
+                                  Identity[] identities,
                                   boolean returnOK)
 
                 throws ContextBrokerException {
@@ -986,7 +975,7 @@ public class Blackboard {
             if (identities != null) {
 
                 // trusting nodes' self assertions are sane/correct, for now
-                for (final IdentityProvides_Type ident : identities) {
+                for (final Identity ident : identities) {
 
                     if (ident == null) {
                         // would not happen if objects come from XML
@@ -994,14 +983,14 @@ public class Blackboard {
                                 node.getId() + " had null interface in list");
                         continue;
                     }
-                    if (ident.get_interface() == null) {
+                    if (ident.getIface() == null) {
                         logger.warn("CTX retrieve request concerning node #" +
                                 node.getId() + " did not include interface");
                         continue;
                     }
 
                     final Identity nodeID =
-                            node.getParticularIdentity(ident.get_interface());
+                            node.getParticularIdentity(ident.getIface());
 
                     if (nodeID == null) {
                         // this is OK, it means there is an interface that is
@@ -1010,7 +999,7 @@ public class Blackboard {
                         if (logger.isTraceEnabled()) {
                             logger.trace("Node #" + node.getId() +
                                     " reporting about interface '" +
-                                    ident.get_interface() + "' that is not in " +
+                                    ident.getIface() + "' that is not in " +
                                     "its provides document (that's OK): ip = " +
                                     ident.getIp() + ", hostname = " +
                                     ident.getHostname());

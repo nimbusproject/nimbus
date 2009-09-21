@@ -258,9 +258,21 @@ public class ContextBrokerResourceImpl implements ContextBrokerResource {
                                   IdentityProvides_Type[] identities)
             throws ContextBrokerException {
 
+        Identity[] bbIdentities = new Identity[identities.length];
+        for (int i = 0; i < identities.length; i++) {
+            IdentityProvides_Type id = identities[i];
+            bbIdentities[i] = new Identity(
+                    id.get_interface(),
+                    id.getIp(),
+                    id.getHostname(),
+                    id.getPubkey()
+                    );
+        }
+
+
         synchronized (this.statusLock) {
             return this.getBlackboard().retrieve(workspaceID,
-                                                 identities,
+                                                 bbIdentities,
                                                  this.noMoreInjections);
         }
     }

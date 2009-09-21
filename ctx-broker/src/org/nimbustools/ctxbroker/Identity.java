@@ -27,6 +27,16 @@ public class Identity {
     private String hostname = null;
     private String pubkey = null;
 
+
+    public Identity() {}
+
+    public Identity(String iface, String ip, String hostname, String pubkey) {
+        this.iface = iface;
+        this.ip = ip;
+        this.hostname = hostname;
+        this.pubkey = pubkey;
+    }
+
     
     // -------------------------------------------------------------------------
     // BEAN
