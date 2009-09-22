@@ -17,9 +17,7 @@
 package org.nimbustools.ctxbroker.blackboard;
 
 import org.nimbustools.ctxbroker.generated.gt4_0.description.Requires_Type;
-import org.nimbustools.ctxbroker.generated.gt4_0.description.Provides_Type;
 import org.nimbustools.ctxbroker.generated.gt4_0.description.IdentityProvides_Type;
-import org.nimbustools.ctxbroker.generated.gt4_0.description.Provides_TypeRole;
 import org.nimbustools.ctxbroker.generated.gt4_0.description.Requires_TypeIdentity;
 import org.nimbustools.ctxbroker.generated.gt4_0.description.Requires_TypeRole;
 import org.nimbustools.ctxbroker.generated.gt4_0.description.Requires_TypeData;
@@ -463,7 +461,6 @@ public class Blackboard {
                              Boolean allIdentitiesRequired,
                              RequiredRole[] requiredRoles,
                              DataPair[] requiredData,
-                             String[] providedInterfaces,
                              ProvidedRoleDescription[] providedRoles,
                              int totalNodesFromAgent)
             throws ContextBrokerException {
@@ -471,13 +468,6 @@ public class Blackboard {
         if (workspaceID == null) {
             throw new IllegalArgumentException("workspaceID cannot be null");
         }
-        /*
-        if (provides == null && requires == null) {
-            throw new IllegalArgumentException("Both provides and requires " +
-                   "are null?  Don't add this workspace to the " +
-                   "contextualization resource.  workspaceID #" + workspaceID);
-        }
-        */
         if (identities == null || identities.length == 0) {
             throw new IllegalArgumentException("'real' identities cannot be " +
                         "null or empty, contextualization is not possible. " +
@@ -540,158 +530,18 @@ public class Blackboard {
             }
 
             node = new Node(workspaceID, requiredDataNames);
+            for (Identity identity : identities) {
+                node.addIdentity(identity);
+            }
 
-            if (provides != null) {
-                this.handleProvides(node, provides, identities);
-                // TODO: if problem, back out additions
+            if (providedRoles != null && providedRoles.length > 0) {
+                this.handleProvidesRoles(node, providedRoles);
             }
-            if (requires != null) {
-                handleNewRequires(node, requires);
-            }
+
+            handleNewRequires(node, allIdentitiesRequired, requiredRoles);
 
             this.allNodes.put(workspaceID, node);
             this.refreshNowNeeded();
-        }
-    }
-
-    private void handleProvides(Node node,
-                                Identity[] identities,
-                                String[] providesInterfaces,
-                                ProvidedRoleDescription[] providesRoles)
-            throws ContextBrokerException {
-
-        final int workspaceID = node.getId();
-
-        /* TODO move this check to WS layer
-        IdentityProvides_Type[] givenIDs = provides.getIdentity();
-        if (givenIDs == null || givenIDs.length == 0) {
-            throw new ContextBrokerException("Provides section is " +
-                    "present but has no identity elements.  Will not " +
-                    "contextualize #" + workspaceID + ".");
-        }
-
-        Provides_TypeRole[] roles = provides.getRole();
-        if (roles == null || roles.length == 0) {
-            logger.trace("Provides section for #" + workspaceID + " has " +
-                    "identities but has no role-provides elements.  " +
-                    "Allowing, perhaps this is only to get identity " +
-                    "into contextualization context's all-identity " +
-                    "list.");
-        }
-        */
-
-        if (providesInterfaces.length > identities.length) {
-            throw new ContextBrokerException("# "+workspaceID+" has more " +
-                    "provided interfaces ("+providesInterfaces.length +
-                    ") than identities"+identities.length+")");
-        }
-
-        // match a real identity to each identity in provides
-
-        ArrayList<String> homeless = new ArrayList<String>();
-        for (String iface : providesInterfaces) {
-
-            boolean matched = false;
-
-            // (if iface is null, put it into homeless via matched being false)
-            if (iface != null) {
-                for (int j = 0; j < identities.length; j++) {
-
-                    // if marked taken already:
-                    if (identities[j] == null) {
-                        continue;
-                    }
-
-                    if (identities[j].getIface() != null &&
-                            identities[j].getIface().equals(iface)) {
-
-                        matched = true;
-                        node.addIdentity(iface, identities[j]);
-                        identities[j] = null; // mark this as taken
-                    }
-                }
-            }
-
-            if (!matched) {
-                homeless.add(iface);
-            }
-        }
-
-        // only handles allocate+configure
-
-        if (!homeless.isEmpty()) {
-            placeHomelessGivens(node, homeless, identities);
-        }
-
-        // sanity check
-        if (node.numIdentities() != providesInterfaces.length) {
-            throw new ContextBrokerException("Programming error, " +
-                    "number of identities assigned does not equal number " +
-                    "needed (?).  Cannot contextualize #" + workspaceID +
-                    ". Assigned " + node.numIdentities() + " but " +
-                    providesInterfaces.length + " were needed.");
-        }
-
-        if (logger.isDebugEnabled()) {
-            int count = 0;
-            StringBuffer buf = new StringBuffer();
-            for (Identity identity : identities) {
-                if (identity != null) {
-                    count += 1;
-                    buf.append("NIC not matched: ")
-                            .append(identity)
-                            .append("\n");
-                }
-            }
-            if (count == 0) {
-                logger.trace("CTX-" + workspaceID + ": " +
-                             "All NICs were matched.");
-            } else {
-                logger.trace("CTX=" + workspaceID + ": " + count + " Some " +
-                             "NICs were not matched:\n" + buf.toString());
-            }
-        }
-
-        if (providesRoles != null && providesRoles.length > 0) {
-            this.handleProvidesRoles(node, providesRoles);
-        }
-    }
-
-
-    // no args are null, but some identity array entries could be
-    // returns number of identities not matched to a given (for sanity check)
-    private static void placeHomelessGivens(Node node,
-                                            ArrayList<String> homeless,
-                                            Identity[] identities)
-            throws ContextBrokerException {
-        //TODO look at this more carefully, I'm pretty sure I broke it
-        for (String iface : homeless) {
-
-            if (iface != null) {
-                throw new ContextBrokerException("An interface " +
-                        "specified in the provides section has no match in " +
-                        "logistics: '" + iface + "'");
-            }
-
-            boolean matched = false;
-            for (int i = 0; i < identities.length; i++) {
-
-                // if not marked as taken:
-                if (identities[i] != null) {
-                    matched = true;
-                    node.addIdentity(identities[i].getIface(), identities[i]);
-                    // no need to mark as null anymore except for logging
-                    identities[i] = null;
-                }
-            }
-            if (!matched) {
-                // Should not happen, we know there must be enough left in
-                // identities.  In the future when more is looked at to find
-                // a homeless match (see EC2FUDGE comments above), this may
-                // be a real possibility.
-                throw new ContextBrokerException("Could not find an " +
-                        "identity to match with given");
-            }
         }
     }
 
@@ -741,57 +591,13 @@ public class Blackboard {
     }
 
     // no args are null
-    private void handleNewRequires(Node node,
-                                   Requires_Type requires)
+    private void handleNewRequires(Node node, boolean allIdentitiesRequired,
+                                   RequiredRole[] requiredRoles)
             throws ContextBrokerException {
 
         final int workspaceID = node.getId();
 
-        boolean allIdentitiesRequired;
-        final Requires_TypeIdentity[] givenID = requires.getIdentity();
-        if (givenID == null || givenID.length == 0) {
-            
-            logger.trace("#" + workspaceID + " does not require all " +
-                    "identities, no identity element in given requires " +
-                    "section");
-
-            allIdentitiesRequired = false;
-
-        } else {
-
-            // next two exceptions are for forwards compatibility where it
-            // may be possible to specify specific identities required
-            // (without going through role finding which will always place
-            // identities in the filled requires document for a role,
-            // regardless if all identities are required or not).
-
-            if (givenID.length > 1) {
-                throw new ContextBrokerException("Given requires " +
-                        "section has multiple identity elements? Currently " +
-                        "only supporting zero or one empty identity element " +
-                        "in requires section (which signals all identities " +
-                        "are desired).  Will not contextualize #" +
-                        workspaceID + ".");
-            }
-
-            if (givenID[0].getHostname() != null ||
-                givenID[0].getIp() != null ||
-                givenID[0].getPubkey() != null) {
-
-                throw new ContextBrokerException("Given requires " +
-                        "section has an identity element with information " +
-                        "in it? Currently only supporting zero or one " +
-                        "*empty* identity element in requires section " +
-                        "(which signals all identities are desired).  Will " +
-                        "not contextualize #" + workspaceID + ".");
-            }
-
-            allIdentitiesRequired = true;
-        }
-
         node.setAllIdentitiesRequired(allIdentitiesRequired);
-
-        final Requires_TypeRole[] requiredRoles = requires.getRole();
 
         if (requiredRoles != null && requiredRoles.length > 0) {
             
@@ -904,46 +710,6 @@ public class Blackboard {
                         node.getId());
             }
         }
-    }
-
-    // TODO should be moved to WS layer
-    private RequiredRole getRequiredRole(Requires_TypeRole typeRole) throws ContextBrokerException {
-
-
-        // SAMPLE
-        //   <requires>
-        //     <identity />
-        //     <role name="torqueserver" hostname="true" pubkey="true" />
-        //     <role name="nfsserver" />
-        //  </requires>
-
-        // name attribute is relevant for given requires roles, NOT value
-        final String roleName = typeRole.getName();
-        if (roleName == null || roleName.trim().equals("")) {
-            // does not happen when object is created via XML (which is usual)
-            throw new ContextBrokerException("Empty role name (?)");
-        }
-
-        boolean hostRequired = false;
-        if (typeRole.getHostname() != null &&
-                typeRole.getHostname()) {
-            hostRequired = true;
-        }
-
-        boolean keyRequired = false;
-        if (typeRole.getPubkey() != null &&
-                typeRole.getPubkey()) {
-            keyRequired = true;
-        }
-
-        // we are still under this.dbLock lock, check then act here is ok
-
-        // Create potential new one and use hashCode() to see if it already
-        // exists (if so, throw away reference).  Not going to be 100s of
-        // roles (yet...).
-        return new RequiredRole(roleName,
-                hostRequired,
-                keyRequired);
     }
 
 
@@ -1371,6 +1137,6 @@ public class Blackboard {
 
         return null;
     }
-    
-    
+
+
 }

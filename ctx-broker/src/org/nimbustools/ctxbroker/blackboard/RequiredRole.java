@@ -61,7 +61,7 @@ public class RequiredRole {
     // CONSTRUCTOR
     // -------------------------------------------------------------------------
 
-    RequiredRole(String name,
+    public RequiredRole(String name,
                  boolean hostnameRequired,
                  boolean pubkeyRequired) {
         this.name = name;

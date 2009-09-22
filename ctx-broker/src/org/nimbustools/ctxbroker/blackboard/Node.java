@@ -125,6 +125,10 @@ public class Node {
     // ADDITIONS
     // -------------------------------------------------------------------------
 
+    void addIdentity(Identity id) throws ContextBrokerException {
+        this.addIdentity(id.getIface(), id);
+    }
+
     synchronized void addIdentity(String iface, Identity id)
             throws ContextBrokerException {
 

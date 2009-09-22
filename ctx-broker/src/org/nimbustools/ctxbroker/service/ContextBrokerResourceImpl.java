@@ -30,15 +30,19 @@ import org.nimbustools.ctxbroker.BrokerConstants;
 import org.nimbustools.ctxbroker.ContextBrokerException;
 import org.nimbustools.ctxbroker.generated.gt4_0.types.Node_Type;
 import org.nimbustools.ctxbroker.generated.gt4_0.types.ContextualizationContext;
-import org.nimbustools.ctxbroker.generated.gt4_0.description.Requires_Type;
-import org.nimbustools.ctxbroker.generated.gt4_0.description.IdentityProvides_Type;
-import org.nimbustools.ctxbroker.generated.gt4_0.description.Provides_Type;
+import org.nimbustools.ctxbroker.generated.gt4_0.description.*;
 import org.nimbustools.ctxbroker.blackboard.Blackboard;
+import org.nimbustools.ctxbroker.blackboard.RequiredRole;
+import org.nimbustools.ctxbroker.blackboard.DataPair;
+import org.nimbustools.ctxbroker.blackboard.ProvidedRoleDescription;
 import org.globus.security.gridmap.GridMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.util.Calendar;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class ContextBrokerResourceImpl implements ContextBrokerResource {
 
@@ -289,9 +293,172 @@ public class ContextBrokerResourceImpl implements ContextBrokerResource {
                              int totalNodes)
             throws ContextBrokerException {
 
-        this.getBlackboard().addWorkspace(workspaceID, identities,
-                                          requires, provides, totalNodes);
+        if (provides == null && requires == null) {
+            throw new IllegalArgumentException("Both provides and requires " +
+                   "are null?  Don't add this workspace to the " +
+                   "contextualization resource.  workspaceID #" + workspaceID);
+        }
+
+        boolean allIdentitiesRequired;
+        final Requires_TypeIdentity[] givenID = requires.getIdentity();
+        if (givenID == null || givenID.length == 0) {
+
+            logger.trace("#" + workspaceID + " does not require all " +
+                    "identities, no identity element in given requires " +
+                    "section");
+
+            allIdentitiesRequired = false;
+
+        } else {
+
+            // next two exceptions are for forwards compatibility where it
+            // may be possible to specify specific identities required
+            // (without going through role finding which will always place
+            // identities in the filled requires document for a role,
+            // regardless if all identities are required or not).
+
+            if (givenID.length > 1) {
+                throw new ContextBrokerException("Given requires " +
+                        "section has multiple identity elements? Currently " +
+                        "only supporting zero or one empty identity element " +
+                        "in requires section (which signals all identities " +
+                        "are desired).  Will not contextualize #" +
+                        workspaceID + ".");
+            }
+
+            if (givenID[0].getHostname() != null ||
+                givenID[0].getIp() != null ||
+                givenID[0].getPubkey() != null) {
+
+                throw new ContextBrokerException("Given requires " +
+                        "section has an identity element with information " +
+                        "in it? Currently only supporting zero or one " +
+                        "*empty* identity element in requires section " +
+                        "(which signals all identities are desired).  Will " +
+                        "not contextualize #" + workspaceID + ".");
+            }
+
+            allIdentitiesRequired = true;
+        }
+
+        this.getBlackboard().addWorkspace(
+                workspaceID,
+                identities,
+                allIdentitiesRequired,
+                getRequiredRoles(workspaceID, requires),
+                getDataPairs(requires),
+                getProvidedRoleDescriptions(workspaceID, provides),
+                totalNodes);
     }
+
+    private ProvidedRoleDescription[] getProvidedRoleDescriptions(Integer workspaceID,
+                                                                  Provides_Type provides) {
+
+        Provides_TypeRole[] roles = provides.getRole();
+        if (roles == null || roles.length == 0) {
+            logger.trace("Provides section for #" + workspaceID + " has " +
+                    "identities but has no role-provides elements.  " +
+                    "Allowing, perhaps this is only to get identity " +
+                    "into contextualization context's all-identity " +
+                    "list.");
+            return null;
+        }
+
+        ProvidedRoleDescription[] roleDescs =
+                new ProvidedRoleDescription[roles.length];
+        
+        for (int i = 0; i < roles.length; i++) {
+            Provides_TypeRole role = roles[i];
+            roleDescs[i] = new ProvidedRoleDescription(
+                            role.get_value(),
+                            role.get_interface());
+        }
+        return roleDescs;
+    }
+
+    private RequiredRole[] getRequiredRoles(Integer workspaceID, Requires_Type requires)
+            throws ContextBrokerException {
+        final RequiredRole[] roles;
+        final Requires_TypeRole[] requiredRoles = requires.getRole();
+        if (requiredRoles != null && requiredRoles.length > 0) {
+            roles = new RequiredRole[requiredRoles.length];
+
+            for (int i = 0; i < requiredRoles.length; i++) {
+                Requires_TypeRole requiredRole = requiredRoles[i];
+                roles[i] = getRequiredRole(requiredRole);
+            }
+
+        } else {
+            roles = null;
+            if (logger.isTraceEnabled()) {
+                logger.trace("Requires section for #" + workspaceID + " has " +
+                        "no role-required elements." +
+                        "  Allowing, perhaps the only thing required by " +
+                        "this node is the contextualization context's " +
+                        "all-identity list and/or just data elements.");
+            }
+        }
+        return roles;
+    }
+
+    private DataPair[] getDataPairs(Requires_Type requires)
+            throws ContextBrokerException {
+
+        final DataPair[] dataPairs;
+        final Requires_TypeData[] datas = requires.getData();
+        if (datas != null) {
+            dataPairs = new DataPair[datas.length];
+            for (int i = 0; i < datas.length; i++) {
+                Requires_TypeData data = datas[i];
+                final String dataName = data.getName();
+
+                if (dataName == null || dataName.trim().length() == 0) {
+                    // does not happen when object is created via XML (which is usual)
+                    throw new ContextBrokerException("Empty data element name (?)");
+                }
+                dataPairs[i] = new DataPair(dataName, data.get_value());
+            }
+
+        } else {
+            dataPairs = null;
+        }
+        return dataPairs;
+    }
+
+    private RequiredRole getRequiredRole(Requires_TypeRole typeRole) throws ContextBrokerException {
+
+
+        // SAMPLE
+        //   <requires>
+        //     <identity />
+        //     <role name="torqueserver" hostname="true" pubkey="true" />
+        //     <role name="nfsserver" />
+        //  </requires>
+
+        // name attribute is relevant for given requires roles, NOT value
+        final String roleName = typeRole.getName();
+        if (roleName == null || roleName.trim().equals("")) {
+            // does not happen when object is created via XML (which is usual)
+            throw new ContextBrokerException("Empty role name (?)");
+        }
+
+        boolean hostRequired = false;
+        if (typeRole.getHostname() != null &&
+                typeRole.getHostname()) {
+            hostRequired = true;
+        }
+
+        boolean keyRequired = false;
+        if (typeRole.getPubkey() != null &&
+                typeRole.getPubkey()) {
+            keyRequired = true;
+        }
+
+        return new RequiredRole(roleName,
+                hostRequired,
+                keyRequired);
+    }
+
     
 
     // -------------------------------------------------------------------------
