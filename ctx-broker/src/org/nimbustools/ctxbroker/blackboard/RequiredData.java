@@ -16,7 +16,6 @@
 
 package org.nimbustools.ctxbroker.blackboard;
 
-import org.nimbustools.ctxbroker.generated.gt4_0.description.Requires_TypeData;
 
 import java.util.List;
 import java.util.ArrayList;

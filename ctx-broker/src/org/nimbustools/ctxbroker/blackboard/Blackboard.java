@@ -16,9 +16,6 @@
 
 package org.nimbustools.ctxbroker.blackboard;
 
-import org.nimbustools.ctxbroker.generated.gt4_0.description.IdentityProvides_Type;
-import org.nimbustools.ctxbroker.generated.gt4_0.types.ContextualizationContext;
-import org.nimbustools.ctxbroker.generated.gt4_0.types.MatchedRole_Type;
 import org.nimbustools.ctxbroker.Identity;
 import org.nimbustools.ctxbroker.ContextBrokerException;
 import org.apache.commons.logging.Log;
@@ -130,44 +127,19 @@ public class Blackboard {
         }
     }
 
-
-    // -------------------------------------------------------------------------
-    // NEW CONTEXT (RESOURCE PROP STUFF)
-    // -------------------------------------------------------------------------
-
-    public ContextualizationContext newContext(boolean noMoreInjections) {
-
-        final ContextualizationContext context = new ContextualizationContext();
-
-        context.setNoMoreInjections(noMoreInjections);
-
+    public CtxStatus getStatus() {
         synchronized (this.dbLock) {
+            CtxStatus status = new CtxStatus();
 
-            context.setAllOK(this.allOK);
-            context.setErrorPresent(this.oneErrorOccured);
+            status.setAllOk(this.allOK);
+            status.setComplete(isComplete());
+            status.setErrorOccurred(this.oneErrorOccured);
 
-            context.setComplete(this.isComplete());
+            status.setPresentNodeCount(this.numNodes);
+            status.setTotalNodeCount(this.totalNodes);
 
-            final MatchedRole_Type[] matchedRoles =
-                    new MatchedRole_Type[this.allRequiredRoles.size()];
-
-            int idx = 0;
-            for (Object allRequiredRole : this.allRequiredRoles) {
-
-                final RequiredRole role = (RequiredRole) allRequiredRole;
-                final MatchedRole_Type matchedRole = new MatchedRole_Type();
-
-                matchedRole.setName(role.getName());
-                matchedRole.setNumFilledProviders(role.getFilledNum());
-                matchedRole.setNumProvidersInContext(role.getProviderNum());
-
-                matchedRoles[idx] = matchedRole;
-                idx++;
-            }
-            
-            context.setMatchedRole(matchedRoles);
+            return status;
         }
-        return context;
     }
 
     boolean isComplete() {

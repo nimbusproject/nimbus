@@ -30,6 +30,7 @@ import org.nimbustools.ctxbroker.BrokerConstants;
 import org.nimbustools.ctxbroker.ContextBrokerException;
 import org.nimbustools.ctxbroker.generated.gt4_0.types.Node_Type;
 import org.nimbustools.ctxbroker.generated.gt4_0.types.ContextualizationContext;
+import org.nimbustools.ctxbroker.generated.gt4_0.types.MatchedRole_Type;
 import org.nimbustools.ctxbroker.generated.gt4_0.description.*;
 import org.nimbustools.ctxbroker.blackboard.*;
 import org.globus.security.gridmap.GridMap;
@@ -625,13 +626,26 @@ public class ContextBrokerResourceImpl implements ContextBrokerResource {
 
     /*  For ReflectionResourceProperty RP_CONTEXTUALIZATION_CONTEXT */
     public ContextualizationContext getContextualizationContext() {
+
+        final CtxStatus status;
         try {
-            return this.getBlackboard().newContext(this.noMoreInjections);
+            status = this.getBlackboard().getStatus();
         } catch (ContextBrokerException e) {
             logger.error("Problem: returning null contextualization context " +
-                        "RP for '" + this.resourceID + "': " + e.getMessage());
+                    "RP for '" + this.resourceID + "': " + e.getMessage());
             return null;
         }
+
+        final ContextualizationContext context = new ContextualizationContext();
+
+        context.setNoMoreInjections(noMoreInjections);
+
+        context.setAllOK(status.isAllOk());
+        context.setErrorPresent(status.isErrorOccurred());
+
+        context.setComplete(status.isComplete());
+
+        return context;
     }
 
 
