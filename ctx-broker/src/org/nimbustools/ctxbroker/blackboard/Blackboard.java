@@ -16,11 +16,7 @@
 
 package org.nimbustools.ctxbroker.blackboard;
 
-import org.nimbustools.ctxbroker.generated.gt4_0.description.Requires_Type;
 import org.nimbustools.ctxbroker.generated.gt4_0.description.IdentityProvides_Type;
-import org.nimbustools.ctxbroker.generated.gt4_0.description.Requires_TypeIdentity;
-import org.nimbustools.ctxbroker.generated.gt4_0.description.Requires_TypeRole;
-import org.nimbustools.ctxbroker.generated.gt4_0.description.Requires_TypeData;
 import org.nimbustools.ctxbroker.generated.gt4_0.types.ContextualizationContext;
 import org.nimbustools.ctxbroker.generated.gt4_0.types.MatchedRole_Type;
 import org.nimbustools.ctxbroker.generated.gt4_0.types.Node_Type;
@@ -54,7 +50,7 @@ public class Blackboard {
     // INSTANCE VARIABLES
     // -------------------------------------------------------------------------
 
-    private Requires_TypeIdentity[] allIdentityResponseCache = null;
+    private Identity[] allIdentityCache = null;
 
 
     // All nodes this blackboard knows about.
@@ -98,7 +94,7 @@ public class Blackboard {
     private int numNodes = 0;
     private int totalNodes = 0;
 
-    
+
     // -------------------------------------------------------------------------
     // CONSTRUCTOR
     // -------------------------------------------------------------------------
@@ -235,7 +231,6 @@ public class Blackboard {
 
         // look for provided roles not matched yet with required roles
 
-        boolean oneNotCached = false;
         for (RequiredRole requiredRole : this.allRequiredRoles) {
 
             if (tracebuf != null) {
@@ -269,141 +264,57 @@ public class Blackboard {
                         .append(count)
                         .append(" providers\n");
             }
+        }
 
-            // Pre-fetch RequiredRole response cache, this also gives us
-            // information about all identities.  Calling this with
-            // suppressIncomplete=false would make no sense here.
-            final Object o = requiredRole.getResponsePieces(true, false);
-            if (o == null) {
-                stillNeedsRefresh = true;
-                oneNotCached = true;
-                if (tracebuf != null) {
-                    tracebuf.append("  - Its response is not entirely ")
-                            .append("cachable yet\n");
+
+        // check the current node count against the expected node count
+
+        if (this.totalNodes > 0 &&
+                this.totalNodes == this.numNodes) {
+
+            ArrayList<Identity> allIdentities =
+                    new ArrayList<Identity>();
+            Enumeration<Node> nodes = this.allNodes.elements();
+            while (nodes.hasMoreElements()) {
+                Node node = nodes.nextElement();
+                Enumeration<Identity> ids = node.getIdentities();
+                while (ids.hasMoreElements()) {
+                    allIdentities.add(ids.nextElement());
                 }
             }
-        }
-        
-        if (tracebuf != null) {
-            tracebuf.append(
-                    "All-identities cached response:\n");
-        }
-        
-        if (oneNotCached) {
 
-            // If response is not cachable yet it means there is a required
-            // role with an identity that has missing information, therefore
-            // we cannot provide an allIdentity response yet.
+            this.allIdentityCache =
+                    allIdentities.toArray(
+                            new Identity[allIdentities.size()]);
 
-            if (this.allIdentityResponseCache != null) {
+            if (tracebuf != null) {
+                tracebuf.append("  - Instantiated, number of identities: ")
+                        .append(this.allIdentityCache.length)
+                        .append("\n");
+            }
 
-                this.allIdentityResponseCache = null;
+        } else {
+
+            if (this.allIdentityCache != null) {
+
+                this.allIdentityCache = null;
                 if (tracebuf != null) {
-                    tracebuf.append("  - Invalidated via oneNotCached\n");
+                    tracebuf.append("  - Invalidated because of missing ")
+                            .append("IP or hostname\n");
                 }
-                
+
             } else {
+
                 if (tracebuf != null) {
-                    tracebuf.append("  - Not present\n");
+                    tracebuf.append("  - Remains invalid because of ")
+                            .append("missing nodes\n");
                 }
             }
 
             stillNeedsRefresh = true;
-            
-        } else {
-            
-            // The inverse is not entirely true though.  There could still be
-            // identities to add to all-identities even if they fulfill no
-            // current required role.
-            
-            // currently we assume that at least the hostname and IP must
-            // exist for an identity for it to be considered valid.
 
-            // check for any identities without IP and hostname
-
-            boolean invalid = false;
-
-            ArrayList<Requires_TypeIdentity> allIdentities = new ArrayList<Requires_TypeIdentity>();
-            Enumeration<Node> nodes = this.allNodes.elements();
-            while (nodes.hasMoreElements()) {
-                Node node = nodes.nextElement();
-                Enumeration ids = node.getIdentities();
-                while (ids.hasMoreElements()) {
-
-                    Identity id = (Identity) ids.nextElement();
-
-                    if (id.getIp() == null) {
-                        invalid = true;
-                        if (tracebuf != null) {
-                            tracebuf.append("Node #")
-                                    .append(node.getId())
-                                    .append(": Identity with interface '")
-                                    .append(id.getIface())
-                                    .append("' has no IP yet\n");
-                        }
-                    }
-
-                    if (id.getHostname() == null) {
-                        invalid = true;
-                        if (tracebuf != null) {
-                            tracebuf.append("Node #")
-                                    .append(node.getId())
-                                    .append(": Identity with interface '")
-                                    .append(id.getIface())
-                                    .append("' has no hostname yet\n");
-                        }
-                    }
-
-                    if (invalid) {
-                        break;
-                    }
-
-                    Requires_TypeIdentity responseID =
-                                                new Requires_TypeIdentity();
-                    responseID.setIp(id.getIp());
-                    responseID.setHostname(id.getHostname());
-                    responseID.setPubkey(id.getPubkey());
-                    allIdentities.add(responseID);
-                }
-                
-                if (invalid) {
-                    break;
-                }
-            }
-
-            if (invalid) {
-
-                if (this.allIdentityResponseCache != null) {
-
-                    this.allIdentityResponseCache = null;
-                    if (tracebuf != null) {
-                        tracebuf.append("  - Invalidated because of missing ")
-                                .append("IP or hostname\n");
-                    }
-                    
-                } else {
-                    
-                    if (tracebuf != null) {
-                        tracebuf.append("  - Remains invalid because of ")
-                                .append("missing IP or hostname\n");
-                    }
-                }
-
-                stillNeedsRefresh = true;
-
-            } else {
-                
-                this.allIdentityResponseCache =
-                        allIdentities.toArray(
-                              new Requires_TypeIdentity[allIdentities.size()]);
-                
-                if (tracebuf != null) {
-                    tracebuf.append("  - Instantiated, number of identities: ")
-                            .append(this.allIdentityResponseCache.length)
-                            .append("\n");
-                }
-            }
         }
+
 
         String tail = "\nFurther refresh";
         if (stillNeedsRefresh) {
@@ -503,7 +414,7 @@ public class Blackboard {
             }
 
             // invalidate cache if it existed
-            this.allIdentityResponseCache = null;
+            this.allIdentityCache = null;
 
             Node node = this.allNodes.get(workspaceID);
             if (node != null) {
@@ -650,7 +561,7 @@ public class Blackboard {
     }
 
     // returns List of Requires_TypeData
-    private List<Requires_TypeData> getDataValues(String dataname) {
+    private List<DataPair> getDataValues(String dataname) {
         final RequiredData data =
                 this.allRequiredDatas.get(dataname);
         if (data != null) {
@@ -719,9 +630,7 @@ public class Blackboard {
 
     // (no service or client updates, VM assertions allowed)
     
-    public Requires_Type retrieve(Integer workspaceID,
-                                  Identity[] identities,
-                                  boolean returnOK)
+    public NodeManifest retrieve(Integer workspaceID)
 
                 throws ContextBrokerException {
 
@@ -737,238 +646,71 @@ public class Blackboard {
 
         synchronized(this.dbLock) {
 
-            // request may send identity information
-            if (identities != null) {
+            this.refresh();
 
-                // trusting nodes' self assertions are sane/correct, for now
-                for (final Identity ident : identities) {
 
-                    if (ident == null) {
-                        // would not happen if objects come from XML
-                        logger.warn("CTX retrieve request concerning node #" +
-                                node.getId() + " had null interface in list");
-                        continue;
-                    }
-                    if (ident.getIface() == null) {
-                        logger.warn("CTX retrieve request concerning node #" +
-                                node.getId() + " did not include interface");
-                        continue;
-                    }
+            // Check if identities are available
 
-                    final Identity nodeID =
-                            node.getParticularIdentity(ident.getIface());
+            final List<Identity> identities;
+            final boolean allIdentities = node.isAllIdentitiesRequired();
+            if (allIdentities) {
 
-                    if (nodeID == null) {
-                        // this is OK, it means there is an interface that is
-                        // not part of the provides document for this node,
-                        // i.e., one that is not involved in contextualization
-                        if (logger.isTraceEnabled()) {
-                            logger.trace("Node #" + node.getId() +
-                                    " reporting about interface '" +
-                                    ident.getIface() + "' that is not in " +
-                                    "its provides document (that's OK): ip = " +
-                                    ident.getIp() + ", hostname = " +
-                                    ident.getHostname());
-                        }
-                        continue;
-                    }
+                if (this.allIdentityCache == null) {
 
-                    if (nodeID.getHostname() == null &&
-                            ident.getHostname() != null) {
+                    return null;
 
-                        nodeID.setHostname(ident.getHostname());
-                        this.refreshNowNeeded();
-                    }
-
-                    if (nodeID.getIp() == null &&
-                            ident.getIp() != null) {
-
-                        nodeID.setIp(ident.getIp());
-                        this.refreshNowNeeded();
-                    }
-
-                    if (nodeID.getPubkey() == null &&
-                            ident.getPubkey() != null) {
-
-                        nodeID.setPubkey(ident.getPubkey());
-                        this.refreshNowNeeded();
-                    }
+                } else {
+                    identities = Arrays.asList(this.allIdentityCache);
                 }
-            }
-            
-            if (returnOK) {
-                this.refresh();
-                return this.constructRetrieveReturn(node, true);
             } else {
-                return null;
+                identities = new ArrayList<Identity>();
             }
-        }
-    }
 
-    // arg can not be null, return can be null
-    // only suppresIncomplete = true is handled right now.
-    private Requires_Type constructRetrieveReturn(Node node,
-                                                  boolean suppressIncomplete)
-            throws ContextBrokerException {
-
-        
-        final Requires_Type requires = new Requires_Type();
-
-        
-        // Check if identities are available
-        
-        if (node.isAllIdentitiesRequired()) {
-            
-            if (suppressIncomplete && this.allIdentityResponseCache == null) {
-
-                //    logger.trace("Not constructing retrieve return because " +
-                //            "suppressIncomplete is true, all identities " +
-                //            "list is required for this node (#" +
-                //            node.getId() + ") and the identities cache is " +
-                //            "invalid.");
-
-                return null;
-
-            } else if (!suppressIncomplete &&
-                       this.allIdentityResponseCache == null) {
-
-                // TODO: when something passes in suppressIncomplete = false
-                // implement this branch ... caching all known so far perhaps
-
-                throw new IllegalArgumentException("turning off " +
-                        "suppressIncomplete is not implemented yet");
-
-            } else {
-                requires.setIdentity(this.allIdentityResponseCache);
-            }
-        }
-
-        if (suppressIncomplete) {
             if (this.numNodes != this.totalNodes) {
                 return null;
             }
-        }
 
 
-        // Check if all data is available.  At least one value of each
-        // data requirement constitutes "available"
+            // Check if all data is available.  At least one value of each
+            // data requirement constitutes "available"
 
-        if (suppressIncomplete) {
+            final ArrayList<DataPair> data = new ArrayList<DataPair>();
 
-            final String[] reqs = node.getRequiredDataNames();
-            boolean oneNotPresent = false;
+            for (String reqData : node.getRequiredDataNames()) {
+                if (this.isOneDataValuePresent(reqData)) {
+                    data.addAll(this.getDataValues(reqData));
+                } else {
 
-            // reqs never null
-            for (String req : reqs) {
-                if (!this.isOneDataValuePresent(req)) {
-                    oneNotPresent = true;
-                    break;
+                    if (logger.isTraceEnabled()) {
+                        logger.trace("Not constructing node manifest because " +
+                                "suppressIncomplete is true, and a required " +
+                                "data item for this node (#" +
+                                node.getId() + ") is not present: ");
+                    }
+
+                    return null; // *** EARLY RETURN ***
                 }
             }
 
-            if (oneNotPresent) {
+            final ArrayList<RoleIdentityPair> roles = new ArrayList<RoleIdentityPair>();
 
-                if (logger.isTraceEnabled()) {
-                   logger.trace("Not constructing retrieve return because " +
-                            "suppressIncomplete is true, and a required " +
-                            "data item for this node (#" +
-                            node.getId() + ") is not present: ");
-                }
+            final Iterator<RequiredRole> iter = node.getRequiredRoles();
+            while (iter.hasNext()) {
+                final RequiredRole aRole = iter.next();
+                for (Identity provider : aRole.getProviders()) {
+                    roles.add(new RoleIdentityPair(aRole.getName(), provider));
 
-                return null; // *** EARLY RETURN ***
-            }
-        }
-
-        final ArrayList<Requires_TypeRole> roleParts = new ArrayList<Requires_TypeRole>();
-        ArrayList<Requires_TypeIdentity> idParts = null;
-        if (!node.isAllIdentitiesRequired()) {
-            idParts = new ArrayList<Requires_TypeIdentity>();
-        }
-
-        final Iterator iter = node.getRequiredRoles();
-        while (iter.hasNext()) {
-
-            final RequiredRole aRole = (RequiredRole) iter.next();
-
-            final ResponsePieces pieces =
-                    aRole.getResponsePieces(suppressIncomplete,
-                                            idParts != null);
-            
-            if (suppressIncomplete && pieces == null) {
-
-                //logger.trace("Not constructing retrieve return because " +
-                //    "suppressIncomplete is true, and a required " +
-                //    "role for this node (#" +
-                //    node.getId() + ") is incomplete: " + aRole);
-
-                return null;
-            }
-
-            if (pieces.roles == null) {
-                throw new ContextBrokerException("Programming problem: " +
-                       "ResponsePieces should be null if roles field is null");
-            }
-
-            roleParts.addAll(Arrays.asList(pieces.roles));
-
-            if (idParts != null) {
-
-                if (pieces.identities == null) {
-                    throw new ContextBrokerException("Programming " +
-                            "problem: ResponsePieces should not have null " +
-                            "identities in this situation.");
-                }
-
-                idParts.addAll(Arrays.asList(pieces.identities));
-            }
-        }
-
-        // might not be any roles at all which is OK, node could just need
-        // identities and/or data elements.  If suppressIncomplete is true and
-        // there are no roles filled yet, there was already a return above.
-        if (!roleParts.isEmpty()) {
-            final Requires_TypeRole[] roles =
-                    roleParts.toArray(new Requires_TypeRole[roleParts.size()]);
-
-            requires.setRole(roles);
-        }
-
-        // If not all identities are needed, the identities that
-        // fulfill each role still are:
-
-        if (idParts != null) {
-            final Requires_TypeIdentity[] ids =
-                    idParts.toArray(
-                            new Requires_TypeIdentity[idParts.size()]);
-            requires.setIdentity(ids);
-            if (logger.isTraceEnabled()) {
-                logger.trace("Set partial identity response for " +
-                             "node #" + node.getId());
-            }
-        }
-
-        final String[] reqs = node.getRequiredDataNames();
-        if (reqs != null && reqs.length > 0) {
-
-            final ArrayList<Requires_TypeData> reqDataList = new ArrayList<Requires_TypeData>();
-            for (String req : reqs) {
-                final List<Requires_TypeData> reqData = this.getDataValues(req);
-                if (reqData != null) {
-                    reqDataList.addAll(reqData);
+                    if (!allIdentities) {
+                        identities.add(provider);
+                    }
                 }
             }
 
-            final Requires_TypeData[] wsReqData =
-                    reqDataList.toArray(
-                            new Requires_TypeData[reqDataList.size()]);
-
-            requires.setData(wsReqData);
+            return new NodeManifest(identities, data, roles);
         }
-
-        return requires;
     }
 
-    
+
     // -------------------------------------------------------------------------
     // NODE STATUS
     // -------------------------------------------------------------------------

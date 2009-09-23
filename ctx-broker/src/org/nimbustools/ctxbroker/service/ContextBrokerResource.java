@@ -51,8 +51,8 @@ public interface ContextBrokerResource extends ResourceLifetime,
 
     public boolean isNoMoreInjections();
 
-    public Requires_Type retrieve(Integer workspaceID,
-                                  IdentityProvides_Type[] identities)
+    public Requires_Type retrieve(Integer workspaceID
+    )
             throws ContextBrokerException;
 
     public void injectData(String dataName, String value)

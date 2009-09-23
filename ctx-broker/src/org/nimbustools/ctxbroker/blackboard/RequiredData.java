@@ -20,6 +20,7 @@ import org.nimbustools.ctxbroker.generated.gt4_0.description.Requires_TypeData;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class RequiredData {
 
@@ -29,8 +30,7 @@ public class RequiredData {
 
     private final String name;
     
-    // list of filled Requires_TypeData objects
-    private final List<Requires_TypeData> values = new ArrayList<Requires_TypeData>();
+    private final List<DataPair> values = new ArrayList<DataPair>();
 
     
     // -------------------------------------------------------------------------
@@ -50,14 +50,10 @@ public class RequiredData {
     // -------------------------------------------------------------------------
 
     void addNewValue(String value) {
-        final Requires_TypeData newdata = new Requires_TypeData();
-        newdata.setName(this.name);
         if (value == null || value.trim().length() == 0) {
-            newdata.set_value("");
-        } else {
-            newdata.set_value(value);
+            value = "";
         }
-        this.values.add(newdata);
+        this.values.add(new DataPair(this.name, value));
     }
 
 
@@ -70,14 +66,13 @@ public class RequiredData {
     }
 
     // never returns null
-    List<Requires_TypeData> getDataList() {
+    List<DataPair> getDataList() {
         return this.values;
     }
 
     // never returns null
-    Requires_TypeData[] getAllData() {
-        return this.values.toArray(
-                        new Requires_TypeData[this.values.size()]);
+    List<DataPair> getAllData() {
+        return Collections.unmodifiableList(values);
     }
     
 }

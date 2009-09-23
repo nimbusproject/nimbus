@@ -31,18 +31,12 @@ import org.nimbustools.ctxbroker.ContextBrokerException;
 import org.nimbustools.ctxbroker.generated.gt4_0.types.Node_Type;
 import org.nimbustools.ctxbroker.generated.gt4_0.types.ContextualizationContext;
 import org.nimbustools.ctxbroker.generated.gt4_0.description.*;
-import org.nimbustools.ctxbroker.blackboard.Blackboard;
-import org.nimbustools.ctxbroker.blackboard.RequiredRole;
-import org.nimbustools.ctxbroker.blackboard.DataPair;
-import org.nimbustools.ctxbroker.blackboard.ProvidedRoleDescription;
+import org.nimbustools.ctxbroker.blackboard.*;
 import org.globus.security.gridmap.GridMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.util.Calendar;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public class ContextBrokerResourceImpl implements ContextBrokerResource {
 
@@ -258,27 +252,62 @@ public class ContextBrokerResourceImpl implements ContextBrokerResource {
     // and requires deadlocks and to speed up VM configuration
     // (though increasing perhaps unecessarily the message sizes and XML
     // parsing/creation times).
-    public Requires_Type retrieve(Integer workspaceID,
-                                  IdentityProvides_Type[] identities)
+    public Requires_Type retrieve(Integer workspaceID)
             throws ContextBrokerException {
 
-        Identity[] bbIdentities = new Identity[identities.length];
-        for (int i = 0; i < identities.length; i++) {
-            IdentityProvides_Type id = identities[i];
-            bbIdentities[i] = new Identity(
-                    id.get_interface(),
-                    id.getIp(),
-                    id.getHostname(),
-                    id.getPubkey()
-                    );
-        }
-
-
         synchronized (this.statusLock) {
-            return this.getBlackboard().retrieve(workspaceID,
-                                                 bbIdentities,
-                                                 this.noMoreInjections);
+            if (this.noMoreInjections) {
+                final NodeManifest nodeManifest =
+                        this.getBlackboard().retrieve(workspaceID);
+
+                return translateNodeManifest(nodeManifest);
+            }
+            return null;
         }
+    }
+
+    private Requires_Type translateNodeManifest(NodeManifest manifest) {
+        Requires_Type requires = new Requires_Type();
+
+        final Requires_TypeRole[] roles =
+                new Requires_TypeRole[manifest.getRequiredRoles().size()];
+        for (int i = 0; i < roles.length; i++) {
+            final RoleIdentityPair roleIdentityPair =
+                    manifest.getRequiredRoles().get(i);
+
+            final Requires_TypeRole role = new Requires_TypeRole();
+            role.setName(roleIdentityPair.getRole());
+            role.set_value(roleIdentityPair.getIdentity().getIp());
+
+            roles[i] = role;
+        }
+        requires.setRole(roles);
+
+        final Requires_TypeData[] datas =
+                new Requires_TypeData[manifest.getData().size()];
+        for (int i = 0; i < datas.length; i++) {
+            final DataPair dataPair = manifest.getData().get(i);
+
+            final Requires_TypeData data = new Requires_TypeData();
+            data.setName(dataPair.getName());
+            data.set_value(dataPair.getValue());
+            datas[i] = data;
+        }
+        requires.setData(datas);
+
+        final Requires_TypeIdentity[] ids =
+                new Requires_TypeIdentity[manifest.getIdentities().size()];
+        for (int i = 0; i < ids.length; i++) {
+            final Identity identity = manifest.getIdentities().get(i);
+
+            ids[i] = new Requires_TypeIdentity(
+                    identity.getHostname(),
+                    identity.getIp(),
+                    identity.getPubkey());
+        }
+        requires.setIdentity(ids);
+
+        return requires;
     }
 
 

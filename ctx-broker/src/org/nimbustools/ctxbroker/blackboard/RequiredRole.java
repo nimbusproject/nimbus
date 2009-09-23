@@ -17,12 +17,11 @@
 package org.nimbustools.ctxbroker.blackboard;
 
 import org.nimbustools.ctxbroker.Identity;
-import org.nimbustools.ctxbroker.generated.gt4_0.description.Requires_TypeRole;
-import org.nimbustools.ctxbroker.generated.gt4_0.description.Requires_TypeIdentity;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The generic ProvidedRole class cannot be used to express host and key
@@ -43,9 +42,6 @@ public class RequiredRole {
     // -------------------------------------------------------------------------
     // INSTANCE VARIABLES
     // -------------------------------------------------------------------------
-
-    // cached response, only non-null if filled
-    private Requires_TypeRole[] roleResponse = null;
 
     private final ArrayList<Identity> providers = new ArrayList<Identity>(); // list of Identity
 
@@ -76,7 +72,6 @@ public class RequiredRole {
 
     void clearProviders() {
         synchronized(this.providers) {
-            this.roleResponse = null; // invalidate cache
             this.providers.clear();
         }
     }
@@ -86,7 +81,6 @@ public class RequiredRole {
             return;
         }
         synchronized(this.providers) {
-            this.roleResponse = null; // invalidate cache
             this.providers.add(identity);
         }
     }
@@ -154,171 +148,10 @@ public class RequiredRole {
         return this.pubkeyRequired;
     }
 
-    ResponsePieces getResponsePieces(boolean suppressIncomplete,
-                                     boolean identitiesNeeded) {
+    List<Identity> getProviders() {
         synchronized (this.providers) {
-
-            StringBuffer tracebuf = null;
-            if (logger.isTraceEnabled()) {
-                tracebuf = new StringBuffer("\n\ngetResponsePieces response ");
-                tracebuf.append("for RequiredRole object ")
-                        .append(super.toString())
-                        .append(", ")
-                        .append(this)
-                        .append("\n");
-            }
-
-            if (this.roleResponse != null && !identitiesNeeded) {
-
-                if (tracebuf != null) {
-                    tracebuf.append("  - returning cached roleResponse\n")
-                            .append("  - identities not needded\n");
-                    logger.trace(tracebuf.toString());
-                }
-
-                // not strictly necessary to update this here
-                this.numFilled = (short) this.roleResponse.length;
-                
-                return new ResponsePieces(this.roleResponse, null);
-            }
-            
-            if (this.providers.isEmpty()) {
-                if (tracebuf != null) {
-                    tracebuf.append("  - returning null\n")
-                            .append("  - providers empty\n");
-                    logger.trace(tracebuf.toString());
-                }
-
-                // not strictly necessary to update this here
-                this.numFilled = 0;
-
-                return null;
-            }
-
-            final ArrayList<Requires_TypeRole> rolePieces = new ArrayList<Requires_TypeRole>();
-
-            ArrayList<Requires_TypeIdentity> idPieces = null;
-            if (identitiesNeeded) {
-                idPieces = new ArrayList<Requires_TypeIdentity>();
-                if (tracebuf != null) {
-                    tracebuf.append("  - identities needed, made idPieces\n");
-                }
-            }
-
-            boolean allFilled = true;
-
-            for (final Identity id : this.providers) {
-
-                if (tracebuf != null) {
-                    tracebuf.append("  - examining identity: ")
-                            .append(id.toString())
-                            .append("\n");
-                }
-                boolean filled = true;
-
-                if (id.getIp() == null) {
-                    if (tracebuf != null) {
-                        tracebuf.append("  - IP null, setting filled false\n");
-                    }
-                    filled = false;
-                }
-                if (this.hostnameRequired && id.getHostname() == null) {
-                    if (tracebuf != null) {
-                        tracebuf.append("  - hostname required but was null,")
-                                .append(" setting filled false\n");
-                    }
-                    filled = false;
-                }
-                if (this.pubkeyRequired && id.getPubkey() == null) {
-                    if (tracebuf != null) {
-                        tracebuf.append("  - pubkey required but was null,")
-                                .append(" setting filled false\n");
-                    }
-                    filled = false;
-                }
-
-                if (filled) {
-
-                    final Requires_TypeRole piece = new Requires_TypeRole();
-                    piece.setName(this.name);
-                    piece.set_value(id.getIp());
-                    rolePieces.add(piece);
-
-                    if (tracebuf != null) {
-                        tracebuf.append("  - added new Requires_TypeRole, '")
-                                .append(this.name)
-                                .append("', IP = ")
-                                .append(id.getIp())
-                                .append("\n");
-                    }
-
-                    if (idPieces != null) {
-                        final Requires_TypeIdentity idpiece =
-                                new Requires_TypeIdentity();
-                        idpiece.setIp(id.getIp());
-                        idpiece.setHostname(id.getHostname());
-                        idpiece.setPubkey(id.getPubkey());
-                        idPieces.add(idpiece);
-                    }
-
-                } else {
-
-                    allFilled = false;
-
-                    if (suppressIncomplete) {
-                        break;
-                    }
-                }
-            }
-
-            this.numFilled = (short) rolePieces.size();
-
-            if (!allFilled && suppressIncomplete) {
-                if (tracebuf != null) {
-                    tracebuf.append("  - returning null\n")
-                            .append("  - all were not filled and ")
-                            .append("suppressIncomplete is true\n");
-                    logger.trace(tracebuf.toString());
-                }
-                return null;
-            }
-
-            if (rolePieces.isEmpty()) {
-                if (tracebuf != null) {
-                    tracebuf.append("  - returning null\n")
-                            .append("  - rolePieces is empty\n");
-                    logger.trace(tracebuf.toString());
-                }
-                return null;
-            }
-
-            this.roleResponse = rolePieces.toArray(new Requires_TypeRole[rolePieces.size()]);
-
-            if (idPieces == null) {
-                if (tracebuf != null) {
-                    tracebuf.append("  - returning pieces, size: ")
-                            .append(this.roleResponse.length)
-                            .append("\n");
-                    logger.trace(tracebuf.toString());
-                }
-                return new ResponsePieces(this.roleResponse, null);
-            }
-
-            final Requires_TypeIdentity[] ids =
-                    idPieces.toArray(
-                            new Requires_TypeIdentity[idPieces.size()]);
-
-            if (tracebuf != null) {
-                tracebuf.append("  - returning pieces, size: ")
-                        .append(this.roleResponse.length)
-                        .append("\n")
-                        .append("  - with identities, size: ")
-                        .append(ids.length)
-                        .append("\n");
-                logger.trace(tracebuf.toString());
-            }
-
-            return new ResponsePieces(this.roleResponse, ids);
+            return new ArrayList<Identity>(this.providers);
         }
     }
+
 }

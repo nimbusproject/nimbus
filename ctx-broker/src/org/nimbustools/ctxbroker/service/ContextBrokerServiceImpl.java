@@ -438,7 +438,7 @@ public class ContextBrokerServiceImpl implements ContextBrokerService {
 
         final Requires_Type requires;
         try {
-            requires = resource.retrieve(id, identities);
+            requires = resource.retrieve(id);
         } catch (ContextBrokerException e) {
             if (logger.isDebugEnabled()) {
                 logger.error(e.getMessage(), e);
