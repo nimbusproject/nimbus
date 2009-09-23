@@ -19,7 +19,6 @@ package org.nimbustools.ctxbroker.blackboard;
 import org.nimbustools.ctxbroker.generated.gt4_0.description.IdentityProvides_Type;
 import org.nimbustools.ctxbroker.generated.gt4_0.types.ContextualizationContext;
 import org.nimbustools.ctxbroker.generated.gt4_0.types.MatchedRole_Type;
-import org.nimbustools.ctxbroker.generated.gt4_0.types.Node_Type;
 import org.nimbustools.ctxbroker.Identity;
 import org.nimbustools.ctxbroker.ContextBrokerException;
 import org.apache.commons.logging.Log;
@@ -43,8 +42,6 @@ public class Blackboard {
     // The "database" of Blackboard objects
     // String ID --> Blackboard object
     private static Hashtable<String,Blackboard> all = new Hashtable<String, Blackboard>(8);
-
-    private static final Node_Type[] NO_NODES_RESPONSE = new Node_Type[0];
 
     // -------------------------------------------------------------------------
     // INSTANCE VARIABLES
@@ -769,87 +766,24 @@ public class Blackboard {
     }
     
 
-    public Node_Type[] identities(boolean allNodess, String host, String ip) {
-
-        final List<Node> nodeList;
-        if (allNodess) {
-            nodeList = new ArrayList<Node>(this.allNodes.size());
-        } else {
-            nodeList = new ArrayList<Node>(1);
-        }
+    public List<NodeStatus> identities(boolean allNodess, String host, String ip) {
 
         synchronized (this.dbLock) {
-
             if (allNodess) {
+                final List<NodeStatus> list = new ArrayList<NodeStatus>();
                 for (Enumeration<Node> e = this.allNodes.elements(); e.hasMoreElements();) {
-                    nodeList.add(e.nextElement());
+                    list.add(new NodeStatus(e.nextElement()));
                 }
+                return list;
+
             } else {
                 final Node node = this.findNode(host, ip);
                 if (node != null) {
-                    nodeList.add(node);
+                    return Collections.singletonList(new NodeStatus(node));
                 }
-            }
-            
-            return getNodeResponse(nodeList);
-        }
-    }
-
-    private static Node_Type[] getNodeResponse(List<Node> nodeList) {
-        if (nodeList.isEmpty()) {
-            return NO_NODES_RESPONSE;
-        }
-        final List<Node_Type> resultList = new ArrayList<Node_Type>(nodeList.size());
-        for (final Node node : nodeList) {
-            if (node != null) {
-                resultList.add(getOneNodeResponse(node));
+                return Collections.emptyList();
             }
         }
-        return resultList.toArray(
-                        new Node_Type[resultList.size()]);
-    }
-
-    private static Node_Type getOneNodeResponse(Node node) {
-
-        final Node_Type xmlNode = new Node_Type();
-
-        /* identities */
-        final List<IdentityProvides_Type> xmlIdentsList = new ArrayList<IdentityProvides_Type>(3);
-        for (Enumeration e = node.getIdentities(); e.hasMoreElements();) {
-            final Identity ident = (Identity) e.nextElement();
-            if (ident != null) {
-                xmlIdentsList.add(idToXML(ident));
-            }
-        }
-        final IdentityProvides_Type[] xmlIdents =
-                xmlIdentsList.toArray(
-                        new IdentityProvides_Type[xmlIdentsList.size()]);
-
-        xmlNode.setIdentity(xmlIdents);
-
-        /* status */
-        final CtxResult status = node.getCtxResult();
-        if (status.okOccurred) {
-            xmlNode.setExited(true);
-            xmlNode.setOk(true);
-        } else if (status.errorOccurred) {
-            xmlNode.setExited(true);
-            xmlNode.setErrorCode(status.errorCode);
-            xmlNode.setErrorMessage(status.errorMessage);
-        } else {
-            xmlNode.setExited(false);
-        }
-
-        return xmlNode;
-    }
-
-    private static IdentityProvides_Type idToXML(Identity ident) {
-        final IdentityProvides_Type xml = new IdentityProvides_Type();
-        xml.set_interface(ident.getIface());
-        xml.setHostname(ident.getHostname());
-        xml.setIp(ident.getIp());
-        xml.setPubkey(ident.getPubkey());
-        return xml;
     }
 
     private Node findNode(String host, String ip) {
@@ -879,6 +813,5 @@ public class Blackboard {
 
         return null;
     }
-
 
 }

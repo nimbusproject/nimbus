@@ -37,6 +37,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.util.Calendar;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Enumeration;
 
 public class ContextBrokerResourceImpl implements ContextBrokerResource {
 
@@ -46,6 +49,8 @@ public class ContextBrokerResourceImpl implements ContextBrokerResource {
 
     private static final Log logger =
         LogFactory.getLog(ContextBrokerResourceImpl.class.getName());
+
+    private static final Node_Type[] NO_NODES_RESPONSE = new Node_Type[0];
 
 
     // -------------------------------------------------------------------------
@@ -225,22 +230,83 @@ public class ContextBrokerResourceImpl implements ContextBrokerResource {
     public Node_Type[] identityQueryAll()
             throws ContextBrokerException {
         synchronized (this.statusLock) {
-            return this.getBlackboard().identities(true, null, null);
+            final List<NodeStatus> nodes =
+                    this.getBlackboard().identities(true, null, null);
+            return getNodeResponse(nodes);
         }
     }
 
     public Node_Type[] identityQueryHost(String host)
             throws ContextBrokerException {
         synchronized (this.statusLock) {
-            return this.getBlackboard().identities(false, host, null);
+            final List<NodeStatus> nodes =
+                    this.getBlackboard().identities(false, host, null);
+            return getNodeResponse(nodes);
         }
     }
 
     public Node_Type[] identityQueryIP(String ip)
             throws ContextBrokerException {
         synchronized (this.statusLock) {
-            return this.getBlackboard().identities(false, null, ip);
+            final List<NodeStatus> nodes =
+                    this.getBlackboard().identities(false, null, ip);
+            return getNodeResponse(nodes);
         }
+    }
+
+    private static Node_Type[] getNodeResponse(List<NodeStatus> nodeList) {
+        if (nodeList.isEmpty()) {
+            return NO_NODES_RESPONSE;
+        }
+        final List<Node_Type> resultList = new ArrayList<Node_Type>(nodeList.size());
+        for (final NodeStatus node : nodeList) {
+            if (node != null) {
+                resultList.add(getOneNodeResponse(node));
+            }
+        }
+        return resultList.toArray(
+                        new Node_Type[resultList.size()]);
+    }
+
+    private static Node_Type getOneNodeResponse(NodeStatus node) {
+
+        final Node_Type xmlNode = new Node_Type();
+
+        /* identities */
+        final List<IdentityProvides_Type> xmlIdentsList = new ArrayList<IdentityProvides_Type>(3);
+        for (Identity ident : node.getIdentities()) {
+            if (ident != null) {
+                xmlIdentsList.add(idToXML(ident));
+            }
+        }
+        final IdentityProvides_Type[] xmlIdents =
+                xmlIdentsList.toArray(
+                        new IdentityProvides_Type[xmlIdentsList.size()]);
+
+        xmlNode.setIdentity(xmlIdents);
+
+        /* status */
+        if (node.isOkOccurred()) {
+            xmlNode.setExited(true);
+            xmlNode.setOk(true);
+        } else if (node.isErrorOccurred()) {
+            xmlNode.setExited(true);
+            xmlNode.setErrorCode(node.getErrorCode());
+            xmlNode.setErrorMessage(node.getErrorMessage());
+        } else {
+            xmlNode.setExited(false);
+        }
+
+        return xmlNode;
+    }
+
+    private static IdentityProvides_Type idToXML(Identity ident) {
+        final IdentityProvides_Type xml = new IdentityProvides_Type();
+        xml.set_interface(ident.getIface());
+        xml.setHostname(ident.getHostname());
+        xml.setIp(ident.getIp());
+        xml.setPubkey(ident.getPubkey());
+        return xml;
     }
     
     // -------------------------------------------------------------------------
