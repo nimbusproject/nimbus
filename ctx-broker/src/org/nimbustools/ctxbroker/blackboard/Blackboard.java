@@ -38,7 +38,7 @@ public class Blackboard {
 
     // The "database" of Blackboard objects
     // String ID --> Blackboard object
-    private static Hashtable<String,Blackboard> all = new Hashtable<String, Blackboard>(8);
+    private static final Hashtable<String,Blackboard> all = new Hashtable<String, Blackboard>(8);
 
     // -------------------------------------------------------------------------
     // INSTANCE VARIABLES
@@ -93,7 +93,7 @@ public class Blackboard {
     // CONSTRUCTOR
     // -------------------------------------------------------------------------
 
-    public Blackboard(String id) {
+    Blackboard(String id) {
         if (id == null) {
             throw new IllegalArgumentException("id cannot be null");
         }
@@ -333,6 +333,11 @@ public class Blackboard {
      *        What 'is' already based on creation request or initialization.
      *        Once passed to this method, caller must discard pointers
      *        (avoids needing to clone it).
+     * @param allIdentitiesRequired This node expects identity info for all
+     * nodes, not just those that fill a required role
+     * @param requiredRoles The roles required by this node
+     * @param requiredData The data required by this node
+     * @param providedRoles the Roles provided by this node
      * @param totalNodesFromAgent total number of nodes reported by ctx agent
      * @throws ContextBrokerException illegalities
      */
@@ -494,8 +499,7 @@ public class Blackboard {
     }
 
     // no args are null and datas.length > 0, always call under this.dbLock
-    private void _intakeData(DataPair[] datas)
-            throws ContextBrokerException {
+    private void _intakeData(DataPair[] datas) {
 
         for (DataPair data : datas) {
             final String dataName = data.getName();
@@ -503,8 +507,7 @@ public class Blackboard {
         }
     }
 
-    private void _newData(String name, String value)
-            throws ContextBrokerException {
+    private void _newData(String name, String value) {
 
         if (name == null) {
             throw new IllegalArgumentException("name may not be null");
@@ -529,7 +532,6 @@ public class Blackboard {
         return data != null && data.numValues() > 0;
     }
 
-    // returns List of Requires_TypeData
     private List<DataPair> getDataValues(String dataname) {
         final RequiredData data =
                 this.allRequiredDatas.get(dataname);
@@ -694,17 +696,17 @@ public class Blackboard {
         synchronized (this.dbLock) {
             CtxResult result = node.getCtxResult();
 
-            if (result.okOccurred || result.errorOccurred) {
+            if (result.hasOkOccurred() || result.hasErrorOccurred()) {
                 throw new ContextBrokerException("already received " +
                         "exiting report from workspace #" + workspaceID);
             }
 
-            result.okOccurred = true;
+            result.setOkOccurred(true);
 
             // check if all are now OK
             for (Enumeration<Node> e = this.allNodes.elements(); e.hasMoreElements();) {
                 final Node aNode = e.nextElement();
-                if (!aNode.getCtxResult().okOccurred) {
+                if (!aNode.getCtxResult().hasOkOccurred()) {
                     return;
                 }
             }
@@ -724,14 +726,14 @@ public class Blackboard {
         synchronized (this.dbLock) {
             CtxResult result = node.getCtxResult();
 
-            if (result.okOccurred || result.errorOccurred) {
+            if (result.hasOkOccurred() || result.hasErrorOccurred()) {
                 throw new ContextBrokerException("already received " +
                         "exiting report from workspace #" + workspaceID);
             }
 
-            result.errorOccurred = true;
-            result.errorCode = exitCode;
-            result.errorMessage = errorMessage;
+            result.setErrorOccurred(true);
+            result.setErrorCode(exitCode);
+            result.setErrorMessage(errorMessage);
 
             this.oneErrorOccured = true;
         }

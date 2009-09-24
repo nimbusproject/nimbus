@@ -22,9 +22,40 @@ public class CtxResult {
     // INSTANCE VARIABLES
     // -------------------------------------------------------------------------
 
-    boolean okOccurred;
-    boolean errorOccurred;
-    short errorCode;
-    boolean errorCodeSet;
-    String errorMessage;
+    private boolean okOccurred;
+    private boolean errorOccurred;
+    private short errorCode;
+    private String errorMessage;
+
+    public boolean hasOkOccurred() {
+        return okOccurred;
+    }
+
+    public void setOkOccurred(boolean okOccurred) {
+        this.okOccurred = okOccurred;
+    }
+
+    public boolean hasErrorOccurred() {
+        return errorOccurred;
+    }
+
+    public void setErrorOccurred(boolean errorOccurred) {
+        this.errorOccurred = errorOccurred;
+    }
+
+    public short getErrorCode() {
+        return errorCode;
+    }
+
+    public void setErrorCode(short errorCode) {
+        this.errorCode = errorCode;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
+    }
 }

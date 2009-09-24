@@ -39,11 +39,11 @@ public class NodeStatus {
             identities.add(identity);
         }
 
-        this.okOccurred =  node.getCtxResult().okOccurred;
-        this.errorOccurred = node.getCtxResult().errorOccurred;
+        this.okOccurred = node.getCtxResult().hasOkOccurred();
+        this.errorOccurred = node.getCtxResult().hasErrorOccurred();
 
-        this.errorCode= node.getCtxResult().errorCode;
-        this.errorMessage = node.getCtxResult().errorMessage;
+        this.errorCode= node.getCtxResult().getErrorCode();
+        this.errorMessage = node.getCtxResult().getErrorMessage();
     }
 
     public List<Identity> getIdentities() {
