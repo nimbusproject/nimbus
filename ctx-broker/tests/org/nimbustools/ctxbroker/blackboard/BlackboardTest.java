@@ -24,6 +24,7 @@ import org.nimbustools.ctxbroker.Identity;
 
 import java.util.List;
 import java.util.Arrays;
+import java.util.ArrayList;
 
 public class BlackboardTest {
 
@@ -86,6 +87,49 @@ public class BlackboardTest {
 
         assertTrue(failed, "Mismatched node counts did not cause failure");
     }
+
+    @Test
+    public void testTooManyNodes() {
+        Blackboard bb = new Blackboard(ID);
+
+        final int nodeCount = 3;
+
+        boolean failed = false;
+        // we try to add one more node than we advertise
+        for (int i=0; i<=nodeCount; i++) {
+
+            Integer workspaceId = getWorkspaceID();
+            Identity[] ids = new Identity[] {getIdentity(workspaceId)};
+            try {
+                bb.addWorkspace(workspaceId, ids, true, null,
+                        null, null, nodeCount);
+            } catch (ContextBrokerException e) {
+                assertEquals(i, nodeCount, "addWorkspace() failed on an " +
+                        "earlier node than expected");
+                failed = true;
+            }
+        }
+        assertTrue(failed, "Adding one too many nodes did not cause failure");
+    }
+
+    @Test
+    public void testDuplicateNodeId() throws ContextBrokerException {
+        Blackboard bb = new Blackboard(ID);
+        Integer workspaceId = getWorkspaceID();
+        Identity[] ids = new Identity[] {getIdentity(workspaceId)};
+
+        bb.addWorkspace(workspaceId, ids, true, null, null, null, 3);
+
+        boolean failed = false;
+        try {
+            bb.addWorkspace(workspaceId, ids, true, null, null, null, 3);
+        } catch (ContextBrokerException e) {
+            failed = true;
+        }
+        assertTrue(failed, "Adding node with duplicate ID did not cause failure");
+
+    }
+
 
 
     @DataProvider(name="allofthebools")
@@ -174,6 +218,138 @@ public class BlackboardTest {
 
     }
 
+    @Test(dataProvider = "allofthebools")
+    public void testMasterWorker(boolean requireAllIdentities)
+            throws ContextBrokerException {
 
+        // one-way dependency: a master role that depends on nothing but is required by multiple workers
+
+        // requireAllIdentities affects whether nodes want information for every node, or just
+        // those that they depend on. This affects two things:
+        //      * Whether nodes can be retrieve()d once they have dependencies satisfied but not all
+        //        nodes have checked in
+        //      * How many Identities nodes get back from retrieve()
+
+
+        Blackboard bb = new Blackboard(ID);
+
+        final String masterRole ="mastermaster";
+        final int workerCount = 2;
+        final int nodeCount = workerCount+1;
+
+        final Integer masterId = getWorkspaceID();
+        final Identity[] masterIdentities = new Identity[] { getIdentity(masterId)};
+        final ProvidedRoleDescription[] masterProvidedRoles = new ProvidedRoleDescription[] {
+                new ProvidedRoleDescription(masterRole, null)
+        };
+        final RequiredRole[] masterRequiredRoles = null;
+
+        bb.addWorkspace(masterId, masterIdentities, requireAllIdentities,
+                masterRequiredRoles, null, masterProvidedRoles, nodeCount);
+
+        List<Integer> workerIds = new ArrayList<Integer>(workerCount);
+        for (int i=0; i< workerCount; i++) {
+
+            // context should not be complete and retrieve should fail until workers check in
+            assertFalse(bb.isComplete());
+
+            if (requireAllIdentities) {
+                assertTrue(bb.retrieve(masterId) == null);
+                for (Integer id : workerIds) {
+                    assertTrue(bb.retrieve(id) == null);
+                }
+            } else {
+                assertTrue(bb.retrieve(masterId) != null);
+                for (Integer id : workerIds) {
+                    assertTrue(bb.retrieve(id) != null);
+                }
+            }
+
+            final Integer workerId = getWorkspaceID();
+            workerIds.add(workerId);
+            final Identity[] workerIdentities = new Identity[] { getIdentity(workerId)};
+            final ProvidedRoleDescription[] workerProvidedRoles = null;
+            final RequiredRole[] workerRequiredRoles = new RequiredRole[] {
+                    new RequiredRole(masterRole, true, true)
+            };
+
+            bb.addWorkspace(workerId, workerIdentities, requireAllIdentities,
+                    workerRequiredRoles, null, workerProvidedRoles, nodeCount);
+        }
+
+        // okay now everyone is checked in.
+        assertTrue(bb.isComplete());
+        for (Integer workerId : workerIds) {
+            final NodeManifest man = bb.retrieve(workerId);
+
+            assertTrue(man.getData().isEmpty());
+            assertEquals(man.getRequiredRoles().size(), 1);
+            RoleIdentityPair rolePair = man.getRequiredRoles().get(0);
+            assertIdentitiesEqual(rolePair.getIdentity(), masterIdentities[0]);
+            assertEquals(rolePair.getRole(), masterRole);
+
+            if (requireAllIdentities) {
+                assertEquals(man.getIdentities().size(), nodeCount);
+            } else {
+                // just the master
+                assertEquals(man.getIdentities().size(), 1);
+                assertIdentitiesEqual(man.getIdentities().get(0), masterIdentities[0]);
+            }
+        }
+
+        final NodeManifest masterManifest = bb.retrieve(masterId);
+        assertTrue(masterManifest.getData().isEmpty());
+        assertTrue(masterManifest.getRequiredRoles().isEmpty());
+
+        // if we don't require all identities, master will get 0 identities
+        assertEquals(masterManifest.getIdentities().size(),
+                requireAllIdentities ? nodeCount : 0);
+    }
+
+    @Test
+    public void testFindIdentities() throws ContextBrokerException {
+
+        final Blackboard bb = new Blackboard(ID);
+        final int nodeCount = 3;
+
+        Identity[] ids = new Identity[nodeCount];
+        for (int i=0; i< nodeCount; i++) {
+            Integer workspaceId = getWorkspaceID();
+            ids[i] = getIdentity(workspaceId);
+
+            bb.addWorkspace(workspaceId, new Identity[] {ids[i]},
+                    true, null, null, null, nodeCount);
+        }
+
+        // find all identities
+        final List<NodeStatus> allNodes = bb.identities(true, null, null);
+        assertEquals(allNodes.size(), nodeCount);
+
+        // find by IP
+        for (Identity id : ids) {
+            final List<NodeStatus> list = bb.identities(false, null, id.getIp());
+            assertEquals(list.size(), 1);
+            final List<Identity> nodeIdentities = list.get(0).getIdentities();
+            assertEquals(list.size(), 1);
+            assertIdentitiesEqual(nodeIdentities.get(0), id);
+        }
+
+        // and a nonexistent IP
+        assertEquals(bb.identities(false, null, "10.10.10.10").size(), 0);
+
+
+        // find by hostname
+        for (Identity id : ids) {
+            final List<NodeStatus> list = bb.identities(false, id.getHostname(), null);
+            assertEquals(list.size(), 1);
+            final List<Identity> nodeIdentities = list.get(0).getIdentities();
+            assertEquals(list.size(), 1);
+            assertIdentitiesEqual(nodeIdentities.get(0), id);
+        }
+
+        // and a nonexistent hostname
+        assertEquals(bb.identities(false, "google.com", null).size(), 0);
+
+    }
 
 }

@@ -637,11 +637,6 @@ public class Blackboard {
                 identities = new ArrayList<Identity>();
             }
 
-            if (this.numNodes != this.totalNodes) {
-                return null;
-            }
-
-
             // Check if all data is available.  At least one value of each
             // data requirement constitutes "available"
 
