@@ -740,10 +740,10 @@ public class Blackboard {
     }
     
 
-    public List<NodeStatus> identities(boolean allNodess, String host, String ip) {
+    public List<NodeStatus> identities(boolean allNodes, String host, String ip) {
 
         synchronized (this.dbLock) {
-            if (allNodess) {
+            if (allNodes) {
                 final List<NodeStatus> list = new ArrayList<NodeStatus>();
                 for (Enumeration<Node> e = this.allNodes.elements(); e.hasMoreElements();) {
                     list.add(new NodeStatus(e.nextElement()));

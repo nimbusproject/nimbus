@@ -18,6 +18,7 @@ package org.nimbustools.ctxbroker.blackboard;
 import org.testng.annotations.Test;
 import org.testng.annotations.DataProvider;
 import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
 import org.nimbustools.ctxbroker.ContextBrokerException;
 import org.nimbustools.ctxbroker.Identity;
 
@@ -54,6 +55,16 @@ public class BlackboardTest {
             assertTrue(found, "Data pair: "+expectedPair.toString() +
                     " was not found in actual data pair list");
         }
+    }
+
+    private static void assertIdentitiesEqual(Identity actual, Identity expected) {
+        assertNotNull(actual);
+        assertNotNull(expected);
+
+        assertEquals(actual.getIface(), expected.getIface());
+        assertEquals(actual.getIp(), expected.getIp());
+        assertEquals(actual.getPubkey(), expected.getPubkey());
+        assertEquals(actual.getHostname(), expected.getHostname());
     }
 
 
@@ -124,6 +135,18 @@ public class BlackboardTest {
             assertTrue(ctxStatus.isAllOk());
             assertFalse(ctxStatus.isErrorOccurred());
             assertTrue(ctxStatus.isComplete());
+
+            final List<NodeStatus> list = bb.identities(true, null, null);
+            assertEquals(list.size(), 1);
+            final NodeStatus nodeStatus = list.get(0);
+
+            assertEquals(nodeStatus.getIdentities().size(), 1);
+            assertIdentitiesEqual(nodeStatus.getIdentities().get(0), ids[0]);
+
+            assertEquals(nodeStatus.getErrorCode(),0);
+            assertNull(nodeStatus.getErrorMessage());
+            assertFalse(nodeStatus.isErrorOccurred());
+            assertTrue(nodeStatus.isOkOccurred());
         } else {
 
             final short exitCode = 1;
@@ -134,6 +157,18 @@ public class BlackboardTest {
             assertFalse(ctxStatus.isAllOk());
             assertTrue(ctxStatus.isErrorOccurred());
             assertTrue(ctxStatus.isComplete());
+
+            final List<NodeStatus> list = bb.identities(true, null, null);
+            assertEquals(list.size(), 1);
+            final NodeStatus nodeStatus = list.get(0);
+
+            assertEquals(nodeStatus.getIdentities().size(), 1);
+            assertIdentitiesEqual(nodeStatus.getIdentities().get(0), ids[0]);
+
+            assertEquals(nodeStatus.getErrorCode(), exitCode);
+            assertEquals(nodeStatus.getErrorMessage(), errorMsg);
+            assertTrue(nodeStatus.isErrorOccurred());
+            assertFalse(nodeStatus.isOkOccurred());
         }
 
 

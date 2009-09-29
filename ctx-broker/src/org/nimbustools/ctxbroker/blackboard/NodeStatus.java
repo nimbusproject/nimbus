@@ -19,13 +19,14 @@ import org.nimbustools.ctxbroker.Identity;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Enumeration;
 
 public class NodeStatus {
     final private List<Identity> identities;
     final private boolean errorOccurred;
     final private boolean okOccurred;
-    final short errorCode;
-    final String errorMessage;
+    final private short errorCode;
+    final private String errorMessage;
 
 
     public NodeStatus(Node node) {
@@ -34,16 +35,18 @@ public class NodeStatus {
         }
 
         identities = new ArrayList<Identity>();
-        while (node.getIdentities().hasMoreElements()) {
-            Identity identity = node.getIdentities().nextElement();
+        final Enumeration<Identity> idEnum = node.getIdentities();
+        while (idEnum.hasMoreElements()) {
+            Identity identity = idEnum.nextElement();
             identities.add(identity);
         }
 
-        this.okOccurred = node.getCtxResult().hasOkOccurred();
-        this.errorOccurred = node.getCtxResult().hasErrorOccurred();
+        final CtxResult ctxResult = node.getCtxResult();
+        this.okOccurred = ctxResult.hasOkOccurred();
+        this.errorOccurred = ctxResult.hasErrorOccurred();
 
-        this.errorCode= node.getCtxResult().getErrorCode();
-        this.errorMessage = node.getCtxResult().getErrorMessage();
+        this.errorCode = ctxResult.getErrorCode();
+        this.errorMessage = ctxResult.getErrorMessage();
     }
 
     public List<Identity> getIdentities() {
