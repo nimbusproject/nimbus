@@ -329,7 +329,7 @@ public class Blackboard {
      * empty, provided interpretation.
      *
      * @param workspaceID workspace ID
-     * @param identities identity objects filled by factory/service.
+     * @param nodeIdentities identity objects filled by factory/service.
      *        What 'is' already based on creation request or initialization.
      *        Once passed to this method, caller must discard pointers
      *        (avoids needing to clone it).
@@ -342,8 +342,8 @@ public class Blackboard {
      * @throws ContextBrokerException illegalities
      */
     public void addWorkspace(Integer workspaceID,
-                             Identity[] identities,
-                             Boolean allIdentitiesRequired,
+                             Identity[] nodeIdentities,
+                             boolean allIdentitiesRequired,
                              RequiredRole[] requiredRoles,
                              DataPair[] requiredData,
                              ProvidedRoleDescription[] providedRoles,
@@ -353,8 +353,8 @@ public class Blackboard {
         if (workspaceID == null) {
             throw new IllegalArgumentException("workspaceID cannot be null");
         }
-        if (identities == null || identities.length == 0) {
-            throw new IllegalArgumentException("'real' identities cannot be " +
+        if (nodeIdentities == null || nodeIdentities.length == 0) {
+            throw new IllegalArgumentException("'real' nodeIdentities cannot be " +
                         "null or empty, contextualization is not possible. " +
                         "If a workspace has no NICs, requires and provides " +
                         "documents should not have been given.  If they " +
@@ -415,7 +415,7 @@ public class Blackboard {
             }
 
             node = new Node(workspaceID, requiredDataNames);
-            for (Identity identity : identities) {
+            for (Identity identity : nodeIdentities) {
                 node.addIdentity(identity);
             }
 

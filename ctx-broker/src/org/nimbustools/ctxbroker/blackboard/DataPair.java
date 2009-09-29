@@ -37,4 +37,12 @@ public class DataPair {
     public String getValue() {
         return value;
     }
+
+    @Override
+    public String toString() {
+        return "DataPair{" +
+                "name='" + name + '\'' +
+                ", value='" + value + '\'' +
+                '}';
+    }
 }
