@@ -25,6 +25,7 @@ import org.nimbustools.ctxbroker.Identity;
 import java.util.List;
 import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.UUID;
 
 public class BlackboardTest {
 
@@ -350,6 +351,80 @@ public class BlackboardTest {
         // and a nonexistent hostname
         assertEquals(bb.identities(false, "google.com", null).size(), 0);
 
+    }
+
+    @Test
+    public void testInjectData() throws ContextBrokerException {
+        final Blackboard bb = new Blackboard(ID);
+
+        final String dataName = "OMGDATA";
+        final String[] dataValues = new String[] {"VALUE1", "VALUE2"};
+        
+
+        // add a node that requires a data but provides no value
+
+        DataPair dataNoValue = new DataPair(dataName);
+        DataPair dataWithValue = new DataPair(dataName, dataValues[0]);
+
+
+        Integer workspaceNoValueId = getWorkspaceID();
+        bb.addWorkspace(workspaceNoValueId, new Identity[] {getIdentity(workspaceNoValueId)},
+                true, null, new DataPair[] {dataNoValue}, null, 2);
+
+        Integer workspaceWithValueId = getWorkspaceID();
+        bb.addWorkspace(workspaceWithValueId, new Identity[] {getIdentity(workspaceWithValueId)},
+                true, null, new DataPair[] {dataWithValue}, null, 2);
+
+        bb.injectData(dataName, dataValues[1]);
+
+        NodeManifest node1 = bb.retrieve(workspaceNoValueId);
+        assertNotNull(node1);
+        final List<DataPair> node1Data = node1.getData();
+        assertEquals(node1Data.size(), dataValues.length);
+        for (DataPair dp : node1Data) {
+            assertEquals(dp.getName(), dataName);
+            final String value = dp.getValue();
+            assertNotNull(value);
+
+            int matchCount = 0;
+            for (String dataValue : dataValues) {
+                if (value.equals(dataValue)) {
+                    matchCount++;
+                }
+            }
+            assertEquals(matchCount, 1);
+        }
+
+        NodeManifest node2 = bb.retrieve(workspaceWithValueId);
+        assertNotNull(node2);
+        final List<DataPair> node2Data = node2.getData();
+        assertEquals(node2Data.size(), dataValues.length);
+        for (DataPair dp : node2Data) {
+            assertEquals(dp.getName(), dataName);
+            final String value = dp.getValue();
+            assertNotNull(value);
+
+            int matchCount = 0;
+            for (String dataValue : dataValues) {
+                if (value.equals(dataValue)) {
+                    matchCount++;
+                }
+            }
+            assertEquals(matchCount, 1);
+        }
+
+    }
+
+    @Test
+    public void testStaticBlackboardFactory() {
+        final String id = UUID.randomUUID().toString();
+
+        final Blackboard blackboard = Blackboard.createOrGetBlackboard(id);
+
+        assertSame(Blackboard.createOrGetBlackboard(id), blackboard);
+
+        final String anotherId = UUID.randomUUID().toString();
+        assertNotSame(Blackboard.createOrGetBlackboard(anotherId), blackboard);
     }
 
 }

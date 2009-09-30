@@ -19,6 +19,10 @@ public class DataPair {
     private final String name;
     private final String value;
 
+    public DataPair(String name) {
+        this(name, null);
+    }
+
     public DataPair(String name, String value) {
 
         // value may be null but not name
