@@ -1765,7 +1765,9 @@ public class CloudClient {
                                 new KnownHostsTask(memberIndex,
                                                    null,
                                                    nics[j].iface,
-                                                   member.getPrintName()));
+                                                   member.getPrintName(),
+                                                   this.args.isHostkeyDir(),
+                                                   null));
                     }
                 }
             }

@@ -22,9 +22,12 @@ public class KnownHostsTask {
     public final String ipaddr;
     public final String interfaceName;
     public final String printName;
+    public final boolean perHostDir;
+    public final String perHostDirPath;
 
     public KnownHostsTask(int eprID, String ip,
-                          String ifaceName, String printName) {
+                          String ifaceName, String printName,
+                          boolean perHostDir, String perHostDirPath) {
         this.ipaddr = ip;
         this.eprID = eprID;
 
@@ -33,5 +36,7 @@ public class KnownHostsTask {
         }
         this.interfaceName = ifaceName;
         this.printName = printName;
+        this.perHostDir = perHostDir;
+        this.perHostDirPath = perHostDirPath;
     }
 }

@@ -286,6 +286,10 @@ public class Opts {
         OptionBuilder.hasArg().withLongOpt(IMPERSONATE_CTX_AGENT_OPT_STRING).create();
 
 
+    public static final String SSHHOSTSDIR_OPT_STRING = "sshhosts-dir";
+    public final Option SSHHOSTSDIR_OPT =
+        OptionBuilder.hasArg().withLongOpt(SSHHOSTSDIR_OPT_STRING).create();
+
     /* public final String TS01PATH_OPT_STRING = "ts01path";
     public final Option TS01PATH_OPT =
         OptionBuilder.hasArg().withLongOpt(TS01PATH_OPT_STRING).create(); */
@@ -346,6 +350,7 @@ public class Opts {
                                                  this.EPR_ID_DIR_OPT,
                                                  this.EPRFILE2_OPT,
                                                  this.SERVICE2_OPT,
+                                                 this.SSHHOSTSDIR_OPT,
                                                  this.IMPERSONATE_CTX_AGENT_OPT,
                                                  this.DEBUGGER_HANG_OPT};
 

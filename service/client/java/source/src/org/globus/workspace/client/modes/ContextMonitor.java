@@ -79,6 +79,7 @@ public class ContextMonitor extends Mode {
     private boolean dryrun;
     private long pollDelayMs;
     private String sshKnownHostsPath;
+    private String sshKnownHostsDirPath;
     private boolean adjustSshKnownHosts;
     private AdjustTask[] adjustTasks;
     
@@ -109,6 +110,7 @@ public class ContextMonitor extends Mode {
         this.validateReportdir();
         this.validateAdjustSSHhostsList();
         this.validateSSHhostsFile();
+        this.validateSSHhostsDir();
         this.dryrun = this.args.dryrun;
         CommonLogs.logBoolean(this.dryrun, "dryrun mode", this.pr, logger);
     }
@@ -309,6 +311,30 @@ public class ContextMonitor extends Mode {
         }
     }
 
+    private void validateSSHhostsDir() throws ParameterProblem {
+
+        // dir files not needed if adjust flag is not present
+        if (!this.adjustSshKnownHosts) {
+            return; // *** EARLY RETURN ***
+        }
+
+        if (this.args.sshHostsDirPath == null) {
+            return; // *** EARLY RETURN ***
+        }
+
+        final File f = new File(this.args.sshHostsDirPath);
+        if (f.exists()) {
+            if (!f.canWrite()) {
+                throw new ParameterProblem("Given known_hosts directory ('" +
+                        this.args.sshHostsDirPath + "') is not writable.");
+            }
+            this.sshKnownHostsDirPath = f.getAbsolutePath();
+        } else {
+            throw new ParameterProblem("Given known_hosts directory ('" +
+                        this.args.sshHostsDirPath + "') does not exist.");
+        }
+    }
+
     private void setName() {
 
         if (this.args.shortName != null) {
@@ -450,6 +476,7 @@ public class ContextMonitor extends Mode {
             try {
                 adjustKnownHosts(nodes,
                                  this.sshKnownHostsPath,
+                                 this.sshKnownHostsDirPath,
                                  this.adjustTasks,
                                  this.pr);
             } catch (Exception e) {
@@ -836,6 +863,7 @@ public class ContextMonitor extends Mode {
 
     private static void adjustKnownHosts(Node_Type[] nodes,
                                          String knownHostsPath,
+                                         String sshKnownHostsDirPath,
                                          AdjustTask[] adjustTasks,
                                          Print pr)
 
@@ -850,10 +878,8 @@ public class ContextMonitor extends Mode {
         if (pr == null) {
             throw new IllegalArgumentException("pr may not be null");
         }
-        if (knownHostsPath == null) {
-            throw new IllegalArgumentException(
-                    "knownHostsPath may not be null");
-        }
+
+        if (knownHostsPath != null) {
 
         pr.debugln("\nknown_hosts adjust path: '" + knownHostsPath + "'");
 
@@ -872,6 +898,75 @@ public class ContextMonitor extends Mode {
                 }
             }
         }
+    }
+
+        if (sshKnownHostsDirPath != null) {
+
+            pr.debugln("\nknown_hosts directory: '" + sshKnownHostsDirPath + "'");
+
+            for (final AdjustTask task : adjustTasks) {
+                for (final Node_Type node : nodes) {
+
+                    final IdentityProvides_Type[] ids = node.getIdentity();
+                    if (ids != null) {
+                        for (final IdentityProvides_Type id : ids) {
+                            if (task.ipAddress.equals(id.getIp())) {
+                                knownhostsdir_add(pr, task, node,
+                                                  sshKnownHostsDirPath);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
+    }
+
+    private static void knownhostsdir_add(Print print,
+                                          AdjustTask task,
+                                          Node_Type node,
+                                          String sshKnownHostsDirPath)
+            throws SerializationException, IOException {
+
+        final IdentityProvides_Type[] ids = node.getIdentity();
+        for (final IdentityProvides_Type id : ids) {
+
+            if (id.getPubkey() == null) {
+                print.errln("No SSH key for " + id.getIp());
+                continue;
+            }
+
+            // null task.iface means 'get all'
+            if (task.iface == null
+                    || task.iface.equals(id.get_interface())) {
+
+                // adding via repo.add needs the real key apparently, sending
+                // keyStr.getBytes() to HostKey constructor messes everything up
+
+                final String newEntry = id.getHostname() + "," +
+                        id.getIp() + " " + id.getPubkey();
+
+                final String sendString = newEntry + "\n";
+
+                final File newfile = new File(sshKnownHostsDirPath,
+                                              id.getHostname());
+
+                final String newfilePath = newfile.getAbsolutePath();
+
+                FileUtils.writeStringToFile(sendString,
+                                            newfilePath,
+                                            false);
+
+                String printString =
+                        "\nWrote SSH key out to: " + newfilePath;
+                if (task.printName != null) {
+                    printString += "  [[ " + task.printName + " ]]";
+                }
+                print.infoln(printString);
+            }
+        }
+        
     }
 
     private static void knownhosts_rem(Print print,
@@ -992,6 +1087,6 @@ public class ContextMonitor extends Mode {
         AdjustTask task = new AdjustTask("1.2.3.4", null, "something");
         AdjustTask[] tasks = {task};
         Print pr = new Print(new PrintOpts(null), System.out, System.err, System.err);
-        adjustKnownHosts(nodes, "/home/tim/known", tasks, pr);
+        adjustKnownHosts(nodes, "/home/tim/known", null, tasks, pr);
     }
 }

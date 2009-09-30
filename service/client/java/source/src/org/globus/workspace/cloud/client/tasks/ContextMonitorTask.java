@@ -20,6 +20,7 @@ import org.globus.workspace.common.print.Print;
 import org.globus.workspace.client.WorkspaceCLIMain;
 import org.globus.workspace.client.Opts;
 import org.globus.workspace.cloud.client.cluster.KnownHostsTask;
+import org.globus.workspace.client_core.ExecutionProblem;
 
 import java.util.ArrayList;
 
@@ -33,6 +34,7 @@ public class ContextMonitorTask implements Callable {
     private final String reportDir;
     private final long pollMs;
     private final String knownHostsFile;
+    private String knownHostsDir;
     private final String knownHostsTasks;
 
     private final Print pr;
@@ -44,7 +46,7 @@ public class ContextMonitorTask implements Callable {
                               String sshKnownHostsFile,
                               KnownHostsTask[] knownHostTasks,
                               long pollMilliseconds,
-                              Print print) {
+                              Print print) throws ExecutionProblem {
         if (print == null) {
             throw new IllegalArgumentException("print may not be null");
         }
@@ -59,13 +61,10 @@ public class ContextMonitorTask implements Callable {
             
             this.knownHostsFile = null;
             this.knownHostsTasks = null;
+            this.knownHostsDir = null;
 
         } else {
 
-            if (sshKnownHostsFile == null) {
-                throw new IllegalArgumentException(
-                        "known_hosts tasks but no known_hosts file");
-            }
             this.knownHostsFile = sshKnownHostsFile;
             
             final StringBuffer buf = new StringBuffer(64);
@@ -82,9 +81,32 @@ public class ContextMonitorTask implements Callable {
                     buf.append("::")
                        .append(task.printName);
                 }
+
+                if (task.perHostDir) {
+                    if (this.knownHostsDir == null) {
+                        if (task.perHostDirPath == null) {
+                            throw new ExecutionProblem("expecting path here");
+                        }
+                        this.knownHostsDir = task.perHostDirPath;
+                    }
+                    if (this.knownHostsDir != null) {
+                        if (!this.knownHostsDir.equals(task.perHostDirPath)) {
+                            throw new ExecutionProblem("expecting identical " +
+                                    "path here, not supporting per-sshkey " +
+                                    "file/directory paths yet");
+                        }
+                    }
+                }
             }
             
             this.knownHostsTasks = buf.toString();
+        }
+
+        if (this.knownHostsTasks != null) {
+            if (this.knownHostsFile == null && this.knownHostsDir == null) {
+                throw new ExecutionProblem("known-host tasks " +
+                        "but no path/dir to adjust");
+            }
         }
     }
 
@@ -128,10 +150,16 @@ public class ContextMonitorTask implements Callable {
         }
 
         if (this.knownHostsTasks != null) {
+            if (this.knownHostsFile != null) {
             cmdList.add("--" + Opts.SSHHOSTS_OPT_STRING);
             cmdList.add(this.knownHostsFile);
+            }
             cmdList.add("--" + Opts.ADJUST_SSHHOSTS_OPT_STRING);
             cmdList.add(this.knownHostsTasks);
+            if (this.knownHostsDir != null) {
+                cmdList.add("--" + Opts.SSHHOSTSDIR_OPT_STRING);
+                cmdList.add(this.knownHostsDir);
+            }
         }
 
         final String[] cmd =

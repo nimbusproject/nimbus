@@ -76,6 +76,7 @@ public class AllArguments {
     public String optionalParametersPath;
     public String sshKeyPath;
     public String sshHostsPath;
+    public String sshHostsDirPath;
     public String adjustSshHostsList;
     public String saveTarget;
     public String mdUserDataPath;
@@ -292,6 +293,13 @@ public class AllArguments {
                         line.getOptionValue(Opts.SSHHOSTS_OPT_STRING);
             this.gotCmdLine(Opts.SSHHOSTS_OPT_STRING,
                             this.sshHostsPath);
+        }
+
+        if (line.hasOption(Opts.SSHHOSTSDIR_OPT_STRING)) {
+            this.sshHostsDirPath =
+                        line.getOptionValue(Opts.SSHHOSTSDIR_OPT_STRING);
+            this.gotCmdLine(Opts.SSHHOSTSDIR_OPT_STRING,
+                            this.sshHostsDirPath);
         }
 
         if (line.hasOption(Opts.ADJUST_SSHHOSTS_OPT_STRING)) {

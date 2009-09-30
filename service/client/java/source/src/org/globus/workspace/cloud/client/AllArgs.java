@@ -149,6 +149,9 @@ public class AllArgs {
     // set if something has already configured propagationKeepPort
     private boolean propagationKeepPortConfigured;
 
+    // set if user wants every ctx hostkey written to special subdir of history
+    private boolean hostkeyDir;
+    
     
     // -------------------------------------------------------------------------
     // INTAKE COMMANDLINES
@@ -323,6 +326,12 @@ public class AllArgs {
                     line.getOptionValue(Opts.HISTORY_SUBDIR_OPT_STRING);
             this.gotCmdLine(Opts.HISTORY_SUBDIR_OPT_STRING,
                             this.historySubDir);
+        }
+
+        if (line.hasOption(Opts.HOSTKEYDIR_OPT_STRING)) {
+            this.hostkeyDir = true;
+            this.gotCmdLine(Opts.HOSTKEYDIR_OPT_STRING,
+                            "enabled");
         }
 
         if (line.hasOption(Opts.HOURS_OPT_STRING)) {
@@ -921,6 +930,14 @@ public class AllArgs {
 
     public void setHistorySubDir(String historySubDir) {
         this.historySubDir = historySubDir;
+    }
+
+    public boolean isHostkeyDir() {
+        return hostkeyDir;
+    }
+
+    public void setHostkeyDir(boolean hostkeyDir) {
+        this.hostkeyDir = hostkeyDir;
     }
 
     public String getLocalfile() {

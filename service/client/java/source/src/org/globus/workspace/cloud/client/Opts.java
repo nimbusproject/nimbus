@@ -210,6 +210,10 @@ public class Opts {
     public final Option DEBUGGER_HANG_OPT =
         OptionBuilder.withLongOpt(DEBUGGER_HANG_OPT_STRING).create();
 
+    public static final String HOSTKEYDIR_OPT_STRING = "hostkeydir";
+    public final Option HOSTKEYDIR_OPT =
+        OptionBuilder.withLongOpt(HOSTKEYDIR_OPT_STRING).create();
+
     
     /* "export" */
 
@@ -254,5 +258,6 @@ public class Opts {
                                                  this.EC2SCRIPT_OPT,
                                                  this.BROKER_URL_OPT,
                                                  this.BROKER_ID_OPT,
-                                                 this.NOCTXLOCK_OPT};
+                                                 this.NOCTXLOCK_OPT,
+                                                 this.HOSTKEYDIR_OPT};
 }

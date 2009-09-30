@@ -469,6 +469,24 @@ public class ExecuteUtil {
                     "Could not create directory '" + eprIdIpDirPath + "'");
         }
 
+        String knownHostsDirPath = null;
+        if (knownHostTasks != null) {
+            for (KnownHostsTask knownHostTask : knownHostTasks) {
+                if (knownHostTask.perHostDir) {
+                    final File newdir6 = new File(newdirPath, "knownhosts-dir");
+                    knownHostsDirPath = newdir6.getAbsolutePath();
+                    if (newdir6.mkdir()) {
+                        print.debugln("Created directory: " + knownHostsDirPath);
+                    } else {
+                        throw new ExecutionProblem(
+                                "Could not create directory '" +
+                                        knownHostsDirPath + "'");
+                    }
+                    break;
+                }
+            }
+        }
+
         // see comments inside loop about ensemble and context EPRs
         final File ensFile = new File(newdir,
                                       HistoryUtil.ENSEMBLE_EPR_FILE_NAME);
@@ -699,7 +717,7 @@ public class ExecuteUtil {
             // correctly.
             final KnownHostsTask[] sendTasks =
                     hostTaskIDs(knownHostTasks, allEPRpaths,
-                                print, eprIdIpDirPath);
+                                print, eprIdIpDirPath, knownHostsDirPath);
 
             final long ctx_start = System.currentTimeMillis();
             
@@ -1057,7 +1075,8 @@ public class ExecuteUtil {
     private static KnownHostsTask[] hostTaskIDs(KnownHostsTask[] tasks,
                                                 String[] allEPRPaths,
                                                 Print pr,
-                                                String eprIdIpDirPath) {
+                                                String eprIdIpDirPath,
+                                                String knownHostsDirPath) {
 
         if (tasks == null || tasks.length == 0) {
             return null;
@@ -1094,7 +1113,9 @@ public class ExecuteUtil {
                                 new KnownHostsTask(allids[j],
                                                    pair.ip,
                                                    task.interfaceName,
-                                                   printName));
+                                                   printName,
+                                                   knownHostsDirPath != null,
+                                                   knownHostsDirPath));
                         break;
                     }
                 }
