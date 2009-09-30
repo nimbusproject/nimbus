@@ -281,7 +281,7 @@ public class CloudClientUtil {
             }
         }
 
-        final int goodRightJust = 25;
+        final int goodRightJust = 31;
         int rightJust = goodRightJust;
         if (longest > rightJust) {
             rightJust = longest + 2;

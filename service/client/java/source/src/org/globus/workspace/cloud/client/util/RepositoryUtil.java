@@ -402,10 +402,11 @@ public class RepositoryUtil {
         if (modified == null || modified.length() != 14) {
             throw new IllegalArgumentException("invalid modified arg");
         }
+        final String year = modified.substring(0,4);
         final String monthNum = modified.substring(4,6);
         final String month = getMonthStr(Integer.parseInt(monthNum));
         final String day = modified.substring(6,8);
-        return month + " " + day;
+        return month + " " + day + ", " + year;
     }
 
     private static String getMonthStr(int month) {
