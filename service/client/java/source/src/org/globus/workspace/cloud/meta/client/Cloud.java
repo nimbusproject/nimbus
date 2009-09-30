@@ -227,7 +227,8 @@ public class Cloud {
             member.getMember().getIfaceNames(),
             this.getMetadata_cpuType(),
             this.getMetadata_vmmVersion(),
-            this.getMetadata_vmmType());
+            this.getMetadata_vmmType(),
+            null);
     }
 
     public WorkspaceDeployment_Type generateDeployment(MemberDeployment member,
