@@ -27,7 +27,6 @@ import org.globus.workspace.client_core.utils.StringUtils;
 import org.globus.workspace.client_core.repr.Workspace;
 import org.globus.workspace.client_core.actions.Status_QueryAll;
 import org.globus.workspace.common.print.PrintOpts;
-import org.globus.workspace.client_common.BaseClient;
 import org.nimbustools.messaging.gt4_0.generated.status.WorkspaceStatusPortType;
 import org.nimbustools.messaging.gt4_0.generated.status.WorkspaceStatusServiceAddressingLocator;
 import org.nimbustools.messaging.gt4_0.generated.status.VoidType;
@@ -47,12 +46,10 @@ import org.apache.axis.types.Duration;
 
 import java.util.Properties;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.rmi.RemoteException;
 import java.io.PrintStream;
-import java.io.File;
 
-public class WorkspaceStatusClient extends BaseClient {
+public class WorkspaceStatusClient extends org.globus.wsrf.client.BaseClient {
 
     private static String defaultServiceURL =
             "https://localhost:8443/wsrf/services/WorkspaceStatusService";
@@ -102,7 +99,7 @@ public class WorkspaceStatusClient extends BaseClient {
         // GSI Secure Msg (signature)
         //defaultOptions.put(BaseClient.PROTECTION.getOpt(), "sig");
         // no authorization
-        defaultOptions.put(BaseClient.AUTHZ.getOpt(),
+        defaultOptions.put(AUTHZ.getOpt(),
                            "none");
 
         WorkspaceStatusClient client = new WorkspaceStatusClient();
@@ -120,7 +117,7 @@ public class WorkspaceStatusClient extends BaseClient {
                 if (e.getMessage().matches("-s or -e argument is required")) {
                     // default service address
                     defaultOptions.put(
-                            BaseClient.SERVICE_URL.getOpt(),
+                            SERVICE_URL.getOpt(),
                             defaultServiceURL);
 
                     line = client.parse(args, defaultOptions);
