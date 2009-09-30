@@ -3,13 +3,13 @@
 <cluster>
 
   <workspace>
-  
+
     <name>head-node</name>
-    
-    <image>ami-0ea84f67</image>
-    
+
+    <image>ami-dfa244b6</image>
+
     <quantity>1</quantity>
-    
+
     <nic _interface="publicnic" wantlogin="true">public</nic>
     <nic _interface="localnic">private</nic>
 
@@ -26,50 +26,64 @@
         </provides>
 
         <requires>
-          <identity />
-          <role name="torqueslave" hostname="true" pubkey="true" />
-          <role name="nfsclient" />
-          <data name="startcontainer">yes</data>
-          
-          <!-- adjust this to match your DN, "jobrun" is the account -->
-          <data name="gridmap"><![CDATA[
-          
-"/DC=org/DC=doegrids/OU=People/CN=Timothy Freeman 964650" jobrun
+            <identity />
+            <role name="torqueslave" hostname="true" pubkey="true" />
+            <role name="nfsclient" />
+
+            <!-- adjust this to match your DN, "torqueuser" is the account -->
+            <data name="gridmap"><![CDATA[
+
+"/DC=org/DC=doegrids/OU=People/CN=Timothy Freeman 964650" torqueuser
 
           ]]> </data>
-      </requires>
-      
+
+
+            <!-- adjust this to match your ssh public keys -->
+            <data name="ssh"><![CDATA[
+
+ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAIEA2Uoxji01ETQAllCL/7z0Q26h81cW1DKKhhJG3ZSttq3hUIm4GtgldurlXBW7++wK0hEkzxvZGPyve2IRrs6S1j7ODxWXBiCuryIGDf1sgh4Mu7xPcPySYSmBZwBnHE03LyMCS1Hzssuf5TPzhQfWam0VOywFjjHFKMqFcN+TZs8= tim@prnb
+
+          ]]> </data>
+        </requires>
     </ctx>
   </workspace>
-  
+
   <workspace>
-  
+
     <name>compute-nodes</name>
-    
-    <image>ami-0ea84f67</image>
-    
+
+    <image>ami-dea244b7</image>
+
     <quantity>2</quantity>
-    
-    <nic _interface="publicnic" wantlogin="true">public</nic>
+
     <nic _interface="localnic">private</nic>
-    
+
     <ctx>
-    
-      <provides>
-          <identity>
-              <_interface>localnic</_interface>
-          </identity>
-          <role interface="localnic">torqueslave</role>
-          <role interface="localnic">nfsclient</role>
-      </provides>
-      
-      <requires>
-          <identity />
-          <role name="torquemaster" hostname="true" pubkey="true" />
-          <role name="nfsserver" />
-      </requires>
-      
+
+        <provides>
+            <identity>
+                <_interface>localnic</_interface>
+            </identity>
+            <role interface="localnic">torqueslave</role>
+            <role interface="localnic">nfsclient</role>
+        </provides>
+
+        <requires>
+            <identity />
+            <role name="torquemaster" hostname="true" pubkey="true" />
+            <role name="nfsserver" />
+
+
+            <!-- adjust this to match your ssh public keys -->
+            <data name="ssh"><![CDATA[
+
+ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAIEA2Uoxji01ETQAllCL/7z0Q26h81cW1DKKhhJG3ZSttq3hUIm4GtgldurlXBW7++wK0hEkzxvZGPyve2IRrs6S1j7ODxWXBiCuryIGDf1sgh4Mu7xPcPySYSmBZwBnHE03LyMCS1Hzssuf5TPzhQfWam0VOywFjjHFKMqFcN+TZs8= tim@prnb
+
+          ]]> </data>
+        </requires>
+
     </ctx>
   </workspace>
-  
+
 </cluster>
+
