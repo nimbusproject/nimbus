@@ -34,12 +34,11 @@ import org.globus.workspace.cloud.client.Props;
 import org.globus.wsrf.encoding.DeserializationException;
 import org.nimbustools.ctxbroker.generated.gt4_0.description.Clouddeployment_Type;
 import org.nimbustools.ctxbroker.generated.gt4_0.description.Clouddeploy_Type;
+import org.nimbustools.ctxbroker.generated.gt4_0.description.Cloudcluster_Type;
+import org.nimbustools.ctxbroker.generated.gt4_0.description.Cloudworkspace_Type;
 import org.nimbustools.messaging.gt4_0.common.CommonUtil;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.LinkedHashMap;
+import java.util.*;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.InputStream;
@@ -47,8 +46,11 @@ import java.io.InputStream;
 public class CloudMetaClient {
 
     private AllArgs args;
-    private HashMap<String, ClusterMember> memberMap;
     private HashMap<String, CloudDeployment> cloudMap;
+    private Cloudcluster_Type cluster;
+    private ArrayList<Cloudworkspace_Type> workspaceList;
+    private boolean needsBroker = false;
+
 
     private CloudManager cloudManager;
     private ExecuteUtil executeUtil = new ExecuteUtil();
@@ -60,17 +62,13 @@ public class CloudMetaClient {
         return this.print;
     }
 
-    public Map<String, ClusterMember> getMemberMap() {
-        return this.memberMap;
-    }
-
 
     public CloudMetaClient(Print pr) {
         if (pr == null) {
             throw new IllegalArgumentException("print may not be null");
         }
         this.print = pr;
-        this.memberMap = new HashMap<String, ClusterMember>();
+        this.workspaceList = new ArrayList<Cloudworkspace_Type>();
         this.cloudMap = new LinkedHashMap<String, CloudDeployment>();
 
     }
@@ -248,34 +246,47 @@ public class CloudMetaClient {
                 "document with --" + Opts.CLUSTER_OPT_STRING);
         }
 
-        //TODO push NIC names into args
-        ClusterMember[] members = ClusterUtil.getClusterMembers(clusterPath,
-            "priv", "pub", this.print);
+        this.cluster = ClusterUtil.getCluster(clusterPath, this.print);
 
-        boolean hasInlineDeploy = false;
-        boolean needsBroker = false;
-        for (ClusterMember member : members) {
-            this.memberMap.put(member.getPrintName(), member);
-
-            if (member.hasDeploy()) {
-                hasInlineDeploy = true;
-            }
-            if (member.getClusterForUserData() != null) {
-                needsBroker = true;
-            }
+        Cloudworkspace_Type[] workspaces = this.cluster.getWorkspace();
+        if (workspaces == null || workspaces.length == 0) {
+            throw new ParameterProblem("The cluster document must contain "+
+                "at least one workspace");
         }
 
+        for (Cloudworkspace_Type ws : workspaces) {
+
+            final Clouddeploy_Type[] deploys = ws.getDeploy();
+            if (deploys != null && deploys.length > 0) {
         // we may want to enable this functionality in the future
         // but let's keep things simple for now
-        if (hasInlineDeploy) {
             throw new ParameterProblem("Your cluster document includes <deploy> " +
                 "elements, which are not allowed at this time.");
+        }
+
+            String name = ws.getName();
+            if (name == null || name.trim().length() == 0) {
+                throw new ParameterProblem("Every workspace must have a unique "+
+                    "name");
+            }
+            name = name.trim();
+
+            for (Cloudworkspace_Type existingWs : this.workspaceList) {
+                String existingWsName = existingWs.getName().trim();
+
+                if (existingWsName.equals(name)) {
+                    throw new ParameterProblem("Every workspace must have a " +
+                        "unique name");
+                }
+            }
+
+            this.workspaceList.add(ws);
         }
 
         if (deployPath == null) {
             throw new ParameterProblem("You must specify a deployment document " +
                 "using the --"+Opts.DEPLOY_OPT_STRING+" option");
-        } else {
+        }
 
             final Map<String, Clouddeploy_Type[]> deployMap;
 
@@ -296,9 +307,8 @@ public class CloudMetaClient {
 
             validateDeployments();
 
-        }
 
-        if (needsBroker) {
+        if (this.needsBroker) {
             if (brokerUrl == null || brokerId == null) {
                 throw new ParameterProblem("You must specify a valid Context " +
                     "Broker URL and identity string in your properties file ("+
@@ -330,26 +340,16 @@ public class CloudMetaClient {
         throws ParameterProblem {
 
         for (Map.Entry<String,Clouddeploy_Type[]> entry : deployMap.entrySet()) {
-            final ClusterMember member = this.memberMap.get(entry.getKey());
 
-
-            if (member == null) {
-                // we know that these exceptions will bubble up and abort
-                // otherwise we should rollback changes already made
-
+            int workspaceIndex = getWorkspaceIndex(entry.getKey());
+            if (workspaceIndex == -1) {
                 throw new ParameterProblem("Deployment document contains "+
-                    "a workspace:"+ entry.getKey()+" which is not present "+
+                    "a workspace: '"+ entry.getKey()+"' which is not present "+
                     "in the cluster definition");
             }
 
-            // sanity check, this should never happen
-            if (member.hasDeploy()) {
-                throw new ParameterProblem("Cluster member "+entry.getKey()+
-                    " already has deployments");
-            }
 
             for (Clouddeploy_Type deploy : entry.getValue()) {
-                final MemberDeployment md = new MemberDeployment(member, deploy);
 
                 String cloudName = deploy.getCloud();
                 if (cloudName != null) {
@@ -360,6 +360,21 @@ public class CloudMetaClient {
                 }
 
                 CloudDeployment cloud = getDeploymentByName(cloudName);
+
+                final String localNicPrefix =
+                    cloud.getCloud().getBrokerLocalNicPrefix();
+
+                final String publicNicPrefix =
+                    cloud.getCloud().getBrokerPublicNicPrefix();
+
+                ClusterMember member = ClusterUtil.parseRequest(this.cluster,
+                    workspaceIndex, this.print, localNicPrefix, publicNicPrefix);
+
+                if (member.getClusterForUserData() != null) {
+                    needsBroker = true;
+                }
+
+                final MemberDeployment md = new MemberDeployment(member, deploy);
                 cloud.addMember(md);
             }
         }
@@ -367,15 +382,26 @@ public class CloudMetaClient {
         // we already know that every deployment workspace is a valid
         // ClusterMember, so if the sizes match we can be sure that every
         // ClusterMember is accounted for
-        if (deployMap.size() != this.memberMap.size()) {
+        if (deployMap.size() != this.workspaceList.size()) {
             throw new ParameterProblem("There must be a deployment entry "+
                 "for each defined workspace.");
         }
 
+
+    }
+
+    private int getWorkspaceIndex(String key) {
+        for (int i = 0; i < workspaceList.size(); i++) {
+            Cloudworkspace_Type ws = workspaceList.get(i);
+            if (ws.getName().trim().equals(key)) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     private void validateDeployments() {
-
+        //TODO do what the method says
     }
 
     private synchronized CloudDeployment getDeploymentByName(String name)

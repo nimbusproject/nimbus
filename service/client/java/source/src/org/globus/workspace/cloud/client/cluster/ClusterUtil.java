@@ -502,6 +502,18 @@ public class ClusterUtil {
                                                     Print print)
         throws ParameterProblem {
 
+        final Cloudcluster_Type cluster = getCluster(clusterPath, print);
+
+        return getClusterMembers(cluster, brokerLocalNicPrefix, brokerPublicNicPrefix, print);
+    }
+
+    public static Cloudcluster_Type getCluster(String clusterPath, Print print)
+        throws ParameterProblem {
+
+        if (clusterPath == null) {
+            throw new IllegalArgumentException("clusterPath may not be null");
+        }
+
         final File f = new File(clusterPath);
         clusterPath = f.getAbsolutePath();
 
@@ -536,8 +548,7 @@ public class ClusterUtil {
                     e.getMessage();
             throw new ParameterProblem(msg, e);
         }
-
-        return getClusterMembers(cluster, brokerLocalNicPrefix, brokerPublicNicPrefix, print);
+        return cluster;
     }
 
     public static ClusterMember[] getClusterMembers(Cloudcluster_Type cluster,

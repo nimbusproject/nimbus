@@ -105,6 +105,9 @@ public class Cloud {
     private boolean propagationKeepPort;
     private int memory;
     private int pollTime;
+    private String brokerPublicNicPrefix;
+    private String brokerLocalNicPrefix;
+
 
     private void intakeProperties(Properties props) throws ParameterProblem {
         this.factoryHostPort = getRequiredProp(props,
@@ -127,6 +130,10 @@ public class Cloud {
             Props.KEY_TARGET_BASEDIR);
         this.propagationScheme = getRequiredProp(props,
             Props.KEY_PROPAGATION_SCHEME);
+        this.brokerLocalNicPrefix = getRequiredProp(props,
+            Props.KEY_BROKER_LOCAL);
+        this.brokerPublicNicPrefix = getRequiredProp(props,
+            Props.KEY_BROKER_PUB);
 
         final String keepPortStr = getRequiredProp(props,
             Props.KEY_PROPAGATION_KEEPPORT);
@@ -291,5 +298,14 @@ public class Cloud {
 
     public int getPollTime() {
         return pollTime;
+    }
+
+
+    public String getBrokerPublicNicPrefix() {
+        return brokerPublicNicPrefix;
+    }
+
+    public String getBrokerLocalNicPrefix() {
+        return brokerLocalNicPrefix;
     }
 }
