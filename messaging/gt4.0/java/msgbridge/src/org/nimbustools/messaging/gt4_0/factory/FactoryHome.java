@@ -25,6 +25,7 @@ import org.nimbustools.api.repr.ReprFactory;
 import org.nimbustools.api.services.rm.Manager;
 import org.nimbustools.api.services.metadata.MetadataServer;
 import org.nimbustools.messaging.gt4_0.OtherContext;
+import org.nimbustools.messaging.gt4_0.common.NimbusLocalMasterContext;
 import org.nimbustools.messaging.gt4_0.common.NimbusMasterContext;
 import org.nimbustools.messaging.gt4_0.ctx.ContextBrokerHome;
 import org.nimbustools.messaging.gt4_0.service.InstanceTranslate;
@@ -47,7 +48,7 @@ public class FactoryHome extends SingletonResourceHome implements Initializable 
 
     public void initialize() throws Exception {
 
-        this.master = NimbusMasterContext.discoverApplicationContext();
+        this.master = NimbusLocalMasterContext.discoverApplicationContext();
 
         // instantiate resource and cause SingletonResourceHome to cache
         // the reference, this.findSingleton() is called

@@ -19,4 +19,5 @@ package org.nimbustools.messaging.gt4_0_elastic;
 public interface Constants_GT4_0_Elastic {
 
     public static final String SERVICE_PATH = "ElasticNimbusService";
+    public static final String GATEWAY_SERVICE_PATH = "NimbusGatewayService";
 }

@@ -16,59 +16,59 @@
 
 package org.nimbustools.messaging.gt4_0_elastic.context;
 
-import org.nimbustools.messaging.gt4_0.common.NimbusLocalMasterContext;
+import org.nimbustools.messaging.gt4_0.common.GatewayMasterContext;
 
 import javax.naming.InitialContext;
 
-public class ElasticContext extends BaseContext {
+public class GatewayContext extends BaseContext {
 
     // -------------------------------------------------------------------------
     // STATIC VARIABLES
     // -------------------------------------------------------------------------
 
     public static final String THIS_JNDI_LOOKUP =
-            NimbusLocalMasterContext.MASTER_JNDI_BASE + "elasticContext";
+            GatewayMasterContext.MASTER_JNDI_BASE + "gatewayContext";
 
 
     // -------------------------------------------------------------------------
     // INSTANCE VARIABLES
     // -------------------------------------------------------------------------
 
-    public ElasticContext() {
-        super("nimbus-elastic.rm",
-              "nimbus-elastic.general",
-              "nimbus-elastic.security",
-              "nimbus-elastic.image",
-              "elastic context",
-              "elasticConf");
+    public GatewayContext() {
+        super("nimbus-gateway.rm",
+              "nimbus-gateway.general",
+              "nimbus-gateway.security",
+              "nimbus-gateway.image",
+              "gateway context",
+              "gatewayConf");
     }
 
-    
+
     // -------------------------------------------------------------------------
     // SET
     // -------------------------------------------------------------------------
 
-    public synchronized void setElasticConf(String conf) {
+    public synchronized void setGatewayConf(String conf) {
         this.springConf = conf;
     }
 
 
     // -------------------------------------------------------------------------
-    // ELASTIC CONTEXT DISCOVERY
+    // GATEWAY CONTEXT DISCOVERY
     // -------------------------------------------------------------------------
 
     /**
-     * @return ElasticContext, never null
+     * @return GatewayContext, never null
      * @throws Exception could not locate
      */
-    public static ElasticContext discoverElasticContext() throws Exception {
+    public static GatewayContext discoverGatewayContext() throws Exception {
 
         InitialContext ctx = null;
         try {
             ctx = new InitialContext();
 
-            final ElasticContext masterContext =
-                    (ElasticContext) ctx.lookup(THIS_JNDI_LOOKUP);
+            final GatewayContext masterContext =
+                    (GatewayContext) ctx.lookup(THIS_JNDI_LOOKUP);
 
             if (masterContext == null) {
                 // should be NameNotFoundException if missing

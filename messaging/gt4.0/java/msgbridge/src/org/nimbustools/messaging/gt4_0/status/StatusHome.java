@@ -21,6 +21,7 @@ import org.globus.wsrf.jndi.Initializable;
 import org.globus.wsrf.Resource;
 import org.globus.wsrf.ResourceException;
 
+import org.nimbustools.messaging.gt4_0.common.NimbusLocalMasterContext;
 import org.nimbustools.messaging.gt4_0.common.NimbusMasterContext;
 import org.nimbustools.messaging.gt4_0.service.InstanceTranslate;
 import org.nimbustools.api.services.rm.Manager;
@@ -45,7 +46,7 @@ public class StatusHome extends SingletonResourceHome
 
     public void initialize() throws Exception {
 
-        this.master = NimbusMasterContext.discoverApplicationContext();
+        this.master = NimbusLocalMasterContext.discoverApplicationContext();
 
         // instantiate resource and cause SingletonResourceHome to cache
         // the reference, this.findSingleton() is called
