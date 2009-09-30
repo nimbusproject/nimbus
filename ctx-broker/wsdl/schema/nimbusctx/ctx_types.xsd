@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/*
+ * Copyright 1999-2008 University of Chicago
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy
+ * of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ */
+ -->
+<xs:schema
+        xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        targetNamespace="http://www.globus.org/2008/12/nimbus/ctxtypes"
+        xmlns="http://www.globus.org/2008/12/nimbus/ctxtypes"
+        xmlns:tns="http://www.globus.org/2008/12/nimbus/ctxtypes"
+        xmlns:ctxdesc="http://www.globus.org/2008/12/nimbus/ctxdescription"
+        xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/03/addressing"
+        attributeFormDefault="qualified"
+        elementFormDefault="qualified"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.globus.org/2008/12/nimbus/ctxdescription ctx_description.xsd">
+
+    <xs:import namespace="http://www.globus.org/2008/12/nimbus/ctxdescription"
+                schemaLocation="./ctx_description.xsd" />
+
+    <xs:complexType name="createContext_Type">
+        <xs:sequence>
+            <xs:element name="expectInjections"
+                        type="xs:boolean" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="createContextResponse_Type">
+        <xs:sequence>
+            <xs:element name="contextEPR"
+                        type="wsa:EndpointReferenceType" />
+            <xs:element name="contact"
+                        type="ctxdesc:brokerContactType" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="injectData_Type">
+        <xs:sequence>
+            <xs:element name="data" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:simpleContent>
+                        <xs:extension base="xs:string">
+                            <xs:attribute name="name"
+                                          type="xs:string"
+                                          use="required" />
+                        </xs:extension>
+                    </xs:simpleContent>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="retrieveResponse_Type">
+        <xs:sequence>
+            <xs:element name="noMoreInjections"
+                        type="xs:boolean" />
+            <xs:element name="complete"
+                        type="xs:boolean" />
+            <xs:element name="cancelled"
+                        type="xs:boolean" />
+            <xs:element name="requires"
+                        type="ctxdesc:Requires_Type" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="okExitingSend_Type">
+        <xs:sequence>
+            <xs:element name="identity"
+                        type="ctxdesc:IdentityProvides_Type"
+                        maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="errorExitingSend_Type">
+        <xs:sequence>
+            <xs:element name="identity"
+                        type="ctxdesc:IdentityProvides_Type"
+                        maxOccurs="unbounded" />
+            <xs:element name="errorcode"
+                        type="xs:short" />
+            <xs:element name="message"
+                        type="xs:string" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="matchedRole_Type">
+        <xs:sequence>
+            <xs:element name="name"
+                        type="xs:string" />
+            <xs:element name="numFilledProviders"
+                        type="xs:short" />
+            <xs:element name="numProvidersInContext"
+                        type="xs:short" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="identitiesSend_Type">
+        <xs:choice maxOccurs="unbounded">
+            <xs:element name="all" type="xs:boolean" />
+            <xs:element name="ip" type="xs:string" />
+            <xs:element name="host" type="xs:string" />
+        </xs:choice>
+    </xs:complexType>
+
+    <xs:complexType name="node_Type">
+        <xs:sequence>
+            <xs:element name="exited"
+                        type="xs:boolean" />
+            <xs:element name="ok"
+                        type="xs:boolean" />
+            <xs:element name="errorCode"
+                        type="xs:short"
+                        minOccurs="0" />
+            <xs:element name="errorMessage"
+                        type="xs:string"
+                        minOccurs="0" />
+            <xs:element name="identity"
+                        type="ctxdesc:IdentityProvides_Type"
+                        maxOccurs="unbounded" />
+
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="identitiesResponse_Type">
+        <xs:sequence>
+            <xs:element name="node"
+                        type="tns:node_Type"
+                        maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="contextualizationContext">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="noMoreInjections"
+                            type="xs:boolean" />
+                <xs:element name="complete"
+                            type="xs:boolean" />
+                <xs:element name="totalNodes"
+                            type="xs:int" />
+                <xs:element name="numNodesRegistered"
+                            type="xs:int" />
+                <xs:element name="allOK"
+                            type="xs:boolean" />
+                <xs:element name="errorPresent"
+                            type="xs:boolean" />
+                <xs:element name="matchedRole"
+                            type="tns:matchedRole_Type"
+                            minOccurs="0"
+                            maxOccurs="unbounded" />
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:complexType name="voidType" />
+
+</xs:schema>

@@ -1,0 +1,179 @@
+<project basedir="." default="disp" name="GT4.0 context broker web services stubs">
+
+    <description>GT4.0 context broker web services stubs</description>
+
+    <!-- load user nimbus.build.properties file, if it exists -->
+    <property file="${user.home}/nimbus.build.properties" />
+
+    <!-- load defaults from colocated build.properties file -->
+    <property file="./build.properties" />
+
+
+    <!-- *******************************************************************
+         LOCATE GT DEPENDENCIES
+         ******************************************************************* -->
+
+    <property environment="env"/>
+    <property name="abs.deploy.dir"
+              location="${env.GLOBUS_LOCATION}"/>
+    <property name="gt4_0.lib.dir"
+              location="${abs.deploy.dir}/lib"/>
+    <property name="build.stubs"
+              location="${abs.deploy.dir}/share/globus_wsrf_tools/build-stubs.xml"/>
+
+    
+    <!-- *******************************************************************
+         GT RELATED PROPERTIES
+         ******************************************************************* -->
+
+    <!-- copy all schemas from shared source... -->
+    <property name="schema.src"
+              location="${abs.deploy.dir}/share/schema"/>
+    <!-- to local comp/build/schema dir, for local imports
+         (this should be refined to only dependencies - means
+         developer would maintain extra list of depedencies)-->
+
+
+    <!-- *******************************************************************
+         MODULE NAME
+         ******************************************************************* -->
+
+    <target name="disp">
+        <echo message="**** Module: ${basedir}" />
+    </target>
+    
+
+    <!-- *******************************************************************
+         CHECK MINIMUM JDK
+         ******************************************************************* -->
+
+    <target name="checkjdk">
+        <available property="jdk1.4+" classname="java.lang.CharSequence"/>
+        <fail message="Aborting: determined you are not building with >= JDK 1.4"
+              unless="jdk1.4+" />
+    </target>
+
+
+    <!-- *******************************************************************
+         INITIALIZE
+         ******************************************************************* -->
+
+    <target name="init" depends="checkjdk">
+        <mkdir dir="${nimbusctx.gt4_0.stubs.build.dir}"/>
+        <mkdir dir="${nimbusctx.gt4_0.stubs.build.dest}"/>
+        <mkdir dir="${nimbusctx.gt4_0.stubs.build.schema.dir}"/>
+        <mkdir dir="${nimbusctx.gt4_0.stubs.dist.dir}"/>
+
+        <mkdir dir="${nimbusctx.gt4_0.stubs.build.tmpschemas.dir}"/>
+
+        <copy todir="${nimbusctx.gt4_0.stubs.build.tmpschemas.dir}">
+            <fileset dir="${schema.src}"
+                     includes="**/*" />
+        </copy>
+
+        <mkdir dir="${nimbusctx.gt4_0.stubs.build.tmpschemas.dir}/${schema.subdirs}"/>
+        
+        <copy todir="${nimbusctx.gt4_0.stubs.build.tmpschemas.dir}/${schema.subdirs}">
+            <fileset dir="${nimbusctx.gt4_0.schemas.dist}/${schema.subdirs}"
+                     includes="**/*" />
+        </copy>
+
+        <available property="stubs.present"
+                   type="dir"
+                   file="${nimbusctx.gt4_0.stubs.build.dest}/${nimbusctx.gt4_0.stubs.java.subdirs}" />
+    </target>
+
+
+    <!-- *******************************************************************
+         GENERATE STUBS
+         ******************************************************************* -->
+        
+    <target name="stubs" unless="stubs.present" depends="init">
+
+        <!-- merge specific mappings w/ defaults -->
+        <property name="mapping.src"
+                  value="NStoPkg.properties"/>
+        <property name="mapping.dst"
+                  location="${nimbusctx.gt4_0.stubs.build.dir}/NStoPkg.properties"/>
+        <ant antfile="${build.stubs}" target="mergePackageMapping"/>
+
+        <!-- workspace contextualization stubs -->
+        <ant antfile="${build.stubs}" target="generateStubs">
+            <property name="wsdl.file"
+                value="${ctx.wsdl.root}_service.wsdl"/>
+            <property name="mapping.file" value="${mapping.dst}"/>
+            <property name="source.stubs.dir"
+                      value="${nimbusctx.gt4_0.stubs.build.tmpschemas.dir}/${schema.subdirs}"/>
+            <property name="target.stubs.dir"
+                      location="${nimbusctx.gt4_0.stubs.build.src.dir}"/>
+        </ant>
+
+    </target>
+
+
+    <!-- *******************************************************************
+         COMPILATION
+         ******************************************************************* -->
+
+
+    <target name="compile" depends="stubs">
+        <!-- clean up the duplicate junk that got generated from imports -->
+        <!--<delete includeEmptyDirs="true">
+            <fileset dir="${stubs.src}">
+                <exclude name="**/workspace/**"/>
+            </fileset>
+        </delete>-->
+
+        <javac srcdir="${nimbusctx.gt4_0.stubs.build.src.dir}"
+               destdir="${nimbusctx.gt4_0.stubs.build.dest}"
+               debug="on">
+            
+            <include name="**/*.java"/>
+            <compilerarg value="${nimbus.java.compilerarg}" />
+            <classpath>
+                <fileset dir="${gt4_0.lib.dir}">
+                    <include name="*.jar"/>
+                    <exclude name="nimbus-*.jar" />
+                </fileset>
+            </classpath>
+        </javac>
+    </target>
+
+
+    <!-- *******************************************************************
+         CREATE ARCHIVE FILE
+         ******************************************************************* -->
+
+    <target name="jar" depends="compile">
+        <jar destfile="${nimbusctx.gt4_0.stubs.dist.dir}/${nimbusctx.gt4_0.stubs.jar.name}"
+             basedir="${nimbusctx.gt4_0.stubs.build.dest}"/>
+    </target>
+
+
+    <!-- *******************************************************************
+         CLEAN
+         ******************************************************************* -->
+
+    <target name="clean">
+        <delete dir="${nimbusctx.gt4_0.stubs.build.dir}"/>
+        <delete dir="${nimbusctx.gt4_0.stubs.dist.dir}"/>
+        <delete file=".ant-targets-build.xml" />
+        <delete dir="tmp"/>
+        <echo message="Cleaned: ${basedir}" />
+    </target>
+
+
+    <!-- *******************************************************************
+         CREATE DISTRIBUTION
+         ******************************************************************* -->
+
+    <target name="dist" depends="disp">
+        <echo>Building: ${nimbusctx.gt4_0.stubs.print-noun}</echo>
+        <antcall target="jar" />
+        <echo>Built: ${nimbusctx.gt4_0.stubs.print-noun}
+        </echo>
+    </target>
+
+
+</project>
+    

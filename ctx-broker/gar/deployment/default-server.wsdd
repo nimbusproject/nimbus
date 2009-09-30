@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deployment name="NimbusContextBrokerConfig"
+    xmlns="http://xml.apache.org/axis/wsdd/"
+    xmlns:java="http://xml.apache.org/axis/wsdd/providers/java"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+    <service name="NimbusContextBroker"
+             provider="Handler"
+             use="literal"
+             style="document">
+
+        <parameter name="loadOnStartup" value="true"/>
+
+        <!-- You should not need to change anything below. -->
+
+        <parameter name="allowedMethodsClass"
+                   value="org.nimbustools.ctxbroker.generated.gt4_0.broker.NimbusContextBrokerPortType"/>
+        <parameter name="handlerClass"
+                   value="org.globus.axis.providers.RPCProvider"/>
+        <parameter name="className"
+                   value="org.nimbustools.ctxbroker.service.ContextBrokerServiceImpl"/>
+
+        <wsdlFile>share/schema/nimbusctx/nimbus_ctx_service.wsdl</wsdlFile>
+
+        <parameter name="scope"
+                   value="Application"/>
+        <parameter name="providers"
+                   value="DestroyProvider"/>
+        <parameter name="providers"
+                   value="GetRPProvider QueryRPProvider GetCurrentMessageProvider
+                          DestroyProvider"/>
+    </service>
+
+</deployment>

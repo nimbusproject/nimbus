@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jndiConfig xmlns="http://wsrf.globus.org/jndi/config">
+    <!--
+         You will need to configure the context broker with a CA cert/key pair
+         for creating credentials on the fly for the VMs to securely get back
+         to the broker.
+
+
+             caCertPath  -  Absolute path to CA's public certificate.
+                            Restriction: RDNs in the DN may not have commas.
+
+             caKeyPath   -  Absolute path to UN-ENCRYPTED private key.
+                            CHECK PERMISSIONS on this key.
+
+                            To unencrypt an RSA key, run:
+                            openssl rsa -in cakey.pem -out cakey-unencrypted.pem
+
+
+         Other configurations:
+
+             testBootstrapGeneration -
+
+                   If 'true', tests for cert generation on startup to make
+                   sure CA misconfigurations fail early.  Note that you need
+                   to also enable 'loadOnStartup' in server-config.wsdd which
+                   is disabled by default.
+
+     -->
+
+
+    <service name="NimbusContextBroker">
+        <resource name="ctxBrokerBootstrapFactory"
+                   type="org.nimbustools.ctxbroker.security.DefaultBootstrapFactory">
+
+             <resourceParams>
+                 <parameter>
+                     <name>caCertPath</name>
+                     <value>/some/path/to/12345678.0</value>
+                 </parameter>
+                 <parameter>
+                     <name>caKeyPath</name>
+                     <value>/some/path/to/12345678.0-cakey.pem</value>
+                 </parameter>
+                 <parameter>
+                     <name>testBootstrapGeneration</name>
+                     <value>true</value>
+                 </parameter>
+                 <parameter>
+                     <name>factory</name>
+                     <value>org.globus.wsrf.jndi.BeanFactory</value>
+                 </parameter>
+             </resourceParams>
+         </resource>
+        <resource
+            name="home"
+            type="org.nimbustools.ctxbroker.service.ContextBrokerHomeImpl">
+
+            <resourceParams>
+                <parameter>
+                    <name>factory</name>
+                    <value>org.globus.wsrf.jndi.BeanFactory</value>
+                </parameter>
+                <parameter>
+                    <name>resourceClass</name>
+                    <value>
+                        org.nimbustools.ctxbroker.service.ContextBrokerResourceImpl
+                    </value>
+                </parameter>
+            </resourceParams>
+        </resource>
+    </service>
+
+</jndiConfig>
