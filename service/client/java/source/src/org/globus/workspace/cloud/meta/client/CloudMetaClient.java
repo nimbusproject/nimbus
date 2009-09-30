@@ -33,6 +33,8 @@ import org.globus.workspace.cloud.client.Props;
 import org.globus.wsrf.encoding.DeserializationException;
 import org.nimbustools.ctxbroker.generated.gt4_0.description.Clouddeployment_Type;
 import org.nimbustools.ctxbroker.generated.gt4_0.description.Clouddeploy_Type;
+import org.nimbustools.messaging.gt4_0.common.CommonUtil;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -101,7 +103,7 @@ public class CloudMetaClient {
 
         int exitCode;
         if (anyError != null) {
-            print.err("Got error:\n" + anyError.toString());
+            print.err("Error:\n"+anyError.toString());
             exitCode = BaseClient.COMMAND_LINE_EXIT_CODE;
         } else {
             exitCode = BaseClient.SUCCESS_EXIT_CODE;
@@ -125,7 +127,6 @@ public class CloudMetaClient {
         }
 
         CommonPrint.logArgs(argv, client.getPrint());
-
 
         AllArgs args = AllArgs.create(argv, client.getPrint());
 
@@ -163,8 +164,6 @@ public class CloudMetaClient {
         }
 
     }
-
-
 
     void handleParameters() throws ParameterProblem {
 

@@ -476,6 +476,18 @@ public class ExecuteUtil {
         final String[] ensembleEprPaths =
             new String[deploys.size()];
 
+        // Ensemble requests won't get time assignments, remove the
+        // "will be set after lease is secured" messages when registering
+        print.getOpts().codeRemove(
+                PrCodes.CREATE__INSTANCE_CREATING_INIITIAL_START_TIME);
+        print.getOpts().codeRemove(
+                PrCodes.CREATE__INSTANCE_CREATING_INIITIAL_SHUTDOWN_TIME);
+        print.getOpts().codeRemove(
+                PrCodes.CREATE__INSTANCE_CREATING_INIITIAL_TERMINATION_TIME);
+        print.getOpts().codeRemove(PrCodes.CREATE__GROUP_ID_PRINT);
+        print.getOpts().codeRemove(PrCodes.ENSMONITOR__SINGLE_REPORT_NAMES);
+        print.getOpts().codeRemove(PrCodes.CTXMONITOR__SINGLE_REPORT_NAMES);
+
         for (int i = 0; i < clouds.length; i++) {
             CloudDeployment cloud = clouds[i];
             final File cloudDir = new File(newdir,
@@ -496,13 +508,24 @@ public class ExecuteUtil {
             }
 
             final String ensembleEprPath = runTasks[0].getEnsembleEprPath();
-            ensembleEprPaths[i] = ensembleEprPath;
 
             final String identAuth = cloud.getCloud().getFactoryID();
             final String handle = cloud.getCloud().getName();
 
+            print.infoln("\nLaunching "+handle+"...");
+
+            try {
             startAllMembersWithBackout(futureTasks, ensembleEprPath,
                 identAuth, handle, print);
+            } catch (ExecutionProblem e) {
+                destroyMultiCloudCluster(clouds, ensembleEprPaths, print);
+                throw e;
+            } catch (ExitNow e) {
+                destroyMultiCloudCluster(clouds, ensembleEprPaths, print);
+                throw e;
+            }
+
+            ensembleEprPaths[i] = ensembleEprPath;
         }
 
         print.infoln("\nWaiting for launch updates.");
@@ -512,12 +535,21 @@ public class ExecuteUtil {
             final String identAuth =  cloud.getCloud().getFactoryID();
             final String handle =  cloud.getCloud().getName();
 
+            try {
             this.clusterMonitor(ensembleEprPath,
                 identAuth,
                 handle,
                 null, //TODO set up reports dir
                 pollMs,
                 print);
+
+            } catch (ExecutionProblem e) {
+                destroyMultiCloudCluster(clouds, ensembleEprPaths, print);
+                throw e;
+            } catch (ExitNow e) {
+                destroyMultiCloudCluster(clouds, ensembleEprPaths, print);
+                throw e;
+            }
         }
 
         if (!usingContextBroker) {
@@ -526,13 +558,61 @@ public class ExecuteUtil {
 
         print.infoln("\nWaiting for context broker updates.");
 
+        try {
         this.ctxMonitor(ctxEprPath, brokerIdentityAuthorization,
             multiclusterHandle, null, null, null, pollMs, print);
-
-        // TODO back out on failure
-
+        } catch (ExecutionProblem e) {
+            destroyMultiCloudCluster(clouds, ensembleEprPaths, print);
+            throw e;
+        } catch (ExitNow e) {
+            destroyMultiCloudCluster(clouds, ensembleEprPaths, print);
+            throw e;
+        }
     }
 
+    private void destroyMultiCloudCluster(CloudDeployment[] clouds,
+                                          String[] ensembleEprPaths,
+                                          Print print) {
+
+        if (clouds == null) {
+            throw new IllegalArgumentException("clouds may not be null");
+        }
+        if (ensembleEprPaths == null) {
+            throw new IllegalArgumentException("ensembleEprPaths may not be null");
+        }
+
+        if (clouds.length != ensembleEprPaths.length) {
+            throw new IllegalArgumentException("lengths of clouds and " +
+                "ensembleEprPaths arrays must match");
+        }
+        print.errln("\nProblem, attempting to destroy cluster.");
+
+        for (int i=0; i<clouds.length; i++) {
+            final CloudDeployment cloud = clouds[i];
+            final String ensembleEprPath = ensembleEprPaths[i];
+
+            if (ensembleEprPath == null) {
+                continue;
+    }
+
+            final File f = new File(ensembleEprPath);
+            if (!f.exists()) {
+                continue;
+            }
+
+            final String handle = cloud.getCloud().getName();
+
+            try {
+            this.destroyCluster(ensembleEprPath,
+                cloud.getCloud().getFactoryID(),
+                handle,
+                print);
+            } catch (Throwable e) {
+                print.errln("Failed to destroy '"+handle+"': "+e.toString());
+            }
+            print.errln("\nDestroyed '" + handle + "'");
+        }
+    }
     
     // -------------------------------------------------------------------------
     // START VIRTUAL CLUSTER
