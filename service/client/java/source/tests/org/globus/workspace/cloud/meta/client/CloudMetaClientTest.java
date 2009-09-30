@@ -17,7 +17,7 @@
 package org.globus.workspace.cloud.meta.client;
 
 import org.junit.Test;
-import org.globus.workspace.common.print.Print;
+import org.junit.Ignore;
 import org.globus.workspace.cloud.client.Props;
 import org.globus.bootstrap.Bootstrap;
 
@@ -26,11 +26,22 @@ import java.io.IOException;
 import java.util.Properties;
 
 public class CloudMetaClientTest extends FileCleanupTestFixture {
-    @Test
+
+    @Test //@Ignore
     public void testRun() throws Throwable {
+
+        // this test is really more for diagnostics and manually
+        // testing right now. For it to work, you have to manually
+        // configure GLOBUS_LOCATION and X509_CERT_DIR,
+        // your grid proxy has to be initialized, you've got to
+        // have a simple-cloud image in your repository, and
+        // you've got to be wearing a red shirt.
 
 
         File tempDir = this.getTempDir();
+
+        File propFile = new File(tempDir, "cloud.properties");
+        writeSensibleUserPropsToFile(propFile);
 
         File clusterFile = new File(tempDir, "cluster.xml");
         TestUtil.writeSampleClusterToFile(clusterFile);
@@ -48,6 +59,9 @@ public class CloudMetaClientTest extends FileCleanupTestFixture {
             throw new Exception("failed to create cloud dir");
         }
 
+        // okay these are both the same cloud right now. but it's the same
+        // in principle, right? Right?!
+        // Ok, no.
         writeACloudFile(cloudDir, "cloudA");
         writeACloudFile(cloudDir, "cloudB");
 
@@ -55,13 +69,14 @@ public class CloudMetaClientTest extends FileCleanupTestFixture {
         final String DASHDASH = "--";
 
         String[] argv = new String[] {
-            "org.globus.workspace.cloud.meta.client.CloudMetaClient",
+            CloudMetaClient.class.getName(),
+            DASHDASH+Opts.PROPFILE_OPT_STRING, propFile.getAbsolutePath(),
             DASHDASH+Opts.HISTORY_DIR_OPT_STRING, historyDir.getAbsolutePath(),
-            DASHDASH+Opts.CLOUDDIR_OPT_STRING, cloudDir.getAbsolutePath(),
+            DASHDASH+Opts.CLOUD_DIR_OPT_STRING, cloudDir.getAbsolutePath(),
             DASHDASH+Opts.RUN_OPT_STRING,
             DASHDASH+Opts.CLUSTER_OPT_STRING,clusterFile.getAbsolutePath(),
             DASHDASH+Opts.DEPLOY_OPT_STRING, deployFile.getAbsolutePath(),
-            DASHDASH+Opts.HOURS_OPT_STRING, ".5"
+            DASHDASH+Opts.HOURS_OPT_STRING, ".25"
         };
 
         Bootstrap.main(argv);
@@ -83,7 +98,17 @@ public class CloudMetaClientTest extends FileCleanupTestFixture {
         props.put(Props.KEY_GRIDFTP_HOSTPORT, "tp-vm1.ci.uchicago.edu:2811");
         props.put(Props.KEY_GRIDFTP_IDENTITY, "/O=Grid/OU=GlobusTest/OU=" +
             "simple-workspace-ca/CN=host/tp-vm1.ci.uchicago.edu");
-        props.put(Props.KEY_SSHFILE, "~/.ssh/id_rsa.pub");
         return props;
+    }
+
+    private void writeSensibleUserPropsToFile(File propFile) throws IOException {
+        Properties props = new Properties();
+        props.put(Props.KEY_SSHFILE, "~/.ssh/id_rsa.pub");
+        props.put(Props.KEY_BROKER_URL,
+            "https://tp-vm1.ci.uchicago.edu:8445/wsrf/services/NimbusContextBroker");
+        props.put(Props.KEY_BROKER_IDENTITY,
+            "/O=Grid/OU=GlobusTest/OU=simple-workspace-ca/CN=host/tp-vm1.ci.uchicago.edu");
+
+        TestUtil.writePropertiesToFile(props, propFile);
     }
 }

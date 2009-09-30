@@ -524,6 +524,8 @@ public class ExecuteUtil {
             return;
         }
 
+        print.infoln("\nWaiting for context broker updates.");
+
         this.ctxMonitor(ctxEprPath, brokerIdentityAuthorization,
             multiclusterHandle, null, null, null, pollMs, print);
 
@@ -871,12 +873,12 @@ public class ExecuteUtil {
         return newdir2Path;
     }
 
-    public static File createNewClusterDir(String historyDir, Print print)
+    static File createNewClusterDir(String historyDir, Print print)
         throws ExecutionProblem {
         return createNewLaunchDir(historyDir, print, HistoryUtil.historyClusterDirPrefix);
     }
 
-    public static File createNewMultiClusterDir(String historyDir, Print print)
+    static File createNewMultiClusterDir(String historyDir, Print print)
         throws ExecutionProblem {
         return createNewLaunchDir(historyDir, print, HistoryUtil.historyMultiClusterDirPrefix);
     }

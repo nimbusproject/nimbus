@@ -18,16 +18,19 @@ package org.globus.workspace.cloud.meta.client;
 
 import org.globus.workspace.common.print.Print;
 import org.globus.workspace.client_core.ParameterProblem;
+import org.globus.workspace.cloud.client.util.CloudClientUtil;
+import org.globus.workspace.cloud.client.Props;
+import org.globus.workspace.cloud.client.CloudClient;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 import java.util.EnumSet;
+import java.util.Properties;
+import java.io.*;
 
 public class AllArgs {
 
@@ -45,6 +48,10 @@ public class AllArgs {
     private String propertiesPath;
     private String historyDirectory;
     private String cloudConfDir;
+    private int pollMs;
+    private String brokerURL;
+    private String brokerID;
+    private String sshfile;
 
     public String getPropertiesPath() {
         return propertiesPath;
@@ -74,14 +81,36 @@ public class AllArgs {
         return durationMinutes;
     }
 
-
-    public AllArgs(Print pr) {
-
-        this.print = pr;
-
+    public String getBrokerID() {
+        return brokerID;
     }
 
-    public void intakeCmdlineOptions(String[] args)
+    public String getBrokerURL() {
+        return brokerURL;
+    }
+
+    public int getPollMs() {
+        return pollMs;
+    }
+
+    public String getSshfile() {
+        return sshfile;
+    }
+
+
+    public static AllArgs create(String argv[], Print print)
+        throws ParameterProblem {
+
+        AllArgs args = new AllArgs(print);
+        args.intakeOptions(argv);
+        return args;
+    }
+
+    private AllArgs(Print pr) {
+        this.print = pr;
+    }
+
+    private void intakeOptions(String[] args)
         throws ParameterProblem {
 
         final Options options = new Options();
@@ -100,13 +129,32 @@ public class AllArgs {
             throw new ParameterProblem("Problem parsing parameters", e);
         }
 
-        if (line.hasOption(Opts.HELP_OPT_STRING)) {
-            this.actions.add(Action.HELP);
-        }
+        // first, parse out actions
 
         if (line.hasOption(Opts.RUN_OPT_STRING)) {
             this.actions.add(Action.RUN);
         }
+        if (line.hasOption(Opts.HELP_OPT_STRING)) {
+            this.actions.add(Action.HELP);
+
+            // don't bother further parsing if help is specified
+            return;
+        }
+
+        // look for propfile option next and load it up
+        if (line.hasOption(Opts.PROPFILE_OPT_STRING)) {
+            this.propertiesPath =
+                    line.getOptionValue(Opts.PROPFILE_OPT_STRING);
+            try {
+                this.intakePropertiesFile(this.propertiesPath);
+            } catch (IOException e) {
+                throw new ParameterProblem("Failed to load properties file '"+
+                    this.propertiesPath+"'", e);
+        }
+        }
+
+        // now everything else. Note that these params may override
+        // some that were just taken in from config file
 
         if (line.hasOption(Opts.CLUSTER_OPT_STRING)) {
             this.clusterPath =
@@ -118,19 +166,14 @@ public class AllArgs {
                 line.getOptionValue(Opts.DEPLOY_OPT_STRING);
         }
 
-        if (line.hasOption(Opts.PROPFILE_OPT_STRING)) {
-            this.propertiesPath =
-                    line.getOptionValue(Opts.PROPFILE_OPT_STRING);
-        }
-
         if (line.hasOption(Opts.HISTORY_DIR_OPT_STRING)) {
             this.historyDirectory =
                     line.getOptionValue(Opts.HISTORY_DIR_OPT_STRING);
         }
 
-        if (line.hasOption(Opts.CLOUDDIR_OPT_STRING)) {
+        if (line.hasOption(Opts.CLOUD_DIR_OPT_STRING)) {
             this.cloudConfDir =
-                line.getOptionValue(Opts.CLOUDDIR_OPT_STRING);
+                line.getOptionValue(Opts.CLOUD_DIR_OPT_STRING);
         }
 
         if (line.hasOption(Opts.HOURS_OPT_STRING)) {
@@ -144,6 +187,66 @@ public class AllArgs {
             this.durationMinutes = (int) minutesDouble;
             this.print.dbg("Duration minutes used: " + this.durationMinutes);
         }
+
+    }
+
+    private void intakePropertiesFile(String propPath) throws ParameterProblem, IOException {
+        final File f = new File(propPath);
+        if (!CloudClientUtil.fileExistsAndReadable(f)) {
+            throw new ParameterProblem(
+                    "Properties file specified but file does not exist or " +
+                            "is not readable: '" + this.propertiesPath + "'");
+        }
+
+        this.print.dbg("Loading supplied properties file: '" +
+                               this.propertiesPath + "'\nAbsolute path: '" +
+                               f.getAbsolutePath() + "'");
+
+        Properties defaultProps = loadDefaultProperties();
+
+        InputStream is = null;
+        final Properties userProps = new Properties(defaultProps);
+        try {
+            is = new FileInputStream(f);
+            userProps.load(is);
+        } finally {
+            if (is != null) {
+                is.close();
+            }
+        }
+        intakeProperties(userProps);
+    }
+
+    private Properties loadDefaultProperties() throws IOException {
+        Properties defaultProps = new Properties();
+        InputStream is = null;
+        try {
+            is = CloudClient.class.getResourceAsStream("default.properties");
+            if (is == null) {
+                throw new IOException("Problem loading default properties");
+            }
+            defaultProps.load(is);
+        } finally {
+            if (is != null) {
+                is.close();
+            }
+        }
+        return defaultProps;
+    }
+
+    private void intakeProperties(Properties props) throws ParameterProblem {
+
+        this.brokerURL = CloudClientUtil.getProp(props, Props.KEY_BROKER_URL);
+        this.brokerID = CloudClientUtil.getProp(props, Props.KEY_BROKER_IDENTITY);
+
+        this.sshfile = CloudClientUtil.getProp(props, Props.KEY_SSHFILE);
+        if (this.sshfile != null) {
+            this.sshfile = CloudClientUtil.expandSshPath(this.sshfile);
+        }
+
+
+        String pollMsStr = CloudClientUtil.getProp(props, Props.KEY_POLL_INTERVAL);
+        this.pollMs = Integer.parseInt(pollMsStr);
 
     }
 

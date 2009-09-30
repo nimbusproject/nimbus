@@ -19,6 +19,7 @@ package org.globus.workspace.cloud.meta.client;
 import org.globus.workspace.common.print.Print;
 import org.globus.workspace.common.print.PrintOpts;
 import org.globus.workspace.common.client.CLIUtils;
+import org.globus.workspace.common.client.CommonPrint;
 import org.globus.workspace.client_core.ParameterProblem;
 import org.globus.workspace.client_core.ExecutionProblem;
 import org.globus.workspace.client_core.ExitNow;
@@ -27,6 +28,8 @@ import org.globus.workspace.cloud.client.cluster.ClusterUtil;
 import org.globus.workspace.cloud.client.cluster.ClusterMember;
 import org.globus.workspace.cloud.client.util.ExecuteUtil;
 import org.globus.workspace.cloud.client.util.CloudClientUtil;
+import org.globus.workspace.cloud.client.CloudClient;
+import org.globus.workspace.cloud.client.Props;
 import org.globus.wsrf.encoding.DeserializationException;
 import org.nimbustools.ctxbroker.generated.gt4_0.description.Clouddeployment_Type;
 import org.nimbustools.ctxbroker.generated.gt4_0.description.Clouddeploy_Type;
@@ -79,7 +82,7 @@ public class CloudMetaClient {
 
 
         //TODO wtf are print opts?
-        PrintOpts prOpts = new PrintOpts(null);
+        PrintOpts prOpts = new PrintOpts(CloudClient.getOptInPrCodes());
 
         final Print print = new Print(prOpts, System.out, System.err, debug);
         CloudMetaClient client = new CloudMetaClient(print);
@@ -112,8 +115,19 @@ public class CloudMetaClient {
     private static void mainImpl(CloudMetaClient client, String[] argv)
         throws ParameterProblem, ExecutionProblem, ExitNow {
 
-        AllArgs args = new AllArgs(client.getPrint());
-        args.intakeCmdlineOptions(argv);
+        // (for development only, to attach a remote debugger etc)
+        if (CLIUtils.containsDebuggerHang(argv)) {
+            try {
+                CLIUtils.hangForInput(client.getPrint());
+            } catch (IOException e) {
+                throw new ExecutionProblem("", e);
+            }
+        }
+
+        CommonPrint.logArgs(argv, client.getPrint());
+
+
+        AllArgs args = AllArgs.create(argv, client.getPrint());
 
         client.run(args);
 
@@ -178,7 +192,7 @@ public class CloudMetaClient {
 
         if (clouddirPath == null) {
             throw new ParameterProblem("You must specify a cloud configuration" +
-                " directory with --"+Opts.CLOUDDIR_OPT_STRING);
+                " directory with --"+Opts.CLOUD_DIR_OPT_STRING);
         }
         this.cloudManager = new CloudManager(clouddirPath);
 
@@ -198,6 +212,13 @@ public class CloudMetaClient {
         String clusterPath = this.args.getClusterPath();
         String deployPath = this.args.getDeployPath();
 
+        String sshFile = this.args.getSshfile();
+        String brokerUrl = this.args.getBrokerURL();
+        String brokerId = this.args.getBrokerID();
+        int duration = this.args.getDurationMinutes();
+        int pollMs = this.args.getPollMs();
+
+
         if (clusterPath == null) {
             throw new ParameterProblem("You must specify a cluster " +
                 "document with --" + Opts.CLUSTER_OPT_STRING);
@@ -208,11 +229,15 @@ public class CloudMetaClient {
             "priv", "pub", this.print);
 
         boolean hasInlineDeploy = false;
+        boolean needsBroker = false;
         for (ClusterMember member : members) {
             this.memberMap.put(member.getPrintName(), member);
 
             if (member.hasDeploy()) {
                 hasInlineDeploy = true;
+            }
+            if (member.getClusterForUserData() != null) {
+                needsBroker = true;
             }
         }
 
@@ -247,6 +272,31 @@ public class CloudMetaClient {
 
         }
 
+        if (needsBroker) {
+            if (brokerUrl == null || brokerId == null) {
+                throw new ParameterProblem("You must specify a valid Context " +
+                    "Broker URL and identity string in your properties file ("+
+                    this.args.getPropertiesPath()+") keys: "+
+                    Props.KEY_BROKER_URL+" and " + Props.KEY_BROKER_IDENTITY
+                );
+            }
+        }
+
+        if (sshFile == null) {
+            this.print.info("\nWarning: a SSH public key was not specified. " +
+                "It will not be installed into cluster.");
+        }
+
+        if (duration <= 0) {
+            throw new ParameterProblem("Please specify a valid duration (--"+
+                Opts.HOURS_OPT_STRING+")");
+        }
+
+        if (pollMs <= 0) {
+            throw new ParameterProblem("Please specify a valid polling " +
+                "frequency in the properties file ("+
+                this.args.getPropertiesPath()+")");
+        }
 
     }
 
@@ -309,21 +359,18 @@ public class CloudMetaClient {
     }
 
     private void doDeploy() throws ExecutionProblem, ExitNow {
-
-        //TODO push hardcoded stuff to args
         executeUtil.startMultiCloudCluster(
             this.cloudMap.values(),
             this.args.getHistoryDirectory(),
-            2000,
+            this.args.getPollMs(),
             this.print,
-            "https://tp-vm1.ci.uchicago.edu:8445/wsrf/services/NimbusContextBroker",
-            "/O=Grid/OU=GlobusTest/OU=simple-workspace-ca/CN=host/tp-vm1.ci.uchicago.edu",
-            "/home/david/.ssh/id_rsa.pub", 
+            this.args.getBrokerURL(),
+            this.args.getBrokerID(),
+            this.args.getSshfile(),
             this.args.getDurationMinutes()
             );
 
     }
-
 
 
     private void printHelp() {

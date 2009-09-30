@@ -25,11 +25,12 @@ public class Opts extends org.globus.workspace.cloud.client.Opts {
     public final Option DEPLOY_OPT =
         OptionBuilder.hasArg().withLongOpt(DEPLOY_OPT_STRING).create();
 
-    public static final String CLOUDDIR_OPT_STRING = "clouddir";
+    public static final String CLOUD_DIR_OPT_STRING = "cloud-dir";
     public final Option CLOUDDIR_OPT =
-        OptionBuilder.hasArg().withLongOpt(CLOUDDIR_OPT_STRING).create();
+        OptionBuilder.hasArg().withLongOpt(CLOUD_DIR_OPT_STRING).create();
 
     public final Option[] ALL_ENABLED_OPTIONS = { this.HELP_OPT,
         this.RUN_OPT, this.CLUSTER_OPT, this.DEPLOY_OPT, this.PROPFILE_OPT,
-        this.CLOUDDIR_OPT, this.HISTORY_DIR_OPT, this.HOURS_OPT };
+        this.CLOUDDIR_OPT, this.HISTORY_DIR_OPT, this.HOURS_OPT,
+    };
 }
