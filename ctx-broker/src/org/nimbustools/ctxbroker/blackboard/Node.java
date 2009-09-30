@@ -85,10 +85,6 @@ public class Node {
         return id;
     }
 
-    int numIdentities() {
-        return this.identities.size();
-    }
-
     Enumeration<Identity> getIdentities() {
         return this.identities.elements();
     }
@@ -107,10 +103,6 @@ public class Node {
 
     Iterator<RequiredRole> getRequiredRoles() {
         return this.requiredRoles.iterator();
-    }
-
-    int numRequiredData() {
-        return this.requiredDatas.length;
     }
 
     String[] getRequiredDataNames() {

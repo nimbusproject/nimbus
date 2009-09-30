@@ -17,8 +17,6 @@
 package org.nimbustools.ctxbroker.blackboard;
 
 import org.nimbustools.ctxbroker.Identity;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,14 +30,6 @@ import java.util.List;
 public class RequiredRole {
 
     // -------------------------------------------------------------------------
-    // STATIC VARIABLES
-    // -------------------------------------------------------------------------
-    
-    private static final Log logger =
-            LogFactory.getLog(Blackboard.class.getName());
-
-
-    // -------------------------------------------------------------------------
     // INSTANCE VARIABLES
     // -------------------------------------------------------------------------
 
@@ -48,9 +38,6 @@ public class RequiredRole {
     private final String name;
     private final boolean hostnameRequired;
     private final boolean pubkeyRequired;
-
-    // number filled at last getResponsePieces call, even if it was incomplete
-    private short numFilled = 0;
 
 
     // -------------------------------------------------------------------------
@@ -128,17 +115,6 @@ public class RequiredRole {
         return name;
     }
 
-    short getFilledNum() {
-        synchronized (this.providers) {
-            return this.numFilled;
-        }
-    }
-
-    short getProviderNum() {
-        synchronized(this.providers) {
-            return (short) this.providers.size();
-        }
-    }
     
     boolean isHostnameRequired() {
         return this.hostnameRequired;
