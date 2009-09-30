@@ -1,0 +1,35 @@
+#!/bin/sh
+
+# ************************************************************************* #
+# 1-ipandhost scripts are called when the context broker tells this node it #
+# *requires* to know about nodes playing the role.  If this node is told it #
+# requires to know about nodes playing the "xyz" role, then if a script     #
+# called "xyz" lives in this directory, it will be called with IP, short    #
+# hostname and hostname (args $1, $2, and $3 respectively) of the node that #
+# *provides* the required "xyz" role.                                       #
+# ************************************************************************* #
+
+RELDIR=`dirname $0`
+ABSDIR=`cd $RELDIR; pwd`
+echo "Hello from \"$ABSDIR/$0\""
+
+echo ""
+echo "NFS server required: we are being told this node requires an NFS server,"
+echo "therefore it will be playing the role of an NFS client."
+echo ""
+
+# This script configures the fstab file to list an import from this server node
+# we are hearing about.  Repeat below for each volume to import.  If you have
+# multiple NFS servers, each exporting something different, make sure you have
+# DIFFERENT role names for each (like "nfsserver1" "nfsserver2" etc).
+
+echo "NFS SERVER IP: $1"
+echo "NFS SERVER Short hostname: $2"
+echo "NFS SERVER Hostname: $3"
+
+echo "$1:/home         /home             nfs   tcp,rsize=32768,wsize=32768,intr,soft,user,exec   0 0" >> /etc/fstab
+echo "$1:/etc/grid-security/certificates         /etc/grid-security/certificates             nfs   tcp,rsize=32768,wsize=32768,intr,soft,user,exec   0 0" >> /etc/fstab
+
+exit 0
+
+

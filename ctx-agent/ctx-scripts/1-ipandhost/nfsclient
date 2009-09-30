@@ -1,0 +1,37 @@
+#!/bin/sh
+
+# ************************************************************************* #
+# 1-ipandhost scripts are called when the context broker tells this node it #
+# *requires* to know about nodes playing the role.  If this node is told it #
+# requires to know about nodes playing the "xyz" role, then if a script     #
+# called "xyz" lives in this directory, it will be called with IP, short    #
+# hostname and hostname (args $1, $2, and $3 respectively) of the node that #
+# *provides* the required "xyz" role.                                       #
+# ************************************************************************* #
+
+RELDIR=`dirname $0`
+ABSDIR=`cd $RELDIR; pwd`
+echo "Hello from \"$ABSDIR/$0\""
+
+echo ""
+echo "NFS client required: we are being told this node requires an NFS client,"
+echo "therefore it will be playing the role of NFS server."
+echo ""
+
+# This script configures the NFS server exports policy to allow the one client
+# it's now hearing about to import the exported volumes.
+
+echo "NFS CLIENT IP: $1"
+echo "NFS CLIENT Short hostname: $2"
+echo "NFS CLIENT Hostname: $3"
+
+EXPORTS="/etc/exports"
+
+# append IP to every non-empty line in EXPORTS
+RESULT="`sed -e \"s/ \$/ $1(rw,no_root_squash) /\" $EXPORTS`"
+
+echo "$RESULT" > "$EXPORTS"
+
+exit 0
+
+

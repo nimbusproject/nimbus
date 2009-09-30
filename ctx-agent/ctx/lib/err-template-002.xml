@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/03/addressing">
+  <soapenv:Header>
+    <wsa:MessageID soapenv:mustUnderstand="0">uuid:REPLACE_MESSAGE_ID</wsa:MessageID>
+    <wsa:To soapenv:mustUnderstand="0">REPLACE_SERVICE_URL</wsa:To>
+    <wsa:Action soapenv:mustUnderstand="0">
+    http://www.globus.org/2008/12/nimbus/contextualization/NimbusContextBrokerPortType/retrieveRequest</wsa:Action>
+    <wsa:From soapenv:mustUnderstand="0">
+      <wsa:Address>
+      http://schemas.xmlsoap.org/ws/2004/03/addressing/role/anonymous</wsa:Address>
+    </wsa:From>
+    <ns2:NimbusContextBrokerKey xmlns:ns2="http://www.globus.org/2008/12/nimbus/contextualization"
+    soapenv:mustUnderstand="0">REPLACE_RESOURCE_KEY</ns2:NimbusContextBrokerKey>
+  </soapenv:Header>
+  <soapenv:Body>
+    <errorExiting xmlns="http://www.globus.org/2008/12/nimbus/contextualization">
+    
+      <ns1:identity xmlns:ns1="http://www.globus.org/2008/12/nimbus/ctxdescription">
+
+        <ns1:interface>REPLACE_IFACE_NAME</ns1:interface>
+        <ns1:ip>REPLACE_IFACE_IP</ns1:ip>
+        <ns1:hostname>REPLACE_IFACE_HOSTNAME</ns1:hostname>
+        <ns1:pubkey>REPLACE_IFACE_SSH_KEY</ns1:pubkey>
+      </ns1:identity>
+      
+      <ns2:identity xmlns:ns2="http://www.globus.org/2008/12/nimbus/ctxdescription">
+
+        <ns2:interface>REPLACE_IFACE2_NAME</ns2:interface>
+        <ns2:ip>REPLACE_IFACE2_IP</ns2:ip>
+        <ns2:hostname>REPLACE_IFACE2_HOSTNAME</ns2:hostname>
+        <ns2:pubkey>REPLACE_IFACE2_SSH_KEY</ns2:pubkey>
+      </ns2:identity>
+
+      <ns11:errorcode xmlns:ns11="http://www.globus.org/2008/12/nimbus/ctxtypes">REPLACE_ERRORCODE</ns11:errorcode>
+      <ns12:message xmlns:ns12="http://www.globus.org/2008/12/nimbus/ctxtypes">
+        <![CDATA[REPLACE_ERRORMSG]]>
+      </ns12:message>
+      
+    </errorExiting>
+  </soapenv:Body>
+</soapenv:Envelope>
+

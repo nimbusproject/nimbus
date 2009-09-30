@@ -1,0 +1,21 @@
+# One way to do to launch the context agent at boot is to put this in
+# the "rc.local" file or equivalent.  Another way is to make an init
+# script, but one nice property of the "rc.local" style method is that
+# those are almost always rigged to run last which is usually what you'd
+# like to do.  With an init script, you'd need to fuss with ordering.
+
+
+
+sh /opt/workspace/ctx-scripts/clean.sh &>/dev/null
+
+sh /opt/workspace/ctx/launch.sh &>/dev/null
+
+
+
+# Note that you can start the context agent without fear of system alteration
+# if the bootstrap file is missing.  If you did not boot the VM with 
+# contextualization, the "/var/workspace-contextualization-bootstrap" file
+# won't be there and the agent will just exit.  This allows you to leave the
+# rc.local entry while you boot into "maintenance" mode to adjust something
+# then save back to repository.
+

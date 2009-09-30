@@ -1,0 +1,37 @@
+#!/bin/sh
+
+# ************************************************************************* #
+# 1-ipandhost scripts are called when the context broker tells this node it #
+# *requires* to know about nodes playing the role.  If this node is told it #
+# requires to know about nodes playing the "xyz" role, then if a script     #
+# called "xyz" lives in this directory, it will be called with IP, short    #
+# hostname and hostname (args $1, $2, and $3 respectively) of the node that #
+# *provides* the required "xyz" role.                                       #
+# ************************************************************************* #
+
+RELDIR=`dirname $0`
+ABSDIR=`cd $RELDIR; pwd`
+echo "Hello from \"$ABSDIR/$0\""
+
+echo ""
+echo "Torque slave required: we are being told this node requires a Torque"
+echo "slave, therefore it will be playing the role of Torque master."
+echo ""
+
+echo "TORQUESLAVE IP: $1"
+echo "TORQUESLAVE Short hostname: $2"
+echo "TORQUESLAVE Hostname: $3"
+
+# Add this node we are hearing about to the nodes list.  For every node that
+# provides the torqueslave role, this script will be called.  Therefore we
+# APPEND (not replace) to this nodes file:
+
+echo "$2 np=2" >> /var/spool/torque/server_priv/nodes
+
+
+# This is a trick to send a message to another script:
+touch /root/this_node_is_torque_master
+
+exit 0
+
+

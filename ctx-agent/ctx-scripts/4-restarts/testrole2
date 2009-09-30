@@ -1,0 +1,21 @@
+#!/bin/sh
+
+# ************************************************************************* #
+# 4-restarts scripts are a little counter-intuitive.  If *requiring a role* #
+# implies this node *plays a role*, you can base restarts off of this.      #
+# For example, if "pbsslave" is a required role, it implies this node is a  #
+# PBS server and the pbsslave restart script could restart the PBS daemon   #
+# since it's called after all the configuration is done (ipandhost scripts) #
+# ************************************************************************* #
+
+RELDIR=`dirname $0`
+ABSDIR=`cd $RELDIR; pwd`
+echo "Hello from \"$ABSDIR/$0\""
+
+echo ""
+echo "This node was told it required testrole2, so this "testrole2" restarts"
+echo "script triggers booting up something or other in response to this fact."
+
+# See real examples for when you'd want to make a restarts script.
+
+

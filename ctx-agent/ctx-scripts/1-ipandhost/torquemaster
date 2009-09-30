@@ -1,0 +1,33 @@
+#!/bin/sh
+
+# ************************************************************************* #
+# 1-ipandhost scripts are called when the context broker tells this node it #
+# *requires* to know about nodes playing the role.  If this node is told it #
+# requires to know about nodes playing the "xyz" role, then if a script     #
+# called "xyz" lives in this directory, it will be called with IP, short    #
+# hostname and hostname (args $1, $2, and $3 respectively) of the node that #
+# *provides* the required "xyz" role.                                       #
+# ************************************************************************* #
+
+RELDIR=`dirname $0`
+ABSDIR=`cd $RELDIR; pwd`
+echo "Hello from \"$ABSDIR/$0\""
+
+echo ""
+echo "Torque master required: we are being told this node requires a Torque"
+echo "master, therefore it will be playing the role of Torque slave."
+echo ""
+
+echo "TORQUEMASTER IP: $1"
+echo "TORQUEMASTER Short hostname: $2"
+echo "TORQUEMASTER Hostname: $3"
+
+# Configure the Torque server name to enslave to.  Replace the file contents,
+# do not append since only one can be handled.  It would be a misconfiguration
+# to have more than one node playing the torquemaster role in a context.
+
+echo "\$pbsserver $3" > /var/spool/torque/mom_priv/config
+echo "$3" > /var/spool/torque/server_name
+
+exit 0
+

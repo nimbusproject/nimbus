@@ -1,0 +1,49 @@
+#!/bin/sh
+
+# ************************************************************************* #
+# 4-restarts scripts are a little counter-intuitive.  If *requiring a role* #
+# implies this node *plays a role*, you can base restarts off of this.      #
+# For example, if "pbsslave" is a required role, it implies this node is a  #
+# PBS server and the pbsslave restart script could restart the PBS daemon   #
+# since it's called after all the configuration is done (ipandhost scripts) #
+# ************************************************************************* #
+
+RELDIR=`dirname $0`
+ABSDIR=`cd $RELDIR; pwd`
+echo "Hello from \"$ABSDIR/$0\""
+
+# This scripts is named "nfsserver" and is called if this node *requires*
+# "nfsserver" role.  If it requires "nfsserver" then it's an NFS client,
+# so initiate the client mounts here.
+
+echo "NFS server role needed, initiating NFS client mounts"
+
+# /etc/init.d/netfs restart and cousins are not as helpful as this.
+
+# Should add a feature in the future that fails out after so many attempts etc.
+
+function mountone (){
+    echo "Trying to mount $1"
+    
+    MOUNTED="no"
+
+    while [ "$MOUNTED" = "no" ]; do
+      mount $1
+      if [ $? -eq 0 ]; then
+        MOUNTED="yes"
+        echo "$1 is now mounted"
+      else
+        echo "$1 not mounted, sleeping 3 seconds"
+        sleep 3
+      fi
+    done
+}
+
+mountone "/home"
+mountone "/etc/grid-security/certificates"
+
+
+
+
+
+

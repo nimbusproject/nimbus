@@ -1,0 +1,23 @@
+#!/bin/sh
+
+# ************************************************************************* #
+# 1-ipandhost scripts are called when the context broker tells this node it #
+# *requires* to know about nodes playing the role.  If this node is told it #
+# requires to know about nodes playing the "xyz" role, then if a script     #
+# called "xyz" lives in this directory, it will be called with IP, short    #
+# hostname and hostname (args $1, $2, and $3 respectively) of the node that #
+# *provides* the required "xyz" role.                                       #
+# ************************************************************************* #
+
+RELDIR=`dirname $0`
+ABSDIR=`cd $RELDIR; pwd`
+echo "Hello from \"$ABSDIR/$0\""
+
+echo ""
+echo "TESTROLE2 IP: $1"
+echo "TESTROLE2 Short hostname: $2"
+echo "TESTROLE2 Hostname: $3"
+
+echo -e "Testing: testrole2 is provided by host $3 \n" >> /tmp/testrole2
+
+

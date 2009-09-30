@@ -1,0 +1,31 @@
+#!/bin/sh
+
+# ************************************************************************* #
+# 4-restarts scripts are a little counter-intuitive.  If *requiring a role* #
+# implies this node *plays a role*, you can base restarts off of this.      #
+# For example, if "pbsslave" is a required role, it implies this node is a  #
+# PBS server and the pbsslave restart script could restart the PBS daemon   #
+# since it's called after all the configuration is done (ipandhost scripts) #
+# ************************************************************************* #
+
+RELDIR=`dirname $0`
+ABSDIR=`cd $RELDIR; pwd`
+echo "Hello from \"$ABSDIR/$0\""
+
+# This scripts is named "nfsclient" and is called if this node *requires*
+# "nfsclient" role.  If it requires "nfsclient" then it's an NFS server,
+# restart the NFS server.
+
+echo "NFS client role needed: restart NFS server"
+
+/etc/init.d/nfs restart
+
+if [ $? -ne 0 ]; then
+  sleep 3
+  /etc/init.d/nfs restart
+  exit $?
+fi
+
+exit 0
+
+

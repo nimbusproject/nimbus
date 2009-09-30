@@ -1,0 +1,89 @@
+#!/bin/sh
+
+# ************************************************************************ #
+# 2-thishost scripts are called with *this* node's IP, short hostname and  #
+# fully qualified hostname.  It can be useful in multi NIC situations      #
+# especially.                                                              #
+# ************************************************************************ #
+
+RELDIR=`dirname $0`
+ABSDIR=`cd $RELDIR; pwd`
+echo "Hello from \"$ABSDIR/$0\""
+
+# NOTE: The name of this script must correspond to the interface name that
+#       the context broker knows, not the local interface name which may or
+#       may not match.
+#
+#       The context agent can only handle two NICs at most.  By convention, if
+#       there is more than one NIC, the nics need to be labelled "publicnic" or
+#       "localnic" as defined by the metadata server.  On EC2, the publicnic
+#       is the public IP address that NATs the VM (it does not correspond to
+#       an actual NIC in the VM).  Note again that the labelling is NOT the
+#       interface name in the VM but rather the labels in the contextualization
+#       document where different roles may be played by different IP addresses
+#       (and they are labelled with NIC names).
+
+echo "publicnic thishost script: configuring local programs before restarts"
+
+echo "This IP: $1"
+echo "This short local hostname: $2"
+echo "This FQDN: $3"
+
+
+# SSH host based authentication was configured already, restart SSH to load
+# new config.
+
+/etc/init.d/sshd restart
+
+# We're overloading torque master role to imply other head node setups.
+# Could do something explicit too.
+if [ ! -e "/root/this_node_is_torque_master" ]; then
+  exit 0
+fi
+
+
+# For torque, replace entire contents of these files
+echo "$3" > /var/spool/torque/server_name
+echo "root@$3" > /var/spool/torque/server_priv/acl_svr/operators
+
+
+# Create a self-signed cert for onboard CA operations
+/root/bin/ca.sh $3 > /root/safe/host.0
+if [ $? -ne 0 ]; then
+  echo "failed to make onboard trust root"
+  exit 1
+fi
+
+
+# node should trust itself.  We need to get the cert hash for the
+# filename first:
+HASH=`openssl x509 -in /root/safe/host.0 -hash -noout`
+CAFILE="/etc/grid-security/certificates/$HASH.0"
+cp /root/safe/host.0  $CAFILE
+echo "New 'CA' cert: $CAFILE"
+
+# for user pickup
+cp $CAFILE /root/certs/
+
+function makefile (){
+  touch $3
+  chown $1 $3
+  chmod $2 $3
+}
+
+makefile root 444 /etc/grid-security/hostcert.pem
+cp /root/safe/host.0 /etc/grid-security/hostcert.pem
+makefile root 400 /etc/grid-security/hostkey.pem
+cp /root/safe/host.key /etc/grid-security/hostkey.pem
+
+makefile globus 444 /etc/grid-security/containercert.pem
+cp /root/safe/host.0 /etc/grid-security/containercert.pem
+makefile globus 400 /etc/grid-security/containerkey.pem
+cp /root/safe/host.key /etc/grid-security/containerkey.pem
+
+
+
+
+
+
+

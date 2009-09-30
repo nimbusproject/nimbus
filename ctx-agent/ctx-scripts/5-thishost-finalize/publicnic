@@ -1,0 +1,94 @@
+#!/bin/sh
+
+# ********************************************************************* #
+# 5-thishost-finalize scripts are called with *this* node's IP, short   #
+# hostname and fully qualified hostname.  They are called *after*       #
+# 4-restarts (as the numbering system implies).  They are somewhat      #
+# esoteric, but can be useful if a local program depends on one of the  #
+# things restarted in 4-restarts.                                       #
+# ********************************************************************* #
+
+RELDIR=`dirname $0`
+ABSDIR=`cd $RELDIR; pwd`
+echo "Hello from \"$ABSDIR/$0\""
+
+# NOTE: The name of this script must correspond to the interface name that
+#       the context broker knows, not the local interface name which may or
+#       may not match.
+#
+#       The context agent can only handle two NICs at most.  By convention, if
+#       there is more than one NIC, the nics need to be labelled "publicnic" or
+#       "localnic" as defined by the metadata server.  On EC2, the publicnic
+#       is the public IP address that NATs the VM (it does not correspond to
+#       an actual NIC in the VM).  Note again that the labelling is NOT the
+#       interface name in the VM but rather the labels in the contextualization
+#       document where different roles may be played by different IP addresses
+#       (and they are labelled with NIC names).
+
+echo "publicnic thishost finalize: configuring or launching something after restarts"
+
+echo "This IP: $1"
+echo "This short local hostname: $2"
+echo "This FQDN: $3"
+
+# We're overloading torque master role to imply other head node setups.
+# Could do something explicit by way of the context roles too, but this
+# works just fine (assuming torque master is always same node as GT).
+if [ ! -e "/root/this_node_is_torque_master" ]; then
+  exit 0
+fi
+
+
+# cluster-001:
+
+# Start postgresql before Globus
+/etc/init.d/postgresql start
+if [ $? -ne 0 ]; then
+  echo "problem starting postgresql"
+  exit 1
+fi
+
+# We have put a keyword everywhere that the local hostname needs to appear
+# in the GT4 configs.  This sed command replaces keyword with local FQDN.
+
+REPLACEKEYWORD="THISHOST_REPLACE_FQDN"
+GL="/opt/gt4"
+
+function replace (){
+  echo "Adding local FQDN to: $2"
+  
+  OUTPUTFILE=/root/safe/`uuidgen`
+  
+  sed "s/$REPLACEKEYWORD/$1/g" $2 > $OUTPUTFILE
+  
+  # Trick while you're setting contextualization up: manually call this 
+  # script and run the sed replacement backwards,to get back to the replacement
+  # tokens before the image is --save'd back to the repository.
+  # sed "s/$1/$REPLACEKEYWORD/g" $2 > $OUTPUTFILE
+  
+  cp $OUTPUTFILE $2
+}
+
+replace $3 $GL/etc/gram-service/jndi-config.xml
+replace $3 $GL/etc/gram-service/globus_gram_fs_map_config.xml
+replace $3 $GL/etc/globus-job-manager.conf
+replace $3 $GL/etc/globus_wsrf_core/server-config.wsdd
+replace $3 $GL/client-config.wsdd
+
+
+# see 3-data/startcontainer
+if [ ! -e "/root/do_startcontainer" ]; then
+  exit 0
+fi
+
+# Start GT container.
+/etc/init.d/globus start
+if [ $? -ne 0 ]; then
+  echo "problem starting globus container"
+  exit 1
+fi
+
+
+
+
+

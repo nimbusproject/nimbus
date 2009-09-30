@@ -1,0 +1,25 @@
+#!/bin/sh
+
+# ******************************************************************* #
+# 3-data scripts have filenames that correspond to data names in the  #
+# context.  If this node is told it requires data 'xyz' and a script  #
+# in the 3-data directory bears the name 'xyz' then it is called.     #
+# The data value has already been written out to a temporary file.    #
+# The absolute path of that file is given as argument $1 to this      #
+# script for you to do as you please.                                 #
+# ******************************************************************* #
+
+RELDIR=`dirname $0`
+ABSDIR=`cd $RELDIR; pwd`
+echo "Hello from \"$ABSDIR/$0\""
+
+echo ""
+echo "Filename with data value: $1"
+
+echo "This is being used as an example of how one could do a trigger.  The "
+echo "presence of this data in the context tells us to indeed start the "
+echo "container."
+
+# This "sends a message" to another script:
+touch /root/do_startcontainer
+
