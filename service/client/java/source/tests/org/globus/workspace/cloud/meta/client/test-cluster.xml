@@ -1,0 +1,38 @@
+<cluster xmlns="http://www.globus.org/2008/06/workspace/metadata/logistics">
+  <workspace>
+    <name>head-node</name>
+    <image>simple-cloud</image>
+    <quantity>1</quantity>
+    <nic wantlogin="true">public</nic>
+    <ctx>
+      <provides>
+        <identity />
+        <role>master</role>
+      </provides>
+      <requires>
+        <identity />
+        <role name="slave" hostname="true" pubkey="true" />
+      </requires>
+    </ctx>
+  </workspace>
+
+  <workspace>
+    <name>compute-nodes</name>
+    <image>simple-cloud</image>
+    <quantity>2</quantity>
+    <nic>public</nic>
+
+    <ctx>
+      <provides>
+        <identity />
+        <role>slave</role>
+      </provides>
+      <requires>
+        <identity />
+        <role name="master" hostname="true" pubkey="true" />
+      </requires>
+    </ctx>
+  </workspace>
+
+</cluster>
+

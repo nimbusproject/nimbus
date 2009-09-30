@@ -389,7 +389,8 @@ public class ExecuteUtil {
                                       int durationMinutes)
         throws ExecutionProblem, ExitNow {
 
-        CloudDeployment[] clouds = (CloudDeployment[]) deploys.toArray();
+        CloudDeployment[] clouds = new CloudDeployment[deploys.size()];
+        clouds = deploys.toArray(clouds);
 
         final File newdir = ExecuteUtil.createNewMultiClusterDir(
             historyDir, print);

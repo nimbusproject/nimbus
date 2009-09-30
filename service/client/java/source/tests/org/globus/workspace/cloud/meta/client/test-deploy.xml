@@ -1,0 +1,22 @@
+<deployment xmlns="http://www.globus.org/2008/06/workspace/metadata/logistics">
+    <workspace>
+        <name>head-node</name>
+        <deploy>
+            <cloud>cloudA</cloud>
+            <quantity>1</quantity>
+        </deploy>
+    </workspace>
+
+    <workspace>
+        <name>compute-nodes</name>
+        <deploy>
+            <cloud>cloudA</cloud>
+            <quantity>1</quantity>
+        </deploy>
+        <deploy>
+            <cloud>cloudB</cloud>
+            <quantity>1</quantity>
+        </deploy>
+    </workspace>
+</deployment>
+
