@@ -943,6 +943,7 @@ public class ExecuteUtil {
 
             // m1.small, m1.large, m1.xlarge, c1.medium, and c1.xlarge
             buf.append(" --instance-type m1.small ");
+            buf.append(" --key default ");
             buf.append(amiNames[i]);
             buf.append("\n");
         }
