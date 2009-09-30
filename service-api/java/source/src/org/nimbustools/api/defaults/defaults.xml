@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Default Spring configuration for Nimbus.
+
+    This contains an implementation configuration that:
+
+    a) Doesn't actually accomplish anything
+
+    b) Performs no I/O except logging
+
+    c) Is helpful for learning about the overall architecture
+
+    d) Is helpful for developing/testing/debugging (in some cases)
+
+    This can also be used as a template for adding in various real
+    implementations, although a working config from a deployment might
+    serve you better for that.
+-->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+    <!--
+        rm.Manager implementation
+    -->
+
+    <bean id="nimbus-rm.manager"
+          class="org.nimbustools.api.defaults.services.rm.DefaultManager">
+
+        <constructor-arg ref="nimbus-repr.ReprFactory"/>
+        <constructor-arg ref="nimbus-rm.BasicLegality"/>
+        
+    </bean>
+
+    
+    <!--
+        rm.BasicLegality implementation
+    -->
+
+    <bean id="nimbus-rm.BasicLegality"
+          class="org.nimbustools.api.defaults.services.rm.DefaultBasicLegality" />
+
+
+    <!--
+        brain.ModuleLocator implementation
+
+        For use from above to find key modules, where "above" in almost all
+        cases means a container (the remote messaging layer).  Those cannot be
+        served by dependency injection (or if they happened to be, would be a
+        different application context unless you took time to integrate
+        directly).
+    -->
+
+    <bean id="nimbus-brain.ModuleLocator"
+          class="org.nimbustools.api.defaults.brain.DefaultModuleLocator">
+        
+        <lookup-method name="getManager" bean="nimbus-rm.manager"/>
+        <lookup-method name="getReprFactory" bean="nimbus-repr.ReprFactory"/>
+
+    </bean>
+
+
+    <!--
+        representation classes are broken out
+    -->
+    
+    <import resource="repr.xml"/>
+
+</beans>

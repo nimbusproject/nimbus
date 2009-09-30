@@ -1,0 +1,164 @@
+<?xml version="1.0"?>
+
+<project default="dist" basedir="." name="Nimbus Service APIs">
+
+    <description>Nimbus Service APIs</description>
+
+    <!-- load user nimbus.build.properties file, if it exists -->
+    <property file="${user.home}/nimbus.build.properties"/>
+
+    <!-- load defaults from colocated build.properties file -->
+    <property file="build.properties"/>
+
+    
+    <!-- *******************************************************************
+         CHECK MINIMUM JDK
+         ******************************************************************* -->
+
+    <target name="checkjdk">
+        <available property="jdk1.4+" classname="java.lang.CharSequence"/>
+        <fail message="Aborting: determined you are not building with >= JDK 1.4"
+              unless="jdk1.4+" />
+    </target>
+    
+
+    <!-- *******************************************************************
+         INITIALIZE
+         ******************************************************************* -->
+
+    <target name="init" depends="checkjdk">
+        <mkdir dir="${nimbus.service.api.build.dir}"/>
+        <mkdir dir="${nimbus.service.api.build.dest}"/>
+        <mkdir dir="${nimbus.service.api.dist.dir}"/>
+    </target>
+
+
+    <!-- *******************************************************************
+         COMPILATION
+         ******************************************************************* -->
+
+    <path id="nimbus.service.api.classpath">
+         <fileset dir="${nimbus.service.api.lib.dir}">
+              <include name="*.jar"/>
+         </fileset>
+        <fileset dir="${nimbus.service.api.lib-compile.dir}">
+              <include name="*.jar"/>
+         </fileset>
+    </path>
+
+    <target name="compile" depends="init">
+
+        <javac srcdir="${nimbus.service.api.src.dir}"
+               destdir="${nimbus.service.api.build.dest}"
+               debug="on"
+               classpathref="nimbus.service.api.classpath">
+
+            <include name="**/*.java"/>
+            <compilerarg value="${nimbus.java.compilerarg}" />
+            
+        </javac>
+
+        <copy todir="${nimbus.service.api.build.dest}" >
+
+              <fileset dir="${nimbus.service.api.src.dir}"
+                       includes="**/*.properties" />
+
+              <fileset dir="${nimbus.service.api.src.dir}"
+                       includes="**/*.xml" />
+            
+              <fileset dir="${nimbus.service.api.src.dir}"
+                       includes="**/*.txt" />
+        </copy>
+        
+    </target>
+
+
+    <!-- *******************************************************************
+         CREATE ARCHIVE FILE
+         ******************************************************************* -->
+
+    <target name="jar" depends="compile">
+        <jar destfile="${nimbus.service.api.dist.dir}/${nimbus.service.api.jar.name}"
+             basedir="${nimbus.service.api.build.dest}"/>
+    </target>
+
+
+    <!-- *******************************************************************
+         CLEAN
+         ******************************************************************* -->
+
+    <target name="clean">
+        <delete dir="${nimbus.service.api.build.dir}"/>
+        <delete dir="${nimbus.service.api.dist.dir}"/>
+        <delete dir="${nimbus.service.api.javadocs.dir}"/>
+        <echo message="Cleaned: ${basedir}" />
+    </target>
+
+
+    <!-- *******************************************************************
+         CREATE DISTRIBUTION
+         ******************************************************************* -->
+
+    <target name="dist">
+        <echo message="**** Module: ${basedir}" />
+        <echo>Building: ${nimbus.service.api.print-noun}</echo>
+        <antcall target="jar" />
+        <echo>Built: ${nimbus.service.api.print-noun}
+        </echo>
+    </target>
+
+    
+    <!-- *******************************************************************
+         CREATE DOCUMENTATION
+         ******************************************************************* -->
+
+    <target name="javadoc">
+
+        <delete dir="${nimbus.service.api.javadocs.dir}"/>
+        <mkdir dir="${nimbus.service.api.javadocs.dir}"/>
+
+        <javadoc destdir="${nimbus.service.api.javadocs.dir}"
+                 linksource="true"
+                 author="false"
+                 version="false"
+                 use="true"
+                 stylesheetfile="${nimbus.service.api.javadoc.css}"
+                 windowtitle="Nimbus Services Bridge (RM API)">
+
+            <packageset dir="src" defaultexcludes="yes">
+                <include name="org/nimbustools/**"/>
+            </packageset>
+
+            <doctitle><![CDATA[<h1>Nimbus Services Bridge (RM API) - <i>TP2.2</i></h1>]]></doctitle>
+
+            <bottom>
+                <![CDATA[<i>Release: TP2.2</i> - For more information, see
+                <a href="http://www.nimbustools.org"
+                   target="_blank">http://www.nimbustools.org</a>]]></bottom>
+
+            <group title="Action Interfaces">
+                <package name="org.nimbustools.api.services.*" />
+                <package name="org.nimbustools.api" />
+                <package name="org.nimbustools.api.services" />
+            </group>
+
+            <group title="Representation Interfaces">
+                <package name="org.nimbustools.api.repr" />
+                <package name="org.nimbustools.api.repr.*" />
+            </group>
+
+            <group title="Instantiation / IoC">
+                <package name="org.nimbustools.api.brain" />
+            </group>
+                        
+            <group title="Read/Write Representation Interfaces">
+                <package name="org.nimbustools.api._repr" />
+                <package name="org.nimbustools.api._repr.*" />
+            </group>
+
+            <group title="Default Implementations">
+                <package name="org.nimbustools.api.defaults.*" />
+            </group>
+        </javadoc>
+    </target>
+</project>
