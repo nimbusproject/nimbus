@@ -143,7 +143,7 @@ public class WorkspaceCLI extends BaseClient {
 
         final Properties defaultOptions = new Properties();
         // default is host authorization
-        defaultOptions.setProperty(BaseClient.AUTHZ.getOpt(), "host");
+        defaultOptions.setProperty(this.AUTHZ.getOpt(), "host");
 
         // would like to be rid of wsrf BaseClient altogether one day
         final CommandLine line;

@@ -32,5 +32,6 @@ public class Opts extends org.globus.workspace.cloud.client.Opts {
     public final Option[] ALL_ENABLED_OPTIONS = { this.HELP_OPT,
         this.RUN_OPT, this.CLUSTER_OPT, this.DEPLOY_OPT, this.PROPFILE_OPT,
         this.CLOUDDIR_OPT, this.HISTORY_DIR_OPT, this.HOURS_OPT,
+        this.DEBUG_OPT, this.DEBUGGER_HANG_OPT
     };
 }

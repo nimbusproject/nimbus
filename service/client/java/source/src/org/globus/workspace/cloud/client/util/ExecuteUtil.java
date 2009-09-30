@@ -1484,7 +1484,8 @@ public class ExecuteUtil {
                         print.debugln("* Registered " + memberName);
                     } else {
                         print.errln("\nProblem registering " + memberName);
-                        throw new ExitNow(retCode.intValue());
+                        throw new ExitNow(retCode.intValue(),
+                            "Failed to register "+ memberName);
                     }
                 } catch (InterruptedException e) {
                     throw new ExecutionProblem(e.getMessage(), e);

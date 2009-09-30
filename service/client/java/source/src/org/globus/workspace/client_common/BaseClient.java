@@ -19,7 +19,7 @@ package org.globus.workspace.client_common;
 import org.globus.workspace.client_core.StubConfigurator;
 
 public abstract class BaseClient
-           extends org.globus.wsrf.client.BaseClient
+           extends TempBaseClient    // use a modified version of the BC
            implements StubConfigurator {
 
     public static final int SUCCESS_EXIT_CODE = 0;
