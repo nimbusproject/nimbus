@@ -1,0 +1,542 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/*
+ * Copyright 1999-2006 University of Chicago
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy
+ * of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ */
+ -->
+<xs:schema
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://www.globus.org/2008/06/workspace/types"
+    xmlns="http://www.globus.org/2008/06/workspace/types"
+    xmlns:tns="http://www.globus.org/2008/06/workspace/types"
+    xmlns:vwmeta="http://www.globus.org/2008/06/workspace/metadata"
+    xmlns:neg="http://www.globus.org/2008/06/workspace/negotiable"
+    xmlns:log="http://www.globus.org/2008/06/workspace/metadata/logistics"
+    xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/03/addressing"
+    xmlns:wsbf="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-BaseFaults-1.2-draft-01.xsd"
+    attributeFormDefault="qualified"
+    elementFormDefault="qualified">
+
+    <xs:import namespace="http://schemas.xmlsoap.org/ws/2004/03/addressing"
+               schemaLocation="../ws/addressing/WS-Addressing.xsd" />
+
+    <xs:import namespace="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-BaseFaults-1.2-draft-01.xsd"
+               schemaLocation="../wsrf/faults/WS-BaseFaults.xsd" />
+
+    <xs:import namespace="http://www.globus.org/2008/06/workspace/metadata"
+               schemaLocation="./metadata/vw.xsd" />
+
+    <xs:import namespace="http://www.globus.org/2008/06/workspace/negotiable"
+               schemaLocation="./negotiable.xsd" />
+
+    <xs:import
+        namespace="http://www.globus.org/2008/06/workspace/metadata/logistics"
+        schemaLocation="./metadata/vw-logistics.xsd" />
+
+    <!--==================================================-->
+    <!--               State Related                      -->
+    <!--==================================================-->
+
+    <xs:simpleType name="currentState_Enumeration">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="Unstaged" />
+            <xs:enumeration value="Unpropagated" />
+            <xs:enumeration value="Propagated" />
+            <xs:enumeration value="Running" />
+            <xs:enumeration value="Paused" />
+            <xs:enumeration value="TransportReady" />
+            <xs:enumeration value="StagedOut" />
+            <xs:enumeration value="Corrupted" />
+            <xs:enumeration value="Cancelled" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:element name="currentState" >
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="state"
+                            type="tns:currentState_Enumeration" />
+                <xs:element ref="tns:WorkspaceFault"
+                            minOccurs="0" />
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <!--==================================================-->
+    <!--              input/output types                  -->
+    <!--==================================================-->
+
+    <xs:complexType name="voidType" />
+
+    <xs:simpleType name="shutdownEnumeration">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="Normal" />
+            <xs:enumeration value="Pause" />
+            <xs:enumeration value="Serialize" />
+            <xs:enumeration value="Reboot" />
+            <xs:enumeration value="Trash" />
+            <xs:enumeration value="ReadyForTransport" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="WorkspaceShutdownRequest_Type">
+        <xs:sequence>
+
+            <xs:element name="shutdownType"
+                        type="tns:shutdownEnumeration" />
+
+            <xs:element ref="neg:PostShutdown" minOccurs="0" />
+
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="WorkspaceCreateRequest_Type">
+        <xs:sequence>
+
+            <xs:element name="metadata"
+                        type="vwmeta:VirtualWorkspace_Type" />
+
+            <xs:element name="resourceRequest"
+                        type="neg:WorkspaceDeployment_Type" />
+
+            <xs:element name="optionalParameters"
+                        type="tns:optionalParameters_Type"
+                        minOccurs="0" />
+
+            <xs:element name="partOfEnsemble"
+                        type="xs:boolean"
+                        minOccurs="0" />
+
+            <xs:element name="ensembleEPR"
+                        type="wsa:EndpointReferenceType"
+                        minOccurs="0" />
+
+            <xs:element name="ensembleDone"
+                        type="xs:boolean"
+                        minOccurs="0" />
+
+            <xs:element name="contextEPR"
+                        type="wsa:EndpointReferenceType"
+                        minOccurs="0" />
+
+            <xs:element name="lockContext"
+                        type="xs:boolean"
+                        minOccurs="0" />
+
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="WorkspaceCreateResponse_Type">
+        <xs:sequence>
+
+            <xs:element name="CreatedWorkspace"
+                        type="tns:CreatedWorkspace_Type"
+                        maxOccurs="unbounded" />
+
+            <xs:element name="GroupEPR"
+                        type="wsa:EndpointReferenceType"
+                        nillable="true" />
+
+            <xs:element name="EnsembleEPR"
+                        type="wsa:EndpointReferenceType"
+                        nillable="true" />
+
+            <xs:element name="ContextEPR"
+                        type="wsa:EndpointReferenceType"
+                        nillable="true" />
+
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="CreatedWorkspace_Type">
+        <xs:sequence>
+            <xs:element name="epr"
+                        type="wsa:EndpointReferenceType" />
+
+            <xs:element ref="schedule" />
+
+            <xs:element ref="log:networking" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="schedule"
+                type="tns:Schedule_Type" />
+
+    <xs:complexType name="Schedule_Type">
+        <xs:sequence>
+            <xs:element name="ActualInstantiationTime"
+                        type="xs:dateTime"
+                        minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The actual time workspace started or
+                        will start.  If missing, it means the workspace is
+                        scheduled as best-effort.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <xs:element name="Duration"
+                        type="xs:duration">
+                <xs:annotation>
+                    <xs:documentation>The workspace running time
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <xs:element name="ActualTerminationTime"
+                        type="xs:dateTime"
+                        minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The resource termination time.  If
+                        missing, the workspace is scheduled as best-effort and
+                        WSRF resource termination time is currently infinite.
+                    </xs:documentation>
+                </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="OptionalParameters"
+                type="tns:optionalParameters_Type" />
+
+    <xs:complexType name="optionalParameters_Type">
+        <xs:sequence>
+            <xs:element name="stageIn"
+                        type="tns:transferRequest_Type"
+                        minOccurs="0" />
+            
+            <xs:element name="stageOut"
+                        type="tns:transferRequest_Type"
+                        minOccurs="0" />
+
+            <xs:element name="filewrite"
+                        type="tns:customizeTask_Type"
+                        minOccurs="0"
+                        maxOccurs="unbounded" />
+
+            <xs:element name="mdServerUserdata"
+                        type="xs:string"
+                        minOccurs="0" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- should handle base64 in the future -->
+    <xs:complexType name="customizeTask_Type">
+        <xs:sequence>
+            <xs:element name="content"
+                        type="xs:string" />
+            <xs:element name="pathOnVM"
+                        type="xs:string" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="transferRequest_Type">
+        <xs:sequence>
+            <xs:element name="serviceEndpoint"
+                        type="xs:anyURI"
+                        minOccurs="0" />
+            <xs:element name="sourceURL"
+                        type="xs:anyURI" />
+            <xs:element name="destURL"
+                        type="xs:anyURI" />
+            <xs:element name="stagingCredential"
+                        type="wsa:EndpointReferenceType"
+                        minOccurs="0" />
+            <xs:element name="transferCredential"
+                        type="wsa:EndpointReferenceType"
+                        minOccurs="0" />
+            <xs:element name="checksum"
+                        type="xs:string"
+                        minOccurs="0" />
+            <xs:element name="checksumtype"
+                        type="xs:string"
+                        minOccurs="0" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- ensemble -->
+
+    <xs:complexType name="oneReport_Type">
+        <xs:sequence>
+            <xs:element name="epr" type="wsa:EndpointReferenceType" />
+            <xs:element ref="tns:currentState" />
+            <xs:element ref="tns:schedule" />
+            <xs:element ref="log:networking" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="reportResponse_Type">
+        <xs:sequence>
+            <xs:element name="report"
+                        type="tns:oneReport_Type"
+                        minOccurs="0"
+                        maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="reportSend_Type">
+        <xs:sequence>
+            <!-- these 'only' params can work together -->
+            <xs:element name="returnOnlyIfErrorPresent"
+                        type="xs:boolean" />
+            <xs:element name="returnOnlyIfAllAtState"
+                        type="tns:currentState_Enumeration"
+                        minOccurs="0" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- Contextualization types. -->
+
+    <xs:complexType name="retrieveSend_Type">
+        <xs:sequence>
+            <xs:element name="identity"
+                        type="log:IdentityProvides_Type"
+                        maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="injectData_Type">
+        <xs:sequence>
+            <xs:element name="data" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:simpleContent>
+                        <xs:extension base="xs:string">
+                            <xs:attribute name="name"
+                                          type="xs:string"
+                                          use="required" />
+                        </xs:extension>
+                    </xs:simpleContent>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="retrieveResponse_Type">
+        <xs:sequence>
+            <xs:element name="locked"
+                        type="xs:boolean" />
+            <xs:element name="complete"
+                        type="xs:boolean" />
+            <xs:element name="requires"
+                        type="log:Requires_Type" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="okExitingSend_Type">
+        <xs:sequence>
+            <xs:element name="identity"
+                        type="log:IdentityProvides_Type"
+                        maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="errorExitingSend_Type">
+        <xs:sequence>
+            <xs:element name="identity"
+                        type="log:IdentityProvides_Type"
+                        maxOccurs="unbounded" />
+            <xs:element name="errorcode"
+                        type="xs:short" />
+            <xs:element name="message"
+                        type="xs:string" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="matchedRole_Type">
+        <xs:sequence>
+            <xs:element name="name"
+                        type="xs:string" />
+            <xs:element name="numFilledProviders"
+                        type="xs:short" />
+            <xs:element name="numProvidersInContext"
+                        type="xs:short" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="identitiesSend_Type">
+        <xs:choice maxOccurs="unbounded">
+            <xs:element name="all" type="xs:boolean" />
+            <xs:element name="ip" type="xs:string" />
+            <xs:element name="host" type="xs:string" />
+        </xs:choice>
+    </xs:complexType>
+
+    <xs:complexType name="node_Type">
+        <xs:sequence>
+            <xs:element name="workspaceID"
+                        type="xs:string" />
+            <xs:element name="exited"
+                        type="xs:boolean" />
+            <xs:element name="ok"
+                        type="xs:boolean" />
+            <xs:element name="errorCode"
+                        type="xs:short"
+                        minOccurs="0" />
+            <xs:element name="errorMessage"
+                        type="xs:string"
+                        minOccurs="0" />
+            <xs:element name="identity"
+                        type="log:IdentityProvides_Type"
+                        maxOccurs="unbounded" />
+
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="identitiesResponse_Type">
+        <xs:sequence>
+            <xs:element name="node"
+                        type="tns:node_Type"
+                        maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <!--==================================================-->
+    <!--              resource properties                 -->
+    <!--==================================================-->
+
+    <!-- Note these are not ALL the RPs, just the ones without
+         GEDs in other files -->
+
+    <xs:element name="DefaultRunningTime"
+                type="xs:duration" />
+    
+    <xs:element name="MaximumRunningTime"
+                type="xs:duration" />
+
+    <xs:element name="Associations">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="association"
+                            type="xs:string"
+                            maxOccurs="unbounded" />
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="contextualizationContext">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="locked"
+                            type="xs:boolean" />
+                <xs:element name="complete"
+                            type="xs:boolean" />
+                <xs:element name="allOK"
+                            type="xs:boolean" />
+                <xs:element name="errorPresent"
+                            type="xs:boolean" />
+                <xs:element name="matchedRole"
+                            type="tns:matchedRole_Type"
+                            minOccurs="0"
+                            maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <!--==================================================-->
+    <!--                 fault types                      -->
+    <!--==================================================-->
+
+    <xs:element name="WorkspaceFault">
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="wsbf:BaseFaultType" />
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="WorkspaceUnknownFault">
+        <xs:annotation>
+            <xs:documentation>Same as a ResourceUnknownFaultType in other portTypes</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="wsbf:BaseFaultType" />
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="WorkspaceCreationFault">
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="wsbf:BaseFaultType" />
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="WorkspaceMetadataFault">
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="wsbf:BaseFaultType" />
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="WorkspaceResourceRequestDeniedFault">
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="wsbf:BaseFaultType" />
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="WorkspaceStagingRequestDeniedFault">
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="wsbf:BaseFaultType" />
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="OperationDisabledFault">
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="wsbf:BaseFaultType" />
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="WorkspaceShutdownFault">
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="wsbf:BaseFaultType" />
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="WorkspaceStartFault">
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="wsbf:BaseFaultType" />
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="WorkspaceSchedulingFault">
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="wsbf:BaseFaultType" />
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="WorkspaceContextualizationFault">
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="wsbf:BaseFaultType" />
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>

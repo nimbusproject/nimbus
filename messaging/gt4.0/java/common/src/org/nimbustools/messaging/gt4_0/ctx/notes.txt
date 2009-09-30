@@ -1,0 +1,19 @@
+Waiting on 'virtualizing' the ctx GT/axis classes
+
+In the future, an implementation reference of the broker that gets passed to
+the factory should be able to be a proxy to contact an offsite broker etc.,
+since it should be a fully decoupled service (remote client can and will also
+be able to orchestrate with broker).
+
+====
+
+One issue with the context broker in general is that the bootstrap
+information contains IP addresses.  This allows the VM to easily
+figure out its own multi-NIC situation, to map the NICs it sees to the
+NICs the context broker is describing to it.
+
+Until a good solution for that is found (there are pitfalls), we have the
+concept of a bootstrap text format that the workspace service implementation
+needs to fill in at the last minute with the IPs and nic names. So the syntax is
+not encapsulated by the context broker (in the next iteration it needs to be).
+

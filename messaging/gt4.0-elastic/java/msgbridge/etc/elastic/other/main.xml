@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+
+    <!-- ************ ServiceRM *********** -->
+    
+    <bean id="nimbus-elastic.rm"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.ServiceRMImpl">
+
+        <constructor-arg ref="nimbus-elastic.rm.run" />
+        <constructor-arg ref="nimbus-elastic.rm.terminate" />
+        <constructor-arg ref="nimbus-elastic.rm.reboot" />
+        <constructor-arg ref="nimbus-elastic.rm.describe" />
+        <constructor-arg ref="nimbus-elastic.rm.containerInterface" />
+
+    </bean>
+
+    <bean id="nimbus-elastic.rm.run"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultRun">
+
+        <constructor-arg ref="nimbus-elastic.general.ra" />
+        <constructor-arg ref="nimbus-elastic.general.networks" />
+        <constructor-arg ref="nimbus-elastic.rm.idmappings" />
+        <constructor-arg ref="nimbus-elastic.rm.describe" />
+        <constructor-arg ref="nimbus-elastic.rm.containerInterface" />
+        <constructor-arg ref="nimbus-elastic.security.sshkeys" />
+        <constructor-arg ref="nimbus-elastic.image.repository" />
+
+    </bean>
+
+    <bean id="nimbus-elastic.rm.terminate"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultTerminate">
+
+        <constructor-arg ref="nimbus-elastic.rm.idmappings" />
+
+    </bean>
+
+    <bean id="nimbus-elastic.rm.reboot"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultReboot">
+
+        <constructor-arg ref="nimbus-elastic.rm.idmappings" />
+        
+    </bean>        
+
+    <bean id="nimbus-elastic.rm.describe"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultDescribe">
+
+        <constructor-arg ref="nimbus-elastic.rm.idmappings" />
+        <constructor-arg ref="nimbus-elastic.general.validity" />
+        <constructor-arg ref="nimbus-elastic.general.networks" />
+        <constructor-arg ref="nimbus-elastic.general.kernels" />
+        <constructor-arg ref="nimbus-elastic.general.ra" />
+        <constructor-arg ref="nimbus-elastic.general.avzone" />
+
+    </bean>
+
+    <bean id="nimbus-elastic.rm.containerInterface"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultContainerInterface" />
+
+    <bean id="nimbus-elastic.rm.idmappings"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultIDMgmt">
+
+        <constructor-arg value="$COMMON{caches.dir}" />
+
+    </bean>
+
+    
+    <!-- ************ ServiceGeneral *********** -->
+
+    <bean id="nimbus-elastic.general"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.ServiceGeneralImpl">
+
+        <constructor-arg ref="nimbus-elastic.general.avzone" />
+
+    </bean>
+
+    <bean id="nimbus-elastic.general.validity"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.defaults.DefaultValidity" />
+
+     <bean id="nimbus-elastic.general.ra"
+           class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.defaults.DefaultResourceAllocations"
+           init-method="validate">
+
+         <property name="smallMemory" value="$ELASTIC{memory.small}" />
+         <property name="largeMemory" value="$ELASTIC{memory.large}" />
+         <property name="xlargeMemory" value="$ELASTIC{memory.xlarge}" />
+         <property name="smallName" value="$OTHER_ELASTIC{ra.name.small}" />
+         <property name="largeName" value="$OTHER_ELASTIC{ra.name.large}" />
+         <property name="xlargeName" value="$OTHER_ELASTIC{ra.name.xlarge}" />
+         <property name="unknownString" value="$OTHER_ELASTIC{ra.name.unknown}" />
+         
+         <property name="cpuArch" value="$OTHER_ELASTIC{cpu.arch}" />
+         <property name="vmmType" value="$OTHER_ELASTIC{vmm.type}" />
+         <property name="vmmVersion" value="$OTHER_ELASTIC{vmm.version}" />
+
+    </bean>
+    
+    <bean id="nimbus-elastic.general.networks"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.defaults.DefaultNetworks"
+          init-method="validate">
+
+        <property name="publicNetwork" value="$ELASTIC{net.public}" />
+        <property name="privateNetwork" value="$ELASTIC{net.private}" />
+        <property name="noPublicNetwork" value="$OTHER_ELASTIC{unknown.pubnet}" />
+        <property name="noPrivateNetwork" value="$OTHER_ELASTIC{unknown.privnet}" />
+
+    </bean>
+
+    <bean id="nimbus-elastic.general.avzone"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.defaults.DefaultAvailabilityZones">
+
+        <property name="zones" value="$OTHER_ELASTIC{availability.zones}" />
+        
+    </bean>
+
+    <bean id="nimbus-elastic.general.kernels"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.defaults.DefaultKernels">
+
+        <property name="kernels" value="$OTHER_ELASTIC{kernels}" />
+
+    </bean>
+
+
+    <!-- ************ ServiceSecurity *********** -->
+
+    <bean id="nimbus-elastic.security"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.security.ServiceSecurityImpl">
+
+        <constructor-arg ref="nimbus-elastic.security.sshkeys" />
+        <constructor-arg ref="nimbus-elastic.security.keygen" />
+        <constructor-arg ref="nimbus-elastic.rm.containerInterface" />
+
+    </bean>
+
+    <bean id="nimbus-elastic.security.sshkeys"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.security.defaults.DefaultSSHKeys"
+          init-method="validate">
+
+        <!-- key cache provider -->
+        <constructor-arg ref="nimbus-elastic.rm.idmappings" />
+        <property name="pubkeyOnly" value="$ELASTIC{ssh.pubkey.only}" />
+        <property name="splitToken" value="$ELASTIC{ssh.split.token}" />
+
+    </bean>
+
+    <bean id="nimbus-elastic.security.keygen"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.security.defaults.DefaultKeyGen"
+          init-method="validate">
+
+        <constructor-arg ref="nimbus-elastic.security.sshkeys" />
+        <constructor-arg ref="nimbus-elastic.rm.containerInterface" />
+        <property name="pubkeyOnly" value="$ELASTIC{ssh.pubkey.only}" />
+        <property name="keyType" value="$ELASTIC{ssh.keygen.type}" />
+        <property name="keySize" value="$ELASTIC{ssh.keygen.size}" />
+
+    </bean>
+
+
+    <!-- ************ ServiceImage *********** -->
+
+    <bean id="nimbus-elastic.image"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.image.ServiceImageImpl">
+
+        <constructor-arg ref="nimbus-elastic.rm.containerInterface" />
+        <constructor-arg ref="nimbus-elastic.image.repository" />
+
+    </bean>
+
+    <bean id="nimbus-elastic.image.repository"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.image.defaults.DefaultRepository"
+          init-method="validate">
+
+        <constructor-arg ref="nimbus-elastic.rm.containerInterface" />
+
+        <property name="baseDirectory" value="$ELASTIC{base.directory.url}" />
+        <property name="scheme" value="$ELASTIC{propagation.method}" />
+        <property name="rootFileMountAs" value="$OTHER_ELASTIC{rootfile.mountas}" />
+
+        <property name="enableListing" value="$ELASTIC{repository.listing.enabled}" />
+        <property name="idAuthz" value="$ELASTIC{repository.idauthz}" />
+
+    </bean>
+
+
+    <!--
+        property sources are concentrated in this file
+    -->
+    <import resource="main.conflocator.xml"/>
+
+</beans>

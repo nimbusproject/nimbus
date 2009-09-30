@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+
+<ehcache>
+
+    <defaultCache
+        maxElementsInMemory="2000"
+        eternal="true"
+        timeToIdleSeconds="120"
+        timeToLiveSeconds="120"
+        overflowToDisk="false"
+        />
+
+    <cache name="instanceCache"
+        maxElementsInMemory="2000"
+        eternal="true"
+        timeToIdleSeconds="120"
+        timeToLiveSeconds="120"
+        overflowToDisk="false"
+        />
+
+</ehcache>

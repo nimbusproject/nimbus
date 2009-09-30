@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="WorkspaceGroupService" targetNamespace="http://www.globus.org/2008/06/workspace/group/bindings" xmlns:porttype="http://www.globus.org/2008/06/workspace/group" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:import namespace="http://www.globus.org/2008/06/workspace/group" location="workspace_group_port_type.wsdl"/>
+  <wsdl:binding name="WorkspaceGroupPortTypeSOAPBinding" type="porttype:WorkspaceGroupPortType">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="start">
+      <soap:operation soapAction="http://www.globus.org/2008/06/workspace/group/WorkspaceGroupPortType/startRequest"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="OperationDisabledFault">
+        <soap:fault name="OperationDisabledFault" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="UnknownWorkspaceFault">
+        <soap:fault name="UnknownWorkspaceFault" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="WorkspaceStartFault">
+        <soap:fault name="WorkspaceStartFault" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="shutdown">
+      <soap:operation soapAction="http://www.globus.org/2008/06/workspace/group/WorkspaceGroupPortType/shutdownRequest"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="WorkspaceShutdownFault">
+        <soap:fault name="WorkspaceShutdownFault" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="OperationDisabledFault">
+        <soap:fault name="OperationDisabledFault" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="UnknownWorkspaceFault">
+        <soap:fault name="UnknownWorkspaceFault" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="Destroy">
+      <soap:operation soapAction="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceLifetime/Destroy"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ResourceNotDestroyedFault">
+        <soap:fault name="ResourceNotDestroyedFault" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="ResourceUnknownFault">
+        <soap:fault name="ResourceUnknownFault" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+  </wsdl:binding>
+</wsdl:definitions>

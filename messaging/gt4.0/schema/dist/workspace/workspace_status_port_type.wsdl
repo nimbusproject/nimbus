@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="WorkspaceStatusService" targetNamespace="http://www.globus.org/2008/06/workspace/status" xmlns:wsrp="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties-1.2-draft-01.xsd" xmlns:wsbf="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-BaseFaults-1.2-draft-01.xsd" xmlns:tns="http://www.globus.org/2008/06/workspace/status" xmlns:wsrpw="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties-1.2-draft-01.wsdl" xmlns:neg="http://www.globus.org/2008/06/workspace/negotiable" xmlns:log="http://www.globus.org/2008/06/workspace/metadata/logistics" xmlns:wsdlpp="http://www.globus.org/namespaces/2004/10/WSDLPreprocessor" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/03/addressing" xmlns:work-types="http://www.globus.org/2008/06/workspace/types" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsnt="http://docs.oasis-open.org/wsn/2004/06/wsn-WS-BaseNotification-1.2-draft-01.xsd">
+  <wsdl:import namespace="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties-1.2-draft-01.wsdl" location="../wsrf/properties/WS-ResourceProperties.wsdl"/>
+  <wsdl:types>
+    <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://www.globus.org/2008/06/workspace/status" xmlns:tns="http://www.globus.org/2008/06/workspace/status">
+<xs:import namespace="http://schemas.xmlsoap.org/ws/2004/03/addressing" schemaLocation="../ws/addressing/WS-Addressing.xsd"/>
+
+
+            <xs:import namespace="http://www.globus.org/2008/06/workspace/types" schemaLocation="./workspace_types.xsd"/>
+
+            <xs:import namespace="http://www.globus.org/2008/06/workspace/negotiable" schemaLocation="./negotiable.xsd"/>
+
+            <xs:import namespace="http://www.globus.org/2008/06/workspace/metadata/logistics" schemaLocation="./metadata/vw-logistics.xsd"/>
+
+            <!--==================================================-->
+            <!--               Resource properties                -->
+            <!--==================================================-->
+
+            <xs:element name="chargeGranularity" type="xs:int"/>
+
+            <xs:element name="StatusRPSet">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element ref="tns:chargeGranularity"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <!--==================================================-->
+            <!--    Operational input/output type declarations    -->
+            <!--==================================================-->
+
+            <xs:element name="queryUsedAndReserved" type="tns:voidType"/>
+
+            <xs:complexType name="voidType"/>
+
+            <xs:element name="usedAndReservedTime" type="tns:usedAndReservedTime_Type"/>
+
+            <xs:complexType name="usedAndReservedTime_Type">
+                <xs:sequence>
+                    <xs:element name="usedTime" type="xs:duration"/>
+                    <xs:element name="reservedTime" type="xs:duration"/>
+                </xs:sequence>
+            </xs:complexType>
+
+            <xs:element name="queryCurrentWorkspaces" type="tns:voidType"/>
+
+            <xs:element name="currentWorkspaces" type="tns:currentWorkspaces_Type"/>
+
+            <xs:complexType name="currentWorkspaces_Type">
+                <xs:sequence>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="oneCurrentWorkspace" type="tns:oneCurrentWorkspace_Type"/>
+                </xs:sequence>
+            </xs:complexType>
+
+            <xs:complexType name="oneCurrentWorkspace_Type">
+                <xs:sequence>
+                    <xs:element name="epr" type="wsa:EndpointReferenceType"/>
+                    <xs:element ref="work-types:currentState"/>
+                    <xs:element ref="work-types:schedule"/>
+                    <xs:element ref="neg:ResourceAllocation"/>
+                    <xs:element ref="log:logistics"/>
+                </xs:sequence>
+            </xs:complexType>
+
+            <xs:element name="WorkspaceStatusFault">
+                <xs:complexType>
+                    <xs:complexContent>
+                        <xs:extension base="wsbf:BaseFaultType"/>
+                    </xs:complexContent>
+                </xs:complexType>
+            </xs:element>
+
+        </xs:schema>
+  </wsdl:types>
+  <wsdl:message name="QueryUsedAndReservedTimeOutputMessage">
+    <wsdl:part name="parameters" element="tns:usedAndReservedTime"/>
+  </wsdl:message>
+  <wsdl:message name="QueryUsedAndReservedTimeInputMessage">
+    <wsdl:part name="parameters" element="tns:queryUsedAndReserved"/>
+  </wsdl:message>
+  <wsdl:message name="QueryCurrentWorkspacesOutputMessage">
+    <wsdl:part name="parameters" element="tns:currentWorkspaces"/>
+  </wsdl:message>
+  <wsdl:message name="QueryCurrentWorkspacesInputMessage">
+    <wsdl:part name="parameters" element="tns:queryCurrentWorkspaces"/>
+  </wsdl:message>
+  <wsdl:message name="StatusFaultMsg">
+    <wsdl:part name="description" element="tns:WorkspaceStatusFault"/>
+  </wsdl:message>
+  <wsdl:portType name="WorkspaceStatusPortType" wsrp:ResourceProperties="tns:StatusRPSet">
+    <wsdl:operation name="queryUsedAndReservedTime">
+      <wsdl:input message="tns:QueryUsedAndReservedTimeInputMessage"/>
+      <wsdl:output message="tns:QueryUsedAndReservedTimeOutputMessage"/>
+      <wsdl:fault name="WorkspaceStatusFault" message="tns:StatusFaultMsg"/>
+    </wsdl:operation>
+    <wsdl:operation name="queryCurrentWorkspaces">
+      <wsdl:input message="tns:QueryCurrentWorkspacesInputMessage"/>
+      <wsdl:output message="tns:QueryCurrentWorkspacesOutputMessage"/>
+      <wsdl:fault name="WorkspaceStatusFault" message="tns:StatusFaultMsg"/>
+    </wsdl:operation>
+    <wsdl:operation name="QueryResourceProperties">
+      <wsdl:input name="QueryResourcePropertiesRequest" message="wsrpw:QueryResourcePropertiesRequest" wsa:Action="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties/QueryResourceProperties"/>
+      <wsdl:output name="QueryResourcePropertiesResponse" message="wsrpw:QueryResourcePropertiesResponse" wsa:Action="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties/QueryResourcePropertiesResponse"/>
+      <wsdl:fault name="InvalidResourcePropertyQNameFault" message="wsrpw:InvalidResourcePropertyQNameFault"/>
+      <wsdl:fault name="InvalidQueryExpressionFault" message="wsrpw:InvalidQueryExpressionFault"/>
+      <wsdl:fault name="QueryEvaluationErrorFault" message="wsrpw:QueryEvaluationErrorFault"/>
+      <wsdl:fault name="ResourceUnknownFault" message="wsrpw:ResourceUnknownFault"/>
+      <wsdl:fault name="UnknownQueryExpressionDialectFault" message="wsrpw:UnknownQueryExpressionDialectFault"/>
+    </wsdl:operation>
+    <wsdl:operation name="GetMultipleResourceProperties">
+      <wsdl:input name="GetMultipleResourcePropertiesRequest" message="wsrpw:GetMultipleResourcePropertiesRequest" wsa:Action="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties/GetMultipleResourceProperties"/>
+      <wsdl:output name="GetMultipleResourcePropertiesResponse" message="wsrpw:GetMultipleResourcePropertiesResponse" wsa:Action="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties/GetMultipleResourcePropertiesResponse"/>
+      <wsdl:fault name="InvalidResourcePropertyQNameFault" message="wsrpw:InvalidResourcePropertyQNameFault"/>
+      <wsdl:fault name="ResourceUnknownFault" message="wsrpw:ResourceUnknownFault"/>
+    </wsdl:operation>
+    <wsdl:operation name="GetResourceProperty">
+      <wsdl:input name="GetResourcePropertyRequest" message="wsrpw:GetResourcePropertyRequest" wsa:Action="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties/GetResourceProperty"/>
+      <wsdl:output name="GetResourcePropertyResponse" message="wsrpw:GetResourcePropertyResponse" wsa:Action="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties/GetResourcePropertyResponse"/>
+      <wsdl:fault name="InvalidResourcePropertyQNameFault" message="wsrpw:InvalidResourcePropertyQNameFault"/>
+      <wsdl:fault name="ResourceUnknownFault" message="wsrpw:ResourceUnknownFault"/>
+    </wsdl:operation>
+  </wsdl:portType>
+</wsdl:definitions>

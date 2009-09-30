@@ -1,0 +1,169 @@
+<?xml version="1.0"?>
+
+<project default="all" name="elastic-schema" basedir=".">
+    <description>
+        EC2 WSDL (elastic) documents.
+    </description>
+
+    <property file="build.properties"/>
+
+    <property environment="env"/>
+    <property name="deploy.dir" location="${env.GLOBUS_LOCATION}"/>
+
+    <!-- gar.name -->
+    <property name="gar.name"
+              value="${vws.gt4_0-elastic.schemas.dist.dir}/${vws.gt4_0-elastic.schemas.package.name}.gar"/>
+
+    <property name="build.packages" location=
+        "${deploy.dir}/share/globus_wsrf_common/build-packages.xml"/>
+
+    <!--
+    <property name="noSchema" value="true"/>
+    If we want to deploy the WSDL, we must *not* set this property at all
+    -->
+
+    <property name="garschema.id" value="garschema"/>
+    <fileset dir="."
+             includes="${schema.subdirs}/**"
+             id="garschema"/>
+
+    <!-- *********************
+         unused GAR properties
+         setting these to avoid build warning messages from GT...
+         ********************* -->
+
+    <!-- garjars.id -->
+    <fileset dir="${vws.gt4_0-elastic.schemas.build.lib.dir}" id="garJars"/>
+    <property name="garjars.id" value="garJars"/>
+
+    <!-- garetc.id -->
+    <fileset dir="${vws.gt4_0-elastic.schemas.build.etc.dir}" id="garEtc"/>
+    <property name="garetc.id" value="garEtc"/>
+
+    <!-- garshare.id -->
+    <fileset dir="${vws.gt4_0-elastic.schemas.build.share.dir}" id="garshare"/>
+    <property name="garshare.id" value="garshare"/>
+
+    <!-- gardocs.id -->
+    <fileset dir="${vws.gt4_0-elastic.schemas.build.docs.dir}" id="gardocs"/>
+    <property name="gardocs.id" value="gardocs"/>
+
+    <!-- garbin.id -->
+    <fileset dir="${vws.gt4_0-elastic.schemas.build.bin.dir}" id="garbin"/>
+    <property name="garbin.id" value="garbin"/>
+
+
+    <!-- *******************************************************************
+         CREATE DISTRIBUTION
+         ******************************************************************* -->
+
+    <target name="init">
+        <mkdir dir="${vws.gt4_0-elastic.schemas.build.dir}"/>
+        <mkdir dir="${vws.gt4_0-elastic.schemas.build.dest}"/>
+        <mkdir dir="${vws.gt4_0-elastic.schemas.build.lib.dir}"/>
+        <mkdir dir="${vws.gt4_0-elastic.schemas.build.etc.dir}"/>
+        <mkdir dir="${vws.gt4_0-elastic.schemas.build.share.dir}"/>
+        <mkdir dir="${vws.gt4_0-elastic.schemas.build.docs.dir}"/>
+        <mkdir dir="${vws.gt4_0-elastic.schemas.build.bin.dir}"/>
+        <mkdir dir="${vws.gt4_0-elastic.schemas.dist.dir}"/>
+    </target>
+
+    <target name="dist" depends="init">
+        <echo message="**** Module: ${basedir}" />
+        <echo>Building: ${vws.gt4_0-elastic.schemas.print-noun}</echo>
+        <ant antfile="${build.packages}" target="makeGar">
+            <reference refid="${garjars.id}"/>
+            <reference refid="${garetc.id}"/>
+            <reference refid="${garshare.id}"/>
+            <reference refid="${garschema.id}"/>
+            <reference refid="${gardocs.id}"/>
+            <reference refid="${garbin.id}"/>
+        </ant>
+        <delete dir="tmp"/>
+        <echo>Built: ${vws.gt4_0-elastic.schemas.print-noun}
+        </echo>
+    </target>
+
+    <!-- *******************************************************************
+         CLEAN
+         ******************************************************************* -->
+
+    <target name="clean">
+        <delete dir="tmp" />
+        <delete dir="${vws.gt4_0-elastic.schemas.build.dir}" />
+        <delete dir="${vws.gt4_0-elastic.schemas.dist.dir}" />
+        <echo message="Cleaned: ${basedir}" />
+    </target>
+
+    <!-- *******************************************************************
+         DEPLOYMENT
+         ******************************************************************* -->
+    
+    <target name="assessGarPresence">
+        <available property="garIsPresent"
+                   type="file"
+                   file="${gar.name}" />
+    </target>
+
+    <target name="gar.not.present"
+            depends="assessGarPresence"
+            unless="garIsPresent">
+
+        <echo>
+
+
+
+***************** ERROR *****************
+
+Cannot find archive to install: ${gar.name}
+
+Did you build?  Use the build-and-install script.
+
+
+
+        </echo>
+
+        <fail message="Cannot find archive to install: ${gar.name}" />
+
+    </target>
+
+    <target name="_deploy" depends="gar.not.present">
+        <ant antfile="${build.packages}" target="deployGar">
+            <property name="gar.id" value="${vws.gt4_0-elastic.schemas.package.name}"/>
+        </ant>
+    </target>
+
+    <target name="deploy">
+        <echo message="**** Module: ${basedir}" />
+        <echo>Installing: ${vws.gt4_0-elastic.schemas.print-noun}</echo>
+        <antcall target="_deploy" />
+        <echo>Installed: ${vws.gt4_0-elastic.schemas.print-noun}
+        </echo>
+    </target>
+
+    <target name="assessDeployed">
+        <available property="isDeployed" type="dir"
+                    file="${deploy.dir}/etc/globus_packages/${vws.gt4_0-elastic.schemas.package.name}" />
+
+        <condition property="isNotDeployed" value="true">
+            <not>
+                <isset property="isDeployed" />
+            </not>
+        </condition>
+    </target>
+
+    <target name="printDeployed" depends="assessDeployed" unless="isDeployed">
+        <echo message="Already undeployed: ${vws.gt4_0-elastic.schemas.package.name}"/>
+    </target>
+
+    <target name="undeploy" depends="printDeployed" unless="isNotDeployed">
+        <ant antfile="${build.packages}" target="undeployGar">
+            <property name="gar.id" value="${vws.gt4_0-elastic.schemas.package.name}"/>
+        </ant>
+
+        <echo message="Undeployed: ${vws.gt4_0-elastic.schemas.package.name}"/>
+    </target>
+
+    <target name="all" depends="dist"/>
+
+</project>

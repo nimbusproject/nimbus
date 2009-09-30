@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jndiConfig xmlns="http://wsrf.globus.org/jndi/config">
+
+    <!--
+
+    NOTE: This file has changed significantly from previous versions.
+
+    All configuration has moved to files in the "etc/nimbus/workspace-service"
+    directory.  Except for the context broker.
+    -->
+
+    <!--
+         UNCOMMENT the whole <service> section below in order to enable the
+         context broker.
+
+         You will need to configure it with a CA cert/key pair for creating
+         credentials on the fly for the VMs to securely get back to the broker.
+
+
+             caCertPath  -  Absolute path to CA's public certificate.
+                            Restriction: RDNs in the DN may not have commas.
+
+             caKeyPath   -  Absolute path to UN-ENCRYPTED private key.
+                            CHECK PERMISSIONS on this key.
+
+                            To unencrypt an RSA key, run:
+                            openssl rsa -in cakey.pem -out cakey-unencrypted.pem
+
+
+         Other configurations:
+
+             testBootstrapGeneration -
+
+                   If 'true', tests for cert generation on startup to make
+                   sure CA misconfigurations fail early
+
+             defaultBootstrapPathOnWorkspace -
+
+                   Unlikely you'd want to change this.  It is the target path
+                   (on VM) for patching-based bootstrap delivery (this is a
+                   strong convention, ctx-agents in the VM look here).
+     -->
+
+
+    <!-- ERASE NEXT LINE TO ENABLE CTX BROKER (and line after whole <service> section) -->
+    <!--
+    <service name="WorkspaceContextBroker">
+        <resource name="ctxBrokerBootstrapFactory"
+                   type="org.globus.workspace.ctx.impl.security.DefaultBootstrapFactory">
+
+             <resourceParams>
+                 <parameter>
+                     <name>caCertPath</name>
+                     <value>/some/path/to/12345678.0</value>
+                 </parameter>
+                 <parameter>
+                     <name>caKeyPath</name>
+                     <value>/some/path/to/12345678.0-cakey.pem</value>
+                 </parameter>
+                 <parameter>
+                     <name>testBootstrapGeneration</name>
+                     <value>true</value>
+                 </parameter>
+                 <parameter>
+                     <name>factory</name>
+                     <value>org.globus.wsrf.jndi.BeanFactory</value>
+                 </parameter>
+             </resourceParams>
+         </resource>
+        <resource
+            name="home"
+            type="org.globus.workspace.ctx.impl.service.ContextBrokerHomeImpl">
+
+            <resourceParams>
+                <parameter>
+                     <name>defaultBootstrapPathOnWorkspace</name>
+                     <value>/var/workspace-contextualization-bootstrap</value>
+                 </parameter>
+                <parameter>
+                    <name>factory</name>
+                    <value>org.globus.wsrf.jndi.BeanFactory</value>
+                </parameter>
+                <parameter>
+                    <name>resourceClass</name>
+                    <value>
+                        org.globus.workspace.ctx.impl.service.ContextBrokerResourceImpl
+                    </value>
+                </parameter>
+            </resourceParams>
+        </resource>
+    </service>
+
+    --> <!-- ALSO ERASE THIS LINE TO ENABLE CTX BROKER -->
+
+
+
+    <!-- ===================================================================
+
+         You should not need to change anything below.
+
+         =================================================================== -->
+
+    <service name="NimbusMasterContext">
+        <resource name="masterContext"
+                  type="org.nimbustools.messaging.gt4_0.common.NimbusMasterContext">
+
+            <resourceParams>
+                <parameter>
+                    <name>masterConf</name>
+                    <value>@WORKSPACE_CONFDIR@/other/main.xml</value>
+                </parameter>
+                <parameter>
+                    <name>factory</name>
+                    <value>org.globus.wsrf.jndi.BeanFactory</value>
+                </parameter>
+            </resourceParams>
+        </resource>
+        
+        <resource name="elasticContext"
+                  type="org.nimbustools.messaging.gt4_0_elastic.context.ElasticContext">
+
+            <resourceParams>
+                <parameter>
+                    <name>elasticConf</name>
+                    <value>@ELASTIC_CONFDIR@/other/main.xml</value>
+                </parameter>
+                <parameter>
+                    <name>factory</name>
+                    <value>org.globus.wsrf.jndi.BeanFactory</value>
+                </parameter>
+            </resourceParams>
+        </resource>
+    </service>
+
+    <service name="WorkspaceFactoryService">
+        <resource name="home"
+                  type="org.nimbustools.messaging.gt4_0.factory.FactoryHome">
+
+            <resourceParams>
+                <parameter>
+                    <!-- do not edit -->
+                    <name>factory</name>
+                    <value>org.globus.wsrf.jndi.BeanFactory</value>
+                </parameter>
+            </resourceParams>
+        </resource>
+    </service>
+
+    <service name="WorkspaceService">
+        <resource name="home"
+                  type="org.nimbustools.messaging.gt4_0.service.InstanceHome">
+
+            <resourceParams>
+                <parameter>
+                    <!-- do not edit -->
+                    <name>factory</name>
+                    <value>org.globus.wsrf.jndi.BeanFactory</value>
+                </parameter>
+            </resourceParams>
+        </resource>
+    </service>
+
+    <service name="WorkspaceGroupService">
+        <resource name="home"
+                  type="org.nimbustools.messaging.gt4_0.group.GroupHome">
+
+            <resourceParams>
+                <parameter>
+                    <!-- do not edit -->
+                    <name>factory</name>
+                    <value>org.globus.wsrf.jndi.BeanFactory</value>
+                </parameter>
+            </resourceParams>
+        </resource>
+    </service>
+
+    <service name="WorkspaceEnsembleService">
+        <resource name="home"
+                  type="org.nimbustools.messaging.gt4_0.ensemble.EnsembleHome">
+
+            <resourceParams>
+                <parameter>
+                    <!-- do not edit -->
+                    <name>factory</name>
+                    <value>org.globus.wsrf.jndi.BeanFactory</value>
+                </parameter>
+            </resourceParams>
+        </resource>
+    </service>
+
+    <service name="WorkspaceStatusService">
+        <resource name="home"
+                  type="org.nimbustools.messaging.gt4_0.status.StatusHome">
+
+            <resourceParams>
+                <parameter>
+                    <!-- do not edit -->
+                    <name>factory</name>
+                    <value>org.globus.wsrf.jndi.BeanFactory</value>
+                </parameter>
+            </resourceParams>
+        </resource>
+    </service>
+
+</jndiConfig>
+    

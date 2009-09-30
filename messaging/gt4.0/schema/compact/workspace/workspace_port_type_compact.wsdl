@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+/*
+ * Copyright 1999-2006 University of Chicago
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy
+ * of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ */
+ -->
+
+<!-- non processed WSDL, see copyToDeployableComponent ant target -->
+
+<wsdl:definitions
+    name="WorkspaceService"
+    targetNamespace="http://www.globus.org/2008/06/workspace"
+    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:wsdlpp="http://www.globus.org/namespaces/2004/10/WSDLPreprocessor"
+    xmlns:wsrp="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties-1.2-draft-01.xsd"
+    xmlns:wsrpw="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties-1.2-draft-01.wsdl"
+    xmlns:wsnt="http://docs.oasis-open.org/wsn/2004/06/wsn-WS-BaseNotification-1.2-draft-01.xsd"
+    xmlns:wsntw="http://docs.oasis-open.org/wsn/2004/06/wsn-WS-BaseNotification-1.2-draft-01.wsdl"
+    xmlns:wsbf="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-BaseFaults-1.2-draft-01.xsd"
+    xmlns:wsrlw="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceLifetime-1.2-draft-01.wsdl"
+    xmlns:tns="http://www.globus.org/2008/06/workspace"
+    xmlns:work-types="http://www.globus.org/2008/06/workspace/types"
+    xmlns:vwmeta="http://www.globus.org/2008/06/workspace/metadata"
+    xmlns:log="http://www.globus.org/2008/06/workspace/metadata/logistics"
+    xmlns:neg="http://www.globus.org/2008/06/workspace/negotiable" >
+
+    <wsdl:import
+        namespace="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties-1.2-draft-01.wsdl"
+        location="../wsrf/properties/WS-ResourceProperties.wsdl" />
+
+    <wsdl:import
+        namespace="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceLifetime-1.2-draft-01.wsdl"
+        location="../wsrf/lifetime/WS-ResourceLifetime.wsdl" />
+
+    <wsdl:import
+        namespace="http://docs.oasis-open.org/wsn/2004/06/wsn-WS-BaseNotification-1.2-draft-01.wsdl"
+        location="../wsrf/notification/WS-BaseN.wsdl" />
+
+    <wsdl:types>
+        <xs:schema
+            targetNamespace="http://www.globus.org/2008/06/workspace"
+            xmlns:tns="http://www.globus.org/2008/06/workspace"
+            elementFormDefault="qualified">
+
+            <xs:import
+                namespace="http://www.globus.org/2008/06/workspace/types"
+                schemaLocation="./workspace_types.xsd" />
+
+            <xs:import
+                namespace="http://www.globus.org/2008/06/workspace/negotiable"
+                schemaLocation="./negotiable.xsd" />
+
+            <xs:import
+                namespace="http://www.globus.org/2008/06/workspace/metadata/logistics"
+                schemaLocation="./metadata/vw-logistics.xsd" />
+
+            <!--==================================================-->
+            <!--               resource properties                -->
+            <!--==================================================-->
+
+
+            <!-- This needs to be defined here for the topic elements
+                 to be automatically inserted by the WSDL pre-processor
+                 (see non-compact WSDL in common/schema) --> 
+            <xs:element name="ServiceRPSet">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element ref="work-types:currentState" />
+                        <xs:element ref="work-types:schedule" />
+                        <xs:element ref="neg:ResourceAllocation" />
+                        <xs:element ref="log:logistics" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <!--==================================================-->
+            <!--  Operational input/output type declarations      -->
+            <!--==================================================-->
+
+            <xs:element name="startWorkspace"
+                         type="work-types:voidType" />
+
+            <xs:element name="startWorkspaceResponse"
+                         type="work-types:voidType" />
+
+            <xs:element name="shutdownWorkspace"
+                         type="work-types:WorkspaceShutdownRequest_Type" />
+
+            <xs:element name="shutdownWorkspaceResponse"
+                         type="work-types:voidType" />
+
+        </xs:schema>
+    </wsdl:types>
+
+    <!--==================================================-->
+    <!--            Message declarations                  -->
+    <!--==================================================-->
+
+    <wsdl:message  name="StartWorkspaceInputMessage">
+        <wsdl:part name="parameters"
+                   element="tns:startWorkspace" />
+    </wsdl:message>
+
+    <wsdl:message  name="StartWorkspaceOutputMessage">
+        <wsdl:part name="parameters"
+                   element="tns:startWorkspaceResponse" />
+    </wsdl:message>
+
+    <wsdl:message  name="ShutdownWorkspaceInputMessage">
+        <wsdl:part name="parameters"
+                   element="tns:shutdownWorkspace" />
+    </wsdl:message>
+
+    <wsdl:message  name="ShutdownWorkspaceOutputMessage">
+        <wsdl:part name="parameters"
+                   element="tns:shutdownWorkspaceResponse" />
+    </wsdl:message>
+
+    <!-- messages for faults: -->
+
+    <wsdl:message  name="UnknownFaultMessage">
+        <wsdl:part name="description"
+                   element="work-types:WorkspaceUnknownFault" />
+    </wsdl:message>
+
+    <wsdl:message  name="StartFaultMessage">
+        <wsdl:part name="description"
+                   element="work-types:WorkspaceStartFault" />
+    </wsdl:message>
+
+    <wsdl:message  name="ShutdownFaultMessage">
+        <wsdl:part name="description"
+                   element="work-types:WorkspaceShutdownFault" />
+    </wsdl:message>
+
+    <wsdl:message  name="DisabledFaultMessage">
+        <wsdl:part name="description"
+                   element="work-types:OperationDisabledFault" />
+    </wsdl:message>
+
+
+    <!--==================================================-->
+    <!--            portType declaration                  -->
+    <!--==================================================-->
+
+    <wsdl:portType name="WorkspacePortType"
+        wsrp:ResourceProperties="tns:ServiceRPSet"
+        wsdlpp:extends="wsrpw:GetResourceProperty
+                        wsrpw:GetMultipleResourceProperties
+                        wsrpw:QueryResourceProperties
+                        wsrlw:ImmediateResourceTermination
+                        wsrlw:ScheduledResourceTermination
+                        wsntw:NotificationProducer">
+
+        <wsdl:operation  name="start">
+
+            <wsdl:input  message="tns:StartWorkspaceInputMessage" />
+            <wsdl:output message="tns:StartWorkspaceOutputMessage" />
+
+            <wsdl:fault  name="WorkspaceStartFault"
+                         message="tns:StartFaultMessage" />
+
+            <wsdl:fault  name="OperationDisabledFault"
+                         message="tns:DisabledFaultMessage" />
+
+            <wsdl:fault  name="UnknownWorkspaceFault"
+                         message="tns:UnknownFaultMessage" />
+        </wsdl:operation>
+
+        <wsdl:operation  name="shutdown">
+
+            <wsdl:input  message="tns:ShutdownWorkspaceInputMessage" />
+            <wsdl:output message="tns:ShutdownWorkspaceOutputMessage" />
+
+            <wsdl:fault  name="WorkspaceShutdownFault"
+                         message="tns:ShutdownFaultMessage" />
+
+            <wsdl:fault  name="OperationDisabledFault"
+                         message="tns:DisabledFaultMessage" />
+
+            <wsdl:fault  name="UnknownWorkspaceFault"
+                         message="tns:UnknownFaultMessage" />
+        </wsdl:operation>
+
+    </wsdl:portType>
+
+</wsdl:definitions>

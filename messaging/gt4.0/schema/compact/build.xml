@@ -1,0 +1,180 @@
+<?xml version="1.0"?>
+
+<project default="all" name="workspace-gt4.0-compact" basedir=".">
+    
+    <description>
+        Workspace schemas and WSDL documents before pre-processing.
+        Not to be deployed. Only for easy design and maintenance of
+        the interfaces.
+    </description>
+
+    <property environment="env"/>
+    <property file="build.properties"/>
+    
+    <property name="deploy.dir" location="${env.GLOBUS_LOCATION}"/>
+    <property name="build.dir"  location="build"/>
+    <property name="mapping.src"
+              value="${share.dir}/NStoPkg.properties"/>
+    <property name="build.packages" location=
+        "${deploy.dir}/share/globus_wsrf_common/build-packages.xml"/>
+    <property name="build.stubs" location=
+        "${deploy.dir}/share/globus_wsrf_tools/build-stubs.xml"/>
+    <property name="java.debug" value="on"/>
+
+    <!-- do not deploy -->
+    <property name="noSchema" value="true"/>
+
+    <property name="compact.wsdl.suffix" value="_compact"/>
+    <property name="flat.wsdl.suffix" value=""/>
+
+    <!-- copy all schemas from shared source... -->
+    <property name="schema.src"   location="${deploy.dir}/share/schema"/>
+    
+    <!-- to local comp/build/schema dir, for local imports
+         (this should be refined to only dependencies - means
+         developer must maintain extra list of depedencies) -->
+
+    <property name="schema.dest"  location="${build.dir}/schema"/>
+    <property name="garschema.id" value="garschema"/>
+    <fileset dir="${schema.dest}"
+             includes="${schema.subdirs}/*"
+             id="garschema"/>
+
+    <target name="init">
+        <!-- copy Core dependency schemas to the local dir -->
+        <mkdir dir="${build.dir}"/>
+        <mkdir dir="${schema.dest}"/>
+        <copy toDir="${schema.dest}">
+            <fileset dir="${schema.src}" casesensitive="yes">
+                <include name="wsrf/**/*"/>
+                <include name="ws/**/*"/>
+            </fileset>
+        </copy>
+
+        <!-- copy local component WSDL to local build dir-->
+        <mkdir dir="${schema.dest}/${schema.subdirs}"/>
+        <copy toDir="${schema.dest}">
+            <fileset dir="${schema.dir}" casesensitive="yes">
+                <include name="${schema.subdirs}/**/*"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="flatten" depends="init">
+         <property name="source.flatten.dir"
+             location="${schema.dest}/${schema.subdirs}"/>
+         <property name="target.flatten.dir"
+             location="${schema.dest}/${schema.subdirs}"/>
+
+        <ant antfile="${build.stubs}" target="flatten">
+            <property name="wsdl.source"
+                value="${instance.wsdl.root}_port_type${compact.wsdl.suffix}.wsdl"/>
+            <property name="wsdl.target"
+                value="${instance.wsdl.root}_port_type${flat.wsdl.suffix}.wsdl"/>
+            <property name="wsdl.porttype" value="${instance.porttype}"/>
+        </ant>
+
+        <ant antfile="${build.stubs}" target="flatten">
+            <property name="wsdl.source"
+                value="${factory.wsdl.root}_port_type${compact.wsdl.suffix}.wsdl"/>
+            <property name="wsdl.target"
+                value="${factory.wsdl.root}_port_type${flat.wsdl.suffix}.wsdl"/>
+            <property name="wsdl.porttype" value="${factory.porttype}"/>
+        </ant>
+
+        <ant antfile="${build.stubs}" target="flatten">
+            <property name="wsdl.source"
+                value="${group.wsdl.root}_port_type${compact.wsdl.suffix}.wsdl"/>
+            <property name="wsdl.target"
+                value="${group.wsdl.root}_port_type${flat.wsdl.suffix}.wsdl"/>
+            <property name="wsdl.porttype" value="${group.porttype}"/>
+        </ant>
+
+        <ant antfile="${build.stubs}" target="flatten">
+            <property name="wsdl.source"
+                value="${ensemble.wsdl.root}_port_type${compact.wsdl.suffix}.wsdl"/>
+            <property name="wsdl.target"
+                value="${ensemble.wsdl.root}_port_type${flat.wsdl.suffix}.wsdl"/>
+            <property name="wsdl.porttype" value="${ensemble.porttype}"/>
+        </ant>
+
+        <ant antfile="${build.stubs}" target="flatten">
+            <property name="wsdl.source"
+                value="${status.wsdl.root}_port_type${compact.wsdl.suffix}.wsdl"/>
+            <property name="wsdl.target"
+                value="${status.wsdl.root}_port_type${flat.wsdl.suffix}.wsdl"/>
+            <property name="wsdl.porttype" value="${status.porttype}"/>
+        </ant>
+
+        <ant antfile="${build.stubs}" target="flatten">
+            <property name="wsdl.source"
+                value="${ctx.wsdl.root}_port_type${compact.wsdl.suffix}.wsdl"/>
+            <property name="wsdl.target"
+                value="${ctx.wsdl.root}_port_type${flat.wsdl.suffix}.wsdl"/>
+            <property name="wsdl.porttype" value="${ctx.porttype}"/>
+        </ant>
+
+    </target>
+
+    <target name="bindings" unless="bindings.present" depends="flatten">
+        <property name="source.binding.dir"
+                  value="${schema.dest}/${schema.subdirs}"/>
+        <property name="target.binding.dir"
+                  value="${schema.dest}/${schema.subdirs}"/>
+
+        <ant antfile="${build.stubs}" target="generateBinding">
+            <property name="binding.root" value="${instance.wsdl.root}"/>
+            <property name="porttype.wsdl"
+                value="${instance.wsdl.root}_port_type.wsdl"/>
+        </ant>
+
+        <ant antfile="${build.stubs}" target="generateBinding">
+            <property name="binding.root" value="${factory.wsdl.root}"/>
+            <property name="porttype.wsdl"
+                value="${factory.wsdl.root}_port_type.wsdl"/>
+        </ant>
+
+        <ant antfile="${build.stubs}" target="generateBinding">
+            <property name="binding.root" value="${group.wsdl.root}"/>
+            <property name="porttype.wsdl"
+                value="${group.wsdl.root}_port_type.wsdl"/>
+        </ant>
+
+        <ant antfile="${build.stubs}" target="generateBinding">
+            <property name="binding.root" value="${ensemble.wsdl.root}"/>
+            <property name="porttype.wsdl"
+                value="${ensemble.wsdl.root}_port_type.wsdl"/>
+        </ant>
+
+        <ant antfile="${build.stubs}" target="generateBinding">
+            <property name="binding.root" value="${status.wsdl.root}"/>
+            <property name="porttype.wsdl"
+                value="${status.wsdl.root}_port_type.wsdl"/>
+        </ant>
+
+        <ant antfile="${build.stubs}" target="generateBinding">
+            <property name="binding.root" value="${ctx.wsdl.root}"/>
+            <property name="porttype.wsdl"
+                value="${ctx.wsdl.root}_port_type.wsdl"/>
+        </ant>
+
+    </target>
+
+    <target name="copyToDeployableComponent" depends="bindings">
+        <copy toDir="../dist">
+            <fileset dir="${schema.dest}"
+                     casesensitive="yes">
+                <include name="${schema.subdirs}/**/*"/>
+                <exclude name="${schema.subdirs}/**/*${compact.wsdl.suffix}.wsdl"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="clean">
+        <delete dir="tmp"/>
+        <delete dir="${build.dir}"/>
+    </target>
+
+    <target name="all" depends="copyToDeployableComponent"/>
+
+</project>

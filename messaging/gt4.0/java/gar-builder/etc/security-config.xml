@@ -1,0 +1,7 @@
+<securityConfig xmlns="http://www.globus.org">
+    <auth-method>
+        <GSITransport/>
+    </auth-method>
+    <authz value="gridmap"/>
+    <run-as> <resource-identity/> </run-as>
+</securityConfig>

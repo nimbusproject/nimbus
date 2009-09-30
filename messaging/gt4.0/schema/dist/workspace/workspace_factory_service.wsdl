@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="WorkspaceFactoryService" targetNamespace="http://www.globus.org/2008/06/workspace/service" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:binding="http://www.globus.org/2008/06/workspace/bindings" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:import namespace="http://www.globus.org/2008/06/workspace/bindings" location="workspace_factory_bindings.wsdl"/>
+  <wsdl:service name="WorkspaceFactoryService">
+    <wsdl:port name="WorkspaceFactoryPortTypePort" binding="binding:WorkspaceFactoryPortTypeSOAPBinding">
+      <soap:address location="http://localhost:8080/wsrf/services/"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

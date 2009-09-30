@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+/*
+ * Copyright 1999-2006 University of Chicago
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy
+ * of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ */
+ -->
+
+<xs:schema
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns="http://www.globus.org/2008/06/workspace/negotiable"
+    targetNamespace="http://www.globus.org/2008/06/workspace/negotiable"
+    xmlns:tns="http://www.globus.org/2008/06/workspace/negotiable"
+    xmlns:jsdl="http://schemas.ggf.org/jsdl/2005/11/jsdl"
+    elementFormDefault="qualified"
+    attributeFormDefault="unqualified">
+
+    <xs:import
+        namespace="http://schemas.ggf.org/jsdl/2005/11/jsdl"
+        schemaLocation="./jsdl/jsdl.xsd" />
+
+
+    <!--==================================================-->
+    <!--              WorkspaceDeployment                 -->
+    <!--==================================================-->
+
+    <xs:complexType name="WorkspaceDeployment_Type">
+        <xs:sequence>
+            <xs:element ref="DeploymentTime" />
+            <xs:element ref="InitialState" />
+            <xs:element ref="ResourceAllocation" />
+            <xs:element name="NodeNumber">
+                <xs:simpleType>
+                    <xs:restriction base="xs:short">
+                        <xs:minInclusive value="1" />
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element ref="ShutdownMechanism" minOccurs="0" />
+            <xs:element ref="PostShutdown" minOccurs="0" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- Group requests must have the same deployment request per workspace -->
+    <xs:element name="WorkspaceDeployment"
+                type="tns:WorkspaceDeployment_Type" />
+
+    <!--==================================================-->
+    <!--               DeploymentTime                     -->
+    <!--==================================================-->
+
+    <xs:complexType name="DeploymentTime_Type">
+
+        <xs:sequence>
+            <xs:element name="minDuration"
+                        type="xs:duration"
+                        minOccurs="0" />
+        </xs:sequence>
+
+    </xs:complexType>
+
+    <xs:element name="DeploymentTime"
+                 type="tns:DeploymentTime_Type" />
+
+    <!--==================================================-->
+    <!--               State Related                      -->
+    <!--==================================================-->
+
+    <xs:simpleType name="InitialState_Type">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="Unstaged" />
+            <xs:enumeration value="Unpropagated" />
+            <xs:enumeration value="Propagated" />
+            <xs:enumeration value="Running" />
+            <xs:enumeration value="Paused" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:element name="InitialState"
+                 type="tns:InitialState_Type" />
+
+    <!--==================================================-->
+    <!--                ShutdownMechanism                 -->
+    <!--==================================================-->
+
+    <xs:simpleType name="ShutdownMechanism_Type">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="Serialize" />
+            <xs:enumeration value="Trash" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:element name="ShutdownMechanism"
+                 type="tns:ShutdownMechanism_Type" >
+        <xs:annotation>
+            <xs:documentation>If the maximum running time of the workspace has expired and the workspace is shutdown, this element triggers the kind of shutdown that should happen. If this element is missing, Normal is assumed.</xs:documentation>
+        </xs:annotation>
+    </xs:element>
+
+
+    <!--==================================================-->
+    <!--                   PostShutdown                   -->
+    <!--==================================================-->
+
+    <xs:complexType name="PostShutdown_Type">
+        <xs:sequence>
+            <xs:element name="rootPartitionUnpropagationTarget" type="xs:anyURI" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="PostShutdown"
+                 type="tns:PostShutdown_Type" >
+        <xs:annotation>
+            <xs:documentation>Allows request to specify special post-shutdown needs</xs:documentation>
+        </xs:annotation>
+    </xs:element>
+
+    <!--==================================================-->
+    <!--              ResourceAllocation                  -->
+    <!--==================================================-->
+
+    <xs:element name="ResourceAllocation"
+                 type="tns:ResourceAllocation_Type" />
+
+    <xs:complexType name="ResourceAllocation_Type">
+        <xs:sequence>
+
+            <xs:element ref="tns:CPU"
+                        minOccurs="0" />
+
+            <xs:element name="CPUPercentage"
+                        type="jsdl:RangeValue_Type"
+                        minOccurs="0" />
+
+            <xs:element ref="jsdl:IndividualPhysicalMemory"
+                        minOccurs="0" />
+
+            <xs:element ref="tns:Bandwidth"
+                        minOccurs="0" />
+
+            <xs:element ref="tns:Storage"
+                        minOccurs="0" />
+        </xs:sequence>
+
+    </xs:complexType>
+
+    <xs:element name="CPU"
+                type="tns:CPU_Type" />
+
+    <xs:complexType name="CPU_Type">
+        <xs:annotation>
+            <xs:documentation>Wrapper for CPU resource specification. CPUPercentage, IndividualPhysicalMemory, and IndividualCPUCount are in practice all computed as a function of this CPU entity.  CPU requested/granted is not necessarily just an architecture plus speed.  For most accurate negotiation, JSDL extension points of CPUArchitecture_Type (the type of jsdl:CPUArchitecture listed below) could be used to specify exact chip models or properties.  The duration request/grant of a workspace deployment could be highly dependent on combination of all information including CPU's cache sizes and motherboard's bus, especially in HPC.</xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element ref="jsdl:CPUArchitecture"
+                        minOccurs="0" />
+
+            <xs:element ref="jsdl:IndividualCPUSpeed"
+                        minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>This is temporary and only advisory. Ultimately this is inferrable from CPU definition.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+
+    </xs:complexType>
+
+    <xs:element name="Bandwidth"
+                type="tns:Bandwidth_Type" />
+
+    <xs:complexType name="Bandwidth_Type">
+
+        <xs:annotation>
+            <xs:documentation>JSDL's IndividualNetworkBandwidth type does not allow separate selections for ingoing and outgoing. jsdl:IndividualNetworkBandwidth is of type jsdl:RangeValue_Type, but we need two.</xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="nic"
+                        type="Nic_Type"
+                        maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="Nic_Type">
+        <xs:annotation>
+            <xs:documentation>Allocation may be requested by just number of NICs, so bandwidths are optional.</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="name" type="xs:string" />
+
+            <xs:element name="IncomingNetworkBandwidth"
+                        type="jsdl:RangeValue_Type"
+                        minOccurs="0" />
+
+            <xs:element name="OutgoingNetworkBandwidth"
+                        type="jsdl:RangeValue_Type"
+                        minOccurs="0" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="Storage"
+                type="tns:Storage_Type" />
+
+    <xs:complexType name="Storage_Type">
+        <xs:sequence>
+            <xs:element ref="tns:entry"
+                        minOccurs="0"
+                        maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="entry">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="partitionName" type="xs:string">
+                    <xs:annotation>
+                        <xs:documentation>This should match what is in definition section for the blank storage (BlankDisk_Type).</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+
+                <xs:element ref="jsdl:IndividualDiskSpace">
+                    <xs:annotation>
+                        <xs:documentation>This only specifies blank disk space requested/given.</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+            </xs:sequence>
+
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>

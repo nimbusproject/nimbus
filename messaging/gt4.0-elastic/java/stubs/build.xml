@@ -1,0 +1,315 @@
+<project basedir="." default="disp" name="GT4.0-elastic messaging stubs">
+
+    <description>GT4.0-elastic messaging stubs</description>
+
+    <!-- load user nimbus.build.properties file, if it exists -->
+    <property file="${user.home}/nimbus.build.properties"/>
+
+    <!-- load defaults from colocated build.properties file -->
+    <property file="build.properties"/>
+
+
+    <!-- *******************************************************************
+         LOCATE GT DEPENDENCIES
+         ******************************************************************* -->
+
+    <property environment="env"/>
+    <property name="abs.deploy.dir"
+              location="${env.GLOBUS_LOCATION}"/>
+    <property name="gt4_0.lib.dir"
+              location="${abs.deploy.dir}/lib"/>
+    <property name="build.packages"
+              location="${abs.deploy.dir}/share/globus_wsrf_common/build-packages.xml"/>
+    <property name="build.stubs"
+              location="${abs.deploy.dir}/share/globus_wsrf_tools/build-stubs.xml"/>
+
+
+    <!-- *******************************************************************
+         GT RELATED PROPERTIES
+         ******************************************************************* -->
+
+    <!-- gar.name -->
+    <property name="gar.name"
+              value="${vws.gt4_0-elastic.stubs.dist.dir}/${vws.gt4_0-elastic.stubs.package.name}.gar"/>
+
+    <!-- garjars.id -->
+    <fileset dir="${vws.gt4_0-elastic.stubs.build.lib.dir}" id="garjars"/>
+    <property name="garjars.id" value="garjars"/>
+
+    <!--
+    <property name="noSchema" value="true"/>
+    If we want to deploy the WSDL, we must *not* set this property at all
+    -->
+
+    <!-- copy all schemas from shared source... -->
+    <property name="schema.src"
+              location="${abs.deploy.dir}/share/schema"/>
+    <!-- to local comp/build/schema dir, for local imports
+         (this should be refined to only dependencies - means
+         developer would maintain extra list of depedencies)-->
+
+
+    <!-- *********************
+         unused GAR properties
+         setting these to avoid build warning messages from GT...
+         ********************* -->
+
+    <!-- garetc.id -->
+    <fileset dir="${vws.gt4_0-elastic.stubs.build.etc.dir}" id="garEtc"/>
+    <property name="garetc.id" value="garEtc"/>
+
+    <!-- garshare.id -->
+    <fileset dir="${vws.gt4_0-elastic.stubs.build.share.dir}" id="garshare"/>
+    <property name="garshare.id" value="garshare"/>
+
+    <!-- garschema.id -->
+    <fileset dir="${vws.gt4_0-elastic.stubs.build.schema.dir}" id="garschema"/>
+    <property name="garschema.id" value="garschema"/>
+
+    <!-- gardocs.id -->
+    <fileset dir="${vws.gt4_0-elastic.stubs.build.docs.dir}" id="gardocs"/>
+    <property name="gardocs.id" value="gardocs"/>
+
+    <!-- garbin.id -->
+    <fileset dir="${vws.gt4_0-elastic.stubs.build.bin.dir}" id="garbin"/>
+    <property name="garbin.id" value="garbin"/>
+
+    
+    <!-- *******************************************************************
+         MODULE NAME
+         ******************************************************************* -->
+
+    <target name="disp">
+        <echo message="**** Module: ${basedir}" />
+    </target>
+
+
+    <!-- *******************************************************************
+         CHECK MINIMUM JDK
+         ******************************************************************* -->
+
+    <target name="checkjdk">
+        <available property="jdk1.4+" classname="java.lang.CharSequence"/>
+        <fail message="Aborting: determined you are not building with >= JDK 1.4"
+              unless="jdk1.4+" />
+    </target>
+
+
+    <!-- *******************************************************************
+         INITIALIZE
+         ******************************************************************* -->
+
+    <target name="init" depends="checkjdk">
+        <mkdir dir="${vws.gt4_0-elastic.stubs.build.dir}"/>
+        <mkdir dir="${vws.gt4_0-elastic.stubs.build.dest}"/>
+        <mkdir dir="${vws.gt4_0-elastic.stubs.build.lib.dir}"/>
+        <mkdir dir="${vws.gt4_0-elastic.stubs.build.etc.dir}"/>
+        <mkdir dir="${vws.gt4_0-elastic.stubs.build.share.dir}"/>
+        <mkdir dir="${vws.gt4_0-elastic.stubs.build.schema.dir}"/>
+        <mkdir dir="${vws.gt4_0-elastic.stubs.build.docs.dir}"/>
+        <mkdir dir="${vws.gt4_0-elastic.stubs.build.bin.dir}"/>
+        <mkdir dir="${vws.gt4_0-elastic.stubs.dist.dir}"/>
+
+        <mkdir dir="${vws.gt4_0-elastic.stubs.build.tmpschemas.dir}"/>
+
+        <copy todir="${vws.gt4_0-elastic.stubs.build.tmpschemas.dir}">
+            <fileset dir="${schema.src}"
+                     includes="**/*" />
+        </copy>
+
+        <mkdir dir="${vws.gt4_0-elastic.stubs.build.tmpschemas.dir}/${schema.subdirs}"/>
+
+        <copy todir="${vws.gt4_0-elastic.stubs.build.tmpschemas.dir}/${schema.subdirs}">
+            <fileset dir="${vws.gt4_0-elastic.schemas.dist}/${schema.subdirs}"
+                     includes="**/*" />
+        </copy>
+
+        <available property="stubs.present"
+                   type="dir"
+                   file="${vws.gt4_0-elastic.stubs.build.dest}/${vws.gt4_0-elastic.stubs.java.subdirs}" />
+    </target>
+
+
+    <!-- *******************************************************************
+         GENERATE STUBS
+         ******************************************************************* -->
+
+    <target name="stubs" unless="stubs.present" depends="init">
+
+        <!-- merge specific mappings w/ defaults -->
+        <property name="mapping.src"
+                  value="NStoPkg.properties"/>
+        <property name="mapping.dst"
+                  location="${vws.gt4_0-elastic.stubs.build.dir}/NStoPkg.properties"/>
+        <ant antfile="${build.stubs}" target="mergePackageMapping"/>
+
+        <!-- ec2 stubs -->
+        <ant antfile="${build.stubs}" target="generateStubs">
+            <property name="wsdl.file"
+                      value="${vws.gt4_0-elastic.wsdl}"/>
+            <property name="mapping.file"
+                      value="${mapping.dst}"/>
+            <property name="source.stubs.dir"
+                      value="${vws.gt4_0-elastic.stubs.build.tmpschemas.dir}/${schema.subdirs}"/>
+            <property name="target.stubs.dir"
+                      location="${vws.gt4_0-elastic.stubs.build.src.dir}"/>
+        </ant>
+
+    </target>
+
+
+    <!-- *******************************************************************
+         COMPILATION
+         ******************************************************************* -->
+
+
+    <target name="compile" depends="stubs">
+        <!-- clean up the duplicate junk that got generated from imports -->
+        <!--<delete includeEmptyDirs="true">
+            <fileset dir="${stubs.src}">
+                <exclude name="**/workspace/**"/>
+            </fileset>
+        </delete>-->
+
+        <javac srcdir="${vws.gt4_0-elastic.stubs.build.src.dir}"
+               destdir="${vws.gt4_0-elastic.stubs.build.dest}"
+               debug="on">
+
+            <include name="**/*.java"/>
+            <compilerarg value="${nimbus.java.compilerarg}" />
+            <classpath>
+                <fileset dir="${gt4_0.lib.dir}">
+                    <include name="*.jar"/>
+                    <exclude name="nimbus-*.jar" />
+                </fileset>
+            </classpath>
+        </javac>
+    </target>
+
+
+    <!-- *******************************************************************
+         CREATE ARCHIVE FILE
+         ******************************************************************* -->
+
+    <target name="jar" depends="compile">
+        <jar destfile="${vws.gt4_0-elastic.stubs.build.lib.dir}/${vws.gt4_0-elastic.stubs.jar.name}"
+             basedir="${vws.gt4_0-elastic.stubs.build.dest}"/>
+    </target>
+
+
+    <!-- *******************************************************************
+         CLEAN
+         ******************************************************************* -->
+
+    <target name="clean">
+        <delete dir="${vws.gt4_0-elastic.stubs.build.dir}"/>
+        <delete dir="${vws.gt4_0-elastic.stubs.dist.dir}"/>
+        <delete dir="tmp"/>
+        <echo message="Cleaned: ${basedir}" />
+    </target>
+
+
+    <!-- *******************************************************************
+         CREATE DISTRIBUTION
+         ******************************************************************* -->
+
+    <target name="_dist" depends="jar">
+        <ant antfile="${build.packages}" target="makeGar">
+            <reference refid="${garjars.id}"/>
+            <reference refid="${garetc.id}"/>
+            <reference refid="${garshare.id}"/>
+            <reference refid="${garschema.id}"/>
+            <reference refid="${gardocs.id}"/>
+            <reference refid="${garbin.id}"/>
+        </ant>
+        <delete dir="tmp"/>
+    </target>
+
+    <target name="dist" depends="disp">
+        <echo>Building: ${vws.gt4_0-elastic.stubs.print-noun}</echo>
+        <antcall target="_dist" />
+        <echo>Built: ${vws.gt4_0-elastic.stubs.print-noun}
+        </echo>
+    </target>
+
+
+    <!-- *******************************************************************
+         DEPLOYMENT
+         ******************************************************************* -->
+
+    <target name="assessGarPresence">
+        <available property="garIsPresent"
+                   type="file"
+                   file="${gar.name}" />
+    </target>
+
+    <target name="gar.not.present"
+            depends="assessGarPresence"
+            unless="garIsPresent">
+
+        <echo>
+
+
+
+***************** ERROR *****************
+
+Cannot find archive to install: ${gar.name}
+
+Did you build?  Use the build-and-install script.
+
+
+
+        </echo>
+
+        <fail message="Cannot find archive to install: ${gar.name}" />
+
+    </target>
+
+    <target name="_deploy" depends="gar.not.present">
+        <ant antfile="${build.packages}" target="deployGar">
+            <property name="gar.id" value="${vws.gt4_0-elastic.stubs.package.name}"/>
+        </ant>
+        <delete dir="tmp"/>
+    </target>
+
+    <target name="deploy" depends="disp">
+        <echo>Installing: ${vws.gt4_0-elastic.stubs.print-noun}</echo>
+        <antcall target="_deploy" />
+        <echo>Installed: ${vws.gt4_0-elastic.stubs.print-noun}
+        </echo>
+    </target>
+
+    <target name="assessDeployed">
+
+        <available property="isDeployed"
+                   type="dir"
+                   file="${abs.deploy.dir}/etc/globus_packages/${vws.gt4_0-elastic.stubs.package.name}" />
+
+        <condition property="isNotDeployed" value="true">
+            <not>
+                <isset property="isDeployed" />
+            </not>
+        </condition>
+
+    </target>
+
+    <target name="printDeployed"
+            depends="assessDeployed"
+            unless="isDeployed">
+
+        <echo message="Already undeployed: ${vws.gt4_0-elastic.stubs.package.name}"/>
+
+    </target>
+
+    <target name="undeploy" depends="printDeployed" unless="isNotDeployed">
+
+        <ant antfile="${build.packages}" target="undeployGar">
+            <property name="gar.id" value="${vws.gt4_0-elastic.stubs.package.name}"/>
+        </ant>
+
+        <echo message="Undeployed: ${vws.gt4_0-elastic.stubs.package.name}"/>
+
+    </target>
+
+</project>
+    

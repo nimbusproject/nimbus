@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deployment name="WorkspaceConfig"
+    xmlns="http://xml.apache.org/axis/wsdd/"
+    xmlns:java="http://xml.apache.org/axis/wsdd/providers/java"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+    <service name="WorkspaceContextBroker"
+             provider="Handler"
+             use="literal"
+             style="document">
+
+        <!--
+            If you run the broker with a proper key etc., it is better to set
+            this to "true" so the broker's configuration validation will occur
+            at container startup time instead of first use.
+        -->
+        <parameter name="loadOnStartup" value="false"/>
+
+
+        
+        <!-- You should not need to change anything below. -->
+        
+        <parameter name="allowedMethodsClass"
+                   value="org.nimbustools.messaging.gt4_0.generated.ctx.WorkspaceContextBrokerPortType"/>
+        <parameter name="handlerClass"
+                   value="org.globus.axis.providers.RPCProvider"/>
+        <parameter name="className"
+                   value="org.globus.workspace.ctx.impl.service.ContextBrokerServiceImpl"/>
+
+        <wsdlFile>share/schema/workspace/workspace_ctx_service.wsdl</wsdlFile>
+
+        <parameter name="scope"
+                   value="Application"/>
+        <parameter name="providers"
+                   value="DestroyProvider"/>
+        <parameter name="providers"
+                   value="GetRPProvider QueryRPProvider GetCurrentMessageProvider
+                          DestroyProvider"/>
+    </service>
+
+
+
+    
+
+    <!-- ===================================================================
+
+         You should not need to change anything else.
+
+         =================================================================== -->
+
+    <service name="ElasticNimbusService"
+             provider="Handler"
+             use="literal"
+             style="document">
+
+        <parameter name="allowedMethodsClass"
+                   value="org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.AmazonEC2PortType"/>
+        <parameter name="handlerClass"
+                   value="org.globus.axis.providers.RPCProvider"/>
+        <parameter name="className"
+                   value="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.service.DelegatingService"/>
+
+        <wsdlFile>share/schema/elastic-2008-05-05/ec2.wsdl</wsdlFile>
+
+        <parameter name="scope"
+                   value="Application"/>
+
+        <parameter name="loadOnStartup"
+                   value="true"/>
+
+	    <parameter name="securityDescriptor"
+                   value="@config.dir@/factory-security-config.xml"/>
+
+    </service>
+
+    <service name="WorkspaceFactoryService"
+             provider="Handler"
+             use="literal"
+             style="document">
+
+        <parameter name="allowedMethodsClass"
+                   value="org.nimbustools.messaging.gt4_0.generated.WorkspaceFactoryPortType"/>
+        <parameter name="handlerClass"
+                   value="org.globus.axis.providers.RPCProvider"/>
+        <parameter name="className"
+                   value="org.nimbustools.messaging.gt4_0.factory.FactoryService"/>
+
+        <wsdlFile>share/schema/workspace/workspace_factory_service.wsdl</wsdlFile>
+
+        <parameter name="scope"
+                   value="Application"/>
+        <parameter name="providers"
+                   value="GetRPProvider GetMRPProvider QueryRPProvider
+                          GetCurrentMessageProvider SubscribeProvider"/>
+
+        <parameter name="loadOnStartup"
+                   value="false"/>
+
+	    <parameter name="securityDescriptor"
+                   value="@config.dir@/factory-security-config.xml"/>
+
+    </service>
+
+    <service name="WorkspaceService"
+             provider="Handler"
+             use="literal"
+             style="document">
+
+        <parameter name="allowedMethodsClass"
+                   value="org.nimbustools.messaging.gt4_0.generated.WorkspacePortType"/>
+        <parameter name="handlerClass"
+                   value="org.globus.axis.providers.RPCProvider"/>
+        <parameter name="className"
+                   value="org.nimbustools.messaging.gt4_0.service.InstanceService"/>
+
+        <wsdlFile>share/schema/workspace/workspace_service.wsdl</wsdlFile>
+
+        <parameter name="scope"
+                   value="Application"/>
+        <parameter name="providers"
+                   value="GetRPProvider GetMRPProvider QueryRPProvider
+                          DestroyProvider SetTerminationTimeProvider
+                          GetCurrentMessageProvider SubscribeProvider"/>
+
+        <parameter name="loadOnStartup"
+                   value="true"/>
+
+    </service>
+
+    <service name="WorkspaceGroupService"
+             provider="Handler"
+             use="literal"
+             style="document">
+
+        <parameter name="allowedMethodsClass"
+                   value="org.nimbustools.messaging.gt4_0.generated.group.WorkspaceGroupPortType"/>
+        <parameter name="handlerClass"
+                   value="org.globus.axis.providers.RPCProvider"/>
+        <parameter name="className"
+                   value="org.nimbustools.messaging.gt4_0.group.GroupService"/>
+
+        <wsdlFile>share/schema/workspace/workspace_group_service.wsdl</wsdlFile>
+
+        <parameter name="scope"
+                   value="Application"/>
+        <parameter name="providers"
+                   value="DestroyProvider" />
+
+        <parameter name="loadOnStartup"
+                   value="false"/>
+
+    </service>
+
+    <service name="WorkspaceEnsembleService"
+             provider="Handler"
+             use="literal"
+             style="document">
+
+        <parameter name="allowedMethodsClass"
+                   value="org.nimbustools.messaging.gt4_0.generated.ensemble.WorkspaceEnsemblePortType"/>
+        <parameter name="handlerClass"
+                   value="org.globus.axis.providers.RPCProvider"/>
+        <parameter name="className"
+                   value="org.nimbustools.messaging.gt4_0.ensemble.EnsembleService"/>
+
+        <wsdlFile>share/schema/workspace/workspace_ensemble_service.wsdl</wsdlFile>
+
+        <parameter name="scope"
+                   value="Application"/>
+        <parameter name="providers"
+                   value="DestroyProvider" />
+
+        <parameter name="loadOnStartup"
+                   value="false"/>
+
+    </service>
+
+    <service name="WorkspaceStatusService"
+             provider="Handler"
+             use="literal"
+             style="document">
+
+        <parameter name="allowedMethodsClass"
+                   value="org.nimbustools.messaging.gt4_0.generated.status.WorkspaceStatusPortType"/>
+        <parameter name="handlerClass"
+                   value="org.globus.axis.providers.RPCProvider"/>
+        <parameter name="className"
+                   value="org.nimbustools.messaging.gt4_0.status.StatusService"/>
+
+        <wsdlFile>share/schema/workspace/workspace_status_service.wsdl</wsdlFile>
+
+        <parameter name="scope"
+                   value="Application"/>
+        <parameter name="providers"
+                   value="GetRPProvider GetMRPProvider QueryRPProvider
+                          GetCurrentMessageProvider"/>
+
+        <parameter name="loadOnStartup"
+                   value="false"/>
+
+        <parameter name="securityDescriptor"
+                   value="@config.dir@/factory-security-config.xml"/>
+
+    </service>
+
+</deployment>

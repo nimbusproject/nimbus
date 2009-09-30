@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+/*
+ * Copyright 1999-2006 University of Chicago
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy
+ * of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ */
+ -->
+
+<xs:schema
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns="http://www.globus.org/2008/06/workspace/metadata/logistics"
+    targetNamespace="http://www.globus.org/2008/06/workspace/metadata/logistics"
+    elementFormDefault="qualified"
+    attributeFormDefault="unqualified" >
+
+    <!-- General section -->
+
+    <xs:element name="logistics">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="networking" minOccurs="0" />
+                <xs:element ref="contextualization" minOccurs="0" />
+            </xs:sequence>
+        </xs:complexType>
+
+    </xs:element>
+
+    <!-- Networking section -->
+
+    <xs:complexType name="IPConfig_Type">
+        <xs:sequence>
+            <xs:element name="acquisitionMethod">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="AcceptAndConfigure" />
+                        <xs:enumeration value="Advisory" />
+                        <xs:enumeration value="AllocateAndConfigure" />
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="hostname"
+                        type="xs:string"
+                        minOccurs="0" />
+
+            <xs:element name="ipAddress"
+                        type="xs:string"
+                        minOccurs="0" />
+
+            <xs:element name="netmask"
+                        type="xs:string"
+                        minOccurs="0" />
+
+            <xs:element name="gateway"
+                        type="xs:string"
+                        minOccurs="0" />
+
+            <xs:element name="broadcast"
+                        type="xs:string"
+                        minOccurs="0" />
+
+            <xs:element name="network"
+                        type="xs:string"
+                        minOccurs="0" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="Nic_Type">
+        <xs:annotation>
+            <xs:documentation>virtual network interface card</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+
+            <xs:element name="name"
+                         type="xs:string" />
+
+            <xs:element name="MAC"
+                         minOccurs="0">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:length value="17" />
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+
+            <xs:element name="ipConfig"
+                         type="IPConfig_Type" />
+
+            <xs:element name="association"
+                         type="xs:string"
+                         minOccurs="0" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="VirtualNetwork_Type">
+        <xs:annotation>
+            <xs:documentation>nic descriptions</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="nic"
+                        type="Nic_Type"
+                        maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+
+
+    <xs:element name="networking" type="VirtualNetwork_Type">
+        <xs:annotation>
+            <xs:documentation>This is the root element for the network parameters</xs:documentation>
+        </xs:annotation>
+    </xs:element>
+
+    <xs:element name="contextualization" type="Contextualization_Type">
+        <xs:annotation>
+            <xs:documentation>This is the root element for a provided contextualization document describing contextualization needs of the workspace</xs:documentation>
+        </xs:annotation>
+    </xs:element>
+
+    <xs:complexType name="Contextualization_Type">
+        <xs:sequence>
+
+            <xs:element name="provides"
+                        type="Provides_Type"
+                        minOccurs="0" />
+
+            <xs:element name="requires"
+                        type="Requires_Type"
+                        minOccurs="0" />
+
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="IdentityProvides_Type">
+        <xs:sequence>
+            <xs:element name="interface"
+                        type="xs:string"
+                        minOccurs="0" />
+            <xs:element name="ip"
+                        type="xs:string"
+                        minOccurs="0" />
+            <xs:element name="hostname"
+                        type="xs:string"
+                        minOccurs="0" />
+            <xs:element name="pubkey"
+                        type="xs:string"
+                        minOccurs="0" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="Provides_Type">
+        <xs:sequence>
+            <xs:element name="identity"
+                        type="IdentityProvides_Type"
+                        maxOccurs="unbounded" />
+
+            <xs:element name="role" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:simpleContent>
+                        <xs:extension base="xs:string">
+                            <xs:attribute name="interface"
+                                          type="xs:string"
+                                          use="optional" />
+                        </xs:extension>
+                    </xs:simpleContent>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="Requires_Type">
+        <xs:sequence>
+            <xs:element name="identity" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="ip"
+                                type="xs:string"
+                                minOccurs="0" />
+                        <xs:element name="hostname"
+                                type="xs:string"
+                                minOccurs="0" />
+                        <xs:element name="pubkey"
+                                type="xs:string"
+                                minOccurs="0" />
+                    </xs:sequence>
+                </xs:complexType>
+
+            </xs:element>
+
+            <xs:element name="role" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:simpleContent>
+                        <xs:extension base="xs:string">
+                            <xs:attribute name="name"
+                                          type="xs:string"
+                                          use="required" />
+                            <xs:attribute name="hostname"
+                                          type="xs:boolean"
+                                          default="false"
+                                          use="optional" />
+                            <xs:attribute name="pubkey"
+                                          type="xs:boolean"
+                                          default="false"
+                                          use="optional" />
+                        </xs:extension>
+                    </xs:simpleContent>
+                </xs:complexType>
+            </xs:element>
+
+            <!-- should handle base64 in the future -->
+            <xs:element name="data" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:simpleContent>
+                        <xs:extension base="xs:string">
+                            <xs:attribute name="name"
+                                          type="xs:string"
+                                          use="required" />
+                        </xs:extension>
+                    </xs:simpleContent>
+                </xs:complexType>
+            </xs:element>
+
+        </xs:sequence>
+    </xs:complexType>
+
+
+    <!--==================================================-->
+    <!--          Other: Cluster Shorthand                -->
+    <!--==================================================-->
+
+    <xs:element name="cluster"
+                type="cloudcluster_Type" />
+
+    <xs:complexType name="cloudcluster_Type">
+        <xs:sequence>
+            <xs:element name="workspace"
+                        type="cloudworkspace_Type"
+                        maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="cloudworkspace_Type">
+        <xs:sequence>
+            <xs:element name="name"
+                        type="xs:string"
+                        minOccurs="0" />
+            <xs:element name="image"
+                        type="xs:string" />
+            <xs:element name="quantity"
+                        type="xs:short" />
+            <xs:element name="nic"
+                        type="cloudnic_Type"
+                        maxOccurs="unbounded" />
+            <xs:element name="ctx"
+                        type="Contextualization_Type" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="cloudnic_Type">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="interface"
+                              type="xs:string"
+                              use="optional" />
+                <xs:attribute name="wantlogin"
+                              type="xs:boolean"
+                              use="optional" />
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+</xs:schema>
