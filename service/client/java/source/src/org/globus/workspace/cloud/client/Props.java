@@ -94,4 +94,9 @@ public class Props {
     public static final String
             KEY_BROKER_LOCAL = "broker.localnic.prefix";
     
+    public static final String
+            KEY_BROKER_URL = "broker.url";
+
+    public static final String
+            KEY_BROKER_IDENTITY = "broker.identity";
 }

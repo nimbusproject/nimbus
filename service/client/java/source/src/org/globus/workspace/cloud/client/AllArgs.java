@@ -805,6 +805,20 @@ public class AllArgs {
             this.brokerLocalNicPrefix = val;
             this.gotProp(key, val, sourceName);
         }
+
+        if (this.brokerURL == null) {
+            final String key = Props.KEY_BROKER_URL;
+            final String val = CloudClientUtil.getProp(props,key);
+            this.brokerURL = val;
+            this.gotProp(key, val, sourceName);
+        }
+
+        if (this.brokerID == null) {
+            final String key = Props.KEY_BROKER_IDENTITY;
+            final String val = CloudClientUtil.getProp(props,key);
+            this.brokerID = val;
+            this.gotProp(key, val, sourceName);
+        }
     }
 
     
