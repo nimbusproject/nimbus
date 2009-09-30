@@ -266,11 +266,11 @@ public class CloudMetaClient {
 
             final Clouddeploy_Type[] deploys = ws.getDeploy();
             if (deploys != null && deploys.length > 0) {
-        // we may want to enable this functionality in the future
-        // but let's keep things simple for now
-            throw new ParameterProblem("Your cluster document includes <deploy> " +
-                "elements, which are not allowed at this time.");
-        }
+                // we may want to enable this functionality in the future
+                // but let's keep things simple for now
+                throw new ParameterProblem("Your cluster document includes <deploy> " +
+                    "elements, which are not allowed at this time.");
+            }
 
             String name = ws.getName();
             if (name == null || name.trim().length() == 0) {
@@ -296,25 +296,22 @@ public class CloudMetaClient {
                 "using the --"+Opts.DEPLOY_OPT_STRING+" option");
         }
 
-            final Map<String, Clouddeploy_Type[]> deployMap;
+        final Map<String, Clouddeploy_Type[]> deployMap;
 
-            try {
-                final Clouddeployment_Type deployDoc =
-                    ClusterUtil.parseDeployDocument(deployPath);
-                deployMap = ClusterUtil.parseDeployment(deployDoc);
+        try {
+            final Clouddeployment_Type deployDoc =
+                ClusterUtil.parseDeployDocument(deployPath);
+            deployMap = ClusterUtil.parseDeployment(deployDoc);
 
-            } catch (DeserializationException de) {
-                throw new ParameterProblem("Failed to parse deployment " +
-                    "document: " + de.getMessage());
-            } catch (IOException ie) {
-               throw new ParameterProblem("Failed to read deployment "+
-                   "document: "+ ie.getMessage());
-            }
+        } catch (DeserializationException de) {
+            throw new ParameterProblem("Failed to parse deployment " +
+                "document: " + de.getMessage());
+        } catch (IOException ie) {
+            throw new ParameterProblem("Failed to read deployment "+
+                "document: "+ ie.getMessage());
+        }
 
-            handleDeploymentMap(deployMap);
-
-            validateDeployments();
-
+        handleDeploymentMap(deployMap);
 
         if (this.needsBroker) {
             if (brokerUrl == null || brokerId == null) {
@@ -349,13 +346,21 @@ public class CloudMetaClient {
 
         for (Map.Entry<String,Clouddeploy_Type[]> entry : deployMap.entrySet()) {
 
-            int workspaceIndex = getWorkspaceIndex(entry.getKey());
+            final String workspaceName = entry.getKey();
+            int workspaceIndex = getWorkspaceIndex(workspaceName);
             if (workspaceIndex == -1) {
                 throw new ParameterProblem("Deployment document contains "+
                     "a workspace: '"+ entry.getKey()+"' which is not present "+
                     "in the cluster definition");
             }
 
+            final Cloudworkspace_Type workspace =
+                this.cluster.getWorkspace(workspaceIndex);
+
+            final short workspaceQuantity =
+                workspace.getQuantity();
+
+            short foundQuantity = 0;
 
             for (Clouddeploy_Type deploy : entry.getValue()) {
 
@@ -366,6 +371,8 @@ public class CloudMetaClient {
                 if (cloudName == null || cloudName.length() == 0) {
                     throw new ParameterProblem("Invalid <cloud> name");
                 }
+
+                foundQuantity += deploy.getQuantity();
 
                 CloudDeployment cloud = getDeploymentByName(cloudName);
 
@@ -384,6 +391,13 @@ public class CloudMetaClient {
 
                 final MemberDeployment md = new MemberDeployment(member, deploy);
                 cloud.addMember(md);
+            }
+
+            if (foundQuantity != workspaceQuantity) {
+                throw new ParameterProblem("The workspace '"+workspaceName+
+                    "' has a quantity of "+workspaceQuantity+" but the total "+
+                    "quantity of all deployments of this workspace is "+
+                    foundQuantity);
             }
         }
 
@@ -406,10 +420,6 @@ public class CloudMetaClient {
             }
         }
         return -1;
-    }
-
-    private void validateDeployments() {
-        //TODO do what the method says
     }
 
     private synchronized CloudDeployment getDeploymentByName(String name)
