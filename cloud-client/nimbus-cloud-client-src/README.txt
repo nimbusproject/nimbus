@@ -54,6 +54,12 @@ You can put the correct settings there or override them all via commandline
 (see --extrahelp).  Or use different configuration files by using the --conf
 option to specify an alternate.
 
+There is also a "conf/clouds/" directory that is used by the meta-cloud-client.
+Each file in this directory contains the settings for a single cloud and is
+identified by its filename. So the sample "conf/clouds/nimbus.properties" file
+provides settings of the University of Chicago nimbus cloud and can be
+referenced by the name "nimbus".
+
 
 Uploading A Workspace To The Cloud
 ----------------------------------
@@ -134,3 +140,27 @@ to run subsequent management or query operations after creation.  The following
 sections discuss these.
 
 See -h for more options (terminate, save).
+
+
+Running a Multi-Cloud Workspace
+-------------------------------
+
+The meta-cloud-client supports running a cluster across multiple clouds with
+a single command. It does not currently support any other operations, so you
+will still need to use the cloud-client to upload and manage your images on
+each cloud.
+
+You must have a cloud properties file in place for each cloud you want to use.
+This is described above. You must also provide a cloud deployment document that
+describes which cloud you want each workspace to be deployed to. Sample
+documents are available in the "samples" directory. Note that the cloud names
+you use in this document must have corresponding cloud properties files in the
+"conf/clouds" directory. So if you have references to <cloud>nimbus</cloud> and
+<cloud>stratus</cloud>, you must have valid cloud configuration files
+"conf/clouds/nimbus.properties" and "conf/clouds/stratus.properties".
+
+A multi-cloud workspace can be run with the command:
+
+    $ ./bin/meta-cloud-client.sh --run --cluster cluster.xml \
+        --deploy deploy.xml --hours 1
+        

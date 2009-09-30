@@ -1,3 +1,16 @@
+nimbus-cloud-client-012
+--------------------------
+
+[*] Fixed bug in argument handling for --broker-url and --broker-id (bug6732)
+
+[*] Added new meta-cloud-client that supports deploying a cluster across
+    multiple clouds.
+
+[*] Added properties for context broker URL and identity. These simplify
+    launching workspaces at one site while using a context broker at
+    another.
+
+
 workspace-cloud-client-011
 --------------------------
 
