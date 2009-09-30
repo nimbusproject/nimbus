@@ -17,6 +17,7 @@
 package org.globus.workspace.cloud.client.cluster;
 
 import org.nimbustools.ctxbroker.generated.gt4_0.description.Cloudcluster_Type;
+import org.nimbustools.ctxbroker.generated.gt4_0.description.Clouddeploy_Type;
 
 public class ClusterMember {
 
@@ -32,6 +33,7 @@ public class ClusterMember {
     private final ClusterMemberNic[] nics;
     private final boolean oneLoginFlagPresent; // at least one present
     private final Cloudcluster_Type clusterForUserData;
+    private final Clouddeploy_Type[] deploys;
     
     // -------------------------------------------------------------------------
     // CONSTRUCTOR
@@ -41,7 +43,8 @@ public class ClusterMember {
                          String imageName,
                          int quantity,
                          ClusterMemberNic[] nics,
-                         Cloudcluster_Type clusterForUserData) {
+                         Cloudcluster_Type clusterForUserData,
+                         Clouddeploy_Type[] deploys) {
 
         this.printName = printName;
         
@@ -56,6 +59,7 @@ public class ClusterMember {
         this.quantity = quantity;
         this.nics = nics;
         this.clusterForUserData = clusterForUserData; // may be null
+        this.deploys = deploys; // may be null
 
         boolean loginPresent = false;
         for (ClusterMemberNic nic : nics) {
@@ -90,6 +94,10 @@ public class ClusterMember {
     // can be null
     public Cloudcluster_Type getClusterForUserData() {
         return this.clusterForUserData;
+    }
+
+    public Clouddeploy_Type[] getDeploys() {
+        return this.deploys;
     }
 
     public boolean isOneLoginFlagPresent() {
@@ -128,5 +136,9 @@ public class ClusterMember {
             }
         }
         return ret;
+    }
+
+    public boolean hasDeploy() {
+        return deploys != null && deploys.length > 0;
     }
 }

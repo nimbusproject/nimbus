@@ -28,7 +28,6 @@ import org.globus.workspace.client_core.actions.Status_QueryAll;
 import org.globus.workspace.client_core.print.PrCodes;
 import org.globus.workspace.client_core.repr.Workspace;
 import org.globus.workspace.cloud.client.cluster.ClusterMember;
-import org.globus.workspace.cloud.client.cluster.ClusterMemberNic;
 import org.globus.workspace.cloud.client.cluster.ClusterUtil;
 import org.globus.workspace.cloud.client.cluster.KnownHostsTask;
 import org.globus.workspace.cloud.client.security.CertUtil;
@@ -46,22 +45,19 @@ import org.globus.workspace.common.client.CLIUtils;
 import org.globus.workspace.common.client.CommonPrint;
 import org.globus.workspace.common.print.Print;
 import org.globus.workspace.common.print.PrintOpts;
-import org.nimbustools.messaging.gt4_0.generated.metadata.VirtualWorkspace_Type;
-import org.nimbustools.messaging.gt4_0.generated.negotiable.WorkspaceDeployment_Type;
-import org.nimbustools.messaging.gt4_0.generated.status.WorkspaceStatusFault;
-import org.nimbustools.ctxbroker.generated.gt4_0.description.Cloudcluster_Type;
-import org.nimbustools.ctxbroker.generated.gt4_0.description.Cloudworkspace_Type;
 import org.globus.workspace.status.client.WorkspaceStatusClient;
-import org.globus.wsrf.encoding.DeserializationException;
 import org.globus.wsrf.impl.security.authorization.HostAuthorization;
 import org.globus.wsrf.impl.security.authorization.IdentityAuthorization;
 import org.globus.wsrf.utils.AddressingUtils;
+import org.nimbustools.ctxbroker.generated.gt4_0.description.Cloudcluster_Type;
+import org.nimbustools.messaging.gt4_0.generated.metadata.VirtualWorkspace_Type;
+import org.nimbustools.messaging.gt4_0.generated.negotiable.WorkspaceDeployment_Type;
+import org.nimbustools.messaging.gt4_0.generated.status.WorkspaceStatusFault;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class CloudClient {
@@ -532,8 +528,7 @@ public class CloudClient {
             this.print.debugln(
                     "save called with newname '" + newname + "'");
             try {
-                this.newUnpropTargetURL =
-                        this.getDerivedImageURL(newname);
+                this.newUnpropTargetURL = getDerivedImageURL(newname);
             } catch (Exception e) {
                 throw new ParameterProblem("Problem with save's newname '" +
                         newname + "': " + e.getMessage(), e);
@@ -684,50 +679,11 @@ public class CloudClient {
 
         String clusterPath = this.args.getClusterPath();
 
-        final File f = new File(clusterPath);
-        clusterPath = f.getAbsolutePath();
-
-        this.print.debugln("Examining cluster definition @ '" +
-                                        clusterPath + "'");
-
-        if (!CloudClientUtil.fileExistsAndReadable(clusterPath)) {
-            throw new ParameterProblem("Given cluster description file " +
-                    "does not exist or is not readable: '" +
-                    clusterPath + "'");
-        }
-
-        this.print.debugln("Exists and readable: '" + clusterPath + "'");
-
-        this.print.infoln();
-        
-        final Cloudcluster_Type cluster;
-        try {
-            cluster = ClusterUtil.parseClusterDocument(clusterPath);
-            if (cluster == null) {
-                throw new DeserializationException("No parsing result?");
-            }
-        } catch (DeserializationException e) {
-            final String msg = "Could not parse the contents of the cluster " +
-                    "definition file you provided.\n - Path: '" +
-                    clusterPath + "'\n - Is it legal XML?  Try " +
-                    "diffing your file with one of the example files or see " +
-                    "the online instructions.\n - Error: " + e.getMessage();
-            throw new ParameterProblem(msg, e);
-        } catch (IOException e) {
-            final String msg = "Problem with the cluster definition file: " +
-                    e.getMessage();
-            throw new ParameterProblem(msg, e);
-        }
-
-        final Cloudworkspace_Type[] members = cluster.getWorkspace();
-        if (members == null || members.length == 0) {
-            throw new ParameterProblem("No members of the cluster described " +
-                    "in '" + clusterPath + "'");
-        }
-
-        this.print.debugln("Found " + members.length + " cluster members");
-
-        this.clusterMembers = new ClusterMember[members.length];
+        this.clusterMembers = ClusterUtil.getClusterMembers(clusterPath,
+            this.args.getBrokerLocalNicPrefix(),
+            this.args.getBrokerPublicNicPrefix(),
+            this.print
+        );
 
         // true if at least one contextualization section is present
         boolean oneContextualization = false;
@@ -737,19 +693,9 @@ public class CloudClient {
 
         String ssh_hostsfile = this.args.getSsh_hostsfile();
         
-        for (int i = 0; i < members.length; i++) {
+        for (int i = 0; i < this.clusterMembers.length; i++) {
 
-            if (members[i] == null) {
-                throw new ParameterProblem(
-                        "Cluster member (xml) unexpectedly null");
-            }
-            
-            final ClusterMember member =
-                    ClusterUtil.parseRequest(cluster, i, this.print,
-                                         this.args.getBrokerLocalNicPrefix(),
-                                         this.args.getBrokerPublicNicPrefix());
-
-            this.clusterMembers[i] = member;
+            final ClusterMember member = this.clusterMembers[i];
 
             if (member.isOneLoginFlagPresent()) {
                 if (member.getClusterForUserData() == null
@@ -773,69 +719,12 @@ public class CloudClient {
                     "contextualization sections in the cluster definition.");
         }
 
-        // duplicate names would hose EPR writing
-        for (int i = 0; i < members.length; i++) {
-            final String thisName = members[i].getName();
-            if (thisName != null) {
-                for (int j = 0; j < members.length; j++) {
-                    if (j == i) {
-                        continue;
-                    }
-                    if (thisName.equals(members[j].getName())) {
-                        throw new ParameterProblem("Found a duplicate " +
-                                "nickname in the cluster definition ('" +
-                                thisName + "').  Each <workspace> section " +
-                                "needs a unique name.  You can leave out " +
-                                "the <name> tag of one or more to have it " +
-                                "autogenerated if you like.");
-                    }
-                }
-            }
-        }
-
         // at least one adjustment is requested
         if (adjustKnownHosts && ssh_hostsfile != null) {
             
-            if (ssh_hostsfile.startsWith("~")) {
-
-                final String homedir = System.getProperty("user.home");
-
-                if (homedir == null || homedir.trim().length() == 0) {
-                    throw new ParameterProblem("Need to replace tilde in " +
-                            "SSH known hosts file, but cannot determine " +
-                            "user home directory.  Please hardcode, see '" +
-                            this.args.getPropertiesPath() +  "' file.");
-                }
-
-                this.print.debugln("\n(tilde expansion necessary)");
-                this.print.debugln("$user.home = " + homedir);
-
-                final String result =
-                        ssh_hostsfile.replaceFirst("~", homedir);
-
-                this.print.infoln("SSH known_hosts contained tilde:");
-                this.print.infoln("  - '" + ssh_hostsfile + "' --> '" +
-                                                result + "'");
-
-                ssh_hostsfile = result;
-            }
-
-            final File f2 = new File(ssh_hostsfile);
-            ssh_hostsfile = f2.getAbsolutePath();
-            this.args.setSsh_hostsfile(ssh_hostsfile);
-
-            this.print.debugln("Examining '" + ssh_hostsfile + "'");
-
-            if (!CloudClientUtil.
-                    fileExistsAndReadwritable(ssh_hostsfile)) {
-                
-                throw new ParameterProblem("SSH known_hosts file does " +
-                        "not exist or is not read+writable: '" +
-                        ssh_hostsfile + "'");
-            }
-
-            this.print.debugln("Exists, readable, and writable: '" +
-                                            ssh_hostsfile + "'");
+            String newHostsFile = ClusterUtil.expandSshHostsFile(ssh_hostsfile,
+                this.print);
+            this.args.setSsh_hostsfile(newHostsFile);
         }
 
     }
@@ -882,6 +771,7 @@ public class CloudClient {
             try {
                 this.newUnpropTargetURL =
                         this.getDerivedImageURL(newname);
+
             } catch (Exception e) {
                 throw new ParameterProblem("Problem with run's newname '" +
                         newname + "': " + e.getMessage(), e);
@@ -926,6 +816,21 @@ public class CloudClient {
 
             this.print.debugln("Exists and readable: '" + sshfile + "'");
         }
+    }
+
+    private String getDerivedImageURL(String imageName) throws Exception {
+
+        this.print.debugln("Translating image name '" + imageName + "' into " +
+                "metadata URL");
+
+        final String url = CloudClientUtil.deriveImageURL(
+            this.args.getGridftpHostPort(), imageName,
+            this.remoteUserBaseDir,
+            this.args.getPropagationScheme(),
+            this.args.isPropagationKeepPort());
+        this.print.debugln("Derived image URL: '" + url + "'");
+
+        return url;
     }
 
     void _parameterCheck_runec2cluster() throws ParameterProblem {
@@ -1257,48 +1162,6 @@ public class CloudClient {
         return this.remoteUserBaseURLString;
     }
 
-    String getDerivedImageURL(String imageName) throws Exception {
-
-        if (imageName == null) {
-            throw new IllegalArgumentException("imageName may not be null");
-        }
-
-        this.print.debugln("Translating image name '" + imageName + "' into " +
-                "metadata URL");
-
-        String imageURL = this.args.getPropagationScheme();
-        this.print.debugln("Given propagation scheme: '" + imageURL + "'");
-
-        if (imageURL.indexOf("://") < 0) {
-            imageURL += "://";
-        }
-
-        // a bit messy
-        if (this.args.isPropagationKeepPort()) {
-
-            imageURL += this.args.getGridftpHostPort();
-
-        } else {
-
-            final String[] parts = this.args.getGridftpHostPort().split(":");
-
-            if (parts.length != 2) {
-                throw new ExecutionProblem(
-                        "gridftp host + port has no port?");
-            }
-
-            imageURL += parts[0];
-
-            this.print.debugln("Stripped port from repository host+port");
-        }
-
-        imageURL += this.remoteUserBaseDir + imageName;
-
-        this.print.debugln("Derived image URL: '" + imageURL + "'");
-
-        return imageURL;
-    }
-    
     // -------------------------------------------------------------------------
     // EXECUTE
     // -------------------------------------------------------------------------
@@ -1604,7 +1467,7 @@ public class CloudClient {
 
         final String imageURL;
         try {
-            imageURL = this.getDerivedImageURL(imageName);
+            imageURL = getDerivedImageURL(imageName);
         } catch (Exception e) {
             throw new ExecutionProblem("Problem with image name '" +
                     imageName + "': " + e.getMessage(), e);
@@ -1723,67 +1586,28 @@ public class CloudClient {
                             this.args.getDeploymentRequest_fileName();
         }
 
-        print.infoln("\nRequesting cluster.");
-        for (int i = 0; i < this.clusterMembers.length; i++) {
-            final ClusterMember member = this.clusterMembers[i];
-            String inststr = " instance";
-            if (member.getQuantity() > 1) {
-                inststr += "s";
-            }
-
-            final String mname;
-            if (member.getPrintName() == null) {
-                mname = HistoryUtil.getMemberName(i+1);
-            } else {
-                mname = member.getPrintName();
-            }
-
-            this.print.infoln("  - " + mname + ": image '" +
-                    member.getImageName() + "', " + member.getQuantity() +
-                    inststr);
-        }
+        ClusterUtil.printClusterInfo(this.clusterMembers, this.print);
 
         final String[] printNames = new String[this.clusterMembers.length];
 
         final Cloudcluster_Type[] clustersForUserData =
                 new Cloudcluster_Type[this.clusterMembers.length];
 
-        final List knownHostsList = new ArrayList(this.clusterMembers.length);
         for (int i = 0; i < this.clusterMembers.length; i++) {
-
             final int memberIndex = i;
             final ClusterMember member = this.clusterMembers[memberIndex];
 
             printNames[i] = member.getPrintName(); // may be null
 
-            if (member.isOneLoginFlagPresent()) {
-
-                final ClusterMemberNic[] nics = member.getNics();
-                for (int j = 0; j < nics.length; j++) {
-                    if (nics[j].loginDesired) {
-                        knownHostsList.add(
-                                new KnownHostsTask(memberIndex,
-                                                   null,
-                                                   nics[j].iface,
-                                                   member.getPrintName(),
-                                                   this.args.isHostkeyDir(),
-                                                   null));
-                    }
-                }
-            }
 
             // will be null if not involved in contextualization
             clustersForUserData[memberIndex] = member.getClusterForUserData();
+            printNames[i] = member.getPrintName(); // may be null
         }
 
-        final KnownHostsTask[] knownHostTasks;
-        if (knownHostsList.isEmpty()) {
-            knownHostTasks = null;
-        } else {
-            knownHostTasks =
-                    (KnownHostsTask[]) knownHostsList.toArray(
-                            new KnownHostsTask[knownHostsList.size()]);
-        }
+        final KnownHostsTask[] knownHostTasks =
+            ClusterUtil.constructKnownHostTasks(this.clusterMembers,
+                this.args.isHostkeyDir());
 
         this.executeUtil.startWorkspaceCluster(this.workspaceFactoryURL,
                                                knownHostTasks,

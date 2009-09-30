@@ -16,16 +16,22 @@
 
 package org.globus.workspace.cloud.client.util;
 
-import org.nimbustools.messaging.gt4_0.generated.metadata.VirtualWorkspace_Type;
-import org.nimbustools.messaging.gt4_0.generated.negotiable.WorkspaceDeployment_Type;
 import org.globus.workspace.client_core.ExecutionProblem;
+import org.globus.workspace.client_core.utils.FileUtils;
+import org.globus.workspace.client_core.utils.StringUtils;
 import org.globus.workspace.common.print.Print;
 import org.globus.wsrf.encoding.ObjectSerializer;
+import org.nimbustools.ctxbroker.generated.gt4_0.description.BrokerContactType;
+import org.nimbustools.ctxbroker.generated.gt4_0.description.Cloudcluster_Type;
+import org.nimbustools.ctxbroker.generated.gt4_0.description.Nimbusctx_Type;
+import org.nimbustools.messaging.gt4_0.generated.metadata.VirtualWorkspace_Type;
+import org.nimbustools.messaging.gt4_0.generated.negotiable.WorkspaceDeployment_Type;
 
+import javax.xml.namespace.QName;
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.text.NumberFormat;
 
 public class HistoryUtil {
@@ -42,6 +48,7 @@ public class HistoryUtil {
 
     public static final String historyDirPrefix = "vm-";
     public static final String historyClusterDirPrefix = "cluster-";
+    public static final String historyMultiClusterDirPrefix = "multicluster-";
     public static final String historyEc2ClusterDirPrefix = "ec2cluster-";
     private static final String historyClusterMemberPrefix = "member-";
 
@@ -134,6 +141,48 @@ public class HistoryUtil {
         }
 
         return reqFile.getAbsolutePath();
+    }
+
+    public static String writeUserData(File newdir,
+                                       String userdata_fileName,
+                                       BrokerContactType brokerContact,
+                                       Cloudcluster_Type cluster)
+        throws ExecutionProblem {
+
+        if (newdir == null) {
+            throw new IllegalArgumentException("newdir may not be null");
+        }
+        if (userdata_fileName == null) {
+            throw new IllegalArgumentException("userdata_fileName may not be null");
+        }
+        if (brokerContact == null) {
+            throw new IllegalArgumentException("brokerContact may not be null");
+        }
+        if (cluster == null) {
+            throw new IllegalArgumentException("cluster may not be null");
+        }
+
+        Nimbusctx_Type wrapper = new Nimbusctx_Type();
+        wrapper.setCluster(cluster);
+        wrapper.setContact(brokerContact);
+
+        final QName qName = new QName("", "NIMBUS_CTX");
+
+        File f = new File(newdir, userdata_fileName);
+
+        try {
+            final String data =
+                    StringUtils.axisBeanToString(wrapper, qName);
+
+            FileUtils.writeStringToFile(data, f.getAbsolutePath());
+
+            return f.getAbsolutePath();
+
+        } catch (Exception e) {
+            throw new ExecutionProblem("Problem turning the cluster " +
+                    "information into text that the context agents " +
+                    "on the VMs can consume: " + e.getMessage(), e);
+        }
     }
 
     public static File newLogFile(File dir,

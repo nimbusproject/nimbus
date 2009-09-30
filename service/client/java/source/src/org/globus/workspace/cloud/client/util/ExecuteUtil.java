@@ -20,16 +20,16 @@ import edu.emory.mathcs.backport.java.util.concurrent.ExecutionException;
 import edu.emory.mathcs.backport.java.util.concurrent.ExecutorService;
 import edu.emory.mathcs.backport.java.util.concurrent.Executors;
 import edu.emory.mathcs.backport.java.util.concurrent.FutureTask;
-import org.apache.axis.types.URI;
 import org.apache.axis.message.addressing.EndpointReferenceType;
+import org.apache.axis.types.URI;
 import org.globus.workspace.client_common.BaseClient;
 import org.globus.workspace.client_core.ExecutionProblem;
 import org.globus.workspace.client_core.ExitNow;
 import org.globus.workspace.client_core.ParameterProblem;
 import org.globus.workspace.client_core.print.PrCodes;
+import org.globus.workspace.client_core.utils.EPRUtils;
 import org.globus.workspace.client_core.utils.FileUtils;
 import org.globus.workspace.client_core.utils.StringUtils;
-import org.globus.workspace.client_core.utils.EPRUtils;
 import org.globus.workspace.cloud.client.Opts;
 import org.globus.workspace.cloud.client.cluster.KnownHostsTask;
 import org.globus.workspace.cloud.client.tasks.ClusterDoneTask;
@@ -41,24 +41,26 @@ import org.globus.workspace.cloud.client.tasks.FactoryQueryTask;
 import org.globus.workspace.cloud.client.tasks.QueryTask;
 import org.globus.workspace.cloud.client.tasks.RunTask;
 import org.globus.workspace.cloud.client.tasks.SaveTask;
+import org.globus.workspace.cloud.meta.client.CloudDeployment;
 import org.globus.workspace.common.client.CommonPrint;
 import org.globus.workspace.common.print.Print;
 import org.globus.workspace.common.print.PrintOpts;
 import org.nimbustools.ctxbroker.generated.gt4_0.description.BrokerContactType;
 import org.nimbustools.ctxbroker.generated.gt4_0.description.Cloudcluster_Type;
 import org.nimbustools.ctxbroker.generated.gt4_0.description.Nimbusctx_Type;
+import org.nimbustools.messaging.gt4_0.common.CommonUtil;
 import org.nimbustools.messaging.gt4_0.generated.metadata.VirtualWorkspace_Type;
 import org.nimbustools.messaging.gt4_0.generated.negotiable.WorkspaceDeployment_Type;
-import org.nimbustools.messaging.gt4_0.common.CommonUtil;
 
 import javax.xml.namespace.QName;
 import java.io.File;
-import java.io.PrintStream;
 import java.io.FilenameFilter;
+import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 public class ExecuteUtil {
 
@@ -378,6 +380,155 @@ public class ExecuteUtil {
         }
     }
 
+    public void startMultiCloudCluster(Collection<CloudDeployment> deploys,
+                                      String historyDir,
+                                      long pollMs,
+                                      Print print,
+                                      String brokerURL,
+                                      String brokerIdentityAuthorization,
+                                      int durationMinutes)
+        throws ExecutionProblem, ExitNow {
+
+        CloudDeployment[] clouds = (CloudDeployment[]) deploys.toArray();
+
+        final File newdir = ExecuteUtil.createNewMultiClusterDir(
+            historyDir, print);
+        final String newdirPath = newdir.getAbsolutePath();
+        final String multiclusterHandle = newdir.getName();
+
+        final File runLog =
+                HistoryUtil.newLogFile(newdir, RunTask.LOG_FILE_NAME, print);
+        if (runLog != null) {
+            try {
+                print.getOpts().setInfoErrFile(runLog.getAbsolutePath());
+            } catch (Exception e) {
+                print.errln("Problem setting InfoErrFile: " + e.getMessage());
+                // carry on
+            }
+        }
+
+        final File debugLog =
+               HistoryUtil.newLogFile(newdir, RunTask.DEBUG_LOG_FILE_NAME, print);
+        if (debugLog != null) {
+            try {
+                print.getOpts().setAllOutFile(debugLog.getAbsolutePath());
+            } catch (Exception e) {
+                print.errln("Problem setting AllOutFile: " + e.getMessage());
+                // carry on
+            }
+        }
+
+        boolean usingContextBroker = false;
+        for (CloudDeployment cloud : deploys) {
+            if (cloud.hasContextualization()) {
+                usingContextBroker = true;
+                break;
+            }
+        }
+        final String ctxEprPath;
+        final String ctxReportsDirPath;
+        final BrokerContactType brokerContact;
+
+        if (!usingContextBroker) {
+            ctxEprPath = null;
+            ctxReportsDirPath = null;
+            brokerContact = null;
+        } else {
+
+            final File ctxFile = new File(newdir,
+                                          HistoryUtil.CONTEXT_EPR_FILE_NAME);
+            ctxEprPath = ctxFile.getAbsolutePath();
+
+            final File newdir3 = new File(newdirPath, "reports-ctx");
+            ctxReportsDirPath = newdir3.getAbsolutePath();
+            if (newdir3.mkdir()) {
+                print.debugln("Created directory: " + ctxReportsDirPath);
+            } else {
+                throw new ExecutionProblem(
+                        "Could not create directory '" + ctxReportsDirPath + "'");
+            }
+
+            final File newdir4 = new File(newdirPath, "ctx-tmp");
+            final String ctxTempDirPath = newdir4.getAbsolutePath();
+            if (newdir4.mkdir()) {
+                print.debugln("Created directory: " + ctxTempDirPath);
+            } else {
+                throw new ExecutionProblem(
+                        "Could not create directory '" + ctxTempDirPath + "'");
+            }
+
+
+            try {
+                brokerContact = this.createCtx(brokerURL,
+                                               brokerIdentityAuthorization,
+                                               ctxEprPath,
+                                               newdir4,
+                                               false,
+                                               print);
+            } catch (Exception e) {
+                throw new ExecutionProblem("Problem creating new context at " +
+                        "the context broker: " + e.getMessage(), e);
+            }
+        }
+
+        final String[] ensembleEprPaths =
+            new String[deploys.size()];
+
+        for (int i = 0; i < clouds.length; i++) {
+            CloudDeployment cloud = clouds[i];
+            final File cloudDir = new File(newdir,
+                "cloud-" + cloud.getCloud().getName());
+            final String cloudDirPath = cloudDir.getAbsolutePath();
+            if (cloudDir.mkdir()) {
+                print.debugln("Created directory: " + cloudDirPath);
+            } else {
+                throw new ExecutionProblem(
+                    "Could not create directory '" + cloudDirPath + "'");
+            }
+
+            final RunTask[] runTasks = cloud.generateRunTasks(brokerContact,
+                cloudDirPath, durationMinutes, print);
+            final FutureTask[] futureTasks = new FutureTask[runTasks.length];
+            for (int taskIndex = 0; taskIndex < futureTasks.length; taskIndex++) {
+                futureTasks[taskIndex] = new FutureTask(runTasks[taskIndex]);
+            }
+
+            final String ensembleEprPath = runTasks[0].getEnsembleEprPath();
+            ensembleEprPaths[i] = ensembleEprPath;
+
+            final String identAuth = cloud.getCloud().getFactoryID();
+            final String handle = cloud.getCloud().getName();
+
+            startAllMembersWithBackout(futureTasks, ensembleEprPath,
+                identAuth, handle, print);
+        }
+
+        print.infoln("\nWaiting for launch updates.");
+         for (int i = 0; i < clouds.length; i++) {
+            CloudDeployment cloud = clouds[i];
+            final String ensembleEprPath = ensembleEprPaths[i];
+            final String identAuth =  cloud.getCloud().getFactoryID();
+            final String handle =  cloud.getCloud().getName();
+
+            this.clusterMonitor(ensembleEprPath,
+                identAuth,
+                handle,
+                null, //TODO set up reports dir
+                pollMs,
+                print);
+        }
+
+        if (!usingContextBroker) {
+            return;
+        }
+
+        this.ctxMonitor(ctxEprPath, brokerIdentityAuthorization,
+            multiclusterHandle, null, null, null, pollMs, print);
+
+        // TODO back out on failure
+
+    }
+
     
     // -------------------------------------------------------------------------
     // START VIRTUAL CLUSTER
@@ -403,31 +554,9 @@ public class ExecuteUtil {
 
             throws ExecutionProblem, ExitNow {
 
-        final File topdir;
-        try {
-            topdir = CloudClientUtil.getHistoryDir(historyDir);
-        } catch (ParameterProblem e) {
-            throw new ExecutionProblem(e.getMessage(), e);
-        }
-
-        final int nextnum = HistoryUtil.findNextClusterNumber(topdir, print);
-
-        final String suffix = HistoryUtil.format.format(nextnum);
-        final String newDirName = HistoryUtil.historyClusterDirPrefix + suffix;
-        final String clusterHandle = newDirName; // redundant, but clearer later
-
-        print.debugln("Next directory: " + newDirName);
-
-        final File newdir = new File(topdir, newDirName);
+        final File newdir = createNewClusterDir(historyDir, print);
         final String newdirPath = newdir.getAbsolutePath();
-        if (newdir.mkdir()) {
-            print.debugln("Created directory: " + newdirPath);
-        } else {
-            // could be a race condition on the name, or odd perm problem
-            // (note we checked parent dir was writeable)
-            throw new ExecutionProblem(
-                    "Could not create directory '" + newdirPath + "'");
-        }
+        final String clusterHandle = newdir.getName();
 
         final File runLog =
                 HistoryUtil.newLogFile(newdir, RunTask.LOG_FILE_NAME, print);
@@ -451,23 +580,8 @@ public class ExecuteUtil {
             }
         }
 
-        final File newdir2 = new File(newdirPath, "reports-vm");
-        final String newdir2Path = newdir2.getAbsolutePath();
-        if (newdir2.mkdir()) {
-            print.debugln("Created directory: " + newdir2Path);
-        } else {
-            throw new ExecutionProblem(
-                    "Could not create directory '" + newdir2Path + "'");
-        }
-
-        final File newdir5 = new File(newdirPath, "id-ip-dir");
-        final String eprIdIpDirPath = newdir5.getAbsolutePath();
-        if (newdir5.mkdir()) {
-            print.debugln("Created directory: " + eprIdIpDirPath);
-        } else {
-            throw new ExecutionProblem(
-                    "Could not create directory '" + eprIdIpDirPath + "'");
-        }
+        final String reportDirPath = makeDirectory(newdirPath, "reports-vm", print);
+        final String eprIdIpDirPath = makeDirectory(newdirPath, "id-ip-dir", print);
 
         String knownHostsDirPath = null;
         if (knownHostTasks != null) {
@@ -571,27 +685,8 @@ public class ExecuteUtil {
                     continue;
                 }
 
-                final File datafile = new File(newdir4, "userdata-" + i);
-
-                ctxUserDataPaths[i] = datafile.getAbsolutePath();
-
-                Nimbusctx_Type wrapper = new Nimbusctx_Type();
-                wrapper.setCluster(oneCtx);
-                wrapper.setContact(brokerContact);
-
-                final QName qName = new QName("", "NIMBUS_CTX");
-
-                try {
-                    final String data =
-                            StringUtils.axisBeanToString(wrapper, qName);
-
-                    FileUtils.writeStringToFile(data, ctxUserDataPaths[i]);
-
-                } catch (Exception e) {
-                    throw new ExecutionProblem("Problem turning the cluster " +
-                            "information into text that the context agents " +
-                            "on the VMs can consume: " + e.getMessage(), e);
-                }
+                ctxUserDataPaths[i] = HistoryUtil.writeUserData(newdir4,
+                    "userdata-" + i, brokerContact, oneCtx);
             }
         }
 
@@ -698,7 +793,7 @@ public class ExecuteUtil {
             this.clusterMonitor(ensembleEprPath,
                                 identityAuthorization,
                                 clusterHandle,
-                                newdir2Path,
+                                reportDirPath,
                                 pollMs,
                                 print);
 
@@ -759,6 +854,59 @@ public class ExecuteUtil {
 
             throw e;
         }
+    }
+
+    public static String makeDirectory(String parentDir, String name, Print print)
+        throws ExecutionProblem {
+        final File newDir = new File(parentDir, name);
+        final String newdir2Path = newDir.getAbsolutePath();
+        if (newDir.mkdir()) {
+            print.debugln("Created directory: " + newdir2Path);
+        } else {
+            throw new ExecutionProblem(
+                    "Could not create directory '" + newdir2Path + "'");
+        }
+        return newdir2Path;
+    }
+
+    public static File createNewClusterDir(String historyDir, Print print)
+        throws ExecutionProblem {
+        return createNewLaunchDir(historyDir, print, HistoryUtil.historyClusterDirPrefix);
+    }
+
+    public static File createNewMultiClusterDir(String historyDir, Print print)
+        throws ExecutionProblem {
+        return createNewLaunchDir(historyDir, print, HistoryUtil.historyMultiClusterDirPrefix);
+    }
+
+    private static File createNewLaunchDir(String historyDir, Print print, String prefix)
+        throws ExecutionProblem {
+
+        final File topdir;
+        try {
+            topdir = CloudClientUtil.getHistoryDir(historyDir);
+        } catch (ParameterProblem e) {
+            throw new ExecutionProblem(e.getMessage(), e);
+        }
+
+        final int nextnum = HistoryUtil.findNextClusterNumber(topdir, print);
+
+        final String suffix = HistoryUtil.format.format(nextnum);
+        final String newDirName = prefix + suffix;
+
+        print.debugln("Next directory: " + newDirName);
+
+        final File newdir = new File(topdir, newDirName);
+        final String path = newdir.getAbsolutePath();
+        if (newdir.mkdir()) {
+            print.debugln("Created directory: " + path);
+        } else {
+            // could be a race condition on the name, or odd perm problem
+            // (note we checked parent dir was writeable)
+            throw new ExecutionProblem(
+                    "Could not create directory '" + path + "'");
+        }
+        return newdir;
     }
 
 

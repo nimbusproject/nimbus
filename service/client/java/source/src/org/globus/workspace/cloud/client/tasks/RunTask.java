@@ -17,12 +17,11 @@
 package org.globus.workspace.cloud.client.tasks;
 
 import edu.emory.mathcs.backport.java.util.concurrent.Callable;
+import org.globus.workspace.client.Opts;
+import org.globus.workspace.client.WorkspaceCLIMain;
+import org.globus.workspace.common.print.Print;
 
 import java.util.ArrayList;
-
-import org.globus.workspace.client.WorkspaceCLIMain;
-import org.globus.workspace.client.Opts;
-import org.globus.workspace.common.print.Print;
 
 /**
  * Runs the workspace client, files are created ahead of time
@@ -61,6 +60,11 @@ public class RunTask implements Callable {
 
     private final Print pr;
 
+
+
+    public String getEnsembleEprPath() {
+        return ensembleEprPath;
+    }
 
     // -------------------------------------------------------------------------
     // CONSTRUCTOR

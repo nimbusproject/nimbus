@@ -16,14 +16,15 @@
 
 package org.globus.workspace.cloud.client.util;
 
-import org.globus.workspace.client_core.ParameterProblem;
-import org.globus.workspace.client_core.utils.StringUtils;
-import org.globus.workspace.client_core.utils.EPRUtils;
-import org.globus.workspace.client_core.repr.Workspace;
-import org.globus.workspace.common.print.Print;
-import org.globus.wsrf.encoding.ObjectDeserializer;
-import org.globus.wsrf.encoding.DeserializationException;
 import org.apache.axis.message.addressing.EndpointReferenceType;
+import org.globus.workspace.client_core.ExecutionProblem;
+import org.globus.workspace.client_core.ParameterProblem;
+import org.globus.workspace.client_core.repr.Workspace;
+import org.globus.workspace.client_core.utils.EPRUtils;
+import org.globus.workspace.client_core.utils.StringUtils;
+import org.globus.workspace.common.print.Print;
+import org.globus.wsrf.encoding.DeserializationException;
+import org.globus.wsrf.encoding.ObjectDeserializer;
 import org.xml.sax.InputSource;
 
 import java.io.File;
@@ -620,6 +621,42 @@ public class CloudClientUtil {
         }
 
         return "";
+    }
+
+    public static String deriveImageURL(String hostPort, String imageName,
+                              String remoteUserBaseDir, String scheme,
+                              boolean keepPort) throws ExecutionProblem {
+
+        if (imageName == null) {
+            throw new IllegalArgumentException("imageName may not be null");
+        }
+
+        String imageURL = scheme;
+
+        if (imageURL.indexOf("://") < 0) {
+            imageURL += "://";
+        }
+
+        // a bit messy
+        if (keepPort) {
+
+            imageURL += hostPort;
+
+        } else {
+
+            final String[] parts = hostPort.split(":");
+
+            if (parts.length != 2) {
+                throw new ExecutionProblem(
+                        "gridftp host + port has no port?");
+            }
+
+            imageURL += parts[0];
+        }
+
+        imageURL += remoteUserBaseDir + imageName;
+
+        return imageURL;
     }
 
     private static class dirFilter implements FilenameFilter {
