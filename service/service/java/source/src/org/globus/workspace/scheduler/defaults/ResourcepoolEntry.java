@@ -1,0 +1,79 @@
+/*
+ * Copyright 1999-2008 University of Chicago
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy
+ * of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ */
+
+package org.globus.workspace.scheduler.defaults;
+
+public class ResourcepoolEntry {
+
+    private String hostname;
+    private int memMax = -1; // in MBytes
+    private int memCurrent = -1; // in MBytes
+    private String supportedAssociations;
+
+    public ResourcepoolEntry(String hostname, int memMax,
+                             int memCurrent, String sa) {
+        this.hostname = hostname;
+        this.memMax = memMax;
+        this.memCurrent = memCurrent;
+        this.supportedAssociations = sa;
+    }
+
+    public String getHostname() {
+        return this.hostname;
+    }
+
+    public void setHostname(String hostname) {
+        this.hostname = hostname;
+    }
+
+    public int getMemMax() {
+        return this.memMax;
+    }
+
+    public void setMemMax(int memMax) {
+        this.memMax = memMax;
+    }
+
+    public int getMemCurrent() {
+        return this.memCurrent;
+    }
+
+    public void setMemCurrent(int memCurrent) {
+        this.memCurrent = memCurrent;
+    }
+
+    public void addMemCurrent(int add) {
+        this.memCurrent += add;
+    }
+
+    public String getSupportedAssociations() {
+        return this.supportedAssociations;
+    }
+
+    public void setSupportedAssociations(String supportedAssociations) {
+        this.supportedAssociations = supportedAssociations;
+    }
+
+    public String toString() {
+        return "ResourcepoolEntry{" +
+                "hostname='" + this.hostname + '\'' +
+                ", memMax=" + this.memMax +
+                ", memCurrent=" + this.memCurrent +
+                ", supportedNetworks='" + this.supportedAssociations + '\'' +
+                '}';
+    }
+
+}

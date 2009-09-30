@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+
+<ehcache>
+
+    <defaultCache
+        maxElementsInMemory="2000"
+        eternal="true"
+        timeToIdleSeconds="120"
+        timeToLiveSeconds="120"
+        overflowToDisk="false"
+        />
+
+    <cache name="instanceCache"
+        maxElementsInMemory="5000"
+        eternal="false"
+        timeToIdleSeconds="6000"
+        timeToLiveSeconds="24000"
+        overflowToDisk="false"
+        />
+
+    <cache name="groupCache"
+        maxElementsInMemory="2000"
+        eternal="false"
+        timeToIdleSeconds="6000"
+        timeToLiveSeconds="24000"
+        overflowToDisk="false"
+        />
+
+    <cache name="coschedCache"
+        maxElementsInMemory="2000"
+        eternal="false"
+        timeToIdleSeconds="6000"
+        timeToLiveSeconds="24000"
+        overflowToDisk="false"
+        />
+
+</ehcache>

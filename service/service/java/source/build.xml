@@ -1,0 +1,126 @@
+<?xml version="1.0"?>
+
+<project default="dist" basedir="." name="Workspace Service">
+
+    <description>Workspace Service</description>
+
+    <!-- load user nimbus.build.properties file, if it exists -->
+    <property file="${user.home}/nimbus.build.properties"/>
+
+    <!-- load some defaults from colocated build.properties file -->
+    <property file="build.properties"/>
+
+
+    <!-- *******************************************************************
+         MODULE NAME
+         ******************************************************************* -->
+
+    <target name="disp">
+        <echo message="**** Module: ${basedir}" />
+    </target>
+
+
+    <!-- *******************************************************************
+         CHECK MINIMUM JDK
+         ******************************************************************* -->
+
+    <target name="checkjdk">
+        <available property="jdk1.4+" classname="java.lang.CharSequence"/>
+        <fail message="Aborting: determined you are not building with >= JDK 1.4"
+              unless="jdk1.4+" />
+    </target>
+    
+
+    <!-- *******************************************************************
+         INITIALIZE
+         ******************************************************************* -->
+
+    <target name="init" depends="checkjdk">
+        <mkdir dir="${nimbus.service.main.build.dir}"/>
+        <mkdir dir="${nimbus.service.main.build.dest}"/>
+        <mkdir dir="${nimbus.service.main.dist.dir}"/>
+    </target>
+
+
+    <!-- *******************************************************************
+         COMPILATION
+         ******************************************************************* -->
+
+    <path id="nimbus.service.main.classpath">
+
+        <fileset dir="${nimbus.service.main.lib.dir}">
+             <include name="*.jar"/>
+        </fileset>
+
+        <fileset dir="${nimbus.service.main.lib-compile.dir}">
+             <include name="*.jar"/>
+        </fileset>
+
+        <fileset dir="${nimbus.service.api.dist.dir}">
+              <include name="*.jar"/>
+        </fileset>
+
+        <fileset dir="${nimbus.service.api.lib.dir}">
+              <include name="*.jar"/>
+        </fileset>
+    </path>
+
+    <target name="compile" depends="init">
+
+        <javac srcdir="${nimbus.service.main.src.dir}"
+               destdir="${nimbus.service.main.build.dest}"
+               classpathref="nimbus.service.main.classpath"
+               debug="on">
+
+            <include name="**/*.java"/>
+            <compilerarg value="${nimbus.java.compilerarg}" />
+            
+        </javac>
+
+        <copy todir="${nimbus.service.main.build.dest}" >
+              <fileset dir="${nimbus.service.main.src.dir}"
+                       includes="**/*.properties" />
+              <fileset dir="${nimbus.service.main.src.dir}"
+                       includes="**/*.xml" />
+              <fileset dir="${nimbus.service.main.src.dir}"
+                       includes="**/*.txt" />
+        </copy>
+
+    </target>
+
+    
+    <!-- *******************************************************************
+         CREATE ARCHIVE FILE
+         ******************************************************************* -->
+
+    <target name="jar" depends="compile">
+        <jar destfile="${nimbus.service.main.dist.dir}/${nimbus.service.main.jar.name}"
+             basedir="${nimbus.service.main.build.dest}"/>
+    </target>
+
+    
+    <!-- *******************************************************************
+         CREATE DISTRIBUTION
+         ******************************************************************* -->
+
+    <target name="dist">
+        <echo message="**** Module: ${basedir}" />
+        <echo>Building: ${nimbus.service.main.print-noun}</echo>
+        <antcall target="jar" />
+        <echo>Built: ${nimbus.service.main.print-noun}
+        </echo>
+    </target>
+
+    
+    <!-- *******************************************************************
+         CLEAN
+         ******************************************************************* -->
+
+    <target name="clean">
+        <delete dir="${nimbus.service.main.build.dir}"/>
+        <delete dir="${nimbus.service.main.dist.dir}"/>
+        <delete dir="tmp"/>
+        <echo message="Cleaned: ${basedir}" />
+    </target>
+
+</project>
