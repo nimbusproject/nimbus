@@ -186,6 +186,8 @@
 
             <constructor-arg ref="nimbus-rm.service.binding.GlobalPolicies" />
 
+            <!-- <property name="sda1Replacement" value="xvda1" /> -->
+
     </bean>
 
     <bean id="nimbus-rm.service.binding.BindVMM"

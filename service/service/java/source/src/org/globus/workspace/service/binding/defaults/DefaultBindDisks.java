@@ -35,6 +35,7 @@ public class DefaultBindDisks implements BindDisks {
     // -------------------------------------------------------------------------
 
     protected final GlobalPolicies globals;
+	protected String sda1Replacement;
 
     
     // -------------------------------------------------------------------------
@@ -50,6 +51,15 @@ public class DefaultBindDisks implements BindDisks {
     
 
     // -------------------------------------------------------------------------
+	// GET/SET
+	// -------------------------------------------------------------------------
+
+	public void setSda1Replacement(String sda1Replacement) {
+		this.sda1Replacement = sda1Replacement;
+	}
+	
+
+	// -------------------------------------------------------------------------
     // implements BindDisks
     // -------------------------------------------------------------------------
 
@@ -132,11 +142,15 @@ public class DefaultBindDisks implements BindDisks {
             throw new IllegalArgumentException("file.uri may not be null");
         }
 
-        final String mountAs = file.getMountAs();
+        String mountAs = file.getMountAs();
         if (mountAs == null) {
             throw new IllegalArgumentException("file.mountAs may not be null");
         }
         
+		// hack for newer Xen situations and backwards compatibility
+		if (this.sda1Replacement != null && mountAs.trim().equalsIgnoreCase("sda1")) {
+			mountAs = this.sda1Replacement;
+		}
 
         final String rootDiskScheme = uri.getScheme();
         final boolean local = "file".equals(rootDiskScheme);
