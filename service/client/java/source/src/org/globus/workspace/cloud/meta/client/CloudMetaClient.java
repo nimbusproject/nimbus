@@ -89,6 +89,7 @@ public class CloudMetaClient {
         CloudMetaClient client = new CloudMetaClient(print);
 
         ParameterProblem parameterProblem = null;
+        ExitNow exitNow = null;
         Throwable anyError = null;
         try {
             mainImpl(client, argv);
@@ -98,11 +99,18 @@ public class CloudMetaClient {
         } catch (ExecutionProblem e) {
             anyError = e;
         } catch (ExitNow e) {
+            exitNow = e;
+        } catch (Throwable e) {
             anyError = e;
         }
 
         int exitCode;
-        if (anyError == null) {
+
+        if (exitNow != null) {
+            print.debugln("[exiting via exitnow system]");
+            exitCode = exitNow.exitCode;
+
+        } else if (anyError == null) {
             exitCode = BaseClient.SUCCESS_EXIT_CODE;
         } else {
             exitCode = BaseClient.COMMAND_LINE_EXIT_CODE;
