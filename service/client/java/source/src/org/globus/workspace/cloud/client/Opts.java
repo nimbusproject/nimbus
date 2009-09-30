@@ -194,11 +194,11 @@ public class Opts {
 
     public static final String BROKER_URL_OPT_STRING = "broker-url";
     public final Option BROKER_URL_OPT =
-        OptionBuilder.withLongOpt(BROKER_URL_OPT_STRING).create();
+        OptionBuilder.hasArg().withLongOpt(BROKER_URL_OPT_STRING).create();
 
     public static final String BROKER_ID_OPT_STRING = "broker-id";
     public final Option BROKER_ID_OPT =
-        OptionBuilder.withLongOpt(BROKER_ID_OPT_STRING).create();
+        OptionBuilder.hasArg().withLongOpt(BROKER_ID_OPT_STRING).create();
 
     public static final String NOCTXLOCK_OPT_STRING = "no-ctx-lock";
     public final Option NOCTXLOCK_OPT =
