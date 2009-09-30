@@ -109,9 +109,10 @@ public class CloudDeployment {
             boolean needsUserdata = (broker != null &&
                 member.getMember().getClusterForUserData() != null);
 
-            String memberName = member.getMember().getPrintName();
-            if (memberName == null) {
-                memberName = HistoryUtil.getMemberName(i+1);
+            String memberName = HistoryUtil.getMemberName(i+1);
+            String printName = member.getMember().getPrintName();
+            if (printName == null) {
+                printName = memberName;
             }
 
             String eprPath = new File(dir, memberName +"-epr").getAbsolutePath();
@@ -141,7 +142,7 @@ public class CloudDeployment {
 
             } catch (Exception e) {
                 throw new ExecutionProblem("Problem writing data files for "+
-                    memberName,e);
+                    printName,e);
             }
 
             tasks[i] = new RunTask(
@@ -152,7 +153,7 @@ public class CloudDeployment {
                 sshKeyPath,
                 this.cloud.getPollTime(),
                 true,
-                memberName,
+                printName,
                 this.cloud.getFactoryID(),
                 null,
                 ensembleEprPath,
