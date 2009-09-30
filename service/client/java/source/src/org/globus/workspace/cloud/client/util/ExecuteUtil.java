@@ -465,7 +465,7 @@ public class ExecuteUtil {
                                                brokerIdentityAuthorization,
                                                ctxEprPath,
                                                newdir4,
-                                               true,
+                                               false,
                                                print);
             } catch (Exception e) {
                 throw new ExecutionProblem("Problem creating new context at " +
