@@ -1124,7 +1124,8 @@ def response2_parse_one_data(data, trace=False):
         log.error("error, data has object in item list not length 2?")
         return None
     
-    if attrtuple[0] == 'name':
+    namekey = "{%s}name" % NS_CTXDESC
+    if attrtuple[0] == namekey:
         respdata.name = attrtuple[1]
         if trace:
             log.debug("  - data name: '%s'" % attrtuple[1])
