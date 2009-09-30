@@ -17,6 +17,8 @@
 package org.globus.workspace.cloud.meta.client;
 
 import org.globus.workspace.common.print.Print;
+import org.globus.workspace.common.print.PrintOpts;
+import org.globus.workspace.common.client.CLIUtils;
 import org.globus.workspace.client_core.ParameterProblem;
 import org.globus.workspace.client_core.ExecutionProblem;
 import org.globus.workspace.client_core.ExitNow;
@@ -25,19 +27,14 @@ import org.globus.workspace.cloud.client.cluster.ClusterUtil;
 import org.globus.workspace.cloud.client.cluster.ClusterMember;
 import org.globus.workspace.cloud.client.util.ExecuteUtil;
 import org.globus.workspace.cloud.client.util.CloudClientUtil;
-import org.globus.workspace.cloud.client.tasks.RunTask;
 import org.globus.wsrf.encoding.DeserializationException;
 import org.nimbustools.ctxbroker.generated.gt4_0.description.Clouddeployment_Type;
 import org.nimbustools.ctxbroker.generated.gt4_0.description.Clouddeploy_Type;
-import org.nimbustools.ctxbroker.generated.gt4_0.description.BrokerContactType;
-
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.io.IOException;
-import java.io.File;
-
-import edu.emory.mathcs.backport.java.util.concurrent.Executor;
-import edu.emory.mathcs.backport.java.util.concurrent.ExecutorService;
-import edu.emory.mathcs.backport.java.util.concurrent.Executors;
+import java.io.PrintStream;
 
 public class CloudMetaClient {
 
@@ -74,9 +71,18 @@ public class CloudMetaClient {
 
         // keeping it simple for now, but basically following the model of CloudClient
 
-        Print pr = new Print();
+        // look for debug early, for diagnosing problems with parsing etc.
+        PrintStream debug = null;
+        if (CLIUtils.containsDebug(argv)) {
+            debug = System.err;
+        }
 
-        CloudMetaClient client = new CloudMetaClient(pr);
+
+        //TODO wtf are print opts?
+        PrintOpts prOpts = new PrintOpts(null);
+
+        final Print print = new Print(prOpts, System.out, System.err, debug);
+        CloudMetaClient client = new CloudMetaClient(print);
 
         // TODO needs better error printing
         Throwable anyError = null;
@@ -92,14 +98,14 @@ public class CloudMetaClient {
 
         int exitCode;
         if (anyError != null) {
-            pr.err("Got error:\n" + anyError.toString());
+            print.err("Got error:\n" + anyError.toString());
             exitCode = BaseClient.COMMAND_LINE_EXIT_CODE;
         } else {
             exitCode = BaseClient.SUCCESS_EXIT_CODE;
         }
 
-        pr.flush();
-        pr.close();
+        print.flush();
+        print.close();
         System.exit(exitCode);
     }
 
@@ -312,6 +318,7 @@ public class CloudMetaClient {
             this.print,
             "https://tp-vm1.ci.uchicago.edu:8445/wsrf/services/NimbusContextBroker",
             "/O=Grid/OU=GlobusTest/OU=simple-workspace-ca/CN=host/tp-vm1.ci.uchicago.edu",
+            "/home/david/.ssh/id_rsa.pub", 
             this.args.getDurationMinutes()
             );
 

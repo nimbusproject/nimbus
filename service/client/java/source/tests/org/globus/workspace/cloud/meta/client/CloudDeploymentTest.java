@@ -45,6 +45,7 @@ public class CloudDeploymentTest extends FileCleanupTestFixture {
 
         final RunTask[] runTasks = deployment.generateRunTasks(broker,
             this.getTempDir().getAbsolutePath(),
+            "/home/david/.ssh/id_rsa.pub",
             60, new Print());
 
         assertEquals(deployment.getMembers().size(),  runTasks.length);
@@ -75,7 +76,6 @@ public class CloudDeploymentTest extends FileCleanupTestFixture {
         props.put(Props.KEY_GRIDFTP_HOSTPORT, "tp-vm1.ci.uchicago.edu:2811");
         props.put(Props.KEY_GRIDFTP_IDENTITY, "/O=Grid/OU=GlobusTest/OU=" +
             "simple-workspace-ca/CN=host/tp-vm1.ci.uchicago.edu");
-        props.put(Props.KEY_SSHFILE, "sandwich");
 
         return Cloud.createFromProps("sandwich",props);
     }

@@ -659,6 +659,26 @@ public class CloudClientUtil {
         return imageURL;
     }
 
+    public static String expandSshPath(String sshfile) 
+        throws ParameterProblem {
+
+        if (sshfile.startsWith("~")) {
+
+            final String homedir = System.getProperty("user.home");
+
+            if (homedir == null || homedir.trim().length() == 0) {
+                throw new ParameterProblem("Need to replace tilde in " +
+                        "SSH public key file, but cannot determine " +
+                        "user home directory.  Please hardcode, see " +
+                        "properties file.");
+            }
+            final String result = sshfile.replaceFirst("~", homedir);
+
+            sshfile = result;
+        }
+        return sshfile;
+    }
+
     private static class dirFilter implements FilenameFilter {
         public boolean accept(File dir, String name) {
             final File test = new File(dir, name);

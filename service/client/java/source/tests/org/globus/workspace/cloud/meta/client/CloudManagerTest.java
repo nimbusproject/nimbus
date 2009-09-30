@@ -87,7 +87,6 @@ public class CloudManagerTest extends FileCleanupTestFixture {
         props.put(Props.KEY_FACTORY_IDENTITY, "sandwich");
         props.put(Props.KEY_GRIDFTP_HOSTPORT, "sandwich");
         props.put(Props.KEY_GRIDFTP_IDENTITY, "sandwich");
-        props.put(Props.KEY_SSHFILE, "sandwich");
 
         TestUtil.writePropertiesToFile(props, f);
     }

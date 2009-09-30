@@ -104,7 +104,6 @@ public class Cloud {
     private String propagationScheme;
     private boolean propagationKeepPort;
     private int memory;
-    private String sshPubKeyPath;
     private int pollTime;
 
     private void intakeProperties(Properties props) throws ParameterProblem {
@@ -141,7 +140,6 @@ public class Cloud {
             getRequiredProp(props, Props.KEY_POLL_INTERVAL);
         this.pollTime = Integer.parseInt(pollStr);
 
-        this.sshPubKeyPath = getRequiredProp(props, Props.KEY_SSHFILE);
     }
 
     private String getRequiredProp(Properties props, String name)
@@ -289,10 +287,6 @@ public class Cloud {
 
     public String getWorkspaceFactoryURL() {
         return CloudClientUtil.serviceURL(this.factoryHostPort);
-    }
-
-    public String getSshPubKeyPath() {
-        return sshPubKeyPath;
     }
 
     public int getPollTime() {

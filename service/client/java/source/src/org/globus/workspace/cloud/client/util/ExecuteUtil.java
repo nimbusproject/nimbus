@@ -386,7 +386,8 @@ public class ExecuteUtil {
                                       Print print,
                                       String brokerURL,
                                       String brokerIdentityAuthorization,
-                                      int durationMinutes)
+                                       String sshKeyPath, int durationMinutes
+    )
         throws ExecutionProblem, ExitNow {
 
         CloudDeployment[] clouds = new CloudDeployment[deploys.size()];
@@ -488,7 +489,7 @@ public class ExecuteUtil {
             }
 
             final RunTask[] runTasks = cloud.generateRunTasks(brokerContact,
-                cloudDirPath, durationMinutes, print);
+                cloudDirPath, sshKeyPath, durationMinutes, print);
             final FutureTask[] futureTasks = new FutureTask[runTasks.length];
             for (int taskIndex = 0; taskIndex < futureTasks.length; taskIndex++) {
                 futureTasks[taskIndex] = new FutureTask(runTasks[taskIndex]);

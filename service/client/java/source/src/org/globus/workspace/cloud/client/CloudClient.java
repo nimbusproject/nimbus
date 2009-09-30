@@ -780,28 +780,7 @@ public class CloudClient {
 
         if (sshfile != null) {
 
-            if (sshfile.startsWith("~")) {
-
-                final String homedir = System.getProperty("user.home");
-
-                if (homedir == null || homedir.trim().length() == 0) {
-                    throw new ParameterProblem("Need to replace tilde in " +
-                            "SSH public key file, but cannot determine " +
-                            "user home directory.  Please hardcode, see '" +
-                            this.args.getPropertiesPath() + "' file.");
-                }
-
-                this.print.debugln("\n(tilde expansion necessary)");
-                this.print.debugln("$user.home = " + homedir);
-
-                final String result = sshfile.replaceFirst("~", homedir);
-
-                this.print.infoln("SSH public keyfile contained tilde:");
-                this.print.infoln("  - '" + sshfile + "' --> '" +
-                                 result + "'");
-
-                sshfile = result;
-            }
+            sshfile = CloudClientUtil.expandSshPath(sshfile);
 
             final File f = new File(sshfile);
             sshfile = f.getAbsolutePath();

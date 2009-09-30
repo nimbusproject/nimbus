@@ -77,6 +77,7 @@ public class CloudDeployment {
 
     public RunTask[] generateRunTasks(BrokerContactType broker,
                                           String dirPath,
+                                          String sshKeyPath,
                                           int durationMinutes,
                                           Print print)
         throws ExecutionProblem {
@@ -132,7 +133,7 @@ public class CloudDeployment {
                     cloud.generateDeployment(member, durationMinutes));
 
                 if (needsUserdata) {
-                    HistoryUtil.writeUserData(dir,
+                    userdataPath = HistoryUtil.writeUserData(dir,
                         memberName+"-userdata.xml",
                         broker,
                         member.getMember().getClusterForUserData());
@@ -148,7 +149,7 @@ public class CloudDeployment {
                 cloud.getWorkspaceFactoryURL(),
                 metadataPath,
                 deployPath,
-                this.cloud.getSshPubKeyPath(),
+                sshKeyPath,
                 this.cloud.getPollTime(),
                 true,
                 memberName,

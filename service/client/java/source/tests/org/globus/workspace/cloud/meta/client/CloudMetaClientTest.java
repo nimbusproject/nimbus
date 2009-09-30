@@ -19,6 +19,7 @@ package org.globus.workspace.cloud.meta.client;
 import org.junit.Test;
 import org.globus.workspace.common.print.Print;
 import org.globus.workspace.cloud.client.Props;
+import org.globus.bootstrap.Bootstrap;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,9 +29,8 @@ public class CloudMetaClientTest extends FileCleanupTestFixture {
     @Test
     public void testRun() throws Throwable {
 
+
         File tempDir = this.getTempDir();
-        Print print = new Print();
-        CloudMetaClient client = new CloudMetaClient(print);
 
         File clusterFile = new File(tempDir, "cluster.xml");
         TestUtil.writeSampleClusterToFile(clusterFile);
@@ -52,11 +52,10 @@ public class CloudMetaClientTest extends FileCleanupTestFixture {
         writeACloudFile(cloudDir, "cloudB");
 
 
-        AllArgs args = new AllArgs(print);
-
         final String DASHDASH = "--";
 
         String[] argv = new String[] {
+            "org.globus.workspace.cloud.meta.client.CloudMetaClient",
             DASHDASH+Opts.HISTORY_DIR_OPT_STRING, historyDir.getAbsolutePath(),
             DASHDASH+Opts.CLOUDDIR_OPT_STRING, cloudDir.getAbsolutePath(),
             DASHDASH+Opts.RUN_OPT_STRING,
@@ -65,9 +64,7 @@ public class CloudMetaClientTest extends FileCleanupTestFixture {
             DASHDASH+Opts.HOURS_OPT_STRING, ".5"
         };
 
-        args.intakeCmdlineOptions(argv);
-        client.run(args);
-
+        Bootstrap.main(argv);
     }
 
     private void writeACloudFile(File cloudDir, String cloudName)
