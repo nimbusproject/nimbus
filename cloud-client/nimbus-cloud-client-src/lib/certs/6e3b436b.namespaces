@@ -1,0 +1,13 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)6e3b436b.namespaces
+# CA alias    : AustrianGrid
+#    subord_of: 
+#    subjectDN: /C=AT/O=AustrianGrid/OU=Certification Authority/CN=Certificate Issuer
+#    hash     : 6e3b436b
+#    (generated automatically from ./AustrianGrid/6e3b436b.signing_policy)
+#
+TO Issuer "/C=AT/O=AustrianGrid/OU=Certification Authority/CN=Certificate Issuer" \
+  PERMIT Subject "/C=AT/O=AustrianGrid/.*"
+

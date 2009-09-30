@@ -1,0 +1,11 @@
+#
+# @(#)$Id: d1b603c3.info,v 1.1.1.1 2009/05/28 21:09:05 tfreeman Exp $
+# Information for CA ESnet
+#   obtained from d1b603c3 in ESnet/
+alias = ESnet
+url = http://www.es.net/CA/ESnet-Root-CA-1
+crl_url = http://es.net/CA/d1b603c3/CRL/d1b603c3.r0
+email = trouble@es.net
+status = accredited:classic
+version = 1.22
+sha1fp.0 = F2:63:97:A8:B2:D5:1F:94:CC:0F:06:5A:FE:76:5D:F3:CF:28:81:A0

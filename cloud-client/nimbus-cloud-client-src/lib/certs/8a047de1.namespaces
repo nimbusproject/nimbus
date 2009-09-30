@@ -1,0 +1,13 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)8a047de1.signing_policy.namespaces
+# CA alias    : NECTEC
+#    subord_of: 
+#    subjectDN: /C=TH/O=NECTEC/OU=GOC/CN=NECTEC GOC CA
+#    hash     : 8a047de1.signing_policy
+#    (generated automatically from 8a047de1.signing_policy)
+#
+TO Issuer "/C=TH/O=NECTEC/OU=GOC/CN=NECTEC GOC CA" \
+  PERMIT Subject "/C=TH/O=NECTEC/.*"
+

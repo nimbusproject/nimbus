@@ -1,0 +1,13 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)6fee79b0.namespaces
+# CA alias    : IUCC
+#    subord_of: 
+#    subjectDN: /C=IL/O=IUCC/CN=IUCC/Email=ca@mail.iucc.ac.il
+#    hash     : 6fee79b0
+#    (generated automatically from ./IUCC/6fee79b0.signing_policy)
+#
+TO Issuer "/C=IL/O=IUCC/CN=IUCC/emailAddress=ca@mail.iucc.ac.il" \
+  PERMIT Subject "/C=IL/O=IUCC/.*"
+

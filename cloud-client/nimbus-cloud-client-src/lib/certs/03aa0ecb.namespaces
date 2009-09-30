@@ -1,0 +1,13 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)03aa0ecb.namespaces
+# CA alias    : BEGrid
+#    subord_of: 
+#    subjectDN: /C=BE/O=BELNET/OU=BEGrid/CN=BEGrid CA/Email=gridca@belnet.be
+#    hash     : 03aa0ecb
+#    (generated automatically from ./BEGrid/03aa0ecb.signing_policy)
+#
+TO Issuer "/C=BE/O=BELNET/OU=BEGrid/CN=BEGrid CA/emailAddress=gridca@belnet.be" \
+  PERMIT Subject "/C=BE/O=BEGRID/.*"
+

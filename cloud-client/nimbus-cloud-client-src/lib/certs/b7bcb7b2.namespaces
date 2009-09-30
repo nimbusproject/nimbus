@@ -1,0 +1,13 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)b7bcb7b2.namespaces
+# CA alias    : PKIGrid
+#    subord_of: 
+#    subjectDN: /C=AR/O=e-Ciencia/OU=UNLP/L=CeSPI/CN=PKIGrid
+#    hash     : b7bcb7b2.signing_policy
+#    (generated automatically from b7bcb7b2.signing_policy)
+#
+TO Issuer "/C=AR/O=e-Ciencia/OU=UNLP/L=CeSPI/CN=PKIGrid" \
+  PERMIT Subject "/C=AR/O=e-Ciencia/OU=UNLP/L=CeSPI/.*"
+

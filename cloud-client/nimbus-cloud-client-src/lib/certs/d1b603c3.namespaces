@@ -1,0 +1,16 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)d1b603c3.namespaces
+# CA alias    : ESnet
+#    subord_of: 
+#    subjectDN: /DC=net/DC=ES/O=ESnet/OU=Certificate Authorities/CN=ESnet Root CA 1
+#    hash     : d1b603c3
+#    (generated automatically from ./ESnet/d1b603c3.signing_policy)
+#
+TO Issuer "/DC=net/DC=ES/O=ESnet/OU=Certificate Authorities/CN=ESnet Root CA 1" \
+  PERMIT Subject "/DC=org/DC=DOEGrids/OU=Certificate Authorities/.*"
+
+TO Issuer "/DC=net/DC=ES/O=ESnet/OU=Certificate Authorities/CN=ESnet Root CA 1" \
+  PERMIT Subject "/DC=net/DC=ES/.*"
+

@@ -1,0 +1,13 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)393f7863.namespaces
+# CA alias    : AEGIS
+#    subord_of: 
+#    subjectDN: /C=RS/O=AEGIS/CN=AEGIS-CA
+#    hash     : 393f7863
+#    (generated automatically from 393f7863.signing_policy)
+#
+TO Issuer "/C=RS/O=AEGIS/CN=AEGIS-CA" \
+  PERMIT Subject "/C=RS/O=AEGIS/.*"
+

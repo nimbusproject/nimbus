@@ -1,0 +1,16 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)d254cc30.signing_policy.namespaces
+# CA alias    : CERN-Root
+#    subord_of: 
+#    subjectDN: /DC=ch/DC=cern/CN=CERN Root CA
+#    hash     : d254cc30.signing_policy
+#    (generated automatically from d254cc30.signing_policy)
+#
+TO Issuer "/DC=ch/DC=cern/CN=CERN Root CA" \
+  PERMIT Subject "/DC=ch/DC=cern/CN=CERN Trusted Certification Authority"
+
+TO Issuer "/DC=ch/DC=cern/CN=CERN Trusted Certification Authority" \
+  PERMIT Subject "/DC=ch/DC=cern/.*"
+

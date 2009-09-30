@@ -1,0 +1,13 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)55994d72.namespaces
+# CA alias    : RDIG
+#    subord_of: 
+#    subjectDN: /C=RU/O=RDIG/CN=Russian Data-Intensive Grid CA
+#    hash     : 55994d72
+#    (generated automatically from ./Russia/55994d72.signing_policy)
+#
+TO Issuer "/C=RU/O=RDIG/CN=Russian Data-Intensive Grid CA" \
+  PERMIT Subject "/C=RU/O=RDIG/.*"
+

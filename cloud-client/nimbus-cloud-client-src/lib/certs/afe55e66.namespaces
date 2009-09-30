@@ -1,0 +1,13 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)afe55e66.namespaces
+# CA alias    : CyGrid
+#    subord_of: 
+#    subjectDN: /C=CY/O=CyGrid/O=HPCL/CN=CyGridCA
+#    hash     : afe55e66
+#    (generated automatically from ./CyGrid/afe55e66.signing_policy)
+#
+TO Issuer "/C=CY/O=CyGrid/O=HPCL/CN=CyGridCA" \
+  PERMIT Subject "/C=CY/O=CyGrid/.*"
+

@@ -1,0 +1,13 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)a317c467.namespaces
+# CA alias    : AIST
+#    subord_of: 
+#    subjectDN: /C=JP/O=AIST/OU=GRID/CN=Certificate Authority
+#    hash     : a317c467
+#    (generated automatically from ./APGrid/a317c467.signing_policy)
+#
+TO Issuer "/C=JP/O=AIST/OU=GRID/CN=Certificate Authority" \
+  PERMIT Subject "/C=JP/O=AIST/OU=GRID/.*"
+

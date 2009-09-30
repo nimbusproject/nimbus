@@ -1,0 +1,13 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)a87d9192.signing_policy.namespaces
+# CA alias    : NAREGI
+#    subord_of: 
+#    subjectDN: /C=JP/O=National Research Grid Initiative/OU=CGRD/CN=NAREGI CA
+#    hash     : a87d9192.signing_policy
+#    (generated automatically from a87d9192.signing_policy)
+#
+TO Issuer "/C=JP/O=National Research Grid Initiative/OU=CGRD/CN=NAREGI CA" \
+  PERMIT Subject "/C=JP/O=National Research Grid Initiative/OU=CGRD/.*"
+

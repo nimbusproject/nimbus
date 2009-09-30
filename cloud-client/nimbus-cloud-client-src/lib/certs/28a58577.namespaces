@@ -1,0 +1,13 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)$Id: 28a58577.namespaces,v 1.1.1.1 2009/05/28 21:09:05 tfreeman Exp $
+# CA alias    : HellasGrid-Root
+#    subjectDN: /C=GR/O=HellasGrid/OU=Certification Authorities/CN=HellasGrid Root CA 2006
+#
+TO Issuer "/C=GR/O=HellasGrid/OU=Certification Authorities/CN=HellasGrid Root CA 2006" \
+  PERMIT Subject "/C=GR/O=HellasGrid/OU=Certification Authorities/CN=HellasGrid CA 2006"
+
+TO Issuer "/C=GR/O=HellasGrid/OU=Certification Authorities/CN=HellasGrid CA 2006" \
+  PERMIT Subject "/C=GR/O=HellasGrid/OU=.*"
+

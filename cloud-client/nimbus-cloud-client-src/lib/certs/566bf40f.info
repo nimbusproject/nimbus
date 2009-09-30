@@ -1,0 +1,12 @@
+#
+# @(#)$Id: 566bf40f.info,v 1.1.1.1 2009/05/28 21:09:07 tfreeman Exp $
+# Information for CA EstonianGrid
+#   obtained from 566bf40f in EstonianGrid/
+alias = EstonianGrid
+ca_url = http://grid.eenet.ee/CA/566bf40f.0
+crl_url = http://grid.eenet.ee/CA/566bf40f.r0
+email = lauri.anton@eenet.ee
+status = accredited:classic
+url = http://grid.eenet.ee/CA/
+version = 1.22
+sha1fp.0 = 92:C7:A4:9D:0C:BB:DC:2A:25:50:76:A5:06:C5:4C:DD:89:55:7E:83

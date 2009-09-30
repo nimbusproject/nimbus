@@ -1,0 +1,11 @@
+#
+# @(#)$Id: 98ef0ee5.info,v 1.1.1.1 2009/05/28 21:09:06 tfreeman Exp $
+# Information for the 2007 (new) CA UKeScience ROOT CA
+#
+alias = UKeScienceRoot-2007
+url = http://www.grid-support.ac.uk/ca/
+crl_url = http://ca.grid-support.ac.uk/pub/crl/root-crl.der
+email = support@grid-support.ac.uk
+status = accredited:classic
+version = 1.22
+sha1fp.0 = A1:39:B0:F3:04:6C:0B:F9:F5:0A:1B:33:00:06:4F:83:6B:7D:4F:3E

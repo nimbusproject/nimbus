@@ -1,0 +1,4 @@
+# EACL SEE-GRID CA
+access_id_CA  X509   '/DC=ORG/DC=SEE-GRID/CN=SEE-GRID CA'
+pos_rights    globus CA:sign
+cond_subjects globus '"/DC=ORG/DC=SEE-GRID/*"'

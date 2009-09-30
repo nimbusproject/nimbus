@@ -1,0 +1,7 @@
+alias = KISTI-2007
+crl_url = http://ca.gridcenter.or.kr/CRL/722e5071.crl
+email = ca@gridcenter.or.kr
+status = accredited:classic
+url = http://ca.gridcenter.or.kr/
+version = 1.22
+sha1fp.0 = EA:08:BA:6A:36:C9:F1:0A:B5:2F:BB:67:C7:A4:3D:C9:52:B7:CE:DB

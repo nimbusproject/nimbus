@@ -1,0 +1,13 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)cf4ba8c8.namespaces
+# CA alias    : CNRS
+#    subord_of: 
+#    subjectDN: /C=FR/O=CNRS/CN=CNRS
+#    hash     : cf4ba8c8
+#    (generated automatically from ./CNRS/cf4ba8c8.signing_policy)
+#
+TO Issuer "/C=FR/O=CNRS/CN=CNRS" \
+  PERMIT Subject "/C=FR/O=CNRS/CN=CNRS-Projets"
+

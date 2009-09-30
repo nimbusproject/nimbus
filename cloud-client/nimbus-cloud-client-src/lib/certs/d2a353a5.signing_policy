@@ -1,0 +1,22 @@
+# ca-signing-policy.conf
+# subject names may include the following wildcard characters:
+#    *    Matches any number of characters.
+#    ?    Matches any single character.
+#
+# This policy file dictates the following policy:
+#   PK-Grid-CA  can sign PAKISTANS  certificates
+#
+# Format:
+#------------------------------------------------------------------------
+#  token type  | def.authority |                value
+#--------------|---------------|-----------------------------------------
+# EACL entry #1|
+                                                                                                                                                             
+ access_id_CA      X509          '/C=PK/O=NCP/CN=ncp.edu.pk'
+
+ pos_rights        globus        CA:sign
+
+ cond_subjects     globus       '"/C=PK/*"'
+# end of EACL
+
+

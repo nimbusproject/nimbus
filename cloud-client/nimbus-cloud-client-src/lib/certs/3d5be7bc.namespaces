@@ -1,0 +1,13 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)3d5be7bc.signing_policy.namespaces
+# CA alias    : SiGNET-CA
+#    subord_of: 
+#    subjectDN: /C=SI/O=SiGNET/CN=SiGNET CA
+#    hash     : 3d5be7bc.signing_policy
+#    (generated automatically from 3d5be7bc.signing_policy)
+#
+TO Issuer "/C=SI/O=SiGNET/CN=SiGNET CA" \
+  PERMIT Subject "/C=SI/O=SiGNET/.*"
+

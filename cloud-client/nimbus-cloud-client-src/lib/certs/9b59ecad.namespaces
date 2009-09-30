@@ -1,0 +1,13 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)9b59ecad.namespaces
+# CA alias    : CESNET
+#    subord_of: 
+#    subjectDN: /DC=cz/DC=cesnet-ca/CN=CESNET CA
+#    hash     : 9b59ecad
+#    (generated automatically from ./CESNET/9b59ecad.signing_policy)
+#
+TO Issuer "/DC=cz/DC=cesnet-ca/CN=CESNET CA" \
+  PERMIT Subject "/DC=cz/DC=cesnet-ca/.*"
+

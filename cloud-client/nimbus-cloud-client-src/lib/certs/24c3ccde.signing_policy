@@ -1,0 +1,12 @@
+ # Signing policy for UNAMgrid  CA
+ # as <hash>.signing_policy along with
+ # the CA certificate as <hash>.<digit>
+ # -- here <hash> is the output of
+ # openssl x509 -hash -noout -in <certificate>
+ # and <digit> is the lowest single (decimal)
+ # digit that makes the file unique (in case
+ # you have other CA certificates that hash to
+ # the same value)
+ access_id_CA      X509         '/C=MX/O=UNAMgrid/OU=UNAM/CN=CA'
+ pos_rights        globus        CA:sign
+ cond_subjects     globus     '"/C=MX/O=UNAMgrid/*"'

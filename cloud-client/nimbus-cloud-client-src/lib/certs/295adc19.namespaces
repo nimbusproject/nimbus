@@ -1,0 +1,13 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)295adc19.namespaces
+# CA alias    : reuna-ca
+#    subord_of: 
+#    subjectDN: /C=CL/O=REUNACA/CN=REUNA Certification Authority
+#    hash     : 295adc19.signing_policy
+#    (generated automatically from 295adc19.signing_policy)
+#
+TO Issuer "/C=CL/O=REUNACA/CN=REUNA Certification Authority" \
+  PERMIT Subject "/C=CL/O=REUNACA/.*"
+

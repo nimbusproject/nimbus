@@ -1,0 +1,4 @@
+# EACL KFKI RMKI Certification Authority
+access_id_CA	X509	'/C=HU/O=KFKI RMKI CA/CN=KFKI RMKI CA'
+pos_rights	globus	CA:sign
+cond_subjects	globus	'"/C=HU/O=KFKI RMKI CA/*"'

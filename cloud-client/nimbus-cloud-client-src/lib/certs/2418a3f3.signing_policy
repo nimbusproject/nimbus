@@ -1,0 +1,4 @@
+# @(#)$Id: 2418a3f3.signing_policy,v 1.1.1.1 2009/05/28 21:09:08 tfreeman Exp $
+access_id_CA   X509    '/DC=bg/DC=acad/CN=BG.ACAD CA'
+pos_rights     globus  CA:sign
+cond_subjects  globus  '"/DC=bg/DC=acad/CN=BG.ACAD CA" "/DC=bg/DC=acad/O=people/*" "/DC=bg/DC=acad/O=hosts/*" "/DC=bg/DC=acad/O=services/*"'

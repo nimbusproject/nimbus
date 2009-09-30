@@ -1,0 +1,13 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)5e5501f3.namespaces
+# CA alias    : RMKI
+#    subord_of: 
+#    subjectDN: /C=HU/O=KFKI RMKI CA/CN=KFKI RMKI CA
+#    hash     : 5e5501f3
+#    (generated automatically from ./RMKI/5e5501f3.signing_policy)
+#
+TO Issuer "/C=HU/O=KFKI RMKI CA/CN=KFKI RMKI CA" \
+  PERMIT Subject "/C=HU/O=KFKI RMKI CA/.*"
+

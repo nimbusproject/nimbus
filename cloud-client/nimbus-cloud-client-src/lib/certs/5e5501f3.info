@@ -1,0 +1,12 @@
+#
+# @(#)$Id: 5e5501f3.info,v 1.1.1.1 2009/05/28 21:09:07 tfreeman Exp $
+# Information for CA RMKI
+#   obtained from 5e5501f3 in RMKI/
+alias = RMKI
+ca_url = http://pki.kfki.hu/pki0/pub/cacert/cacert.pem
+crl_url = http://pki.kfki.hu/pki0/pub/crl/cacrl.crl
+email = kadlec@sunserv.kfki.hu
+status = accredited:classic
+url = http://pki.kfki.hu/
+version = 1.22
+sha1fp.0 = 75:5C:C0:6E:E4:E8:F0:EA:EE:44:AE:85:2F:DE:60:3E:BD:CE:84:40

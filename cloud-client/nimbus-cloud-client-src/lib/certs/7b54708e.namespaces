@@ -1,0 +1,13 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)7b54708e.namespaces
+# CA alias    : MaGrid
+#    subord_of: 
+#    subjectDN: /C=MA/O=MaGrid/CN=MaGrid CA
+#    hash     : 7b54708e.signing_policy
+#    (generated automatically from 7b54708e.signing_policy)
+#
+TO Issuer "/C=MA/O=MaGrid/CN=MaGrid CA" \
+  PERMIT Subject "/C=MA/O=MaGrid/.*"
+

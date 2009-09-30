@@ -1,0 +1,12 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)a9082267.namespaces
+# CA alias    : LACGridCA
+#    subord_of: 
+#    subjectDN: /DC=BR/DC=UFF/DC=IC/O=UFF LACGrid CA/CN=UFF Latin American and Caribbean Catch-all Grid CA
+#    hash     : a9082267.signing_policy
+#    (generated automatically from a9082267.signing_policy)
+#
+TO Issuer "/DC=BR/DC=UFF/DC=IC/O=UFF LACGrid CA/CN=UFF Latin American and Caribbean Catch-all Grid CA" \
+  PERMIT Subject "/DC=BR/DC=UFF/DC=IC/O=UFF LACGrid CA/.*"

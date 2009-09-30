@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<cluster>
+
+  <workspace>
+  
+    <name>head-node</name>
+    
+    <image>ami-0ea84f67</image>
+    
+    <quantity>1</quantity>
+    
+    <nic _interface="publicnic" wantlogin="true">public</nic>
+    <nic _interface="localnic">private</nic>
+
+    <ctx>
+        <provides>
+            <identity>
+                <_interface>publicnic</_interface>
+            </identity>
+            <identity>
+                <_interface>localnic</_interface>
+            </identity>
+            <role interface="localnic">torquemaster</role>
+            <role interface="localnic">nfsserver</role>
+        </provides>
+
+        <requires>
+          <identity />
+          <role name="torqueslave" hostname="true" pubkey="true" />
+          <role name="nfsclient" />
+          <data name="startcontainer">yes</data>
+          
+          <!-- adjust this to match your DN, "jobrun" is the account -->
+          <data name="gridmap"><![CDATA[
+          
+"/DC=org/DC=doegrids/OU=People/CN=Timothy Freeman 964650" jobrun
+
+          ]]> </data>
+      </requires>
+      
+    </ctx>
+  </workspace>
+  
+  <workspace>
+  
+    <name>compute-nodes</name>
+    
+    <image>ami-0ea84f67</image>
+    
+    <quantity>2</quantity>
+    
+    <nic _interface="publicnic" wantlogin="true">public</nic>
+    <nic _interface="localnic">private</nic>
+    
+    <ctx>
+    
+      <provides>
+          <identity>
+              <_interface>localnic</_interface>
+          </identity>
+          <role interface="localnic">torqueslave</role>
+          <role interface="localnic">nfsclient</role>
+      </provides>
+      
+      <requires>
+          <identity />
+          <role name="torquemaster" hostname="true" pubkey="true" />
+          <role name="nfsserver" />
+      </requires>
+      
+    </ctx>
+  </workspace>
+  
+</cluster>

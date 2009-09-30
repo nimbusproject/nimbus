@@ -1,0 +1,5 @@
+# EACL
+# @(#)$Id: 0a12b607.signing_policy,v 1.1.1.1 2009/05/28 21:09:06 tfreeman Exp $
+access_id_CA   X509    '/DC=org/DC=ugrid/CN=UGRID CA'
+pos_rights     globus  CA:sign
+cond_subjects  globus  '"/DC=org/DC=ugrid/*"'

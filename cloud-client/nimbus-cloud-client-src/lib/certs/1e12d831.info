@@ -1,0 +1,7 @@
+alias = APAC
+crl_url = http://ca.apac.edu.au/pub/crl/cacrl.pem
+email = camanager@vpac.org
+status = accredited:classic
+url = http://www.vpac.org/twiki/bin/view/APACgrid/CaInterface
+version = 1.22
+sha1fp.0 = 49:E8:64:80:7D:C4:6C:E8:5C:29:BA:F4:A1:4A:A0:5B:90:DA:FE:A0

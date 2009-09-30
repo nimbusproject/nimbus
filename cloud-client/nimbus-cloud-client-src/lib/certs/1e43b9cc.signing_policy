@@ -1,0 +1,4 @@
+# EACL Ireland CA : Grid-Irland 
+access_id_CA	X509		'/C=IE/O=Grid-Ireland/CN=Grid-Ireland Certification Authority'
+pos_rights		globus	CA:sign
+cond_subjects	globus	'"/C=IE/O=Grid-Ireland/*"'

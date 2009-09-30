@@ -1,0 +1,6 @@
+# ASGCCA-2007 signing policy
+# Date: 31 May 2007
+
+access_id_CA      X509          '/C=TW/O=AS/CN=Academia Sinica Grid Computing Certification Authority Mercury'
+pos_rights        globus        CA:sign
+cond_subjects     globus        '"/C=TW/*"'

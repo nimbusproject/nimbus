@@ -1,0 +1,13 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)11b4a5a2.namespaces
+# CA alias    : LIPCA
+#    subord_of: 
+#    subjectDN: /C=PT/O=LIPCA/CN=LIP Certification Authority
+#    hash     : 11b4a5a2
+#    (generated automatically from ./LIPCA/11b4a5a2.signing_policy)
+#
+TO Issuer "/C=PT/O=LIPCA/CN=LIP Certification Authority" \
+  PERMIT Subject "/C=PT/O=LIPCA/.*"
+

@@ -1,0 +1,13 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)e13e0fcf.namespaces
+# CA alias    : SlovakGrid
+#    subord_of: 
+#    subjectDN: /C=SK/O=SlovakGrid/CN=SlovakGrid CA
+#    hash     : e13e0fcf
+#    (generated automatically from ./SlovakGrid/e13e0fcf.signing_policy)
+#
+TO Issuer "/C=SK/O=SlovakGrid/CN=SlovakGrid CA" \
+  PERMIT Subject "/C=SK/O=SlovakGrid/.*"
+

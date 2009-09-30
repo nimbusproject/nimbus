@@ -1,0 +1,13 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)617ff41b.signing_policy.namespaces
+# CA alias    : KEK
+#    subord_of: 
+#    subjectDN: /C=JP/O=KEK/OU=CRC/CN=KEK GRID Certificate Authority
+#    hash     : 617ff41b.signing_policy
+#    (generated automatically from 617ff41b.signing_policy)
+#
+TO Issuer "/C=JP/O=KEK/OU=CRC/CN=KEK GRID Certificate Authority" \
+  PERMIT Subject "/C=JP/O=KEK/OU=CRC/.*"
+

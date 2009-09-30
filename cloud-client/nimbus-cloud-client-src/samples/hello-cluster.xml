@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<cluster xmlns="http://www.globus.org/2008/06/workspace/metadata/logistics">
+
+  <workspace>
+    
+    <!-- nickname for printing (optional) -->
+    <name>hello1</name>
+  
+    <!-- Image corresponds to file in personal repository directory --> 
+    <image>hello-cluster</image>
+    
+    <!-- How many to launch --> 
+    <quantity>1</quantity>
+    
+    <!-- Specify NICs and network name.  This example does not cover
+         multiple NICs but that is possible.  Presence of wantlogin
+         triggers local known_hosts update. -->
+    <nic wantlogin="true">public</nic>
+    
+    <!-- Contextualization needs.  Pick the roles this node *provides* and
+         the roles it *requires*. -->
+    <ctx>
+      <provides>
+          <identity />
+          <role>testrole1</role>
+      </provides>
+      <requires>
+          <identity />
+          <role name="testrole2" hostname="true" pubkey="true" />
+          <role name="testrole3" />
+      </requires>
+    </ctx>
+  </workspace>
+  
+  <workspace>
+    <name>hello2</name>
+    <image>hello-cluster</image>
+    <quantity>1</quantity>
+    <nic>public</nic>
+    <ctx>
+      <provides>
+          <identity />
+          <role>testrole2</role>
+          <role>testrole3</role>
+      </provides>
+      <requires>
+          <identity />
+          <role name="testrole1" hostname="true" pubkey="true" />
+          <data name="testdata"><![CDATA[
+something or other 123
+testing
+<testing>123</testing>
+          ]]></data>
+      </requires>
+    </ctx>
+  </workspace>
+  
+</cluster>
+

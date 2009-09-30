@@ -1,0 +1,63 @@
+# $Id: d1b603c3.signing_policy,v 1.1.1.1 2009/05/28 21:09:07 tfreeman Exp $
+#
+# This file is parsed from start to finish with a given CA and subject
+# name.
+# subject names may include the following wildcard characters:
+#    *    Matches any number of characters.
+#    ?    Matches any single character.
+#
+# CA names must be specified (no wildcards). Names containing whitespaces
+# must be included in single quotes, e.g. 'Certification Authority'. 
+# Names must not contain new line symbols. 
+# The value of condition attribute is represented as a set of regular 
+# expressions. Each regular expression must be included in double quotes.  
+#
+# This policy file dictates the following policy:
+#
+#  The ESnet root CA signs certificates of various entities.
+#
+# Format:
+#------------------------------------------------------------------------
+#  token type  | def.authority |                value              
+#--------------|---------------|-----------------------------------------
+# EACL entry #1|
+
+ access_id_CA      X509         '/DC=net/DC=ES/O=ESnet/OU=Certificate Authorities/CN=ESnet Root CA 1'
+ 
+ pos_rights        globus        CA:sign
+ 
+ cond_subjects     globus     	'"/DC=org/DC=DOEGrids/OU=Certificate Authorities/*" "/DC=net/DC=ES/*" "/DC=org/DC=fusiongrid/OU=Certificate Authorities/*"'
+
+#
+# End DOE SG CA Policy
+# 
+# $Log: d1b603c3.signing_policy,v $
+# Revision 1.1.1.1  2009/05/28 21:09:07  tfreeman
+# builder for cloud client 011, see README.txt
+#
+# Revision 1.2  2006/11/24 17:00:35  pmacvsdg
+# Updated ESnet and DOEGrids certs as per Mike signed mail of Nov 9 2006
+# verified PGP signatures on tar ball using DGs web of trust
+#
+# Revision 1.5  2006/04/20 20:23:16  helm
+# Added fusion grid subdir from mrt, removed misleading doc
+#
+# Revision 1.4  2006/04/20 20:17:22  helm
+# revision change
+#
+# Revision 1.2  2003/05/27 16:29:35  helm
+# Change statement of policy
+#
+# Revision 1.1  2003/05/22 22:38:22  helm
+# *** empty log message ***
+#
+# Revision 1.3  2003/05/03 01:31:42  dhiva
+# Fixed the Subject Name of the ESnet Root CA
+# Modified the access_id_CA and included /O=ESnet
+#
+# Revision 1.2  2003/05/03 01:18:09  dhiva
+# $Id: d1b603c3.signing_policy,v 1.1.1.1 2009/05/28 21:09:07 tfreeman Exp $ included for all these files
+#
+# Revision 1.1  2003/05/03 01:15:06  dhiva
+# Globus Support Files for pki1.doegrids.org CA
+#

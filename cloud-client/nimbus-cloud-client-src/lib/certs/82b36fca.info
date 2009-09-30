@@ -1,0 +1,14 @@
+#
+# @(#)$Id: 82b36fca.info,v 1.1.1.1 2009/05/28 21:09:07 tfreeman Exp $
+# Information for CA HellasGrid CA 2006
+# /C=GR/O=HellasGrid/OU=Certification Authorities/CN=HellasGrid CA 2006
+# hash: 82b36fca
+alias = HellasGrid-CA-2006
+requires = HellasGrid-Root
+url = http://www.grid.auth.gr/pki/hellasgrid-ca-2006/
+crl_url = http://crl.grid.auth.gr/hellasgrid-ca-2006/82b36fca.pem 
+email = contact@grid.auth.gr
+status = accredited:classic
+version = 1.22
+sha1fp.0 = D7:ED:2D:0A:E8:67:B7:F5:AD:77:1B:C9:BF:1D:6B:95:A1:56:5A:AB
+

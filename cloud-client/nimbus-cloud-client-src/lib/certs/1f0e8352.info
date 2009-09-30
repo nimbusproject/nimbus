@@ -1,0 +1,12 @@
+#
+# @(#)$Id: 1f0e8352.info,v 1.1.1.1 2009/05/28 21:09:07 tfreeman Exp $
+# Information for CA NorduGrid
+#   obtained from 1f0e8352 in NorduGrid/
+alias = NorduGrid
+ca_url = http://ca.nordugrid.org/cacrt.crt
+url = http://ca.nordugrid.org/
+email = ca@nordugrid.org
+crl_url = http://ca.nordugrid.org/cacrl.crl
+status = accredited:classic
+version = 1.22
+sha1fp.0 = AB:BF:6E:46:01:F9:5B:36:22:B8:C2:76:C0:E3:30:3C:B4:6A:12:B5

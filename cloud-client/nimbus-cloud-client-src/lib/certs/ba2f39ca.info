@@ -1,0 +1,12 @@
+#
+# @(#)$Id: ba2f39ca.info,v 1.1.1.1 2009/05/28 21:09:07 tfreeman Exp $
+# Information for CA IHEP
+#   obtained from ba2f39ca in APGrid/
+alias = IHEP
+ca_url = https://gridca.ihep.ac.cn/cacert/cacert.pem
+crl_url = http://gridca.ihep.ac.cn/cacrl.pem
+email = gridca@ihep.ac.cn
+status = accredited:classic
+url = https://gridca.ihep.ac.cn/
+version = 1.22
+sha1fp.0 = A8:44:99:DE:0E:EA:A3:68:BF:4A:29:15:BD:D7:C0:59:B6:04:FB:BB

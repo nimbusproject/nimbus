@@ -1,0 +1,8 @@
+# Signing policy file for IHEP Grid CA
+access_id_CA            X509    '/C=CN/O=HEP/CN=gridca-cn/emailAddress=gridca@ihep.ac.cn'
+pos_rights              globus  CA:sign
+cond_subjects           globus  '"/C=CN/O=HEP/*"'
+
+access_id_CA            X509    '/C=CN/O=HEP/CN=gridca-cn/Email=gridca@ihep.ac.cn'
+pos_rights              globus  CA:sign
+cond_subjects           globus  '"/C=CN/O=HEP/*"'

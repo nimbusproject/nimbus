@@ -1,0 +1,4 @@
+# EACL entry #1 
+access_id_CA X509 '/C=KR/O=KISTI/O=GRID/CN=KISTI Grid Certificate Authority'
+pos_rights globus CA:sign
+cond_subjects globus '"/C=KR/O=KISTI/O=GRID/*"'

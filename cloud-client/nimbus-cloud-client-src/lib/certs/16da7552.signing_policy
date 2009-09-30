@@ -1,0 +1,4 @@
+# EACL - NIKHEF medium-security X.509 authority
+ access_id_CA      X509     '/C=NL/O=NIKHEF/CN=NIKHEF medium-security certification auth'
+ pos_rights        globus   CA:sign
+ cond_subjects     globus   '"/C=NL/O=NIKHEF/CN=NIKHEF medium-security certification auth" "/O=dutchgrid/O=users/*" "/O=dutchgrid/O=hosts/*" "/O=dutchgrid/O=robots/*"'

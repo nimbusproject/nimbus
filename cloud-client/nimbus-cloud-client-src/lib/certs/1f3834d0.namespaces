@@ -1,0 +1,13 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)1f3834d0.namespaces
+# CA alias    : RomanianGRID
+#    subord_of: 
+#    subjectDN: /DC=RO/DC=RomanianGRID/O=ROSA/OU=Certification Authority/CN=RomanianGRID CA
+#    hash     : 1f3834d0.signing_policy
+#    (generated automatically from 1f3834d0.signing_policy)
+#
+TO Issuer "/DC=RO/DC=RomanianGRID/O=ROSA/OU=Certification Authority/CN=RomanianGRID CA" \
+  PERMIT Subject "/DC=RO/DC=RomanianGRID/.*"
+

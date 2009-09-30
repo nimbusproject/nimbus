@@ -1,0 +1,4 @@
+# EACL ArmeSFo CA
+access_id_CA  X509   '/C=AM/O=ArmeSFo/CN=ArmeSFo CA'
+pos_rights    globus CA:sign
+cond_subjects globus '"/C=AM/O=ArmeSFo/*"'

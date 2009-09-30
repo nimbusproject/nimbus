@@ -1,0 +1,11 @@
+#
+# @(#)$Id: 8a661490.info,v 1.1.1.1 2009/05/28 21:09:06 tfreeman Exp $
+# Information for CA PolishGrid
+#   obtained from 8a661490 in PolishGrid/
+alias = PolishGrid
+url = http://www.man.poznan.pl/plgrid-ca
+email = pawelw@man.poznan.pl
+crl_url = http://www.man.poznan.pl/plgrid-ca/crl.pem
+status = accredited:classic
+version = 1.22
+sha1fp.0 = 2A:CB:CF:F5:7A:BC:83:28:4A:6C:3B:78:FA:32:53:0A:65:42:EC:EE

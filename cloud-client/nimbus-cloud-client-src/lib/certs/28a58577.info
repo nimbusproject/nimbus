@@ -1,0 +1,12 @@
+#
+# @(#)$Id: 28a58577.info,v 1.1.1.1 2009/05/28 21:09:09 tfreeman Exp $
+# Information for CA HellasGrid Root CA 2006
+# /C=GR/O=HellasGrid/OU=Certification Authorities/CN=HellasGrid Root CA 2006
+# hash: 28a58577
+alias = HellasGrid-Root
+url = http://www.grid.auth.gr/pki/hellasgrid-root-ca-2006/
+crl_url = http://crl.grid.auth.gr/hellasgrid-root-ca-2006/28a58577.pem
+email = contact@grid.auth.gr
+status = accredited:classic
+version = 1.22
+sha1fp.0 = 9F:35:7D:30:A0:9A:C1:8F:84:22:A4:C9:26:F5:B2:B9:E1:0F:2D:DE

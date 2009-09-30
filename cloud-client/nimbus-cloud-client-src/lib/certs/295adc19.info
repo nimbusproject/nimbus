@@ -1,0 +1,11 @@
+#
+# @(#)$Id: 295adc19.info,v 1.1.1.1 2009/05/28 21:09:09 tfreeman Exp $
+#
+alias =	REUNA-ca
+url = http://reuna-ca.reuna.cl/
+ca_url = http://reuna-ca.reuna.cl/cacert/cacert.pem
+crl_url = http://reuna-ca.reuna.cl/crl/crl.der
+email = reuna-ca@reuna.cl
+status = accredited:classic
+sha1fp.0 = C5:CD:1E:E2:D2:82:A6:D7:00:CC:B0:CB:FF:B3:8C:64:1C:41:19:33
+version = 1.22

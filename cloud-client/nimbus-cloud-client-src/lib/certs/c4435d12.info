@@ -1,0 +1,12 @@
+#
+# @(#)$Id: c4435d12.info,v 1.1.1.1 2009/05/28 21:09:09 tfreeman Exp $
+# Information for CA SWITCH
+#   obtained from c4435d12 in SWITCH/
+alias = SWITCH
+ca_url = http://swisssign.net/cgi-bin/authority/download?into=save_as_pem&ca=25C907F5142CD02905EF95F54243D5EA908D7373
+crl_url = http://crl.swisssign.net/25C907F5142CD02905EF95F54243D5EA908D7373
+requires = SwissSign-Silver
+status = accredited:classic
+version = 1.22
+email = pki@switch.ch
+sha1fp.0 = 05:F4:B5:27:41:42:CF:9D:7B:B6:EF:B5:B3:62:92:BF:8F:12:60:F1

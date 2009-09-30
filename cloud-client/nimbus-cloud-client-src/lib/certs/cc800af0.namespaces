@@ -1,0 +1,16 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)cc800af0.namespaces
+# CA alias    : NIIF
+#    subord_of: 
+#    subjectDN: /C=HU/O=NIIF/OU=Certificate Authorities/CN=NIIF Root CA
+#    hash     : cc800af0
+#    (generated automatically from ./NIIF/cc800af0.signing_policy)
+#
+TO Issuer "/C=HU/O=NIIF/OU=Certificate Authorities/CN=NIIF Root CA" \
+  PERMIT Subject "/C=HU/O=NIIF CA/OU=GRID/.*"
+
+TO Issuer "/C=HU/O=NIIF/OU=Certificate Authorities/CN=NIIF Root CA" \
+  PERMIT Subject "/C=HU/O=NIIF CA/OU=NIIF/OU=GRID/.*"
+

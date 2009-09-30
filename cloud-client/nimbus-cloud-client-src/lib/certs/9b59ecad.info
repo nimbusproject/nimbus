@@ -1,0 +1,11 @@
+#
+# @(#)$Id: 9b59ecad.info,v 1.1.1.1 2009/05/28 21:09:05 tfreeman Exp $
+# Information for CA CESNET
+#   obtained from 9b59ecad in CESNET/
+alias = CESNET
+ca_url = http://www.cesnet.cz/pki/certs/cesnet-ca.cz.pem.crt
+crl_url = http://www.cesnet.cz/pki/crl/cn=CESNET%20CA,dc=cesnet-ca,dc=cz.crl
+email = ca@cesnet.cz
+status = accredited:classic
+version = 1.22
+sha1fp.0 = B6:D8:8D:9D:CD:72:DF:1B:D6:CB:2E:EF:8E:64:2F:73:21:24:23:95

@@ -1,0 +1,13 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)722e5071.namespaces
+# CA alias    : KISTI
+#    subord_of: 
+#    subjectDN: /C=KR/O=KISTI/O=GRID/CN=KISTI Grid Certificate Authority
+#    hash     : 722e5071
+#    (generated automatically from 722e5071.signing_policy)
+#
+TO Issuer "/C=KR/O=KISTI/O=GRID/CN=KISTI Grid Certificate Authority" \
+  PERMIT Subject "/C=KR/O=KISTI/O=GRID/.*"
+

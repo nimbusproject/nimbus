@@ -1,0 +1,10 @@
+#
+# $Id: 6fee79b0.signing_policy,v 1.1.1.1 2009/05/28 21:09:06 tfreeman Exp $
+#
+access_id_CA      X509        '/C=IL/O=IUCC/CN=IUCC/emailAddress=ca@mail.iucc.ac.il'
+pos_rights        globus      CA:sign
+cond_subjects     globus      '"/C=IL/O=IUCC/*"'
+
+access_id_CA      X509        '/C=IL/O=IUCC/CN=IUCC/Email=ca@mail.iucc.ac.il'
+pos_rights        globus      CA:sign
+cond_subjects     globus      '"/C=IL/O=IUCC/*"'

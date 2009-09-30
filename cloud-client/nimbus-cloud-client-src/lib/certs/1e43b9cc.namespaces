@@ -1,0 +1,13 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)1e43b9cc.namespaces
+# CA alias    : Grid-Ireland
+#    subord_of: 
+#    subjectDN: /C=IE/O=Grid-Ireland/CN=Grid-Ireland Certification Authority
+#    hash     : 1e43b9cc
+#    (generated automatically from ./Grid-Ireland/1e43b9cc.signing_policy)
+#
+TO Issuer "/C=IE/O=Grid-Ireland/CN=Grid-Ireland Certification Authority" \
+  PERMIT Subject "/C=IE/O=Grid-Ireland/.*"
+

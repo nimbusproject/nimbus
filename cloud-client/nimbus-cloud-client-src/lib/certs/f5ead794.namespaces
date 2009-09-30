@@ -1,0 +1,13 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)f5ead794.namespaces
+# CA alias    : PK-Grid-2007
+#    subord_of: 
+#    subjectDN: /C=PK/O=NCP/CN=PK-GRID-CA
+#    hash     : f5ead794
+#    (generated automatically from f5ead794.signing_policy)
+#
+TO Issuer "/C=PK/O=NCP/CN=PK-GRID-CA" \
+  PERMIT Subject "/C=PK/.*"
+

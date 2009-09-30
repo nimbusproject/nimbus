@@ -1,0 +1,22 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)1c3f2ca8.namespaces
+# CA alias    : DOEGrids
+#    subord_of: ESnet
+#    subjectDN: /DC=org/DC=DOEGrids/OU=Certificate Authorities/CN=DOEGrids CA 1
+#    hash     : 1c3f2ca8
+#    (generated automatically from ./DOEGrids/1c3f2ca8.signing_policy)
+#
+TO Issuer "/DC=org/DC=DOEGrids/OU=Certificate Authorities/CN=DOEGrids CA 1" \
+  PERMIT Subject "/DC=org/DC=DOEGrids/.*"
+
+TO Issuer "/DC=org/DC=DOEGrids/OU=Certificate Authorities/CN=DOEGrids CA 1" \
+  PERMIT Subject "/DC=org/DC=doegrids/.*"
+
+TO Issuer "/DC=org/DC=DOEGrids/OU=Certificate Authorities/CN=DOEGrids CA 1" \
+  PERMIT Subject "/O=DOEGrids.org/.*"
+
+TO Issuer "/DC=org/DC=DOEGrids/OU=Certificate Authorities/CN=DOEGrids CA 1" \
+  PERMIT Subject "/O=doegrids.org/.*"
+

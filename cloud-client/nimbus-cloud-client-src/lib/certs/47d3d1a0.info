@@ -1,0 +1,12 @@
+#
+# @(#)$Id: 47d3d1a0.info,v 1.1.1.1 2009/05/28 21:09:07 tfreeman Exp $
+# Information for CA SWITCH Personal 2007
+#   
+alias = SWITCH-Personal-2007
+ca_url = http://swisssign.net/cgi-bin/authority/download?into=save_as_pem&ca=F4CA49AE6EC8BD86BA54D2A1BFB650EDFAFE3460
+crl_url = http://crl.swisssign.net/F4CA49AE6EC8BD86BA54D2A1BFB650EDFAFE3460
+requires = SWITCH
+status = accredited:classic
+version = 1.22
+email = pki@switch.ch
+sha1fp.0 = 70:18:35:8D:B6:AA:4F:97:63:F2:CF:9D:8E:FA:5C:1A:41:2F:3C:22

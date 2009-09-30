@@ -1,0 +1,7 @@
+#
+# @(#)$Id: UNLP.signing_policy, 2007/11/01 22:07:12 
+#
+access_id_CA   X509   '/C=AR/O=e-Ciencia/OU=UNLP/L=CeSPI/CN=PKIGrid'
+
+pos_rights     globus CA:sign
+cond_subjects  globus '"/C=AR/O=e-Ciencia/OU=UNLP/L=CeSPI/*"'

@@ -1,0 +1,19 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)2418a3f3.namespaces
+# CA alias    : BG-ACAD-CA
+#    subord_of: 
+#    subjectDN: /DC=bg/DC=acad/CN=BG.ACAD CA
+#    hash     : 2418a3f3
+#    (generated automatically from 2418a3f3.signing_policy)
+#
+TO Issuer "/DC=bg/DC=acad/CN=BG.ACAD CA" \
+  PERMIT Subject "/DC=bg/DC=acad/O=people/.*"
+
+TO Issuer "/DC=bg/DC=acad/CN=BG.ACAD CA" \
+  PERMIT Subject "/DC=bg/DC=acad/O=hosts/.*"
+
+TO Issuer "/DC=bg/DC=acad/CN=BG.ACAD CA" \
+  PERMIT Subject "/DC=bg/DC=acad/O=services/.*"
+

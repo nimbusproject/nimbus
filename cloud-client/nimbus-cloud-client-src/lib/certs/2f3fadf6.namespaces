@@ -1,0 +1,15 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)$Id: 2f3fadf6.namespaces,v 1.1.1.1 2009/05/28 21:09:05 tfreeman Exp $
+# CA alias    : INFN
+#    subord_of: 
+#    subjectDN: /C=IT/O=INFN/CN=INFN CA
+#    hash     : 2f3fadf6
+#
+TO Issuer "/C=IT/O=INFN/CN=INFN CA" \
+  PERMIT Subject "/C=it/O=INFN/.*"
+
+TO Issuer "/C=IT/O=INFN/CN=INFN CA" \
+  PERMIT Subject "/C=IT/O=INFN/.*"
+

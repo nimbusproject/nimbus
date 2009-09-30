@@ -1,0 +1,13 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)c48c63f3.signing_policy.namespaces
+# CA alias    : SDG
+#    subord_of: 
+#    subjectDN: /DC=CN/DC=Grid/DC=SDG/CN=Scientific Data Grid CA
+#    hash     : c48c63f3.signing_policy
+#    (generated automatically from c48c63f3.signing_policy)
+#
+TO Issuer "/DC=CN/DC=Grid/DC=SDG/CN=Scientific Data Grid CA" \
+  PERMIT Subject "/DC=CN/DC=Grid/DC=SDG/.*"
+

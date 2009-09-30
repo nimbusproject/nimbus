@@ -1,0 +1,13 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)468d15b3.namespaces
+# CA alias    : SEE-GRID
+#    subord_of: 
+#    subjectDN: /DC=ORG/DC=SEE-GRID/CN=SEE-GRID CA
+#    hash     : 468d15b3
+#    (generated automatically from ./SEE-GRID/468d15b3.signing_policy)
+#
+TO Issuer "/DC=ORG/DC=SEE-GRID/CN=SEE-GRID CA" \
+  PERMIT Subject "/DC=ORG/DC=SEE-GRID/.*"
+

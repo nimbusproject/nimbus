@@ -1,0 +1,13 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)bffbd7d0.signing_policy.namespaces
+# CA alias    : Canada
+#    subord_of: 
+#    subjectDN: /C=CA/O=Grid/CN=Grid Canada Certificate Authority
+#    hash     : bffbd7d0.signing_policy
+#    (generated automatically from bffbd7d0.signing_policy)
+#
+TO Issuer "/C=CA/O=Grid/CN=Grid Canada Certificate Authority" \
+  PERMIT Subject "/C=CA/O=Grid/.*"
+

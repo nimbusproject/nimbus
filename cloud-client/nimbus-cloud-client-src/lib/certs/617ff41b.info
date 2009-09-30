@@ -1,0 +1,7 @@
+alias = KEK
+crl_url = http://gridca.kek.jp/repository/617ff41b.r0
+email = Takashi.Sasaki@kek.jp
+status = accredited:classic
+url = https://gridca.kek.jp/
+version = 1.22
+sha1fp.0 = 2B:A3:DC:2A:E5:81:3B:54:05:3D:5E:12:1F:9D:42:AA:6E:CF:F5:C7

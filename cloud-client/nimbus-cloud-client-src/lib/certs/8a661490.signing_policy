@@ -1,0 +1,4 @@
+# EACL Polish Grid CA
+access_id_CA  X509   '/C=PL/O=GRID/CN=Polish Grid CA'
+pos_rights    globus CA:sign
+cond_subjects globus '"/C=PL/O=GRID/*"'

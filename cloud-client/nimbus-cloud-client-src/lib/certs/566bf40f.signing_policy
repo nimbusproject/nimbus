@@ -1,0 +1,4 @@
+# EACL Estonian Grid Certification Authority
+access_id_CA  X509   '/C=EE/O=Grid/CN=Estonian Grid Certification Authority'
+pos_rights    globus CA:sign
+cond_subjects globus '"/C=EE/O=Grid/*"'

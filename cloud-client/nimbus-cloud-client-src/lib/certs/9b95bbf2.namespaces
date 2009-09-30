@@ -1,0 +1,16 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)9b95bbf2.signing_policy.namespaces
+# CA alias    : NCSA-mics
+#    subord_of: 
+#    subjectDN: /C=US/O=National Center for Supercomputing Applications/OU=Certificate Authorities/CN=CACL
+#    hash     : 9b95bbf2.signing_policy
+#    (generated automatically from 9b95bbf2.signing_policy)
+#
+TO Issuer "/C=US/O=National Center for Supercomputing Applications/OU=Certificate Authorities/CN=CACL" \
+  PERMIT Subject "/C=US/O=National Center for Supercomputing Applications/OU=Services/CN=.*"
+
+TO Issuer "/C=US/O=National Center for Supercomputing Applications/OU=Certificate Authorities/CN=CACL" \
+  PERMIT Subject "/C=US/O=National Center for Supercomputing Applications/OU=People/CN=.*"
+

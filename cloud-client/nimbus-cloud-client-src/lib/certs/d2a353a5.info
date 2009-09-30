@@ -1,0 +1,11 @@
+#
+# @(#)$Id: d2a353a5.info,v 1.1.1.1 2009/05/28 21:09:07 tfreeman Exp $
+# Information for CA PK-Grid
+#   obtained from d2a353a5 in PK-Grid/
+alias = PK-Grid
+crl_url = http://www.ncp.edu.pk/pk-grid-ca/CRL/ncp.crl
+url = http://www.ncp.edu.pk/pk-grid-ca/
+email = pkgrid-ca@ncp.edu.pk
+status = accredited:classic
+version = 1.22
+sha1fp.0 = 68:0D:FA:77:62:83:D0:C6:70:3F:2A:C2:E7:20:44:ED:23:30:6F:F5

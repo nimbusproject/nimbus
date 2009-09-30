@@ -1,0 +1,13 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)d2a353a5.namespaces
+# CA alias    : PK-Grid
+#    subord_of: 
+#    subjectDN: /C=PK/O=NCP/CN=ncp.edu.pk
+#    hash     : d2a353a5
+#    (generated automatically from ./PK-Grid/d2a353a5.signing_policy)
+#
+TO Issuer "/C=PK/O=NCP/CN=ncp.edu.pk" \
+  PERMIT Subject "/C=PK/.*"
+

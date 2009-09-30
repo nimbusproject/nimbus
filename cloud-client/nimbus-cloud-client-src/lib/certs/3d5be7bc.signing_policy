@@ -1,0 +1,4 @@
+# EACL SiGNET CA (new)
+access_id_CA  X509   '/C=SI/O=SiGNET/CN=SiGNET CA'
+pos_rights    globus CA:sign
+cond_subjects globus '"/C=SI/O=SiGNET/*"'

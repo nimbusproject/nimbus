@@ -1,0 +1,39 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)$Id: 7b2d086c.namespaces,v 1.1.1.1 2009/05/28 21:09:09 tfreeman Exp $
+# CA alias    : SWITCH hierarchy from SwissSign-Root (G1)
+#    subjectDN: /C=CH/O=SwissSign/CN=SwissSign CA (RSA IK May 6 1999 18:00:58)/Email=ca@SwissSign.com
+#    hash     : 7b2d086c
+#
+TO Issuer "/C=CH/O=SwissSign/CN=SwissSign CA (RSA IK May 6 1999 18:00:58)/emailAddress=ca@SwissSign.com" \
+  PERMIT Subject "/CN=SwissSign Bronze CA/emailAddress=bronze@swisssign.com/O=SwissSign/C=CH"
+
+TO Issuer "/CN=SwissSign Bronze CA/emailAddress=bronze@swisssign.com/O=SwissSign/C=CH" \
+  PERMIT Subject "/CN=SwissSign Silver CA/emailAddress=silver@swisssign.com/O=SwissSign/C=CH"
+
+TO Issuer "/CN=SwissSign Silver CA/emailAddress=silver@swisssign.com/O=SwissSign/C=CH" \
+  PERMIT Subject "/CN=SWITCH CA/emailAddress=switch.ca@switch.ch/O=Switch - Teleinformatikdienste fuer Lehre und Forschung/C=CH"
+
+# SWITCH CA signs a Personal and a Server CA
+
+# and those for 2007-2012
+TO Issuer "/CN=SWITCH CA/emailAddress=switch.ca@switch.ch/O=Switch - Teleinformatikdienste fuer Lehre und Forschung/C=CH" \
+  PERMIT Subject "/C=CH/O=Switch - Teleinformatikdienste fuer Lehre und Forschung/CN=SWITCH Personal CA"
+
+TO Issuer "/CN=SWITCH CA/emailAddress=switch.ca@switch.ch/O=Switch - Teleinformatikdienste fuer Lehre und Forschung/C=CH" \
+  PERMIT Subject "/C=CH/O=Switch - Teleinformatikdienste fuer Lehre und Forschung/CN=SWITCH Server CA"
+
+# end-entity certs for SWITCH Personal and Server CAs
+
+TO Issuer "/C=CH/O=SWITCH - Teleinformatikdienste fuer Lehre und Forschung/CN=SWITCH Personal CA/emailAddress=switch.personal.ca@switch.ch" \
+  PERMIT Subject "/C=CH/.*"
+
+TO Issuer "/C=CH/O=Switch - Teleinformatikdienste fuer Lehre und Forschung/CN=SWITCH Personal CA" \
+  PERMIT Subject "/C=CH/.*"
+
+TO Issuer "/C=CH/O=SWITCH - Teleinformatikdienste fuer Lehre und Forschung/CN=SWITCH Server CA/emailAddress=switch.server.ca@switch.ch" \
+  PERMIT Subject "/C=CH/.*"
+
+TO Issuer "/C=CH/O=Switch - Teleinformatikdienste fuer Lehre und Forschung/CN=SWITCH Server CA" \
+  PERMIT Subject "/C=CH/.*"

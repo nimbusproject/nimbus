@@ -1,0 +1,5 @@
+# EACL CNIC Grid CA 2006/07/28
+ access_id_CA  X509    '/DC=CN/DC=Grid/CN=Root Certificate Authority at CNIC'
+ pos_rights    globus  CA:sign
+ cond_subjects globus  '"/DC=CN/DC=Grid/*"'
+# end of EACL

@@ -1,0 +1,11 @@
+#
+# @(#)$Id: 11b4a5a2.info,v 1.1.1.1 2009/05/28 21:09:06 tfreeman Exp $
+# Information for CA LIPCA
+#   obtained from 11b4a5a2 in LIPCA/
+alias = LIPCA
+crl_url = http://ca.lip.pt/lip-lisboa/pub/crl/cacrl.pem
+email = ca@lip.pt
+status = accredited:classic
+url = http://ca.lip.pt/
+version = 1.22
+sha1fp.0 = C7:D5:DE:7B:F1:51:F9:DA:B7:43:C2:83:1A:C7:92:0F:5C:23:33:11

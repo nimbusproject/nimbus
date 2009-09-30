@@ -1,0 +1,12 @@
+#
+# @(#)$Id: e36e7a72.info,v 1.1.1.1 2009/05/28 21:09:08 tfreeman Exp $
+# Information for CA SwissSign-Bronze
+#   obtained from e36e7a72 in SWITCH/
+alias = SwissSign-Bronze
+ca_url = http://swisssign.net/cgi-bin/authority/download?into=save_as_pem&ca=E2DE8E8AE3FF7141C7533C93DA8D6EB1D241484A
+crl_url = http://crl.swisssign.net/E2DE8E8AE3FF7141C7533C93DA8D6EB1D241484A
+requires = SwissSign-Root
+status = accredited:classic
+version = 1.22
+email = pki@switch.ch
+sha1fp.0 = D9:0F:51:04:EE:8F:94:6D:DA:CA:EE:5B:22:06:27:A2:CE:3E:19:0D

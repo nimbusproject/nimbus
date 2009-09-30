@@ -1,0 +1,5 @@
+# New NCSA CA Policy
+ 
+access_id_CA   X509    '/C=US/O=National Center for Supercomputing Applications/CN=Certification Authority'
+pos_rights     globus  CA:sign
+cond_subjects  globus  '/C=US/O=National Center for Supercomputing Applications/*'

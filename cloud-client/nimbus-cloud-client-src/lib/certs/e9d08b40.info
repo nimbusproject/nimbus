@@ -1,0 +1,12 @@
+#
+# @(#)$Id: e9d08b40.info,v 1.1.1.1 2009/05/28 21:09:07 tfreeman Exp $
+# Information for CA SwissSign-Silver
+#   obtained from e9d08b40 in SWITCH/
+alias = SwissSign-Silver
+ca_url = http://swisssign.net/cgi-bin/authority/download?into=save_as_pem&ca=CDA1AC23BFD03B208A5481CDFBDB4126E34A705A
+crl_url = http://crl.swisssign.net/CDA1AC23BFD03B208A5481CDFBDB4126E34A705A
+requires = SwissSign-Bronze
+status = accredited:classic
+version = 1.22
+email = pki@switch.ch
+sha1fp.0 = F8:D0:F1:02:33:D4:1D:FD:DE:77:EB:D6:66:2F:6F:C0:85:F5:AC:47

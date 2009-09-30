@@ -1,0 +1,13 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)b2771d44.signing_policy.namespaces
+# CA alias    : CNIC
+#    subord_of: 
+#    subjectDN: /DC=CN/DC=Grid/CN=Root Certificate Authority at CNIC
+#    hash     : b2771d44.signing_policy
+#    (generated automatically from b2771d44.signing_policy)
+#
+TO Issuer "/DC=CN/DC=Grid/CN=Root Certificate Authority at CNIC" \
+  PERMIT Subject "/DC=CN/DC=Grid/.*"
+

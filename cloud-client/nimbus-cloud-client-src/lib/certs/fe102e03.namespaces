@@ -1,0 +1,13 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)fe102e03.namespaces
+# CA alias    : DFN-GridGermany-Server
+#    subord_of: DFN-GridGermany-Root
+#    subjectDN: /C=DE/O=DFN-Verein/OU=DFN-PKI/CN=DFN-Verein Server CA Grid - G01
+#    hash     : fe102e03
+#    (generated automatically from ./DFN/fe102e03.signing_policy)
+#
+TO Issuer "/C=DE/O=DFN-Verein/OU=DFN-PKI/CN=DFN-Verein Server CA Grid - G01" \
+  PERMIT Subject "/C=DE/O=GridGermany/.*"
+

@@ -1,0 +1,13 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)ff94d436.signing_policy.namespaces
+# CA alias    : SRCE
+#    subord_of: 
+#    subjectDN: /C=HR/O=edu/OU=srce/CN=SRCE CA
+#    hash     : ff94d436.signing_policy
+#    (generated automatically from ff94d436.signing_policy)
+#
+TO Issuer "/C=HR/O=edu/OU=srce/CN=SRCE CA" \
+  PERMIT Subject "/C=HR/O=edu/.*"
+

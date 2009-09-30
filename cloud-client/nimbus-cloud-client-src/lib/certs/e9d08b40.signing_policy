@@ -1,0 +1,9 @@
+# @(#)$Id: e9d08b40.signing_policy,v 1.1.1.1 2009/05/28 21:09:07 tfreeman Exp $
+
+access_id_CA   X509    '/CN=SwissSign Silver CA/emailAddress=silver@swisssign.com/O=SwissSign/C=CH'
+pos_rights     globus  CA:sign
+cond_subjects  globus  '"/CN=SWITCH CA/emailAddress=switch.ca@switch.ch/O=Switch - Teleinformatikdienste fuer Lehre und Forschung/C=CH"'
+
+access_id_CA   X509    '/CN=SwissSign Silver CA/Email=silver@swisssign.com/O=SwissSign/C=CH'
+pos_rights     globus  CA:sign
+cond_subjects  globus  '"/CN=SWITCH CA/Email=switch.ca@switch.ch/O=Switch - Teleinformatikdienste fuer Lehre und Forschung/C=CH"'

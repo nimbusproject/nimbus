@@ -1,0 +1,11 @@
+#
+# @(#)$Id: 1e43b9cc.info,v 1.1.1.1 2009/05/28 21:09:06 tfreeman Exp $
+# Information for CA Grid-Ireland
+#   obtained from 1e43b9cc in Grid-Ireland/
+alias = Grid-Ireland
+url = http://www.cs.tcd.ie/grid-ireland/gi-ca/
+crl_url = http://www.cs.tcd.ie/Grid-Ireland/gi-ca/1e43b9cc.r0
+email = grid-ireland-ca@cs.tcd.ie
+status = accredited:classic
+version = 1.22
+sha1fp.0 = EA:FE:4E:0C:59:9F:63:69:87:A1:4C:4D:4E:1F:A7:1A:6A:C6:CF:D3

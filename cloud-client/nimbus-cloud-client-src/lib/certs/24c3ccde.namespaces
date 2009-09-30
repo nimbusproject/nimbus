@@ -1,0 +1,13 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)24c3ccde.signing_policy.namespaces
+# CA alias    : UNAMgrid 
+#    subord_of: 
+#    subjectDN: /C=MX/O=UNAMgrid/OU=UNAM/CN=CA
+#    hash     : 24c3ccde.signing_policy
+#    (generated automatically from 24c3ccde.signing_policy)
+#
+TO Issuer "/C=MX/O=UNAMgrid/OU=UNAM/CN=CA" \
+  PERMIT Subject "/C=MX/O=UNAMgrid/.*"
+

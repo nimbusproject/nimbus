@@ -1,0 +1,12 @@
+#
+# @(#)$Id: 0a2bac92.info,v 1.1.1.1 2009/05/28 21:09:09 tfreeman Exp $
+# BrGrid UFF managed Brazilian classic CA
+#
+alias = BrGrid
+url = http://brgridca.ic.uff.br/
+ca_url = https://brgridca.ic.uff.br/certs/cacert.txt
+crl_url = http://brgridca.ic.uff.br/crl/cacrl.pem
+email = brgridca@ic.uff.br
+status = accredited:classic
+version = 1.22
+sha1fp.0 = EB:E5:93:4D:04:8F:A0:72:A3:01:71:CB:43:57:E6:CD:FC:59:DF:BD

@@ -1,0 +1,98 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number: 1119021599 (0x42b2ea1f)
+        Signature Algorithm: sha1WithRSAEncryption
+        Issuer: DC=cz, DC=cesnet-ca, CN=CESNET CA
+        Validity
+            Not Before: Jun 17 14:50:17 2005 GMT
+            Not After : Jun 17 15:20:17 2025 GMT
+        Subject: DC=cz, DC=cesnet-ca, CN=CESNET CA
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+            RSA Public Key: (2048 bit)
+                Modulus (2048 bit):
+                    00:f1:15:4d:41:13:6a:58:bb:3a:7e:7f:4b:df:82:
+                    7f:92:0f:a3:1d:42:fa:98:a2:2d:45:7f:04:08:93:
+                    c6:ba:89:06:9b:95:c3:fb:b0:b3:ad:9e:ec:09:e6:
+                    c8:89:94:2b:85:ed:21:df:9d:1b:0d:e7:9e:a0:e1:
+                    f6:90:8d:58:d9:ff:44:1a:8a:d6:d7:a4:5e:52:27:
+                    96:4b:b5:ed:e9:3c:66:90:b3:d7:ff:d6:8c:b5:12:
+                    44:06:19:ae:8a:ca:b6:cc:56:93:99:fa:a3:f1:c2:
+                    53:59:5a:ea:3c:aa:16:30:4b:77:ea:fa:05:e7:0c:
+                    ea:7c:80:44:03:33:f4:53:cc:fe:8f:1a:e1:b3:6a:
+                    e8:56:5f:95:af:78:34:da:1d:d1:0d:51:b5:ba:c6:
+                    46:b2:84:89:a5:d4:9e:c1:94:1b:a3:20:34:ff:2d:
+                    ad:32:ed:28:9c:8b:7d:77:2a:2f:db:b3:c4:f0:26:
+                    27:6c:32:a6:71:60:fb:5c:e3:11:fe:c5:5c:ce:45:
+                    aa:36:3b:b7:17:64:be:12:90:94:72:17:c5:92:43:
+                    f1:93:44:3e:12:50:e1:c8:2f:57:51:6a:83:f9:77:
+                    47:6d:38:6d:e7:3c:15:12:ae:d1:3b:a0:0f:6e:21:
+                    21:d7:aa:9c:c1:85:90:d1:11:b5:5c:a0:b9:76:36:
+                    27:1f
+                Exponent: 65537 (0x10001)
+        X509v3 extensions:
+            Netscape Cert Type: 
+                SSL CA, S/MIME CA, Object Signing CA
+            X509v3 CRL Distribution Points: 
+                DirName:/DC=cz/DC=cesnet-ca/CN=CESNET CA/CN=CRL1
+                URI:http://www.cesnet.cz/pki/crl/cn=CESNET%20CA,dc=cesnet-ca,dc=cza1.crl
+                URI:ldap://ldap.cesnet-ca.cz/cn=CRL1,cn=CESNET%20CA,dc=cesnet-ca,dc=cz?authorityRevocationList
+
+            X509v3 Private Key Usage Period: 
+                Not Before: Jun 17 14:50:17 2005 GMT, Not After: Jun 17 15:20:17 2025 GMT
+            X509v3 Key Usage: 
+                Certificate Sign, CRL Sign
+            X509v3 Authority Key Identifier: 
+                keyid:2F:6C:05:C3:51:26:AC:AF:39:9C:3E:38:35:DD:52:29:27:80:C5:F5
+
+            X509v3 Subject Key Identifier: 
+                2F:6C:05:C3:51:26:AC:AF:39:9C:3E:38:35:DD:52:29:27:80:C5:F5
+            X509v3 Basic Constraints: 
+                CA:TRUE
+            1.2.840.113533.7.65.0: 
+                0...V7.1:4.0....
+    Signature Algorithm: sha1WithRSAEncryption
+        39:37:3b:9b:b9:79:a0:c4:d8:b7:f1:e0:44:36:2b:87:74:fa:
+        cf:b4:78:7d:a6:e2:e4:65:33:ef:10:6c:89:6a:a9:96:91:70:
+        51:e8:78:57:eb:c5:51:17:d3:65:0a:97:71:1a:a6:e3:60:1d:
+        60:6e:1e:b6:9c:74:12:a5:67:f8:7c:ab:94:dc:b3:8d:c1:26:
+        6f:9f:af:a5:a5:47:24:c6:e6:dc:43:27:fa:a0:44:65:87:4b:
+        89:4b:8b:ea:6b:85:0d:97:75:99:98:2c:ec:33:53:a0:bc:db:
+        ee:3e:7a:aa:79:6d:a2:df:a2:88:69:fa:28:4d:51:bc:9b:ec:
+        b0:32:07:e2:c1:fd:6c:df:cc:be:ce:2b:16:4e:39:84:c5:c4:
+        05:d7:fe:05:fc:95:f5:7e:1b:bb:26:b1:64:2c:35:58:a1:84:
+        92:7b:02:fd:df:bb:03:ed:cc:aa:f3:dc:66:6f:e4:c0:80:8f:
+        27:4d:93:4d:66:cc:98:01:b1:4e:a9:3c:d6:a9:ee:0a:98:2f:
+        50:da:3e:88:73:42:26:b8:fb:2a:22:a3:b9:aa:4e:76:af:13:
+        14:cc:73:fe:8f:71:8f:83:cc:c7:18:19:4b:23:51:c7:e8:57:
+        8e:5a:93:68:6e:ce:1c:71:e4:3b:34:14:cd:ad:ef:12:36:bb:
+        d6:7d:26:b1
+-----BEGIN CERTIFICATE-----
+MIIE1jCCA76gAwIBAgIEQrLqHzANBgkqhkiG9w0BAQUFADBDMRIwEAYKCZImiZPy
+LGQBGRYCY3oxGTAXBgoJkiaJk/IsZAEZFgljZXNuZXQtY2ExEjAQBgNVBAMTCUNF
+U05FVCBDQTAeFw0wNTA2MTcxNDUwMTdaFw0yNTA2MTcxNTIwMTdaMEMxEjAQBgoJ
+kiaJk/IsZAEZFgJjejEZMBcGCgmSJomT8ixkARkWCWNlc25ldC1jYTESMBAGA1UE
+AxMJQ0VTTkVUIENBMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA8RVN
+QRNqWLs6fn9L34J/kg+jHUL6mKItRX8ECJPGuokGm5XD+7CzrZ7sCebIiZQrhe0h
+350bDeeeoOH2kI1Y2f9EGorW16ReUieWS7Xt6TxmkLPX/9aMtRJEBhmuisq2zFaT
+mfqj8cJTWVrqPKoWMEt36voF5wzqfIBEAzP0U8z+jxrhs2roVl+Vr3g02h3RDVG1
+usZGsoSJpdSewZQboyA0/y2tMu0onIt9dyov27PE8CYnbDKmcWD7XOMR/sVczkWq
+Nju3F2S+EpCUchfFkkPxk0Q+ElDhyC9XUWqD+XdHbTht5zwVEq7RO6APbiEh16qc
+wYWQ0RG1XKC5djYnHwIDAQABo4IB0DCCAcwwEQYJYIZIAYb4QgEBBAQDAgAHMIIB
+DgYDVR0fBIIBBTCCAQEwgf6ggfuggfikVDBSMRIwEAYKCZImiZPyLGQBGRYCY3ox
+GTAXBgoJkiaJk/IsZAEZFgljZXNuZXQtY2ExEjAQBgNVBAMTCUNFU05FVCBDQTEN
+MAsGA1UEAxMEQ1JMMYZEaHR0cDovL3d3dy5jZXNuZXQuY3ovcGtpL2NybC9jbj1D
+RVNORVQlMjBDQSxkYz1jZXNuZXQtY2EsZGM9Y3phMS5jcmyGWmxkYXA6Ly9sZGFw
+LmNlc25ldC1jYS5jei9jbj1DUkwxLGNuPUNFU05FVCUyMENBLGRjPWNlc25ldC1j
+YSxkYz1jej9hdXRob3JpdHlSZXZvY2F0aW9uTGlzdDArBgNVHRAEJDAigA8yMDA1
+MDYxNzE0NTAxN1qBDzIwMjUwNjE3MTUyMDE3WjALBgNVHQ8EBAMCAQYwHwYDVR0j
+BBgwFoAUL2wFw1EmrK85nD44Nd1SKSeAxfUwHQYDVR0OBBYEFC9sBcNRJqyvOZw+
+ODXdUikngMX1MAwGA1UdEwQFMAMBAf8wHQYJKoZIhvZ9B0EABBAwDhsIVjcuMTo0
+LjADAgSQMA0GCSqGSIb3DQEBBQUAA4IBAQA5NzubuXmgxNi38eBENiuHdPrPtHh9
+puLkZTPvEGyJaqmWkXBR6HhX68VRF9NlCpdxGqbjYB1gbh62nHQSpWf4fKuU3LON
+wSZvn6+lpUckxubcQyf6oERlh0uJS4vqa4UNl3WZmCzsM1OgvNvuPnqqeW2i36KI
+afooTVG8m+ywMgfiwf1s38y+zisWTjmExcQF1/4F/JX1fhu7JrFkLDVYoYSSewL9
+37sD7cyq89xmb+TAgI8nTZNNZsyYAbFOqTzWqe4KmC9Q2j6Ic0ImuPsqIqO5qk52
+rxMUzHP+j3GPg8zHGBlLI1HH6FeOWpNobs4cceQ7NBTNre8SNrvWfSax
+-----END CERTIFICATE-----

@@ -1,0 +1,97 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number: 116178990 (0x6ecc02e)
+        Signature Algorithm: sha1WithRSAEncryption
+        Issuer: C=DE, O=DFN-Verein, OU=DFN-PKI, CN=DFN-Verein PCA Grid - G01
+        Validity
+            Not Before: Jul  7 14:56:32 2005 GMT
+            Not After : Jul  7 14:56:32 2009 GMT
+        Subject: C=DE, O=DFN-Verein, OU=DFN-PKI, CN=DFN-Verein Server CA Grid - G01
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+            RSA Public Key: (2048 bit)
+                Modulus (2048 bit):
+                    00:b1:17:8d:59:61:88:44:fb:96:3a:02:0d:19:21:
+                    9b:df:e1:bb:94:97:4e:a6:37:31:17:20:48:f4:e2:
+                    27:75:39:76:04:9b:b6:c5:3d:e0:1a:d6:ab:73:56:
+                    bf:5d:62:b5:a1:cb:c1:1b:3b:89:28:01:84:21:20:
+                    8b:6a:25:ef:ad:fe:df:af:65:17:b7:99:c8:20:49:
+                    cb:c9:bd:90:26:91:1b:7d:7d:db:4c:d0:a3:cd:fe:
+                    20:32:c6:2e:96:24:07:e3:fc:ca:a6:3b:5f:67:8d:
+                    c4:fe:b1:6e:b0:10:84:67:8d:c2:dc:2c:e0:27:76:
+                    62:fb:eb:c4:e7:bf:ec:69:6b:ae:bd:a8:a1:b8:19:
+                    3a:d9:20:f3:8b:6d:60:e8:8d:9e:5c:e3:91:23:d2:
+                    98:67:79:9e:35:30:fa:bc:45:a9:b5:22:74:fd:8a:
+                    06:b3:78:3d:6a:1d:64:74:1a:25:97:2a:4b:c4:a7:
+                    1c:49:a0:5d:24:b8:ab:8b:be:57:4a:e0:b2:8f:d1:
+                    b8:99:48:f1:a6:06:8a:a3:80:c3:0c:9b:32:26:5e:
+                    3e:35:88:e2:37:67:62:eb:75:75:8e:ad:19:90:f5:
+                    71:2f:f0:8d:57:4f:4a:6f:88:0e:96:e8:87:8e:ec:
+                    e2:12:a0:db:c3:79:4c:57:f9:4d:e3:86:aa:e7:56:
+                    db:55
+                Exponent: 65537 (0x10001)
+        X509v3 extensions:
+            X509v3 Subject Key Identifier: 
+                8C:11:62:87:26:A9:1A:A9:89:35:EF:A2:85:4C:1F:CC:95:52:9B:C8
+            X509v3 Authority Key Identifier: 
+                keyid:96:EC:DC:AD:9A:C3:FE:50:A3:3C:22:E5:3D:C2:C5:FF:CA:D9:22:C6
+
+            X509v3 Basic Constraints: critical
+                CA:TRUE
+            X509v3 CRL Distribution Points: 
+                URI:http://cdp1.pca.dfn.de/dfn-pki/certification/x509/grid/g1/data/crls/root-ca-crl.crl
+                URI:http://cdp2.pca.dfn.de/dfn-pki/certification/x509/grid/g1/data/crls/root-ca-crl.crl
+
+            Authority Information Access: 
+                CA Issuers - URI:http://cdp1.pca.dfn.de/dfn-pki/certification/x509/grid/g1/data/certs/root-ca-cert.crt
+                CA Issuers - URI:http://cdp2.pca.dfn.de/dfn-pki/certification/x509/grid/g1/data/certs/root-ca-cert.crt
+
+            X509v3 Key Usage: critical
+                Certificate Sign, CRL Sign
+    Signature Algorithm: sha1WithRSAEncryption
+        ad:f2:c8:07:9e:5a:b3:22:5d:c9:d3:d5:6c:a8:80:47:97:46:
+        5d:ac:8d:11:cf:a3:0d:0f:b9:64:ef:12:f3:3e:8c:55:00:91:
+        7a:72:d0:1f:15:da:54:2f:90:ca:8d:74:94:cb:7f:17:1b:dd:
+        de:62:de:ee:ab:f6:71:bc:06:9f:34:7c:74:d8:4d:f0:3d:fa:
+        69:08:d3:bf:05:62:2c:12:da:0b:6f:6b:de:8c:ee:42:46:ff:
+        a9:f0:8a:2f:73:08:9b:de:93:05:d6:25:ad:58:64:28:0f:31:
+        3a:64:54:3f:17:3c:a5:58:d7:73:cc:ee:71:ef:37:db:d3:ea:
+        84:10:85:ea:89:ac:85:64:0e:de:96:86:03:88:b1:17:87:94:
+        f4:59:b4:f4:27:e0:c4:a5:a8:ed:dd:1a:48:fe:43:dc:5e:9e:
+        40:a6:49:e0:25:8f:43:3b:1d:1f:c6:0e:03:4e:8c:fc:4f:0e:
+        7d:f4:e1:9b:8a:ac:34:3a:c8:aa:c2:40:2f:f1:4e:db:48:cc:
+        b3:c8:f0:15:2a:a9:b7:a1:94:96:16:04:12:6f:02:e3:4d:f4:
+        28:04:c8:54:90:18:68:fe:56:41:d7:15:2c:52:8a:8d:8e:de:
+        3f:5c:52:d9:31:af:3c:14:76:81:0b:9e:3d:5b:12:47:ab:34:
+        e5:a3:a9:e0
+-----BEGIN CERTIFICATE-----
+MIIFODCCBCCgAwIBAgIEBuzALjANBgkqhkiG9w0BAQUFADBYMQswCQYDVQQGEwJE
+RTETMBEGA1UEChMKREZOLVZlcmVpbjEQMA4GA1UECxMHREZOLVBLSTEiMCAGA1UE
+AxMZREZOLVZlcmVpbiBQQ0EgR3JpZCAtIEcwMTAeFw0wNTA3MDcxNDU2MzJaFw0w
+OTA3MDcxNDU2MzJaMF4xCzAJBgNVBAYTAkRFMRMwEQYDVQQKEwpERk4tVmVyZWlu
+MRAwDgYDVQQLEwdERk4tUEtJMSgwJgYDVQQDEx9ERk4tVmVyZWluIFNlcnZlciBD
+QSBHcmlkIC0gRzAxMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsReN
+WWGIRPuWOgINGSGb3+G7lJdOpjcxFyBI9OIndTl2BJu2xT3gGtarc1a/XWK1ocvB
+GzuJKAGEISCLaiXvrf7fr2UXt5nIIEnLyb2QJpEbfX3bTNCjzf4gMsYuliQH4/zK
+pjtfZ43E/rFusBCEZ43C3CzgJ3Zi++vE57/saWuuvaihuBk62SDzi21g6I2eXOOR
+I9KYZ3meNTD6vEWptSJ0/YoGs3g9ah1kdBollypLxKccSaBdJLiri75XSuCyj9G4
+mUjxpgaKo4DDDJsyJl4+NYjiN2di63V1jq0ZkPVxL/CNV09Kb4gOluiHjuziEqDb
+w3lMV/lN44aq51bbVQIDAQABo4ICAjCCAf4wHQYDVR0OBBYEFIwRYocmqRqpiTXv
+ooVMH8yVUpvIMB8GA1UdIwQYMBaAFJbs3K2aw/5Qozwi5T3Cxf/K2SLGMA8GA1Ud
+EwEB/wQFMAMBAf8wgcEGA1UdHwSBuTCBtjBZoFegVYZTaHR0cDovL2NkcDEucGNh
+LmRmbi5kZS9kZm4tcGtpL2NlcnRpZmljYXRpb24veDUwOS9ncmlkL2cxL2RhdGEv
+Y3Jscy9yb290LWNhLWNybC5jcmwwWaBXoFWGU2h0dHA6Ly9jZHAyLnBjYS5kZm4u
+ZGUvZGZuLXBraS9jZXJ0aWZpY2F0aW9uL3g1MDkvZ3JpZC9nMS9kYXRhL2NybHMv
+cm9vdC1jYS1jcmwuY3JsMIHWBggrBgEFBQcBAQSByTCBxjBhBggrBgEFBQcwAoZV
+aHR0cDovL2NkcDEucGNhLmRmbi5kZS9kZm4tcGtpL2NlcnRpZmljYXRpb24veDUw
+OS9ncmlkL2cxL2RhdGEvY2VydHMvcm9vdC1jYS1jZXJ0LmNydDBhBggrBgEFBQcw
+AoZVaHR0cDovL2NkcDIucGNhLmRmbi5kZS9kZm4tcGtpL2NlcnRpZmljYXRpb24v
+eDUwOS9ncmlkL2cxL2RhdGEvY2VydHMvcm9vdC1jYS1jZXJ0LmNydDAOBgNVHQ8B
+Af8EBAMCAQYwDQYJKoZIhvcNAQEFBQADggEBAK3yyAeeWrMiXcnT1WyogEeXRl2s
+jRHPow0PuWTvEvM+jFUAkXpy0B8V2lQvkMqNdJTLfxcb3d5i3u6r9nG8Bp80fHTY
+TfA9+mkI078FYiwS2gtva96M7kJG/6nwii9zCJvekwXWJa1YZCgPMTpkVD8XPKVY
+13PM7nHvN9vT6oQQheqJrIVkDt6WhgOIsReHlPRZtPQn4MSlqO3dGkj+Q9xenkCm
+SeAlj0M7HR/GDgNOjPxPDn304ZuKrDQ6yKrCQC/xTttIzLPI8BUqqbehlJYWBBJv
+AuNN9CgEyFSQGGj+VkHXFSxSio2O3j9cUtkxrzwUdoELnj1bEkerNOWjqeA=
+-----END CERTIFICATE-----

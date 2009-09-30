@@ -1,0 +1,7 @@
+#
+# @(#)$Id: 55994d72.signing_policy,v 1.1.1.1 2009/05/28 21:09:08 tfreeman Exp $
+# EACL Russian Data Intensive Grid CA
+# 
+access_id_CA      X509         '/C=RU/O=RDIG/CN=Russian Data-Intensive Grid CA'
+pos_rights        globus        CA:sign
+cond_subjects     globus       '"/C=RU/O=RDIG/CN=Russian Data-Intensive Grid CA" "/C=RU/O=RDIG/*"'

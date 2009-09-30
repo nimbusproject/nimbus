@@ -1,0 +1,12 @@
+#
+# @(#)$Id: 7d0d064a.info,v 1.1.1.1 2009/05/28 21:09:09 tfreeman Exp $
+# CA: MARGI (mk)
+#
+alias = MARGI
+url = www.margi.marnet.net.mk
+ca_url = www.margi-ca.marnet.net.mk
+crl_url = http://www.margi.marnet.net.mk/CA/margi-v2.crl
+email = margi-ca@margi.marnet.net.mk
+status = accredited:classic
+version = 1.22
+sha1fp.0 = 8F:F9:FF:6C:59:A8:FE:0F:85:B6:54:E7:90:A4:41:EC:02:92:C2:76

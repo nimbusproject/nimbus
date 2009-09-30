@@ -1,0 +1,10 @@
+#
+# @(#)$Id: cf4ba8c8.info,v 1.1.1.1 2009/05/28 21:09:07 tfreeman Exp $
+# Information for CA CNRS
+#   obtained from cf4ba8c8 in CNRS/
+alias = CNRS
+crl_url = http://crls.services.cnrs.fr/CNRS/getpem.crl
+status = accredited:classic
+version = 1.22
+email = alice.de-bignicourt@urec.cnrs.fr
+sha1fp.0 = 22:61:81:6A:9D:F6:86:6E:76:CE:8A:AC:6E:6F:52:3D:8B:09:32:D1

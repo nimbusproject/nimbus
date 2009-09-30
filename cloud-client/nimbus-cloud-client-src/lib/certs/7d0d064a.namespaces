@@ -1,0 +1,13 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)$Id: 7d0d064a.namespaces,v 1.1.1.1 2009/05/28 21:09:05 tfreeman Exp $
+# CA alias    : MARGI
+#    subord_of: 
+#    subjectDN: /C=MK/O=MARGI/CN=MARGI-CA
+#    hash     : 7d0d064a
+#    (generated automatically from 7d0d064a.signing_policy)
+#
+TO Issuer "/C=MK/O=MARGI/CN=MARGI-CA" \
+  PERMIT Subject "/C=MK/O=MARGI/.*"
+

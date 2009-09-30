@@ -1,0 +1,13 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)34f8e29c.namespaces
+# CA alias    : DFN-GridGermany-User
+#    subord_of: DFN-GridGermany-Root
+#    subjectDN: /C=DE/O=DFN-Verein/OU=DFN-PKI/CN=DFN-Verein User CA Grid - G01
+#    hash     : 34f8e29c
+#    (generated automatically from ./DFN/34f8e29c.signing_policy)
+#
+TO Issuer "/C=DE/O=DFN-Verein/OU=DFN-PKI/CN=DFN-Verein User CA Grid - G01" \
+  PERMIT Subject "/C=DE/O=GridGermany/.*"
+

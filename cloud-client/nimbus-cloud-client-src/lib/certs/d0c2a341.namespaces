@@ -1,0 +1,13 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)d0c2a341.namespaces
+# CA alias    : ArmeSFo
+#    subord_of: 
+#    subjectDN: /C=AM/O=ArmeSFo/CN=ArmeSFo CA
+#    hash     : d0c2a341
+#    (generated automatically from ./ArmeSFo/d0c2a341.signing_policy)
+#
+TO Issuer "/C=AM/O=ArmeSFo/CN=ArmeSFo CA" \
+  PERMIT Subject "/C=AM/O=ArmeSFo/.*"
+

@@ -1,0 +1,120 @@
+workspace-cloud-client-011
+--------------------------
+
+[*] A lone invocation of "--status" (which prints all your currently running
+    instances) will now print the associated cloud handle of each workspace.
+
+[*] Java 1.5 (Java 5) is now a requirement
+
+[*] Support for "new style" contextualization (Nimbus TP2.2).  If you are
+    using a previously created cluster image you will need to use an older
+    cloud client to launch it unless you update the onboard ctx-agent.
+    
+    The TP2.2 service side is backwards compatible with the "old style"
+    contextualization but the cloud client only supports the new one.
+
+    ** You can only use this against Nimbus TP2.1 installations if you are
+       not using contextualization **
+
+[*] Support for contextualizing easily with EC2 resources.  See the output of
+    "--extrahelp" for the new "--ec2script" option.  Sample EC2 cluster.xml
+    file is @ "samples/ec2basecluster.xml"
+
+    This will take care of the context broker interactions for you and give
+    you a suggested set of EC2 commands to run (including files for metadata)
+    for the virtual cluster to contextualize while running on EC2.
+
+[*] Fixed bug in the "lib/this-globus-environment.sh" script, the X509_CERT_DIR
+    variable was being set incorrectly.
+
+
+workspace-cloud-client-010
+--------------------------
+
+[*] Altered the default "conf/cloud.properties" file to point to new endpoints
+    for the Nimbus cloud.
+
+[*] Added Purdue CA certificates to lib/certs {67e8acfa.0, 95009ddc.0}
+
+
+workspace-cloud-client-009
+--------------------------
+
+[*] Added cluster and contextualization support.  New "--cluster" option,
+    see samples directory for sample cluster definition files.
+
+    See quickstart: http://workspace.globus.org/clouds/clusters.html
+
+[*] Added "--usage" (-u) option to give a short syntax reminder for people
+    already familiar with the cloud client.  The "--help" option is
+    still the first place to look for getting started.
+
+[*] Added ./bin/grid-proxy-init.sh that works right out of the box.
+
+[*] Also added ./bin/grid-proxy-info.sh, ./bin/grid-cert-info.sh, and
+    ./bin/myproxy.sh
+
+[*] Added support for image compression/decompression
+
+    See: http://workspace.globus.org/clouds/appendix.html#compression
+
+[*] Cleaned up "--list" output.  Main enhancement is distinguishing the
+    read-only template images from your own read/write images.
+    
+[*] Added "--networks" option to view available networks for clusters
+
+[*] Distributing the most common trusted grid certificates (IGTF, TG/OSG,
+    and DOE related).  This makes the embedded certificates directory
+    more useful.
+
+[*] No longer adding the embedded certificate directory to the trusted
+    directory list.  Instead, the launch scripts are setting it as the only
+    certificate directory via the X509_CERT_DIR environment variable.
+
+[*] Added the ./lib/workspace.sh program for advanced/scripted uses.
+
+[*] Added the samples directory and ./lib/check-trusted-certs.sh program
+    to support the new "--cluster" option (see the cluster quickstart).
+
+[*] Doesn't complain if history directory is missing, auto-creates directory.
+    This allows you to run "rm -rf history" to clean up.
+
+
+workspace-cloud-client-008
+--------------------------
+
+[*] Fixed bug that prevented "--run" working with "--newname".  That
+    combination makes save-to-repository the default shutdown action (see
+    --extrahelp).
+
+workspace-cloud-client-007
+--------------------------
+
+[*] Added "--download" and "--delete" (see help).
+
+workspace-cloud-client-006
+--------------------------
+
+[*] Added "--save" and "--newname" (see help).
+
+[*] Removed bin/status.sh and bin/terminate.sh, incorporating them as sub-
+    commands of bin/cloud-client.sh
+
+[*] Cosmetic fix on error strings.
+
+[*] Clarified help text: image repository is not shared.
+      --list shows images you have access to run
+      --transfer will put images in your personal directory
+
+
+workspace-cloud-client-005
+--------------------------
+
+[*] Fix for strange DNS situations (set default for all actions:
+    identity authorization preferred over host based).
+
+
+workspace-cloud-client-004
+--------------------------
+
+[*] Initial release.

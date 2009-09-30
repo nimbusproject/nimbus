@@ -1,0 +1,3 @@
+access_id_CA  X509   '/C=HR/O=edu/OU=srce/CN=SRCE CA'
+pos_rights    globus CA:sign
+cond_subjects globus '"/C=HR/O=edu/OU=srce/CN=SRCE CA" "/C=HR/O=edu/*"'

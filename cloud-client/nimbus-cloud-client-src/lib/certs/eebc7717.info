@@ -1,0 +1,12 @@
+#
+# @(#)$Id: eebc7717.info,v 1.1.1.1 2009/05/28 21:09:07 tfreeman Exp $
+# Information for CA SWITCH Server 2007
+#   
+alias = SWITCH-Server-2007
+ca_url = http://swisssign.net/cgi-bin/authority/download?into=save_as_pem&ca=1AFDCB5395B081DD3A38849F63E87C0A42E0E6FE
+crl_url = http://crl.swisssign.net/1AFDCB5395B081DD3A38849F63E87C0A42E0E6FE
+requires = SWITCH
+status = accredited:classic
+version = 1.22
+email = pki@switch.ch
+sha1fp.0 = 99:EF:7A:3B:E3:93:AA:DD:65:35:4C:79:0D:23:12:7B:22:6E:7C:E9

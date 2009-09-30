@@ -1,0 +1,7 @@
+alias = ASGCCA-2007
+crl_url = http://ca.grid.sinica.edu.tw/publication/CRL/ASGCCA-crl.pem
+email = ca@lists.grid.sinica.edu.tw
+status = accredited:classic
+url = http://ca.grid.sinica.edu.tw/
+version = 1.22
+sha1fp.0 = 03:F1:BE:27:59:69:E9:73:06:00:F6:75:0C:A2:91:1A:57:FF:2D:9D

@@ -1,0 +1,13 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)8a661490.namespaces
+# CA alias    : PolishGrid
+#    subord_of: 
+#    subjectDN: /C=PL/O=GRID/CN=Polish Grid CA
+#    hash     : 8a661490
+#    (generated automatically from ./PolishGrid/8a661490.signing_policy)
+#
+TO Issuer "/C=PL/O=GRID/CN=Polish Grid CA" \
+  PERMIT Subject "/C=PL/O=GRID/.*"
+

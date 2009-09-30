@@ -1,0 +1,13 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)0a2bac92.signing_policy.namespaces
+# CA alias    : BrGrid
+#    subord_of: 
+#    subjectDN: /C=BR/O=ICPEDU/O=UFF BrGrid CA/CN=UFF Brazilian Grid Certification Authority
+#    hash     : 0a2bac92.signing_policy
+#    (generated automatically from 0a2bac92.signing_policy)
+#
+TO Issuer "/C=BR/O=ICPEDU/O=UFF BrGrid CA/CN=UFF Brazilian Grid Certification Authority" \
+  PERMIT Subject "/C=BR/O=ICPEDU/O=UFF BrGrid CA/.*"
+

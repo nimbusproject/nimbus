@@ -1,0 +1,4 @@
+# EACL French CA, project level: CNRS-Projets
+access_id_CA      X509          '/C=FR/O=CNRS/CN=CNRS-Projets'
+pos_rights        globus        CA:sign
+cond_subjects   globus  '"/C=FR/O=CNRS/CN=GRID-FR" "/C=FR/O=CNRS/CN=CNRS-Projets"'

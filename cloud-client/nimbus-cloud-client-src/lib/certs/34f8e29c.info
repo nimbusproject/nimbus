@@ -1,0 +1,13 @@
+#
+# @(#)$Id: 34f8e29c.info,v 1.1.1.1 2009/05/28 21:09:05 tfreeman Exp $
+# Information for CA DFN-GridGermany-User
+#   obtained from 34f8e29c in DFN/
+alias = DFN-GridGermany-User
+ca_url = http://cdp1.pca.dfn.de/dfn-pki/certification/x509/grid/g1/ca-user/g1/data/certs/ca-user-cert.crt
+crl_url = http://cdp1.pca.dfn.de/dfn-pki/certification/x509/grid/g1/ca-user/g1/data/crls/ca-user-crl.crl
+email = dfnpca@dfn-cert.de
+requires = DFN-GridGermany-Root
+status = accredited:classic
+url = http://www.pca.dfn.de/dfn-pki/certification/x509/grid/g1/ca-user/g1/data/html/cacert.html
+version = 1.22
+sha1fp.0 = 0F:9B:68:C9:1F:E4:E2:1E:7A:B1:90:E7:22:75:17:EC:7B:F7:06:EB

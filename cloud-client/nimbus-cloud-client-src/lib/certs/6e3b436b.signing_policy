@@ -1,0 +1,4 @@
+# Signing policy file for the AustrianGrid CA
+ access_id_CA	X509	'/C=AT/O=AustrianGrid/OU=Certification Authority/CN=Certificate Issuer'
+ pos_rights	globus	CA:sign
+ cond_subjects	globus	'"/C=AT/O=AustrianGrid/*"'

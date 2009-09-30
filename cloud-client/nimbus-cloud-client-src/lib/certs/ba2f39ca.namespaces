@@ -1,0 +1,13 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)ba2f39ca.namespaces
+# CA alias    : IHEP
+#    subord_of: 
+#    subjectDN: /C=CN/O=HEP/CN=gridca-cn/Email=gridca@ihep.ac.cn
+#    hash     : ba2f39ca
+#    (generated automatically from ./APGrid/ba2f39ca.signing_policy)
+#
+TO Issuer "/C=CN/O=HEP/CN=gridca-cn/emailAddress=gridca@ihep.ac.cn" \
+  PERMIT Subject "/C=CN/O=HEP/.*"
+

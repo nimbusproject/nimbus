@@ -1,0 +1,12 @@
+#
+# @(#)$Id: 1d879c6c.info,v 1.1.1.1 2009/05/28 21:09:06 tfreeman Exp $
+# CA CERN-TCA
+#
+alias = CERN-TCA
+requires = CERN-Root
+crl_url = http://ca.cern.ch/ca/CRL/CERN%20Trusted%20Certification%20Authority.crl
+url = http://www.cern.ch/ca
+email = cern-ca-managers@cern.ch
+status = accredited:classic
+version = 1.22
+sha1fp.0 = 66:CF:70:13:27:68:F3:C2:07:F3:BE:5F:BF:D4:1C:BD:85:9D:10:65

@@ -1,0 +1,10 @@
+#
+# @(#)$Id: f5ead794.info,v 1.1.1.1 2009/05/28 21:09:09 tfreeman Exp $
+# Information for CA PK-Grid-2007 (supersedes d2a353a5)
+alias = PK-Grid-2007
+crl_url = http://www.ncp.edu.pk/pk-grid-ca/2007/CRL/ncp.crl
+url = http://www.ncp.edu.pk/pk-grid-ca/
+email = pkgrid-ca@ncp.edu.pk
+status = accredited:classic
+version = 1.22
+sha1fp.0 = AB:BC:65:79:33:A3:DF:AB:BA:25:C8:DE:E9:3F:C7:9E:4A:BA:7A:F5

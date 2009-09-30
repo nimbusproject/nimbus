@@ -1,0 +1,13 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)1691b9ba.namespaces
+# CA alias    : TRGrid
+#    subord_of: 
+#    subjectDN: /C=TR/O=TRGrid/CN=TR-Grid CA
+#    hash     : 1691b9ba
+#    (generated automatically from ./EUGridPMA/TRGrid/1691b9ba.signing_policy)
+#
+TO Issuer "/C=TR/O=TRGrid/CN=TR-Grid CA" \
+  PERMIT Subject "/C=TR/O=TRGrid/.*"
+

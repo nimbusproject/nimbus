@@ -1,0 +1,13 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)$Id: ce33db76.namespaces,v 1.1.1.1 2009/05/28 21:09:07 tfreeman Exp $
+# CA alias    : IRAN-GRID
+#    subord_of: 
+#    subjectDN: /C=IR/O=IPM/O=IRAN-GRID/CN=IRAN-GRID CA
+#    hash     : ce33db76
+#    (generated automatically from ce33db76.signing_policy)
+#
+TO Issuer "/C=IR/O=IPM/O=IRAN-GRID/CN=IRAN-GRID CA" \
+  PERMIT Subject "/C=IR/O=IRAN-GRID/.*"
+

@@ -1,0 +1,4 @@
+# EACL Slovak CA
+access_id_CA    X509            '/C=SK/O=SlovakGrid/CN=SlovakGrid CA'
+pos_rights              globus  CA:sign
+cond_subjects           globus  '"/C=SK/O=SlovakGrid/*"'

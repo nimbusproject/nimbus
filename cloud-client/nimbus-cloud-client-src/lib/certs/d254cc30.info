@@ -1,0 +1,11 @@
+#
+# @(#)$Id: d254cc30.info,v 1.1.1.1 2009/05/28 21:09:07 tfreeman Exp $
+# CA CERN-Root
+#
+alias = CERN-Root
+crl_url = http://ca.cern.ch/ca/CRL/CERN%20Root%20CA.crl
+url = http://www.cern.ch/ca
+email = cern-ca-managers@cern.ch
+status = accredited:classic
+version = 1.22
+sha1fp.0 = DA:D8:7F:63:95:90:A1:E4:D4:1D:B9:48:3D:F4:C3:5C:FC:6B:BF:A3

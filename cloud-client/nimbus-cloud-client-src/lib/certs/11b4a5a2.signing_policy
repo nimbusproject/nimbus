@@ -1,0 +1,4 @@
+# LIP Certification Authority
+access_id_CA       X509        '/C=PT/O=LIPCA/CN=LIP Certification Authority'
+pos_rights         globus      CA:sign
+cond_subjects      globus      '"/C=PT/O=LIPCA/*"'

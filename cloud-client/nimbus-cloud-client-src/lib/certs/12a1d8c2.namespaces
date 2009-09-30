@@ -1,0 +1,13 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)12a1d8c2.namespaces
+# CA alias    : CNRS-Grid-FR
+#    subord_of: CNRS-Projets
+#    subjectDN: /C=FR/O=CNRS/CN=GRID-FR
+#    hash     : 12a1d8c2
+#    (generated automatically from ./CNRS-Grid-FR/12a1d8c2.signing_policy)
+#
+TO Issuer "/C=FR/O=CNRS/CN=GRID-FR" \
+  PERMIT Subject "/O=GRID-FR/.*"
+

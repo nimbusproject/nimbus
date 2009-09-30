@@ -1,0 +1,13 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)566bf40f.namespaces
+# CA alias    : EstonianGrid
+#    subord_of: 
+#    subjectDN: /C=EE/O=Grid/CN=Estonian Grid Certification Authority
+#    hash     : 566bf40f
+#    (generated automatically from ./EstonianGrid/566bf40f.signing_policy)
+#
+TO Issuer "/C=EE/O=Grid/CN=Estonian Grid Certification Authority" \
+  PERMIT Subject "/C=EE/O=Grid/.*"
+

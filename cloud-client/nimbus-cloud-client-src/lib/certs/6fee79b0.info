@@ -1,0 +1,12 @@
+#
+# @(#)$Id: 6fee79b0.info,v 1.1.1.1 2009/05/28 21:09:06 tfreeman Exp $
+# Information for CA IUCC
+#   obtained from 6fee79b0 in IUCC/
+alias = IUCC
+url = http://certificate.iucc.ac.il/
+email = erez.etzion@cern.ch
+ca_url = http://certificate.iucc.ac.il/ca/cacert.pem
+crl_url = http://certificate.iucc.ac.il/ca/cacrl.pem
+status = accredited:classic
+version = 1.22
+sha1fp.0 = 0E:91:CA:65:47:26:1F:40:88:E2:8C:AA:83:44:0A:D3:57:43:D6:38

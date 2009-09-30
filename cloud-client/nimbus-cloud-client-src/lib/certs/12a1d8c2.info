@@ -1,0 +1,13 @@
+#
+# @(#)$Id: 12a1d8c2.info,v 1.1.1.1 2009/05/28 21:09:09 tfreeman Exp $
+# Information for CA CNRS-Grid-FR
+#   obtained from 12a1d8c2 in CNRS-Grid-FR/
+alias = CNRS-Grid-FR
+url = http://igc.services.cnrs.fr/GRID-FR/
+email = alice.de-bignicourt@urec.cnrs.fr
+crl_url = http://crls.services.cnrs.fr/GRID-FR/getpem.crl
+requires = CNRS-Projets
+status = accredited:classic
+url = http://igc.services.cnrs.fr/GRID-FR/
+version = 1.22
+sha1fp.0 = 93:7E:8E:9E:9E:B4:37:18:44:A3:C4:16:20:4A:92:CD:F3:28:E6:80

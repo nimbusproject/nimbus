@@ -1,0 +1,16 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)dd4b34ea.namespaces
+# CA alias    : GermanGrid
+#    subord_of: 
+#    subjectDN: /C=DE/O=GermanGrid/CN=GridKa-CA
+#    hash     : dd4b34ea
+#    (generated automatically from ./GermanGrid/dd4b34ea.signing_policy)
+#
+TO Issuer "/C=DE/O=GermanGrid/CN=GridKa-CA" \
+  PERMIT Subject "/C=DE/O=GermanGrid/.*"
+
+TO Issuer "/C=DE/O=GermanGrid/CN=GridKa-CA" \
+  PERMIT Subject "/O=GermanGrid/OU=.*"
+

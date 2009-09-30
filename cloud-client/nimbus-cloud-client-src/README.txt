@@ -1,0 +1,136 @@
+Workspace Cloud Client
+----------------------
+
+For more information, see: 
+
+   http://workspace.globus.org/clouds/
+
+It is recommended that you follow the quickstarts at the web site, it usually
+contains a better walkthrough.
+
+For general notes on the capabilities and syntax of the cloud client, run
+the help command:
+
+   $ ./bin/cloud-client.sh -h
+
+You need to have Java installed in order to run this.
+
+
+Security
+--------
+
+1. Obtain a credential.  If you do not have a proxy credential in place, you
+   can use the embedded Globus libraries to run grid-proxy-init like so:
+   
+   $ ./bin/grid-proxy-init.sh
+
+   Issues?  Try our mailing list and/or run:
+
+   $ ./bin/grid-proxy-init.sh -help
+
+   grid-proxy-init cannot find your credential's CA files?  try:
+
+   $ export X509_CERT_DIR="/path/to/certificates_directory"
+
+
+2. Test the security setup.
+
+   $ ./bin/cloud-client.sh --security
+
+
+3. If you have not given your DN to the cloud administrators, do so sending
+   the distinguished name printed after 'Identity:'
+
+
+Configuring The Cloud
+---------------------
+
+If you received this tarball from the cloud administrator or cloud website,
+you probably have the proper configuration file already.
+
+Examine the "conf/cloud.properties" file.
+
+You can put the correct settings there or override them all via commandline
+(see --extrahelp).  Or use different configuration files by using the --conf
+option to specify an alternate.
+
+
+Uploading A Workspace To The Cloud
+----------------------------------
+
+1. Pick a local VM image to run.  The image must conform in this manner:
+
+   a.  DHCP broadcast at boot
+   b.  Partition file that is mounted to /dev/sda1
+   c.  Running SSHd so that you can login.  Your SSH key will be written
+       to /root/.ssh/authorized_keys on the VM before it is booted (see
+       below for how to pick which key this is).
+
+2. You can transfer an image to the cloud and then run it in a single command.
+   Here is how to just do a transfer:
+
+   $ ./bin/cloud-client.sh --transfer --sourcefile /tmp/some_image
+
+There are also --download (get an image in your personal directory) and
+--delete (delete an image in your personal directory) options.
+
+SSH Notes
+---------
+
+The SSH public key to configure is set in the "conf/cloud.properties" file.
+This will set the policy for root SSH login inside the VM, the service will
+deliver this file to the VM's "/root/.ssh/authorized_keys" file.
+
+You can change what public key file is used by changing the relevant property.
+Alternatively, you can override the configuration via commandline flag.  You
+can also override the other properties defined in that file by commandline
+flag.  These extra commandlines are listed in --extrahelp.
+
+Note you can remove the property to disable the dynamic SSH policy installation
+from happening at all.
+
+
+Running A Workspace
+-------------------
+
+1. If you want to run the image you transferred in the previous section,
+   named 'some_image', here is how:
+
+   $ ./bin/cloud-client.sh --run --name some_image --hours 1
+
+2. If you want to transfer the image to the cloud and run it in the same
+   command, you don't need the 'name' argument.  In the absence of the
+   name argument, the image to run is deduced from the sourcefile argument.
+
+   $ ./bin/cloud-client.sh --transfer --sourcefile /tmp/some_image --run --hours 1
+
+   (The order of commandline flags does not matter, it will always transfer
+    before running.)
+
+
+After sending a run command, the network address picked for the VM will be
+displayed.  Note that it will only be active once the VM is reported to be
+running -- it just gets picked right away.
+
+Because the public key file was installed to /root/.ssh/authorized_keys on
+the VM before it boot (see last section), after it boots you should be able
+to log in by running:
+
+    ssh root@example.com
+
+... where "example.com" is the network address that was assigned to the
+workspace and printed to your screen.
+
+
+Workspace Handle
+----------------
+
+Note the short name of the workspace you created, e.g. "vm-009".
+
+This corresponds to a directory created under the "history" directory.  Files
+from the instance creation are kept there, including log files and a handle
+file (an "EPR" file, EPR stands for "endpoint reference").  The EPR allows you
+to run subsequent management or query operations after creation.  The following
+sections discuss these.
+
+See -h for more options (terminate, save).

@@ -1,0 +1,13 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)1f0e8352.namespaces
+# CA alias    : NorduGrid
+#    subord_of: 
+#    subjectDN: /O=Grid/O=NorduGrid/CN=NorduGrid Certification Authority
+#    hash     : 1f0e8352
+#    (generated automatically from ./NorduGrid/1f0e8352.signing_policy)
+#
+TO Issuer "/O=Grid/O=NorduGrid/CN=NorduGrid Certification Authority" \
+  PERMIT Subject "/O=Grid/O=NorduGrid/.*"
+

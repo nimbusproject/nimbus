@@ -1,0 +1,4 @@
+# EACL IRAN-GRID CP/CPS version 1.2
+ access_id_CA   X509     '/C=IR/O=IPM/O=IRAN-GRID/CN=IRAN-GRID CA'
+ pos_rights     globus   CA:sign
+ cond_subjects  globus   '"/C=IR/O=IPM/O=IRAN-GRID/CN=IRAN-GRID CA" "/C=IR/O=IRAN-GRID/*"'

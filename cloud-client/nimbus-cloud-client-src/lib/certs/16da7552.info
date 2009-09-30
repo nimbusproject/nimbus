@@ -1,0 +1,12 @@
+#
+# @(#)$Id: 16da7552.info,v 1.1.1.1 2009/05/28 21:09:06 tfreeman Exp $
+# Information for CA NIKHEF
+#   
+alias = NIKHEF
+ca_url = http://ca.dutchgrid.nl/medium/cacert.pem
+crl_url = http://ca.dutchgrid.nl/medium/cacrl.pem
+email = ca@dutchgrid.nl
+status = accredited:classic
+url = http://ca.dutchgrid.nl/medium/
+version = 1.22
+sha1fp.0 = E5:FA:C3:3B:44:8F:26:1B:3D:D1:DE:BA:5F:EC:ED:35:A9:3F:23:21

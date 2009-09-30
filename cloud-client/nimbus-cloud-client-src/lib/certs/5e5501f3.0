@@ -1,0 +1,111 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number: 0 (0x0)
+        Signature Algorithm: sha1WithRSAEncryption
+        Issuer: C=HU, O=KFKI RMKI CA, CN=KFKI RMKI CA
+        Validity
+            Not Before: Oct 29 12:46:29 2004 GMT
+            Not After : Oct 28 12:46:29 2009 GMT
+        Subject: C=HU, O=KFKI RMKI CA, CN=KFKI RMKI CA
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+            RSA Public Key: (2048 bit)
+                Modulus (2048 bit):
+                    00:96:a1:46:c3:b2:1b:1e:97:e8:84:fc:8d:21:33:
+                    9d:80:5a:12:29:f0:a6:25:2b:f7:e2:97:2c:fe:e0:
+                    8a:e5:28:b8:d6:70:62:af:6c:6b:bf:dd:f2:31:2d:
+                    3b:8a:f9:13:0d:98:b1:be:a1:1a:b6:35:52:2d:9d:
+                    e7:6c:84:8b:3c:7e:e9:18:bb:a6:6c:71:79:8e:62:
+                    d1:e8:4f:1f:ca:d4:30:24:64:17:b7:27:8a:71:11:
+                    d9:24:67:36:33:d7:52:f6:a8:2d:a3:a8:83:2b:e8:
+                    43:e8:0c:2b:73:6c:ce:1c:fa:9d:65:29:fe:f6:a4:
+                    b6:71:d7:65:cd:cc:7d:bb:99:96:5b:cd:2f:0f:60:
+                    93:90:1a:49:58:9e:0e:f7:a9:be:c3:64:94:07:3d:
+                    9a:5b:07:86:89:8c:8c:d4:8b:13:1f:b1:8f:be:48:
+                    50:c2:43:12:2b:a2:b0:cb:55:a9:e6:27:ed:55:07:
+                    50:4f:e3:44:73:2c:e8:ce:ec:f3:5a:e2:4a:30:a4:
+                    c2:ee:f2:7b:2d:19:2d:e9:df:98:8f:d3:70:94:75:
+                    a2:b8:a1:11:89:36:88:48:20:3f:95:d1:30:fb:0f:
+                    38:cf:cc:22:f8:2e:47:7a:ab:05:54:5d:1a:0c:db:
+                    1f:be:06:97:cb:2f:0b:ca:e4:74:56:35:c0:ae:51:
+                    83:d7
+                Exponent: 65537 (0x10001)
+        X509v3 extensions:
+            X509v3 Basic Constraints: critical
+                CA:TRUE
+            X509v3 Subject Key Identifier: 
+                68:83:C8:8D:FA:27:13:72:C8:7B:75:0A:E1:E0:05:2A:E9:37:3C:45
+            X509v3 Authority Key Identifier: 
+                keyid:68:83:C8:8D:FA:27:13:72:C8:7B:75:0A:E1:E0:05:2A:E9:37:3C:45
+                DirName:/C=HU/O=KFKI RMKI CA/CN=KFKI RMKI CA
+                serial:00
+
+            X509v3 Key Usage: critical
+                Certificate Sign, CRL Sign
+            X509v3 Subject Alternative Name: 
+                email:pki@pki.kfki.hu
+            X509v3 Issuer Alternative Name: 
+                email:pki@pki.kfki.hu
+            X509v3 Certificate Policies: 
+                Policy: 1.3.6.1.4.1.15301.4.1.1.1
+
+            Netscape Cert Type: 
+                SSL CA, S/MIME CA, Object Signing CA
+            Netscape Comment: 
+                Issued under KFKI RMKI CA CP/CPS v1.1
+            Netscape CA Policy Url: 
+                http://pki.kfki.hu/pki/pub/policy.html
+            X509v3 CRL Distribution Points: 
+                URI:http://pki.kfki.hu/pki0/pub/crl/cacrl.crl
+
+            Netscape CA Revocation Url: 
+                http://pki.kfki.hu/pki0/pub/crl/cacrl.crl
+            Netscape Revocation Url: 
+                http://pki.kfki.hu/pki0/pub/crl/cacrl.crl
+    Signature Algorithm: sha1WithRSAEncryption
+        3a:c0:57:ac:51:1c:d1:1d:80:fb:b1:cc:f2:d8:8f:b1:6d:f8:
+        94:8c:0d:eb:94:fe:25:df:00:c5:a3:4f:b0:71:67:42:ef:26:
+        d1:ff:19:0d:c2:dc:1a:66:58:6e:34:02:df:d7:b5:13:d2:24:
+        bd:c9:8e:12:93:18:ae:b8:12:5f:65:51:c7:68:4b:25:fa:6b:
+        e7:f6:f4:01:45:88:49:9c:eb:c6:c3:db:60:cb:3e:a0:c3:e0:
+        5b:fa:6c:d6:05:80:2e:4d:45:ca:b8:bb:ab:a9:37:c9:37:de:
+        1c:12:8a:c2:c2:61:1d:15:5e:61:0d:a2:9a:26:1a:03:55:e0:
+        b6:53:e5:64:9d:0d:98:ef:c4:f0:20:dc:47:e8:94:ad:84:88:
+        85:d9:bf:bc:12:19:5c:f9:ff:c0:7c:4d:63:3f:50:b4:0d:c6:
+        f9:5f:db:2d:1c:26:c2:79:56:24:2b:39:1b:b3:93:8d:68:dc:
+        c1:76:42:6c:69:e2:f6:8a:36:6d:4c:d0:d9:11:0b:57:48:a2:
+        69:d3:d6:e5:8e:3b:b9:54:fb:98:97:fa:13:b8:54:32:cd:03:
+        b5:94:7c:99:6b:55:1a:bd:f2:21:8f:1c:34:0b:d2:d1:15:af:
+        d2:b0:df:f1:44:53:6c:11:4a:8a:cf:44:ac:6f:8a:76:38:26:
+        a7:5f:b9:c9
+-----BEGIN CERTIFICATE-----
+MIIFHjCCBAagAwIBAgIBADANBgkqhkiG9w0BAQUFADA7MQswCQYDVQQGEwJIVTEV
+MBMGA1UEChMMS0ZLSSBSTUtJIENBMRUwEwYDVQQDEwxLRktJIFJNS0kgQ0EwHhcN
+MDQxMDI5MTI0NjI5WhcNMDkxMDI4MTI0NjI5WjA7MQswCQYDVQQGEwJIVTEVMBMG
+A1UEChMMS0ZLSSBSTUtJIENBMRUwEwYDVQQDEwxLRktJIFJNS0kgQ0EwggEiMA0G
+CSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCWoUbDshsel+iE/I0hM52AWhIp8KYl
+K/filyz+4IrlKLjWcGKvbGu/3fIxLTuK+RMNmLG+oRq2NVItnedshIs8fukYu6Zs
+cXmOYtHoTx/K1DAkZBe3J4pxEdkkZzYz11L2qC2jqIMr6EPoDCtzbM4c+p1lKf72
+pLZx12XNzH27mZZbzS8PYJOQGklYng73qb7DZJQHPZpbB4aJjIzUixMfsY++SFDC
+QxIrorDLVanmJ+1VB1BP40RzLOjO7PNa4kowpMLu8nstGS3p35iP03CUdaK4oRGJ
+NohIID+V0TD7DzjPzCL4Lkd6qwVUXRoM2x++BpfLLwvK5HRWNcCuUYPXAgMBAAGj
+ggIrMIICJzAPBgNVHRMBAf8EBTADAQH/MB0GA1UdDgQWBBRog8iN+icTcsh7dQrh
+4AUq6Tc8RTBjBgNVHSMEXDBagBRog8iN+icTcsh7dQrh4AUq6Tc8RaE/pD0wOzEL
+MAkGA1UEBhMCSFUxFTATBgNVBAoTDEtGS0kgUk1LSSBDQTEVMBMGA1UEAxMMS0ZL
+SSBSTUtJIENBggEAMA4GA1UdDwEB/wQEAwIBBjAaBgNVHREEEzARgQ9wa2lAcGtp
+Lmtma2kuaHUwGgYDVR0SBBMwEYEPcGtpQHBraS5rZmtpLmh1MBgGA1UdIAQRMA8w
+DQYLKwYBBAH3RQQBAQEwEQYJYIZIAYb4QgEBBAQDAgAHMDQGCWCGSAGG+EIBDQQn
+FiVJc3N1ZWQgdW5kZXIgS0ZLSSBSTUtJIENBIENQL0NQUyB2MS4xMDUGCWCGSAGG
++EIBCAQoFiZodHRwOi8vcGtpLmtma2kuaHUvcGtpL3B1Yi9wb2xpY3kuaHRtbDA6
+BgNVHR8EMzAxMC+gLaArhilodHRwOi8vcGtpLmtma2kuaHUvcGtpMC9wdWIvY3Js
+L2NhY3JsLmNybDA4BglghkgBhvhCAQQEKxYpaHR0cDovL3BraS5rZmtpLmh1L3Br
+aTAvcHViL2NybC9jYWNybC5jcmwwOAYJYIZIAYb4QgEDBCsWKWh0dHA6Ly9wa2ku
+a2ZraS5odS9wa2kwL3B1Yi9jcmwvY2FjcmwuY3JsMA0GCSqGSIb3DQEBBQUAA4IB
+AQA6wFesURzRHYD7sczy2I+xbfiUjA3rlP4l3wDFo0+wcWdC7ybR/xkNwtwaZlhu
+NALf17UT0iS9yY4SkxiuuBJfZVHHaEsl+mvn9vQBRYhJnOvGw9tgyz6gw+Bb+mzW
+BYAuTUXKuLurqTfJN94cEorCwmEdFV5hDaKaJhoDVeC2U+VknQ2Y78TwINxH6JSt
+hIiF2b+8Ehlc+f/AfE1jP1C0Dcb5X9stHCbCeVYkKzkbs5ONaNzBdkJsaeL2ijZt
+TNDZEQtXSKJp09bljju5VPuYl/oTuFQyzQO1lHyZa1UavfIhjxw0C9LRFa/SsN/x
+RFNsEUqKz0Ssb4p2OCanX7nJ
+-----END CERTIFICATE-----

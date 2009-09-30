@@ -1,0 +1,11 @@
+#
+# @(#)$Id: bffbd7d0.info,v 1.1.1.1 2009/05/28 21:09:08 tfreeman Exp $
+# Information for CA GridCanada new CA "bffbd7d0"
+alias = GridCanada
+ca_url = http://www.gridcanada.ca/ca/bffbd7d0.0
+crl_url = http://www.gridcanada.ca/ca/bffbd7d0.r0
+url = http://www.gridcanada.ca/ca
+email = ca@gridcanada.ca
+status = accredited:classic
+version = 1.22
+sha1fp.0 = 6A:CD:12:D6:98:82:3D:F4:B1:DC:89:AA:49:94:C8:8D:1A:AD:8A:C6

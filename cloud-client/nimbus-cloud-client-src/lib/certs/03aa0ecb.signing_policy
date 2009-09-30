@@ -1,0 +1,11 @@
+# EACL - BEGrid CA policy
+ access_id_CA      X509     '/C=BE/O=BELNET/OU=BEGrid/CN=BEGrid CA/emailAddress=gridca@belnet.be'
+ pos_rights        globus   CA:sign
+ cond_subjects     globus   '"/C=BE/O=BELNET/OU=BEGrid/CN=BEGrid CA/emailAddress=gridca@belnet.be" "/C=BE/O=BEGRID/*"'
+
+# for pre-RFC3280 behaviour in openssl <= 0.9.6
+# is untested yet
+
+ access_id_CA      X509     '/C=BE/O=BELNET/OU=BEGrid/CN=BEGrid CA/Email=gridca@belnet.be'
+ pos_rights        globus   CA:sign
+ cond_subjects     globus   '"/C=BE/O=BELNET/OU=BEGrid/CN=BEGrid CA/Email=gridca@belnet.be" "/C=BE/O=BEGRID/*"'

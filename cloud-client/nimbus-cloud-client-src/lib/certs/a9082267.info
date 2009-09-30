@@ -1,0 +1,11 @@
+#
+# @(#)$Id: a9082267.info,v 1.1.1.1 2009/05/28 21:09:09 tfreeman Exp $
+#
+alias = LACGridCA
+url = http://lacgridca.ic.uff.br/
+ca_url = http://lacgridca.ic.uff.br/certs/cacert.pem
+crl_url = http://lacgridca.ic.uff.br/crl/cacrl.crl
+email = lacgridca@ic.uff.br
+status = accredited:classic
+sha1fp.0 = 6B:6B:42:2C:82:81:2E:02:5A:68:2E:59:42:44:0F:76:9D:0B:E9:9B
+version = 1.22
