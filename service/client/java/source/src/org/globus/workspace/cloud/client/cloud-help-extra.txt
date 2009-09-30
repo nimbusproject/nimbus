@@ -37,6 +37,15 @@ Miscellaneous actions:
     --networks               Print the available networks (see contextualization
                              guide and the sample cluster definitions).
 
+
+    --init-context <temp dir>
+                             Create a new context and generate userdata files
+                             for a cluster document. Useful for wrapping
+                             contextualization actions.
+
+      * Required init-context option:
+          --cluster <path>       Cluster document
+
 --------------------------------------------------------------------------------
 
 Required "--print-file-URL" options:

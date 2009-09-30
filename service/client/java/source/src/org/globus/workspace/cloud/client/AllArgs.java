@@ -78,6 +78,7 @@ public class AllArgs {
     public static final Integer ACTION_ASSOC_QUERY = new Integer(16);
     public static final Integer ACTION_USAGE = new Integer(17);
     public static final Integer ACTION_EC2_CLUSTER = new Integer(18);
+    public static final Integer ACTION_INIT_CONTEXT = new Integer(19);
 
     // ------------------------------------
 
@@ -95,7 +96,8 @@ public class AllArgs {
     private String hashPrintDN;
     private String historyDirectory;
     private String historySubDir;
-	private String kernel;
+    private String initCtxDir;
+    private String kernel;
     private String localfile;
     private int memory;
     private String name;
@@ -307,6 +309,14 @@ public class AllArgs {
                     line.getOptionValue(Opts.HASH_PRINT_OPT_STRING);
             this.gotCmdLine(Opts.HASH_PRINT_OPT_STRING,
                             this.hashPrintDN);
+        }
+
+        if (line.hasOption(Opts.INIT_CTX_OPT_STRING)) {
+            this.actions.add(ACTION_INIT_CONTEXT);
+            this.initCtxDir =
+                    line.getOptionValue(Opts.INIT_CTX_OPT_STRING);
+            this.gotCmdLine(Opts.INIT_CTX_OPT_STRING,
+                    this.initCtxDir);
         }
 
         if (line.hasOption(Opts.HELP_OPT_STRING)) {
@@ -863,6 +873,14 @@ public class AllArgs {
 
     public void setClusterPath(String clusterPath) {
         this.clusterPath = clusterPath;
+    }
+
+    public String getInitCtxDir() {
+        return initCtxDir;
+    }
+
+    public void setInitCtxDir(String initCtxDir) {
+        this.initCtxDir = initCtxDir;
     }
 
     public String getEc2ScriptPath() {

@@ -32,6 +32,7 @@ import org.globus.workspace.client_core.utils.FileUtils;
 import org.globus.workspace.client_core.utils.StringUtils;
 import org.globus.workspace.cloud.client.Opts;
 import org.globus.workspace.cloud.client.cluster.KnownHostsTask;
+import org.globus.workspace.cloud.client.cluster.ClusterMember;
 import org.globus.workspace.cloud.client.tasks.ClusterDoneTask;
 import org.globus.workspace.cloud.client.tasks.ClusterMonitorTask;
 import org.globus.workspace.cloud.client.tasks.ContextMonitorTask;
@@ -45,6 +46,7 @@ import org.globus.workspace.cloud.meta.client.CloudDeployment;
 import org.globus.workspace.common.client.CommonPrint;
 import org.globus.workspace.common.print.Print;
 import org.globus.workspace.common.print.PrintOpts;
+import org.globus.wsrf.encoding.SerializationException;
 import org.nimbustools.ctxbroker.generated.gt4_0.description.BrokerContactType;
 import org.nimbustools.ctxbroker.generated.gt4_0.description.Cloudcluster_Type;
 import org.nimbustools.ctxbroker.generated.gt4_0.description.Nimbusctx_Type;
@@ -56,6 +58,7 @@ import javax.xml.namespace.QName;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.PrintStream;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -995,31 +998,89 @@ public class ExecuteUtil {
         return newdir;
     }
 
+    public void ctxClusterHelp(ClusterMember[] clusterMembers,
+                               String brokerURL,
+                               String brokerID,
+                               boolean doContextLock,
+                               String tempDirPath,
+                               Print print)
+        throws ExecutionProblem, ExitNow {
+
+        if (clusterMembers == null || clusterMembers.length == 0) {
+            throw new ExecutionProblem("no clusterMembers");
+        }
+
+        final boolean usingContextBroker =
+                needsContextualization(clusterMembers);
+
+        if (!usingContextBroker) {
+            throw new ExecutionProblem("cluster doesn't need contextualization!");
+        }
+
+        File tempDir = new File(tempDirPath);
+        if (!(tempDir.exists() && tempDir.isDirectory() && tempDir.canWrite())) {
+            throw new ExecutionProblem("tempdir must exist and be writeable");
+        }
+
+
+        final File ctxFile = new File(tempDir,
+                                          HistoryUtil.CONTEXT_EPR_FILE_NAME);
+        final String ctxEprPath = ctxFile.getAbsolutePath();
+        final String[] ctxUserDataPaths = new String[clusterMembers.length];
+
+        final File manifestFile = new File(tempDir, "manifest.txt");
+
+        createCtxAndUserdata(clusterMembers,
+                    brokerURL,
+                    brokerID,
+                    doContextLock,
+                    ctxEprPath,
+                    ctxUserDataPaths,
+                    tempDir,
+                    print);
+
+        // TODO arbitary!
+        // This method needs to either Go Away or a better
+        // serialization scheme needs to be used.
+
+        StringBuilder sb = new StringBuilder();
+        for (int i=0; i < clusterMembers.length; i++) {
+            sb.append(clusterMembers[i].getImageName());
+            sb.append("\t");
+            sb.append(clusterMembers[i].getQuantity());
+            sb.append("\t");
+            sb.append(ctxUserDataPaths[i]);
+            sb.append("\n");
+        }
+
+        try {
+            FileUtils.writeStringToFile(sb.toString(),
+                    manifestFile.getAbsolutePath());
+        } catch (Exception e) {
+            throw new ExecutionProblem("Problem writing cluster manifest",e);
+        }
+
+    }
+
 
     // -------------------------------------------------------------------------
     // EC2 CLUSTER HELP
     // -------------------------------------------------------------------------
 
-    public void ec2ClusterHelp(String workspaceFactoryURL,
-                               Cloudcluster_Type[] clustersForUserData,
-                               boolean doContextLock,
-                               String historyDir,
-                               long pollMs,
-                               String identityAuthorization,
-                               Print print,
+    public void ec2ClusterHelp(ClusterMember[] clusterMembers,
                                String brokerURL,
-                               String brokerIdentityAuthorization,
-                               String[] amiNames,
-                               int[] amiNums,
-                               String ec2ScriptPath)
+                               String brokerID,
+                               boolean doContextLock,
+                               long pollMs,
+                               String ec2ScriptPath,
+                               String historyDir,
+                               Print print
+    )
 
             throws ExecutionProblem, ExitNow {
 
-        if (amiNames == null || amiNames.length == 0) {
-            throw new ExecutionProblem("no amiNames");
-        }
-        if (amiNums == null || amiNums.length == 0) {
-            throw new ExecutionProblem("no amiNums");
+        if (clusterMembers == null || clusterMembers.length == 0) {
+            throw new ExecutionProblem("no clusterMembers");
         }
 
         final File topdir;
@@ -1072,17 +1133,12 @@ public class ExecuteUtil {
         }
 
         // do we need to handle contextualization?
-        boolean usingContextBroker = false;
-        for (Cloudcluster_Type oneclusta : clustersForUserData) {
-            if (oneclusta != null) {
-                usingContextBroker = true;
-                break;
-            }
-        }
+        final boolean usingContextBroker =
+                needsContextualization(clusterMembers);
 
         final String ctxEprPath;
         final String ctxReportsDirPath;
-        final String[] ctxUserDataPaths = new String[amiNames.length];
+        final String[] ctxUserDataPaths = new String[clusterMembers.length];
 
         if (!usingContextBroker) {
             ctxEprPath = null;
@@ -1093,98 +1149,43 @@ public class ExecuteUtil {
                                           HistoryUtil.CONTEXT_EPR_FILE_NAME);
             ctxEprPath = ctxFile.getAbsolutePath();
 
-            final File newdir3 = new File(newdirPath, "reports-ctx");
-            ctxReportsDirPath = newdir3.getAbsolutePath();
-            if (newdir3.mkdir()) {
+            final File ctxReportDir = new File(newdirPath, "reports-ctx");
+            ctxReportsDirPath = ctxReportDir.getAbsolutePath();
+            if (ctxReportDir.mkdir()) {
                 print.debugln("Created directory: " + ctxReportsDirPath);
             } else {
                 throw new ExecutionProblem(
                     "Could not create directory '" + ctxReportsDirPath + "'");
             }
 
-            final File newdir4 = new File(newdirPath, "ctx-tmp");
-            final String ctxTempDirPath = newdir4.getAbsolutePath();
-            if (newdir4.mkdir()) {
+            final File ctxTempDir = new File(newdirPath, "ctx-tmp");
+            final String ctxTempDirPath = ctxTempDir.getAbsolutePath();
+            if (ctxTempDir.mkdir()) {
                 print.debugln("Created directory: " + ctxTempDirPath);
             } else {
                 throw new ExecutionProblem(
                         "Could not create directory '" + ctxTempDirPath + "'");
             }
 
-            if (brokerURL == null) {
-                int dx = workspaceFactoryURL.indexOf("WorkspaceFactoryService");
-                brokerURL = workspaceFactoryURL.substring(0,dx);
-                brokerURL += "NimbusContextBroker";
-                print.debugln("No context broker URL was explicitly supplied," +
-                        " so it has been deduced from the nimbus factory URL." +
-                        " Using: " + brokerURL);
 
-                // and so ID scheme for service must be copied
-                if (brokerIdentityAuthorization == null
-                        && identityAuthorization != null) {
-                    brokerIdentityAuthorization = identityAuthorization;
-                }
-            }
-
-            final BrokerContactType brokerContact;
-            try {
-                brokerContact = this.createCtx(brokerURL,
-                                               brokerIdentityAuthorization,
+            createCtxAndUserdata(clusterMembers,
+                    brokerURL,
+                    brokerID,
+                    doContextLock,
                                                ctxEprPath,
-                                               newdir4,
-                                               !doContextLock,
+                    ctxUserDataPaths,
+                    ctxTempDir,
                                                print);
-            } catch (Exception e) {
-                throw new ExecutionProblem("Problem creating new context at " +
-                        "the context broker: " + e.getMessage(), e);
-            }
-
-            // prepare user data
-            for (int i = 0; i < clustersForUserData.length; i++) {
-
-                final Cloudcluster_Type oneCtx = clustersForUserData[i];
-
-                if (oneCtx == null) {
-                    ctxUserDataPaths[i] = null;
-                    continue;
-                }
-
-                final File datafile = new File(newdir4, "userdata-" + i);
-
-                ctxUserDataPaths[i] = datafile.getAbsolutePath();
-
-                Nimbusctx_Type wrapper = new Nimbusctx_Type();
-                wrapper.setCluster(oneCtx);
-                wrapper.setContact(brokerContact);
-
-                final QName qName = new QName("", "NIMBUS_CTX");
-
-                try {
-                    final String data =
-                            StringUtils.axisBeanToString(wrapper, qName);
-
-                    FileUtils.writeStringToFile(data, ctxUserDataPaths[i]);
-
-                } catch (Exception e) {
-                    throw new ExecutionProblem("Problem turning the cluster " +
-                            "information into text that the context agents " +
-                            "on the VMs can consume: " + e.getMessage(), e);
-                }
-            }
         }
 
         // write the ec2 commands to both screen and a file
 
         final StringBuffer buf = new StringBuffer();
 
-        if (amiNames.length != amiNums.length) {
-            throw new IllegalArgumentException("amiNames.length must equal" +
-                    " amiNums.length");
-        }
-        for (int i = 0; i < amiNames.length; i++) {
+        for (int i = 0; i < clusterMembers.length; i++) {
             buf.append("\nec2-run-instances")
                .append(" --instance-count ")
-               .append(amiNums[i]);
+               .append(clusterMembers[i].getQuantity());
 
             if (usingContextBroker && ctxUserDataPaths[i] != null) {
                 buf.append(" --user-data-file ")
@@ -1196,7 +1197,7 @@ public class ExecuteUtil {
             // m1.small, m1.large, m1.xlarge, c1.medium, and c1.xlarge
             buf.append(" --instance-type m1.small ");
             buf.append(" --key default ");
-            buf.append(amiNames[i]);
+            buf.append(clusterMembers[i].getImageName());
             buf.append("\n");
         }
 
@@ -1231,7 +1232,7 @@ public class ExecuteUtil {
         // all 'Running', launch context monitor and wait for all
         // EC2 VMs to report 'OK' to the context broker
         this.ctxMonitor(ctxEprPath,
-                        brokerIdentityAuthorization,
+                brokerID,
                         clusterHandle,
                         ctxReportsDirPath,
                         null,
@@ -1244,6 +1245,73 @@ public class ExecuteUtil {
                               ctx_stop - ctx_start)
                     + " more after hearing about launch");
 
+    }
+
+    private boolean needsContextualization(ClusterMember[] clusterMembers) {
+        boolean usingContextBroker = false;
+        for (ClusterMember member : clusterMembers) {
+            if (member.getClusterForUserData() != null) {
+                usingContextBroker = true;
+                break;
+            }
+        }
+        return usingContextBroker;
+    }
+
+    private void createCtxAndUserdata(ClusterMember[] clusterMembers,
+                                      String brokerURL,
+                                      String brokerID,
+                                      boolean doContextLock,
+                                      String ctxEprPath,
+                                      String[] ctxUserDataPaths,
+                                      File ctxTempDir,
+                                      Print print) throws ExitNow, ExecutionProblem {
+
+        final BrokerContactType brokerContact;
+        try {
+            brokerContact = this.createCtx(brokerURL,
+                    brokerID,
+                    ctxEprPath,
+                    ctxTempDir,
+                    !doContextLock,
+                    print);
+        } catch (Exception e) {
+            throw new ExecutionProblem("Problem creating new context at " +
+                    "the context broker: " + e.getMessage(), e);
+        }
+
+        // prepare user data
+        for (int i = 0; i < clusterMembers.length; i++) {
+            ClusterMember member = clusterMembers[i];
+            final Cloudcluster_Type oneCtx = member.getClusterForUserData();
+
+            if (oneCtx == null) {
+                ctxUserDataPaths[i] = null;
+                continue;
+            }
+
+            final File datafile = new File(ctxTempDir, "userdata-" + i);
+
+            ctxUserDataPaths[i] = datafile.getAbsolutePath();
+
+            Nimbusctx_Type wrapper = new Nimbusctx_Type();
+            wrapper.setCluster(oneCtx);
+            wrapper.setContact(brokerContact);
+
+            final QName qName = new QName("", "NIMBUS_CTX");
+
+            try {
+                final String data =
+                        StringUtils.axisBeanToString(wrapper, qName);
+
+                FileUtils.writeStringToFile(data, ctxUserDataPaths[i]);
+
+            } catch (Exception e) {
+                throw new ExecutionProblem("Problem turning the cluster " +
+                        "information into text that the context agents " +
+                        "on the VMs can consume: " + e.getMessage(), e);
+            }
+        }
     }
 
     private BrokerContactType createCtx(String brokerURL,

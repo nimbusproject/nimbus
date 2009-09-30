@@ -445,6 +445,19 @@ public class CloudClient {
             this.parameterCheck_run();
             CommonPrint.printDebugSectionEnd(this.print, sectionTitle);
         }
+
+        if (actions.contains(AllArgs.ACTION_INIT_CONTEXT)) {
+            final String sectionTitle = "PARAMETER CHECK: --" +
+                                                Opts.INIT_CTX_OPT_STRING;
+            CommonPrint.printDebugSection(this.print, sectionTitle);
+            this.parameterCheck_initCtx();
+            CommonPrint.printDebugSectionEnd(this.print, sectionTitle);
+        }
+    }
+
+    void parameterCheck_initCtx() throws ParameterProblem {
+        this._parameterCheck_clusterfile();
+        this._parameterCheck_initContext();
     }
 
     void parameterCheck_list() throws ParameterProblem {
@@ -834,6 +847,15 @@ public class CloudClient {
         return url;
     }
 
+    void _parameterCheck_initContext() throws ParameterProblem {
+        this._checkCredential("Context init helper (which talks to the " +
+                "context broker)");
+
+        if (this.args.getInitCtxDir() == null) {
+            throw new ParameterProblem("Must specify ctx output directory");
+        }
+    }
+
     void _parameterCheck_runec2cluster() throws ParameterProblem {
 
         this._checkCredential("EC2 cluster helper (which talks to the " +
@@ -1185,6 +1207,7 @@ public class CloudClient {
         this.action_run_single();
         this.action_run_cluster();
         this.action_run_ec2cluster();
+        this.action_init_context();
         this.action_download();
         this.action_delete();
     }
@@ -1633,34 +1656,89 @@ public class CloudClient {
         CommonPrint.printDebugSectionEnd(this.print, sectionTitle);
     }
 
+    class CtxMemberInfo {
+        private final String image;
+        private final int quantity;
+        private final ClusterMember clusterMember;
+
+        public CtxMemberInfo(ClusterMember member) throws ExecutionProblem {
+            if (member == null) {
+                throw new IllegalArgumentException("member may not be null");
+        }
+
+            this.clusterMember = member;
+
+            this.image = member.getImageName();
+            if (this.image == null ||
+                    this.image.trim().length() == 0) {
+                throw new ExecutionProblem("image name missing from " +
+                        "cluster document");
+            }
+            this.quantity = member.getQuantity();
+
+        }
+    }
+
+    void validateClusterMembersForCtxClient() throws ExecutionProblem {
+        if (this.clusterMembers == null) {
+            throw new ExecutionProblem("no clusterMembers provided");
+        }
+        for (ClusterMember member : this.clusterMembers) {
+            if (member == null) {
+                throw new IllegalStateException(
+                        "valid clusterMembers must be present here");
+            }
+
+            final String imageName = member.getImageName();
+            if (imageName == null || imageName.trim().length() == 0) {
+                throw new ExecutionProblem("No AMI in cluster file");
+            }
+
+        }
+
+    }
+
+    void action_init_context() throws ExecutionProblem, ExitNow {
+        if (!this.args.getActions().contains(AllArgs.ACTION_INIT_CONTEXT)) {
+            return; // *** EARLY RETURN ***
+        }
+
+        String brokerURL = this.args.getBrokerURL();
+        String brokerIdentityAuthorization = this.args.getBrokerID();
+        if (brokerURL == null) {
+            int dx = this.workspaceFactoryURL.indexOf("WorkspaceFactoryService");
+            brokerURL = this.workspaceFactoryURL.substring(0,dx);
+            brokerURL += "NimbusContextBroker";
+            print.debugln("No context broker URL was explicitly supplied," +
+                    " so it has been deduced from the nimbus factory URL." +
+                    " Using: " + brokerURL);
+
+            // and so ID scheme for service must be copied
+            if (brokerIdentityAuthorization == null
+                    && this.args.getFactoryID() != null) {
+                brokerIdentityAuthorization = this.args.getFactoryID();
+            }
+        }
+
+        this.validateClusterMembersForCtxClient();
+
+        this.executeUtil.ctxClusterHelp(this.clusterMembers,
+                brokerURL, brokerIdentityAuthorization,
+                !this.args.isNoContextLock(),
+                this.args.getInitCtxDir(),
+                this.print);
+    }
+
     void action_run_ec2cluster() throws ExecutionProblem, ExitNow {
 
         if (!this.args.getActions().contains(AllArgs.ACTION_EC2_CLUSTER)) {
             return; // *** EARLY RETURN ***
         }
 
+        this.validateClusterMembersForCtxClient();
+
         final String sectionTitle = "ACTION: EC2 CLUSTER HELP";
         CommonPrint.printDebugSection(this.print, sectionTitle);
-
-        final int len = this.clusterMembers.length;
-
-        final String[] amiNames = new String[len];
-        final int[] amiNums = new int[len];
-
-        for (int i = 0; i < len; i++) {
-
-            if (this.clusterMembers[i] == null) {
-                throw new IllegalStateException(
-                        "valid clusterMembers must be present here");
-            }
-
-            final String imageName = this.clusterMembers[i].getImageName();
-            if (imageName == null || imageName.trim().length() == 0) {
-                throw new ExecutionProblem("No AMI in cluster file");
-            }
-            amiNames[i] = imageName;
-            amiNums[i] = this.clusterMembers[i].getQuantity();
-        }
 
         print.infoln("\nEC2 cluster:");
         for (int i = 0; i < this.clusterMembers.length; i++) {
@@ -1682,33 +1760,31 @@ public class CloudClient {
                     inststr);
         }
 
-        final String[] printNames = new String[this.clusterMembers.length];
+        String brokerURL = this.args.getBrokerURL();
+        String brokerIdentityAuthorization = this.args.getBrokerID();
+        if (brokerURL == null) {
+            int dx = this.workspaceFactoryURL.indexOf("WorkspaceFactoryService");
+            brokerURL = this.workspaceFactoryURL.substring(0,dx);
+            brokerURL += "NimbusContextBroker";
+            print.debugln("No context broker URL was explicitly supplied," +
+                    " so it has been deduced from the nimbus factory URL." +
+                    " Using: " + brokerURL);
 
-        final Cloudcluster_Type[] clustersForUserData =
-                new Cloudcluster_Type[this.clusterMembers.length];
-
-        for (int i = 0; i < this.clusterMembers.length; i++) {
-
-            final ClusterMember member = this.clusterMembers[i];
-
-            printNames[i] = member.getPrintName(); // may be null
-
-            // will be null if not involved in contextualization
-            clustersForUserData[i] = member.getClusterForUserData();
+            // and so ID scheme for service must be copied
+            if (brokerIdentityAuthorization == null
+                    && this.args.getFactoryID() != null) {
+                brokerIdentityAuthorization = this.args.getFactoryID();
+            }
         }
 
-        this.executeUtil.ec2ClusterHelp(this.workspaceFactoryURL,
-                                        clustersForUserData,
+        this.executeUtil.ec2ClusterHelp(this.clusterMembers,
+                brokerURL, brokerIdentityAuthorization,
                                         !this.args.isNoContextLock(),
-                                        this.args.getHistoryDirectory(),
                                         this.args.getPollMs(),
-                                        this.args.getFactoryID(),
-                                        this.print,
-                                        this.args.getBrokerURL(),
-                                        this.args.getBrokerID(),
-                                        amiNames,
-                                        amiNums,
-                                        this.args.getEc2ScriptPath());
+                this.args.getEc2ScriptPath(),
+                this.args.getHistoryDirectory(),
+                this.print
+        );
 
         CommonPrint.printDebugSectionEnd(this.print, sectionTitle);
     }

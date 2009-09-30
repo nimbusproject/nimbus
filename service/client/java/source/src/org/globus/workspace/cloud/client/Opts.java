@@ -91,6 +91,10 @@ public class Opts {
     public final Option HASH_PRINT_OPT =
         OptionBuilder.hasArg().withLongOpt(HASH_PRINT_OPT_STRING).create();
 
+    public static final String INIT_CTX_OPT_STRING = "init-context";
+    public final Option INIT_CTX_OPT =
+        OptionBuilder.hasArg().withLongOpt(INIT_CTX_OPT_STRING).create();
+
     /* OPTIONS */
 
     public static final String PROPFILE_OPT_STRING = "conf";
@@ -264,5 +268,7 @@ public class Opts {
                                                  this.BROKER_ID_OPT,
                                                  this.NOCTXLOCK_OPT,
                                                  this.HOSTKEYDIR_OPT,
-												 this.KERNEL_OPT};
+												 this.KERNEL_OPT,
+                                                 this.INIT_CTX_OPT
+                                                 };
 }
