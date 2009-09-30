@@ -1,0 +1,345 @@
+<?xml version="1.0"?>
+
+<project default="dist" basedir="." name="Nimbus auto-configuration tools">
+
+    <description>Nimbus auto-configuration tools</description>
+
+    <!-- load user nimbus.build.properties file, if it exists -->
+    <property file="${user.home}/nimbus.build.properties"/>
+
+    <!-- load defaults from colocated build.properties file -->
+    <property file="build.properties"/>
+
+    <!-- *******************************************************************
+         MODULE NAME
+         ******************************************************************* -->
+
+    <target name="disp">
+        <echo message="**** Module: ${basedir}" />
+    </target>
+
+
+    <!-- *******************************************************************
+         LOCATE GT DEPENDENCIES
+         ******************************************************************* -->
+
+    <property environment="env"/>
+    <property name="abs.deploy.dir" location="${env.GLOBUS_LOCATION}"/>
+    <property name="gt4_0.lib.dir" location="${abs.deploy.dir}/lib"/>
+    <property name="build.packages"
+              location="${abs.deploy.dir}/share/globus_wsrf_common/build-packages.xml"/>
+
+
+    <!-- *******************************************************************
+         GT RELATED NAMES
+         ******************************************************************* -->
+
+    <!-- gar.name -->
+    <property name="gar.name"
+              value="${nimbus.autoconfig.gt4_0.gar.garname}"/>
+
+    <!-- garjars.id -->
+    <fileset dir="${nimbus.autoconfig.gt4_0.gar.build.lib.dir}" id="garjars"/>
+    <property name="garjars.id" value="garjars"/>
+
+    <!-- garshare.id -->
+    <fileset dir="${nimbus.autoconfig.gt4_0.gar.build.share.dir}" id="garshare"/>
+    <property name="garshare.id" value="garshare"/>
+
+    <!-- garetc.id -->
+    <fileset dir="${nimbus.autoconfig.gt4_0.gar.build.etc.dir}" id="garEtc"/>
+    <property name="garetc.id" value="garEtc"/>
+
+
+    <!-- *********************
+         unused GAR properties
+         setting these to avoid build warning messages from GT...
+         ********************* -->
+
+    <!-- garschema.id -->
+    <fileset dir="${nimbus.autoconfig.gt4_0.gar.build.schema.dir}" id="garschema"/>
+    <property name="garschema.id" value="garschema"/>
+
+    <!-- gardocs.id -->
+    <fileset dir="${nimbus.autoconfig.gt4_0.gar.build.docs.dir}" id="gardocs"/>
+    <property name="gardocs.id" value="gardocs"/>
+
+    <!-- garbin.id -->
+    <fileset dir="${nimbus.autoconfig.gt4_0.gar.build.bin.dir}" id="garbin"/>
+    <property name="garbin.id" value="garbin"/>
+
+
+    <!-- *******************************************************************
+         CHECK MINIMUM JDK
+         ******************************************************************* -->
+
+    <target name="checkjdk">
+        <available property="jdk1.5+"
+                   classname="java.lang.Readable"/>
+        <fail message="Aborting: determined you are not building with >= JDK 1.5"
+              unless="jdk1.5+" />
+    </target>
+
+
+    <!-- *******************************************************************
+         INITIALIZE
+         ******************************************************************* -->
+
+    <target name="init" depends="checkjdk">
+        <mkdir dir="${nimbus.autoconfig.gt4_0.gar.dist.dir}"/>
+        <mkdir dir="${nimbus.autoconfig.gt4_0.lib.dir}" />
+        <mkdir dir="${nimbus.autoconfig.gt4_0.gar.build.dir}"/>
+        <mkdir dir="${nimbus.autoconfig.gt4_0.build.dest}"/>
+        <mkdir dir="${nimbus.autoconfig.gt4_0.gar.build.lib.dir}"/>
+        <mkdir dir="${nimbus.autoconfig.gt4_0.gar.build.etc.dir}"/>
+        <mkdir dir="${nimbus.autoconfig.gt4_0.gar.build.share.dir}"/>
+        <mkdir dir="${nimbus.autoconfig.gt4_0.gar.build.schema.dir}"/>
+        <mkdir dir="${nimbus.autoconfig.gt4_0.gar.build.docs.dir}"/>
+        <mkdir dir="${nimbus.autoconfig.gt4_0.gar.build.bin.dir}"/>
+    </target>
+
+
+    <!-- *******************************************************************
+         COPIES FOR LIB DIRECTORY
+         ******************************************************************* -->
+
+    <target name="lib_copies" depends="init">
+
+        <copy todir="${nimbus.autoconfig.gt4_0.gar.build.lib.dir}">
+
+            <fileset dir="${nimbus.autoconfig.gt4_0.lib.dir}">
+                <include name="*.jar"/>
+                <include name="*LICENSE*"/>
+            </fileset>
+
+            <fileset dir="${nimbus.autocommon.java.dist.dir}">
+                <include name="*.jar"/>
+                <include name="*LICENSE*"/>
+            </fileset>
+        </copy>
+    </target>
+
+
+    <!-- *******************************************************************
+         COPIES FOR ETC DIRECTORY
+         ******************************************************************* -->
+
+    <target name="etc_copies" depends="init">
+        <copy todir="${nimbus.autoconfig.gt4_0.gar.build.etc.dir}">
+            <fileset dir="${nimbus.autoconfig.gt4_0.etc.dir}" />
+        </copy>
+    </target>
+
+
+
+    <!-- *******************************************************************
+         COPIES FOR SHARE DIRECTORY
+         ******************************************************************* -->
+
+    <target name="share_copies" depends="init">
+        <copy todir="${nimbus.autoconfig.gt4_0.gar.build.share.dir}">
+            <fileset dir="${nimbus.autoconfig.gt4_0.share.dir}" />
+        </copy>
+    </target>
+
+
+    <!-- *******************************************************************
+         COMPILATION
+         ******************************************************************* -->
+
+    <path id="nimbus.autoconfig.gt4_0.classpath">
+
+        <fileset dir="${gt4_0.lib.dir}">
+            <include name="*.jar"/>
+            <exclude name="nimbus-*.jar" />
+        </fileset>
+
+        <fileset dir="${nimbus.autoconfig.gt4_0.lib.dir}">
+              <include name="*.jar"/>
+        </fileset>
+
+        <fileset dir="${nimbus.autocommon.java.dist.dir}">
+            <include name="*.jar"/>
+        </fileset>
+
+        <fileset dir="${nimbus.service.api.lib.dir}">
+            <include name="*.jar"/>
+        </fileset>
+
+        <fileset dir="${nimbus.service.lib.dir}">
+            <include name="*.jar"/>
+        </fileset>
+        
+    </path>
+
+    <target name="compile" depends="init">
+
+        <javac srcdir="${nimbus.autoconfig.gt4_0.src.dir}"
+               destdir="${nimbus.autoconfig.gt4_0.build.dest}"
+               classpathref="nimbus.autoconfig.gt4_0.classpath"
+               debug="on">
+
+            <include name="**/*.java"/>
+            <compilerarg value="${nimbus.java.compilerarg}" />
+
+        </javac>
+
+        <copy todir="${nimbus.autoconfig.gt4_0.build.dest}" >
+
+              <fileset dir="${nimbus.autoconfig.gt4_0.src.dir}"
+                       includes="**/*.properties" />
+
+              <fileset dir="${nimbus.autoconfig.gt4_0.src.dir}"
+                       includes="**/*.xml" />
+
+              <fileset dir="${nimbus.autoconfig.gt4_0.src.dir}"
+                       includes="**/*.txt" />
+        </copy>
+
+    </target>
+
+
+    <!-- *******************************************************************
+         CREATE JAR FILE
+         ******************************************************************* -->
+
+    <target name="jar" depends="compile">
+        <jar destfile="${nimbus.autoconfig.gt4_0.gar.build.lib.dir}/${nimbus.autoconfig.gt4_0.jar.name}"
+             basedir="${nimbus.autoconfig.gt4_0.build.dest}"/>
+    </target>
+
+
+    <!-- *******************************************************************
+         CLEAN
+         ******************************************************************* -->
+
+    <target name="clean">
+        <delete dir="${nimbus.autoconfig.gt4_0.gar.build.dir}"/>
+        <delete dir="${nimbus.autoconfig.gt4_0.gar.dist.dir}"/>
+        <delete dir="tmp"/>
+        <echo message="Cleaned: ${basedir}" />
+    </target>
+
+
+    <!-- *******************************************************************
+         CREATE DISTRIBUTION
+         ******************************************************************* -->
+
+    <target name="_dist" depends="jar, lib_copies, share_copies, etc_copies">
+
+        <ant antfile="${build.packages}" target="makeGar">
+
+            <reference refid="${garjars.id}"/>
+            <reference refid="${garetc.id}"/>
+            <reference refid="${garshare.id}"/>
+            <reference refid="${garschema.id}"/>
+            <reference refid="${gardocs.id}"/>
+            <reference refid="${garbin.id}"/>
+
+            <!-- makeGar is also looking at:
+                 - gar.name
+            -->
+
+        </ant>
+
+        <delete dir="tmp" />
+
+    </target>
+
+    <target name="dist">
+        <echo message="**** Module: ${basedir}" />
+        <echo>Building: ${nimbus.autoconfig.gt4_0.gar.print-noun}</echo>
+        <antcall target="_dist" />
+        <echo>Built: ${nimbus.autoconfig.gt4_0.gar.print-noun}
+        </echo>
+    </target>
+
+
+    <!-- *******************************************************************
+         DEPLOYMENT
+         ******************************************************************* -->
+
+    <target name="assessGarPresence">
+        <available property="garIsPresent"
+                   type="file"
+                   file="${gar.name}" />
+    </target>
+
+    <target name="gar.not.present"
+            depends="assessGarPresence"
+            unless="garIsPresent">
+
+        <echo>
+
+
+
+***************** ERROR *****************
+
+Cannot find archive to install: ${gar.name}
+
+Did you build?  Use the build-and-install script.
+
+
+
+        </echo>
+
+        <fail message="Cannot find archive to install: ${gar.name}" />
+
+    </target>
+
+    <target name="_deploy" depends="gar.not.present">
+
+        <ant antfile="${build.packages}" target="deployGar">
+            <property name="gar.id" value="${nimbus.autoconfig.gt4_0.gar.package.name}"/>
+        </ant>
+
+        <delete dir="tmp"/>
+
+    </target>
+
+    <target name="deploy" depends="disp">
+        <echo>Installing: ${nimbus.autoconfig.gt4_0.gar.print-noun}</echo>
+        <antcall target="_deploy" />
+        <echo>Installed: ${nimbus.autoconfig.gt4_0.gar.print-noun}
+        </echo>
+        <echo>NOTES: To run the auto-configuration program, launch:</echo>
+        <echo>       ${abs.deploy.dir}/share/${nimbus.autoconfig.gt4_0.gar.package.name}/autoconfig.sh
+        </echo>
+        <echo>       To run the cloud configuration admin helper, launch:</echo>
+        <echo>       ${abs.deploy.dir}/share/${nimbus.autoconfig.gt4_0.gar.package.name}/cloud-admin.sh
+        </echo>
+    </target>
+
+    <target name="assessDeployed">
+
+        <available property="isDeployed"
+                   type="dir"
+                   file="${abs.deploy.dir}/etc/globus_packages/${nimbus.autoconfig.gt4_0.gar.package.name}" />
+
+        <condition property="isNotDeployed" value="true">
+            <not>
+                <isset property="isDeployed" />
+            </not>
+        </condition>
+
+    </target>
+
+    <target name="printDeployed"
+            depends="assessDeployed"
+            unless="isDeployed">
+
+        <echo message="Already undeployed: ${nimbus.autoconfig.gt4_0.gar.package.name}"/>
+
+    </target>
+
+    <target name="undeploy" depends="printDeployed" unless="isNotDeployed">
+
+        <ant antfile="${build.packages}" target="undeployGar">
+            <property name="gar.id" value="${nimbus.autoconfig.gt4_0.gar.package.name}"/>
+        </ant>
+
+        <echo message="Undeployed: ${nimbus.autoconfig.gt4_0.gar.package.name}"/>
+
+    </target>
+
+</project>

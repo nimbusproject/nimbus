@@ -1,0 +1,14 @@
+# NOTE: a node may not be in more than one pool at the same time, this will
+#       result in an initialization error
+
+# Supported form:
+# node_name  memory_to_manage networks_supported
+#
+# If third field is blank (or marked with '*'), it is assumed that pool
+# node supports all networks available to remote clients.  Otherwise use a comma
+# separated list (no spaces between).
+#
+# Note that if you list a network here that is not valid at runtime,
+# it will silently be ignored (check your spelling).
+
+

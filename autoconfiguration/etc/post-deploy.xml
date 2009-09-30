@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+
+<project default="setup" basedir="." name="post-deploy">
+
+    <!-- ***********************************************************************
+         PROPS
+         ******************************************************************* -->
+
+    <property environment="env" />
+    <property name="env.GLOBUS_LOCATION" value="."/>
+    <property name="deploy.dir" location="${env.GLOBUS_LOCATION}"/>
+
+    <property name="base.package.name"
+              value="nimbus-autoconfig" />
+
+    <property name="base.share.dir"
+              value="${deploy.dir}/share/${base.package.name}" />
+
+    <!-- ***********************************************************************
+         TARGET INVOKED AFTER GAR DEPLOYS
+         ******************************************************************* -->
+
+    <target name="setup"
+            depends="chmodexes" />
+
+
+    <!-- ***********************************************************************
+         POST-DEPLOY WORK
+         ******************************************************************* -->
+
+    <target name="chmodexes">
+        <chmod file="${base.share.dir}/autoconfig.sh"
+               perm="755"/>
+        <chmod file="${base.share.dir}/autoconfig-adjustments.sh"
+               perm="755"/>
+        <chmod file="${base.share.dir}/cloud-admin.sh"
+               perm="755"/>
+    </target>
+
+</project>

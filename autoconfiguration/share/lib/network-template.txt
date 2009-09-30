@@ -1,0 +1,16 @@
+# The first non-blank, non-comment line must be the DNS server you would
+# like to tell the VMs receiving addresses from this network pool to use.
+
+# The rest of the file's non-blank, non-comment lines are the addresses
+# that will be leased out to VMs requesting this network.
+
+# Currently there are no syntax shortcuts, each field must have an entry
+# or the keyword 'none'.
+
+# The IP address and hostname fields may not be 'none'.
+# If the gateway is 'none', no gateway is assigned.
+# If broadcast or subnetmask are 'none' they are derived from the IP
+#   - based on the normal subnet and broadcast for the IP class (A,B,C)
+
+
+
