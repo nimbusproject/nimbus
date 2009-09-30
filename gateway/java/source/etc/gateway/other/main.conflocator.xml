@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+     Discover conf files.  The conf files hold name/value pairs that are
+     brought into the XML files in this directory via Spring's nice properties
+     mechanism.
+
+     Concentrate all uses of PropertyPlaceholderConfigurer into this bean
+     config so that the install script can do token replacements for absolute
+     paths throughout the entire spring configuration by just running the
+     token replacement on this file.
+
+     Spring wants "//" in front of absolute filesystem paths so that is why
+     "/TOKEN" is used here instead of "TOKEN"
+-->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+    <bean id="gatewaySettings"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+
+        <property name="location" value="/@GATEWAY_CONFDIR@/gateway.conf" />
+        <property name="placeholderPrefix" value="$GATEWAY{" />
+    </bean>
+
+    <bean id="otherGatewaySettings"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+
+        <property name="location" value="/@GATEWAY_CONFDIR@/other/other-gateway.conf" />
+        <property name="placeholderPrefix" value="$OTHER_GATEWAY{" />
+    </bean>
+
+</beans>

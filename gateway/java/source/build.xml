@@ -1,0 +1,122 @@
+<?xml version="1.0"?>
+
+<project default="dist" basedir="." name="Nimbus IaaS Gateway">
+
+    <description>Nimbus IaaS Gateway</description>
+
+    <!-- load user nimbus.build.properties file, if it exists -->
+    <property file="${user.home}/nimbus.build.properties"/>
+
+    <!-- load some defaults from colocated build.properties file -->
+    <property file="build.properties"/>
+
+
+    <!-- *******************************************************************
+         MODULE NAME
+         ******************************************************************* -->
+
+    <target name="disp">
+        <echo message="**** Module: ${basedir}" />
+    </target>
+
+
+    <!-- *******************************************************************
+         CHECK MINIMUM JDK
+         ******************************************************************* -->
+
+    <target name="checkjdk">
+        <available property="jdk1.4+" classname="java.lang.CharSequence"/>
+        <fail message="Aborting: determined you are not building with >= JDK 1.4"
+              unless="jdk1.4+" />
+    </target>
+
+
+    <!-- *******************************************************************
+         INITIALIZE
+         ******************************************************************* -->
+
+    <target name="init" depends="checkjdk">
+        <mkdir dir="${nimbus.gateway.main.build.dir}"/>
+        <mkdir dir="${nimbus.gateway.main.build.dest}"/>
+        <mkdir dir="${nimbus.gateway.main.dist.dir}"/>
+    </target>
+
+
+    <!-- *******************************************************************
+         COMPILATION
+         ******************************************************************* -->
+
+    <path id="nimbus.gateway.main.classpath">
+
+        <fileset dir="${nimbus.gateway.main.lib.dir}">
+             <include name="*.jar"/>
+        </fileset>
+
+        <fileset dir="${nimbus.service.api.dist.dir}">
+              <include name="*.jar"/>
+        </fileset>
+
+        <fileset dir="${nimbus.service.api.lib.dir}">
+              <include name="*.jar"/>
+        </fileset>
+    </path>
+
+    <target name="compile" depends="init">
+
+        <javac srcdir="${nimbus.gateway.main.src.dir}"
+               destdir="${nimbus.gateway.main.build.dest}"
+               classpathref="nimbus.gateway.main.classpath"
+               debug="on">
+
+            <include name="**/*.java"/>
+            <compilerarg value="${nimbus.java.compilerarg}" />
+
+        </javac>
+
+        <copy todir="${nimbus.gateway.main.build.dest}" >
+              <fileset dir="${nimbus.gateway.main.src.dir}"
+                       includes="**/*.properties" />
+              <fileset dir="${nimbus.gateway.main.src.dir}"
+                       includes="**/*.xml" />
+              <fileset dir="${nimbus.gateway.main.src.dir}"
+                       includes="**/*.txt" />
+        </copy>
+
+    </target>
+
+
+    <!-- *******************************************************************
+         CREATE ARCHIVE FILE
+         ******************************************************************* -->
+
+    <target name="jar" depends="compile">
+        <jar destfile="${nimbus.gateway.main.dist.dir}/${nimbus.gateway.main.jar.name}"
+             basedir="${nimbus.gateway.main.build.dest}"/>
+    </target>
+
+
+    <!-- *******************************************************************
+         CREATE DISTRIBUTION
+         ******************************************************************* -->
+
+    <target name="dist">
+        <echo message="**** Module: ${basedir}" />
+        <echo>Building: ${nimbus.gateway.main.print-noun}</echo>
+        <antcall target="jar" />
+        <echo>Built: ${nimbus.gateway.main.print-noun}
+        </echo>
+    </target>
+
+
+    <!-- *******************************************************************
+         CLEAN
+         ******************************************************************* -->
+
+    <target name="clean">
+        <delete dir="${nimbus.gateway.main.build.dir}"/>
+        <delete dir="${nimbus.gateway.main.dist.dir}"/>
+        <delete dir="tmp"/>
+        <echo message="Cleaned: ${basedir}" />
+    </target>
+
+</project>
