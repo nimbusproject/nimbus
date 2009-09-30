@@ -14,8 +14,8 @@ sh /opt/nimbus/ctx/launch.sh &>/dev/null
 
 # Note that you can start the context agent without fear of system alteration
 # if the bootstrap file is missing.  If you did not boot the VM with 
-# contextualization, the "/var/workspace-contextualization-bootstrap" file
-# won't be there and the agent will just exit.  This allows you to leave the
+# contextualization, the query to the metadata server (for the bootstrap user-data)
+# will fail and the agent will just exit.  This allows you to leave the
 # rc.local entry while you boot into "maintenance" mode to adjust something
 # then save back to repository.
 
