@@ -1,0 +1,57 @@
+
+Definition:
+==========
+
+Monitor changes of single workspaces.  Will destroy a workspace automatically
+if it's moved to 'cancelled' or 'corrupted'.  See optional arguments for
+alternate behaviors.
+
+
+Required for subscribe:
+======================
+
+  --eprFile (-e) <file>    EPR of the single-workspace resource to subscribe
+                           to for notifications of changes.
+
+Optional for subscribe:
+======================
+
+  --no-auto-destroy        Triggers client to not call WSRF destroy when
+                           listening for notifications and receiving a
+                           'cancelled' or 'corrupted' notification.
+
+  --exit-at-state <state>  Client will exit once the given state has been
+                           reached.
+
+                           These are the current, valid state values. They
+                           do not need to be capitalized:
+
+                           Unstaged, Unpropagated, Propagated, Running,
+                           Paused, TransportReady, StagedOut
+
+  --poll-delay <ms>        Triggers client to poll for state changes instead
+                           of using asynchronous notification subscriptions.
+                           This is a good option to use when you are behind
+                           firewalls, NATs, etc.
+
+                           Parameter is milliseconds between polls
+                           (recommend at least a second).
+
+                           It still appears as a "subscription", it works
+                           with --exit-state and autodestroy etc.
+
+  --poll-maxthreads <num>  If polling (triggered by --poll-delay), this
+                           optional argument will cap the number of threads
+                           being used at once to the number you specify.
+                           If the number of polls exceeds this number, all
+                           will still run.  Just not necessarily with the
+                           exact delay you've specified via --poll-delay.
+                           Because --subscribe only works with single
+                           workspaces, this currently only makes sense to
+                           use when deploying groups (i.e., use this argument
+                           with the deploy action).
+
+Misc. options:
+=============
+
+Also see "--help" and "--extrahelp"

@@ -1,0 +1,13 @@
+
+Required:
+========
+
+--eprFile (-e) <file>  EPR of the single or group workspace resource to
+                       invoke the action on.
+
+                       If a group EPR is given, the service will perform
+                       the action on each workspace in the group that has
+                       not been destroyed already.  Except for --rpquery
+                       which only works with one workspace currently.
+
+Also see "--help" and "--extrahelp"

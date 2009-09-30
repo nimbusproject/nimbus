@@ -1,0 +1,12 @@
+
+Definition:
+==========
+
+Just like --ctx-create, but the context broker will wait for data injections
+from a client before proceeding.  This allows you to send data into the context
+that might be dependent on just in time configuration data (perhaps based on
+the hostnames that were assigned, etc.).
+
+Same arguments as --ctx-create, see "-h --ctx-create"
+
+Also see "--help" and "--extrahelp"

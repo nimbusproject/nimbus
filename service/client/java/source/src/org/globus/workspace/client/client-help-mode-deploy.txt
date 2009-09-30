@@ -1,0 +1,160 @@
+
+Definition:
+==========
+
+Launches individual workspaces or groups of workspaces.  Options available
+for handling ensembles (coscheduling) and contextualization.
+
+
+Required for deploy:
+===================
+
+Factory Service:
+
+    --service (-s) <url>    Service URL
+
+Metadata:
+
+    --metadata (-w) <path>  Path to metadata file for the workspace to
+                            create.
+
+                            See the GLOBUS_LOCATION/share/workspace_client
+                            directory for samples of each.
+
+Deployment description (resource request):
+
+  From a file:
+
+    --request (-r) <requestPath>    Path to deployment request file, see
+                                    GLOBUS_LOCATION/share/workspace_client
+                                    for samples.
+
+                                    If --numnodes, --trash-at-shutdown,
+                                    --deploy-duration, --deploy-mem, or
+                                    --deploy-state are also given, those
+                                    given argument(s) will OVERRIDE what
+                                    is in this file.
+
+  From the commandline:
+
+    These can be used alone or override parts/all of a given file.
+
+    --deploy-duration <duration>    Minimum running duration (in minutes).
+    --deploy-mem <mb>               Memory allocation (megabytes).
+    --deploy-state <state>          Initial state of deployment.  See end
+                                    of help text for valid state values.
+
+    See --numnodes.  If not given and using only --deploy-* arguments, the
+    number of nodes is assumed to be one.
+
+    See --trash-at-shutdown.  If not given and using only --deploy-* arguments,
+    the requested shutdown mechanism will be 'Normal'.
+
+    See --save-target.  If not given and using only --deploy-* arguments,
+    the unpropagation target (if any) will be the same as source.
+
+Optional for deploy:
+===================
+
+  --optional (-o) <path>   Path to file with optional parameters for the
+                           creation request (such as staging).
+                           See $GLOBUS_LOCATION/share/workspace_client for
+                           samples.
+
+  --file <path>            File where the handle (EPR) of the created
+                           workspace will be written. Later operations on
+                           the workspace can take this as an argument (see
+                           "-e" options).
+
+                           If starting a group of workspaces, this is used
+                           as the base file name for multiple workspace
+                           instance EPR files.
+
+  --groupfile <path>       File to write Group EPR of create workspace
+                           group to.  Operations that act on an entire
+                           group need this file to be specified (see "-e"
+                           options).
+
+  --numnodes (-n) <num>    If given, causes a deployment to be a group
+                           request of <num> nodes.  This can also be
+                           specified in deployment request file.
+
+  --trash-at-shutdown      If given, causes workspace service to destroy
+                           the workspace(s) when running time has been
+                           exceeded.  This is a common mode of operation
+                           with compute node VMs, for example.  This can
+                           also be specified in deployment request file.
+
+  --save-target <url>      Override the unpropagation target. If a group EPR is
+                           given, the service will use this as a base name.
+
+  --nosubscriptions        Triggers client to NOT subscribe for workspace
+                           changes after creation.  Any subscription related
+                           argument will be ignored.
+
+  --exit-state <state>     Client will exit once the given state has been
+                           reached.  If this is a group deployment, it will
+                           only exit once every member of the group has
+                           reached this state (once per group member, no
+                           matter what happens to each after reaching it).
+
+                           See end of help text for valid state values.
+
+  --groupprint             Causes single workspace print output to resemble
+                           group behavior.
+
+  --new-ensemble <path>    Requests new ensemble to be created with the
+                           deployment and writes the EPR to <path>.  Will
+                           not overwrite existing file at <path>.
+
+  --join-ensemble <path>   Requests deployment be joined with ensemble
+                           resource specified by EPR <path>.
+
+  --last-in-ensemble       Triggers the service to call 'done' on the
+                           ensemble after the deployment.  This alleviates
+                           the need for another client invocation.  This
+                           may only be used with the "--join-ensemble"
+                           argument.
+
+  --sshfile <path>         Requests customization task of replacing root
+                           authorized_keys file.  If tasks are defined in
+                           an optional parameters file being used (XML),
+                           they will all be overwritten by this one task.
+
+  --mdUserdata <path>      Requests that contents of the specified path be
+                           placed in the Nimbus Metadata Server's user data
+                           field for this launch.  Each group of VMs gets
+                           unique userdata (i.e. you can have different userdata
+                           for different groups in an ensemble).
+
+  --delegate (-u) <delegationServiceURL>
+
+                           Create a delegated credential resource for use
+                           in optional parameters as staging credential if
+                           it does not exist in the optional parameters
+                           document explicitly.
+
+  --delegatetime (-q) <delegLifetime>
+
+                           Lifetime of the delegated credential when using
+                           the --delegate option.
+
+  --delegateXf (-t)        Used with --delegate to force using delegated
+                           credential as the transfer credential as well.
+
+  Also see the subscribe action section for other optional parameters.
+
+
+Valid state values:
+==================
+
+Some options require a <state> value, these are the current valid values.
+They do not need to be capitalized.
+
+Unstaged, Unpropagated, Propagated, Running, Paused, TransportReady, StagedOut
+
+
+Misc. options:
+=============
+
+Also see "--help" and "--extrahelp" and "--help --subscribe"

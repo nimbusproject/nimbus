@@ -1,0 +1,17 @@
+
+Definition:
+==========
+
+This causes the entire ensemble request to be launched at once (and co-
+scheduled).  Note that you can alternatively send a parameter along with
+the last deploy call to trigger this without the expense of an extra remote
+call.  See "-h --deploy", look for the "--last-in-ensemble" parameter.
+
+
+Required:
+========
+
+--eprFile (-e) <file>  EPR of the ensemble workspace resource to invoke the
+                       done action on.
+
+Also see "--help" and "--extrahelp"

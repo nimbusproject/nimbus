@@ -1,0 +1,158 @@
+
+Workspace Cloud Client.  See README.txt for examples and overview.
+
+These flags are usually intended to be supplied behind the scenes or in less
+common situations.
+
+Some default option values are contained in the configuration file(s).
+
+    Option precedence:
+         1. command-line arguments
+         2. user supplied properties file
+         3. embedded default properties file in the cloud client jar
+
+--------------------------------------------------------------------------------
+
+Every action may have:
+
+    --debug (-d)             Enables debug mode.
+
+    --conf <path>            Path to user supplied configuration file. Normally
+                             this will be "conf/cloud.properties" found by
+                             cloud-client.sh but you can override this. 
+
+    --append-cadir <path>    Add this directory to the list of trusted CA dirs.
+
+--------------------------------------------------------------------------------
+
+Miscellaneous actions:
+
+    --print-file-URL         Print out the target transfer URL (for example,
+                             in order to make a transfer via another means).
+
+    --print-service-URL      Print out the target factory service URL (for
+                             example, in order to directly use a workspace
+                             client).
+
+    --networks               Print the available networks (see contextualization
+                             guide and the sample cluster definitions).
+
+--------------------------------------------------------------------------------
+
+Required "--print-file-URL" options:
+
+    Use --name OR --sourcefile
+
+--------------------------------------------------------------------------------
+
+Required "--print-service-URL" options:
+
+    None.
+
+--------------------------------------------------------------------------------
+
+Other "--run" options:
+
+    --ec2script <path>       Used with "--cluster" only, to aid with contextual-
+                             ization on EC2.  This will create a context at the
+                             context broker, print EC2 commands to use
+                             elsewhere, and go into context monitoring mode.
+                             The <path> is where a shell script will be written
+                             with the EC2 commands to use.  It may need to be
+                             altered in order to get the exact behavior you
+                             want, see "ec2-run-instances -h".  For contextuali-
+                             zation to work, the user-data arguments in the
+                             sample commands must remain the same.
+
+    --factory <host:port>    Factory service ip/host and port.  URL will be
+                             constructed from it.
+
+    --factory-id <DN>        Instead of using host based authorization, use
+                             this DN to authorize the remote server (the client
+                             authorizes it is talking to bona fide server).
+
+    --ssh-pubkey <path>      SSH pubkey to send, if any.  File contents will be
+                             placed in "/root/.ssh/authorized_keys" and so this
+                             could be a list of keys. 
+
+    --history-dir <path>     Directory to write EPR files, logs, and other
+                             artifacts (program will create a new, unique
+                             directory under this given directory).
+
+    --poll-interval <ms>     How many milliseconds to wait between state polls.
+
+    --notifications          Use asynchronous notifications for state reports
+                             rather than polling the workspace service (polling
+                             is the default).  Requires that your computer is
+                             not behind a restrictive firewall or NAT (although
+                             there are a couple of tactics in those cases).
+
+    --newname <name>         This changes the default shutdown behavior from
+                             "destroy" to "save to a new target file", given
+                             <name> is the target file.  Before running time
+                             expires you can override this choice by using the
+                             "--save" action with a new name (or of course by
+                             using the "--terminate" option which will cause
+                             nothing to be saved).
+
+    --broker-url <URL>       If the context broker is not colocated with the
+                             Nimbus factory service that a cluster launch will
+                             go through, use this URL instead.
+
+    --broker-id <DN>         If the context broker is not colocated with the
+                             Nimbus factory service that a cluster launch will
+                             go through, use this DN instead of using host based
+                             authorization.
+
+    --no-ctx-lock            Use when you don't want a cluster to proceed with
+                             contextualization just yet.  The cloud client will
+                             still wait for context updates.  But meanwhile in
+                             another terminal, you can use the workspace client
+                             to inject data into the context and then manually
+                             cause contextualization to proceed.
+
+--------------------------------------------------------------------------------
+
+Other "--transfer", "--download", and "--delete" options:
+
+    --gridftp <host:port>    Image host's ip/host and port.  URL will be
+                             constructed from it.
+
+    --gridftp-id <DN>        Instead of using host based authorization, use
+                             this DN to authorize the remote server (the client
+                             authorizes it is talking to bona fide server).
+
+    --targetdir <path>       Image host's base directory (above your personal
+                             directory).  URL will be constructed from it.
+
+    --timeout <hours>        Number of hours before timing out.  Can be partial
+                             hours, for example "0.2" value is 12 minutes.
+                             Value of zero (or lower) means no timeout.
+
+--------------------------------------------------------------------------------
+
+Other "--security" options:
+
+    --cahash <hash>          Hash of the target cloud, for diagnostics only.
+
+
+--------------------------------------------------------------------------------
+
+Other "--status" options:
+
+    --epr-file <path>        Instead of supplying a handle (which is used to
+                             determine where the EPR file is) you can specify
+                             an EPR path directly.
+
+    --factory <host:port>    Factory service ip/host and port.  URL will be
+                             constructed from it.
+
+    --factory-id <DN>        Instead of using host based authorization, use
+                             this DN to authorize the remote server (the client
+                             authorizes it is talking to bona fide server).
+
+--------------------------------------------------------------------------------
+
+Other "--terminate" options:
+
+    Same as "--status".

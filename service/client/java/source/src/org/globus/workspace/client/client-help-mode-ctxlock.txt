@@ -1,0 +1,19 @@
+
+Definition:
+==========
+
+Lock a context.  This allows the context broker to proceed, otherwise it cannot
+determine whether the information it delivers is a complete/correct response
+or not.  Once the response is complete, the workspaces can stop querying for
+context information and proceed with running.
+
+You can achieve the same effect by sending "--last-in-ctx" with the deploy
+action, but you may not want to in certain situations (see "-h --ctx-data").
+
+
+Required:
+========
+
+--eprFile (-e) <file>   EPR file of the context to lock.
+
+Also see "--help" and "--extrahelp"

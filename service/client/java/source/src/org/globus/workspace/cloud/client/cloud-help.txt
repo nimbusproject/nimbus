@@ -1,0 +1,79 @@
+Workspace Cloud Client.  See README.txt for examples and overview.
+
+-----------------------------------------------------------------------------
+
+    --help (-h)    Print this help information.
+
+    --usage (-u)   Print syntax reminders.
+
+    --security     Print diagnostic information about security settings.
+
+-----------------------------------------------------------------------------
+
+    --list         List workspaces on destination cloud you have access to run.
+
+-----------------------------------------------------------------------------
+
+    --transfer     Upload a local workspace to the destination cloud. This will
+                   be uploaded to your private directory.
+
+      * Required transfer option:
+          --sourcefile <path>    Local workspace image file: sda1 partition.
+
+-----------------------------------------------------------------------------
+
+    --download     Download a workspace from your private directory.
+
+      * Required download options:
+          --name <name>          Workspace in your directory (see --list).
+          --localfile <path>     Local path (destination of transfer).
+
+-----------------------------------------------------------------------------
+
+    --delete       Delete a workspace from your private directory.
+
+      * Required delete options:
+          --name <name>          Workspace in your directory (see --list).
+
+-----------------------------------------------------------------------------
+
+    --run          Launch a workspace or virtual cluster.
+
+      * Required run options:
+          --name <name>          Name of the workspace to run (not a path).
+                                 Use --list to see the available names.
+          --hours <hours>        How long to run.  You may use decimals to
+                                 express minutes, rounds down to minutes.
+      * Alternative:
+          --cluster <path>       Instead of --name, specify a path to a 
+                                 cluster.xml definition file.
+
+-----------------------------------------------------------------------------
+
+    --status       Check status of one or all workspaces.
+
+      * Optional status option:
+        --handle <handle>        Handle of workspace to check on (e.g. "vm-023")
+                                 If argument is not supplied, query will return
+                                 status of all of your active workspaces. 
+
+-----------------------------------------------------------------------------
+
+    --save         Copy workspace back to private directory (will be powered
+                   down gracefully before this happens).
+
+      * Required save option:
+          --handle <handle>      Handle of workspace to save (e.g. "vm-023")
+
+      * Optional save option:
+          --newname <name>       Instead of overwriting the source file, copy to
+                                 this file in your private directory.
+
+-----------------------------------------------------------------------------
+
+    --terminate    Destroy workspace(s).  The VM(s) and all associated
+                   reservations end immediately.  Any changes are discarded.
+
+      * Required terminate option:
+          --handle <handle>      Handle of one to terminate (e.g. "vm-023")
+                                 or cluster to terminate (e.g. "cluster-012")

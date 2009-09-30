@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OptionalParameters
+    xmlns="http://www.globus.org/2008/06/workspace/types"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
+
+    <stageIn>
+        <serviceEndpoint>https://127.0.0.1:8443/wsrf/services/ReliableFileTransferFactoryService</serviceEndpoint>
+        <sourceURL>gsiftp://yourcomputer/mnt/images/image01</sourceURL>
+        <destURL>gsiftp://image-repository.com/share/workspaces/ttylinux</destURL>
+
+        <!--
+        <stagingCredential></stagingCredential>
+        <transferCredential></transferCredential>
+        -->
+
+        <!--
+        Commenting the credentials out allows us to take advantage of these
+        client options if you need them (see ./bin/workspace -h for more
+        information)
+
+         -u, delegate <delegationServiceURL>
+         -t, delegateXf
+        -->
+        
+    </stageIn>
+
+    <stageOut>
+        <serviceEndpoint>https://127.0.0.1:8443/wsrf/services/ReliableFileTransferFactoryService</serviceEndpoint>
+        <sourceURL>gsiftp://image-repository.com/share/workspaces/ttylinux</sourceURL>
+        <destURL>gsiftp://yourcomputer/mnt/images/image01.altered</destURL>
+
+        <!--
+        <stagingCredential></stagingCredential>
+        <transferCredential></transferCredential>
+        -->
+
+        <!--
+        Commenting the credentials out allows us to take advantage of these
+        client options if you need them (see ./bin/workspace -h for more
+        information)
+
+         -u, delegate <delegationServiceURL>
+         -t, delegateXf
+        -->
+
+    </stageOut>
+
+</OptionalParameters>

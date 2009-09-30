@@ -1,0 +1,16 @@
+
+Definition:
+==========
+
+Destroys a single workspace, a group of workspaces, or an ensemble.  If a group
+or ensemble EPR is given, the service will destroy each workspace in the group
+or ensemble that has not already been destroyed.
+
+
+Required for destroy:
+====================
+
+--eprFile (-e) <file>  EPR of the single workspace, group workspace, or ensemble
+                       resource to destroy.
+
+Also see "--help" and "--extrahelp"

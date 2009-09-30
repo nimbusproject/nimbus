@@ -1,0 +1,45 @@
+
+Definition:
+==========
+
+Triggers unpropagation (workspace image file moved back to repository).
+
+
+Required for shutdown-save:
+==========================
+
+--eprFile (-e) <file>  EPR of the single or group workspace resource to
+                       shutdown-save (trigger unpropagation).
+
+                       If a group EPR is given, the service will perform
+                       shutdown-save on each workspace in the group that has
+                       not been destroyed already.
+
+Optional for shutdown-save:
+==========================
+
+--save-target <url>    Override the unpropagation target set at creation time.
+                       This was either supplied or was set to the default, which
+                       is to replace the source file.
+
+                       If a group EPR is given, the service will unpropagate
+                       all remaining members of the group, using this argument
+                       as a base name.
+
+--nosubscriptions      Triggers client to NOT subscribe for workspace changes
+                       after creation.  Any subscription related argument will
+                       be ignored.
+
+--no-auto-destroy      Triggers client to NOT terminate the workspace resource
+                       after success or problem.
+
+                       NOTE:
+
+                       The default behavior for shutdown-save is to DESTROY the
+                       workspace when the *TransportReady* state is reached or
+                       if the workspace becomes Cancelled or Corrupted.
+
+Also see the subscribe action section for other optional parameters (you can
+use polling mode, etc.).
+
+Also see "--help" and "--extrahelp"

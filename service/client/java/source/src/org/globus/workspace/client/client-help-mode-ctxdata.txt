@@ -1,0 +1,24 @@
+
+Definition:
+==========
+
+Inject data into a context.  This allows you to send data into the context
+without needing to include it in the contextualization requirements definition.
+One often useful reason to do this is if the data is not available before
+launch.  The context may not be locked already, so you can not use this if
+you launched with the "--last-in-ctx" flag (which locks the context).  After
+you're done injecting, you must call "--ctx-lock" action manually.
+
+
+Required:
+========
+
+--eprFile (-e) <file>   EPR file of the context to inject data to.
+
+--file <file>           File with the data.  Currently needs to be a text file.
+
+--dataname <name>       Name of the data, a context member will receive the
+                        data if its contextualization document lists this data
+                        name as required.
+
+Also see "--help" and "--extrahelp"

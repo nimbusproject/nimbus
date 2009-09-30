@@ -1,0 +1,27 @@
+
+Definition:
+==========
+
+Create a new context with a context broker.
+
+
+Required:
+========
+
+--service (-s) <url>       Context Broker URL
+
+
+Optional (but probably desired):
+================================
+
+--file <path>              File where the handle (EPR) of the created context
+                           will be written. Later operations on the context can
+                           take this path as an argument (usually as the "-e"
+                           option).
+
+--ctx-contact-xml <path>   File where the broker contact XML snippet will be
+                           written.  Note this contains the secret that agents
+                           on VMs will use to contact the broker.
+
+
+Also see "--help" and "--extrahelp"

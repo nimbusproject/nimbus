@@ -1,0 +1,20 @@
+
+Definition:
+==========
+
+Only used after "--ctx-create-injectable", not after "--ctx-create" 
+
+Signal that no more injections will be made to the context.  This allows the
+context broker to proceed, otherwise it cannot determine whether the information
+it delivers to the VMs is a complete/correct response or not.  Once the response
+is complete, the workspaces can stop querying for context information and
+proceed with running.
+
+
+Required:
+========
+
+--eprFile (-e) <file>   EPR file of the particular context to signal with
+                        noMoreInjections.
+
+Also see "--help" and "--extrahelp"

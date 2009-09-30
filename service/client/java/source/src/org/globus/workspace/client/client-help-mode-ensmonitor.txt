@@ -1,0 +1,34 @@
+
+Definition:
+==========
+
+Client will query about the enemble and exit successfully if all ensemble
+members are 'Running'.  Client will exit with error if one or more ensemble
+members moved to Corrupted/Cancelled.  Can write reports about what
+happened (see optional args).
+
+
+Required:
+========
+
+--eprFile (-e) <file>  EPR of the ensemble workspace resource to monitor.
+
+--poll-delay <ms>      Poll frequency.
+
+
+Optional:
+========
+
+--exit-state <state>   Use this to explicitly set the successful state (default
+                       is 'Running').  Choose from: Unstaged, Unpropagated,
+                       Propagated, Runnning, Paused, TransportReady, StagedOut.
+                       Note that "all <state>" only pertains to the status at
+                       one point in time.
+
+--reportdir <path>     Path to directory for report files.  In either exit case
+                       (success or error-present), if this argument is supplied,
+                       a text file report for each workspace will be written to
+                       this directory.
+
+
+Also see "--help" and "--extrahelp"

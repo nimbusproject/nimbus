@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project default="all" basedir=".">
+
+    <property environment="env"/>
+
+    <property file="build.properties"/>
+    <property file="${user.home}/build.properties"/>
+
+    <property name="env.GLOBUS_LOCATION" value="."/>
+    <property name="deploy.dir" location="${env.GLOBUS_LOCATION}"/>
+    <property name="abs.deploy.dir" location="${deploy.dir}"/>
+    <property name="build.launcher"
+        location="${abs.deploy.dir}/share/globus_wsrf_common/build-launcher.xml"/>
+
+    <target name="setup">
+
+        <ant antfile="${build.launcher}" target="generateLauncher">
+            <property name="launcher-name" value="workspace"/>
+            <property name="class.name"
+                value="org.globus.workspace.client.WorkspaceCLIMain"/>
+        </ant>
+
+        <ant antfile="${build.launcher}" target="generateLauncher">
+            <property name="launcher-name" value="workspace-status"/>
+            <property name="class.name"
+                value="org.globus.workspace.status.client.WorkspaceStatusClient"/>
+        </ant>
+
+   </target>
+
+</project>
+

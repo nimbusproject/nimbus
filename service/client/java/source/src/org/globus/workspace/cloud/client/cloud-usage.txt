@@ -1,0 +1,38 @@
+--help  (-h)              Print help
+--usage (-u)              Print usage
+--security                Print security settings
+--extrahelp               Print uncommon options
+--debug (-d)              Debug mode
+--conf <path>             Override cloud.properties file
+--ssh-pubkey <path>       Override ssh pubkey setting (in conf) on per-run basis
+
+--------------------------------------------------------------------------------
+
+--list                    List workspaces you can run
+
+--transfer                Upload to personal repository directory
+    --sourcefile <path>   Local file to upload
+
+--download                Download from personal repository directory
+    --name <name>         Name from --list, what to download
+    --localfile <path>    Local path (dest of transfer)
+
+--delete                  Delete from personal repository directory
+    --name <name>         Name from --list, what to delete
+
+--------------------------------------------------------------------------------
+
+--run                     Launch a workspace or virtual cluster
+    --hours <hours>       How long to run, can use decimals
+    --name <name>         Name from --list, what workspace to run
+    OR --cluster <path>   Instead of --name, path to cluster definition file
+
+--terminate               Destroy workspace(s).  All changes discarded.
+    --handle <handle>     Handle of one or cluster (e.g. "vm-023"/"cluster-012")
+
+--status                  Check status of one or all workspace instances
+    --handle <handle>     If given, check on particular one instead of all
+
+--save                    Copy running workspace back to personal repository dir
+    --handle <handle>     Handle of workspace to save (e.g. "vm-023")
+    --newname <name>      Optional, don't overwrite source image, save new one

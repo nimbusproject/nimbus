@@ -1,0 +1,36 @@
+
+Definition:
+==========
+
+Client will exit successfully if all context members move to 'OK'.  Client
+will exit with error if one or more context members reported an error.  Can
+write reports about what happened and adjust SSH policies (see optional args).
+
+
+Required:
+========
+
+--eprFile (-e) <file>  EPR of the context to monitor.
+
+--poll-delay <ms>      Set the poll frequency.
+
+
+Optional:
+========
+
+--reportdir <path>     Path to directory for report files.  In either exit case,
+                       if this argument is supplied, a text file report for each
+                       workspace will be written to this directory.
+
+--adjusthosts <id(s)>  In a successful exit case, if this argument is supplied,
+                       an adjustment will be made for the IPs listed. Value
+                       must be comma separated list.  If there is more than one
+                       NIC and you're only interested in one, add "::" to
+                       specify like so: "1.2.3.4::eth0,1.2.3.5::eth0".
+                       Specify a third field for a nickname
+                       ("1.2.3.4::eth0::headnode")
+
+--sshhosts <path>      Path to SSH known_hosts file, see "--adjusthosts".  
+                       If file does not exist yet it will be created.
+
+Also see "--help" and "--extrahelp"

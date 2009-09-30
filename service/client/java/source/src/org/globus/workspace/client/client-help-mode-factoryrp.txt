@@ -1,0 +1,29 @@
+
+Definition:
+==========
+
+Print information that the factory advertises.
+
+
+Factory RP query:
+================
+
+  DEFAULT:
+
+      If no URL or EPR is given, "--factoryrp" will default to using:
+      https://localhost:8443/wsrf/services/WorkspaceFactoryService
+
+  OR USE:
+
+      --service (-s) <url>     Factory Service URL.
+
+  OR:
+  
+      --eprFile (-e) <file>    Alternatively, direct EPR of a factory resource
+                               although this is uncommon.
+
+
+Misc. options:
+=============
+
+Also see --help and --extrahelp.

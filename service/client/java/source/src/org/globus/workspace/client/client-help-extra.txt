@@ -1,0 +1,43 @@
+
+Miscellaneous:
+
+--eprFile (-e) <file>             During a "--deploy", you can use this in lieu
+                                  of the "--service" parameter, to load the
+                                  factory EPR from a file.  This is usually
+                                  unecessary and not recommended.
+
+--displayname <name>              Nickname for local printing.
+
+--override-listener-address <ip/host>[:port]
+
+                                  If subscribing using notifications (not poll)
+                                  you can use this to override the address that
+                                  is sent to the service.  Notifications will
+                                  be sent to this address, not the default.
+                                  If no port is given, it will use the port
+                                  that the listener bound to -- this is the
+                                  recommended use (don't supply a port unless
+                                  you know what you are up to).
+
+Grid security settings (these are usually unecessary):
+
+--anonymous (-a)                  Use anonymous authentication (requires either
+                                  -m 'conv' or transport (https) security).
+--serverCertificate (-c) <file>   A file with server's certificate used for
+                                  encryption. Used in the case of GSI Secure
+                                  Message encryption.
+--descriptor (-f) <file>          Sets client security descriptor. Overrides
+                                  all other security settings.
+--delegation (-g) <mode>          Performs delegation. Can be 'limited' or
+                                  'full'. (requires -m 'conv')
+--contextLifetime (-l) <value>    Lifetime of context created for GSI Secure
+                                  Conversation (requires -m 'conv')
+--securityMech (-m) <type>        Sets authentication mechanism:
+                                  'msg' (for GSI Secure Message),
+                                  or 'conv' (for GSI Secure Conversation).
+--protection (-p) <type>          Sets protection level: 'sig' (for signature),
+                                  or 'enc' (for encryption).
+--authorization (-z) <type>       Sets client authorization of server:
+                                  'self', 'host', 'none' or a string specifying
+                                  the expected identity of the remote party
+                                  (Default 'host')

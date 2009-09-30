@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WorkspaceDeployment
+    xmlns="http://www.globus.org/2008/06/workspace/negotiable"
+    xmlns:jsdl="http://schemas.ggf.org/jsdl/2005/11/jsdl"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
+
+    <DeploymentTime>
+        <!-- xsd:duration syntax. This example == 30 minutes -->
+        <minDuration>PT30M</minDuration>
+    </DeploymentTime>
+    <InitialState>Running</InitialState>
+    <ResourceAllocation>
+        <jsdl:IndividualPhysicalMemory>
+            <jsdl:Exact>256</jsdl:Exact>
+        </jsdl:IndividualPhysicalMemory>
+        <Storage>
+            <entry>
+                <partitionName>blankdisk1</partitionName>
+                <jsdl:IndividualDiskSpace>
+                    <jsdl:Exact>256</jsdl:Exact>
+                </jsdl:IndividualDiskSpace>
+            </entry>
+        </Storage>
+    </ResourceAllocation>
+    <NodeNumber>1</NodeNumber>
+    <ShutdownMechanism>Trash</ShutdownMechanism>
+
+</WorkspaceDeployment>
