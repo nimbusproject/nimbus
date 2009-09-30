@@ -23,6 +23,7 @@ import org.globus.workspace.common.client.CommonPrint;
 import org.globus.workspace.client_core.ParameterProblem;
 import org.globus.workspace.client_core.ExecutionProblem;
 import org.globus.workspace.client_core.ExitNow;
+import org.globus.workspace.client_core.utils.StringUtils;
 import org.globus.workspace.client_common.BaseClient;
 import org.globus.workspace.cloud.client.cluster.ClusterUtil;
 import org.globus.workspace.cloud.client.cluster.ClusterMember;
@@ -38,8 +39,10 @@ import org.nimbustools.messaging.gt4_0.common.CommonUtil;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.LinkedHashMap;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.io.InputStream;
 
 public class CloudMetaClient {
 
@@ -68,7 +71,7 @@ public class CloudMetaClient {
         }
         this.print = pr;
         this.memberMap = new HashMap<String, ClusterMember>();
-        this.cloudMap = new HashMap<String, CloudDeployment>();
+        this.cloudMap = new LinkedHashMap<String, CloudDeployment>();
 
     }
 
@@ -82,19 +85,18 @@ public class CloudMetaClient {
             debug = System.err;
         }
 
-
-        //TODO wtf are print opts?
         PrintOpts prOpts = new PrintOpts(CloudClient.getOptInPrCodes());
 
         final Print print = new Print(prOpts, System.out, System.err, debug);
         CloudMetaClient client = new CloudMetaClient(print);
 
-        // TODO needs better error printing
+        ParameterProblem parameterProblem = null;
         Throwable anyError = null;
         try {
             mainImpl(client, argv);
         } catch (ParameterProblem e) {
             anyError = e;
+            parameterProblem = e;
         } catch (ExecutionProblem e) {
             anyError = e;
         } catch (ExitNow e) {
@@ -102,11 +104,34 @@ public class CloudMetaClient {
         }
 
         int exitCode;
-        if (anyError != null) {
-            print.err("Error:\n"+anyError.toString());
-            exitCode = BaseClient.COMMAND_LINE_EXIT_CODE;
-        } else {
+        if (anyError == null) {
             exitCode = BaseClient.SUCCESS_EXIT_CODE;
+        } else {
+            exitCode = BaseClient.COMMAND_LINE_EXIT_CODE;
+
+            final String message =
+                CommonUtil.genericExceptionMessageWrapper(anyError);
+
+            String err = "Problem: " + message;
+
+            if (parameterProblem != null && !print.useLogging()) {
+                err += "\nSee help (-h).";
+            }
+
+            print.errln(err);
+
+            print.debugln("\n");
+
+            final String sectionTitle = "STACKTRACE";
+            CommonPrint.printDebugSection(print, sectionTitle);
+
+            anyError.printStackTrace(print.getDebugProxy());
+
+            CommonPrint.printDebugSectionEnd(print, sectionTitle);
+
+            print.debugln("\n");
+
+            print.debugln("Stacktrace was from: " + anyError.getMessage());
         }
 
         print.flush();
@@ -114,7 +139,7 @@ public class CloudMetaClient {
         System.exit(exitCode);
     }
 
-    private static void mainImpl(CloudMetaClient client, String[] argv)
+    static void mainImpl(CloudMetaClient client, String[] argv)
         throws ParameterProblem, ExecutionProblem, ExitNow {
 
         // (for development only, to attach a remote debugger etc)
@@ -240,17 +265,17 @@ public class CloudMetaClient {
             }
         }
 
-        if (deployPath != null) {
+        // we may want to enable this functionality in the future
+        // but let's keep things simple for now
+        if (hasInlineDeploy) {
+            throw new ParameterProblem("Your cluster document includes <deploy> " +
+                "elements, which are not allowed at this time.");
+        }
 
-            // we may want to enable this functionality in the future
-            // but let's keep things simple for now
-
-            if (hasInlineDeploy) {
-                throw new ParameterProblem("Your cluster document includes <deploy> " +
-                    "elements, which are not allowed when specifying an external " +
-                    "deploy document");
-            }
-
+        if (deployPath == null) {
+            throw new ParameterProblem("You must specify a deployment document " +
+                "using the --"+Opts.DEPLOY_OPT_STRING+" option");
+        } else {
 
             final Map<String, Clouddeploy_Type[]> deployMap;
 
@@ -268,6 +293,8 @@ public class CloudMetaClient {
             }
 
             handleDeploymentMap(deployMap);
+
+            validateDeployments();
 
         }
 
@@ -347,6 +374,10 @@ public class CloudMetaClient {
 
     }
 
+    private void validateDeployments() {
+
+    }
+
     private synchronized CloudDeployment getDeploymentByName(String name)
         throws ParameterProblem {
         CloudDeployment cloud = this.cloudMap.get(name);
@@ -358,6 +389,9 @@ public class CloudMetaClient {
     }
 
     private void doDeploy() throws ExecutionProblem, ExitNow {
+
+        printDeploymentInfo();
+
         executeUtil.startMultiCloudCluster(
             this.cloudMap.values(),
             this.args.getHistoryDirectory(),
@@ -367,14 +401,60 @@ public class CloudMetaClient {
             this.args.getBrokerID(),
             this.args.getSshfile(),
             this.args.getDurationMinutes()
-            );
+        );
 
     }
 
+    private void printDeploymentInfo() {
+        if (this.cloudMap.size() == 1) {
+            this.print.infoln("\nRequesting single cloud cluster:");
+        } else {
+            this.print.infoln("\nRequesting multi cloud cluster:");
+        }
 
-    private void printHelp() {
+        for (CloudDeployment cloud : this.cloudMap.values()) {
+            this.print.infoln("Cloud '"+cloud.getCloud().getName()+"'");
 
-        //TODO actually print something
+            for (MemberDeployment member : cloud.getMembers()) {
+                String inststr = " instance";
+                if (member.getInstanceCount() > 1) {
+                    inststr += "s";
+                }
+
+                this.print.infoln("  - "+member.getMember().getPrintName()+
+                    ": image '"+member.getImageName()+"', "+
+                    member.getInstanceCount() +inststr);
+            }
+        }
+    }
+
+
+    private void printHelp() throws ExecutionProblem {
+
+
+        String help = null;
+        try {
+            help = getHelpString();
+        } catch (IOException e) {
+            throw new ExecutionProblem("Failed to get help string", e);
+        }
+
+        this.print.infoln(help);
+
+    }
+
+    private String getHelpString() throws IOException {
+        InputStream is = null;
+        String help = "";
+        try {
+            is = this.getClass().getResourceAsStream("meta-cloud-help.txt");
+            help = StringUtils.getTextFileViaInputStream(is);
+        } finally {
+            if (is != null) {
+                is.close();
+            }
+        }
+        return help;
     }
 
 

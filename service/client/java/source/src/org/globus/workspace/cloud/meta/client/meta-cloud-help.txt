@@ -1,0 +1,17 @@
+Workspace Meta Cloud Client.  See README.txt for examples and overview.
+
+-----------------------------------------------------------------------------
+
+    --help (-h)    Print this help information.
+
+-----------------------------------------------------------------------------
+
+    --run          Launch a workspace or virtual cluster on one or more clouds.
+
+      * Required run options:
+          --cluster <path>       Path to an XML cluster definition file.
+
+          --deploy <path>        Path to an XML cluster deployment file.
+
+          --hours <hours>        How long to run.  You may use decimals to
+                                 express minutes, rounds down to minutes.

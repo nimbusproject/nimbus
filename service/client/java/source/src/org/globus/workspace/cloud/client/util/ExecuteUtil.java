@@ -955,12 +955,14 @@ public class ExecuteUtil {
 
     static File createNewClusterDir(String historyDir, Print print)
         throws ExecutionProblem {
-        return createNewLaunchDir(historyDir, print, HistoryUtil.historyClusterDirPrefix);
+        return createNewLaunchDir(historyDir, print,
+            HistoryUtil.historyClusterDirPrefix);
     }
 
     static File createNewMultiClusterDir(String historyDir, Print print)
         throws ExecutionProblem {
-        return createNewLaunchDir(historyDir, print, HistoryUtil.historyMultiClusterDirPrefix);
+        return createNewLaunchDir(historyDir, print,
+            HistoryUtil.historyMultiClusterDirPrefix);
     }
 
     private static File createNewLaunchDir(String historyDir, Print print, String prefix)
@@ -973,7 +975,7 @@ public class ExecuteUtil {
             throw new ExecutionProblem(e.getMessage(), e);
         }
 
-        final int nextnum = HistoryUtil.findNextClusterNumber(topdir, print);
+        final int nextnum = HistoryUtil.findNextNumber(topdir, prefix, print);
 
         final String suffix = HistoryUtil.format.format(nextnum);
         final String newDirName = prefix + suffix;

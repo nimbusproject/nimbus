@@ -200,33 +200,23 @@ public class HistoryUtil {
 
     public static int findNextEc2ClusterNumber(File topdir, Print print)
             throws ExecutionProblem {
-        return findNextNumber(topdir, print, true, true);
-    }
-
-    public static int findNextClusterNumber(File topdir, Print print)
-            throws ExecutionProblem {
-        return findNextNumber(topdir, print, true, false);
+        return findNextNumber(topdir, historyEc2ClusterDirPrefix, print);
     }
 
     public static int findNextSingleNumber(File topdir, Print print)
             throws ExecutionProblem {
-        return findNextNumber(topdir, print, false, false);
+        return findNextNumber(topdir, historyDirPrefix, print);
     }
 
-
-    // -------------------------------------------------------------------------
-    // IMPL (private)
-    // -------------------------------------------------------------------------
-
-    private static int findNextNumber(File topdir,
-                                      Print print,
-                                      boolean cluster,
-                                      boolean ec2)
+    public static int findNextNumber(File topdir, String prefix, Print print)
             throws ExecutionProblem {
 
-        if (!cluster && ec2) {
-            throw new IllegalArgumentException("cluster=false, ec2=true is " +
-                    "not accepted");
+        if (topdir == null) {
+            throw new IllegalArgumentException("topdir may not be null");
+        }
+
+        if (prefix == null || prefix.length() == 0) {
+            throw new IllegalArgumentException("prefix may not be null or empty");
         }
 
         final String[] subdirs = topdir.list(new dirFilter());
@@ -237,31 +227,13 @@ public class HistoryUtil {
 
         print.debugln("history subdirs length: " + subdirs.length);
 
-        final String PREFIX;
-        final int PREFIXLEN;
-        if (ec2) {
-            PREFIX = historyEc2ClusterDirPrefix;
-            PREFIXLEN = historyEc2ClusterDirPrefix.length();
-        } else if (cluster) {
-            PREFIX = historyClusterDirPrefix;
-            PREFIXLEN = historyClusterDirPrefix.length();
-        } else {
-            PREFIX = historyDirPrefix;
-            PREFIXLEN = historyDirPrefix.length();
-        }
-
         int highestNumber = 0;
         for (String subdir : subdirs) {
 
-            // this gets annoying
-            //if (debug != null) {
-            //    debug.println("examining history subdir: " + subdirs[i]);
-            //}
-
-            if (subdir.startsWith(PREFIX)) {
+            if (subdir.startsWith(prefix)) {
                 try {
                     final String intPart =
-                            subdir.substring(PREFIXLEN);
+                            subdir.substring(prefix.length());
                     final int number = Integer.parseInt(intPart);
                     if (number > highestNumber) {
                         highestNumber = number;
@@ -274,6 +246,11 @@ public class HistoryUtil {
 
         return highestNumber + 1;
     }
+
+    // -------------------------------------------------------------------------
+    // IMPL (private)
+    // -------------------------------------------------------------------------
+
 
     private static class dirFilter implements FilenameFilter {
         public boolean accept(File dir, String name) {
