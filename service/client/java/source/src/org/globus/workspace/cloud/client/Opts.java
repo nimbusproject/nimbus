@@ -204,6 +204,10 @@ public class Opts {
     public final Option NOCTXLOCK_OPT =
         OptionBuilder.withLongOpt(NOCTXLOCK_OPT_STRING).create();
 
+	public static final String KERNEL_OPT_STRING = "kernel";
+    public final Option KERNEL_OPT =
+        OptionBuilder.hasArg().withLongOpt(KERNEL_OPT_STRING).create();
+
     // undocumented options:
 
     public static final String DEBUGGER_HANG_OPT_STRING = "debuggerhang";
@@ -259,5 +263,6 @@ public class Opts {
                                                  this.BROKER_URL_OPT,
                                                  this.BROKER_ID_OPT,
                                                  this.NOCTXLOCK_OPT,
-                                                 this.HOSTKEYDIR_OPT};
+                                                 this.HOSTKEYDIR_OPT,
+												 this.KERNEL_OPT};
 }

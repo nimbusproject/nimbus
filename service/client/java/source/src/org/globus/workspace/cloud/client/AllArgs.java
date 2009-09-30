@@ -95,6 +95,7 @@ public class AllArgs {
     private String hashPrintDN;
     private String historyDirectory;
     private String historySubDir;
+	private String kernel;
     private String localfile;
     private int memory;
     private String name;
@@ -348,6 +349,12 @@ public class AllArgs {
             this.durationMinutesConfigured = true;
             this.gotCmdLine(Opts.HOURS_OPT_STRING + " (converted to minutes)",
                             Integer.toString(this.durationMinutes));
+        }
+
+	 	if (line.hasOption(Opts.KERNEL_OPT_STRING)) {
+            this.kernel = line.getOptionValue(Opts.KERNEL_OPT_STRING);
+            this.gotCmdLine(Opts.KERNEL_OPT_STRING,
+                            this.kernel);
         }
 
         if (line.hasOption(Opts.LIST_OPT_STRING)) {
@@ -953,6 +960,14 @@ public class AllArgs {
     public void setHostkeyDir(boolean hostkeyDir) {
         this.hostkeyDir = hostkeyDir;
     }
+
+	public String getKernel() {
+		return kernel;
+	}
+
+	public void setKernel(String kernel) {
+		this.kernel = kernel;
+	}
 
     public String getLocalfile() {
         return this.localfile;

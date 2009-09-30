@@ -95,6 +95,10 @@ Other "--run" options:
                              using the "--terminate" option which will cause
                              nothing to be saved).
 
+    --kernel <name>          If you have coordinated with the administrator to
+                             use an alternate kernel, add this option with the
+                             appropriate kernel name to use with the launch.
+
     --broker-url <URL>       If the context broker is not colocated with the
                              Nimbus factory service that a cluster launch will
                              go through, use this URL instead.

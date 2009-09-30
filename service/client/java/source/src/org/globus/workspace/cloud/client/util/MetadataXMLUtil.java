@@ -29,6 +29,7 @@ import org.nimbustools.messaging.gt4_0.generated.metadata.definition.DiskPermiss
 import org.nimbustools.messaging.gt4_0.generated.metadata.definition.Requirements_Type;
 import org.nimbustools.messaging.gt4_0.generated.metadata.definition.VMM_Type;
 import org.nimbustools.messaging.gt4_0.generated.metadata.definition.VMM_TypeType;
+import org.nimbustools.messaging.gt4_0.generated.metadata.definition.Kernel_Type;
 import org.nimbustools.messaging.gt4_0.common.Constants_GT4_0;
 import org.apache.axis.types.URI;
 import org.ggf.jsdl.CPUArchitecture_Type;
@@ -54,7 +55,8 @@ public class MetadataXMLUtil {
                                                           String[] nicNames,
                                                           String cpuType,
                                                           String vmmVersion,
-                                                          String vmmType) {
+                                                          String vmmType,
+														  URI kernel) {
         
         final VirtualWorkspace_Type vw = new VirtualWorkspace_Type();
 
@@ -64,7 +66,8 @@ public class MetadataXMLUtil {
                                              mountAs,
                                              cpuType,
                                              vmmVersion,
-                                             vmmType));
+                                             vmmType,
+											 kernel));
 
         vw.setLogistics(constructLogistics(associations,
                                            nicNames));
@@ -76,9 +79,10 @@ public class MetadataXMLUtil {
                                                  String mountAs,
                                                  String cpuType,
                                                  String vmmVer,
-                                                 String vmmType) {
+                                                 String vmmType,
+												 URI kernel) {
         final Definition def = new Definition();
-        def.setRequirements(constructRequirements(cpuType, vmmVer, vmmType));
+        def.setRequirements(constructRequirements(cpuType, vmmVer, vmmType, kernel));
         def.setDiskCollection(contructDiskCollection(imageURI, mountAs));
         return def;
     }
@@ -96,7 +100,8 @@ public class MetadataXMLUtil {
     
     private static Requirements_Type constructRequirements(String cpuType,
                                                            String vmmVersion,
-                                                           String vmmType) {
+                                                           String vmmType,
+														   URI kernel) {
         final Requirements_Type rtype = new Requirements_Type();
         final ProcessorArchitectureEnumeration pae =
                 ProcessorArchitectureEnumeration.fromString(cpuType);
@@ -104,6 +109,10 @@ public class MetadataXMLUtil {
         rtype.setCPUArchitecture(cpu);
         final String[] versions = {vmmVersion};
         rtype.setVMM(new VMM_Type(VMM_TypeType.fromString(vmmType), versions));
+		if (kernel != null) {
+			final Kernel_Type kt = new Kernel_Type(kernel, null, null);
+			rtype.setKernel(kt);
+		}
         return rtype;
     }
 

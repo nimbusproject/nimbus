@@ -36,10 +36,9 @@ import org.globus.workspace.cloud.client.security.TrustedCAs;
 import org.globus.workspace.cloud.client.util.CloudClientUtil;
 import org.globus.workspace.cloud.client.util.DeploymentXMLUtil;
 import org.globus.workspace.cloud.client.util.ExecuteUtil;
+import org.globus.workspace.cloud.client.util.FileListing;
 import org.globus.workspace.cloud.client.util.HistoryUtil;
 import org.globus.workspace.cloud.client.util.MetadataXMLUtil;
-import org.globus.workspace.cloud.client.util.FileListing;
-import org.nimbustools.messaging.gt4_0.common.CommonUtil;
 import org.globus.workspace.common.SecurityUtil;
 import org.globus.workspace.common.client.CLIUtils;
 import org.globus.workspace.common.client.CommonPrint;
@@ -50,6 +49,7 @@ import org.globus.wsrf.impl.security.authorization.HostAuthorization;
 import org.globus.wsrf.impl.security.authorization.IdentityAuthorization;
 import org.globus.wsrf.utils.AddressingUtils;
 import org.nimbustools.ctxbroker.generated.gt4_0.description.Cloudcluster_Type;
+import org.nimbustools.messaging.gt4_0.common.CommonUtil;
 import org.nimbustools.messaging.gt4_0.generated.metadata.VirtualWorkspace_Type;
 import org.nimbustools.messaging.gt4_0.generated.negotiable.WorkspaceDeployment_Type;
 import org.nimbustools.messaging.gt4_0.generated.status.WorkspaceStatusFault;
@@ -103,6 +103,7 @@ public class CloudClient {
     private String newUnpropTargetURL;
     private String deleteURL;
     private ClusterMember[] clusterMembers; 
+	private URI kernelURI;
 
     
     // -------------------------------------------------------------------------
@@ -795,6 +796,27 @@ public class CloudClient {
 
             this.print.debugln("Exists and readable: '" + sshfile + "'");
         }
+
+		if (this.args.getKernel() != null) {
+			final String kernel = this.args.getKernel().trim();
+			if (kernel.length() == 0) {
+				throw new ParameterProblem("empty kernel string?");
+			}
+
+			if (kernel.indexOf('/') >= 0) {
+				throw new ParameterProblem("kernel may not contain any /");
+			}
+			if (kernel.indexOf('.') >= 0) {
+				throw new ParameterProblem("kernel may not contain any .");
+			}
+
+			// already-propagated kernel is implied
+			try {
+				this.kernelURI = new URI("file://" + kernel);
+			} catch (URI.MalformedURIException e) {
+				throw new ParameterProblem(e.getMessage(), e);
+			}
+		}
     }
 
     private String getDerivedImageURL(String imageName) throws Exception {
@@ -1472,7 +1494,8 @@ public class CloudClient {
                                                   nicnames,
                                                   this.args.getMetadata_cpuType(),
                                                   this.args.getMetadata_vmmVersion(),
-                                                  this.args.getMetadata_vmmType());
+                                                  this.args.getMetadata_vmmType(),
+												  this.kernelURI);
 
         final WorkspaceDeployment_Type deploymentRequest =
                 DeploymentXMLUtil.constructDeployment(this.args.getDurationMinutes(),
@@ -1548,7 +1571,8 @@ public class CloudClient {
                                                   member.getIfaceNames(),
                                                   this.args.getMetadata_cpuType(),
                                                   this.args.getMetadata_vmmVersion(),
-                                                  this.args.getMetadata_vmmType());
+                                                  this.args.getMetadata_vmmType(),
+												  this.kernelURI);
             
             deploymentRequests[i] =
                 DeploymentXMLUtil.constructDeployment(this.args.getDurationMinutes(),

@@ -1,5 +1,14 @@
+nimbus-cloud-client-013
+-----------------------
+
+[*] Corrected sample cluster xml files
+
+[*] Added --kernel option.  If you have coordinated with your administrator to
+    use an alternate kernel, use this option to activate it.
+
+
 nimbus-cloud-client-012
---------------------------
+-----------------------
 
 [*] Fixed bug in argument handling for --broker-url and --broker-id (bug6732)
 
