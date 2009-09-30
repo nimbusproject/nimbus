@@ -77,7 +77,7 @@ public class CloudManagerTest extends FileCleanupTestFixture {
     }
 
     private void createFakeCloud(String name) throws Exception {
-        File f = new File(this.getTempDir().getPath()+File.separator+name);
+        File f = new File(this.getTempDir(), name+CloudManager.FILE_SUFFIX);
         if (f.exists()) {
             throw new Exception("fake cloud already exists");
         }

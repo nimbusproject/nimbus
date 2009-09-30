@@ -28,6 +28,8 @@ import java.io.FileInputStream;
 
 public class CloudManager {
 
+    static final String FILE_SUFFIX = ".properties";
+
     final private File configDirectory;
     final private ArrayList<Cloud> clouds;
 
@@ -89,14 +91,11 @@ public class CloudManager {
 
     private Cloud loadFromProps(String name) throws ParameterProblem, IOException {
 
-        String path = configDirectory.getPath() +
-            File.separator + name;
-
-        File f = new File(path);
+        File f = new File(configDirectory, name+FILE_SUFFIX);
 
         if (!f.exists()) {
             throw new ParameterProblem("Could not find configuration for "+
-                "cloud '"+name+"'. Path: "+path);
+                "cloud '"+name+"'. Path: "+f.getAbsolutePath());
         }
 
         Properties props = new Properties(defaultProps);
