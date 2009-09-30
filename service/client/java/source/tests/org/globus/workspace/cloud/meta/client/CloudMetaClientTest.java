@@ -28,25 +28,22 @@ public class CloudMetaClientTest extends FileCleanupTestFixture {
     @Test
     public void testRun() throws Throwable {
 
+        File tempDir = this.getTempDir();
         Print print = new Print();
         CloudMetaClient client = new CloudMetaClient(print);
 
-        File clusterFile = new File(this.tempDir, "cluster.xml");
-        this.tempFiles.add(clusterFile);
+        File clusterFile = new File(tempDir, "cluster.xml");
         TestUtil.writeSampleClusterToFile(clusterFile);
 
-        File deployFile = new File(this.tempDir, "deploy.xml");
-        this.tempFiles.add(deployFile);
+        File deployFile = new File(tempDir, "deploy.xml");
         TestUtil.writeSampleDeployToFile(deployFile);
 
         File historyDir = new File(tempDir, "history");
-        this.tempFiles.add(historyDir);
         if (!historyDir.mkdir()) {
             throw new Exception("failed to create history dir");
         }
 
         File cloudDir = new File(tempDir, "clouds");
-        this.tempFiles.add(cloudDir);
         if (!cloudDir.mkdir()) {
             throw new Exception("failed to create cloud dir");
         }
@@ -78,7 +75,6 @@ public class CloudMetaClientTest extends FileCleanupTestFixture {
         Properties props = getCloudProps();
 
         File cloudFile = new File(cloudDir, cloudName);
-        this.tempFiles.add(cloudFile);
         TestUtil.writePropertiesToFile(props, cloudFile);
     }
 

@@ -29,8 +29,11 @@ import java.io.File;
  * list will be deleted, followed by the directory.
  */
 public class FileCleanupTestFixture {
-    File tempDir;
-    ArrayList<File> tempFiles = new ArrayList<File>();
+    public File getTempDir() {
+        return tempDir;
+    }
+
+    private File tempDir = null;
 
     @Before
     public void setup() throws Exception {
@@ -55,14 +58,24 @@ public class FileCleanupTestFixture {
 
     @After
     public void teardown() {
-        for (int i = tempFiles.size()-1; i >= 0; i--) {
-            File f = tempFiles.get(i);
-            if (f.exists()) {
-                f.delete();
+        //dangerous!
+        if (tempDir != null) {
+            deleteDir(tempDir);
             }
         }
-        if (tempDir != null) {
-            tempDir.delete();
+
+    static boolean deleteDir(File dir) {
+        if (dir.isDirectory()) {
+            String[] children = dir.list();
+            for (int i=0; i<children.length; i++) {
+                boolean success = deleteDir(new File(dir, children[i]));
+                if (!success) {
+                    return false;
         }
     }
+        }
+
+        return dir.delete();
+    }
+
 }

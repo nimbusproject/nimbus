@@ -35,7 +35,7 @@ public class CloudManagerTest extends FileCleanupTestFixture {
         CloudManager manager;
         try {
             manager = new CloudManager(
-                tempDir+ File.separator+"notarealdir");
+                this.getTempDir()+ File.separator+"notarealdir");
         } catch (ParameterProblem e) {
             expected = e;
         }
@@ -73,11 +73,11 @@ public class CloudManagerTest extends FileCleanupTestFixture {
     }
 
     private CloudManager getManager() throws ParameterProblem {
-        return new CloudManager(this.tempDir.getPath());
+        return new CloudManager(this.getTempDir().getPath());
     }
 
     private void createFakeCloud(String name) throws Exception {
-        File f = new File(tempDir.getPath()+File.separator+name);
+        File f = new File(this.getTempDir().getPath()+File.separator+name);
         if (f.exists()) {
             throw new Exception("fake cloud already exists");
         }
@@ -90,7 +90,6 @@ public class CloudManagerTest extends FileCleanupTestFixture {
         props.put(Props.KEY_SSHFILE, "sandwich");
 
         TestUtil.writePropertiesToFile(props, f);
-        tempFiles.add(f);
     }
 
 }

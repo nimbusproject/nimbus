@@ -44,16 +44,10 @@ public class CloudDeploymentTest extends FileCleanupTestFixture {
         BrokerContactType broker = new BrokerContactType();
 
         final RunTask[] runTasks = deployment.generateRunTasks(broker,
-            this.tempDir.getAbsolutePath(),
+            this.getTempDir().getAbsolutePath(),
             60, new Print());
 
         assertEquals(deployment.getMembers().size(),  runTasks.length);
-
-        //TODO this is littering the tmp directory right now
-        // because it doesn't track the files created in the
-        // generateRunTasks() routine and FileCleanupTestFixture
-        // won't remove a dir with files
-
 
     }
     
