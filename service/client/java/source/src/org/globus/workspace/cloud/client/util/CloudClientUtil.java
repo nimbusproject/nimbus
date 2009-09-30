@@ -662,6 +662,10 @@ public class CloudClientUtil {
     public static String expandSshPath(String sshfile) 
         throws ParameterProblem {
 
+        if (sshfile == null) {
+            throw new IllegalArgumentException("sshfile may not be null");
+        }
+
         if (sshfile.startsWith("~")) {
 
             final String homedir = System.getProperty("user.home");
