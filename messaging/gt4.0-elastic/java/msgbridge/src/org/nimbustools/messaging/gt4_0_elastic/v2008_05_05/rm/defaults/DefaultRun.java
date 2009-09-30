@@ -197,7 +197,7 @@ public class DefaultRun implements Run {
                             "be base64 encoded?");
                 }
                 final byte[] bytes = Base64.decode(base64Encoded.getBytes());
-                userData = bytes.toString();
+                userData = new String(bytes);
             }
         }
 
