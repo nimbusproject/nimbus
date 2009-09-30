@@ -6,9 +6,9 @@
 
 
 
-sh /opt/workspace/ctx-scripts/clean.sh &>/dev/null
+sh /opt/nimbus/ctx-scripts/clean.sh &>/dev/null
 
-sh /opt/workspace/ctx/launch.sh &>/dev/null
+sh /opt/nimbus/ctx/launch.sh &>/dev/null
 
 
 
