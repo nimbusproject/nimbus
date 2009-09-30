@@ -148,6 +148,7 @@ public class DefaultSlotManagement implements SlotManagement {
         final ArrayList idInts = new ArrayList(64);
         final ArrayList allHostnames = new ArrayList(64);
         final ArrayList allDurations = new ArrayList(64);
+        final ArrayList allMemory = new ArrayList(64); // for backouts if needed
 
         try {
             for (int i = 0; i < requests.length; i++) {
@@ -171,6 +172,7 @@ public class DefaultSlotManagement implements SlotManagement {
                     idInts.add(new Integer(ids[j]));
                     allHostnames.add(hostnames[j]);
                     allDurations.add(duration);
+                    allMemory.add(new Integer(request.getMemory()));
                 }
             }
         } catch (Exception e) {
@@ -183,16 +185,29 @@ public class DefaultSlotManagement implements SlotManagement {
                 logger.error(msg);
             }
 
-            // brute force for now
-            try {
-                for (int i = 0; i < requests.length; i++) {
-                    final int[] ids = requests[i].getIds();
-                    for (int j = 0; j < ids.length; j++) {
-                        this.releaseSpace(ids[j]);
-                    }
+            if (allHostnames.size() != allMemory.size()) {
+                logger.fatal("Could not back reservations out, no matching " +
+                        "memory recordings (?)");
+                throw new ResourceRequestDeniedException(msg);
                 }
+
+            final String[] justReservedNodes = (String[])
+                    allHostnames.toArray(new String[allHostnames.size()]);
+            final Integer[] justReservedMemory = (Integer[])
+                    allMemory.toArray(new Integer[allMemory.size()]);
+
+            for (int i = 0; i < justReservedNodes.length; i++) {
+                try {
+
+                    ResourcepoolUtil.retireMem(justReservedNodes[i],
+                                               justReservedMemory[i],
+                                               this.db,
+                                               this.lager.eventLog,
+                                               this.lager.traceLog,
+                                               -1);
             } catch (Exception ee) {
-                logger.debug(ee.getMessage());
+                    logger.error(ee.getMessage());
+                }
             }
 
             throw new ResourceRequestDeniedException(msg);
