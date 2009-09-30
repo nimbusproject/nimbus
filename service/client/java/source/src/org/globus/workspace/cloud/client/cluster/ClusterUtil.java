@@ -128,7 +128,7 @@ public class ClusterUtil {
 
 
            if (map.put(wsName, deploys) != null) {
-               throw new ParameterProblem("Each deployment workspace entry"+
+               throw new ParameterProblem("Each deployment workspace entry "+
                    "must have a unique name");
            }
 
