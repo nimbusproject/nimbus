@@ -1,0 +1,288 @@
+<?xml version="1.0"?>
+
+<project default="deploy" basedir=".">
+
+    <!-- Build file for VOMS interceptors, differentiates between
+         GT4.0 and GT4.1+ target GLOBUS_LOCATION
+     -->
+
+    <!-- ==== General properties: =================================== -->
+
+    <property name="package.name" value="globus-voms-0_2"/>
+
+    <property name="java.debug" value="on"/>
+
+    <property environment="env"/>
+    <property name="deploy.dir" location="${env.GLOBUS_LOCATION}"/>
+    <property name="abs.deploy.dir" location="${deploy.dir}"/>
+
+    <property name="bootstrap.dir" value="bootstrap"/>
+    <property name="lib.dir"  location="lib"/>
+    <fileset dir="etc" id="garEtc"/>
+    <property name="garetc.id" value="garEtc"/>
+
+    <!-- ==== Directories created on build: ========================= -->
+
+    <property name="build.dir"  location="build"/>
+    <property name="build.dest" location="build/classes"/>
+    <property name="build.dest-oldapi" location="build/classes-old"/>
+    <property name="build.dest-newapi" location="build/classes-new"/>
+    <property name="build.lib.basedir" location="build/lib"/>
+    <property name="bootstrap.build" location="bootstrap/build"/>
+
+    <!-- ==== Source of the base implementation: ==================== -->
+
+    <property name="src.dir" value="src"/>
+
+    <!-- ==== Only one of these source dirs will be used: =========== -->
+
+    <property name="src.dir.gt4.0" value="src-proxies/4.0"/>
+    <property name="src.dir.gt4.1+" value="src-proxies/4.1+"/>
+
+    <!-- ==== Used to generate GT specific jar names ===== -->
+
+    <property name="oldapi.name" value="${package.name}-gt4.0" />
+    <property name="newapi.name" value="${package.name}-gt4.1+" />
+
+    <!-- ==== This jar has the base implementation: ================= -->
+    <property name="jar.name" value="${package.name}.jar"/>
+
+    <!-- ==== GAR: ================= -->
+    <property name="gar.name" value="${package.name}.gar"/>
+    <property name="deployment.name" value="${package.name}"/>
+
+    <!-- ==== Refer to standard build files for deployment: ========= -->
+    <property name="build.packages" location=
+        "${abs.deploy.dir}/share/globus_wsrf_common/build-packages.xml"/>
+
+    <!-- ==== Java WSRF core lib dir changed in 4.1+: ================ -->
+
+    <path id="classpath4.0">
+         <fileset dir="${abs.deploy.dir}/lib">
+              <include name="*.jar"/>
+         </fileset>
+         <fileset dir="${lib.dir}">
+              <include name="*.jar"/>
+         </fileset>
+    </path>
+
+    <path id="classpath4.1+">
+         <fileset dir="${abs.deploy.dir}/lib/common">
+              <include name="*.jar"/>
+         </fileset>
+         <fileset dir="${lib.dir}">
+              <include name="*.jar"/>
+         </fileset>
+    </path>
+
+    <!-- ==== Bootstrap with GT version ============================= -->
+
+    <target name="determine-GT-version">
+        <mkdir dir="${bootstrap.build}"/>
+        <javac srcdir="${bootstrap.dir}"
+               destdir="${bootstrap.build}"
+               debug="on" />
+        <java classname="org.globus.MajorMinorVersion"
+              outputproperty="gtversion">
+
+            <classpath>
+                <pathelement location="${bootstrap.build}" />
+                <fileset dir="${abs.deploy.dir}/lib">
+                    <include name="**/*.jar"/>
+                </fileset>
+            </classpath>
+        </java>
+    </target>
+
+    <!-- any GT version not equal to "4.0" is considered new-api -->
+    <target name="substitutions" depends="determine-GT-version">
+        <condition property="is-new-api">
+            <not>
+                <!-- gtversion is the outputproperty from running the
+                     bootstrap java prog in the find-version target -->
+                <equals arg1="${gtversion}" arg2="4.0" />
+            </not>
+        </condition>
+
+        <antcall target="print-version" />
+
+
+        <!-- The else property of <condition> would be very useful here,
+             but it is only available after ant 1.6.3 -->
+
+        <!-- extra jar -->
+
+        <condition property="jar2.name" value="${oldapi.name}.jar">
+            <not>
+                <isset property="is-new-api" />
+            </not>
+        </condition>
+        <condition property="jar2.name" value="${newapi.name}.jar">
+            <isset property="is-new-api" />
+        </condition>
+
+
+        <!-- classpath -->
+
+        <condition property="classpath" value="classpath4.0">
+            <not>
+                <isset property="is-new-api" />
+            </not>
+        </condition>
+        <condition property="classpath" value="classpath4.1+">
+            <isset property="is-new-api" />
+        </condition>
+
+
+        <!-- extra source directory -->
+
+        <condition property="src2.dir" value="${src.dir.gt4.0}">
+            <not>
+                <isset property="is-new-api" />
+            </not>
+        </condition>
+        <condition property="src2.dir" value="${src.dir.gt4.1+}">
+            <isset property="is-new-api" />
+        </condition>
+
+
+        <!-- Main jar location -->
+
+        <condition property="build.lib.dir" value="${build.lib.basedir}">
+            <not>
+                <isset property="is-new-api" />
+            </not>
+        </condition>
+        <!-- authorization jars need to go to $GL/lib/common for 4.1+ -->
+        <condition property="build.lib.dir" value="${build.lib.basedir}/common">
+            <isset property="is-new-api" />
+        </condition>
+
+
+        <!-- extra build directory -->
+
+        <condition property="builddest2" value="${build.dest-oldapi}">
+            <not>
+                <isset property="is-new-api" />
+            </not>
+        </condition>
+        <condition property="builddest2" value="${build.dest-newapi}">
+            <isset property="is-new-api" />
+        </condition>
+
+        <!--
+             Instead of property substitution, one could have different
+             targets and use the if/unless properties of <target/>, but that
+             is messier looking.  This way also makes it easier to add
+             arbitrary substituion logic in the future.
+
+             (gar.name and etc dir need property substitution though)
+         -->
+
+    </target>
+
+    <target name="print-old" unless="is-new-api">
+        <echo message="Determined you have an old API installation (${gtversion}) at your GLOBUS_LOCATION (${env.GLOBUS_LOCATION})."/>
+    </target>
+
+    <target name="print-new" if="is-new-api">
+        <echo message="Determined you have a new API installation (${gtversion}) at your GLOBUS_LOCATION (${env.GLOBUS_LOCATION})."/>
+    </target>
+
+    <target name="print-version" depends="print-old,print-new" />
+
+    <!-- ==== init-compile-jar-gar etc. ============================= -->
+
+    <target name="init" depends="substitutions">
+        <mkdir dir="${lib.dir}"/>
+        <mkdir dir="${build.dir}"/>
+        <mkdir dir="${build.dest}"/>
+        <mkdir dir="${build.lib.basedir}"/>
+        <mkdir dir="${build.lib.dir}"/>
+        <mkdir dir="${builddest2}"/>
+
+        <fileset dir="${build.lib.basedir}" id="garjars"/>
+        <property name="garjars.id" value="garjars"/>
+    </target>
+
+    <target name="compile" depends="init">
+
+        <!-- core code -->
+
+        <javac srcdir="${src.dir}"
+               destdir="${build.dest}"
+               source="1.4"
+               debug="on"
+               classpathref="${classpath}" >
+            <include name="**/*.java"/>
+            <classpath>
+                <path refid="${classpath}"/>
+            </classpath>
+        </javac>
+
+        <copy todir="${build.lib.dir}">
+             <fileset dir="${lib.dir}">
+                  <include name="*.jar"/>
+                  <include name="*LICENSE*"/>
+             </fileset>
+        </copy>
+
+        <copy todir="${build.dest}" >
+              <fileset dir="${src.dir}" includes="**/*.properties" />
+              <fileset dir="${src.dir}" includes="**/*.xml" />
+        </copy>
+
+        <!-- GT version specific code -->
+
+        <javac srcdir="${src2.dir}"
+               destdir="${builddest2}"
+               source="1.4"
+               debug="on">
+            <classpath>
+                <path refid="${classpath}"/>
+                <pathelement location="${build.dest}" />
+            </classpath>
+            <include name="**/*.java"/>
+        </javac>
+
+        <copy todir="${builddest2}" >
+	        <fileset dir="${src2.dir}" includes="**/*.properties" />
+	        <fileset dir="${src2.dir}" includes="**/*.xml" />
+	    </copy>
+
+    </target>
+
+    <target name="jar" depends="compile">
+        <jar destfile="${build.lib.dir}/${jar.name}"
+            basedir="${build.dest}"/>
+        <jar destfile="${build.lib.dir}/${jar2.name}"
+            basedir="${builddest2}"/>
+    </target>
+
+    <target name="dist" depends="jar">
+        <ant antfile="${build.packages}" target="makeGar">
+            <reference refid="${garjars.id}"/>
+            <reference refid="${garetc.id}"/>
+        </ant>
+    </target>
+
+    <target name="clean">
+        <delete dir="tmp"/>
+        <delete dir="${build.dir}"/>
+        <delete dir="${bootstrap.build}"/>
+        <delete file="${gar.name}"/>
+    </target>
+
+    <target name="deploy" depends="dist">
+        <ant antfile="${build.packages}" target="deployGar">
+            <property name="gar.id" value="${deployment.name}"/>
+        </ant>
+    </target>
+
+    <target name="undeploy" depends="substitutions">
+        <ant antfile="${build.packages}" target="undeployGar">
+            <property name="gar.id" value="${deployment.name}"/>
+        </ant>
+    </target>
+
+</project>

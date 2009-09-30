@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+
+<ehcache>
+
+    <defaultCache
+        maxElementsInMemory="1000"
+        eternal="false"
+        timeToIdleSeconds="20"
+        timeToLiveSeconds="20"
+        overflowToDisk="false"
+        />
+
+    <cache name="metadataServerCache"
+        maxElementsInMemory="1000"
+        eternal="false"
+        timeToIdleSeconds="20"
+        timeToLiveSeconds="20"
+        overflowToDisk="false"
+        />
+
+</ehcache>

@@ -1,0 +1,5 @@
+Build notes
+===========
+
+build/  --  implementations of different user-facing tasks
+dist/   --  generate releases

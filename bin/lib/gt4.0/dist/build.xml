@@ -1,0 +1,216 @@
+<?xml version="1.0"?>
+
+<project default="create-dist" name="Nimbus release build-file" basedir=".">
+
+    <description>
+        Nimbus buildfile to generate releases.
+    </description>
+
+    <property environment="env"/>
+    <property name="deploy.dir" location="${env.GLOBUS_LOCATION}"/>
+    <property file="./build.properties"/>
+
+    <!-- ==== Clean targets ========================================= -->
+
+    <target name="clean" depends="clean-local, clean-distfiles"
+            description="Clean everything including '../*' project files">
+
+        <ant dir="${nimbus.main.builddir}" target="clean-all"/>
+    </target>
+
+    <target name="clean-local" description="Clean local artifacts">
+        <delete dir="${distbuild.dir}"/>
+        <delete file=".ant-targets-build.xml"/>
+    </target>
+
+    <target name="clean-distfiles" description="Clean release files">
+        <delete dir="${dist.dir}"/>
+    </target>
+
+    <!-- ==== Distribution target =========================== -->
+
+    <!-- The all encompassing target, use this to create a release: -->
+    <target name="create-dist"
+            depends="clean, create-src-dists, create-bin-dists"
+            description="Create the distribution">
+        <!-- afterwards, clean intermediate artifacts -->
+        <antcall target="clean-local"/>
+    </target>
+
+    <target name="init">
+        <mkdir dir="${distbuild.dir}"/>
+        <mkdir dir="${dist.dir}"/>
+    </target>
+
+    <!-- ==== Source distribution targets =========================== -->
+
+    <target name="create-src-dists"
+            depends="service-src, control-src" />
+
+    <target name="service-src" depends="init">
+
+        <mkdir dir="${distbuild.dir}/${nimbus.main}"/>
+
+        <copy todir="${distbuild.dir}/${nimbus.main}/bin">
+            <fileset dir="${nimbus.basedir}/bin">
+                <exclude name="${nimbus.basedir}/bin/lib/gt4.0/dist" />
+            </fileset>
+        </copy>
+
+        <copy todir="${distbuild.dir}/${nimbus.main}/">
+            <fileset dir="topdocs"/>
+        </copy>
+
+        <chmod perm="755">
+            <fileset dir="${distbuild.dir}/${nimbus.main}/bin">
+                <include name="*.sh"/>
+            </fileset>
+        </chmod>
+        <copy todir="${distbuild.dir}/${nimbus.main}/autocommon">
+            <fileset dir="${nimbus.basedir}/autocommon"/>
+        </copy>
+        <copy todir="${distbuild.dir}/${nimbus.main}/autoconfiguration">
+            <fileset dir="${nimbus.basedir}/autoconfiguration"/>
+        </copy>
+        <copy todir="${distbuild.dir}/${nimbus.main}/messaging">
+            <fileset dir="${nimbus.basedir}/messaging"/>
+        </copy>
+        <copy todir="${distbuild.dir}/${nimbus.main}/plugins">
+            <fileset dir="${nimbus.basedir}/plugins"/>
+        </copy>
+        <copy todir="${distbuild.dir}/${nimbus.main}/service">
+            <fileset dir="${nimbus.basedir}/service"/>
+        </copy>
+        <copy todir="${distbuild.dir}/${nimbus.main}/service-api">
+            <fileset dir="${nimbus.basedir}/service-api"/>
+        </copy>
+        
+        <patternset id="service-src-fileset">
+            <include name="${nimbus.main}/*.*"/>
+            <include name="${nimbus.main}/bin/**"/>
+            <exclude name="${nimbus.main}/bin/*sh" />
+            <include name="${nimbus.main}/autocommon/**"/>
+            <include name="${nimbus.main}/autoconfiguration/**"/>
+            <include name="${nimbus.main}/messaging/**"/>
+            <include name="${nimbus.main}/plugins/**"/>
+            <include name="${nimbus.main}/service/**"/>
+            <include name="${nimbus.main}/service-api/**"/>
+        </patternset>
+
+        <fixcrlf srcdir="${distbuild.dir}/${nimbus.main}" includes="**/*.java"
+               tab="remove" tablength="4" eol="lf" javafiles="yes"/>
+
+        <tar destfile="${distbuild.dir}/${nimbus.main}.tar" longfile="gnu">
+
+            <tarfileset dir="${distbuild.dir}" mode="755">
+                <include name="${nimbus.main}/bin/*sh" />
+            </tarfileset>
+            <tarfileset dir="${distbuild.dir}">
+                <patternset refid="service-src-fileset"/>
+            </tarfileset>
+
+        </tar>
+
+        <gzip src="${distbuild.dir}/${nimbus.main}.tar"
+              destfile="${dist.dir}/${nimbus.main}.${tgz.suffix}"/>
+        
+        <delete file="${distbuild.dir}/${nimbus.main}.tar"/>
+        
+    </target>
+
+    <target name="control-src" depends="init">
+
+        <mkdir dir="${distbuild.dir}/${nimbus.controls}"/>
+        <mkdir dir="${nimbus.controls.dest}" />
+        <mkdir dir="${nimbus.controls2.dest}" />
+
+        <copy todir="${nimbus.controls.dest}">
+            <fileset dir="${nimbus.controls.builddir}">
+                <include name="*.*"/>
+            </fileset>
+        </copy>
+        <copy todir="${nimbus.controls.dest}/workspace">
+            <fileset dir="${nimbus.controls.builddir}/workspace"/>
+        </copy>
+        <copy todir="${nimbus.controls.dest}/aux">
+            <fileset dir="${nimbus.controls.builddir}/aux"/>
+        </copy>
+        <copy todir="${nimbus.controls2.dest}/">
+            <fileset file="${nimbus.controls2.builddir}/workspacepilot.py"/>
+        </copy>
+
+        <tar destfile="${distbuild.dir}/${nimbus.controls}.tar"
+             longfile="gnu">
+            <tarfileset dir="${distbuild.dir}">
+                <include name="${nimbus.controls}/**"/>
+            </tarfileset>
+        </tar>
+
+        <gzip src="${distbuild.dir}/${nimbus.controls}.tar"
+              destfile="${dist.dir}/${nimbus.controls}.${tgz.suffix}"/>
+
+        <delete file="${distbuild.dir}/${nimbus.controls}.tar"/>
+
+    </target>
+
+    
+    <!-- ==== Binary distribution targets =========================== -->
+
+    <target name="create-bin-dists"
+            depends="client-bin" />
+
+    <target name="client-bin" depends="init">
+
+        <echo message="client-bin todo... " />
+
+        <!--
+        <mkdir dir="${distbuild.dir}/${nimbus.client}"/>
+
+        <copy todir="${distbuild.dir}/${vws.client.binary}/common">
+            <fileset dir="${nimbus.service.build}/common"/>
+        </copy>
+        <copy todir="${distbuild.dir}/${vws.client.binary}/client">
+            <fileset dir="${nimbus.service.build}/client"/>
+        </copy>
+        <copy todir="${distbuild.dir}/${vws.client.binary}">
+            <fileset dir="${nimbus.service.build}">
+                <include name="build.*"/>
+            </fileset>
+        </copy>
+
+        <ant dir="${distbuild.dir}/${vws.client.binary}"
+             target="deploy-client-only"/>
+
+        <mkdir dir="${vws.client.binary}"/>
+
+        <copy todir="${vws.client.binary}" flatten="true">
+            <fileset dir="${distbuild.dir}/${vws.client.binary}"
+                     casesensitive="yes">
+                <include name="**/*.gar"/>
+            </fileset>
+        </copy>
+        -->
+
+        <!-- ant's copy task does not preserve permissions -->
+        <!--
+        <exec executable="cp" >
+            <arg value="-p" />
+            <arg value="scripts/deploy-client-gars.sh" />
+            <arg value="${vws.client.binary}" />
+        </exec>
+        -->
+
+        <!-- ant's tar task does not preserve permissions either -->
+        <!--
+        <exec executable="tar" >
+            <arg value="czf" />
+            <arg value="${dist.dir}/${vws.client.binary}.${tgz.suffix}" />
+            <arg value="${vws.client.binary}/" />
+        </exec>
+        <delete dir="${vws.client.binary}"/>
+        -->
+
+    </target>
+
+
+</project>
