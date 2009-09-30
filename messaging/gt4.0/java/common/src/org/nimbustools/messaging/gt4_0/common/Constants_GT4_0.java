@@ -116,11 +116,18 @@ public interface Constants_GT4_0 {
 
     // namespace: http://www.globus.org/2008/06/workspace/contextualization
 
+    public static final QName CONTEXTUALIZATION_RP_SET =
+                                    new QName(OLD_NS_CONTEXTUALIZATION,
+                                              "ContextBrokerRPSet");
+
     public static final QName OLD_CONTEXTUALIZATION_RP_SET =
                                     new QName(OLD_NS_CONTEXTUALIZATION,
                                               "ContextBrokerRPSet");
 
     public static final QName OLD_RP_CONTEXTUALIZATION_CONTEXT =
+                           new QName(NS_TYPES, "contextualizationContext");
+
+    public static final QName RP_CONTEXTUALIZATION_CONTEXT =
                            new QName(NS_TYPES, "contextualizationContext");
 
 
