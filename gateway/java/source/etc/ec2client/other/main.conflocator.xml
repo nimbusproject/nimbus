@@ -19,18 +19,25 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans
                            http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
-    <bean id="gatewaySettings"
+    <bean id="EC2ClientSettings"
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 
         <property name="location" value="/@EC2CLIENT_CONFDIR@/ec2client.conf" />
         <property name="placeholderPrefix" value="$EC2CLIENT{" />
     </bean>
 
-    <bean id="otherGatewaySettings"
+    <bean id="otherEC2ClientSettings"
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 
         <property name="location" value="/@EC2CLIENT_CONFDIR@/other/other-ec2client.conf" />
         <property name="placeholderPrefix" value="$OTHER_EC2CLIENT{" />
+    </bean>
+
+    <bean id="otherGatewaySettings"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+
+        <property name="location" value="/@GATEWAY_CONFDIR@/other/other-gateway.conf" />
+        <property name="placeholderPrefix" value="$OTHER_GATEWAY{" />
     </bean>
 
     <bean id="commonSettings"
@@ -41,4 +48,30 @@
         <property name="placeholderPrefix"
                   value="$COMMON{" />
     </bean>
+
+    <!-- Hibernate Session Factory config is also here, to take advantage of token replacement -->
+
+    <bean id="hibernateSessionFactory"
+          class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect">org.hibernate.dialect.DerbyDialect</prop>
+                <prop key="hibernate.connection.url">jdbc:derby:@GATEWAY_PERSISTENCEDIR@/EC2AccountingDB;create=false</prop>
+                <prop key="hibernate.connection.driver_class">org.apache.derby.jdbc.EmbeddedDriver</prop>
+                <prop key="hibernate.current_session_context_class">thread</prop>
+            </props>
+        </property>
+
+        <property name="annotatedClasses">
+            <list>
+                <value>org.nimbustools.gateway.accounting.manager.defaults.DefaultAccount</value>
+                <value>org.nimbustools.gateway.accounting.manager.defaults.DefaultInstance</value>
+                <value>org.nimbustools.gateway.ec2.monitoring.defaults.DefaultEC2Instance</value>
+            </list>
+        </property>
+
+    </bean>
+
+    
 </beans>

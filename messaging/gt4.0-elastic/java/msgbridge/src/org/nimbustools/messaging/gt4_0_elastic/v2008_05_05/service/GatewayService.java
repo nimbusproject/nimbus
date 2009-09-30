@@ -53,7 +53,11 @@ public class GatewayService extends DelegatingService {
     }
 
     protected synchronized void findSecurity() throws Exception {
-        this.security = null;
+        if (this.security == null) {
+            final GatewayContext ctx =
+                    GatewayContext.discoverGatewayContext();
+            this.security = ctx.findSecurity();
+        }
     }
 
     protected synchronized void findImage() throws Exception {

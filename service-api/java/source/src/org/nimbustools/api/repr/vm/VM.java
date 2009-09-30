@@ -31,4 +31,6 @@ public interface VM {
     public Caller getCreator();
     public int getLaunchIndex();
     public String getMdUserData();
+    public String getSshKeyName();
+    
 }

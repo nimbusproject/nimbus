@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<!--suppress SpringModelInspection -->
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
@@ -138,6 +139,12 @@
 
 
     <!-- ************ ServiceSecurity *********** -->
+
+    <bean id="nimbus-gateway.security"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.security.RMServiceSecurity">
+        <constructor-arg ref="nimbus-gateway.rm.containerInterface" />
+        <constructor-arg ref="nimbus-gateway.rmapi-modulelocator" />
+    </bean>
 
     <!-- No ServiceSecurity operations are supported in the gateway -->
 

@@ -10,6 +10,15 @@
     <!-- load some defaults from colocated build.properties file -->
     <property file="build.properties"/>
 
+    <!-- *******************************************************************
+         LOCATE GT DEPENDENCIES
+         ******************************************************************* -->
+
+    <property environment="env"/>
+    <property name="abs.deploy.dir" location="${env.GLOBUS_LOCATION}"/>
+    <property name="gt4_0.lib.dir" location="${abs.deploy.dir}/lib"/>
+
+
 
     <!-- *******************************************************************
          MODULE NAME
@@ -47,7 +56,12 @@
          ******************************************************************* -->
 
     <path id="nimbus.gateway.main.classpath">
-
+        
+        <fileset dir="${gt4_0.lib.dir}">
+            <include name="*.jar"/>
+            <exclude name="nimbus-*.jar" />
+        </fileset>
+      
         <fileset dir="${nimbus.gateway.main.lib.dir}">
              <include name="*.jar"/>
         </fileset>

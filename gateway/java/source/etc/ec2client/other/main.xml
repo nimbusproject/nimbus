@@ -9,22 +9,76 @@
          rm.Manager implementation
          =================================================================== -->
 
-    <bean id="nimbus-rm.manager"
+    <bean id="nimbus-rm.accountingManager"
+          class="org.nimbustools.gateway.accounting.manager.AccountingManager"
+          init-method="recover_initialize">
+
+        <constructor-arg index="0" ref="nimbus-rm.ec2manager"/>
+        <constructor-arg index="1" ref="nimbus-rm.accountingManager.accountant"/>
+        <constructor-arg index="2" ref="hibernateSessionFactory"/>
+
+        <property name="useScheduledCharging" value="true"/>
+        <property name="chargeFrequencySeconds" value="$EC2CLIENT{accounting.charge.frequency}"/>
+        <property name="chargeLookaheadSeconds" value="$EC2CLIENT{accounting.charge.lookahead}"/>
+    </bean>
+
+    <bean id="nimbus-rm.keyManager"
+          class="org.nimbustools.gateway.ec2.manager.EC2KeyManager" >
+        <constructor-arg index="0" ref="nimbus-rm.ec2manager"/>
+        <constructor-arg index="1" ref="nimbus-rm.ec2manager.accessManager"/>
+    </bean>
+
+    <bean id="nimbus-rm.ec2manager"
           class="org.nimbustools.gateway.ec2.manager.EC2GatewayManager">
-        
-        <constructor-arg ref="nimbus-rm.creation" />
+        <constructor-arg index="0" ref="nimbus-rm.ec2manager.accessManager"/>
+        <constructor-arg index="1" ref="nimbus-rm.ec2manager.instanceTracker"/>
+        <constructor-arg index="2" ref="nimbus-rm.ec2manager.translator"/>
+        <constructor-arg index="3" ref="hibernateSessionFactory"/>
     </bean>
 
 
     <!-- ===================================================================
          Creation interfaces
          =================================================================== -->
+    <bean id="nimbus-rm.accountingManager.accountant"
+          class="org.nimbustools.gateway.accounting.manager.defaults.DefaultAccountant">
+        <constructor-arg index="0" value="$EC2CLIENT{ec2.user.maxCredits}"/>
+        <constructor-arg index="1" ref="hibernateSessionFactory"/>
+    </bean>
 
-    <bean id="nimbus-rm.creation"
-          class="org.nimbustools.gateway.ec2.creation.defaults.DefaultCreation">
+
+    <bean id="nimbus-rm.ec2manager.accessManager"
+          class="org.nimbustools.gateway.ec2.SimpleEC2AccessManager"
+          init-method="validate">
+
+        <property name="key" value="$EC2CLIENT{ec2.key}"/>
+        <property name="secret" value="$EC2CLIENT{ec2.secret}"/>
 
     </bean>
 
+
+    <bean id="nimbus-rm.ec2manager.instanceTracker"
+          class="org.nimbustools.gateway.ec2.monitoring.defaults.DefaultInstanceTracker"
+          init-method="validate">
+        <constructor-arg index="0" ref="nimbus-rm.ec2manager.accessManager"/>
+        <constructor-arg index="1" ref="nimbus-rm.ec2manager.translator"/>
+        <constructor-arg index="2" ref="hibernateSessionFactory"/>
+
+        <property name="ec2PollFrequencySeconds" value="$EC2CLIENT{ec2.poll.frequency}"/>
+        <property name="instanceExpireSeconds" value="$EC2CLIENT{ec2.instance.expire}"/>
+
+    </bean>
+
+    
+    <bean id="nimbus-rm.ec2manager.translator"
+          class="org.nimbustools.gateway.ec2.manager.defaults.DefaultTranslator"
+          init-method="validate">
+        <property name="smallMemory" value="$OTHER_GATEWAY{memory.small}" />
+        <property name="publicNetworkName" value="$OTHER_GATEWAY{net.public}" />
+        <property name="privateNetworkName" value="$OTHER_GATEWAY{net.private}" />
+
+    </bean>
+        
 
     <!-- ===================================================================
          rm.BasicLegality implementation (using nimbustools default)
@@ -47,9 +101,10 @@
     <bean id="nimbus-brain.ModuleLocator"
           class="org.nimbustools.api.defaults.brain.DefaultModuleLocator">
 
-        <lookup-method name="getManager" bean="nimbus-rm.manager"/>
+        <lookup-method name="getManager" bean="nimbus-rm.accountingManager"/>
         <lookup-method name="getReprFactory" bean="nimbus-repr.ReprFactory"/>
         <lookup-method name="getMetadataServer" bean="nimbus-metadata-server"/>
+        <lookup-method name="getKeyManager" bean="nimbus-rm.keyManager" />
 
     </bean>
 
@@ -73,6 +128,7 @@
          =================================================================== -->
 
     <bean id="nimbus-metadata-server"
-          class="org.nimbustools.api.defaults.services.metadata.DefaultMetadataServer" />
+          class="org.nimbustools.gateway.StubMetadataServer" />
+
 
 </beans>

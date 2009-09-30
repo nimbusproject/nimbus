@@ -204,7 +204,7 @@ public class DefaultRun implements Run {
                             "be base64 encoded?");
                 }
                 final byte[] bytes = Base64.decode(base64Encoded.getBytes());
-                userData = bytes.toString();
+                userData = new String(bytes);
             }
         }
 
@@ -228,6 +228,7 @@ public class DefaultRun implements Run {
         creq.setShutdownType(CreateRequest.SHUTDOWN_TYPE_TRASH);
         creq.setVMFiles(files);
         creq.setMdUserData(userData);
+        creq.setSshKeyName(keyname);
 
         return creq;
     }

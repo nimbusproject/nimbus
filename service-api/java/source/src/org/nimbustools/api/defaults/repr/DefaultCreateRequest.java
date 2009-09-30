@@ -49,6 +49,7 @@ public class DefaultCreateRequest implements _CreateRequest {
     private String initialStateRequest;
     private Context context;
     private String mdUserData;
+    private String sshKeyName;
     
 
     // -------------------------------------------------------------------------
@@ -115,8 +116,8 @@ public class DefaultCreateRequest implements _CreateRequest {
         return this.mdUserData;
     }
 
-    public void setMdUserData(String mdUserData) {
-        this.mdUserData = mdUserData;
+    public String getSshKeyName() {
+        return sshKeyName;
     }
 
     // -------------------------------------------------------------------------
@@ -179,6 +180,13 @@ public class DefaultCreateRequest implements _CreateRequest {
         this.context = context;
     }
 
+    public void setMdUserData(String mdUserData) {
+        this.mdUserData = mdUserData;
+    }
+
+    public void setSshKeyName(String sshKeyName) {
+        this.sshKeyName = sshKeyName;
+    }
 
     // -------------------------------------------------------------------------
     // DEBUG STRING
@@ -205,6 +213,7 @@ public class DefaultCreateRequest implements _CreateRequest {
                 prefix + "shutdownType='" + this.shutdownType + "'" +
                 prefix + "userDataPresent? " + userDataPresent +
                 prefix + "initialStateRequest='" + this.initialStateRequest + "'" +
+                prefix + "sshKeyName='" + this.sshKeyName + "'" +
                 prefix + "context=" + this.context + "\n";
     }
 }

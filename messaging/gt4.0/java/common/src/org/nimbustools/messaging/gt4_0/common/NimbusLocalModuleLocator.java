@@ -35,6 +35,10 @@ public class NimbusLocalModuleLocator implements ModuleLocator {
         return this.getRealML().getMetadataServer();
     }
 
+    public SecurityManager getSecurityManager() {
+        return this.getRealML().getSecurityManager();
+    }
+
     protected ModuleLocator getRealML() {
         final NimbusLocalMasterContext context;
         try {

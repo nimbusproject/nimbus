@@ -19,6 +19,7 @@ package org.nimbustools.messaging.gt4_0.common;
 import org.nimbustools.api.brain.ModuleLocator;
 import org.nimbustools.api.services.rm.Manager;
 import org.nimbustools.api.services.metadata.MetadataServer;
+import org.nimbustools.api.services.security.KeyManager;
 import org.nimbustools.api.repr.ReprFactory;
 
 public class GatewayModuleLocator implements ModuleLocator {
@@ -33,6 +34,10 @@ public class GatewayModuleLocator implements ModuleLocator {
 
     public MetadataServer getMetadataServer() {
         return this.getRealML().getMetadataServer();
+    }
+
+    public KeyManager getKeyManager() {
+        return this.getRealML().getKeyManager();
     }
 
     protected ModuleLocator getRealML() {
