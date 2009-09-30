@@ -806,8 +806,8 @@ public class CloudClient {
 			if (kernel.indexOf('/') >= 0) {
 				throw new ParameterProblem("kernel may not contain any /");
 			}
-			if (kernel.indexOf('.') >= 0) {
-				throw new ParameterProblem("kernel may not contain any .");
+			if (kernel.indexOf("..") >= 0) {
+				throw new ParameterProblem("kernel may not contain any '..'");
 			}
 
 			// already-propagated kernel is implied
