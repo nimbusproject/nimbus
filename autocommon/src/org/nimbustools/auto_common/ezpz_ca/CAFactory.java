@@ -105,7 +105,7 @@ public class CAFactory {
 
         this.certGen.addExtension(X509Extensions.BasicConstraints,
                                  true,
-                                 new BasicConstraints(false));
+                                 new BasicConstraints(true));
 
         /*
         this.certGen.addExtension(X509Extensions.KeyUsage,
