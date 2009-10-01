@@ -1,0 +1,10 @@
+2008-11-07  Michael Paterson <mhp@uvic.ca>
+
+    * check_nimbus_consistent.py: change to use relative path for
+    locating .sql
+
+    * check_nimbus_vm_running.py: change to use relative path for
+    locating .sql
+
+    * check_nimbus_vm_slots.py: change to use relative path for
+    locating .sql
