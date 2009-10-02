@@ -1,10 +1,8 @@
 - - -
 
-![Nimbus](tmplogo.png)
-
 Nimbus - Open Source IaaS Cloud Computing Software
 
-* <http://workspace.globus.org>
+* <p><http://workspace.globus.org></p>
 
 - - -
 
