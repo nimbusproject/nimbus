@@ -1,22 +1,25 @@
+- - -
+
+![Nimbus](tmplogo.png)
+
 Nimbus - Open Source IaaS Cloud Computing Software
 
-  http://workspace.globus.org
+* <http://workspace.globus.org>
 
-***
+- - -
 
 We are changing the repository around in the upcoming months.
 
-Please direct all queries to:
+Please direct all queries to <workspace-dev@globus.org>
 
-  workspace-dev@globus.org
-
-***
+- - -
 
 Note that the most recent activity in this repository will usually be in branches.
 
 * If you are viewing on GitHub, choose a branch from the dropdown menu called "all branches"
 
 * If you are viewing directly via git:
-  1. git branch - _(view current branches)_
-  2. git log XYZ - _(view commit logs on branch called XYZ)_
+  1. git branch - _view current branches_
+  2. git log XYZ - _view commit logs on branch called XYZ_
 
+- - -
