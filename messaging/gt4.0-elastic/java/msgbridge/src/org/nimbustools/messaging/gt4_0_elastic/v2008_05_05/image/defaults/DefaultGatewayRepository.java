@@ -198,8 +198,8 @@ public class DefaultGatewayRepository implements Repository {
         final ArrayList amiIDs = new ArrayList();
 
         // TODO: put text file (owner->amis) back in, rigging this:
-        amiIDs.add(this.getOneListing("ami-cc9a7da5"));
-        amiIDs.add(this.getOneListing("ami-dd8b6cb4"));
+        // amiIDs.add(this.getOneListing("ami-cc9a7da5"));
+        // amiIDs.add(this.getOneListing("ami-dd8b6cb4"));
 
         return (FileListing[]) amiIDs.toArray(new FileListing[amiIDs.size()]);
     }
