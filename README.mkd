@@ -3,6 +3,7 @@
 Nimbus - Open Source IaaS Cloud Computing Software
 
 * <p><http://workspace.globus.org></p>
+* <p><http://github.com/nimbusproject/nimbus></p>
 
 - - -
 
