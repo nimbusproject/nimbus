@@ -658,11 +658,11 @@ class xen_v2_manager:
         disk = None
         log.debug("root image is '%s'" % self.opts.image)
 
-        # this should be more cleanly handled, and handled elsewhere.
-        if self.opts.image[-3:] == '.gz':
-            self.opts.image = self.opts.image[:-3]
-
         if self.opts.image[:7] == "file://":
+	    # this should be more cleanly handled, and handled elsewhere.
+	    if self.opts.image[-3:] == '.gz':
+	        self.opts.image = self.opts.image[:-3]
+
             if not self.opts.xenmounttype:
                 disk = "file:" + self.opts.image[7:]
             else:
