@@ -252,6 +252,7 @@ public class DefaultBindDisks implements BindDisks {
         partition.setImagemount(file.getMountAs());
         partition.setRootdisk(false);
         partition.setReadwrite(true);
+        partition.setBlankspace(megabytes);
 
         return partition;
     }
