@@ -4,6 +4,7 @@ Nimbus - Open Source IaaS Cloud Computing Software
 
 * <p><http://workspace.globus.org></p>
 * <p><http://github.com/nimbusproject/nimbus></p>
+* <p>[Build instructions and license](http://github.com/nimbusproject/nimbus/tree/master/bin/lib/gt4.0/dist/topdocs/)
 
 - - -
 
@@ -22,3 +23,4 @@ Note that the most recent activity in this repository will usually be in branche
   2. git log XYZ - _view commit logs on branch called XYZ_
 
 - - -
+
