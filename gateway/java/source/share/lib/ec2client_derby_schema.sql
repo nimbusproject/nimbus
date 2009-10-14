@@ -20,7 +20,7 @@ CREATE TABLE account
 (
 dn VARCHAR(512) NOT NULL PRIMARY KEY,
 credits_used INT NOT NULL DEFAULT 0,
-credits_max INT NOT NULL DEFAULT 0
+credits_max INT
 );
 
 CREATE TABLE account_instance

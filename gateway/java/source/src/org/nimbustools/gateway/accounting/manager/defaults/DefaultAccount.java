@@ -28,14 +28,14 @@ public class DefaultAccount implements Account {
     private final Object lock = new Object();
 
     private String id;
-    private int maxCredits;
+    private Integer maxCredits; // can be null, means unlimited account
     private int usedCredits;
 
-    public DefaultAccount(String id, int maxCredits, int usedCredits) {
+    public DefaultAccount(String id, Integer maxCredits, int usedCredits) {
         if (id == null || id.length() == 0) {
             throw new IllegalArgumentException("id may not be null or empty");
         }
-        if (maxCredits < 0) {
+        if (maxCredits != null && maxCredits < 0) {
             throw new IllegalArgumentException("maxCredits must be non-negative");
         }
         if (usedCredits < 0) {
@@ -61,7 +61,7 @@ public class DefaultAccount implements Account {
     }
 
     @Column(name = "CREDITS_MAX")
-    public int getMaxCredits() {
+    public Integer getMaxCredits() {
         return maxCredits;
     }
 
@@ -83,8 +83,8 @@ public class DefaultAccount implements Account {
     }
 
     @Transient
-    public int getAvailableCredits() {
-        return maxCredits - usedCredits;
+    public boolean isUnlimited() {
+        return maxCredits == null;
     }
 
     public void charge(int count) throws InsufficientCreditException {
@@ -92,7 +92,7 @@ public class DefaultAccount implements Account {
             throw new IllegalArgumentException("count must be greater than zero");
         }
         synchronized (this.lock) {
-            if (this.getAvailableCredits() >= count) {
+            if (isUnlimited() || maxCredits - usedCredits >= count) {
                 usedCredits += count;
             } else {
                 throw new InsufficientCreditException("not enough funds " +

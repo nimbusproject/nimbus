@@ -1,7 +1,4 @@
-package org.nimbustools.gateway.accounting.manager;
-
-import org.nimbustools.gateway.ec2.EC2AccessID;
-import org.nimbustools.gateway.accounting.manager.InsufficientCreditException;/*
+/*
  * Copyright 1999-2008 University of Chicago
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -16,6 +13,12 @@ import org.nimbustools.gateway.accounting.manager.InsufficientCreditException;/*
  * License for the specific language governing permissions and limitations
  * under the License.
  */
+package org.nimbustools.gateway.accounting.manager;
+
+import org.nimbustools.gateway.ec2.EC2AccessID;
+import org.nimbustools.gateway.accounting.manager.InsufficientCreditException;
+
+import javax.persistence.Transient;
 
 // this is probably gonna end up being too simple..
 
@@ -25,7 +28,9 @@ public interface Account {
 
     int getUsedCredits();
 
-    int getAvailableCredits();
+    Integer getMaxCredits();
+
+    boolean isUnlimited();
 
     /***
      * Charges the Account if it has enough available credits and throws
