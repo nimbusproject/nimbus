@@ -26,6 +26,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.classic.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Criteria;
+
+import java.util.List;
+import java.util.Collections;
 
 public class DefaultAccountant implements Accountant {
 
@@ -42,24 +46,22 @@ public class DefaultAccountant implements Accountant {
         this.sessionFactory = sessionFactory;
     }
 
-    public boolean isValidUser(Caller user) {
+    public boolean isValidAccount(Caller user) {
         if (user == null) {
             throw new IllegalArgumentException("user may not be null");
         }
 
-        final Session session = sessionFactory.openSession();
+        final Session session = sessionFactory.getCurrentSession();
 
         try {
             getAccount(user, session);
         } catch (InvalidAccountException e) {
             return false;
-        } finally {
-            session.close();
         }
         return true;
     }
 
-    public void chargeUser(Caller user, int count, Session session)
+    public void chargeAccount(Caller user, int count)
             throws InsufficientCreditException, InvalidAccountException {
         if (user == null) {
             throw new IllegalArgumentException("user may not be null");
@@ -70,13 +72,15 @@ public class DefaultAccountant implements Accountant {
 
         logger.debug("charging user \""+user.getIdentity()+"\" "+count+" credits");
 
+        final Session session = sessionFactory.getCurrentSession();
+
         Account acct = getAccount(user, session);
         acct.charge(count);
-        session.saveOrUpdate(acct);
+        session.update(acct);
        
     }
 
-    public void chargeUserWithOverdraft(Caller user, int count, Session session)
+    public void chargeAccountWithOverdraft(Caller user, int count)
             throws InvalidAccountException {
         if (user == null) {
             throw new IllegalArgumentException("user may not be null");
@@ -87,13 +91,14 @@ public class DefaultAccountant implements Accountant {
 
         logger.debug("charging user \""+user.getIdentity()+"\" "+count+" " +
                 "credits with possible overdraft");
+        final Session session = sessionFactory.getCurrentSession();
 
         final Account acct = getAccount(user, session);
         acct.chargeWithOverdraft(count);
-        session.saveOrUpdate(acct);
+        session.update(acct);
     }
 
-    public void creditUser(Caller user, int count, Session session)
+    public void creditAccount(Caller user, int count)
             throws InsufficientCreditException, InvalidAccountException {
         if (user == null) {
             throw new IllegalArgumentException("user may not be null");
@@ -103,6 +108,8 @@ public class DefaultAccountant implements Accountant {
         }
 
         logger.debug("crediting user \""+user.getIdentity()+"\" "+count+" credits");
+
+        final Session session = sessionFactory.getCurrentSession();
 
         Account acct = getAccount(user, session);
         acct.credit(count);
@@ -116,6 +123,77 @@ public class DefaultAccountant implements Accountant {
 
         //TODO right now I'm just working with default instances
         return 10;
+    }
+
+    public void addLimitedAccount(String dn, int maxCredits) {
+        if (dn == null) {
+            throw new IllegalArgumentException("dn may not be null");
+        }
+        dn = dn.trim();
+        if (dn.length() == 0) {
+            throw new IllegalArgumentException("dn may not be empty");
+        }
+        if (maxCredits < 0) {
+            throw new IllegalArgumentException("maxCredits may not be negative");
+        }
+        addAccountImpl(dn, maxCredits);
+    }
+
+
+    public void addUnlimitedAccount(String dn) {
+        if (dn == null) {
+            throw new IllegalArgumentException("dn may not be null");
+        }
+        dn = dn.trim();
+        if (dn.length() == 0) {
+            throw new IllegalArgumentException("dn may not be empty");
+        }
+
+        addAccountImpl(dn, null);
+    }
+
+    protected void addAccountImpl(String dn, Integer maxCredits) {
+
+        final DefaultAccount account = new DefaultAccount(dn, maxCredits, 0);
+
+        final Session session = sessionFactory.getCurrentSession();
+        session.save(account);
+    }
+
+    public List<Account> describeAccounts() {
+        final Session session = sessionFactory.getCurrentSession();
+        final Criteria criteria = session.createCriteria(DefaultAccount.class);
+        @SuppressWarnings("unchecked")
+        final List<Account> list = (List<Account>)
+                Collections.checkedList(criteria.list(), Account.class);
+        return list;
+    }
+
+    public Account setAccountMaxCredits(String dn, Integer maxCredits)
+            throws InvalidAccountException {
+
+        if (dn == null) {
+            throw new IllegalArgumentException("dn may not be null");
+        }
+        dn = dn.trim();
+        if (dn.length() == 0) {
+            throw new IllegalArgumentException("dn may not be empty");
+        }
+        if (maxCredits < 0) {
+            throw new IllegalArgumentException("maxCredits may not be negative");
+        }
+
+        final Session session = sessionFactory.getCurrentSession();
+
+        final DefaultAccount account = (DefaultAccount) session.get(DefaultAccount.class, dn);
+        if (account == null) {
+            throw new InvalidAccountException("Account '"+dn+"' does not exist");
+        }
+        account.setMaxCredits(maxCredits);
+        session.update(account);
+        
+
+        return account;
     }
 
     private Account getAccount(Caller user, Session session) throws InvalidAccountException {

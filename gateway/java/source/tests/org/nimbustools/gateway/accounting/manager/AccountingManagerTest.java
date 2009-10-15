@@ -25,14 +25,10 @@ import org.nimbustools.api.services.rm.*;
 import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.CreateRequest;
 import org.nimbustools.api.repr.vm.ResourceAllocation;
-import org.nimbustools.gateway.accounting.manager.defaults.DefaultAccount;
 import org.hibernate.SessionFactory;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Date;
 
 
 public class AccountingManagerTest {
@@ -92,7 +88,7 @@ public class AccountingManagerTest {
         when(
             accountant.getHourlyRate(any(ResourceAllocation.class))
         ).thenReturn(rate);
-        when(accountant.isValidUser(caller)).thenReturn(true);
+        when(accountant.isValidAccount(caller)).thenReturn(true);
 
         ResourceAllocation ra = mock(ResourceAllocation.class);
         when(ra.getNodeNumber()).thenReturn(nodeCount);
@@ -116,8 +112,8 @@ public class AccountingManagerTest {
         assertNotNull(expected);
         assertEquals(expected, createException);
 
-        verify(accountant).chargeUser(caller, charge);
-        verify(accountant).creditUser(caller, charge);
+        verify(accountant).chargeAccount(caller, charge);
+        verify(accountant).creditAccount(caller, charge);
     }
 
     @Test
@@ -132,9 +128,9 @@ public class AccountingManagerTest {
         when(
                 accountant.getHourlyRate(any(ResourceAllocation.class))
         ).thenReturn(1);
-        when(accountant.isValidUser(any(Caller.class))).thenReturn(true);
+        when(accountant.isValidAccount(any(Caller.class))).thenReturn(true);
         doThrow(new InsufficientCreditException()).
-                when(accountant).chargeUser(any(Caller.class), anyInt());
+                when(accountant).chargeAccount(any(Caller.class), anyInt());
 
         ResourceAllocation ra = mock(ResourceAllocation.class);
         when(ra.getNodeNumber()).thenReturn(nodeCount);
@@ -158,7 +154,7 @@ public class AccountingManagerTest {
         }
         assertNotNull(expected);
 
-        verify(accountant).chargeUser(caller, 5);
+        verify(accountant).chargeAccount(caller, 5);
         verify(mockManager, never()).create(request, caller);
     }
 

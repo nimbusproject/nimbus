@@ -212,7 +212,7 @@ public class AccountingManager implements Manager {
                         instance.getCallerIdentity() +"' "+charge+" credits");
 
                 if (charge > 0) {
-                    accountant.chargeUserWithOverdraft(instance.getCaller(), charge, session);
+                    accountant.chargeAccountWithOverdraft(instance.getCaller(), charge);
                     instance.addCharge(charge);
                 }
 
@@ -251,7 +251,7 @@ public class AccountingManager implements Manager {
             throw new IllegalArgumentException("caller may not be null");
         }
 
-        if (!accountant.isValidUser(caller)) {
+        if (!accountant.isValidAccount(caller)) {
             throw new ResourceRequestDeniedException("user \""+
                 caller.getIdentity()+"\" is unknown");
         }
@@ -270,7 +270,7 @@ public class AccountingManager implements Manager {
         int charge = instanceRate * ra.getNodeNumber();
 
         try {
-            accountant.chargeUser(caller, charge, session);
+            accountant.chargeAccount(caller, charge);
         } catch (InsufficientCreditException e) {
             logger.error("User \""+caller.getIdentity()+"\" was short on funds", e);
 
@@ -292,22 +292,22 @@ public class AccountingManager implements Manager {
         try {
             createResult = manager.create(req, caller);
         } catch (SchedulingException e) {
-            refundUser(caller, charge, session);
+            refundUser(caller, charge);
             throw e;
         } catch (ResourceRequestDeniedException e) {
-            refundUser(caller, charge, session);
+            refundUser(caller, charge);
             throw e;
         } catch (CreationException e) {
-            refundUser(caller, charge, session);
+            refundUser(caller, charge);
             throw e;
         } catch (AuthorizationException e) {
-            refundUser(caller, charge, session);
+            refundUser(caller, charge);
             throw e;
         } catch (MetadataException e) {
-            refundUser(caller, charge, session);
+            refundUser(caller, charge);
             throw e;
         } catch (CoSchedulingException e) {
-            refundUser(caller, charge, session);
+            refundUser(caller, charge);
             throw e;
         }
 
@@ -342,10 +342,10 @@ public class AccountingManager implements Manager {
     }
 
 
-    private void refundUser(Caller caller, int charge, Session session) {
+    private void refundUser(Caller caller, int charge) {
         logger.info("Issuing refund of "+charge+" credits because instance failed to start");
         try {
-            accountant.creditUser(caller, charge, session);
+            accountant.creditAccount(caller, charge);
         } catch (InsufficientCreditException e) {
             logger.error("Tried to refund user \""+caller.getIdentity()+
                 "\" for their failed instances but the refund failed (?)", e);
@@ -548,7 +548,7 @@ public class AccountingManager implements Manager {
             if (charge > 0) {
                 try {
 
-                    accountant.chargeUser(inst.getCaller(), charge, session);
+                    accountant.chargeAccount(inst.getCaller(), charge);
                     inst.addCharge(charge);
                     dirty = true;
 
@@ -572,7 +572,7 @@ public class AccountingManager implements Manager {
                     int newCharge = inst.calculateCharge(now);
                     if (newCharge > 0) {
                         try {
-                            accountant.chargeUserWithOverdraft(inst.getCaller(), newCharge, session);
+                            accountant.chargeAccountWithOverdraft(inst.getCaller(), newCharge);
                         } catch (InvalidAccountException e1) {
                             // this is very unlikely to happen. maybe a race with an admin tool
                             // deleting an account with a running instance

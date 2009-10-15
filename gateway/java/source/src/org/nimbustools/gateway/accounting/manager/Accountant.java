@@ -4,6 +4,8 @@ import org.nimbustools.api.repr.vm.ResourceAllocation;
 import org.nimbustools.api.repr.Caller;
 import org.hibernate.classic.Session;
 
+import java.util.List;
+
 
 /*
  * Copyright 1999-2008 University of Chicago
@@ -23,13 +25,16 @@ import org.hibernate.classic.Session;
 
 public interface Accountant {
 
-    boolean isValidUser(Caller user);
+    boolean isValidAccount(Caller user);
 
-    void chargeUser(Caller user, int count, Session session) throws InsufficientCreditException, InvalidAccountException;
+    void chargeAccount(Caller user, int count)
+            throws InsufficientCreditException, InvalidAccountException;
 
-    void chargeUserWithOverdraft(Caller user, int count, Session session) throws InvalidAccountException;
+    void chargeAccountWithOverdraft(Caller user, int count)
+            throws InvalidAccountException;
 
-    void creditUser(Caller user, int count, Session session) throws InsufficientCreditException, InvalidAccountException;
+    void creditAccount(Caller user, int count)
+            throws InsufficientCreditException, InvalidAccountException;
 
     /**
      * Determines the hourly rate for a single instance of the provided
@@ -39,4 +44,12 @@ public interface Accountant {
      */
     int getHourlyRate(ResourceAllocation ra);
 
+    void addLimitedAccount(String dn, int maxCredits);
+
+    void addUnlimitedAccount(String dn);
+
+    List<Account> describeAccounts();
+
+    Account setAccountMaxCredits(String dn, Integer maxCredits)
+            throws InvalidAccountException;
 }
