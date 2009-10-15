@@ -47,6 +47,15 @@ public class DefaultAccountant implements Accountant {
             throw new IllegalArgumentException("user may not be null");
         }
 
+        final Session session = sessionFactory.openSession();
+
+        try {
+            getAccount(user, session);
+        } catch (InvalidAccountException e) {
+            return false;
+        } finally {
+            session.close();
+        }
         return true;
     }
 
@@ -61,7 +70,7 @@ public class DefaultAccountant implements Accountant {
 
         logger.debug("charging user \""+user.getIdentity()+"\" "+count+" credits");
 
-        Account acct = getAccount(user);
+        Account acct = getAccount(user, session);
         acct.charge(count);
         session.saveOrUpdate(acct);
        
@@ -79,7 +88,7 @@ public class DefaultAccountant implements Accountant {
         logger.debug("charging user \""+user.getIdentity()+"\" "+count+" " +
                 "credits with possible overdraft");
 
-        final Account acct = getAccount(user);
+        final Account acct = getAccount(user, session);
         acct.chargeWithOverdraft(count);
         session.saveOrUpdate(acct);
     }
@@ -95,23 +104,9 @@ public class DefaultAccountant implements Accountant {
 
         logger.debug("crediting user \""+user.getIdentity()+"\" "+count+" credits");
 
-        Account acct = getAccount(user);
+        Account acct = getAccount(user, session);
         acct.credit(count);
         session.saveOrUpdate(acct);
-    }
-
-    public void persistUser(Caller user, Session session)
-            throws InvalidAccountException {
-        if (user == null) {
-            throw new IllegalArgumentException("user may not be null");
-        }
-        if (session == null) {
-            throw new IllegalArgumentException("session may not be null");
-        }
-
-        final Account account = getAccount(user);
-        session.saveOrUpdate(account);
-
     }
 
     public int getHourlyRate(ResourceAllocation ra) {
@@ -123,7 +118,7 @@ public class DefaultAccountant implements Accountant {
         return 10;
     }
 
-    private Account getAccount(Caller user) throws InvalidAccountException {
+    private Account getAccount(Caller user, Session session) throws InvalidAccountException {
         if (user == null) {
             throw new IllegalArgumentException("id may not be null");
         }
@@ -133,10 +128,7 @@ public class DefaultAccountant implements Accountant {
             throw new IllegalArgumentException("user id may not be null");
         }
 
-        final Session session = sessionFactory.openSession();
-        session.beginTransaction();
-
-        logger.info("Attempting to find account for DN '"+
+        logger.debug("Attempting to find account for DN '"+
                 id+"' in persistence layer");
         Account acct = (Account) session.get(DefaultAccount.class, id);
         if (acct == null) {

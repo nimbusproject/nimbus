@@ -213,7 +213,6 @@ public class AccountingManager implements Manager {
 
                 if (charge > 0) {
                     accountant.chargeUserWithOverdraft(instance.getCaller(), charge, session);
-                    accountant.persistUser(instance.getCaller(), session);
                     instance.addCharge(charge);
                 }
 

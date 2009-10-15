@@ -31,8 +31,6 @@ public interface Accountant {
 
     void creditUser(Caller user, int count, Session session) throws InsufficientCreditException, InvalidAccountException;
 
-    void persistUser(Caller user, Session session) throws InvalidAccountException;
-
     /**
      * Determines the hourly rate for a single instance of the provided
      * ResourceAllocation.
