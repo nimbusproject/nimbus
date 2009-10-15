@@ -26,6 +26,8 @@ import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.CreateRequest;
 import org.nimbustools.api.repr.vm.ResourceAllocation;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.classic.Session;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -99,7 +101,7 @@ public class AccountingManagerTest {
         Manager mockManager = mock(Manager.class);
         when(mockManager.create(request, caller)).thenThrow(createException);
 
-        SessionFactory sessionFactory = mock(SessionFactory.class);
+        SessionFactory sessionFactory = getMockedSessionFactory();
 
         AccountingManager am = new AccountingManager(mockManager, accountant, sessionFactory);
         am.setUseScheduledCharging(false);
@@ -140,8 +142,7 @@ public class AccountingManagerTest {
 
         Manager mockManager = mock(Manager.class);
 
-        SessionFactory sessionFactory = mock(SessionFactory.class);
-
+        SessionFactory sessionFactory = getMockedSessionFactory();
 
         AccountingManager am = new AccountingManager(mockManager, accountant, sessionFactory);
         am.setUseScheduledCharging(false);
@@ -156,6 +157,16 @@ public class AccountingManagerTest {
 
         verify(accountant).chargeAccount(caller, 5);
         verify(mockManager, never()).create(request, caller);
+    }
+
+    private SessionFactory getMockedSessionFactory() {
+        SessionFactory sessionFactory = mock(SessionFactory.class);
+        Session session = mock(Session.class);
+        when(sessionFactory.openSession()).thenReturn(session);
+        when(sessionFactory.getCurrentSession()).thenReturn(session);
+        Transaction transaction = mock(Transaction.class);
+        when(session.beginTransaction()).thenReturn(transaction);
+        return sessionFactory;
     }
 
 }
