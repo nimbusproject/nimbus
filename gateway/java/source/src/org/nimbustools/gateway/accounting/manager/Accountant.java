@@ -25,13 +25,13 @@ public interface Accountant {
 
     boolean isValidUser(Caller user);
 
-    void chargeUser(Caller user, int count) throws InsufficientCreditException;
+    void chargeUser(Caller user, int count, Session session) throws InsufficientCreditException, InvalidAccountException;
 
-    void chargeUserWithOverdraft(Caller user, int count);
+    void chargeUserWithOverdraft(Caller user, int count, Session session) throws InvalidAccountException;
 
-    void creditUser(Caller user, int count) throws InsufficientCreditException;
+    void creditUser(Caller user, int count, Session session) throws InsufficientCreditException, InvalidAccountException;
 
-    void persistUser(Caller user, Session session);
+    void persistUser(Caller user, Session session) throws InvalidAccountException;
 
     /**
      * Determines the hourly rate for a single instance of the provided

@@ -212,7 +212,7 @@ public class AccountingManager implements Manager {
                         instance.getCallerIdentity() +"' "+charge+" credits");
 
                 if (charge > 0) {
-                    accountant.chargeUserWithOverdraft(instance.getCaller(), charge);
+                    accountant.chargeUserWithOverdraft(instance.getCaller(), charge, session);
                     accountant.persistUser(instance.getCaller(), session);
                     instance.addCharge(charge);
                 }
@@ -262,6 +262,8 @@ public class AccountingManager implements Manager {
                 " does not support coscheduled requests");
         }
 
+        final Session session = sessionFactory.openSession();
+        final Transaction transaction = session.beginTransaction();
 
         final ResourceAllocation ra = req.getRequestedRA();
 
@@ -269,12 +271,15 @@ public class AccountingManager implements Manager {
         int charge = instanceRate * ra.getNodeNumber();
 
         try {
-            accountant.chargeUser(caller, charge);
+            accountant.chargeUser(caller, charge, session);
         } catch (InsufficientCreditException e) {
             logger.error("User \""+caller.getIdentity()+"\" was short on funds", e);
 
             throw new ResourceRequestDeniedException("User has insufficent " +
                 "credit available to fulfill the request", e);
+        } catch (InvalidAccountException e) {
+            logger.error("User '"+caller.getIdentity()+"' could not be found", e);
+            throw new ResourceRequestDeniedException("User does not exist", e);
         }
 
         // okay now user has been charged for the first hour of usage.
@@ -288,22 +293,22 @@ public class AccountingManager implements Manager {
         try {
             createResult = manager.create(req, caller);
         } catch (SchedulingException e) {
-            refundUser(caller, charge);
+            refundUser(caller, charge, session);
             throw e;
         } catch (ResourceRequestDeniedException e) {
-            refundUser(caller, charge);
+            refundUser(caller, charge, session);
             throw e;
         } catch (CreationException e) {
-            refundUser(caller, charge);
+            refundUser(caller, charge, session);
             throw e;
         } catch (AuthorizationException e) {
-            refundUser(caller, charge);
+            refundUser(caller, charge, session);
             throw e;
         } catch (MetadataException e) {
-            refundUser(caller, charge);
+            refundUser(caller, charge, session);
             throw e;
         } catch (CoSchedulingException e) {
-            refundUser(caller, charge);
+            refundUser(caller, charge, session);
             throw e;
         }
 
@@ -326,27 +331,28 @@ public class AccountingManager implements Manager {
             // account was already charged for the first hour
             inst.setCharge(instanceRate);
 
-
-            final Session session = sessionFactory.openSession();
-            final Transaction transaction = session.beginTransaction();
             session.persist(inst);
-            transaction.commit();
 
             addInstance(inst);
         }
+
+        transaction.commit();
 
 
         return createResult;
     }
 
 
-    private void refundUser(Caller caller, int charge) {
+    private void refundUser(Caller caller, int charge, Session session) {
         logger.info("Issuing refund of "+charge+" credits because instance failed to start");
         try {
-            accountant.creditUser(caller, charge);
-        } catch (InsufficientCreditException e1) {
+            accountant.creditUser(caller, charge, session);
+        } catch (InsufficientCreditException e) {
             logger.error("Tried to refund user \""+caller.getIdentity()+
-                "\" for their failed instances but the refund failed (?)", e1);
+                "\" for their failed instances but the refund failed (?)", e);
+        } catch (InvalidAccountException e) {
+            logger.error("Tried to refund user \""+caller.getIdentity()+
+                "\" for their failed instances but could not find account (?)", e);
         }
     }
 
@@ -543,7 +549,7 @@ public class AccountingManager implements Manager {
             if (charge > 0) {
                 try {
 
-                    accountant.chargeUser(inst.getCaller(), charge);
+                    accountant.chargeUser(inst.getCaller(), charge, session);
                     inst.addCharge(charge);
                     dirty = true;
 
@@ -566,12 +572,26 @@ public class AccountingManager implements Manager {
 
                     int newCharge = inst.calculateCharge(now);
                     if (newCharge > 0) {
-                        dirty = true;
-                        accountant.chargeUserWithOverdraft(inst.getCaller(), newCharge);
+                        try {
+                            accountant.chargeUserWithOverdraft(inst.getCaller(), newCharge, session);
+                        } catch (InvalidAccountException e1) {
+                            // this is very unlikely to happen. maybe a race with an admin tool
+                            // deleting an account with a running instance
+                            logger.error("Account '"+inst.getCaller().getIdentity()+
+                                    "' suddenly does not exist. Instance '"+inst.getID()+
+                                    "' does not have an owner and will be terminated", e1);
+                        }
                         inst.addCharge(charge);
+                        dirty = true;
                     }
 
                     // add instance to list of instances which are to be killed
+                    if (deadbeats == null) {
+                        deadbeats = new ArrayList<Instance>();
+                    }
+                    deadbeats.add(inst);
+
+                } catch (InvalidAccountException e) {
                     if (deadbeats == null) {
                         deadbeats = new ArrayList<Instance>();
                     }
@@ -580,7 +600,6 @@ public class AccountingManager implements Manager {
             }
 
             if (dirty) {
-                accountant.persistUser(inst.getCaller(), session);
                 session.update(inst);
             }
 

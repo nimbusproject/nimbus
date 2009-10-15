@@ -19,6 +19,7 @@ package org.nimbustools.gateway.accounting.manager.defaults;
 import org.nimbustools.gateway.accounting.manager.Accountant;
 import org.nimbustools.gateway.accounting.manager.Account;
 import org.nimbustools.gateway.accounting.manager.InsufficientCreditException;
+import org.nimbustools.gateway.accounting.manager.InvalidAccountException;
 import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.vm.ResourceAllocation;
 import org.apache.commons.logging.Log;
@@ -26,32 +27,19 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.classic.Session;
 import org.hibernate.SessionFactory;
 
-import java.util.HashMap;
-
 public class DefaultAccountant implements Accountant {
 
     private static final Log logger =
             LogFactory.getLog(DefaultAccountant.class.getName());
 
-    private final HashMap<String, Account> accountMap;
-    private final int maxCreditsPerUser;
-
     private final SessionFactory sessionFactory;
 
-    public DefaultAccountant(int maxCreditsPerUser,
-                             SessionFactory sessionFactory) {
-
-        if (maxCreditsPerUser < 0) {
-            throw new IllegalArgumentException("maxCreditsPerUser must be non-negative");
-        }
-        this.maxCreditsPerUser = maxCreditsPerUser;
+    public DefaultAccountant(SessionFactory sessionFactory) {
 
         if (sessionFactory == null) {
             throw new IllegalArgumentException("sessionFactory may not be null");
         }
         this.sessionFactory = sessionFactory;
-
-        this.accountMap = new HashMap<String, Account>();
     }
 
     public boolean isValidUser(Caller user) {
@@ -62,7 +50,8 @@ public class DefaultAccountant implements Accountant {
         return true;
     }
 
-    public void chargeUser(Caller user, int count) throws InsufficientCreditException {
+    public void chargeUser(Caller user, int count, Session session)
+            throws InsufficientCreditException, InvalidAccountException {
         if (user == null) {
             throw new IllegalArgumentException("user may not be null");
         }
@@ -74,10 +63,12 @@ public class DefaultAccountant implements Accountant {
 
         Account acct = getAccount(user);
         acct.charge(count);
-
+        session.saveOrUpdate(acct);
+       
     }
 
-    public void chargeUserWithOverdraft(Caller user, int count) {
+    public void chargeUserWithOverdraft(Caller user, int count, Session session)
+            throws InvalidAccountException {
         if (user == null) {
             throw new IllegalArgumentException("user may not be null");
         }
@@ -88,12 +79,13 @@ public class DefaultAccountant implements Accountant {
         logger.debug("charging user \""+user.getIdentity()+"\" "+count+" " +
                 "credits with possible overdraft");
 
-        getAccount(user).chargeWithOverdraft(count);
-
-
+        final Account acct = getAccount(user);
+        acct.chargeWithOverdraft(count);
+        session.saveOrUpdate(acct);
     }
 
-    public void creditUser(Caller user, int count) throws InsufficientCreditException {
+    public void creditUser(Caller user, int count, Session session)
+            throws InsufficientCreditException, InvalidAccountException {
         if (user == null) {
             throw new IllegalArgumentException("user may not be null");
         }
@@ -105,9 +97,11 @@ public class DefaultAccountant implements Accountant {
 
         Account acct = getAccount(user);
         acct.credit(count);
+        session.saveOrUpdate(acct);
     }
 
-    public void persistUser(Caller user, Session session) {
+    public void persistUser(Caller user, Session session)
+            throws InvalidAccountException {
         if (user == null) {
             throw new IllegalArgumentException("user may not be null");
         }
@@ -129,7 +123,7 @@ public class DefaultAccountant implements Accountant {
         return 10;
     }
 
-    private Account getAccount(Caller user) {
+    private Account getAccount(Caller user) throws InvalidAccountException {
         if (user == null) {
             throw new IllegalArgumentException("id may not be null");
         }
@@ -139,29 +133,15 @@ public class DefaultAccountant implements Accountant {
             throw new IllegalArgumentException("user id may not be null");
         }
 
-        synchronized (this.accountMap) {
-            Account acct = this.accountMap.get(id);
-            if (acct == null) {
+        final Session session = sessionFactory.openSession();
+        session.beginTransaction();
 
-                final Session session = sessionFactory.openSession();
-                session.beginTransaction();
-
-                logger.info("Attempting to find account for DN '"+
-                        id+"' in persistence layer");
-                acct = (Account) session.get(DefaultAccount.class, id);
-                if (acct == null) {
-
-                    //TODO is this really the right behavior?
-
-                    logger.info("Account for dn '"+id+"' does not exist. Creating with "+
-                        "default max hours of "+this.maxCreditsPerUser);
-
-                    acct = new DefaultAccount(id,
-                    this.maxCreditsPerUser, 0);
-                }
-                this.accountMap.put(id, acct);
-            }
-            return acct;
+        logger.info("Attempting to find account for DN '"+
+                id+"' in persistence layer");
+        Account acct = (Account) session.get(DefaultAccount.class, id);
+        if (acct == null) {
+            throw new InvalidAccountException("Account '"+id+"' does not exist");
         }
+        return acct;
     }
 }

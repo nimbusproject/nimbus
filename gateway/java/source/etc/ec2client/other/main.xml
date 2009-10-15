@@ -42,8 +42,7 @@
          =================================================================== -->
     <bean id="nimbus-rm.accountingManager.accountant"
           class="org.nimbustools.gateway.accounting.manager.defaults.DefaultAccountant">
-        <constructor-arg index="0" value="$EC2CLIENT{ec2.user.maxCredits}"/>
-        <constructor-arg index="1" ref="hibernateSessionFactory"/>
+        <constructor-arg index="0" ref="hibernateSessionFactory"/>
     </bean>
 
 
