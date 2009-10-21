@@ -47,12 +47,10 @@
 
 
     <bean id="nimbus-rm.ec2manager.accessManager"
-          class="org.nimbustools.gateway.ec2.SimpleEC2AccessManager"
-          init-method="validate">
-
-        <property name="key" value="$EC2CLIENT{ec2.key}"/>
-        <property name="secret" value="$EC2CLIENT{ec2.secret}"/>
-
+          class="org.nimbustools.gateway.ec2.MultiEC2AccessManager"
+          init-method="initialize">
+        <property name="sessionFactory" ref="hibernateSessionFactory"/>
+        <property name="credentialResource" value="$EC2CLIENT{ec2.credential.file}"/>
     </bean>
 
 

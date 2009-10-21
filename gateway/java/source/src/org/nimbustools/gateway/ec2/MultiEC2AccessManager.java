@@ -17,7 +17,7 @@ package org.nimbustools.gateway.ec2;
 
 import org.nimbustools.api.repr.Caller;
 import org.hibernate.SessionFactory;
-import org.springframework.core.io.FileSystemResource;
+import org.hibernate.classic.Session;
 import org.springframework.core.io.Resource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -26,11 +26,9 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.Id;
 import javax.persistence.Column;
-import javax.xml.stream.util.StreamReaderDelegate;
 import java.io.InputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.StringTokenizer;
 import java.util.HashMap;
 import java.util.Map;
 import java.text.ParseException;
@@ -67,13 +65,6 @@ public class MultiEC2AccessManager implements EC2AccessManager {
         this.credentialResource = credentialResource;
     }
 
-    public MultiEC2AccessManager(SessionFactory sessionFactory) {
-        if (sessionFactory == null) {
-            throw new IllegalArgumentException("sessionFactory may not be null");
-        }
-        this.sessionFactory = sessionFactory;
-    }
-
     public void initialize() throws Exception {
         if (this.sessionFactory == null) {
             throw new IllegalStateException("sessionFactory may not be null");
@@ -91,8 +82,8 @@ public class MultiEC2AccessManager implements EC2AccessManager {
         try {
             String line;
             while ((line = reader.readLine()) != null) {
-                final String[] pieces = line.split("\\s+");
-                if (pieces.length == 0) {
+                final String[] pieces = line.trim().split("\\s+");
+                if (pieces.length == 1 && pieces[0].length() == 0) {
                     continue;
                 }
 
@@ -119,8 +110,24 @@ public class MultiEC2AccessManager implements EC2AccessManager {
     }
 
     public EC2AccessID getAccessID(Caller caller) throws EC2AccessException {
-        //TODO
-        return null;
+        if (caller == null) {
+            throw new IllegalArgumentException("caller may not be null");
+        }
+        final String identity = caller.getIdentity();
+        if (identity == null) {
+            throw new IllegalArgumentException("caller is invalid (has no identity");
+        }
+
+        final Session session = sessionFactory.getCurrentSession();
+        final EC2UserPair userPair = (EC2UserPair) session.get(EC2UserPair.class,
+                identity);
+
+        if (userPair == null) {
+            throw new EC2AccessException("User '"+ identity +
+                    "' does not have an EC2 mapping");
+        }
+
+        return getAccessIDByKey(userPair.getAccessId());
     }
 
     public EC2AccessID getAccessIDByKey(String key) throws EC2AccessException {
