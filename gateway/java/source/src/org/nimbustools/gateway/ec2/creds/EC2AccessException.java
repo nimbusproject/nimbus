@@ -14,7 +14,7 @@
  * under the License.
  */
 
-package org.nimbustools.gateway.ec2;
+package org.nimbustools.gateway.ec2.creds;
 
 public class EC2AccessException extends Exception {
     public EC2AccessException() {

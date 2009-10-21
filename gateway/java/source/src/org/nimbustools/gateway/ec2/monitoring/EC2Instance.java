@@ -1,15 +1,10 @@
 package org.nimbustools.gateway.ec2.monitoring;
 
 import org.nimbustools.api.repr.Caller;
-import org.nimbustools.api.repr.vm.VM;
 import org.nimbustools.api.services.rm.DestructionCallback;
 import org.nimbustools.api.services.rm.StateChangeCallback;
 import org.nimbustools.api._repr.vm._VM;
-import org.nimbustools.gateway.ec2.EC2AccessID;
-import com.xerox.amazonws.ec2.Jec2;
 
-import javax.persistence.Column;
-import javax.persistence.Transient;
 import java.util.Date;
 import java.util.Calendar;
 /*

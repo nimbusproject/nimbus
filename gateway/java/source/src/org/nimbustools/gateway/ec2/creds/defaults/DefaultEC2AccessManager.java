@@ -13,19 +13,19 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package org.nimbustools.gateway.ec2;
+package org.nimbustools.gateway.ec2.creds.defaults;
 
 import org.nimbustools.api.repr.Caller;
+import org.nimbustools.gateway.ec2.creds.EC2AccessException;
+import org.nimbustools.gateway.ec2.creds.EC2AccessID;
+import org.nimbustools.gateway.ec2.creds.*;
+import org.nimbustools.gateway.ec2.creds.EC2UserPair;
 import org.hibernate.SessionFactory;
 import org.hibernate.classic.Session;
 import org.springframework.core.io.Resource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import javax.persistence.Id;
-import javax.persistence.Column;
 import java.io.InputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -33,10 +33,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.text.ParseException;
 
-public class MultiEC2AccessManager implements EC2AccessManager {
+public class DefaultEC2AccessManager implements EC2AccessManager {
 
     private static final Log logger =
-            LogFactory.getLog(MultiEC2AccessManager.class.getName());
+            LogFactory.getLog(DefaultEC2AccessManager.class.getName());
 
 
     private SessionFactory sessionFactory;
@@ -142,29 +142,4 @@ public class MultiEC2AccessManager implements EC2AccessManager {
         return accessId;
     }
 
-    @Entity
-    @Table(name = "ec2_account_map")
-    static class EC2UserPair {
-        private String dn;
-        private String accessId;
-
-        @Id
-        @Column(name = "dn")
-        public String getDn() {
-            return dn;
-        }
-
-        public void setDn(String dn) {
-            this.dn = dn;
-        }
-
-        @Column(name = "access_id")
-        public String getAccessId() {
-            return accessId;
-        }
-
-        public void setAccessId(String accessId) {
-            this.accessId = accessId;
-        }
-    }
 }

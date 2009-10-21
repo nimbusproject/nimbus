@@ -18,9 +18,9 @@ package org.nimbustools.gateway.ec2.monitoring.defaults;
 
 import org.nimbustools.gateway.ec2.monitoring.InstanceTracker;
 import org.nimbustools.gateway.ec2.monitoring.EC2Instance;
-import org.nimbustools.gateway.ec2.EC2AccessManager;
-import org.nimbustools.gateway.ec2.EC2AccessID;
-import org.nimbustools.gateway.ec2.EC2AccessException;
+import org.nimbustools.gateway.ec2.creds.EC2AccessManager;
+import org.nimbustools.gateway.ec2.creds.EC2AccessID;
+import org.nimbustools.gateway.ec2.creds.EC2AccessException;
 import org.nimbustools.gateway.ec2.manager.Translator;
 import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.CannotTranslateException;

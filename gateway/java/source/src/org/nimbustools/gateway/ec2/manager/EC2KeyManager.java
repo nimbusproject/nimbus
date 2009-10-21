@@ -20,9 +20,9 @@ import org.nimbustools.api.services.rm.OperationDisabledException;
 import org.nimbustools.api.services.rm.DoesNotExistException;
 import org.nimbustools.api.services.rm.AuthorizationException;
 import org.nimbustools.api.repr.Caller;
-import org.nimbustools.gateway.ec2.EC2AccessManager;
-import org.nimbustools.gateway.ec2.EC2AccessID;
-import org.nimbustools.gateway.ec2.EC2AccessException;
+import org.nimbustools.gateway.ec2.creds.EC2AccessManager;
+import org.nimbustools.gateway.ec2.creds.EC2AccessException;
+import org.nimbustools.gateway.ec2.creds.EC2AccessID;
 
 import java.util.List;
 import java.util.Collections;

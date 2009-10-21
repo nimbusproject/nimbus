@@ -47,7 +47,7 @@
 
 
     <bean id="nimbus-rm.ec2manager.accessManager"
-          class="org.nimbustools.gateway.ec2.MultiEC2AccessManager"
+          class="org.nimbustools.gateway.ec2.creds.defaults.DefaultEC2AccessManager"
           init-method="initialize">
         <property name="sessionFactory" ref="hibernateSessionFactory"/>
         <property name="credentialResource" value="$EC2CLIENT{ec2.credential.file}"/>

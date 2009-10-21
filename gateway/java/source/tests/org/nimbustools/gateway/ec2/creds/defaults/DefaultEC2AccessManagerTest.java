@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package org.nimbustools.gateway.ec2;
+package org.nimbustools.gateway.ec2.creds.defaults;
 
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
@@ -24,11 +24,14 @@ import org.hibernate.classic.Session;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import org.nimbustools.api.defaults.repr.DefaultCaller;
+import org.nimbustools.gateway.ec2.creds.EC2AccessException;
+import org.nimbustools.gateway.ec2.creds.EC2AccessID;
+import org.nimbustools.gateway.ec2.creds.EC2UserPair;
 
 import java.util.Map;
 import java.io.ByteArrayInputStream;
 
-public class MultiEC2AccessManagerTest {
+public class DefaultEC2AccessManagerTest {
     private final String key1 = "accessID1";
     private final String secret1 = "secret1";
     private final String key2 = "accessID2";
@@ -45,7 +48,7 @@ public class MultiEC2AccessManagerTest {
     @Test
     public void testInitialize() throws Exception {
 
-        MultiEC2AccessManager manager = new MultiEC2AccessManager();
+        DefaultEC2AccessManager manager = new DefaultEC2AccessManager();
         manager.setSessionFactory(mock(SessionFactory.class));
 
 
@@ -67,7 +70,7 @@ public class MultiEC2AccessManagerTest {
         // okay now stick some bad data on the end of the "file"
         String badcreds = creds + "this isn't even properly formatted\n";
 
-        manager = new MultiEC2AccessManager();
+        manager = new DefaultEC2AccessManager();
         manager.setSessionFactory(mock(SessionFactory.class));
         manager.setCredentialResource(stringAsResource(badcreds));
 
@@ -97,21 +100,20 @@ public class MultiEC2AccessManagerTest {
         final DefaultCaller unknownCaller = new DefaultCaller();
         unknownCaller.setIdentity(unknownDn);
 
-        MultiEC2AccessManager.EC2UserPair userPair =
-                new MultiEC2AccessManager.EC2UserPair();
+        EC2UserPair userPair = new EC2UserPair();
         userPair.setDn(dn);
         userPair.setAccessId(key1);
 
         final Session session = mock(Session.class);
-        when(session.get(MultiEC2AccessManager.EC2UserPair.class, dn)).
+        when(session.get(EC2UserPair.class, dn)).
                 thenReturn(userPair);
-        when(session.get(MultiEC2AccessManager.EC2UserPair.class, unknownDn)).
+        when(session.get(EC2UserPair.class, unknownDn)).
                 thenReturn(null);
 
         final SessionFactory sessionFactory = mock(SessionFactory.class);
         when(sessionFactory.getCurrentSession()).thenReturn(session);
 
-        MultiEC2AccessManager manager = new MultiEC2AccessManager();
+        DefaultEC2AccessManager manager = new DefaultEC2AccessManager();
         manager.setCredentialResource(stringAsResource(creds));
         manager.setSessionFactory(sessionFactory);
         manager.initialize();

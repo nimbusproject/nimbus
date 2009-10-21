@@ -1,6 +1,8 @@
-package org.nimbustools.gateway.ec2;
+package org.nimbustools.gateway.ec2.creds;
 
 import org.nimbustools.api.repr.Caller;
+import org.nimbustools.gateway.ec2.creds.EC2AccessID;
+import org.nimbustools.gateway.ec2.creds.EC2AccessException;
 /*
  * Copyright 1999-2008 University of Chicago
  *

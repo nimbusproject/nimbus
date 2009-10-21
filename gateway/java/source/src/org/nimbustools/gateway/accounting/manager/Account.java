@@ -15,10 +15,7 @@
  */
 package org.nimbustools.gateway.accounting.manager;
 
-import org.nimbustools.gateway.ec2.EC2AccessID;
 import org.nimbustools.gateway.accounting.manager.InsufficientCreditException;
-
-import javax.persistence.Transient;
 
 // this is probably gonna end up being too simple..
 
