@@ -1,0 +1,163 @@
+/*
+ * Copyright 1999-2009 University of Chicago
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy
+ * of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ */
+package org.nimbustools.gateway.ec2;
+
+import org.nimbustools.api.repr.Caller;
+import org.hibernate.SessionFactory;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.persistence.Id;
+import javax.persistence.Column;
+import javax.xml.stream.util.StreamReaderDelegate;
+import java.io.InputStream;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.StringTokenizer;
+import java.util.HashMap;
+import java.util.Map;
+import java.text.ParseException;
+
+public class MultiEC2AccessManager implements EC2AccessManager {
+
+    private static final Log logger =
+            LogFactory.getLog(MultiEC2AccessManager.class.getName());
+
+
+    private SessionFactory sessionFactory;
+    private Resource credentialResource;
+
+
+    private HashMap<String, EC2AccessID> accessIds;
+
+    Map<String, EC2AccessID> getAccessIds() {
+        return accessIds;
+    }
+
+    public SessionFactory getSessionFactory() {
+        return sessionFactory;
+    }
+
+    public void setSessionFactory(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
+    }
+
+    public Resource getCredentialResource() {
+        return credentialResource;
+    }
+
+    public void setCredentialResource(Resource credentialResource) {
+        this.credentialResource = credentialResource;
+    }
+
+    public MultiEC2AccessManager(SessionFactory sessionFactory) {
+        if (sessionFactory == null) {
+            throw new IllegalArgumentException("sessionFactory may not be null");
+        }
+        this.sessionFactory = sessionFactory;
+    }
+
+    public void initialize() throws Exception {
+        if (this.sessionFactory == null) {
+            throw new IllegalStateException("sessionFactory may not be null");
+        }
+        if (this.credentialResource == null) {
+            throw new IllegalStateException("credentialResource may not be null");
+        }
+
+        this.accessIds = new HashMap<String, EC2AccessID>();
+
+        final InputStream stream = credentialResource.getInputStream();
+        final BufferedReader reader =
+                new BufferedReader(new InputStreamReader(stream));
+
+        try {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                final String[] pieces = line.split("\\s+");
+                if (pieces.length == 0) {
+                    continue;
+                }
+
+                if (pieces[0].startsWith("#")) {
+                    continue;
+                }
+
+                if (pieces.length != 2) {
+                    throw new ParseException("Invalid EC2 credential file format.", 0);
+                }
+
+                final EC2AccessID accessId =
+                        new EC2AccessID(pieces[0], pieces[1]);
+                if (this.accessIds.put(accessId.getKey(), accessId) != null) {
+                    logger.warn("Parsed duplicate EC2 access ID: "+
+                            accessId.getKey());
+                } else {
+                    logger.debug("Parsed EC2 access ID: " + accessId.getKey());
+                }
+            }
+        } finally {
+            stream.close();
+        }
+    }
+
+    public EC2AccessID getAccessID(Caller caller) throws EC2AccessException {
+        //TODO
+        return null;
+    }
+
+    public EC2AccessID getAccessIDByKey(String key) throws EC2AccessException {
+        if (accessIds == null) {
+            throw new EC2AccessException("Manager doesn't have any EC2 credentials");
+        }
+        final EC2AccessID accessId = accessIds.get(key);
+        if (accessId == null) {
+            throw new EC2AccessException(
+                    "Manager doesn't have EC2 credential with ID: "+key);
+        }
+        return accessId;
+    }
+
+    @Entity
+    @Table(name = "ec2_account_map")
+    static class EC2UserPair {
+        private String dn;
+        private String accessId;
+
+        @Id
+        @Column(name = "dn")
+        public String getDn() {
+            return dn;
+        }
+
+        public void setDn(String dn) {
+            this.dn = dn;
+        }
+
+        @Column(name = "access_id")
+        public String getAccessId() {
+            return accessId;
+        }
+
+        public void setAccessId(String accessId) {
+            this.accessId = accessId;
+        }
+    }
+}

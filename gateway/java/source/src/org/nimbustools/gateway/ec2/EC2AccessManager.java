@@ -21,8 +21,9 @@ public interface EC2AccessManager {
 
     /**
      * Gets the appropriate access ID for a user
-     * @param caller
+     * @param caller Calling user
      * @return valid EC2 access ID or null if none is valid
+     * @throws EC2AccessException
      */
     public EC2AccessID getAccessID(Caller caller) throws EC2AccessException;
 

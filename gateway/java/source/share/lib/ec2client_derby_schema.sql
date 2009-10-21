@@ -41,3 +41,12 @@ id VARCHAR(64) NOT NULL PRIMARY KEY,
 dn VARCHAR(512) NOT NULL,
 access_id VARCHAR(64) NOT NULL
 );
+
+-- maps a user account (dn) to an ec2 access ID
+-- note that this is 1-1
+
+CREATE TABLE ec2_account_map
+(
+dn VARCHAR(512) NOT NULL PRIMARY KEY,
+access_id VARCHAR(64) NOT NULL
+);
