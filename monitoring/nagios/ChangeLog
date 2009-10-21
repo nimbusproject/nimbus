@@ -1,3 +1,10 @@
+2009-08-20  Adam Bishop <ahibshop@uvic.ca>
+
+This is the initial commit of the newly create Nimbus Monitoring tools.
+
+Note that these files are a complete overhaul of previous work done on
+the Nimbus Monitoring project.
+
 2008-11-07  Michael Paterson <mhp@uvic.ca>
 
     * check_nimbus_consistent.py: change to use relative path for
@@ -8,3 +15,4 @@
 
     * check_nimbus_vm_slots.py: change to use relative path for
     locating .sql
+ 

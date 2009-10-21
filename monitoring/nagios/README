@@ -1,35 +1,58 @@
-Nimbus plug ins for Nagios
+Nimbus Monitoring plug-ins for Nagios
 ------------------------------
-Author: Michael Paterson <mhp@uvic.ca>
-Date: 2008-11-07
+Author: Adam Bishop <ahbishop@uvic.ca>
+Date: 2009-08-20
 
 The purpose of these plug ins is to provide information about the status
-and availability of workspaces. The work was done at the University of 
-Victoria.
-
+and availability of a Nimbus head node and its worker nodes. The work was 
+done at the University of Victoria.
 
 Installation
 --------------
 
-Please reffer to the documention at:
-https://wiki.gridx1.ca/twiki/bin/view/Main/NagiosNimbusPluginInstall
+Please refer to the documention at:
+
+https://wiki.gridx1.ca/twiki/bin/view/Main/NimbusMonitoringInstallationInstructions
 
 
 Notes
 -------
-There are three seperate plugins available:
 
-check_nimbus_consistent.py 
-    - monitors that workspace's VMs are correctly running
+Extensive background documentation & usage instructions is available at:
+
+https://wiki.gridx1.ca/twiki/bin/view/Main/NimbusMonitoringStatus
+
+There are numerous files included in this project, noted below :
+
+nimbus_worker_script.py 
+    - contains options for monitoring resources on worker nodes
  
-check_nimbus_vm_running.py 
-    - a count of how many workspaces are running 
+nimbus_server_script.py 
+    - contains options for monitoring resources of the Nimbus head node 
 
-check_nimbus_vm_slots.py
-    - watches non-private network-pools and reports how many IPs remain
+    nimbus_derby_used_ips.sql 
+    - a support file used in the execution of nimbus_server_script.py
+
+    nimbus_derby_running_vms.sql
+    - a support file used in the execution of nimbus_server_script.py
+
+nimbus_nagios_data_processing.py
+    - used to aggregate and format data to be published by a Nimbus MDS 
+      Execution Aggregator
+
+nimbus_query_mds.py
+    - used to query an active Nimbus MDS Execution Aggregator for availble 
+      information and transform the data into a Python compatible data structure
+
+nimbus_register_mds.py
+    - used to register the new MDS Execution Aggregator with a Nimbus 
+      installation's DefaultIndexService
+
+nimbus_output_mds_resources.sh
+    - contains the Nimbus MDS Execution Aggregator Data Source functionality
 
 Support 
 -----------
-Support can be obtained from Michael Paterson (mhp@uvic.ca) or Ian Gable 
+Support can be obtained from Adam Bishop (ahbishop@uvic.ca) or Ian Gable 
 (igable@uvic.ca). Users are also encouraged to seek support on the 
 Nimbus mailing lists workspace-user@globus.org.
