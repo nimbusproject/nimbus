@@ -19,12 +19,15 @@ import org.apache.commons.cli.*;
 import org.nimbustools.gateway.admin.commands.HelpCommand;
 import org.nimbustools.gateway.admin.commands.AddUserCommand;
 import org.nimbustools.gateway.accounting.manager.Accountant;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class AdminTool {
 
     private static final int EXIT_OK = 0;
     private static final int EXIT_PARAM_ERROR = 1;
     private static final int EXIT_RUNTIME_ERROR = 2;
+    private static final String ACCOUNTANT_BEAN_NAME = "nimbus-rm.accountingManager.accountant";
 
 
     public static void main(String[] args) {
@@ -34,7 +37,7 @@ public class AdminTool {
         try {
         retCode = new AdminTool().run(args) ;
         } catch (Throwable t) {
-            System.out.println("Got uncaught runtime exception. This is a bug.");
+            System.out.println("Got uncaught runtime exception. This may be a bug.");
             System.out.println(t.toString());
             retCode = EXIT_RUNTIME_ERROR;
         }
@@ -67,6 +70,19 @@ public class AdminTool {
             printGeneralHelp();
             return EXIT_OK;
         }
+
+        if (!line.hasOption(Opts.SPRING_XML_STRING)) {
+            System.out.println("Missing Spring XML path!");
+            System.out.println();
+            printGeneralHelp();
+            return EXIT_PARAM_ERROR;
+        }
+
+        final String springXmlPath = line.getOptionValue(Opts.SPRING_XML_STRING);
+
+        ApplicationContext mainContext = new ClassPathXmlApplicationContext(springXmlPath);
+        this.accountant = (Accountant)
+                mainContext.getBean(ACCOUNTANT_BEAN_NAME);
 
         String[] extraArgs = line.getArgs();
 
@@ -104,17 +120,18 @@ public class AdminTool {
         final Options opts = new Options();
 
         opts.addOption(Opts.getHelpOpt());
+        opts.addOption(Opts.getSpringXml());
 
         return opts;
     }
 
 
     public Command getCommandByName(String cmd) {
-        if (cmd.equalsIgnoreCase("help")) {
+        if (cmd.equalsIgnoreCase(HelpCommand.NAME)) {
             return new HelpCommand(this);
         }
 
-        if (cmd.equalsIgnoreCase("add")) {
+        if (cmd.equalsIgnoreCase(AddUserCommand.NAME)) {
             return new AddUserCommand(this);
         }
         return null;
@@ -122,11 +139,13 @@ public class AdminTool {
 
 
     private void printCommandHelp(String cmdName) {
+        //TODO fixitup
         new HelpCommand(this).run(new String[] {cmdName});
     }
 
 
     private void printGeneralHelp() {
+        //TODO fixitup
         new HelpCommand(this).run(new String[]{});
     }
     

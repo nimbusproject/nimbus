@@ -22,6 +22,8 @@ import org.nimbustools.gateway.admin.AdminTool;
 
 public class HelpCommand implements Command {
 
+    public static final String NAME = "help";
+
     private final AdminTool admin;
 
     public HelpCommand(AdminTool admin) {
@@ -51,7 +53,7 @@ public class HelpCommand implements Command {
 
     }
     public String getName() {
-        return "help";
+        return NAME;
     }
 
     public String getDescription() {

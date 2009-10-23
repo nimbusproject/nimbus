@@ -24,6 +24,15 @@ public class Opts {
             "Display usage information");
     }
 
+    public static final String SPRING_XML_STRING = "spring-xml";
+    public static Option getSpringXml() {
+        return OptionBuilder
+                .withArgName("PATH")
+                .hasArg().
+                withLongOpt(SPRING_XML_STRING)
+                .create();
+    }
+
     public static final String MAX_CREDITS_STRING = "max-credits";
     public static Option getMaxCreditsOpt() {
         return OptionBuilder

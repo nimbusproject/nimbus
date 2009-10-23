@@ -23,6 +23,9 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.CommandLine;
 
 public class AddUserCommand implements Command {
+
+    public static final String NAME = "add";
+
     private final AdminTool admin;
 
     public AddUserCommand(AdminTool admin) {
@@ -68,7 +71,7 @@ public class AddUserCommand implements Command {
     }
 
     public String getName() {
-        return "add";
+        return NAME;
     }
 
     public String getDescription() {
