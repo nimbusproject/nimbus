@@ -61,6 +61,12 @@
     <property name="ec2client2.props.tmp"
               location="${ec2client.conf.dir}/other/common.conf.tmp"/>
 
+    <property name="ec2client3.props.path"
+              location="${ec2client.conf.dir}/other/core.conf"/>
+
+    <property name="ec2client3.props.tmp"
+              location="${ec2client.conf.dir}/other/core.conf.tmp"/>
+
     <filterset id="absPathFilter">
         <filter token="EC2CLIENT_CONFDIR"
                 value="${ec2client.conf.dir}"/>

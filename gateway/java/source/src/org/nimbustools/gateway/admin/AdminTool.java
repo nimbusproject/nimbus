@@ -21,6 +21,7 @@ import org.nimbustools.gateway.admin.commands.AddUserCommand;
 import org.nimbustools.gateway.accounting.manager.Accountant;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 public class AdminTool {
 
@@ -80,7 +81,7 @@ public class AdminTool {
 
         final String springXmlPath = line.getOptionValue(Opts.SPRING_XML_STRING);
 
-        ApplicationContext mainContext = new ClassPathXmlApplicationContext(springXmlPath);
+        ApplicationContext mainContext = new FileSystemXmlApplicationContext(springXmlPath);
         this.accountant = (Accountant)
                 mainContext.getBean(ACCOUNTANT_BEAN_NAME);
 
