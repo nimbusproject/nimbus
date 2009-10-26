@@ -22,6 +22,7 @@ import org.nimbustools.gateway.accounting.manager.Accountant;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
+import org.hibernate.SessionFactory;
 
 public class AdminTool {
 
@@ -29,6 +30,7 @@ public class AdminTool {
     private static final int EXIT_PARAM_ERROR = 1;
     private static final int EXIT_RUNTIME_ERROR = 2;
     private static final String ACCOUNTANT_BEAN_NAME = "nimbus-rm.accountingManager.accountant";
+    private static final String SESSIONFACTORY_BEAN_NAME = "hibernateSessionFactory";
 
 
     public static void main(String[] args) {
@@ -48,9 +50,14 @@ public class AdminTool {
 
 
     Accountant accountant;
+    SessionFactory sessionFactory;
 
     public Accountant getAccountant() {
         return accountant;
+    }
+
+    public SessionFactory getSessionFactory() {
+        return sessionFactory;
     }
 
     public int run(String[] args) {
@@ -84,6 +91,8 @@ public class AdminTool {
         ApplicationContext mainContext = new FileSystemXmlApplicationContext(springXmlPath);
         this.accountant = (Accountant)
                 mainContext.getBean(ACCOUNTANT_BEAN_NAME);
+        this.sessionFactory = (SessionFactory)
+                mainContext.getBean(SESSIONFACTORY_BEAN_NAME);
 
         String[] extraArgs = line.getArgs();
 

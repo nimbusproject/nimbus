@@ -62,10 +62,10 @@
               location="${ec2client.conf.dir}/other/common.conf.tmp"/>
 
     <property name="ec2client3.props.path"
-              location="${ec2client.conf.dir}/other/core.conf"/>
+              location="${ec2client.conf.dir}/other/core.xml"/>
 
     <property name="ec2client3.props.tmp"
-              location="${ec2client.conf.dir}/other/core.conf.tmp"/>
+              location="${ec2client.conf.dir}/other/core.xml.tmp"/>
 
     <filterset id="absPathFilter">
         <filter token="EC2CLIENT_CONFDIR"
@@ -110,7 +110,7 @@
 
     <target name="setup"
             depends="adjust-gatewayprops, adjust-ec2clientprops,
-                     adjust-ec2clientprops2, adjust-jndi,
+                     adjust-ec2clientprops2, adjust-ec2clientprops3, adjust-jndi,
                      chmodprivate, chmodexes, setupGatewayPersistence" />
 
 
@@ -190,6 +190,16 @@
               overwrite="true" />
         <delete file="${ec2client2.props.tmp}"/>
         <echo message="Adjusted ec2client common.conf paths"/>
+    </target>
+
+    <target name="adjust-ec2clientprops3">
+        <copy file="${ec2client3.props.path}" toFile="${ec2client3.props.tmp}">
+            <filterset refid="absPathFilter"/>
+        </copy>
+        <copy file="${ec2client3.props.tmp}" toFile="${ec2client3.props.path}"
+              overwrite="true" />
+        <delete file="${ec2client3.props.tmp}"/>
+        <echo message="Adjusted ec2client core.xml paths"/>
     </target>
 
 </project>

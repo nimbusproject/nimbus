@@ -21,6 +21,9 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.CommandLine;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.classic.Session;
 
 public class AddUserCommand implements Command {
 
@@ -51,6 +54,11 @@ public class AddUserCommand implements Command {
             throw new ParameterProblem("DN must be specified");
         }
 
+
+        final SessionFactory sessionFactory = admin.getSessionFactory();
+        final Session session = sessionFactory.getCurrentSession();
+        final Transaction transaction = session.beginTransaction();
+
         final String dn = line.getArgs()[0];
 
         if (line.hasOption(Opts.MAX_CREDITS_STRING)) {
@@ -68,6 +76,8 @@ public class AddUserCommand implements Command {
         } else {
             accountant.addUnlimitedAccount(dn);
         }
+
+        transaction.commit();
     }
 
     public String getName() {
