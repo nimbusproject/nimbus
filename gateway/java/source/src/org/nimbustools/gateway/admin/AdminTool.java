@@ -18,6 +18,7 @@ package org.nimbustools.gateway.admin;
 import org.apache.commons.cli.*;
 import org.nimbustools.gateway.admin.commands.HelpCommand;
 import org.nimbustools.gateway.admin.commands.AddUserCommand;
+import org.nimbustools.gateway.admin.commands.ListUsersCommand;
 import org.nimbustools.gateway.accounting.manager.Accountant;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -66,7 +67,7 @@ public class AdminTool {
         CommandLineParser parser = new PosixParser();
         final CommandLine line;
         try {
-            line = parser.parse(getGlobalOptions(), args);
+            line = parser.parse(getGlobalOptions(), args, true);
         } catch (ParseException e) {
             System.out.println("Parameter error: "+e.getMessage());
             printGeneralHelp();
@@ -143,6 +144,9 @@ public class AdminTool {
 
         if (cmd.equalsIgnoreCase(AddUserCommand.NAME)) {
             return new AddUserCommand(this);
+        }
+        if (cmd.equalsIgnoreCase(ListUsersCommand.NAME)) {
+            return new ListUsersCommand(this);
         }
         return null;
     }

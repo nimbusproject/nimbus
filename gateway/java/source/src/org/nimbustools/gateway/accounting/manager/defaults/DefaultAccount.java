@@ -65,7 +65,7 @@ public class DefaultAccount implements Account {
         return maxCredits;
     }
 
-    void setMaxCredits(int maxCredits) {
+    void setMaxCredits(Integer maxCredits) {
         synchronized (this.lock) {
             this.maxCredits = maxCredits;
         }
