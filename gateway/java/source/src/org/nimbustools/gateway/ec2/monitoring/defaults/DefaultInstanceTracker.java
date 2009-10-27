@@ -173,33 +173,44 @@ public class DefaultInstanceTracker implements InstanceTracker {
             return;
         }
 
-        // TODO this is crap. only supporting a single access ID right now
-        final Jec2 client;
-        try {
-            final String accessKey = instances.get(0).getAccessKey();
-            final EC2AccessID accessID = accessManager.getAccessIDByKey(accessKey);
-            client = new Jec2(accessID.getKey(), accessID.getSecret());
-        } catch (EC2AccessException e) {
-            logger.error("Failed to get EC2 Access ID: "+e.getMessage(),e);
-            return;
+        // break it down by access id. would be better
+        // to do this once, as instances are added/removed
+        Map<String, List<String>> accessMap =
+                new HashMap<String, List<String>>();
+
+        for (EC2Instance instance : instances) {
+            final String key = instance.getAccessKey();
+            List<String> list =
+                    accessMap.get(key);
+            if (list == null) {
+                list = new ArrayList<String>();
+                accessMap.put(key,list);
+            }
+            list.add(instance.getId());
         }
 
+        final List<ReservationDescription> descriptionList =
+                new ArrayList<ReservationDescription>();
 
-        // get a list of the instance IDs for EC2 client request
-        String[] instanceIds = new String[instances.size()];
-        for (int i=0; i< instanceIds.length; i++) {
-            final EC2Instance ec2Instance = instances.get(i);
-            instanceIds[i] = ec2Instance.getId();
-        }
+        for (Map.Entry<String,List<String>> entry : accessMap.entrySet()) {
+            final Jec2 client;
+            try {
+                final String accessKey = entry.getKey();
+                final EC2AccessID accessID = accessManager.getAccessIDByKey(accessKey);
+                client = new Jec2(accessID.getKey(), accessID.getSecret());
+            } catch (EC2AccessException e) {
+                logger.error("Failed to get EC2 Access ID: "+e.getMessage(),e);
+                continue;
+            }
 
+            final List<String> idList = entry.getValue();
+            final String[] instanceIds = idList.toArray(new String[idList.size()]);
 
-        // make the actual EC2 describe query
-        final List<ReservationDescription> descriptionList;
-        try {
-            descriptionList = client.describeInstances(instanceIds);
-        } catch (EC2Exception e) {
-            logger.error("Got EC2 error during instance describe: "+e.getMessage(), e);
-            return;
+            try {
+                descriptionList.addAll(client.describeInstances(instanceIds));
+            } catch (EC2Exception e) {
+                logger.error("Got EC2 error during instance describe: "+e.getMessage(), e);
+            }
         }
 
         // get the current time to be used as time-of-death for any terminated instances
