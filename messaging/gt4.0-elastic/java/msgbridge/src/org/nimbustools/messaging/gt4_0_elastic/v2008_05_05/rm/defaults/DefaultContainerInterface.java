@@ -16,13 +16,13 @@
 
 package org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults;
 
-import org.nimbustools.api.repr.ReprFactory;
+import org.globus.wsrf.security.SecurityManager;
+import org.nimbustools.api._repr._Caller;
+import org.nimbustools.api.brain.ModuleLocator;
 import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.CannotTranslateException;
-import org.nimbustools.api._repr._Caller;
+import org.nimbustools.api.repr.ReprFactory;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.ContainerInterface;
-import org.nimbustools.messaging.gt4_0.common.NimbusMasterContext;
-import org.globus.wsrf.security.SecurityManager;
 
 import java.rmi.RemoteException;
 import java.security.NoSuchAlgorithmException;
@@ -40,10 +40,11 @@ public class DefaultContainerInterface implements ContainerInterface {
     // CONSTRUCTORS
     // -------------------------------------------------------------------------
 
-    public DefaultContainerInterface() throws Exception {
-        final NimbusMasterContext ctx =
-                NimbusMasterContext.discoverApplicationContext();
-        this.repr = ctx.getModuleLocator().getReprFactory();
+    public DefaultContainerInterface(ModuleLocator locator) throws Exception {
+        if (locator == null) {
+            throw new IllegalArgumentException("locator may not be null");
+        }
+        this.repr = locator.getReprFactory();
     }
 
 

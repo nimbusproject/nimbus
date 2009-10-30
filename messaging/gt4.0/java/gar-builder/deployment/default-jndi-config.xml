@@ -102,7 +102,7 @@
 
     <service name="NimbusMasterContext">
         <resource name="masterContext"
-                  type="org.nimbustools.messaging.gt4_0.common.NimbusMasterContext">
+                  type="org.nimbustools.messaging.gt4_0.common.NimbusLocalMasterContext">
 
             <resourceParams>
                 <parameter>

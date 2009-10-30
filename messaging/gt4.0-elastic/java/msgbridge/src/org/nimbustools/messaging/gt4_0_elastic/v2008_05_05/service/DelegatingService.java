@@ -16,7 +16,6 @@
 
 package org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.service;
 
-import org.nimbustools.messaging.gt4_0_elastic.context.ElasticContext;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.ServiceRM;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.ServiceGeneral;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.ServiceSecurity;
@@ -46,7 +45,7 @@ import org.safehaus.uuid.UUIDGenerator;
 
 import java.rmi.RemoteException;
 
-public class DelegatingService extends UnimplementedOperations {
+public abstract class DelegatingService extends UnimplementedOperations {
 
     // -------------------------------------------------------------------------
     // STATIC VARIABLES
@@ -64,11 +63,11 @@ public class DelegatingService extends UnimplementedOperations {
     // INSTANCE VARIABLES
     // -------------------------------------------------------------------------
 
-    private ServiceRM rm = null;
-    private ServiceGeneral general = null;
-    private ServiceSecurity security = null;
-    private ServiceImage image = null;
-    private final UUIDGenerator uuidGen = UUIDGenerator.getInstance();
+    protected ServiceRM rm = null;
+    protected ServiceGeneral general = null;
+    protected ServiceSecurity security = null;
+    protected ServiceImage image = null;
+    protected final UUIDGenerator uuidGen = UUIDGenerator.getInstance();
 
     
     // -------------------------------------------------------------------------
@@ -99,38 +98,15 @@ public class DelegatingService extends UnimplementedOperations {
     // This class is instantiated with no-arg constructor outside of any IoC
     // system etc., so we hook into one here.
 
-    private synchronized void findManager() throws Exception {
-        if (this.rm == null) {
-            final ElasticContext ctx =
-                    ElasticContext.discoverElasticContext();
-            this.rm = ctx.findRM();
-        }
-    }
+    protected abstract void findManager() throws Exception;
 
-    private synchronized void findGeneral() throws Exception {
-        if (this.general == null) {
-            final ElasticContext ctx =
-                    ElasticContext.discoverElasticContext();
-            this.general = ctx.findGeneral();
-        }
-    }
+    protected abstract void findGeneral() throws Exception;
 
-    private synchronized void findSecurity() throws Exception {
-        if (this.security == null) {
-            final ElasticContext ctx =
-                    ElasticContext.discoverElasticContext();
-            this.security = ctx.findSecurity();
-        }
-    }
+    // could leave "this.security" null
+    protected abstract void findSecurity() throws Exception;
 
-    private synchronized void findImage() throws Exception {
-        if (this.image == null) {
-            final ElasticContext ctx =
-                    ElasticContext.discoverElasticContext();
-            this.image = ctx.findImage();
-        }
-    }
-    
+    protected abstract void findImage() throws Exception;
+
 
     // -------------------------------------------------------------------------
     // UNKNOWN ERRORS
@@ -263,8 +239,12 @@ public class DelegatingService extends UnimplementedOperations {
             throws RemoteException {
 
         try {
-            if (this.security == null) { this.findSecurity(); }
-            return this.security.createKeyPair(createKeyPairRequestMsg);
+            this.findSecurity();
+            if (this.security != null) {
+                return this.security.createKeyPair(createKeyPairRequestMsg);
+            } else {
+                return super.createKeyPair(createKeyPairRequestMsg);
+            }
         } catch (RemoteException e) {
             if (logger.isDebugEnabled()) {
                 logger.error(e.getMessage(), e);
@@ -282,8 +262,12 @@ public class DelegatingService extends UnimplementedOperations {
             throws RemoteException {
 
         try {
-            if (this.security == null) { this.findSecurity(); }
-            return this.security.describeKeyPairs(describeKeyPairsRequestMsg);
+            this.findSecurity();
+            if (this.security != null) {
+                return this.security.describeKeyPairs(describeKeyPairsRequestMsg);
+            } else {
+                return super.describeKeyPairs(describeKeyPairsRequestMsg);
+            }
         } catch (RemoteException e) {
             if (logger.isDebugEnabled()) {
                 logger.error(e.getMessage(), e);
@@ -301,8 +285,12 @@ public class DelegatingService extends UnimplementedOperations {
             throws RemoteException {
 
         try {
-            if (this.security == null) { this.findSecurity(); }
-            return this.security.deleteKeyPair(deleteKeyPairRequestMsg);
+            this.findSecurity();
+            if (this.security != null) {
+                return this.security.deleteKeyPair(deleteKeyPairRequestMsg);
+            } else {
+                return super.deleteKeyPair(deleteKeyPairRequestMsg);
+            }
         } catch (RemoteException e) {
             if (logger.isDebugEnabled()) {
                 logger.error(e.getMessage(), e);

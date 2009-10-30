@@ -25,12 +25,12 @@ import org.globus.gsi.gssapi.auth.HostAuthorization;
 import org.globus.gsi.gssapi.auth.IdentityAuthorization;
 import org.globus.util.GlobusURL;
 import org.nimbustools.api._repr.vm._VMFile;
+import org.nimbustools.api.brain.ModuleLocator;
 import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.CannotTranslateException;
 import org.nimbustools.api.repr.ReprFactory;
 import org.nimbustools.api.repr.vm.ResourceAllocation;
 import org.nimbustools.api.repr.vm.VMFile;
-import org.nimbustools.messaging.gt4_0.common.NimbusMasterContext;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.image.FileListing;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.image.ListingException;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.image.Repository;
@@ -71,7 +71,8 @@ public class DefaultRepository implements Repository {
     // CONSTRUCTOR
     // -------------------------------------------------------------------------
 
-    public DefaultRepository(ContainerInterface containerImpl)
+    public DefaultRepository(ContainerInterface containerImpl,
+                             ModuleLocator locator)
             throws Exception {
         
         if (containerImpl == null) {
@@ -79,9 +80,10 @@ public class DefaultRepository implements Repository {
         }
         this.container = containerImpl;
 
-        final NimbusMasterContext ctx =
-                NimbusMasterContext.discoverApplicationContext();
-        this.repr = ctx.getModuleLocator().getReprFactory();
+        if (locator == null) {
+            throw new IllegalArgumentException("locator may not be null");
+        }
+        this.repr = locator.getReprFactory();
     }
 
     

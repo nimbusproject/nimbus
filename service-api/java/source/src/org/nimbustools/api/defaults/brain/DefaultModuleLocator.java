@@ -29,5 +29,6 @@ public abstract class DefaultModuleLocator implements ModuleLocator {
     public abstract Manager getManager();
     public abstract ReprFactory getReprFactory();
     public abstract MetadataServer getMetadataServer();
+    public abstract SecurityManager getSecurityManager();
     //public abstract ContextBroker getContextBroker();
 }

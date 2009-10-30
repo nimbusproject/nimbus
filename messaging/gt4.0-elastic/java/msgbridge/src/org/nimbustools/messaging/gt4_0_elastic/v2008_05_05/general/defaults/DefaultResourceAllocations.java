@@ -20,13 +20,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.ResourceAllocations;
-import org.nimbustools.messaging.gt4_0.common.NimbusMasterContext;
 import org.nimbustools.api.repr.vm.ResourceAllocation;
 import org.nimbustools.api.repr.vm.RequiredVMM;
 import org.nimbustools.api.repr.CannotTranslateException;
 import org.nimbustools.api.repr.ReprFactory;
 import org.nimbustools.api._repr.vm._ResourceAllocation;
 import org.nimbustools.api._repr.vm._RequiredVMM;
+import org.nimbustools.api.brain.ModuleLocator;
 
 /**
  * Goldilocks RAs
@@ -68,10 +68,8 @@ public class DefaultResourceAllocations implements ResourceAllocations {
     // CONSTRUCTOR
     // -------------------------------------------------------------------------
 
-    public DefaultResourceAllocations() throws Exception {
-        final NimbusMasterContext ctx =
-                NimbusMasterContext.discoverApplicationContext();
-        this.repr = ctx.getModuleLocator().getReprFactory();
+    public DefaultResourceAllocations(ModuleLocator locator) throws Exception {
+        this.repr = locator.getReprFactory();
     }
 
     // -------------------------------------------------------------------------

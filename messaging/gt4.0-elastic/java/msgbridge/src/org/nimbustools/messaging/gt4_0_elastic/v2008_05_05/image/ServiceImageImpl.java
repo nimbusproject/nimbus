@@ -47,7 +47,7 @@ public class ServiceImageImpl extends UnimplementedOperations
     // STATIC VARIABLES
     // -------------------------------------------------------------------------
     
-    private static final DescribeImagesResponseItemType[] EMPTY_RESP_ITEM_TYPE =
+    protected static final DescribeImagesResponseItemType[] EMPTY_RESP_ITEM_TYPE =
             new DescribeImagesResponseItemType[0];
 
     

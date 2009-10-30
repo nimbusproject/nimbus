@@ -31,6 +31,9 @@
     <property name="dbsetup.dir"
               location="${deploy.dir}/share/${base.package.name}"/>
 
+    <property name="netdbsetup.dir"
+              location="${deploy.dir}/share/${base.package.name}/netderby"/>
+
     <property name="dbsetup.antfile"
               location="${dbsetup.dir}/lib/db-mgmt.xml"/>
 
@@ -38,7 +41,7 @@
             location="${deploy.dir}/share/globus_wsrf_common/build-launcher.xml"/>
 
     
-    <!-- replace absolute path tokens in these two config files: -->
+    <!-- replace absolute path tokens in these config files: -->
     
     <property name="jndi.path"
               location="${base.conf.dir}/jndi-config.xml"/>
@@ -148,6 +151,12 @@
 
         <chmod perm="755">
             <fileset dir="${dbsetup.dir}">
+                <include name="*.sh"/>
+            </fileset>
+        </chmod>
+
+        <chmod perm="755">
+            <fileset dir="${netdbsetup.dir}">
                 <include name="*.sh"/>
             </fileset>
         </chmod>

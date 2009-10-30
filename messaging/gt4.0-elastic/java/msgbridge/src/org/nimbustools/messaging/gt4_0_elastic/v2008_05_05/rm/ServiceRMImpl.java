@@ -18,18 +18,17 @@ package org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.nimbustools.api._repr._CreateRequest;
+import org.nimbustools.api.brain.ModuleLocator;
 import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.CannotTranslateException;
 import org.nimbustools.api.repr.CreateRequest;
 import org.nimbustools.api.repr.CreateResult;
 import org.nimbustools.api.repr.ReprFactory;
-import org.nimbustools.api.repr.CustomizationRequest;
 import org.nimbustools.api.repr.vm.VM;
+import org.nimbustools.api.services.metadata.MetadataServer;
 import org.nimbustools.api.services.rm.ManageException;
 import org.nimbustools.api.services.rm.Manager;
-import org.nimbustools.api.services.metadata.MetadataServer;
-import org.nimbustools.api._repr._CreateRequest;
-import org.nimbustools.messaging.gt4_0.common.NimbusMasterContext;
 import org.nimbustools.messaging.gt4_0.common.AddCustomizations;
 import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DescribeInstancesResponseType;
 import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DescribeInstancesType;
@@ -78,7 +77,8 @@ public class ServiceRMImpl implements ServiceRM {
                          Terminate terminateImpl,
                          Reboot rebootImpl,
                          Describe describeImpl,
-                         ContainerInterface containerImpl) throws Exception {
+                         ContainerInterface containerImpl,
+                         ModuleLocator locator) throws Exception {
 
         if (runImpl == null) {
             throw new IllegalArgumentException("runImpl may not be null");
@@ -105,12 +105,13 @@ public class ServiceRMImpl implements ServiceRM {
         }
         this.container = containerImpl;
 
-        final NimbusMasterContext ctx =
-                NimbusMasterContext.discoverApplicationContext();
+        if (locator == null) {
+            throw new IllegalArgumentException("locator may not be null");
+        }
 
-        this.manager = ctx.getModuleLocator().getManager();
-        this.repr = ctx.getModuleLocator().getReprFactory();
-        this.mdServer = ctx.getModuleLocator().getMetadataServer();
+        this.manager = locator.getManager();
+        this.repr = locator.getReprFactory();
+        this.mdServer = locator.getMetadataServer();
     }
 
     

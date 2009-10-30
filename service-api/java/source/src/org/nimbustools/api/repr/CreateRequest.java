@@ -50,4 +50,5 @@ public interface CreateRequest {
     public String getInitialStateRequest();
     public Context getContext();
     public String getMdUserData();
+    public String getSshKeyName();
 }

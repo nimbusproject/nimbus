@@ -19,6 +19,7 @@ package org.nimbustools.api.brain;
 import org.nimbustools.api.repr.ReprFactory;
 import org.nimbustools.api.services.metadata.MetadataServer;
 import org.nimbustools.api.services.rm.Manager;
+import org.nimbustools.api.services.security.KeyManager;
 
 /**
  * For use from above to find key modules, where "above" means the remote
@@ -32,5 +33,6 @@ public interface ModuleLocator {
     public Manager getManager();
     public ReprFactory getReprFactory();
     public MetadataServer getMetadataServer();
+    public KeyManager getKeyManager();
     //public ContextBroker getContextBroker();
 }
