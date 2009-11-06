@@ -39,7 +39,7 @@ import java.security.InvalidKeyException;
 
 public class QueryAuthenticationFilter extends GenericFilterBean {
 
-    private static final String PARAM_ACCESSID = "AwsAccessKeyId";
+    private static final String PARAM_ACCESSID = "AWSAccessKeyId";
     private static final String PARAM_SIGNATURE = "Signature";
     private static final String PARAM_SIGNATURE_VERSION = "SignatureVersion";
     private static final String PARAM_SIGNATURE_METHOD = "SignatureMethod";
@@ -178,7 +178,7 @@ public class QueryAuthenticationFilter extends GenericFilterBean {
     private void appendCanonicalQueryString(ServletRequest request,
                                            StringBuilder buf) {
         final Set<String> sortedKeys = 
-                new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+                new TreeSet<String>();
         final Enumeration paramNames = request.getParameterNames();
         while (paramNames.hasMoreElements()) {
             String param = (String) paramNames.nextElement();
