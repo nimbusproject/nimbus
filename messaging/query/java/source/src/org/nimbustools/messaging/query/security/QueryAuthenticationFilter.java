@@ -15,27 +15,29 @@
  */
 package org.nimbustools.messaging.query.security;
 
-import org.springframework.web.filter.GenericFilterBean;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.apache.commons.codec.binary.Base64;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.filter.GenericFilterBean;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.*;
 import java.net.URLEncoder;
-import java.security.NoSuchAlgorithmException;
 import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Enumeration;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class QueryAuthenticationFilter extends GenericFilterBean {
 
@@ -46,10 +48,11 @@ public class QueryAuthenticationFilter extends GenericFilterBean {
     private static final String PARAM_TIMESTAMP = "Timestamp";
     private static final String PARAM_EXPIRES = "Expires";
 
+    private static final int EXPIRATION_SECONDS = 300;
+
     private static final String SIGNATURE_VERSION = "2";
     private static final String HMACSHA256 = "HmacSHA256";
     private static final String HMACSHA1 = "HmacSHA1";
-
 
 
     private QueryUserDetailsService userDetailsService;
@@ -61,6 +64,8 @@ public class QueryAuthenticationFilter extends GenericFilterBean {
     private String timestampParameter;
     private String expiresParameter;
 
+    private int expirationSeconds;
+
     public QueryAuthenticationFilter() {
 
         this.accessIdParameter = PARAM_ACCESSID;
@@ -69,6 +74,7 @@ public class QueryAuthenticationFilter extends GenericFilterBean {
         this.signatureVersionParameter = PARAM_SIGNATURE_VERSION;
         this.timestampParameter = PARAM_TIMESTAMP;
         this.expiresParameter = PARAM_EXPIRES;
+        this.expirationSeconds = EXPIRATION_SECONDS;
 
         addRequiredProperty("userDetailsService");
     }
@@ -136,7 +142,28 @@ public class QueryAuthenticationFilter extends GenericFilterBean {
             throw new BadCredentialsException("Signature check failed!");
         }
 
-        //TODO check timestamp/expires
+        // check for expiration of request-- replay attack prevention
+        final DateTime expireTime;
+        try {
+            if (hasTimestamp) {
+
+                // boto doesn't include the 'Z' in its timestamp
+                // we force parsing to assume UTC
+
+                final DateTime stamp = new DateTime(timestamp, DateTimeZone.UTC);
+                expireTime = stamp.plusSeconds(this.expirationSeconds);
+            } else {
+                expireTime = new DateTime(expires, DateTimeZone.UTC);
+            }
+        } catch (IllegalArgumentException e) {
+            throw new BadCredentialsException("Failed to parse "+
+                    (hasTimestamp ? "timestamp" : "expiration"), e);
+        }
+
+        if (expireTime.isBeforeNow()) {
+            throw new BadCredentialsException("Request is expired");
+        }
+
 
         final QueryAuthenticationToken auth = new QueryAuthenticationToken(user, true);
 
@@ -326,5 +353,13 @@ public class QueryAuthenticationFilter extends GenericFilterBean {
 
     public void setExpiresParameter(String expiresParameter) {
         this.expiresParameter = expiresParameter;
+    }
+
+    public int getExpirationSeconds() {
+        return expirationSeconds;
+    }
+
+    public void setExpirationSeconds(int expirationSeconds) {
+        this.expirationSeconds = expirationSeconds;
     }
 }
