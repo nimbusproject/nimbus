@@ -18,7 +18,7 @@ package org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.security;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.ServiceSecurity;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.ContainerInterface;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.service.UnimplementedOperations;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.*;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.*;
 import org.nimbustools.api.brain.ModuleLocator;
 import org.nimbustools.api.services.security.KeyManager;
 import org.nimbustools.api.services.security.KeyExistsException;
@@ -84,7 +84,7 @@ public class RMServiceSecurity extends UnimplementedOperations
         return new CreateKeyPairResponseType(
                 keyPair.getFingerprint(),
                 keyPair.getPrivateKey(),
-                keyName);
+                keyName, ""); // TODO do something real with requestId
     }
 
     public DescribeKeyPairsResponseType describeKeyPairs(DescribeKeyPairsType describeKeyPairsRequestMsg)
@@ -109,7 +109,8 @@ public class RMServiceSecurity extends UnimplementedOperations
         }
 
         DescribeKeyPairsResponseInfoType respInfo = new DescribeKeyPairsResponseInfoType(items);
-        return new DescribeKeyPairsResponseType(respInfo);
+        return new DescribeKeyPairsResponseType(respInfo, "");
+        // TODO do something real with requestId
     }
 
     public DeleteKeyPairResponseType deleteKeyPair(DeleteKeyPairType deleteKeyPairRequestMsg)
@@ -127,6 +128,7 @@ public class RMServiceSecurity extends UnimplementedOperations
             logger.error("Error removing keypair",e);
             success = false;
         }
-        return new DeleteKeyPairResponseType(success);
+        return new DeleteKeyPairResponseType(success, "");
+        // TODO do something real with requestId
     }
 }

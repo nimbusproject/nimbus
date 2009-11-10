@@ -20,8 +20,8 @@ import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.CreateRequest;
 import org.nimbustools.api.repr.CannotTranslateException;
 import org.nimbustools.api.repr.CreateResult;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.RunInstancesType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.ReservationInfoType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.RunInstancesType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.ReservationInfoType;
 
 import java.rmi.RemoteException;
 

@@ -19,8 +19,8 @@ package org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm;
 import org.nimbustools.api.repr.CreateResult;
 import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.services.rm.Manager;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.TerminateInstancesType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.TerminateInstancesResponseType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.TerminateInstancesType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.TerminateInstancesResponseType;
 
 import java.rmi.RemoteException;
 

@@ -16,16 +16,16 @@
 
 package org.nimbustools.messaging.gt4_0_elastic.v2008_05_05;
 
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.AllocateAddressResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.AllocateAddressType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.ReleaseAddressResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.ReleaseAddressType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DescribeAddressesResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DescribeAddressesType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.AssociateAddressResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.AssociateAddressType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DisassociateAddressResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DisassociateAddressType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.AllocateAddressResponseType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.AllocateAddressType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.ReleaseAddressResponseType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.ReleaseAddressType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeAddressesResponseType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeAddressesType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.AssociateAddressResponseType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.AssociateAddressType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DisassociateAddressResponseType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DisassociateAddressType;
 
 import java.rmi.RemoteException;
 

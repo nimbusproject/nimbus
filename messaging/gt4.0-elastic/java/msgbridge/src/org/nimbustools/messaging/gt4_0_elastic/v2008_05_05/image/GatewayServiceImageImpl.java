@@ -17,9 +17,9 @@
 package org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.image;
 
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.ContainerInterface;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DescribeImagesResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DescribeImagesResponseInfoType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DescribeImagesResponseItemType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeImagesResponseType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeImagesResponseInfoType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeImagesResponseItemType;
 
 import java.util.List;
 import java.util.LinkedList;

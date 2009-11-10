@@ -16,22 +16,22 @@
 
 package org.nimbustools.messaging.gt4_0_elastic.v2008_05_05;
 
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.CreateKeyPairResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.CreateKeyPairType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DescribeKeyPairsResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DescribeKeyPairsType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DeleteKeyPairResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DeleteKeyPairType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.CreateSecurityGroupResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.CreateSecurityGroupType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DeleteSecurityGroupResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DeleteSecurityGroupType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DescribeSecurityGroupsResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DescribeSecurityGroupsType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.AuthorizeSecurityGroupIngressResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.AuthorizeSecurityGroupIngressType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.RevokeSecurityGroupIngressResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.RevokeSecurityGroupIngressType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.CreateKeyPairResponseType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.CreateKeyPairType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeKeyPairsResponseType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeKeyPairsType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DeleteKeyPairResponseType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DeleteKeyPairType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.CreateSecurityGroupResponseType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.CreateSecurityGroupType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DeleteSecurityGroupResponseType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DeleteSecurityGroupType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeSecurityGroupsResponseType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeSecurityGroupsType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.AuthorizeSecurityGroupIngressResponseType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.AuthorizeSecurityGroupIngressType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.RevokeSecurityGroupIngressResponseType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.RevokeSecurityGroupIngressType;
 
 import java.rmi.RemoteException;
 

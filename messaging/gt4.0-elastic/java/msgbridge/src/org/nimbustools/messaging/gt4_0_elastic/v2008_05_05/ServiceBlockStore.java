@@ -16,22 +16,22 @@
 
 package org.nimbustools.messaging.gt4_0_elastic.v2008_05_05;
 
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.CreateVolumeResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.CreateVolumeType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DeleteVolumeResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DeleteVolumeType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DescribeVolumesResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DescribeVolumesType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.AttachVolumeResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.AttachVolumeType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DetachVolumeResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DetachVolumeType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.CreateSnapshotResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.CreateSnapshotType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DeleteSnapshotResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DeleteSnapshotType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DescribeSnapshotsResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DescribeSnapshotsType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.CreateVolumeResponseType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.CreateVolumeType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DeleteVolumeResponseType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DeleteVolumeType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeVolumesResponseType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeVolumesType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.AttachVolumeResponseType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.AttachVolumeType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DetachVolumeResponseType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DetachVolumeType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.CreateSnapshotResponseType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.CreateSnapshotType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DeleteSnapshotResponseType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DeleteSnapshotType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeSnapshotsResponseType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeSnapshotsType;
 
 import java.rmi.RemoteException;
 

@@ -16,10 +16,10 @@
 
 package org.nimbustools.messaging.gt4_0_elastic.v2008_05_05;
 
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.GetConsoleOutputResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.GetConsoleOutputType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DescribeAvailabilityZonesResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DescribeAvailabilityZonesType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.GetConsoleOutputResponseType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.GetConsoleOutputType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeAvailabilityZonesResponseType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeAvailabilityZonesType;
 
 import java.rmi.RemoteException;
 
