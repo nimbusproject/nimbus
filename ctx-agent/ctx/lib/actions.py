@@ -4,13 +4,264 @@ import time
 import shutil
 import tempfile
 
+try:
+    #import elementtree.ElementTree as ET
+    from xml.etree import ElementTree as ET #XXX what Python version support this?
+except ImportError:
+    print "elementtree not installed on the system, trying our backup copy"
+    import embeddedET.ElementTree as ET #FIXME this is now broken
+
 #local imports
 from ctx_exceptions import InvalidConfig, UnexpectedError, ProgrammingError
 from ctx_logging import getlog
+from ctx_types import RetrieveResult
 from utils import runexe, ifconfig, uuidgen, write_repl_file
 from parsers import response2_parse_file, response2_parse_for_fatal
-from workspace_ctx_retrieve import DefaultOK, DefaultERR, Bootstrap, RetrieveResult
-from workspace_ctx_retrieve import set_broker_okaction, set_broker_erraction
+from conf import NS_CTX, NS_CTXTYPES, NS_CTXDESC
+
+# #########################################################
+# OK/ERR reporting
+# #########################################################
+    
+def set_broker_okaction(instance):
+    global _brokerOK
+    _brokerOK = instance
+    
+def get_broker_okaction():
+    try:
+        _brokerOK
+    except:
+        return None
+    return _brokerOK
+    
+def set_broker_erraction(instance):
+    global _brokerERR
+    _brokerERR = instance
+    
+def get_broker_erraction():
+    try:
+        _brokerERR
+    except:
+        return None
+    return _brokerERR
+
+# }}} END: OK/ERR reporting
+    
+
+
+# ############################################################
+# Bootstrap consumption (v3)
+# #########################################################{{{
+
+class Bootstrap:
+    
+    """Class for bootrap parsing, in order to override later on.
+       This is for syntax v3.
+    """
+    
+    # spec is at least 20 ='s:
+    BOOTSTRAP_FIELD_SEPARATOR = "===================="
+    
+    def __init__(self, text, log_override=None):
+        self.log = getlog(override=log_override)
+        self.cluster = None
+        self.service_url = None
+        self.resource_key = None
+        self.credential_string = None
+        self.private_key_string = None
+        self.parse_xml_userdata(text)
+            
+    #### utlities etc.
+    
+    def parse_xml_userdata(self, text):
+        
+        if not isinstance(text, str):
+            self.log.error("Bootstrap text input is null or not a string?")
+            return None
+        
+        if text.strip() == "":
+            self.log.error("Bootstrap text is empty?")
+            return None
+            
+        self.log.debug("First 20 chars of userdata: '%s'" % text[:20])
+        
+        try:
+            tree = ET.fromstring(text)
+        except:
+            exception_type = sys.exc_type
+            try:
+                exceptname = exception_type.__name__ 
+            except AttributeError:
+                exceptname = exception_type
+            name = str(exceptname)
+            err = str(sys.exc_value)
+            errmsg = "Problem parsing userdata: %s: %s\n" % (name, err)
+            self.log.error(errmsg)
+            return None
+        
+        if tree.tag != "NIMBUS_CTX":
+            raise UnexpectedError("unknown element in userdata: '%s' (expecting NIMBUS_CTX)" % str(tree.tag))
+            
+        namespace_context = NS_CTX
+        namespace_types = NS_CTXTYPES
+        namespace_desc = NS_CTXDESC
+        
+        contactTag = "{%s}contact" % namespace_desc
+        contact = tree.find(contactTag)
+        
+        clusterTag = "{%s}cluster" % namespace_desc
+        clusterXML = tree.find(clusterTag)
+                
+        if contact == None:
+            raise UnexpectedError("could not locate broker contact type in userdata")
+        
+        if clusterXML == None:
+            raise UnexpectedError("could not locate cluster context document in userdata")
+        clustertext = ET.tostring(clusterXML, encoding="UTF-8")
+        clusterXMllines = clustertext.split("\n")
+        self.cluster = "\n".join(clusterXMllines[1:])
+            
+        brokerURLTag = "{%s}brokerURL" % namespace_desc
+        self.service_url = contact.find(brokerURLTag)
+        
+        contextIDTag = "{%s}contextID" % namespace_desc
+        self.resource_key = contact.find(contextIDTag)
+        
+        secretTag = "{%s}secret" % namespace_desc
+        secret = contact.find(secretTag)
+        
+        if self.service_url == None:
+            raise UnexpectedError("could not locate broker URL in userdata")
+        else:
+            self.service_url = self.service_url.text
+            
+        if self.resource_key == None:
+            raise UnexpectedError("could not locate context ID in userdata")
+        else:
+            keyprefix = "{%s}NimbusContextBrokerKey=" % namespace_context
+            key = self.resource_key.text.strip()
+            if key[:79] != keyprefix:
+                raise UnexpectedError("context ID has unexpected namespace: '%s'" % key)
+            self.resource_key = key[79:]
+            
+        if secret == None:
+            raise UnexpectedError("could not locate secret in userdata")
+        
+        sections = self.get_sections_tuple(secret.text)
+        self.credential_string = sections[1]
+        self.private_key_string = sections[2]
+        
+    def get_sections_tuple(self, text):
+        if not isinstance(text, str):
+            self.log.error("text input is null or not a string?")
+            return None
+        
+        if text.strip() == "":
+            self.log.error("text is empty?")
+            return None
+            
+        lines = text.split("\n")
+            
+        sections = []
+        buf = ""
+        for line in lines:
+            if line.strip() == "":
+                continue
+            if line.strip().startswith(Bootstrap.BOOTSTRAP_FIELD_SEPARATOR):
+                sections.append(buf)
+                buf = ""
+                continue
+            buf += line + "\n"
+        
+        return sections
+
+# }}} Bootstrap consumption (v3)
+
+class DefaultOK:
+    
+    def __init__(self, cmd, log_override=None):
+        self.runcmd = cmd
+        self.log = getlog(override=log_override)
+
+    def run(self):
+        if not self.runcmd:
+            errmsg = "no runcmd configured for defaultOK (?)"
+            try:
+                self.log.error(errmsg)
+            except:
+                print >>sys.stderr, errmsg
+            return
+        
+        msg = "Attempting OK report to context broker."
+        try:
+            self.log.info(msg)
+        except:
+            print >>sys.stderr, msg
+        
+        self.log.info("CMD: " + self.runcmd)
+        
+        (exit, stdout, stderr) = runexe(self.runcmd, killtime=10)
+        result = "'%s': exit=%d, stdout='%s'," % (self.runcmd, exit, stdout)
+        result += " stderr='%s'" % (stderr)
+        
+        self.log.debug(result)
+        self.log.info("Reported OK to context broker.")
+        
+class DefaultERR:
+    
+    def __init__(self, cmd, templatepath, log_override=None):
+        self.runcmd = cmd
+        self.templatepath = templatepath
+        self.log = getlog(override=log_override)
+        
+    def run(self, errcodestr, errmessage):
+        
+        if not self.runcmd:
+            errmsg = "no runcmd configured for defaultERR (?)"
+            try:
+                self.log.error(errmsg)
+            except:
+                print >>sys.stderr, errmsg
+            return
+            
+        if not self.templatepath:
+            errmsg = "no templatepath configured for defaultERR (?)"
+            try:
+                self.log.error(errmsg)
+            except:
+                print >>sys.stderr, errmsg
+            return
+            
+        self.complete_template(errcodestr, errmessage)
+            
+        msg = "Attempting error report to context broker."
+        try:
+            self.log.info(msg)
+        except:
+            print >>sys.stderr, msg
+            
+        self.log.info("CMD: " + self.runcmd)
+        
+        (exit, stdout, stderr) = runexe(self.runcmd, killtime=10)
+        result = "'%s': exit=%d, stdout='%s'," % (self.runcmd, exit, stdout)
+        result += " stderr='%s'" % (stderr)
+        
+        self.log.info(result)
+        self.log.info("Reported ERROR to context broker.")
+        
+    def complete_template(self, errcodestr, errmessage):
+        text = ""
+        f = open(self.templatepath)
+        try:
+            for line in f:
+                text += line
+        finally:
+            f.close()
+            
+        text = text.replace("REPLACE_ERRORCODE", str(errcodestr))
+        text = text.replace("REPLACE_ERRORMSG", str(errmessage))
+        write_repl_file(self.templatepath, text)
+ 
 
 
 # ############################################################
@@ -21,7 +272,7 @@ class Action:
 
     """Parent class of every action."""
     
-    def __init__(self, commonconf, log_overide=None):
+    def __init__(self, commonconf, log_override=None):
         """Initialize result and common conf fields.
         
         Required parameters:
@@ -31,7 +282,7 @@ class Action:
         """
         self.common = commonconf
         self.result = None
-        self.log = getlog(overide=log_overide)
+        self.log = getlog(override=log_override)
 
     def run(self):
         """Start.
@@ -57,7 +308,7 @@ class RegularInstantiation(Action):
     """Class implementing bootstrap retrieval from Nimbus metadata server.  It
     also populates the identity and sshd pubkey values."""
     
-    def __init__(self, commonconf, regconf, log_overide=None):
+    def __init__(self, commonconf, regconf, log_override=None):
         """Instantiate object with configurations necessary to operate.
 
         Required parameters:
@@ -72,7 +323,7 @@ class RegularInstantiation(Action):
 
         """
         
-        Action.__init__(self, commonconf, log_overide)
+        Action.__init__(self, commonconf, log_override)
         self.conf = regconf
         self.result = None
         
@@ -412,7 +663,7 @@ class AmazonInstantiation(Action):
     """Class implementing bootstrap retrieval from EC2.  It also populates
        the identity and sshd pubkey values."""
     
-    def __init__(self, commonconf, ec2conf, log_overide=None):
+    def __init__(self, commonconf, ec2conf, log_override=None):
         """Instantiate object with configurations necessary to operate.
 
         Required parameters:
@@ -427,7 +678,7 @@ class AmazonInstantiation(Action):
 
         """
         
-        Action.__init__(self, commonconf, log_overide)
+        Action.__init__(self, commonconf, log_override)
         self.conf = ec2conf
         
     def run(self):
@@ -568,7 +819,7 @@ class DefaultRetrieveAction(Action):
        Right now there is only one implementation.
     """
     
-    def __init__(self, commonconf, instresult, log_overide=None):
+    def __init__(self, commonconf, instresult, log_override=None):
         """Instantiate object with configurations necessary to operate.
 
         Required parameters:
@@ -583,7 +834,7 @@ class DefaultRetrieveAction(Action):
 
         """
         
-        Action.__init__(self, commonconf, log_overide)
+        Action.__init__(self, commonconf, log_override)
         
         if instresult == None:
             raise InvalidConfig("supplied instantiation result is None")
@@ -870,7 +1121,7 @@ class DefaultConsumeRetrieveResult(Action):
        Right now there is only one implementation.
     """
     
-    def __init__(self, commonconf, retrresult, instresult, log_overide=None):
+    def __init__(self, commonconf, retrresult, instresult, log_override=None):
         """Instantiate object with configurations necessary to operate.
 
         Required parameters:
@@ -886,7 +1137,7 @@ class DefaultConsumeRetrieveResult(Action):
 
         """
         
-        Action.__init__(self, commonconf, log_overide)
+        Action.__init__(self, commonconf, log_override)
         
         if retrresult == None:
             raise InvalidConfig("supplied retrresult is None")

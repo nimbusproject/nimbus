@@ -1,23 +1,24 @@
 import sys
+sys.path.append(".")
 try:
-    import elementtree.ElementTree as ET
+    #import elementtree.ElementTree as ET
+    from xml.etree import ElementTree as ET #XXX what Python version support this?
 except ImportError:
     print "elementtree not installed on the system, trying our backup copy"
-    import embeddedET.ElementTree as ET
+    import embeddedET.ElementTree as ET #FIXME this is now broken
 
 #local imports
-from workspace_ctx_retrieve import RetrieveResult, ResponseRole, OpaqueData, Identity
+from ctx_types import RetrieveResult, ResponseRole, OpaqueData, Identity
 from ctx_exceptions import UnexpectedError
 from ctx_logging import getlog
-
-from config import NS_CTX, NS_CTXTYPES, NS_CTXDESC
+from conf import NS_CTX, NS_CTXTYPES, NS_CTXDESC
 
 
 # ############################################################
 # Response consumption v2 (XML)
 # #########################################################{{{
 
-def response2_parse_file(path, trace=False, responsetype=2, log_overide=None):
+def response2_parse_file(path, trace=False, responsetype=2, log_override=None):
     """Return RetrieveResult object if <retrieveResponse> was in
     the response.  Return partial response (i.e., not locked or
     not complete), let caller decide what behavior is appropriate
@@ -26,7 +27,7 @@ def response2_parse_file(path, trace=False, responsetype=2, log_overide=None):
     Raise nothing.
     
     """
-    log = getlog(overide=log_overide)
+    log = getlog(override=log_override)
     try:
         tree = ET.parse(path)
     except:
@@ -152,8 +153,8 @@ def response2_parse_file(path, trace=False, responsetype=2, log_overide=None):
     
     return result
     
-def response2_parse_one_role(role, trace=False, log_overide=None):
-    log = getlog(overide=log_overide)
+def response2_parse_one_role(role, trace=False, log_override=None):
+    log = getlog(override=log_override)
     if role == None:
         if trace:
             log.debug("  - role is null?")
@@ -194,8 +195,8 @@ def response2_parse_one_role(role, trace=False, log_overide=None):
     
     return resprole
     
-def response2_parse_one_data(data, trace=False, log_overide=None):
-    log = getlog(overide=log_overide)
+def response2_parse_one_data(data, trace=False, log_override=None):
+    log = getlog(override=log_override)
     if data == None:
         if trace:
             log.debug("  - data is null?")
@@ -236,8 +237,8 @@ def response2_parse_one_data(data, trace=False, log_overide=None):
     
     return respdata
 
-def response2_parse_one_identity(ident, trace=False, responsetype=2, log_overide=None):
-    log = getlog(overide=log_overide)
+def response2_parse_one_identity(ident, trace=False, responsetype=2, log_override=None):
+    log = getlog(override=log_override)
     if ident == None:
         if trace:
             log.debug("  - ident is null?")
@@ -270,8 +271,8 @@ def response2_parse_one_identity(ident, trace=False, responsetype=2, log_overide
     
     return identity
 
-def response2_parse_for_fatal(path, trace=False, log_overide=None):
-    log = getlog(overide=log_overide)
+def response2_parse_for_fatal(path, trace=False, log_override=None):
+    log = getlog(override=log_override)
     if path == None:
         return
     

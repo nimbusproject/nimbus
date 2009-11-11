@@ -46,7 +46,22 @@ def terminateok():
         return None
     return _terminateOK
 
+# #########################################################
+# log path utils
+# #########################################################
+ 
+def setlogfilepath(path):
+    global _logfilepath
+    _logfilepath = path
 
+def getlogfilepath():
+    try:
+        _logfilepath
+    except:
+        return None
+    return _logfilepath
+    
+ 
 # #########################################################
 # Path/system utilities
 # #########################################################
@@ -80,7 +95,7 @@ def mode600(mode):
 class SimpleRunThread(Thread):
     """Run a command with timeout options, delay, stdin, etc."""
     
-    def __init__(self, cmd, killsig=-1, killtime=0, stdin=None, delay=None, log_overide=None):
+    def __init__(self, cmd, killsig=-1, killtime=0, stdin=None, delay=None, log_override=None):
         """Populate the thread.
         
         Required parameters:
@@ -122,14 +137,14 @@ class SimpleRunThread(Thread):
         self.stdout = None
         self.stderr = None
         self.killed = False
-        self.log = getlog(overide=log_overide)
+        self.log = getlog(override=log_override)
         
     def run(self):
         if self.delay:
             self.log.debug("delaying for %.3f secs: '%s'" % (self.delay, self.cmd))
             time.sleep(self.delay)
         self.log.debug("program starting '%s'" % self.cmd)
-        p = Popen3(self.cmd, True)
+	p = Popen3(self.cmd, True)
         if self.stdin:
             if p.poll() == -1:
                 p.tochild.write(self.stdin)
@@ -227,9 +242,9 @@ def ifconfig(ifname):
     return ifreq
 
    
-def write_repl_file(path, outputtext, log_overide=None):
+def write_repl_file(path, outputtext, log_override=None):
     """TODO: switch this to use tempfile.mkstemp"""
-    log = getlog(overide=log_overide)
+    log = getlog(override=log_override)
     f = None
     try:
         try:
