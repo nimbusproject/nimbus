@@ -15,5 +15,7 @@
  */
 package org.nimbustools.messaging.query;
 
-public interface ElasticAction {
+public interface ElasticVersion {
+    
+
 }

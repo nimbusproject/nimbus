@@ -15,35 +15,50 @@
  */
 package org.nimbustools.messaging.query;
 
+import org.apache.cxf.jaxrs.ext.MessageContext;
+import org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.Log;
+
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import java.util.Map;
 
 @Path("/")
 public class ElasticQuery {
 
-    Map<String,ElasticAction> actions;
+    private static final Log logger =
+            LogFactory.getLog(ElasticQuery.class.getName());
 
-    public Map<String, ElasticAction> getActions() {
-        return actions;
+    Map<String, ElasticVersion> versions;
+
+    public Map<String, ElasticVersion> getVersions() {
+        return versions;
     }
 
-    public void setActions(Map<String, ElasticAction> actions) {
-        this.actions = actions;
+    public void setVersions(Map<String, ElasticVersion> versions) {
+        this.versions = versions;
     }
 
     @Path("/")
-    public ElasticAction handle(@QueryParam("Action") String action,
-                       @QueryParam("Version") String version) {
+    @Produces("text/xml")
+    public ElasticVersion handle(@QueryParam("Action") String action,
+                       @QueryParam("Version") String version,
+                       @Context MessageContext ctx) {
+
+        logger.info("Got "+action+ "request for version"+ version+". Agent: "+
+                ctx.getHttpHeaders().getRequestHeader("User-Agent"));
+
 
         // get appropriate action
-        final ElasticAction theAction = actions.get(action);
+        final ElasticVersion theVersion = versions.get(version);
 
-        if (theAction == null) {
+        if (theVersion == null) {
             throw new WebApplicationException(500);
         }
 
-        return theAction;
+        return theVersion;
     }
 }
