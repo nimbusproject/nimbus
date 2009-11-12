@@ -22,6 +22,7 @@ import org.nimbustools.api.repr.CannotTranslateException;
 import org.nimbustools.api.repr.CreateResult;
 import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.RunInstancesType;
 import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.ReservationInfoType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.RunInstancesResponseType;
 
 import java.rmi.RemoteException;
 
@@ -50,7 +51,7 @@ public interface Run {
      * @return valid elastic response
      * @throws Exception problem (will require backout)
      */
-    public ReservationInfoType translateCreateResult(CreateResult result,
+    public RunInstancesResponseType translateCreateResult(CreateResult result,
                                                      Caller caller,
                                                      String sshKeyName)
             throws Exception;

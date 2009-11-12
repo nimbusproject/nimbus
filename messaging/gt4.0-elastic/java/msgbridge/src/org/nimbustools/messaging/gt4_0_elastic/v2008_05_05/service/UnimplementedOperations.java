@@ -16,74 +16,7 @@
 
 package org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.service;
 
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.AuthorizeSecurityGroupIngressResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.ConfirmProductInstanceResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeKeyPairsResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.ConfirmProductInstanceType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.AllocateAddressResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeSecurityGroupsType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeInstancesResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.CreateKeyPairType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.ResetImageAttributeResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.TerminateInstancesResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeImagesResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.ModifyImageAttributeResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeAvailabilityZonesType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.RegisterImageResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.CreateSecurityGroupResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeImageAttributeResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DeleteSecurityGroupType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.ModifyImageAttributeType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.ResetImageAttributeType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeAvailabilityZonesResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.RevokeSecurityGroupIngressType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.GetConsoleOutputResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.RevokeSecurityGroupIngressResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.RebootInstancesType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.CreateSecurityGroupType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.CreateKeyPairResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeKeyPairsType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeImageAttributeType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeSecurityGroupsResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.ReservationInfoType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.RegisterImageType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeImagesType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.RebootInstancesResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.AuthorizeSecurityGroupIngressType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DeregisterImageType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.RunInstancesType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DeleteKeyPairResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeInstancesType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DeleteSecurityGroupResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DeregisterImageResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.TerminateInstancesType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DeleteKeyPairType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.GetConsoleOutputType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.ReleaseAddressResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.AllocateAddressType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.AssociateAddressResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DisassociateAddressType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DisassociateAddressResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.AssociateAddressType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeAddressesType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeAddressesResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.ReleaseAddressType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.CreateSnapshotResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.CreateSnapshotType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeVolumesType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.CreateVolumeType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeVolumesResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.CreateVolumeResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DeleteSnapshotResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DeleteSnapshotType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.AttachVolumeType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeSnapshotsResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeSnapshotsType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DeleteVolumeResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DeleteVolumeType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DetachVolumeResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DetachVolumeType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.AttachVolumeResponseType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.*;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.ServiceAll;
 
 import java.rmi.RemoteException;
@@ -97,7 +30,7 @@ public class UnimplementedOperations implements ServiceAll {
     // RM MANAGER RELATED
     // -------------------------------------------------------------------------
 
-    public ReservationInfoType runInstances(
+    public RunInstancesResponseType runInstances(
                         RunInstancesType runInstancesRequestMsg)
             throws RemoteException {
         throw new RemoteException(UNIMPLEMENTED + "runInstances");

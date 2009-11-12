@@ -20,24 +20,7 @@ import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.ServiceRM;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.ServiceGeneral;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.ServiceSecurity;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.ServiceImage;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.ReservationInfoType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.RunInstancesType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.TerminateInstancesResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.TerminateInstancesType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.RebootInstancesResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.RebootInstancesType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeInstancesResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeInstancesType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeAvailabilityZonesResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeAvailabilityZonesType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.CreateKeyPairResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.CreateKeyPairType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeKeyPairsResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeKeyPairsType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DeleteKeyPairResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DeleteKeyPairType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeImagesResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeImagesType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.*;
 import org.nimbustools.messaging.gt4_0.common.CommonUtil;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.Log;
@@ -129,7 +112,7 @@ public abstract class DelegatingService extends UnimplementedOperations {
     // RM RELATED
     // -------------------------------------------------------------------------
 
-    public ReservationInfoType runInstances(
+    public RunInstancesResponseType runInstances(
                         RunInstancesType runInstancesRequestMsg)
             throws RemoteException {
 

@@ -30,14 +30,7 @@ import org.nimbustools.api.services.metadata.MetadataServer;
 import org.nimbustools.api.services.rm.ManageException;
 import org.nimbustools.api.services.rm.Manager;
 import org.nimbustools.messaging.gt4_0.common.AddCustomizations;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeInstancesResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeInstancesType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.RebootInstancesResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.RebootInstancesType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.ReservationInfoType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.RunInstancesType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.TerminateInstancesResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.TerminateInstancesType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.*;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.ServiceRM;
 
 import java.rmi.RemoteException;
@@ -119,7 +112,7 @@ public class ServiceRMImpl implements ServiceRM {
     // RUN
     // -------------------------------------------------------------------------
 
-    public ReservationInfoType runInstances(RunInstancesType req)
+    public RunInstancesResponseType runInstances(RunInstancesType req)
             throws RemoteException {
 
         if (req == null) {
