@@ -36,7 +36,12 @@ public class QueryException extends RuntimeException {
         this(error, null, t);
     }
 
+    public QueryException(QueryError error, String msg) {
+        this(error, msg, null);
+    }
+
     public QueryError getError() {
         return error;
     }
+
 }

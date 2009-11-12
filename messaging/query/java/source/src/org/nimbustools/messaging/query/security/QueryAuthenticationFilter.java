@@ -18,9 +18,12 @@ package org.nimbustools.messaging.query.security;
 import org.apache.commons.codec.binary.Base64;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.filter.GenericFilterBean;
+import org.springframework.dao.DataAccessException;
+import org.nimbustools.messaging.query.QueryException;
+import org.nimbustools.messaging.query.QueryError;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -88,11 +91,10 @@ public class QueryAuthenticationFilter extends GenericFilterBean {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
 
-
-        final String accessId = getExactlyOneParameter(request,
+        final String accessId = getAtMostOneParameter(request,
                 this.accessIdParameter);
-        if (accessId.length() == 0) {
-            throw new BadCredentialsException("Access ID is invalid");
+        if (accessId == null || accessId.length() == 0) {
+            throw new QueryException(QueryError.MissingClientTokenId);
         }
 
         final String signature = getExactlyOneParameter(request,
@@ -113,25 +115,33 @@ public class QueryAuthenticationFilter extends GenericFilterBean {
         // if another version comes along, this library will need to be updated
 
         if (!SIGNATURE_VERSION.equals(signatureVersion)) {
-            throw new BadCredentialsException("Only signature version "+
-                    SIGNATURE_VERSION+" is supported");
+            throw new QueryException(QueryError.InvalidParameterValue,
+                    "Only signature version "+SIGNATURE_VERSION+" is supported");
         }
 
         if (!(signatureMethod.equals(HMACSHA256) ||
                 signatureMethod.equals(HMACSHA1))) {
-            throw new BadCredentialsException("Only "+ HMACSHA256 +" or " +
-                    HMACSHA1 +" are supported signature methods");
+            throw new QueryException(QueryError.InvalidParameterValue,
+                    "Only "+ HMACSHA256 +" or " +HMACSHA1 +
+                            " are supported signature methods");
         }
 
         final boolean hasTimestamp = timestamp != null;
         final boolean hasExpires = expires != null;
         if (hasTimestamp == hasExpires) {
-            throw new BadCredentialsException("Request must have timestamp " +
-                    "or expiration, but not both");
+            throw new QueryException(QueryError.InvalidArgument,
+                    "Request must have timestamp or expiration, but not both");
         }
 
-        final QueryUser user =
-                userDetailsService.loadUserByUsername(accessId);
+        final QueryUser user;
+        try {
+        user = userDetailsService.loadUserByUsername(accessId);
+        } catch (UsernameNotFoundException e) {
+            throw new QueryException(QueryError.InvalidClientTokenId, e);
+        } catch (DataAccessException e) {
+            throw new QueryException(QueryError.InternalError,
+                    "Failed to retrieve user token for provided accessID", e);
+        }
         final String secret = user.getSecret();
 
         final String checkSig = createSignature(getStringToSign(request),
@@ -139,7 +149,8 @@ public class QueryAuthenticationFilter extends GenericFilterBean {
 
         if (!checkSig.equals(signature)) {
             logger.warn("Signature check failed on request for accessID: "+accessId);
-            throw new BadCredentialsException("Signature check failed!");
+            throw new QueryException(QueryError.SignatureDoesNotMatch,
+                    "Signature check failed!");
         }
 
         // check for expiration of request-- replay attack prevention
@@ -156,14 +167,14 @@ public class QueryAuthenticationFilter extends GenericFilterBean {
                 expireTime = new DateTime(expires, DateTimeZone.UTC);
             }
         } catch (IllegalArgumentException e) {
-            throw new BadCredentialsException("Failed to parse "+
-                    (hasTimestamp ? "timestamp" : "expiration"), e);
+            throw new QueryException(QueryError.InvalidParameterValue, "Failed to parse "+
+                    (hasTimestamp ? "timestamp" : "expiration") +
+                    ". Must be in ISO8601 format.", e);
         }
 
         if (expireTime.isBeforeNow()) {
-            throw new BadCredentialsException("Request is expired");
+            throw new QueryException(QueryError.RequestExpired, "Request is expired");
         }
-
 
         final QueryAuthenticationToken auth = new QueryAuthenticationToken(user, true);
 
@@ -187,7 +198,8 @@ public class QueryAuthenticationFilter extends GenericFilterBean {
 
         String host = request.getHeader("Host");
         if (host == null || host.length() == 0) {
-            throw new BadCredentialsException("Request is missing Host header");
+            throw new QueryException(QueryError.InvalidArgument,
+                    "Request is missing Host header");
         }
         buf.append(host.toLowerCase()).append(newline);
 
@@ -246,13 +258,16 @@ public class QueryAuthenticationFilter extends GenericFilterBean {
             bytes = mac.doFinal(s.getBytes("UTF-8"));
 
         } catch (NoSuchAlgorithmException e) {
-            throw new BadCredentialsException(
-                    "Request used an unsupported signature method: "+method);
+            throw new QueryException(QueryError.SignatureDoesNotMatch,
+                    "Request used an unsupported signature method: "+method,
+                    e);
         } catch (InvalidKeyException e) {
             // I don't think this should happen..
-            throw new BadCredentialsException("Secret key is invalid");
+            throw new QueryException(QueryError.SignatureDoesNotMatch,
+                    "Secret key is invalid", e);
         } catch (UnsupportedEncodingException e) {
-            throw new BadCredentialsException("Signature generation failed");
+            throw new QueryException(QueryError.SignatureDoesNotMatch,
+                    "Signature generation failed", e);
         }
 
         return new String(Base64.encodeBase64(bytes));
@@ -268,33 +283,32 @@ public class QueryAuthenticationFilter extends GenericFilterBean {
                     replace("%7E", "~");
 
         } catch (UnsupportedEncodingException e) {
-            throw new BadCredentialsException("Failed to URL encode a value (??)");
+            throw new QueryException(QueryError.SignatureDoesNotMatch,
+                    "Failed to URL encode a value (??)", e);
         }
 
     }
 
     private static String getExactlyOneParameter(ServletRequest request,
-                                                 String paramName)
-    throws BadCredentialsException {
+                                                 String paramName) {
         String[] values = request.getParameterValues(paramName);
         if (values == null || values.length != 1) {
-            throw new BadCredentialsException("Request must have exactly one "+
-                    paramName+" parameter");
+            throw new QueryException(QueryError.InvalidArgument,
+                    "Request must have exactly one "+paramName+" parameter");
         }
         return values[0];
     }
 
     private static String getAtMostOneParameter(ServletRequest request,
-                                                String paramName)
-        throws BadCredentialsException {
+                                                String paramName) {
 
         String[] values = request.getParameterValues(paramName);
         if (values == null || values.length == 0) {
             return null;
         }
         if (values.length > 1) {
-            throw new BadCredentialsException("Request must have at most one "+
-                    paramName+" parameter");
+            throw new QueryException(QueryError.InvalidArgument,
+                    "Request must have at most one "+ paramName+" parameter");
         }
         return values[0];
     }

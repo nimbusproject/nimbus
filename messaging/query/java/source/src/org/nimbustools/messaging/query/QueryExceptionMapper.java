@@ -15,20 +15,31 @@
  */
 package org.nimbustools.messaging.query;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import javax.ws.rs.ext.ExceptionMapper;
+import javax.ws.rs.ext.Provider;
 import javax.ws.rs.core.Response;
 
+@Provider
 public class QueryExceptionMapper implements ExceptionMapper<QueryException> {
 
+    private static final Log logger =
+            LogFactory.getLog(QueryExceptionMapper.class.getName());
+
     public Response toResponse(QueryException e) {
-        //TODO do this for reals
+        //TODO do this for reals, figure out requestID business
+        
 
         QueryError error = e.getError();
 
+        logger.warn("Responding with "+error.toString()+" error for request", e);
+
         String respStr = "<?xml version=\"1.0\"?>\n" +
                 "<Response><Errors><Error><Code>"+error.toString()+
-                "<Message></Message></Error></Errors>" +
-                "<RequestID>227831ec-fbf8-47d1-9654-e4125998f8b2</RequestID></Response>";
+                "<Message>"+ e.getMessage()+"</Message></Error></Errors>" +
+                "<RequestID></RequestID></Response>";
 
         return Response.ok(respStr).status(400).build();
     }

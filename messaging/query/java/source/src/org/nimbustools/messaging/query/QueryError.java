@@ -24,5 +24,7 @@ public enum QueryError {
     NotImplemented,
     InvalidArgument,
     InternalError,
-    UnknownError
+    UnknownError,
+    MissingClientTokenId,
+    InvalidParameterValue
 }
