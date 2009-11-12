@@ -36,9 +36,16 @@ public class QueryExceptionMapper implements ExceptionMapper<QueryException> {
 
         logger.warn("Responding with "+error.toString()+" error for request", e);
 
+        String message = e.getMessage();
+        if (message == null) {
+            message = "";
+        }
+
+        // so simple. easier to just print out the xml for now
+        // (or for ever..)
         String respStr = "<?xml version=\"1.0\"?>\n" +
-                "<Response><Errors><Error><Code>"+error.toString()+
-                "<Message>"+ e.getMessage()+"</Message></Error></Errors>" +
+                "<Response><Errors><Error><Code>"+error.toString()+"</Code>"+
+                "<Message>"+ message +"</Message></Error></Errors>" +
                 "<RequestID></RequestID></Response>";
 
         return Response.ok(respStr).status(400).build();
