@@ -53,4 +53,25 @@ public class QueryUtils {
         }
         return list;
     }
+
+    public static void assureRequiredParameter(String name, String value)
+        throws QueryException {
+
+        if (value == null || value.trim().length() == 0) {
+            throw new QueryException(QueryError.InvalidArgument,
+                    "The "+name+" parameter must be specified for this action");
+        }
+    }
+
+    public static int getIntParameter(String name, String value)
+        throws QueryException {
+
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            throw new QueryException(QueryError.InvalidParameterValue,
+                    "The "+name+" parameter must be an integer");
+        }
+
+    }
 }

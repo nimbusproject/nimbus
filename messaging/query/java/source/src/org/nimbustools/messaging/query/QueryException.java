@@ -22,7 +22,7 @@ public class QueryException extends RuntimeException {
         super(msg, t);
 
         if (error == null) {
-            this.error = QueryError.UnknownError;
+            this.error = QueryError.GeneralError;
         } else {
             this.error = error;
         }

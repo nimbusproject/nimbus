@@ -16,4 +16,5 @@
 package org.nimbustools.messaging.query;
 
 public interface ElasticAction {
+    String getName();
 }
