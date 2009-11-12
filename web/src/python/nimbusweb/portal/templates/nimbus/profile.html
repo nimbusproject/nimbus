@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Your Profile{% endblock title %}
+
+{% block content %}
+    <p>
+        {{ message }}
+    </p>
+    
+    <h3>Your account</h3>
+    <div class="profile">
+        <div class="lrow">
+            <span class="flabel">Username:</span>
+            <span class="finput">{{ user.username }}</span>
+        </div>
+        {% if user.get_full_name %}
+        <div class="lrow">
+            <span class="flabel">Name:</span>
+            <span class="finput">{{ user.get_full_name }}</span>
+        </div>
+        {% endif %}
+        <div class="lrow">
+            <span class="flabel">Email:</span>
+            <span class="finput">{{ user.email }}</span>
+        </div>
+    </div>
+    
+    <br>
+    
+    <h3>Your credentials</h3>
+    
+    {% if cert_present or key_present %}
+    <div class="profile">
+        {% if cert_present %}
+        <div class="lrow">
+            <span class="flabel">Certificate:</span>
+            <span class="finput"><a href="usercert.pem">retrieve</a></span>
+        </div>
+        {% endif %}
+        
+        {% if key_present %}
+        <div class="lrow">
+            <span class="flabel">Key file:</span>
+            <span class="finput"><a href="userkey.pem">retrieve</a> </span>
+        </div>
+        <br>
+        <p>
+            <b>Warning</b>: The key file download only works once!  They key will be deleted when you download it.
+        </p>
+        <p>
+            <b>Warning</b>: The key file will not work without running "chmod 0600" on it after you download.
+        </p>
+        {% endif %}
+    </div>
+    <br>
+    {% else %}
+    <p>None on file.</p>
+    {% endif %}
+    
+    <h3>Other</h3>
+        
+    {% if user.is_superuser %}
+    
+    <p>
+        You have access to the <a href="../admin/">administrator panel</a>
+    </p>
+    
+    {% endif %} 
+    
+    <p>
+        <a href="../accounts/password">Change your password</a>
+    </p>
+    
+    <p>
+        <a href="../accounts/logout">Log out</a>
+    </p>
+    
+{% endblock %}
+

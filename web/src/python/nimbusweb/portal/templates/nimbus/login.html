@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+  {% if form.errors %}
+    <p class="error">Sorry, that's not a valid username or password</p>
+  {% endif %}
+  
+  <div class="loginuser">
+      <form action="" method="post">
+        
+        <div class="frow">
+            <label for="username" class="flabel">Username:</label>
+            <span class="finput">
+                <input type="text" name="username" value="" id="username">
+            </span>
+        </div>
+        
+        <div class="frow">
+            <label for="password" class="flabel">Password:</label>
+            <span class="finput">
+                <input type="password" name="password" value="" id="password">
+            </span>
+        </div>
+        
+        <input type="hidden" name="next" value="{{ next|escape }}" />
+        
+        <div class="frow">
+            <input type="submit" value="login" />
+        </div>
+      </form>
+  </div>
+{% endblock %}

@@ -1,0 +1,214 @@
+body {
+  font-family: sans-serif;
+  line-height: 1.4em;
+  margin: 1em 4em;
+  max-width: 55em;
+}
+
+ul, p, blockquote, dl {
+  margin-left: 1em;
+}
+
+pre {
+  margin-left: 1.5em;
+  padding: 0.5em 1em;
+  background: #eee;
+  border: 1px solid #ccc;
+}
+
+blockquote {
+  padding-left: 1.5em;
+  border-left: 5px solid #3f6bcf;
+}
+
+.floatleft {
+  float: left;
+  margin-left: 0;
+}
+
+#important {
+  color: red;
+  font-size: larger;
+}
+
+.keyflag {
+  color: red;
+  font-size: 2em;
+}
+
+.highlight {
+  background: #feb;
+  padding: 0.2em;
+}
+
+h1, h2, h3, h4 {
+  font-family: Georgia, serif;
+  font-weight: bold;
+  color: #3f6bcf;
+}
+
+h1 { 
+  font-size: 1.6em;
+}
+
+h2 {
+  font-size: 1.4em;
+}
+
+h3 {
+  font-size: 1.2em;
+}
+
+a {
+  text-decoration: underline;
+  font-weight: bold;
+  color: #44b;
+}
+
+a:hover {
+  text-decoration: underline;
+  color: #66e;
+}
+
+a:visited {
+  color: #736f6e;
+}
+
+
+#headerborder {
+  color: #44b;
+  width: 100%;
+  margin-top: 1.2em;
+  margin-bottom: 1.1em;
+}
+
+#flash_msg {
+  color: red;
+  margin-left: 80px;
+  padding-top: 0.6em;
+  margin-bottom: 60px;
+}
+
+#ok_flash_msg {
+  color: green;
+  margin-left: 80px;
+  padding-top: 0.6em;
+  margin-bottom: 60px;
+}
+
+.formerror {
+  color: red;
+  font-size: larger;
+}
+
+.section {
+  padding-bottom: 1.3em;
+}
+
+table.userlists {
+    border-spacing: 0px;
+    border-collapse: collapse;
+    background-color: #e5e5e5;
+    border: 10px solid #e5e5e5;
+    margin-left: 1.3em;
+}
+table.userlists th {
+    text-align: left;
+    font-weight: normal;
+    padding: 0.4em 0.7em;
+}
+table.userlists td {
+    text-align: right;
+    border-left: 1px solid #666;
+    padding: 0.4em 0.7em;
+}
+table.userlists thead th {
+    border-left: 1px solid #666;
+    border-bottom: 1px solid #666;
+    text-align: left;
+}
+table.userlists th.Corner {
+    text-align: left;
+    border-left: 0px;
+}
+
+.loginuser {
+  margin-left: 2em;
+  margin-bottom: 0.5em;
+  width: 650px;
+}
+
+.newuser {
+  margin-left: 2em;
+  margin-bottom: 0.5em;
+  width: 650px;
+}
+
+div.frow {
+  clear: both;
+  padding-top: 10px;
+}
+
+div.frow span.flabel {
+  float: left;
+  width: 100px;
+  text-align: right;
+}
+
+div.frow span.finput {
+  float: right;
+  width: 500px;
+  text-align: left;
+}
+
+.changepw {
+  margin-left: 2em;
+  margin-bottom: 0.5em;
+  width: 600px;
+}
+
+.register {
+  margin-left: 2em;
+  margin-bottom: 0.5em;
+  width: 600px;
+}
+
+.profile {
+  margin-left: 1em;
+  margin-bottom: 0.5em;
+  width: 400px;
+}
+
+div.rrow {
+  clear: both;
+  padding-top: 10px;
+}
+
+div.rrow span.flabel {
+  float: left;
+  width: 200px;
+  text-align: right;
+}
+
+div.rrow span.finput {
+  float: right;
+  width: 350px;
+  text-align: left;
+}
+
+div.lrow {
+  clear: both;
+  padding-top: 10px;
+}
+
+div.lrow span.flabel {
+  float: left;
+  width: 100px;
+  text-align: left;
+}
+
+div.lrow span.finput {
+  float: right;
+  width: 250px;
+  text-align: left;
+}
