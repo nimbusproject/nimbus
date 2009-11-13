@@ -39,12 +39,15 @@ public class ElasticService implements ElasticVersion {
     public ElasticService() {
         // terrible things
         final ElasticAction[] actions = new ElasticAction[]{
-                new DeleteKeyPair(), new DescribeKeyPairs()
+                new CreateKeyPair(), new DeleteKeyPair(), new DescribeKeyPairs(),
+                new RunInstances(), new RebootInstances(), new DescribeInstances(),
+                new TerminateInstances(), new DescribeImages(),
+                new DescribeAvailabilityZones()
         };
         actionMap = new HashMap<String, ElasticAction>(actions.length);
-            for (ElasticAction action : actions) {
-                actionMap.put(action.getName(), action);
-            }
+        for (ElasticAction action : actions) {
+            actionMap.put(action.getName(), action);
+        }
     }
 
     @Path("/")
@@ -59,9 +62,9 @@ public class ElasticService implements ElasticVersion {
     }
 
 
-    // using inner classes instead of methods for this becase JAX-RS doesn't
+    // using inner classes instead of methods for this because JAX-RS doesn't
     // provide direct support for routing based on query parameters. I think
-    // it is worth the inelegance tradeoff, but we'll see.
+    // it is worth the inelegance trade-off, but we'll see.
 
 
     public class CreateKeyPair implements ElasticAction {
@@ -123,7 +126,6 @@ public class ElasticService implements ElasticVersion {
             }
         }
     }
-
 
     public class RunInstances implements ElasticAction {
         public String getName() {
@@ -229,7 +231,6 @@ public class ElasticService implements ElasticVersion {
             }
         }
     }
-
 
     public class TerminateInstances implements ElasticAction {
         public String getName() {

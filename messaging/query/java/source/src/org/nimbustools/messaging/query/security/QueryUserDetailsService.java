@@ -22,4 +22,7 @@ import org.springframework.dao.DataAccessException;
 public interface QueryUserDetailsService extends UserDetailsService {
     QueryUser loadUserByUsername(String username)
         throws UsernameNotFoundException, DataAccessException;
+
+    QueryUser loadUserByDn(String dn)
+            throws UsernameNotFoundException, DataAccessException;
 }

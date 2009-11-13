@@ -56,7 +56,7 @@ public class ElasticQuery {
         final ElasticVersion theVersion = versions.get(version);
 
         if (theVersion == null) {
-            throw new WebApplicationException(500);
+            throw new QueryException(QueryError.NoSuchVersion);
         }
 
         return theVersion;
