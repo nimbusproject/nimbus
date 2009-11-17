@@ -22,6 +22,9 @@
     <property name="elastic.conf.dir"
               value="${base.conf.dir}/elastic" />
 
+    <property name="query.conf.dir"
+              value="${base.conf.dir}/query" />
+
     <property name="workspace.persistence.dir"
               value="${deploy.dir}/var/${base.package.name}" />
 
@@ -67,11 +70,25 @@
     <property name="wproperties2.tmp"
               location="${workspace.conf.dir}/other/common.conf.tmp"/>
 
+    <property name="qproperties.path"
+              location="${query.conf.dir}/other/main.conflocator.xml"/>
+
+    <property name="qproperties.tmp"
+              location="${query.conf.dir}/other/main.conflocator.xml.tmp"/>
+
+    <property name="qproperties2.path"
+              location="${query.conf.dir}/query.conf"/>
+
+    <property name="qproperties2.tmp"
+              location="${query.conf.dir}/query.conf.tmp"/>
+
     <filterset id="absPathFilter">
         <filter token="WORKSPACE_CONFDIR"
                 value="${workspace.conf.dir}"/>
         <filter token="ELASTIC_CONFDIR"
                 value="${elastic.conf.dir}"/>
+        <filter token="QUERY_CONFDIR"
+                value="${query.conf.dir}"/>
         <filter token="WORKSPACE_PERSISTENCEDIR"
                 value="${workspace.persistence.dir}"/>
         <filter token="DERBY_DIR"
@@ -112,7 +129,8 @@
 
     <target name="setup"
             depends="adjust-wproperties, adjust-eproperties,
-                     adjust-wproperties2, adjust-jndi,
+                     adjust-wproperties2, adjust-qproperties,
+                     adjust-qproperties2, adjust-jndi,
                      chmodprivate, chmodexes, setupWorkspacePersistence" />
 
 
@@ -155,11 +173,14 @@
             </fileset>
         </chmod>
 
+        <!--
+        this is broke?
         <chmod perm="755">
             <fileset dir="${netdbsetup.dir}">
                 <include name="*.sh"/>
             </fileset>
         </chmod>
+        -->
     </target>
 
     <target name="chmodprivate">
@@ -206,6 +227,26 @@
               overwrite="true" />
         <delete file="${wproperties2.tmp}"/>
         <echo message="Adjusted workspace common.conf paths"/>
+    </target>
+
+    <target name="adjust-qproperties">
+        <copy file="${qproperties.path}" toFile="${qproperties.tmp}">
+            <filterset refid="absPathFilter"/>
+        </copy>
+        <copy file="${qproperties.tmp}" toFile="${qproperties.path}"
+              overwrite="true" />
+        <delete file="${qproperties.tmp}"/>
+        <echo message="Adjusted query conf-locator paths"/>
+    </target>
+
+    <target name="adjust-qproperties2">
+        <copy file="${qproperties2.path}" toFile="${qproperties2.tmp}">
+            <filterset refid="absPathFilter"/>
+        </copy>
+        <copy file="${qproperties2.tmp}" toFile="${qproperties2.path}"
+              overwrite="true" />
+        <delete file="${qproperties2.tmp}"/>
+        <echo message="Adjusted query.conf paths"/>
     </target>
 
 </project>

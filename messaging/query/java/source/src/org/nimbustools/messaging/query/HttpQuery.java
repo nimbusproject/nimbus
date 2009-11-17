@@ -19,7 +19,6 @@ import org.apache.cxf.transport.servlet.CXFServlet;
 import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.Server;
-import org.mortbay.jetty.nio.SelectChannelConnector;
 import org.mortbay.jetty.security.SslSocketConnector;
 import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.FilterHolder;
@@ -33,6 +32,7 @@ import java.util.Map;
 
 public class HttpQuery {
 
+    private boolean enabled;
     private int port;
     private String springConfig;
     private Server server;
@@ -40,6 +40,10 @@ public class HttpQuery {
     private String keystorePassword;
 
     public synchronized void startListening() throws Exception {
+
+        if (!enabled) {
+            return;
+        }
 
         if (port <= 0) {
              throw new IllegalStateException("port is invalid");
@@ -85,6 +89,14 @@ public class HttpQuery {
         webappcontext.setContextPath("/");
         server.start();
         server.join();
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
     public int getPort() {

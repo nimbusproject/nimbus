@@ -42,4 +42,10 @@
         <property name="placeholderPrefix" value="$OTHER_ELASTIC{" />
     </bean>
 
+     <bean id="querySettings"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="location" value="/@QUERY_CONFDIR@/query.conf" />
+        <property name="placeholderPrefix" value="$QUERY{" />
+    </bean>
+
 </beans>

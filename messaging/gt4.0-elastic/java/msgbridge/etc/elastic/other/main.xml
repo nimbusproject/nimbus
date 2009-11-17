@@ -195,6 +195,18 @@
         <property name="idAuthz" value="$ELASTIC{repository.idauthz}" />
 
     </bean>
+    
+    <bean id="nimbus-query.httpserver" 
+          class="org.nimbustools.messaging.query.HttpQuery" 
+          init-method="startListening">
+        
+        <property name="enabled" value="$QUERY{https.enabled}"/>
+        <property name="port" value="$QUERY{https.port}" />
+        <property name="keystoreLocation" value="$QUERY{keystore.path}"/>
+        <property name="keystorePassword" value="$QUERY{keystore.password}"/>
+        <property name="springConfig" value="$QUERY{query.spring.path}"/>
+
+    </bean>
 
 
     <!--
