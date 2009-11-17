@@ -16,7 +16,7 @@
 package org.nimbustools.messaging.query.v2009_08_15;
 
 import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.*;
-import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.service.DelegatingService;
+import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.*;
 import org.nimbustools.messaging.query.*;
 import static org.nimbustools.messaging.query.QueryUtils.*;
 
@@ -32,11 +32,34 @@ import java.util.List;
 
 public class ElasticService implements ElasticVersion {
 
-    DelegatingService service;
+    final ServiceRM serviceRM;
+    final ServiceGeneral serviceGeneral;
+    final ServiceImage serviceImage;
+    final ServiceSecurity serviceSecurity;
 
     final HashMap<String, ElasticAction> actionMap;
 
-    public ElasticService() {
+    public ElasticService(ServiceRM serviceRM, ServiceGeneral serviceGeneral,
+                          ServiceImage serviceImage, ServiceSecurity serviceSecurity) {
+
+        if (serviceRM == null) {
+            throw new IllegalArgumentException("serviceRM may not be null");
+        }
+        if (serviceGeneral == null) {
+            throw new IllegalArgumentException("serviceGeneral may not be null");
+        }
+        if (serviceImage == null) {
+            throw new IllegalArgumentException("serviceImage may not be null");
+        }
+        if (serviceSecurity == null) {
+            throw new IllegalArgumentException("serviceSecurity may not be null");
+        }
+
+        this.serviceRM = serviceRM;
+        this.serviceGeneral = serviceGeneral;
+        this.serviceImage = serviceImage;
+        this.serviceSecurity = serviceSecurity;
+
         // terrible things
         final ElasticAction[] actions = new ElasticAction[]{
                 new CreateKeyPair(), new DeleteKeyPair(), new DescribeKeyPairs(),
@@ -79,7 +102,7 @@ public class ElasticService implements ElasticVersion {
             final CreateKeyPairType createKeyPairType = new CreateKeyPairType(keyName);
 
             try {
-                return service.createKeyPair(createKeyPairType);
+                return serviceSecurity.createKeyPair(createKeyPairType);
             } catch (RemoteException e) {
                 throw new QueryException(QueryError.GeneralError, e);
             }
@@ -95,13 +118,15 @@ public class ElasticService implements ElasticVersion {
         public DeleteKeyPairResponseType handle(@QueryParam("KeyName") String keyName) {
             assureRequiredParameter("KeyName", keyName);
 
-            final DeleteKeyPairType deleteKeyPairType = new DeleteKeyPairType(keyName);
+            return new DeleteKeyPairResponseType(true, null);
 
-            try {
-                return service.deleteKeyPair(deleteKeyPairType);
-            } catch (RemoteException e) {
-                throw new QueryException(QueryError.GeneralError, e);
-            }
+//            final DeleteKeyPairType deleteKeyPairType = new DeleteKeyPairType(keyName);
+//
+//            try {
+//                return serviceSecurity.deleteKeyPair(deleteKeyPairType);
+//            } catch (RemoteException e) {
+//                throw new QueryException(QueryError.GeneralError, e);
+//            }
         }
     }
 
@@ -120,7 +145,7 @@ public class ElasticService implements ElasticVersion {
             final DescribeKeyPairsInfoType keySet = new DescribeKeyPairsInfoType(keys);
 
             try {
-                return service.describeKeyPairs(new DescribeKeyPairsType(keySet));
+                return serviceSecurity.describeKeyPairs(new DescribeKeyPairsType(keySet));
             } catch (RemoteException e) {
                 throw new QueryException(QueryError.GeneralError, e);
             }
@@ -159,7 +184,7 @@ public class ElasticService implements ElasticVersion {
             request.setInstanceType(instanceType);
 
             try {
-                return service.runInstances(request);
+                return serviceRM.runInstances(request);
 
             } catch (RemoteException e) {
                 throw new QueryException(QueryError.GeneralError, e);
@@ -194,7 +219,7 @@ public class ElasticService implements ElasticVersion {
             final RebootInstancesType request = new RebootInstancesType(info);
 
             try {
-                return service.rebootInstances(request);
+                return serviceRM.rebootInstances(request);
 
             } catch (RemoteException e) {
                 throw new QueryException(QueryError.GeneralError, e);
@@ -224,7 +249,7 @@ public class ElasticService implements ElasticVersion {
             final DescribeInstancesType request = new DescribeInstancesType(info);
 
             try {
-                return service.describeInstances(request);
+                return serviceRM.describeInstances(request);
 
             } catch (RemoteException e) {
                 throw new QueryException(QueryError.GeneralError, e);
@@ -260,7 +285,7 @@ public class ElasticService implements ElasticVersion {
             final TerminateInstancesType request = new TerminateInstancesType(info);
 
             try {
-                return service.terminateInstances(request);
+                return serviceRM.terminateInstances(request);
 
             } catch (RemoteException e) {
                 throw new QueryException(QueryError.GeneralError, e);
@@ -311,7 +336,7 @@ public class ElasticService implements ElasticVersion {
             }
 
             try {
-                return service.describeImages(request);
+                return serviceImage.describeImages(request);
 
             } catch (RemoteException e) {
                 throw new QueryException(QueryError.GeneralError, e);
@@ -342,7 +367,7 @@ public class ElasticService implements ElasticVersion {
             }
 
             try {
-                return service.describeAvailabilityZones(request);
+                return serviceGeneral.describeAvailabilityZones(request);
 
             } catch (RemoteException e) {
                 throw new QueryException(QueryError.GeneralError, e);

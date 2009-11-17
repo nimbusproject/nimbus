@@ -16,6 +16,7 @@
 package org.nimbustools.messaging.query.security;
 
 import org.nimbustools.api._repr._Caller;
+import org.nimbustools.api.brain.ModuleLocator;
 import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.CannotTranslateException;
 import org.nimbustools.api.repr.ReprFactory;
@@ -33,11 +34,14 @@ public class QueryContainerInterface implements ContainerInterface {
     private final ReprFactory repr;
     private final QueryUserDetailsService userDetailsService;
 
-    public QueryContainerInterface(ReprFactory repr, QueryUserDetailsService userDetailsService) {
-        if (repr == null) {
-            throw new IllegalArgumentException("repr may not be null");
+    public QueryContainerInterface(ModuleLocator locator, QueryUserDetailsService userDetailsService) {
+        if (locator == null) {
+            throw new IllegalArgumentException("locator may not be null");
         }
-        this.repr = repr;
+        this.repr = locator.getReprFactory();
+        if (this.repr == null) {
+            throw new IllegalArgumentException("locator has null reprFactory");
+        }
 
         if (userDetailsService == null) {
             throw new IllegalArgumentException("userDetailsService may not be null");
