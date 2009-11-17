@@ -24,27 +24,27 @@
 
         <!-- grab some shared settings from the workspace-service common.conf file,
              will have to adjust for other deployment scenarios -->
-        <property name="location" value="/@WORKSPACE_CONFDIR@/other/common.conf" />
+        <property name="location" value="file://@WORKSPACE_CONFDIR@/other/common.conf" />
         <property name="placeholderPrefix" value="$COMMON{" />
     </bean>
 
     <bean id="elasticSettings"
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 
-        <property name="location" value="/@ELASTIC_CONFDIR@/elastic.conf" />
+        <property name="location" value="file://@ELASTIC_CONFDIR@/elastic.conf" />
         <property name="placeholderPrefix" value="$ELASTIC{" />
     </bean>
 
     <bean id="otherElasticSettings"
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 
-        <property name="location" value="/@ELASTIC_CONFDIR@/other/other-elastic.conf" />
+        <property name="location" value="file://@ELASTIC_CONFDIR@/other/other-elastic.conf" />
         <property name="placeholderPrefix" value="$OTHER_ELASTIC{" />
     </bean>
 
     <bean id="querySettings"
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-        <property name="location" value="/@QUERY_CONFDIR@/query.conf" />
+        <property name="location" value="file://@QUERY_CONFDIR@/query.conf" />
         <property name="placeholderPrefix" value="$QUERY{" />
     </bean>
 
