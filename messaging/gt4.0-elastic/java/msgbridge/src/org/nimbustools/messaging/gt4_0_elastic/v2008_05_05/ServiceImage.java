@@ -16,20 +16,7 @@
 
 package org.nimbustools.messaging.gt4_0_elastic.v2008_05_05;
 
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.RegisterImageResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.RegisterImageType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DeregisterImageResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DeregisterImageType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeImagesResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeImagesType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.ModifyImageAttributeResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.ModifyImageAttributeType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.ResetImageAttributeResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.ResetImageAttributeType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeImageAttributeResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeImageAttributeType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.ConfirmProductInstanceResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.ConfirmProductInstanceType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.*;
 
 import java.rmi.RemoteException;
 
@@ -65,5 +52,17 @@ public interface ServiceImage {
 
     public ConfirmProductInstanceResponseType confirmProductInstance(
                         ConfirmProductInstanceType confirmProductInstanceRequestMsg)
+            throws RemoteException;
+
+    public BundleInstanceResponseType bundleInstance(
+            BundleInstanceType bundleInstanceRequestMsg)
+            throws RemoteException;
+
+    public DescribeBundleTasksResponseType describeBundleTasks(
+            DescribeBundleTasksType describeBundleTasksRequestMsg)
+            throws RemoteException;
+
+    public CancelBundleTaskResponseType cancelBundleTask(
+            CancelBundleTaskType cancelBundleTaskRequestMsg)
             throws RemoteException;
 }

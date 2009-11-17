@@ -101,6 +101,23 @@ public class UnimplementedOperations implements ServiceAll {
         throw new RemoteException(UNIMPLEMENTED + "confirmProductInstance");
     }
 
+    public BundleInstanceResponseType bundleInstance(
+            BundleInstanceType bundleInstanceRequestMsg)
+        throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "bundleInstance");
+    }
+
+    public DescribeBundleTasksResponseType describeBundleTasks(
+            DescribeBundleTasksType describeBundleTasksRequestMsg)
+        throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "describeBundleTasks");
+    }
+
+    public CancelBundleTaskResponseType cancelBundleTask(
+            CancelBundleTaskType cancelBundleTaskRequestMsg)
+        throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "cancelBundleTask");
+    }
 
     // -------------------------------------------------------------------------
     // SECURITY RELATED
@@ -200,11 +217,24 @@ public class UnimplementedOperations implements ServiceAll {
         throw new RemoteException(UNIMPLEMENTED + "getConsoleOutput");
     }
 
+    public GetPasswordDataResponseType getPasswordData(
+            GetPasswordDataType getPasswordRequestMsg) throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "getPasswordData");
+    }
+
     public DescribeAvailabilityZonesResponseType describeAvailabilityZones(
                         DescribeAvailabilityZonesType describeAvailabilityZonesRequestMsg)
             throws RemoteException {
         throw new RemoteException(UNIMPLEMENTED + "describeAvailabilityZones");
     }
+
+    public DescribeRegionsResponseType describeRegions(
+                        DescribeRegionsType describeRegionsRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "describeRegions");
+    }
+
+
 
 
     // -------------------------------------------------------------------------
@@ -258,4 +288,179 @@ public class UnimplementedOperations implements ServiceAll {
             throws RemoteException {
         throw new RemoteException(UNIMPLEMENTED + "describeSnapshots");
     }
+    
+    public ModifySnapshotAttributeResponseType modifySnapshotAttribute(
+                ModifySnapshotAttributeType modifySnapshotAttributeRequestMsgReq)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "modifySnapshotAttribute");
+    }
+    
+    public ResetSnapshotAttributeResponseType resetSnapshotAttribute(
+                ResetSnapshotAttributeType resetSnapshotAttributeRequestMsgReq)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "resetSnapshotAttribute");
+    }
+    
+    public DescribeSnapshotAttributeResponseType describeSnapshotAttribute(
+                DescribeSnapshotAttributeType describeSnapshotAttributeRequestMsgReq)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "describeSnapshotAttribute");
+    }
+
+    public DescribeReservedInstancesOfferingsResponseType describeReservedInstancesOfferings(
+            DescribeReservedInstancesOfferingsType describeReservedInstancesOfferingsRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "describeReservedInstancesOfferings");
+    }
+
+    public PurchaseReservedInstancesOfferingResponseType purchaseReservedInstancesOffering(
+            PurchaseReservedInstancesOfferingType purchaseReservedInstancesOfferingRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "purchaseReservedInstancesOffering");
+    }
+
+    public DescribeReservedInstancesResponseType describeReservedInstances(
+            DescribeReservedInstancesType describeReservedInstancesRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "describeReservedInstances");
+    }
+
+    public MonitorInstancesResponseType monitorInstances(
+            MonitorInstancesType monitorInstancesRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "monitorInstances");
+    }
+
+    public MonitorInstancesResponseType unmonitorInstances(
+            MonitorInstancesType unmonitorInstancesRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "unmonitorInstances");
+    }
+
+    public CreateCustomerGatewayResponseType createCustomerGateway(
+            CreateCustomerGatewayType createCustomerGatewayRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "createCustomerGateway");
+    }
+
+    public DeleteCustomerGatewayResponseType deleteCustomerGateway(
+            DeleteCustomerGatewayType deleteCustomerGatewayRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "deleteCustomerGateway");
+    }
+
+    public DescribeCustomerGatewaysResponseType describeCustomerGateways(
+            DescribeCustomerGatewaysType describeCustomerGatewaysRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "describeCustomerGateways");
+    }
+
+    public CreateVpnGatewayResponseType createVpnGateway(
+            CreateVpnGatewayType createVpnGatewayRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "createVpnGateway");
+    }
+
+    public DeleteVpnGatewayResponseType deleteVpnGateway(
+            DeleteVpnGatewayType deleteVpnGatewayRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "deleteVpnGateway");
+    }
+
+    public DescribeVpnGatewaysResponseType describeVpnGateways(
+            DescribeVpnGatewaysType describeVpnGatewaysRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "describeVpnGateways");
+    }
+
+    public CreateVpnConnectionResponseType createVpnConnection(
+            CreateVpnConnectionType createVpnConnectionRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "createVpnConnection");
+    }
+
+    public DeleteVpnConnectionResponseType deleteVpnConnection(
+            DeleteVpnConnectionType deleteVpnConnectionRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "deleteVpnConnection");
+    }
+
+    public DescribeVpnConnectionsResponseType describeVpnConnections(
+            DescribeVpnConnectionsType describeVpnConnectionsRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "describeVpnConnections");
+    }
+
+    public AttachVpnGatewayResponseType attachVpnGateway(
+            AttachVpnGatewayType attachVpnGatewayRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "attachVpnGateway");
+    }
+
+    public DetachVpnGatewayResponseType detachVpnGateway(
+            DetachVpnGatewayType detachVpnGatewayRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "detachVpnGateway");
+    }
+
+    public CreateVpcResponseType createVpc(
+            CreateVpcType createVpcRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "createVpc");
+    }
+
+    public DeleteVpcResponseType deleteVpc(
+            DeleteVpcType deleteVpcRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "deleteVpc");
+    }
+
+    public DescribeVpcsResponseType describeVpcs(
+            DescribeVpcsType describeVpcsRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "describeVpcs");
+    }
+
+    public CreateSubnetResponseType createSubnet(
+            CreateSubnetType createSubnetRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "createSubnet");
+    }
+
+    public DeleteSubnetResponseType deleteSubnet(
+            DeleteSubnetType deleteSubnetRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "deleteSubnet");
+    }
+
+    public DescribeSubnetsResponseType describeSubnets(
+            DescribeSubnetsType describeSubnetsRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "describeSubnets");
+    }
+
+    public CreateDhcpOptionsResponseType createDhcpOptions(
+            CreateDhcpOptionsType createDhcpOptionsRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "createDhcpOptions");
+    }
+
+    public DescribeDhcpOptionsResponseType describeDhcpOptions(
+            DescribeDhcpOptionsType describeDhcpOptionsRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "describeDhcpOptions");
+    }
+
+    public DeleteDhcpOptionsResponseType deleteDhcpOptions(
+            DeleteDhcpOptionsType deleteDhcpOptionsRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "deleteDhcpOptions");
+    }
+
+    public AssociateDhcpOptionsResponseType associateDhcpOptions(
+            AssociateDhcpOptionsType associateDhcpOptionsRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "associateDhcpOptions");
+    }
+
 }

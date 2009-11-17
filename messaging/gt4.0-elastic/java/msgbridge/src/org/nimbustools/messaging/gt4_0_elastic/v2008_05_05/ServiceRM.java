@@ -41,4 +41,12 @@ public interface ServiceRM {
     public DescribeInstancesResponseType describeInstances(
                         DescribeInstancesType describeInstancesRequestMsg)
             throws RemoteException;
+
+    public MonitorInstancesResponseType monitorInstances(
+            MonitorInstancesType monitorInstancesRequestMsg)
+            throws RemoteException;
+
+    public MonitorInstancesResponseType unmonitorInstances(
+            MonitorInstancesType unmonitorInstancesRequestMsg)
+            throws RemoteException;
 }
