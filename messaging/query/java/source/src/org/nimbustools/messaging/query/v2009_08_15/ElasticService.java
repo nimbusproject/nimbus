@@ -118,15 +118,13 @@ public class ElasticService implements ElasticVersion {
         public DeleteKeyPairResponseType handle(@QueryParam("KeyName") String keyName) {
             assureRequiredParameter("KeyName", keyName);
 
-            return new DeleteKeyPairResponseType(true, null);
+            final DeleteKeyPairType deleteKeyPairType = new DeleteKeyPairType(keyName);
 
-//            final DeleteKeyPairType deleteKeyPairType = new DeleteKeyPairType(keyName);
-//
-//            try {
-//                return serviceSecurity.deleteKeyPair(deleteKeyPairType);
-//            } catch (RemoteException e) {
-//                throw new QueryException(QueryError.GeneralError, e);
-//            }
+            try {
+                return serviceSecurity.deleteKeyPair(deleteKeyPairType);
+            } catch (RemoteException e) {
+                throw new QueryException(QueryError.GeneralError, e);
+            }
         }
     }
 
