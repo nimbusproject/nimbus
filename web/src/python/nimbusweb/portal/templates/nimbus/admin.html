@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block title %}User Administration{% endblock title %}
+
+{% block content %}
+
+    <div class="section">
+    
+        <h1>Create a new user</h1>
+        <p>
+            You need to provide details here and then deliver the generated URL in an email from yourself to the intended user.
+        </p>
+        <p>
+            The user will use the URL to initially log in, choose a password, and retrieve the new credential.
+        </p>
+        
+        {% if newuserform.errors %}
+            <p class="formerror">
+                Please correct the error{{ newuserform.errors|pluralize }} below.
+            </p>
+        {% endif %}
+        
+        <div class="newuser">
+            <form action="" method="post" enctype="multipart/form-data">
+                <div class="frow">
+                    <label for="id_username" class="flabel">Username:</label>
+                    <span class="finput">
+                    {{ newuserform.username }}
+                    </span>
+                    {{ newuserform.username.errors }}
+                </div>
+                
+                <div class="frow">
+                    <label for="id_firstname" class="flabel">First name:</label>
+                    <span class="finput">
+                    {{ newuserform.firstname }}
+                    </span>
+                    {{ newuserform.firstname.errors }}
+                </div>
+                
+                <div class="frow">
+                    <label for="id_lastname" class="flabel">Last name:</label>
+                    <span class="finput">
+                    {{ newuserform.lastname }}
+                    </span>
+                    {{ newuserform.lastname.errors }}
+                </div>
+                
+                <div class="frow">
+                    <label for="id_email" class="flabel">Email:</label>
+                    <span class="finput">
+                    {{ newuserform.email }}
+                    </span>
+                    {{ newuserform.email.errors }}
+                </div>
+                
+                <div class="frow">
+                    <label for="id_cert" class="flabel">Cert .pem:</label>
+                    <span class="finput">
+                    {{ newuserform.cert }} (not required)
+                    </span>
+                    {{ newuserform.cert.errors }}
+                </div>
+                
+                <div class="frow">
+                    <label for="id_key" class="flabel">Key .pem:</label>
+                    <span class="finput">
+                    {{ newuserform.key }} (not required)
+                    </span>
+                    {{ newuserform.key.errors }}
+                </div>
+                
+                <div class="frow">
+                    <input type="hidden" name="op" value="newuser">
+                    <input type="submit" value="Create User">
+                </div>
+            </form>
+        </div>
+    </div>
+        
+    <div class="section">
+    
+        <h1>Pending users</h1>
+        
+        <p>
+            Pending users are those that have been issued accounts but have not logged in yet.
+        </p>
+        
+        {% if pendingusers %}
+        <table class="userlists">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Token expires at...</th>
+                    <th>Token expires in...</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for puser in pendingusers %}
+                <tr>
+                    <td>{{ puser.user.username }}</td>
+                    <td>{{ puser.date }}</td>
+                    <td>{{ puser.expiresin }}</td>
+                </tr>
+            {% endfor %}
+            <tbody>
+        </table>
+        {% else %}
+        <ul><li>There are no pending users.</li></ul>
+        {% endif %}
+        
+    </div>
+        
+    <div class="section">
+        
+        <h1>Current users</h1>
+        <p>
+            Currently, you can only edit the current users from the Django built-in
+            <a href="/admin/">administration application</a>.
+        </p>
+        
+        <p>
+            Below is a list of the most recent initial logins, i.e., when the user clicked on the URL you mailed, the IP address used, etc.
+        </p>
+        
+        {% if recentusers %}
+        <table class="userlists">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Used token at...</th>
+                    <th>Active user for...</th>
+                    <th>Token use IP</th>
+                    <th>Retrieved key at...</th>
+                    <th>Key retrieval IP</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for ruser in recentusers %}
+                <tr>
+                    <td>{{ ruser.user.username }}</td>
+                    
+                    <td>{{ ruser.logindate }}</td>
+                    
+                    {% if ruser.activefor %}
+                    <td>{{ ruser.activefor }}</td>
+                    {% else %}
+                    <td>n/a</td>
+                    {% endif %}
+                    
+                    {% if ruser.regflag %}
+                    <td><span class="keyflag">Did not finish registration</span></td>
+                    {% else %}
+                        {% if ruser.regip %}
+                        <td>{{ ruser.regip }}</td>
+                        {% else %}
+                        <td>n/a</td>
+                        {% endif %}
+                    {% endif %}
+                    
+                    {% if ruser.keyflag %}
+                    <td><span class="keyflag">Key present in DB</span></td>
+                    <td>n/a</td>
+                    {% else %}
+                        {% if ruser.keydate %}
+                        <td>{{ ruser.keydate }}</td>
+                        <td>{{ ruser.keyip }}</td>
+                        {% else %}
+                        <td>n/a</td>
+                        <td>n/a</td>
+                        {% endif %}
+                    
+                    {% endif %}
+                </tr>
+            {% endfor %}
+            <tbody>
+        </table>
+        {% else %}
+        <ul><li>There are no recent users.</li></ul>
+        {% endif %}
+    </div>
+
+{% endblock content %}

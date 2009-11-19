@@ -1,0 +1,52 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	
+	<title>Nimbus: {% block title %}A page{% endblock %}</title>
+	
+	<!--[if !IE]><!-->
+		<link rel="stylesheet" type="text/css" href="/static/base.css" />
+	<!--<![endif]-->
+	
+	<!--[if gte IE 7]>
+		<link rel="stylesheet" type="text/css" href="/static/base.css" media="screen, projection" />
+	<![endif]-->
+	
+	<!--[if IE 6]>
+		<link rel="stylesheet" type="text/css" href="/static/ie6.0.3.css" media="screen, projection" />
+	<![endif]-->
+</head>
+
+<body id="home">
+
+    <header>
+        <a id="logo" href="/nimbus">Home</a>
+    </header>
+    
+    <hr id="headerborder">
+    
+    {% if flash_msg %}
+        <div style="float: left; width: 56px;"><img src="/static/err.png" /></div>
+        <p id="flash_msg">{{ flash_msg }}</p>
+    {% endif %}
+    
+    {% if ok_flash_msg %}
+        <div style="float: left; width: 56px;"><img src="/static/checks.jpg" /></div>
+        <p id="ok_flash_msg">{{ ok_flash_msg }}</p>
+    {% endif %}
+    
+    {% block content %}
+    <p>Hello.  You should not be seeing this text.</p>
+    {% endblock %}
+    
+    <footer class="container">
+    
+    </footer>
+    
+    <!-- JS link will go here -->
+    
+</body>
+
+</html>

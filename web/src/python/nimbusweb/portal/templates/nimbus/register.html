@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+
+    <h1>Registration</h1>
+
+    <p>
+        Your <b>username</b> is '{{ user.username }}'
+    </p>
+    
+    <p>Choose a <b>password</b> with 12 characters or more:</p>
+    
+    <div class="register">
+    <form action="" method="post">
+    
+        <div class="rrow">
+            <span class="flabel">New password:</span>
+            <span class="finput">
+                <input type="password" name="new_password1">
+            </span>
+        </div>
+            
+        <div class="rrow">
+            <span class="flabel">Confirm password:</span>
+            <span class="finput">
+                <input type="password" name="new_password2">
+            </span>
+        </div>
+        
+        <br>
+        <br>
+        
+        <p>
+            <b>Warning:</b> You will need to know your username and password
+            after you submit this, in order to login.
+        </p>
+        
+        <div class="rrow">
+            <input type="submit" value="Choose password">
+        </div>
+    </form>
+    </div>
+    
+    
+
+{% endblock %}

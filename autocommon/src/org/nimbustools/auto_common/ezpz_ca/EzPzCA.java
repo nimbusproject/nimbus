@@ -47,7 +47,7 @@ import java.io.ByteArrayInputStream;
 
 public class EzPzCA {
 
-    private static final String replaceToken = "CN=XXXXX";
+    public static final String replaceToken = "CN=XXXXX";
 
     private final KeyPairGenerator kpGen;
     private final X509V3CertificateGenerator certGen;
@@ -103,8 +103,21 @@ public class EzPzCA {
 
         this.initializeGenerator();
 
-        final X500Principal subjectDN = caCert.getSubjectX500Principal();
+        this.targetString = deriveSigningTargetString(caCert);
 
+		final X500Principal subjectDN = caCert.getSubjectX500Principal();
+		final String targetBase = subjectDN.getName(X500Principal.RFC2253);
+		
+        final String msg = "Initialized certificate authority with subject " +
+                         "DN (RFC2253) = '" + targetBase + "' " +
+                         "and Globus style DN = '" + globusCADN + "'. " +
+                         "New DNs will look like this (RFC2253): '" +
+                         this.targetString + "'";
+    }
+
+	public static String deriveSigningTargetString(X509Certificate caCert) throws CertificateException {
+		
+		final X500Principal subjectDN = caCert.getSubjectX500Principal();
         final String targetBase = subjectDN.getName(X500Principal.RFC2253);
 
         final String[] parts = targetBase.split(",");
@@ -135,14 +148,8 @@ public class EzPzCA {
                                                  "than one CN");
         }
 
-        this.targetString = target;
-
-        final String msg = "Initialized certificate authority with subject " +
-                         "DN (RFC2253) = '" + targetBase + "' " +
-                         "and Globus style DN = '" + globusCADN + "'. " +
-                         "New DNs will look like this (RFC2253): '" +
-                         this.targetString + "'";
-    }
+		return target;
+	}
 
     protected KeyPair createNewKeyPair() {
         return kpGen.generateKeyPair();
@@ -182,8 +189,13 @@ public class EzPzCA {
     }
 
     private String getTargetDN(String cnString) {
-        return targetString.replaceAll(replaceToken, "CN=" + cnString);
+		return getTargetDNfromSchema(this.targetString, "CN=" + cnString);
     }
+
+	// can only use this if you used deriveSigningTargetString
+	public static String getTargetDNfromSchema(String targetStr, String finalString) {
+		return targetStr.replaceAll(replaceToken, finalString);
+	}
 
     private void initializeGenerator() {
         this.certGen.reset();

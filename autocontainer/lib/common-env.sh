@@ -90,6 +90,9 @@ export EXE_CREATE_NEW_CA
 EXE_CREATE_NEW_CERT="org.nimbustools.auto_common.ezpz_ca.GenerateNewCert"
 export EXE_CREATE_NEW_CERT
 
+EXE_WRITE_SIGNING_POLICY="org.nimbustools.auto_common.ezpz_ca.SigningPolicy"
+export EXE_WRITE_SIGNING_POLICY
+
 EXE_FIND_CA_PUBPEM="org.nimbustools.auto_common.ezpz_ca.FindCAPubFile"
 EXE_FIND_CA_PRIVPEM="org.nimbustools.auto_common.ezpz_ca.FindCAPrivFile"
 export EXE_FIND_CA_PUBPEM EXE_FIND_CA_PRIVPEM

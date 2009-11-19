@@ -153,6 +153,39 @@
 
     </target>
 
+    <!-- ==== Special distribution targets =========================== -->
+
+    <target name="web-autocommon">
+
+        <ant dir="${nimbus.basedir}/autocommon" target="clean"/>
+        <ant dir="${nimbus.basedir}/autocommon" target="dist"/>
+
+        <mkdir dir="${nimbus.web.autocommon.distbuild.dir}"/>
+        <mkdir dir="${nimbus.web.autocommon.distbuild.dir}/nimbus-autocommon"/>
+
+        <copy todir="${nimbus.web.autocommon.distbuild.dir}/nimbus-autocommon">
+            <fileset dir="${nimbus.basedir}/autocommon"/>
+        </copy>
+
+        <patternset id="autocommon-src-fileset">
+            <include name="nimbus-autocommon/**"/>
+        </patternset>
+
+        <fixcrlf srcdir="${nimbus.web.autocommon.distbuild.dir}/nimbus-autocommon" includes="**/*.java"
+               tab="remove" tablength="4" eol="lf" javafiles="yes"/>
+
+        <tar destfile="${nimbus.web.autocommon.distbuild.dir}/nimbus-autocommon.tar" longfile="gnu">
+            <tarfileset dir="${nimbus.web.autocommon.distbuild.dir}">
+                <patternset refid="autocommon-src-fileset"/>
+            </tarfileset>
+        </tar>
+
+        <gzip src="${nimbus.web.autocommon.distbuild.dir}/nimbus-autocommon.tar"
+              destfile="${nimbus.basedir}/web/lib/nimbus-autocommon.tar.gz"/>
+
+        <delete dir="${nimbus.web.autocommon.distbuild.dir}"/>
+    </target>
+
     
     <!-- ==== Binary distribution targets =========================== -->
 

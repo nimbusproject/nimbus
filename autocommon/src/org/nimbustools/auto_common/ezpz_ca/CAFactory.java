@@ -60,7 +60,7 @@ public class CAFactory {
                                   KeyPair keyPair) throws Exception {
 
         final X509Principal newprincipal =
-                new X509Principal("C=" + baseName + ",CN=CA");
+                new X509Principal("O=Auto,OU=" + baseName + ",CN=CA");
         
         this.certGen.reset();
 
