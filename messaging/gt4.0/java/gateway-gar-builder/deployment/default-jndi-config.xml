@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jndiConfig xmlns="http://wsrf.globus.org/jndi/config">
+
+    <!-- ===================================================================
+
+         You should not need to change anything below.
+
+         =================================================================== -->
+
+    <service name="NimbusEC2GatewayContext">
+
+        <!-- The RM system (Nimbus RM API implementation that talks to EC2) -->
+        <resource name="masterContext"
+                  type="org.nimbustools.messaging.gt4_0.common.GatewayMasterContext">
+
+            <resourceParams>
+                <parameter>
+                    <name>masterConf</name>
+                    <value>@EC2CLIENT_CONFDIR@/other/main.xml</value>
+                </parameter>
+                <parameter>
+                    <name>factory</name>
+                    <value>org.globus.wsrf.jndi.BeanFactory</value>
+                </parameter>
+            </resourceParams>
+        </resource>
+
+        <!-- The messaging system (elastic interfaces) -->
+        <resource name="gatewayContext"
+                  type="org.nimbustools.messaging.gt4_0_elastic.context.GatewayContext">
+
+            <resourceParams>
+                <parameter>
+                    <name>gatewayConf</name>
+                    <value>@GATEWAY_CONFDIR@/other/main.xml</value>
+                </parameter>
+                <parameter>
+                    <name>factory</name>
+                    <value>org.globus.wsrf.jndi.BeanFactory</value>
+                </parameter>
+            </resourceParams>
+        </resource>
+    </service>
+
+</jndiConfig>
+    

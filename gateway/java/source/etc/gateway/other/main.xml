@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--suppress SpringModelInspection -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+    <!-- ************ RM API module locator *********** -->
+
+    <bean id="nimbus-gateway.rmapi-modulelocator"
+          class="org.nimbustools.messaging.gt4_0.common.GatewayModuleLocator" />
+    
+
+    <!-- ************ ServiceRM *********** -->
+    
+    <bean id="nimbus-gateway.rm"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.ServiceRMImpl">
+
+        <constructor-arg ref="nimbus-gateway.rm.run" />
+        <constructor-arg ref="nimbus-gateway.rm.terminate" />
+        <constructor-arg ref="nimbus-gateway.rm.reboot" />
+        <constructor-arg ref="nimbus-gateway.rm.describe" />
+        <constructor-arg ref="nimbus-gateway.rm.containerInterface" />
+        <constructor-arg ref="nimbus-gateway.rmapi-modulelocator" />
+
+    </bean>
+
+    <bean id="nimbus-gateway.rm.run"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultRun">
+
+        <constructor-arg ref="nimbus-gateway.general.ra" />
+        <constructor-arg ref="nimbus-gateway.general.networks" />
+        <constructor-arg ref="nimbus-gateway.rm.idmappings" />
+        <constructor-arg ref="nimbus-gateway.rm.describe" />
+        <constructor-arg ref="nimbus-gateway.rm.containerInterface" />
+        <constructor-arg ref="nimbus-gateway.image.repository" />
+        <constructor-arg ref="nimbus-gateway.rmapi-modulelocator" />
+        
+    </bean>
+
+    <bean id="nimbus-gateway.rm.terminate"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultTerminate">
+
+        <constructor-arg ref="nimbus-gateway.rm.idmappings" />
+
+    </bean>
+
+    <bean id="nimbus-gateway.rm.reboot"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultReboot">
+
+        <constructor-arg ref="nimbus-gateway.rm.idmappings" />
+        
+    </bean>        
+
+    <bean id="nimbus-gateway.rm.describe"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultDescribe">
+
+        <constructor-arg ref="nimbus-gateway.rm.idmappings" />
+        <constructor-arg ref="nimbus-gateway.general.validity" />
+        <constructor-arg ref="nimbus-gateway.general.networks" />
+        <constructor-arg ref="nimbus-gateway.general.kernels" />
+        <constructor-arg ref="nimbus-gateway.general.ra" />
+        <constructor-arg ref="nimbus-gateway.general.avzone" />
+
+    </bean>
+
+    <bean id="nimbus-gateway.rm.containerInterface"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultContainerInterface">
+
+        <constructor-arg ref="nimbus-gateway.rmapi-modulelocator" />
+        
+    </bean>
+
+    <bean id="nimbus-gateway.rm.idmappings"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultIDMgmt">
+
+        <constructor-arg value="$COMMON{caches.dir}" />
+
+    </bean>
+
+    
+    <!-- ************ ServiceGeneral *********** -->
+
+    <bean id="nimbus-gateway.general"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.ServiceGeneralImpl">
+
+        <constructor-arg ref="nimbus-gateway.general.avzone" />
+
+    </bean>
+
+    <bean id="nimbus-gateway.general.validity"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.defaults.DefaultValidity" />
+
+     <bean id="nimbus-gateway.general.ra"
+           class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.defaults.DefaultResourceAllocations"
+           init-method="validate">
+
+         <constructor-arg ref="nimbus-gateway.rmapi-modulelocator" />
+
+         <property name="smallMemory" value="$OTHER_GATEWAY{memory.small}" />
+         <property name="largeMemory" value="$OTHER_GATEWAY{memory.large}" />
+         <property name="xlargeMemory" value="$OTHER_GATEWAY{memory.xlarge}" />
+         <property name="smallName" value="$OTHER_GATEWAY{ra.name.small}" />
+         <property name="largeName" value="$OTHER_GATEWAY{ra.name.large}" />
+         <property name="xlargeName" value="$OTHER_GATEWAY{ra.name.xlarge}" />
+         <property name="unknownString" value="$OTHER_GATEWAY{ra.name.unknown}" />
+         
+         <property name="cpuArch" value="$OTHER_GATEWAY{cpu.arch}" />
+         <property name="vmmType" value="$OTHER_GATEWAY{vmm.type}" />
+         <property name="vmmVersion" value="$OTHER_GATEWAY{vmm.version}" />
+
+    </bean>
+    
+    <bean id="nimbus-gateway.general.networks"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.defaults.DefaultNetworks"
+          init-method="validate">
+
+        <property name="publicNetwork" value="$OTHER_GATEWAY{net.public}" />
+        <property name="privateNetwork" value="$OTHER_GATEWAY{net.private}" />
+        <property name="noPublicNetwork" value="$OTHER_GATEWAY{unknown.pubnet}" />
+        <property name="noPrivateNetwork" value="$OTHER_GATEWAY{unknown.privnet}" />
+
+    </bean>
+
+    <bean id="nimbus-gateway.general.avzone"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.defaults.DefaultAvailabilityZones">
+
+        <property name="zones" value="$OTHER_GATEWAY{availability.zones}" />
+        
+    </bean>
+
+    <bean id="nimbus-gateway.general.kernels"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.defaults.DefaultKernels">
+
+        <property name="kernels" value="$OTHER_GATEWAY{kernels}" />
+
+    </bean>
+
+
+    <!-- ************ ServiceSecurity *********** -->
+
+    <bean id="nimbus-gateway.security"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.security.RMServiceSecurity">
+        <constructor-arg ref="nimbus-gateway.rm.containerInterface" />
+        <constructor-arg ref="nimbus-gateway.rmapi-modulelocator" />
+    </bean>
+
+    <!-- No ServiceSecurity operations are supported in the gateway -->
+
+
+    <!-- ************ ServiceImage *********** -->
+
+    <!-- No ServiceImage operations are supported in the gateway -->
+
+
+    <bean id="nimbus-gateway.image"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.image.GatewayServiceImageImpl">
+
+        <constructor-arg ref="nimbus-gateway.rm.containerInterface" />
+        <constructor-arg ref="nimbus-gateway.image.repository" />
+
+    </bean>
+
+    <bean id="nimbus-gateway.image.repository"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.image.defaults.DefaultGatewayRepository"
+          init-method="validate">
+
+        <constructor-arg ref="nimbus-gateway.rm.containerInterface" />
+        <constructor-arg ref="nimbus-gateway.rmapi-modulelocator" />
+
+        <property name="rootFileMountAs" value="$OTHER_GATEWAY{rootfile.mountas}" />
+
+        <property name="enableListing" value="true" />
+
+    </bean>
+
+
+    <!--
+        property sources are concentrated in this file
+    -->
+    <import resource="main.conflocator.xml"/>
+
+</beans>

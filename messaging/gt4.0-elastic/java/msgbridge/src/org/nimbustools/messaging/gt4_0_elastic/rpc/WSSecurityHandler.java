@@ -68,9 +68,20 @@ public class WSSecurityHandler extends WSSecurityBasicHandler {
         }
         
         final String target = ctx.getTargetService();
-        
-        return target != null
-                && target.endsWith(Constants_GT4_0_Elastic.SERVICE_PATH);
+
+        if (target == null) {
+            return false;
+        }
+
+        if (target.endsWith(Constants_GT4_0_Elastic.SERVICE_PATH)) {
+            return true;
+        }
+
+        if (target.endsWith(Constants_GT4_0_Elastic.GATEWAY_SERVICE_PATH)) {
+            return true;
+        }
+
+        return false;
     }
 
 

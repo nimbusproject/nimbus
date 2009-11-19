@@ -58,7 +58,7 @@
         <parameter name="handlerClass"
                    value="org.globus.axis.providers.RPCProvider"/>
         <parameter name="className"
-                   value="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.service.DelegatingService"/>
+                   value="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.service.LocalService"/>
 
         <wsdlFile>share/schema/elastic-2008-05-05/ec2.wsdl</wsdlFile>
 

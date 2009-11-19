@@ -16,25 +16,25 @@
 
 package org.nimbustools.messaging.gt4_0.common;
 
+import org.globus.wsrf.jndi.Initializable;
+import org.globus.wsrf.config.ContainerConfig;
+import org.globus.wsrf.container.ServiceHost;
+import org.globus.wsrf.Constants;
+import org.nimbustools.api.brain.BreathOfLife;
+import org.nimbustools.api.brain.ModuleLocator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.globus.wsrf.Constants;
-import org.globus.wsrf.container.ServiceHost;
-import org.globus.wsrf.config.ContainerConfig;
-import org.globus.wsrf.jndi.Initializable;
-import org.nimbustools.api.brain.ModuleLocator;
-import org.nimbustools.api.brain.BreathOfLife;
 
-import java.io.File;
-import java.io.IOException;
 import java.net.URL;
+import java.io.IOException;
+import java.io.File;
 
 import commonj.timers.TimerManager;
 
 import javax.naming.InitialContext;
 
-public class NimbusMasterContext implements Initializable {
-
+public abstract class NimbusMasterContext implements Initializable {
+    
     // -------------------------------------------------------------------------
     // STATIC VARIABLES
     // -------------------------------------------------------------------------
@@ -42,21 +42,36 @@ public class NimbusMasterContext implements Initializable {
     private static final Log logger =
             LogFactory.getLog(NimbusMasterContext.class.getName());
 
-    public static final String MASTER_JNDI_BASE =
-            Constants.JNDI_SERVICES_BASE_NAME + "NimbusMasterContext/";
-
-    public static final String THIS_JNDI_LOOKUP =
-            MASTER_JNDI_BASE + "masterContext";
-    
 
     // -------------------------------------------------------------------------
     // INSTANCE VARIABLES
     // -------------------------------------------------------------------------
 
-    private ModuleLocator moduleLocator;
-    private String baseLocation;
-    private String masterConf;
-    
+    protected final String jndiAdvice;
+    protected final String confadvice;
+
+    protected ModuleLocator moduleLocator;
+    protected String baseLocation;
+    protected String masterConf;
+
+
+    // -------------------------------------------------------------------------
+    // CONSTRUCTOR
+    // -------------------------------------------------------------------------
+
+    public NimbusMasterContext(String jndiAdvice, String confadvice) {
+        
+        if (jndiAdvice == null) {
+            throw new IllegalArgumentException("jndiAdvice may not be null");
+        }
+        if (confadvice == null) {
+            throw new IllegalArgumentException("confadvice may not be null");
+        }
+        
+        this.jndiAdvice = jndiAdvice;
+        this.confadvice = confadvice;
+    }
+
 
     // -------------------------------------------------------------------------
     // SET (via jndi)
@@ -65,7 +80,7 @@ public class NimbusMasterContext implements Initializable {
     public synchronized void setMasterConf(String path) {
         this.masterConf = path;
     }
-    
+
 
     // -------------------------------------------------------------------------
     // implements Initializable
@@ -85,38 +100,6 @@ public class NimbusMasterContext implements Initializable {
         final String appCtxPath = this.fixAbsolute(this.masterConf);
 
         this.moduleLocator = new BreathOfLife().breathe(appCtxPath);
-    }
-
-    
-    // -------------------------------------------------------------------------
-    // APPLICATION CONTEXT DISCOVERY
-    // -------------------------------------------------------------------------
-
-    /**
-     * @return ApplicationContext, never null
-     * @throws Exception could not locate
-     */
-    public static NimbusMasterContext discoverApplicationContext() throws Exception {
-
-        InitialContext ctx = null;
-        try {
-            ctx = new InitialContext();
-
-            final NimbusMasterContext masterContext =
-                    (NimbusMasterContext) ctx.lookup(THIS_JNDI_LOOKUP);
-
-            if (masterContext == null) {
-                // should be NameNotFoundException if missing
-                throw new Exception("null from JNDI for MasterContext (?)");
-            }
-
-            return masterContext;
-
-        } finally {
-            if (ctx != null) {
-                ctx.close();
-            }
-        }
     }
 
 
@@ -164,7 +147,7 @@ public class NimbusMasterContext implements Initializable {
     public URL getBaseURL() throws IOException {
         return ServiceHost.getBaseURL();
     }
-    
+
 
     /**
      * @return TimerManager, never null
@@ -192,8 +175,8 @@ public class NimbusMasterContext implements Initializable {
         }
     }
 
-    
-     // -------------------------------------------------------------------------
+
+    // -------------------------------------------------------------------------
     // CONF FILE
     // -------------------------------------------------------------------------
 
@@ -209,18 +192,6 @@ public class NimbusMasterContext implements Initializable {
     }
 
     protected void checkConf(String path) throws Exception {
-
-        final String jndiAdvice =
-            "** The system is bootstrapped from a configuration called " +
-            "'masterConf' near the top of a file usually located at " +
-            "'$GLOBUS_LOCATION/etc/nimbus/jndi-config.xml'";
-
-        final String confadvice =
-            "** The 'masterConf' parameter is usually set to a file like " +
-            "'$GLOBUS_LOCATION/etc/nimbus/workspace-service/other/spring.xml'.  A " +
-            "configuration is present for this but it is not usable.";
-
-        // -----------------------
 
         if (path == null) {
             throw new Exception("No masterConf setting.\n" + jndiAdvice);

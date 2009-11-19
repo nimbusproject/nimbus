@@ -1,0 +1,40 @@
+----------------------------------------------------------------
+2009-02-09 00:37:57.623 GMT:
+ Booting Derby version The Apache Software Foundation - Apache Derby - 10.4.2.0 - (689064): instance a816c00e-011f-5878-0de2-000002ce34b8
+on database directory /home/tim/globus/nimbus-TP2.2.1-GT4.0.8/var/nimbus-gateway/EC2AccountingDB  
+
+Database Class Loader started - derby.database.classpath=''
+
+2009-02-09 00:38:02.828 GMT:
+Shutting down instance a816c00e-011f-5878-0de2-000002ce34b8
+----------------------------------------------------------------
+----------------------------------------------------------------
+2009-02-09 00:44:18.555 GMT:
+ Booting Derby version The Apache Software Foundation - Apache Derby - 10.4.2.0 - (689064): instance a816c00e-011f-587d-df83-0000030ce278
+on database directory /home/tim/globus/nimbus-TP2.2.1-GT4.0.8/var/nimbus-gateway/EC2AccountingDB  
+
+Database Class Loader started - derby.database.classpath=''
+
+2009-02-09 00:44:24.577 GMT:
+Shutting down instance a816c00e-011f-587d-df83-0000030ce278
+----------------------------------------------------------------
+----------------------------------------------------------------
+2009-02-09 01:26:17.867 GMT:
+ Booting Derby version The Apache Software Foundation - Apache Derby - 10.4.2.0 - (689064): instance a816c00e-011f-58a4-5079-0000030ce278
+on database directory /home/tim/globus/nimbus-TP2.2.1-GT4.0.8/var/nimbus-gateway/EC2AccountingDB  
+
+Database Class Loader started - derby.database.classpath=''
+
+2009-02-09 01:26:23.356 GMT:
+Shutting down instance a816c00e-011f-58a4-5079-0000030ce278
+----------------------------------------------------------------
+----------------------------------------------------------------
+2009-02-26 21:34:00.074 GMT:
+ Booting Derby version The Apache Software Foundation - Apache Derby - 10.4.2.0 - (689064): instance a816c00e-011f-b482-1b48-0000030a9410
+on database directory /home/tim/globus/nimbus-TP2.2.1-GT4.0.8/var/nimbus-gateway/EC2AccountingDB  
+
+Database Class Loader started - derby.database.classpath=''
+
+2009-02-26 21:34:06.489 GMT:
+Shutting down instance a816c00e-011f-b482-1b48-0000030a9410
+----------------------------------------------------------------

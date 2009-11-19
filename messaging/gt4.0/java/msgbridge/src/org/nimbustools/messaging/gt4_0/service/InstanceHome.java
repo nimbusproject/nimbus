@@ -17,6 +17,7 @@
 package org.nimbustools.messaging.gt4_0.service;
 
 import org.nimbustools.messaging.gt4_0.common.Constants_GT4_0;
+import org.nimbustools.messaging.gt4_0.common.NimbusLocalMasterContext;
 import org.nimbustools.messaging.gt4_0.common.NimbusMasterContext;
 import org.globus.wsrf.ResourceHome;
 import org.globus.wsrf.Resource;
@@ -77,7 +78,7 @@ public class InstanceHome implements ResourceHome, Initializable {
     public void initialize() throws Exception {
 
         final NimbusMasterContext master =
-                NimbusMasterContext.discoverApplicationContext();
+                NimbusLocalMasterContext.discoverApplicationContext();
 
         this.manager = master.getModuleLocator().getManager();
 

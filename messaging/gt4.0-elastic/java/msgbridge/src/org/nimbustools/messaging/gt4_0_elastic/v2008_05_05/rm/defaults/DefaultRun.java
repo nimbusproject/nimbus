@@ -18,10 +18,11 @@ package org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
+import org.globus.util.Base64;
 import org.nimbustools.api._repr._CreateRequest;
 import org.nimbustools.api._repr._CustomizationRequest;
 import org.nimbustools.api._repr.vm._NIC;
+import org.nimbustools.api.brain.ModuleLocator;
 import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.CannotTranslateException;
 import org.nimbustools.api.repr.CreateRequest;
@@ -29,30 +30,27 @@ import org.nimbustools.api.repr.CreateResult;
 import org.nimbustools.api.repr.CustomizationRequest;
 import org.nimbustools.api.repr.ReprFactory;
 import org.nimbustools.api.repr.vm.NIC;
+import org.nimbustools.api.repr.vm.RequiredVMM;
 import org.nimbustools.api.repr.vm.ResourceAllocation;
 import org.nimbustools.api.repr.vm.State;
 import org.nimbustools.api.repr.vm.VM;
 import org.nimbustools.api.repr.vm.VMFile;
-import org.nimbustools.api.repr.vm.RequiredVMM;
-
-import org.nimbustools.messaging.gt4_0.common.NimbusMasterContext;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.GroupItemType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.GroupSetType;
 import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.ReservationInfoType;
 import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.RunInstancesType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.GroupSetType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.GroupItemType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.RunningInstancesSetType;
 import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.RunningInstancesItemType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.RunningInstancesSetType;
 import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.UserDataType;
-import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.image.Repository;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.Networks;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.ResourceAllocations;
-import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.IDMappings;
-import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.Run;
+import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.image.Repository;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.ContainerInterface;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.Describe;
-import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.security.SSHKeys;
+import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.IDMappings;
+import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.Run;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.security.SSHKey;
-import org.globus.util.Base64;
+import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.security.SSHKeys;
 
 import java.rmi.RemoteException;
 
@@ -77,7 +75,7 @@ public class DefaultRun implements Run {
     protected final IDMappings ids;
     protected final ContainerInterface container;
     protected final Describe describe;
-    protected SSHKeys sshKeys;
+    protected final SSHKeys sshKeys;
     
 
     // -------------------------------------------------------------------------
@@ -90,7 +88,8 @@ public class DefaultRun implements Run {
                       IDMappings idsImpl,
                       Describe describeImpl,
                       ContainerInterface containerImpl,
-                      SSHKeys sshKeysImpl) throws Exception {
+                      SSHKeys sshKeysImpl,
+                      ModuleLocator locator) throws Exception {
 
         if (rasImpl == null) {
             throw new IllegalArgumentException("rasImpl may not be null");
@@ -122,16 +121,24 @@ public class DefaultRun implements Run {
         }
         this.container = containerImpl;
 
-        if (sshKeysImpl == null) {
-            throw new IllegalArgumentException("sshKeysImpl may not be null");
-        }
         this.sshKeys = sshKeysImpl;
 
-        final NimbusMasterContext ctx =
-                NimbusMasterContext.discoverApplicationContext();
-        this.repr = ctx.getModuleLocator().getReprFactory();
+        if (locator == null) {
+            throw new IllegalArgumentException("locator may not be null");
+        }
+        this.repr = locator.getReprFactory();
     }
-    
+
+    public DefaultRun(ResourceAllocations rasImpl,
+                      Networks networksImpl,
+                      Repository repoImpl,
+                      IDMappings idsImpl,
+                      Describe describeImpl,
+                      ContainerInterface containerImpl,
+                      ModuleLocator locator) throws Exception {
+        this(rasImpl, networksImpl, repoImpl,
+             idsImpl, describeImpl, containerImpl, null, locator);
+    }
 
     // -------------------------------------------------------------------------
     // implements Run
@@ -158,7 +165,7 @@ public class DefaultRun implements Run {
 
         final _CustomizationRequest cust;
         final String keyname = req.getKeyName();
-        if (keyname != null) {
+        if (keyname != null && this.sshKeys != null) {
             cust = this.repr._newCustomizationRequest();
             final SSHKey key = this.sshKeys.findKey(ownerID, keyname);
             if (key == null) {
@@ -221,6 +228,7 @@ public class DefaultRun implements Run {
         creq.setShutdownType(CreateRequest.SHUTDOWN_TYPE_TRASH);
         creq.setVMFiles(files);
         creq.setMdUserData(userData);
+        creq.setSshKeyName(keyname);
 
         return creq;
     }

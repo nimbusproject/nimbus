@@ -43,6 +43,7 @@ public class DefaultVM implements _VM {
     private Caller creator;
     private int launchIndex;
     private String mdUserData;
+    private String sshKeyName;
 
 
     // -------------------------------------------------------------------------
@@ -88,7 +89,10 @@ public class DefaultVM implements _VM {
     public int getLaunchIndex() {
         return this.launchIndex;
     }
-    
+
+    public String getSshKeyName() {
+        return sshKeyName;
+    }
 
     // -------------------------------------------------------------------------
     // implements org.nimbustools.api._repr.vm._VM
@@ -140,6 +144,10 @@ public class DefaultVM implements _VM {
 
     public String getMdUserData() {
         return this.mdUserData;
+    }
+
+    public void setSshKeyName(String sshKeyName) {
+        this.sshKeyName = sshKeyName;
     }
 
     // -------------------------------------------------------------------------
