@@ -4,3 +4,6 @@
 *.iws
 build/
 dist/
+autocontainer/downloads/
+autocontainer/gt/
+
