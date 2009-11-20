@@ -19,10 +19,7 @@ import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.Log;
 
-import javax.ws.rs.Path;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import java.util.Map;
 
@@ -44,11 +41,11 @@ public class ElasticQuery {
 
     @Path("/")
     @Produces("text/xml")
-    public ElasticVersion handle(@QueryParam("Action") String action,
-                       @QueryParam("Version") String version,
+    public ElasticVersion handle(@FormParam("Action") String action,
+                       @FormParam("Version") String version,
                        @Context MessageContext ctx) {
 
-        logger.info("Got "+action+ "request for version"+ version+". Agent: "+
+        logger.info("Got "+action+ " request for version "+ version+". Agent: "+
                 ctx.getHttpHeaders().getRequestHeader("User-Agent"));
 
 

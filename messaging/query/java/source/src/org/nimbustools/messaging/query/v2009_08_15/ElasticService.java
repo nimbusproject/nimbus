@@ -19,11 +19,10 @@ import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.*;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.*;
 import org.nimbustools.messaging.query.*;
 import static org.nimbustools.messaging.query.QueryUtils.*;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.POST;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 import java.rmi.RemoteException;
@@ -31,6 +30,9 @@ import java.util.HashMap;
 import java.util.List;
 
 public class ElasticService implements ElasticVersion {
+
+    private static final Log logger =
+            LogFactory.getLog(ElasticService.class.getName());
 
     final ServiceRM serviceRM;
     final ServiceGeneral serviceGeneral;
@@ -74,7 +76,9 @@ public class ElasticService implements ElasticVersion {
     }
 
     @Path("/")
-    public ElasticAction handleAction(@QueryParam("Action") String action) {
+    public ElasticAction handleAction(@FormParam("Action") String action) {
+
+        logger.info("Got "+action+" request");
 
         final ElasticAction theAction = actionMap.get(action);
         if (theAction != null) {
@@ -90,13 +94,14 @@ public class ElasticService implements ElasticVersion {
     // it is worth the inelegance trade-off, but we'll see.
 
 
+    @Path("/")
     public class CreateKeyPair implements ElasticAction {
         public String getName() {
             return "CreateKeyPair";
         }
 
-        @GET @POST
-        public CreateKeyPairResponseType handle(@QueryParam("KeyName") String keyName) {
+        @GET
+        public CreateKeyPairResponseType handleGet(@QueryParam("KeyName") String keyName) {
             assureRequiredParameter("KeyName", keyName);
 
             final CreateKeyPairType createKeyPairType = new CreateKeyPairType(keyName);
@@ -107,6 +112,10 @@ public class ElasticService implements ElasticVersion {
                 throw new QueryException(QueryError.GeneralError, e);
             }
         }
+        @POST
+        public CreateKeyPairResponseType handlePost(@FormParam("KeyName") String keyName) {
+            return handleGet(keyName);
+        }
     }
 
     public class DeleteKeyPair implements ElasticAction {
@@ -114,8 +123,8 @@ public class ElasticService implements ElasticVersion {
             return "DeleteKeyPair";
         }
 
-        @GET @POST
-        public DeleteKeyPairResponseType handle(@QueryParam("KeyName") String keyName) {
+        @GET
+        public DeleteKeyPairResponseType handleGet(@QueryParam("KeyName") String keyName) {
             assureRequiredParameter("KeyName", keyName);
 
             final DeleteKeyPairType deleteKeyPairType = new DeleteKeyPairType(keyName);
@@ -126,13 +135,17 @@ public class ElasticService implements ElasticVersion {
                 throw new QueryException(QueryError.GeneralError, e);
             }
         }
+        @POST
+        public DeleteKeyPairResponseType handlePost(@FormParam("KeyName") String keyName) {
+            return handleGet(keyName);
+        }
     }
 
     public class DescribeKeyPairs implements ElasticAction {
         public String getName() { return "DescribeKeyPairs"; }
 
-        @GET @POST
-        public DescribeKeyPairsResponseType handle(@Context UriInfo uriInfo) {
+        @GET
+        public DescribeKeyPairsResponseType handleGet(@Context UriInfo uriInfo) {
             final List<String> keyNames =
                     getParameterList(uriInfo, "KeyName");
 
@@ -148,6 +161,10 @@ public class ElasticService implements ElasticVersion {
                 throw new QueryException(QueryError.GeneralError, e);
             }
         }
+        @POST
+        public DescribeKeyPairsResponseType handlePost(@Context UriInfo uriInfo) {
+            return handleGet(uriInfo);
+        }
     }
 
     public class RunInstances implements ElasticAction {
@@ -155,14 +172,14 @@ public class ElasticService implements ElasticVersion {
             return "RunInstances";
         }
 
-        @GET @POST
-        public RunInstancesResponseType handle(
-                @QueryParam("ImageId") String imageId,
-                @QueryParam("MinCount") String minCount,
-                @QueryParam("MaxCount") String maxCount,
-                @QueryParam("KeyName") String keyName,
-                @QueryParam("UserData") String userData,
-                @QueryParam("InstanceType") String instanceType) {
+        @GET
+        public RunInstancesResponseType handleGet(
+                @FormParam("ImageId") String imageId,
+                @FormParam("MinCount") String minCount,
+                @FormParam("MaxCount") String maxCount,
+                @FormParam("KeyName") String keyName,
+                @FormParam("UserData") String userData,
+                @FormParam("InstanceType") String instanceType) {
             // only including parameters that are actually used right now
 
             assureRequiredParameter("ImageId", imageId);
@@ -188,6 +205,16 @@ public class ElasticService implements ElasticVersion {
                 throw new QueryException(QueryError.GeneralError, e);
             }
         }
+        @POST
+        public RunInstancesResponseType handlePost(
+                @FormParam("ImageId") String imageId,
+                @FormParam("MinCount") String minCount,
+                @FormParam("MaxCount") String maxCount,
+                @FormParam("KeyName") String keyName,
+                @FormParam("UserData") String userData,
+                @FormParam("InstanceType") String instanceType) {
+            return handleGet(imageId, minCount, maxCount, keyName, userData, instanceType);
+        }
     }
 
     public class RebootInstances implements ElasticAction {
@@ -196,8 +223,7 @@ public class ElasticService implements ElasticVersion {
         }
 
         @GET
-        @POST
-        public RebootInstancesResponseType handle(@Context UriInfo uriInfo) {
+        public RebootInstancesResponseType handleGet(@Context UriInfo uriInfo) {
             final List<String> instanceIds =
                     getParameterList(uriInfo, "InstanceId");
 
@@ -223,6 +249,10 @@ public class ElasticService implements ElasticVersion {
                 throw new QueryException(QueryError.GeneralError, e);
             }
         }
+        @POST
+        public RebootInstancesResponseType handlePost(@Context UriInfo uriInfo) {
+            return handleGet(uriInfo);
+        }
     }
 
     public class DescribeInstances implements ElasticAction {
@@ -231,8 +261,7 @@ public class ElasticService implements ElasticVersion {
         }
 
         @GET
-        @POST
-        public DescribeInstancesResponseType handle(@Context UriInfo uriInfo) {
+        public DescribeInstancesResponseType handleGet(@Context UriInfo uriInfo) {
             final List<String> instanceIds =
                     getParameterList(uriInfo, "InstanceId");
 
@@ -253,6 +282,10 @@ public class ElasticService implements ElasticVersion {
                 throw new QueryException(QueryError.GeneralError, e);
             }
         }
+        @POST
+        public DescribeInstancesResponseType handlePost(@Context UriInfo uriInfo) {
+            return handleGet(uriInfo);
+        }
     }
 
     public class TerminateInstances implements ElasticAction {
@@ -261,8 +294,7 @@ public class ElasticService implements ElasticVersion {
         }
 
         @GET
-        @POST
-        public TerminateInstancesResponseType handle(@Context UriInfo uriInfo) {
+        public TerminateInstancesResponseType handleGet(@Context UriInfo uriInfo) {
             final List<String> instanceIds =
                     getParameterList(uriInfo, "InstanceId");
 
@@ -289,6 +321,10 @@ public class ElasticService implements ElasticVersion {
                 throw new QueryException(QueryError.GeneralError, e);
             }
         }
+        @POST
+        public TerminateInstancesResponseType handlePost(@Context UriInfo uriInfo) {
+            return handleGet(uriInfo);
+        }
     }
 
     public class DescribeImages implements ElasticAction {
@@ -297,11 +333,10 @@ public class ElasticService implements ElasticVersion {
         }
 
         @GET
-        @POST
-        public DescribeImagesResponseType handle(
-                @QueryParam("ExecutableBy") String executableBy,
-                @QueryParam("ImageId") String imageId,
-                @QueryParam("Owner") String owner) {
+        public DescribeImagesResponseType handleGet(
+                @FormParam("ExecutableBy") String executableBy,
+                @FormParam("ImageId") String imageId,
+                @FormParam("Owner") String owner) {
 
             final DescribeImagesType request = new DescribeImagesType();
 
@@ -340,6 +375,13 @@ public class ElasticService implements ElasticVersion {
                 throw new QueryException(QueryError.GeneralError, e);
             }
         }
+        @POST
+        public DescribeImagesResponseType handlePost(
+                @FormParam("ExecutableBy") String executableBy,
+                @FormParam("ImageId") String imageId,
+                @FormParam("Owner") String owner) {
+            return handleGet(executableBy, imageId, owner);
+        }
     }
 
     public class DescribeAvailabilityZones implements ElasticAction {
@@ -348,9 +390,8 @@ public class ElasticService implements ElasticVersion {
         }
 
         @GET
-        @POST
-        public DescribeAvailabilityZonesResponseType handle(
-                @QueryParam("ZoneName") String zoneName) {
+        public DescribeAvailabilityZonesResponseType handleGet(
+                @FormParam("ZoneName") String zoneName) {
 
             DescribeAvailabilityZonesType request =
                     new DescribeAvailabilityZonesType();
@@ -370,6 +411,11 @@ public class ElasticService implements ElasticVersion {
             } catch (RemoteException e) {
                 throw new QueryException(QueryError.GeneralError, e);
             }
+        }
+        @POST
+        public DescribeAvailabilityZonesResponseType handlePost(
+                @FormParam("ZoneName") String zoneName) {
+            return handleGet(zoneName);
         }
     }
 }
