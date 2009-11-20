@@ -32,10 +32,12 @@ import org.nimbustools.api.services.rm.Manager;
 import org.nimbustools.messaging.gt4_0.common.AddCustomizations;
 import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.*;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.ServiceRM;
+import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.service.UnimplementedOperations;
 
 import java.rmi.RemoteException;
 
-public class ServiceRMImpl implements ServiceRM {
+public class ServiceRMImpl extends UnimplementedOperations
+        implements ServiceRM {
 
     // -------------------------------------------------------------------------
     // STATIC VARIABLES
