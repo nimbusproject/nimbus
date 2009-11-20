@@ -101,13 +101,6 @@ public class QueryAuthenticationFilter extends GenericFilterBean {
                 this.signatureParameter);
         final String signatureVersion = getExactlyOneParameter(request,
                 this.signatureVersionParameter);
-        final String signatureMethod = getExactlyOneParameter(request,
-                this.signatureMethodParameter);
-        final String timestamp = getAtMostOneParameter(request,
-                this.timestampParameter);
-        final String expires = getAtMostOneParameter(request,
-                this.expiresParameter);
-
 
         //signature versions 0 and 1 are insecure and not supported
         // see http://developer.amazonwebservices.com/connect/entry.jspa?externalID=1928
@@ -119,12 +112,19 @@ public class QueryAuthenticationFilter extends GenericFilterBean {
                     "Only signature version "+SIGNATURE_VERSION+" is supported");
         }
 
+        final String signatureMethod = getExactlyOneParameter(request,
+                this.signatureMethodParameter);
         if (!(signatureMethod.equals(HMACSHA256) ||
                 signatureMethod.equals(HMACSHA1))) {
             throw new QueryException(QueryError.InvalidParameterValue,
                     "Only "+ HMACSHA256 +" or " +HMACSHA1 +
                             " are supported signature methods");
         }
+
+        final String timestamp = getAtMostOneParameter(request,
+                this.timestampParameter);
+        final String expires = getAtMostOneParameter(request,
+                this.expiresParameter);
 
         final boolean hasTimestamp = timestamp != null;
         final boolean hasExpires = expires != null;
