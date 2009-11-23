@@ -16,8 +16,8 @@
 package org.nimbustools.messaging.query;
 
 import org.apache.axis.description.TypeDesc;
-import org.globus.wsrf.encoding.ObjectSerializer;
-import org.globus.wsrf.encoding.SerializationException;
+import org.apache.axis.message.MessageElement;
+import org.apache.axis.encoding.SerializationContext;
 
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
@@ -26,6 +26,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 import javax.xml.namespace.QName;
+import javax.xml.soap.SOAPException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -38,6 +39,7 @@ import java.lang.reflect.Type;
 @Produces({"text/xml"})
 public class AxisBodyWriter implements MessageBodyWriter<Object> {
     private static final String GET_TYPE_DESC = "getTypeDesc";
+    private static final String TYPE_SUFFIX = "Type";
 
     // this is a travesty
 
@@ -62,21 +64,35 @@ public class AxisBodyWriter implements MessageBodyWriter<Object> {
         final QName qName = typeDesc.getXmlType();
 
         if (qName == null) {
-            // this shouldn't happen according to JAX-RS contract
             throw new WebApplicationException(500);
+        }
+
+        String name = qName.getLocalPart();
+        // responses should not have 'Type' on end of element name. ugly.
+        if (name.endsWith(TYPE_SUFFIX)) {
+            name = name.substring(0, name.length() - TYPE_SUFFIX.length());
         }
 
         final OutputStreamWriter writer =
                 new OutputStreamWriter(outputStream);
 
+        MessageElement element = new MessageElement(qName.getNamespaceURI(), name);
         try {
+            element.setObjectValue(o);
 
-            ObjectSerializer.serialize(writer, o, qName);
-            writer.close();
-            
-        } catch (SerializationException e) {
+            final SerializationContext context =
+                    new SerializationContext(writer);
+            //context.setSendDecl(false);
+            context.setPretty(true);
+            element.output(context);
+
+
+        } catch (SOAPException e) {
+            throw new WebApplicationException(e);
+        } catch (Exception e) {
             throw new WebApplicationException(e);
         }
+        writer.close();
     }
 
     private static TypeDesc getTypeDescVerySlowly(Class aClass) {
