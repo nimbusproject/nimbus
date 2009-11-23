@@ -17,10 +17,12 @@ package org.nimbustools.messaging.query;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.nimbustools.messaging.gt4_0.common.CommonUtil;
 
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 import javax.ws.rs.core.Response;
+import java.util.UUID;
 
 @Provider
 public class QueryExceptionMapper implements ExceptionMapper<QueryException> {
@@ -29,16 +31,16 @@ public class QueryExceptionMapper implements ExceptionMapper<QueryException> {
             LogFactory.getLog(QueryExceptionMapper.class.getName());
 
     public Response toResponse(QueryException e) {
-        //TODO do this for reals, figure out requestID business
-        
+
+        final String requestID = UUID.randomUUID().toString();
 
         QueryError error = e.getError();
 
-        logger.warn("Responding with "+error.toString()+" error for request", e);
+        logger.warn("Responding with "+error.toString()+" error for request "+requestID, e);
 
         String message = e.getMessage();
         if (message == null) {
-            message = "";
+            message = CommonUtil.recurseForRootString(e, false, 0, false);
         }
 
         // so simple. easier to just print out the xml for now
@@ -46,7 +48,7 @@ public class QueryExceptionMapper implements ExceptionMapper<QueryException> {
         String respStr = "<?xml version=\"1.0\"?>\n" +
                 "<Response><Errors><Error><Code>"+error.toString()+"</Code>"+
                 "<Message>"+ message +"</Message></Error></Errors>" +
-                "<RequestID></RequestID></Response>";
+                "<RequestID>"+requestID+"</RequestID></Response>";
 
         return Response.ok(respStr).status(400).build();
     }
