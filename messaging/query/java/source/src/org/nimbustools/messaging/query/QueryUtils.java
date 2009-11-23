@@ -50,6 +50,7 @@ public class QueryUtils {
             if (id.length() != 0) {
                 list.add(id);
             }
+            i++;
         }
         return list;
     }
