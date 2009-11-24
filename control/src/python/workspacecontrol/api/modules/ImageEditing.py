@@ -11,7 +11,7 @@ class ImageEditing(workspacecontrol.api.WCModule):
     
     """
     
-    def process_after_procurement(local_file_set, parameters):
+    def process_after_procurement(local_file_set, parameters, common):
         """Do any necessary work after all files are local or otherwise
         accessible but before a VM launches.
         
@@ -19,10 +19,12 @@ class ImageEditing(workspacecontrol.api.WCModule):
         
         parameters -- instance of Parameters
         
+        common -- instance of Common
+        
         Return nothing, local_file_set will be modified as necessary.
         """
     
-    def process_after_shutdown(local_file_set, parameters):
+    def process_after_shutdown(local_file_set, parameters, common):
         """Do any necessary work after a VM shuts down and is being prepared
         for teardown.  Will not be called if there is an immediate-destroy
         event because that needs no unpropagation.
@@ -30,6 +32,8 @@ class ImageEditing(workspacecontrol.api.WCModule):
         local_file_set -- instance of LocalFileSet
         
         parameters -- instance of Parameters
+        
+        common -- instance of Common
         
         Return nothing, local_file_set will be modified as necessary.
         """

@@ -15,7 +15,7 @@ class NetworkSecurity(workspacecontrol.api.WCModule):
    on the NIC instance.
    """
 
-   def setup(nic_set, parameters):
+   def setup(nic_set, parameters, common):
        """Do any necessary work to set up the network security mechanisms,
        this is always called after a network lease is secured and after the
        network bootstrap mechanisms are set up but before a VM is launched.
@@ -23,9 +23,11 @@ class NetworkSecurity(workspacecontrol.api.WCModule):
        nic_set -- instance of NICSet
        
        parameters -- instance of Parameters
+       
+       common -- instance of Common
        """
 
-   def teardown(nic_set, parameters):
+   def teardown(nic_set, parameters, common):
        """Do any necessary work to tear down the network security mechanisms,
        this is always called after a VM is shutdown for good but before an IP
        lease is returned.
@@ -33,5 +35,7 @@ class NetworkSecurity(workspacecontrol.api.WCModule):
        nic_set -- instance of NICSet
        
        parameters -- instance of Parameters
+       
+       common -- instance of Common
        """
        

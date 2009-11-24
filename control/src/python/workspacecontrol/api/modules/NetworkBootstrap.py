@@ -13,7 +13,7 @@ class NetworkBootstrap(workspacecontrol.api.WCModule):
    be a no-op.
    """
 
-   def setup(nic_set, parameters):
+   def setup(nic_set, parameters, common):
        """Do any necessary work to set up the network bootstrapping process,
        this is always called after a network lease is secured but before a VM
        is launched.
@@ -21,9 +21,11 @@ class NetworkBootstrap(workspacecontrol.api.WCModule):
        nic_set -- instance of NICSet
        
        parameters -- instance of Parameters
+       
+       common -- instance of Common
        """
 
-   def teardown(nic_set, parameters):
+   def teardown(nic_set, parameters, common):
        """Do any necessary work to tear down the network bootstrapping process,
        this is always called after a VM is shutdown for good but before a 
        network lease is returned.
@@ -31,5 +33,7 @@ class NetworkBootstrap(workspacecontrol.api.WCModule):
        nic_set -- instance of NICSet
        
        parameters -- instance of Parameters
+       
+       common -- instance of Common
        """
        
