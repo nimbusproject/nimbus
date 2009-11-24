@@ -7,25 +7,25 @@ class NetworkLease(workspacecontrol.api.WCModule):
    or it could for example call out to a site's centralized lease manager.
    """
 
-   def obtain(network_name, parameters, common):
+   def obtain(network_name, p, c):
        """Decide on the network leases.
        
        network_name -- desired network's logical name
        
-       parameters -- instance of Parameters
+       p -- instance of Parameters
        
-       common -- instance of Common
+       c -- instance of Common
        
        Return a new instance of NICSet
        """
 
-   def release(nic_set, parameters, common):
+   def release(nic_set, p, c):
        """Release the network leases.
        
        nic_set -- the instance of NICSet to release
        
-       parameters -- instance of Parameters
+       p -- instance of Parameters
        
-       common -- instance of Common
+       c -- instance of Common
        """
        

@@ -6,7 +6,7 @@ class LocalNetworkSetup(workspacecontrol.api.WCModule):
    goes on.
    """
    
-   def ip_to_bridge(ipaddress, parameters, common):
+   def ip_to_bridge(ipaddress, p, c):
        """Given an IP address required for a particular NIC, what is the local
        system bridge that it needs to be put on?
        
@@ -17,14 +17,14 @@ class LocalNetworkSetup(workspacecontrol.api.WCModule):
        
        ipaddress -- string with valid IP address
        
-       parameters -- instance of Parameters
+       p -- instance of Parameters
        
-       common -- instance of Common
+       c -- instance of Common
        
        Return bridge name
        """
    
-   def network_name_to_bridge(network_name, parameters, common):
+   def network_name_to_bridge(network_name, p, c):
        """Given a network name required for a particular NIC, what is the local
        system bridge that it needs to be put on?
        
@@ -34,9 +34,9 @@ class LocalNetworkSetup(workspacecontrol.api.WCModule):
        
        network_name -- desired network's logical name.
        
-       parameters -- instance of Parameters
+       p -- instance of Parameters
        
-       common -- instance of Common
+       c -- instance of Common
        
        Return bridge name
        """

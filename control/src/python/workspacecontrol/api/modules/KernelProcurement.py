@@ -6,13 +6,13 @@ class KernelProcurement(workspacecontrol.api.WCModule):
     the deployment.
     """
     
-    def kernel_files(local_file_set, parameters, common):
+    def kernel_files(local_file_set, p, c):
         """
         local_file_set -- instance of LocalFileSet
         
-        parameters -- instance of Parameters
+        p -- instance of Parameters
         
-        common -- instance of Common
+        c -- instance of Common
         
         Return a Kernel instance appropriate to the inputs.
         """
