@@ -50,8 +50,8 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
     </bean>
 
 
-    <bean id="userDetailsService" class="org.nimbustools.messaging.query.security.FakeQueryUserDetailsService">
-        <!-- this is a fake impl -->
+    <bean id="userDetailsService" class="org.nimbustools.messaging.query.security.FileUserDetailsService">
+        <constructor-arg value="$QUERY{query.usermap.path}"/>
     </bean>
 
 
