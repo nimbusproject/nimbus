@@ -3,6 +3,9 @@
 a = []
 __all__ = a
 
+a.append("Common")
+from Common import Common
+
 a.append("DNS")
 from DNS import DNS
 
