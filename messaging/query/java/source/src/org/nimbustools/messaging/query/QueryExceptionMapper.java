@@ -17,7 +17,6 @@ package org.nimbustools.messaging.query;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.nimbustools.messaging.gt4_0.common.CommonUtil;
 
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
@@ -40,7 +39,7 @@ public class QueryExceptionMapper implements ExceptionMapper<QueryException> {
 
         String message = e.getMessage();
         if (message == null) {
-            message = CommonUtil.recurseForRootString(e, false, 0, false);
+            message = getRootMessage(e);
         }
 
         // so simple. easier to just print out the xml for now
@@ -51,6 +50,21 @@ public class QueryExceptionMapper implements ExceptionMapper<QueryException> {
                 "<RequestID>"+requestID+"</RequestID></Response>";
 
         return Response.ok(respStr).status(400).build();
+    }
+
+    private static String getRootMessage(Throwable throwable) {
+        if (throwable == null) {
+            return "";
+        }
+
+        Throwable t = throwable;
+        while (t.getCause() != null) {
+            t = t.getCause();
+        }
+        if (t.getMessage() != null) {
+            return t.getMessage();
+        }
+        return "";
     }
 
 }
