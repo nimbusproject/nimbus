@@ -1,8 +1,8 @@
-class WCError(Exception):
+class IWCError(Exception):
     """Generic exception; parent of all API exceptions.
     
     Every class/interface in the workspacecontrol.api package descends from
-    WCModule, WCObject, or WCError.
+    IWCModule, IWCObject, or IWCError.
     """
     
     def __init__(self, msg):
@@ -10,7 +10,7 @@ class WCError(Exception):
     def __str__(self):
         return self.msg
 
-class InvalidInput(WCError):
+class InvalidInput(IWCError):
     """Exception for illegal/nonsensical commandline syntax/combinations.
     """
     
@@ -19,7 +19,7 @@ class InvalidInput(WCError):
     def __str__(self):
         return self.msg
 
-class InvalidConfig(WCError):
+class InvalidConfig(IWCError):
     """Exception for misconfigurations.
     """
     
@@ -28,7 +28,7 @@ class InvalidConfig(WCError):
     def __str__(self):
         return self.msg
 
-class IncompatibleEnvironment(WCError):
+class IncompatibleEnvironment(IWCError):
     """Exception for when something has determined a problem with the
     deployment environment.
     """
@@ -38,7 +38,7 @@ class IncompatibleEnvironment(WCError):
     def __str__(self):
         return self.msg
 
-class UnexpectedError(WCError):
+class UnexpectedError(IWCError):
     """Exception for when a function/module cannot proceed.
     """
     
@@ -47,7 +47,7 @@ class UnexpectedError(WCError):
     def __str__(self):
         return self.msg
 
-class ProgrammingError(WCError):
+class ProgrammingError(IWCError):
     """Not listed in docstrings, should never be seen except during
     development.  An 'assert' device that can be propagated through the
     exception handling mechanisms just in case it is seen during deployment.

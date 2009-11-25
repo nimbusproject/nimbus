@@ -1,7 +1,7 @@
 import zope.interface
 import workspacecontrol.api
 
-class DNS(workspacecontrol.api.WCObject):
+class IDNS(workspacecontrol.api.IWCObject):
     """DNS is an encapsulation of everything necessary to populate a VM's
     settings.  If a multi-NIC VM gets assigned different DNS entries for
     different NICs, the behavior is undefined.
@@ -14,7 +14,7 @@ class DNS(workspacecontrol.api.WCObject):
     e.g. ["192.168.0.1", "4.2.2.1", "4.2.2.2"]
     
     Can be empty or None.
-    """
+    """)
     
     searches = zope.interface.Attribute(
     """searches is a list of domains to search with first, the typical syntax

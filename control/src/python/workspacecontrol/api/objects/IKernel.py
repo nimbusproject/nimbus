@@ -1,7 +1,7 @@
 import zope.interface
 import workspacecontrol.api
 
-class Kernel(workspacecontrol.api.WCObject):
+class IKernel(workspacecontrol.api.IWCObject):
     """Kernel is a representation of the kernel file(s) to use for a deployment
     """
     

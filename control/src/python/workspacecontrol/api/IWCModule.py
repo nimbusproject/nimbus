@@ -1,9 +1,12 @@
 import zope.interface
 
-class WCModule(zope.interface.Interface):
+class IWCModule(zope.interface.Interface):
     """Ancestor interface of all callable workspace-control modules.
     
     Every class/interface in the workspacecontrol.api package descends from
-    WCModule, WCObject, or WCError.
+    IWCModule, IWCObject, or IWCError.
     """
     
+    def validate():
+        """Called before any actions are taken.
+        """

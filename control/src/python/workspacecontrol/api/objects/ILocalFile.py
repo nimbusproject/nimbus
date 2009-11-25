@@ -1,7 +1,7 @@
 import zope.interface
 import workspacecontrol.api
 
-class LocalFile(workspacecontrol.api.WCObject):
+class ILocalFile(workspacecontrol.api.IWCObject):
     """LocalFile is one VM file, the information is consulted or edited by many
     wcmodules.
     

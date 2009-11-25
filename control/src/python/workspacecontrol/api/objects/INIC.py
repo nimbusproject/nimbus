@@ -1,7 +1,7 @@
 import zope.interface
 import workspacecontrol.api
 
-class NIC(workspacecontrol.api.WCObject):
+class INIC(workspacecontrol.api.IWCObject):
     """NIC is one NIC that a VM needs to be setup with   The information is consulted by many wcmodules.
     """
     

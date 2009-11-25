@@ -1,6 +1,6 @@
 import workspacecontrol.api
 
-class NICSet(workspacecontrol.api.WCObject):
+class INICSet(workspacecontrol.api.IWCObject):
     """NICSet is a "bag of NIC instances".  This is not a simple Python list
     itself because it will contain its own attributes in the future.
     """

@@ -1,6 +1,6 @@
 import workspacecontrol.api
 
-class LocalFileSet(workspacecontrol.api.WCObject):
+class ILocalFileSet(workspacecontrol.api.IWCObject):
     """LocalFileSet is a "bag of LocalFile instances".  This is not a simple
     Python list itself because it will contain its own attributes in the future.
     """

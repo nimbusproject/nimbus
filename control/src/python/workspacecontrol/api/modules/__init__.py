@@ -3,26 +3,26 @@
 a = []
 __all__ = a
 
-a.append("ImageEditing")
-from ImageEditing import ImageEditing
+a.append("IImageEditing")
+from IImageEditing import IImageEditing
 
-a.append("ImageProcurement")
-from ImageProcurement import ImageProcurement
+a.append("IImageProcurement")
+from IImageProcurement import IImageProcurement
 
-a.append("KernelProcurement")
-from KernelProcurement import KernelProcurement
+a.append("IKernelProcurement")
+from IKernelProcurement import IKernelProcurement
 
-a.append("LocalNetworkSetup")
-from LocalNetworkSetup import LocalNetworkSetup
+a.append("ILocalNetworkSetup")
+from ILocalNetworkSetup import ILocalNetworkSetup
 
-a.append("NetworkBootstrap")
-from NetworkBootstrap import NetworkBootstrap
+a.append("INetworkBootstrap")
+from INetworkBootstrap import INetworkBootstrap
 
-a.append("NetworkLease")
-from NetworkLease import NetworkLease
+a.append("INetworkLease")
+from INetworkLease import INetworkLease
 
-a.append("NetworkSecurity")
-from NetworkSecurity import NetworkSecurity
+a.append("INetworkSecurity")
+from INetworkSecurity import INetworkSecurity
 
-a.append("Platform")
-from Platform import Platform
+a.append("IPlatform")
+from IPlatform import IPlatform

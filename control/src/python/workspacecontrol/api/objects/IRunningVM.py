@@ -1,7 +1,7 @@
 import zope.interface
 import workspacecontrol.api
 
-class RunningVM(workspacecontrol.api.WCObject):
+class IRunningVM(workspacecontrol.api.IWCObject):
     """RunningVM is what the Platform module's info command returns, given
     a handle (that must be supplied externally).
     """

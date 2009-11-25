@@ -1,7 +1,7 @@
 import zope.interface
 import workspacecontrol.api
 
-class Parameters(workspacecontrol.api.WCObject):
+class IParameters(workspacecontrol.api.IWCObject):
     """Parameters is the systemwide mechanism for propagating commandline and
     conf file settings to wcmodules.
     
@@ -15,6 +15,13 @@ class Parameters(workspacecontrol.api.WCObject):
     See "etc/workspace-control/main.conf" which is where the wcmodule
     implementations and conf files are configured.
     """
+    
+    def __init__(allconfigs, opts):
+        """
+        allconfigs -- config object with all section+key data
+        
+        opts -- parsed commandline opts
+        """
   
     def get_cmdline_or_none(key):
         """Get string value of a commandline parameter if it existed.

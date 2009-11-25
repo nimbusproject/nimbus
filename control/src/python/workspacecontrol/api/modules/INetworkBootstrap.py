@@ -1,7 +1,7 @@
 import zope.interface
 import workspacecontrol.api
 
-class NetworkBootstrap(workspacecontrol.api.WCModule):
+class INetworkBootstrap(workspacecontrol.api.IWCModule):
    """NetworkBootstrap is an wcmodule that sets up (or tears down) anything that
    is needed for the VM to be booted and obtain the proper networking setup.
    
@@ -12,17 +12,20 @@ class NetworkBootstrap(workspacecontrol.api.WCModule):
    possibly render the typical deployment implementation of this interface to
    be a no-op.
    """
+   
+   def __init__(params, common):
+        """
+        params -- instance of Parameters
+        
+        common -- instance of Common
+        """
 
-   def setup(nic_set, p, c):
+   def setup(nic_set):
        """Do any necessary work to set up the network bootstrapping process,
        this is always called after a network lease is secured but before a VM
        is launched.
        
        nic_set -- instance of NICSet
-       
-       p -- instance of Parameters
-       
-       c -- instance of Common
        """
 
    def teardown(nic_set, p, c):

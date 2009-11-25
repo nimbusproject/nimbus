@@ -1,31 +1,30 @@
 import zope.interface
 import workspacecontrol.api
 
-class NetworkLease(workspacecontrol.api.WCModule):
+class INetworkLease(workspacecontrol.api.IWCModule):
    """NetworkLease is an wcmodule that secures a networking lease in its own
    implementation specific way.  It could do this via parameters to the program
    or it could for example call out to a site's centralized lease manager.
    """
+   
+   def __init__(params, common):
+        """
+        params -- instance of Parameters
+        
+        common -- instance of Common
+        """
 
-   def obtain(network_name, p, c):
+   def obtain(network_name):
        """Decide on the network leases.
        
        network_name -- desired network's logical name
        
-       p -- instance of Parameters
-       
-       c -- instance of Common
-       
        Return a new instance of NICSet
        """
 
-   def release(nic_set, p, c):
+   def release(nic_set):
        """Release the network leases.
        
        nic_set -- the instance of NICSet to release
-       
-       p -- instance of Parameters
-       
-       c -- instance of Common
        """
        

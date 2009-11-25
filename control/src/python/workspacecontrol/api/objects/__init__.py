@@ -3,29 +3,29 @@
 a = []
 __all__ = a
 
-a.append("Common")
-from Common import Common
+a.append("ICommon")
+from ICommon import ICommon
 
-a.append("DNS")
-from DNS import DNS
+a.append("IDNS")
+from IDNS import IDNS
 
-a.append("Kernel")
-from Kernel import Kernel
+a.append("IKernel")
+from IKernel import IKernel
 
-a.append("LocalFile")
-from LocalFile import LocalFile
+a.append("ILocalFile")
+from ILocalFile import ILocalFile
 
-a.append("LocalFileSet")
-from LocalFileSet import LocalFileSet
+a.append("ILocalFileSet")
+from ILocalFileSet import ILocalFileSet
 
-a.append("NIC")
-from NIC import NIC
+a.append("INIC")
+from INIC import INIC
 
-a.append("NICSet")
-from NICSet import NICSet
+a.append("INICSet")
+from INICSet import INICSet
 
-a.append("Parameters")
-from Parameters import Parameters
+a.append("IParameters")
+from IParameters import IParameters
 
-a.append("RunningVM")
-from RunningVM import RunningVM
+a.append("IRunningVM")
+from IRunningVM import IRunningVM

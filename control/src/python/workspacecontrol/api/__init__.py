@@ -25,13 +25,36 @@ Some wcmodule implementations may run only as Python code in normal deployment
 but have a script present in the libexec directory to ease independent use or
 testing.
 
-WCModule is an interface that all wcmodule interfaces inherit from.
-WCObject is an interface that all helper object interfaces inherit from.
+IWCModule is an interface that all wcmodule interfaces inherit from.
+IWCObject is an interface that all helper object interfaces inherit from.
 
 """
 
 # Hide the fact that there are separate files:
 
-__all__ = ["WCModule", "WCObject"]
-from WCModule import WCModule
-from WCObject import WCObject
+__all__ = ["IWCModule", "IWCObject", "interfacesdict"]
+from IWCModule import IWCModule
+from IWCObject import IWCObject
+
+modp = "workspacecontrol.api.modules."
+objp = "workspacecontrol.api.objects."
+interfacesdict = {
+            "ImageEditing"     : modp + "IImageEditing",
+            "ImageProcurement" : modp + "IImageProcurement",
+            "KernelProcurement": modp + "IKernelProcurement",
+            "LocalNetworkSetup": modp + "ILocalNetworkSetup",
+            "NetworkBootstrap" : modp + "INetworkBootstrap",
+            "NetworkLease"     : modp + "INetworkLease",
+            "NetworkSecurity"  : modp + "INetworkSecurity",
+            "Platform"         : modp + "IPlatform",
+            "Common"           : objp + "ICommon",
+            "DNS"              : objp + "IDNS",
+            "Kernel"           : objp + "IKernel",
+            "LocalFile"        : objp + "ILocalFile",
+            "LocalFileSet"     : objp + "ILocalFileSet",
+            "NIC"              : objp + "INIC",
+            "NICSet"           : objp + "INICSet",
+            "Parameters"       : objp + "IParameters",
+            "RunningVM"        : objp + "IRunningVM",
+             }
+
