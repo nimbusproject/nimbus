@@ -18,26 +18,20 @@ package org.nimbustools.messaging.query;
 import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.Log;
+import org.springframework.beans.factory.InitializingBean;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import java.util.Map;
 
 @Path("/")
-public class ElasticQuery {
+public class ElasticQuery implements InitializingBean {
 
     private static final Log logger =
             LogFactory.getLog(ElasticQuery.class.getName());
 
     Map<String, ElasticVersion> versions;
-
-    public Map<String, ElasticVersion> getVersions() {
-        return versions;
-    }
-
-    public void setVersions(Map<String, ElasticVersion> versions) {
-        this.versions = versions;
-    }
+    ElasticVersion fallbackVersion;
 
     @Path("/")
     @Produces("text/xml")
@@ -53,9 +47,50 @@ public class ElasticQuery {
         final ElasticVersion theVersion = versions.get(version);
 
         if (theVersion == null) {
-            throw new QueryException(QueryError.NoSuchVersion);
+
+            // to start off, we only support a single API version.
+            // However, there is a great deal of compatibility with
+            // recent versions aschanges are mostly additive. So we
+            // log the mismatch and attempt to process request
+            // anyways.
+
+            if (fallbackVersion != null) {
+
+                logger.warn("Version "+version+" is not supported. " +
+                        "Attempting to process request anyways.");
+
+                return fallbackVersion;
+            }
+
+            throw new QueryException(QueryError.NoSuchVersion,
+                    "The requested API version ("+version+
+                            ") is not yet supported by this service.");
         }
 
         return theVersion;
+    }
+
+    public void afterPropertiesSet() throws Exception {
+        if ((this.versions == null || this.versions.isEmpty()) &&
+                fallbackVersion == null) {
+            throw new Exception("versions must contain at least one entry OR "+
+                    "you must specify a fallbackVersion");
+        }
+    }
+
+    public Map<String, ElasticVersion> getVersions() {
+        return versions;
+    }
+
+    public void setVersions(Map<String, ElasticVersion> versions) {
+        this.versions = versions;
+    }
+
+    public ElasticVersion getFallbackVersion() {
+        return fallbackVersion;
+    }
+
+    public void setFallbackVersion(ElasticVersion fallbackVersion) {
+        this.fallbackVersion = fallbackVersion;
     }
 }

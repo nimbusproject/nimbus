@@ -61,6 +61,10 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
                 <entry key="2009-08-15"  value-ref="query_2009-08-15" />
             </map>
         </property>
+
+        <!-- we only support a single API version for the moment,
+        but there is general compatility with most recent versions -->
+        <property name="fallbackVersion" ref="query_2009-08-15"/>
     </bean>
 
     <bean id="query_2009-08-15" class="org.nimbustools.messaging.query.v2009_08_15.ElasticService">
