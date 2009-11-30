@@ -1,0 +1,16 @@
+-------------------- Zope Interfaces 3.3.0 -----------------
+http://www.zope.org/Products/ZopeInterface
+http://wiki.zope.org/Interfaces/FrontPage
+Zope Public License (ZPL) Version 2.1, see LICENSE_ZPL2.1.txt
+Acquired 11-17-2009:
+$ sha1sum zope.interface-3.3.0.tar.gz 
+6a5cdb2c03c9dfbaec51b243a4eb8328909f7e30  zope.interface-3.3.0.tar.gz
+
+---------------------- libvirt 0.7.4 -----------------------
+http://libvirt.org/
+Separate installation required.  Python bindings required. Your 
+system may need to be triggered to build the python bindings.
+It may require a flag to the package system or on some systems
+require the 'python-devel' to be installed on your system before
+libvirt is installed.
+
