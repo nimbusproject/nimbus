@@ -161,6 +161,11 @@ def test_mock_create():
     assert running_vm.maxmem == 256
     assert running_vm.curmem == 256
     assert running_vm.running
+    assert not running_vm.blocked
+    assert not running_vm.paused
+    assert not running_vm.shutting_down
+    assert not running_vm.shutoff
+    assert not running_vm.crashed
     
     platform.destroy(running_vm)
     
