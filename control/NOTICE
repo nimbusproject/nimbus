@@ -1,0 +1,10 @@
+By obtaining and using this program you are also agreeing to the terms of the 
+licenses covering the program's dependencies.
+
+This includes, but is not limited to, the ZPL license (Zope Public License), the
+LGPL (GNU Lesser General Public License), and the PSFL (Python).  The libvirt
+library is LGPL and is not distributed with this program.
+
+See the lib/ directory for more dependency details, especially the ones you
+have downloaded as part of this program distribution which may be new to your
+system.
