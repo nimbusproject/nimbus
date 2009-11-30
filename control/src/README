@@ -1,0 +1,24 @@
+Developer notes
+===============
+
+This document will be expanded in the future.
+
+
+Testing/development
+===================
+
+Sample:
+
+$ nosetests --nologcapture -x -v -w src/python/workspacecontrol/main
+
+During (test driven) development this can be conveniently combined with:
+
+$ ./sbin/cat-latest-logfile.sh
+
+... in order to view the log output from the last-run test.
+
+
+IPShell
+=======
+
+See the notes @ src/python/workspacecontrol/__init__.py
