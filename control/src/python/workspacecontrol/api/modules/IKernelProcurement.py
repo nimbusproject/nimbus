@@ -20,4 +20,3 @@ class IKernelProcurement(workspacecontrol.api.IWCModule):
         Return an IKernel instance appropriate to the inputs.
         UnexpectedError if none can be found (may not return None)
         """
-        

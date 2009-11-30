@@ -35,4 +35,3 @@ class INetworkBootstrap(workspacecontrol.api.IWCModule):
        
        nic_set -- instance of NICSet
        """
-       

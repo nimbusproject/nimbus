@@ -27,4 +27,3 @@ class INetworkLease(workspacecontrol.api.IWCModule):
         
         nic_set -- the instance of NICSet to release
         """
-       

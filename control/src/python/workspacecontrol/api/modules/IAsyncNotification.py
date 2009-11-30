@@ -22,4 +22,4 @@ class IAsyncNotification(workspacecontrol.api.IWCModule):
         
         error -- error text for nonzero status codes
         """
-    
+
