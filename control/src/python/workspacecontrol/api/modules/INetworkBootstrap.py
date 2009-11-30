@@ -2,7 +2,7 @@ import zope.interface
 import workspacecontrol.api
 
 class INetworkBootstrap(workspacecontrol.api.IWCModule):
-   """NetworkBootstrap is an wcmodule that sets up (or tears down) anything that
+   """NetworkBootstrap is a wcmodule that sets up (or tears down) anything that
    is needed for the VM to be booted and obtain the proper networking setup.
    
    The de facto standard mechanism for this is DHCP and currently the typical
@@ -28,15 +28,11 @@ class INetworkBootstrap(workspacecontrol.api.IWCModule):
        nic_set -- instance of NICSet
        """
 
-   def teardown(nic_set, p, c):
+   def teardown(nic_set):
        """Do any necessary work to tear down the network bootstrapping process,
        this is always called after a VM is shutdown for good but before a 
        network lease is returned.
        
        nic_set -- instance of NICSet
-       
-       p -- instance of Parameters
-       
-       c -- instance of Common
        """
        

@@ -2,7 +2,7 @@ import zope.interface
 import workspacecontrol.api
 
 class INetworkSecurity(workspacecontrol.api.IWCModule):
-   """NetworkSecurity is an wcmodule that sets up (or tears down) anything that
+   """NetworkSecurity is a wcmodule that sets up (or tears down) anything that
    is needed for the VM to be booted and obtain a secure networking setup.
    
    The typical mechanism for this so far is to configure ebtables with the rules

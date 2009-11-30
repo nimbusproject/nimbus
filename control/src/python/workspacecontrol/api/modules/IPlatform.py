@@ -5,7 +5,7 @@ class IPlatform(workspacecontrol.api.IWCModule):
     """Platform is the direct VMM control interface"""
 
     xen3 = zope.interface.Attribute("""xen3 is True if this is a Xen3 host""")
-    kvm = zope.interface.Attribute("""kvm is True if this is a KVM host""")
+    kvm0 = zope.interface.Attribute("""kvm is True if this is a KVM host""")
     
     def __init__(params, common):
         """
@@ -14,7 +14,7 @@ class IPlatform(workspacecontrol.api.IWCModule):
         common -- instance of Common
         """
 
-    def create(local_file_set, nic_set):
+    def create(local_file_set, nic_set, kernel):
         """create launches a VM"""
 
     def destroy(running_vm):

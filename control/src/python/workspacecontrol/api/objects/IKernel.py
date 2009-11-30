@@ -21,3 +21,8 @@ class IKernel(workspacecontrol.api.IWCObject):
     the deployment.  If onboard_kernel is True, this is ignored.
     """)
     
+    kernel_args = zope.interface.Attribute(
+    """If present, the arguments are passed through to the kernel 'commandline'.
+    If onboard_kernel is True, this is ignored.
+    """)
+    

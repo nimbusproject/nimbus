@@ -6,8 +6,8 @@ class IRunningVM(workspacecontrol.api.IWCObject):
     a handle (that must be supplied externally).
     """
     
-    handle = zope.interface.Attribute(
-    """handle ...
+    wchandle = zope.interface.Attribute(
+    """wchandle ...
     """)
     
     state = zope.interface.Attribute(

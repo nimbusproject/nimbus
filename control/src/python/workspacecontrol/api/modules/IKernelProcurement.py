@@ -17,6 +17,7 @@ class IKernelProcurement(workspacecontrol.api.IWCModule):
         """
         local_file_set -- instance of LocalFileSet
         
-        Return a Kernel instance appropriate to the inputs.
+        Return an IKernel instance appropriate to the inputs.
+        UnexpectedError if none can be found (may not return None)
         """
         

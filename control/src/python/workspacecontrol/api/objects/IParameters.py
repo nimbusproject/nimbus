@@ -2,7 +2,7 @@ import zope.interface
 import workspacecontrol.api
 
 class IParameters(workspacecontrol.api.IWCObject):
-    """Parameters is the systemwide mechanism for propagating commandline and
+    """Parameters is the systemwide mechanism for propagating arguments and
     conf file settings to wcmodules.
     
     It maintains a two level hierarchy for the wcmodule author.  Key/values are
@@ -20,11 +20,11 @@ class IParameters(workspacecontrol.api.IWCObject):
         """
         allconfigs -- config object with all section+key data
         
-        opts -- parsed commandline opts
+        opts -- parsed argument opts
         """
   
-    def get_cmdline_or_none(key):
-        """Get string value of a commandline parameter if it existed.
+    def get_arg_or_none(key):
+        """Get string value of an argument if it existed.
         All values are stripped of extraneous spaces (string.strip()).
         Return None if it did not exist.  Empty string is impossible.
         """
