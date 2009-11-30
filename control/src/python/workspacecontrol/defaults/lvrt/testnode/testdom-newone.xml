@@ -1,0 +1,26 @@
+<domain type='test'>
+  <name>newone412</name>
+  <uuid>5751cd20-33af-4bad-9901-15fa35f44236</uuid>
+  <os>
+    <type>xen</type>
+    <kernel>/boot/vmlinuz-2.6.15-1.43_FC5guest</kernel>
+    <initrd>/boot/initrd-2.6.15-1.43_FC5guest.img</initrd>
+    <root>/dev/sda1</root>
+    <cmdline> ro selinux=0 3</cmdline>
+  </os>
+  <memory>261072</memory>
+  <currentMemory>131072</currentMemory>
+  <vcpu>1</vcpu>
+  <devices>
+    <disk type='file'>
+      <source file='/u/newone412.img'/>
+      <target dev='sda1'/>
+    </disk>
+    <interface type='bridge'>
+      <source bridge='xenbr0'/>
+      <mac address='aa:00:00:00:00:17'/>
+      <script path='/etc/xen/scripts/vif-bridge'/>
+    </interface>
+    <console tty='/dev/pts/6'/>
+  </devices>
+</domain>
