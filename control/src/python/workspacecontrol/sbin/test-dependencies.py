@@ -27,7 +27,7 @@ except ImportError:
     problem_count += 1
     
 try:
-    import libvirt2
+    import libvirt
 except:
     print >>sys.stderr, "\n%sCannot locate the libvirt Python bindings package." % ERR
     print >>sys.stderr, "\nOn some Linux distributions, this is only included when you install libvirt\n when you have previously installed the 'python-dev' package."
