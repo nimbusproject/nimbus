@@ -66,6 +66,7 @@ if len(sortme) == 0:
 sortme.sort()
 newest_file = sortme[-1][1]
 sys.stderr.write("Newest log file: %s\n" % newest_file)
+sys.stderr.flush()
 
 f = open(newest_file)
 for line in f:
