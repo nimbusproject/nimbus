@@ -75,13 +75,13 @@ def parsersetup():
         _add_option(group, arg)
     parser.add_option_group(group)
     
-    # 2 - other_args
+    # 2 - create_args
     group = optparse.OptionGroup(parser, grouptxt2, groupline)
     for arg in create_args:
         _add_option(group, arg)
     parser.add_option_group(group)
     
-    # 3 - other_args
+    # 3 - deprecated_args
     group = optparse.OptionGroup(parser, grouptxt3, groupline)
     for arg in deprecated_args:
         _add_option(group, arg)
