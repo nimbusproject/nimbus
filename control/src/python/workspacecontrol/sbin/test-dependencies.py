@@ -34,6 +34,14 @@ except:
     print >>sys.stderr, "\nSee your distribution documentation."
     problem_count += 1
     
+try:
+    libvirtsion = libvirt.getVersion()
+    libvirtsion = int(libvirtsion)
+    if libvirtsion < 7000:
+        print >>sys.stderr, "\nWarning: low libvirt version, compatibility is not understood"
+except:
+    print >>sys.stderr, "\nProblem getting libvirt version?"
+    problem_count += 1
     
 try:
     from workspacecontrol.api.exceptions import *
