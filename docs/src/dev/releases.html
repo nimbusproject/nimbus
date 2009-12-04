@@ -1,0 +1,112 @@
+m4_include(/mcs/m4/worksp.lib.m4)
+_NIMBUS_HEADER(How to make releases)
+_NIMBUS_HEADER2(n,n,y,n,n,n,n)
+
+_NIMBUS_LEFT2_COLUMN
+
+_NIMBUS_LEFT2_DEV1_SIDEBAR(n,n,n,n,n,n,y,n)
+
+_NIMBUS_LEFT2_COLUMN_END
+_NIMBUS_CENTER2_COLUMN
+_NIMBUS_TP2_2_DEPRECATED
+
+<h2>Making releases</h2>
+
+<br />
+<a name="main-tarballs"> </a>
+<h4>Main tarballs _NAMELINK(main-tarballs)</h4>
+
+<p>
+    Cutting a new release is mostly automated but there are still manual
+    steps that must be taken.
+</p>
+
+<ol>
+    <li>
+        <p>
+            Test from a clean CVS checkout.
+        </p>
+    </li>
+    <li>
+        <p>
+            Tag CVS with final tag, convention is now "nimbus-TP2_1", 
+            "nimbus-TP2_2", etc.
+        </p>
+    </li>
+    <li>_EXAMPLE_GENERICCMD_BEGIN
+cd vm/bin/lib/gt4.0/dist
+_EXAMPLE_CMD_END
+    </li>
+    <li>Edit the version number in this file: _EXAMPLE_GENERICCMD_BEGIN
+emacs/vi/nano build.properties
+_EXAMPLE_CMD_END
+    </li>
+    <li>_EXAMPLE_GENERICCMD_BEGIN
+ant create-dist
+_EXAMPLE_CMD_END
+    </li>
+    <li>_EXAMPLE_GENERICCMD_BEGIN
+scp -r result/* USERNAME@cvs.globus.org:/www/workspace.globus.org/downloads/
+_EXAMPLE_CMD_END
+    </li>
+</ol>
+
+<p>
+    A number of documentation tasks must be completed, see
+    <a href="docs.html#new-releases">this section</a> for information
+    about those.
+</p>
+
+<br />
+<a name="cloud-client"> </a>
+<h4>Cloud client _NAMELINK(cloud-client)</h4>
+
+<p>
+    Most cloud client releases do not need to happen in tandem with a service
+    release because the protocol rarely changes.
+</p>
+<p>
+    Making a new cloud client release involves getting the "workspace/vm/cloud-client"
+	tarball builder and reading its README.txt. 
+</p>
+<p>
+	The cloud client has its own <b>CHANGES.txt</b> and <b>README.txt</b> files that need
+	updating.
+</p>
+<p>
+    Transfer the final result to the usual place,
+    "USERNAME@cvs.globus.org:/www/workspace.globus.org/downloads/"
+</p>
+<p>
+    It's a good thing to help out and note on the download page which version
+    of the cloud client is actually compatible with various clouds.  Especially
+    if there are no clouds that a new version is compatible with, this can
+    happen right after a release of the service and cloud client.
+</p>
+
+
+<br />
+<a name="context-broker-and-agent"> </a>
+<h4>Context broker and agent _NAMELINK(context-broker-and-agent)</h4>
+
+<p>
+    The context agent and broker are released more "manually", there is no
+    release generation script they are just tarballs of your efforts.  It's a
+    good thing to remove the CVS directories. 
+</p>
+<p>
+_EXAMPLE_GENERICCMD_BEGIN
+cp -a context-agent nimbus-ctx-agent-2.3
+_EXAMPLE_CMD_END
+_EXAMPLE_GENERICCMD_BEGIN
+find nimbus-ctx-agent-2.3 -name CVS -type d -print -exec rm -rf {} \;
+_EXAMPLE_CMD_END
+_EXAMPLE_GENERICCMD_BEGIN
+tar cvzf nimbus-ctx-agent-2.3.tar.gz nimbus-ctx-agent-2.3
+_EXAMPLE_CMD_END
+</p>
+
+_NIMBUS_CENTER2_COLUMN_END
+_NIMBUS_FOOTER1
+_NIMBUS_FOOTER2
+_NIMBUS_FOOTER3

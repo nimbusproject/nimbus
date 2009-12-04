@@ -1,0 +1,91 @@
+m4_include(/mcs/m4/worksp.lib.m4)
+_NIMBUS_HEADER(Metadata Quickstart)
+_NIMBUS_HEADER2(n,n,y,n,n,n,n)
+_NIMBUS_CENTER3_COLUMN
+_NIMBUS_TP2_2_DEPRECATED
+
+<h2>Metadata Quickstart</h2>
+
+<p>
+    The <a href="../interfaces/metadata.html">metadata interface guide</a>
+    goes into detail about the structure of workspace metadata, but this
+    page is for <b><i>quickly getting a working metadata file together</i></b>
+    if you've downloaded a VM and don't have one.
+</p>
+
+<p>
+    This <b>does not apply</b> if you are using the cloud client obviously.
+</p>
+
+<h3>1. Download the template</h3>
+
+<p>
+    Download <a href="../examples/sample-workspace.xml">this example metadata
+    file</a>.  Rename it if you want to.
+</p>
+
+<h3>2. Change the name</h3>
+
+<p>
+    Search the file for the instance of "http://example1/localhost/image"
+    and change this to a meaningful name.  This can be any URI, the name has
+    nothing to do with file locations (as far as the workspace service is
+    concerned at least).
+</p>
+
+<h3>3. Change the location URL to match the file</h3>
+
+<p>
+    Search the document for "file://ttylinux-xen" and change this to match
+    the filename.  If staging to the site for use with propagation, use the
+    appropriate protocol, host, and directory path.
+</p>
+
+<p>
+    <i>Note</i>: this quickstart does not cover multiple partitions or
+    HD images yet.
+</p>
+
+<h3>4. Change the mountpoint</h3>
+
+<p>
+    Search the document for "sda1" and change this to match the partition
+    of the root filesystem. 
+</p>
+
+<p>
+    The necessary value for this can be determined by examining the
+    "/etc/fstab" file <b>inside the VM</b> (this quickstart assumes you
+    are using a Linux VM).
+</p>
+
+<p>
+    (It is possible to mount the VM's filesystem locally for inspection
+    and editing, for instructions see this
+    <a href="../../offline-editing.html">offline editing guide</a>).
+</p>
+
+<h3>5. Make sure the networking is set up</h3>
+
+<p>
+    The template metadata file expects that the VM is set up to DHCP when
+    it boots.  Verify that this is true, this is often (but not always) the
+    case for VMs downloaded from online 'marketplaces'. 
+</p>
+
+<p>
+    The specific file(s) to inspect/edit varies among Linux distributions --
+    when faced with a distribution unfamilar to you, you can often figure
+    out the proper configuration by running "grep -Ri dhcp etc" ("/etc" if
+    inside the VM or chrooted).  Or simply see the distribution's networking
+    documentation.
+</p>
+
+<h3>6. Send!</h3>
+
+
+_NIMBUS_CENTER3_COLUMN_END
+_NIMBUS_FOOTER1
+_NIMBUS_FOOTER2
+_NIMBUS_FOOTER3
+

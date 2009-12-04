@@ -1,0 +1,53 @@
+m4_include(/mcs/m4/worksp.lib.m4)
+_NIMBUS_HEADER(TP2.2 APIs)
+_NIMBUS_HEADER2(n,n,y,n,n,n,n)
+
+_NIMBUS_LEFT2_COLUMN
+
+_NIMBUS_LEFT2_DEV1_SIDEBAR(n,n,y,n,n,n,n,n)
+
+_NIMBUS_LEFT2_COLUMN_END
+_NIMBUS_CENTER2_COLUMN
+_NIMBUS_TP2_2_DEPRECATED
+
+<h2>APIs</h2>
+
+<h4>RM API:</h4>
+
+<br />
+
+<p>
+    One of the very strong internal interfaces is the site resource
+    management module which allows the remote security and protocol
+    implementations and semantics to be separate from one consistent
+    set of management operations.  The implementing module governs how
+    and when callers get VMs, it assigns resources to use, and takes
+    them away at the appropriate times, etc.   See
+    <a href="../../faq.html#rm-api">this faq entry</a>.
+</p>
+<p>
+    You can see the API (javadocs) online
+    <a href="../doc/api/rm/overview-summary.html">here</a>
+    (version _WORKSP_CURRENT_VM_VERSION)
+</p>
+
+<br />
+<h4>Pilot Program:</h4>
+
+<br />
+
+<p>
+    The workspace pilot program is the python program that runs under the
+    local resource manager to secure resources.  See
+    <a href="../../faq.html#wpilot">this faq entry</a>.
+</p>
+<p>
+    You can see the internal API (epydoc) online
+    <a href="../doc/api/pilot/index.html">here</a>
+    (version _WORKSP_CURRENT_VM_VERSION)
+</p>
+
+_NIMBUS_CENTER2_COLUMN_END
+_NIMBUS_FOOTER1
+_NIMBUS_FOOTER2
+_NIMBUS_FOOTER3

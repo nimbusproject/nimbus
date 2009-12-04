@@ -1,0 +1,308 @@
+m4_include(/mcs/m4/worksp.lib.m4)
+_NIMBUS_HEADER(TP2.2 Troubleshooting)
+_NIMBUS_HEADER2(n,n,y,n,n,n,n)
+_NIMBUS_LEFT2_COLUMN
+_NIMBUS_LEFT2_ADMIN_SIDEBAR(n,n,n,y,n)
+_NIMBUS_LEFT2_COLUMN_END
+_NIMBUS_CENTER2_COLUMN
+_NIMBUS_TP2_2_DEPRECATED
+
+<h2>Nimbus TP2.2 Troubleshooting</h2>
+
+<p>
+    Any questions can be posted to the workspace-user mailing list and will
+    likely be answered promptly by a member of the community. For instructions
+    on how to subscribe and post messages to this list, see the
+    <a href="../../../contact.html">contact page</a>.
+</p>
+
+<p>
+    <b>Sections:</b>
+</p>
+
+<ul>
+    <li>
+        <a href="#bugs">Known bugs</a>
+    </li>
+    <li>
+        <a href="#client">Client related</a>
+    </li>
+    <li>
+        <a href="#service">Service related</a>
+    </li>
+</ul>
+
+
+<br />
+
+<div class="ulmoveleft">
+
+<a name="bugs"> </a>
+<h2>Known bugs</h2>
+
+
+<ul>
+    <li>
+        <p>
+            <a href="http://bugzilla.globus.org/bugzilla/buglist.cgi?query_format=advanced&short_desc_type=allwordssubstr&short_desc=&product=Nimbus&version=TP2.2&long_desc_type=allwordssubstr&long_desc=&bug_file_loc_type=allwordssubstr&bug_file_loc=&keywords_type=allwords&keywords=&bug_status=ASSIGNED&bug_status=REOPENED&bug_status=RESOLVED&bug_status=VERIFIED&bug_status=CLOSED&bug_severity=blocker&bug_severity=critical&bug_severity=major&bug_severity=normal&bug_severity=minor&bug_severity=trivial&emailtype1=substring&email1=&emailtype2=substring&email2=&bugidtype=include&bug_id=&votes=&chfieldfrom=&chfieldto=Now&chfieldvalue=&cmdtype=doit&order=Reuse+same+sort+as+last+time&field0-0-0=noop&type0-0-0=noop&value0-0-0=">Known
+            issues</a>: custom query to the bugzilla system, it lists out
+            all known issues with TP2.2 Nimbus components.
+        </p>
+    </li>
+</ul>
+
+<br />
+
+<a name="client"> </a>
+<h2>Client related</h2>
+
+<ul>
+    <li>
+        <a name="elastic-no-operation-error"> </a>
+        <p>
+            Problem: Trying to use EC2 client but getting an error like: _NAMELINK(elastic-no-operation-error)
+        </p>
+        <div class="screen"><pre>
+SecurityException: [SEC]Operation name could not be determined</pre></div>
+        <p>
+            Solution: Either the elastic service is not installed at the target
+            URL or you are using the wrong client tools.  Amazon EC2 upgrades
+            happen without warning and so there is sometimes a sync error
+            between their default tools and the tools needed to work with
+            particular Nimbus elastic services.
+        </p>
+
+        <p>
+            The current release is known to work with
+            <a href="http://s3.amazonaws.com/ec2-downloads/ec2-api-tools-1.3-24159.zip">this specific version</a>
+            of the EC2 client tools (compatible with EC2 WSDL 2008-05-05 which
+            was publicly released by Amazon on August 20th, 2008).
+        </p>
+    </li>
+
+<br /><hr />
+
+    <li>
+        <a name="elastic-pubkey-error"> </a>
+        <p>
+            Problem: Trying to use EC2 client but getting an error like: _NAMELINK(elastic-pubkey-error)
+        </p>
+        <div class="screen"><pre>
+CertificateParsingException: invalid DER-encoded certificate data</pre></div>
+        <p>
+            Solution: These clients typically only handle un-annotated public
+            certificate text blobs.  Make a new file with just these lines from
+            the bottom of the problem certificate pem file:
+        </p>
+
+        <div class="screen"><pre>-----BEGIN CERTIFICATE-----
+MIICKjCCAZOgAwIBA [...]
+-----END CERTIFICATE-----</pre></div>
+
+        <p>
+            And make sure to point the tools at the new file:
+        </p>
+_EXAMPLE_CMD_BEGIN
+export EC2_CERT=/path/to/new/file/usercert-justcert.pem
+_EXAMPLE_CMD_END
+
+    </li>
+
+<br /><hr />
+    
+    <li>
+        <a name="elastic-privkey-error"> </a>
+        <p>
+            Problem: Trying to use EC2 client but getting an error like: _NAMELINK(elastic-privkey-error)
+        </p>
+        <div class="screen"><pre>
+IOException: DER length more than 4 bytes</pre></div>
+        <p>
+            Solution: These clients typically only handle unencrypted private
+            keys, you are perhaps using an encrypted private key.  Make an
+            unencrypted version like so:
+        </p>
+_EXAMPLE_CMD_BEGIN
+openssl rsa -in userkey.pem -out bare-userkey.pem
+_EXAMPLE_CMD_END
+_EXAMPLE_CMD_BEGIN
+chmod 400 bare-userkey.pem
+_EXAMPLE_CMD_END
+_EXAMPLE_CMD_BEGIN
+export EC2_PRIVATE_KEY=/path/to/new/file/bare-userkey.pem
+_EXAMPLE_CMD_END
+    </li>
+
+<br /><hr />
+
+    <li>
+        <a name="elastic-ssl-error"> </a>
+        <p>
+            Problem: Trying to use EC2 client but getting an error like:  _NAMELINK(elastic-ssl-error)
+        </p>
+        <div class="screen"><pre>
+"unable to find valid certification path to requested target"</pre></div>
+
+        <p>
+            Solution: This means the EC2 client does not trust the https
+            endpoint.  This is likely because the endpoint is not using an SSL
+            certificate signed by the standard Java JRE's trusted CAs.
+        </p>
+        <p>
+            An option here is to use
+            <a href="/downloads/install-cert-1.tar.gz">this program</a> (source
+            included) to add the certificate.  It will contact the endpoint,
+            retrieve the advertised certificate, and then give you an option to
+            create a new "keystore" with the old trusted certificates and the
+            new one you just added.
+        </p>
+        <p>
+            To enable the newly created keystore, you need to copy it to the JRE's
+            security directory, for example:
+        </p>
+
+_EXAMPLE_ROOTCMD_BEGIN
+mv /opt/sun-jdk-1.6.0.07/jre/lib/security/cacerts /opt/sun-jdk-1.6.0.07/jre/lib/security/cacerts.backup
+_EXAMPLE_CMD_END
+
+_EXAMPLE_ROOTCMD_BEGIN
+cp jssecacerts /opt/sun-jdk-1.6.0.07/jre/lib/security/cacerts
+_EXAMPLE_CMD_END
+
+        <p>
+            As noted <a href="reference.html#elastic">here</a>, using http
+            and not https to host the service is not a good idea.
+        </p>
+    </li>
+
+    <br /><hr />
+
+    <li>
+        <a name="elastic-timestamp-error"> </a>
+        <p>
+            Problem: Trying to use EC2 client <i>for the first time as the
+            site administrator testing the installation</i> but getting an
+            error like:  _NAMELINK(elastic-timestamp-error)
+        </p>
+        <div class="screen"><pre>
+General: An error was discovered processing the &lt;wsse:Security&gt; header.
+     (WSSecurityEngine: Invalid timestamp {0}); nested exception is:
+        java.text.ParseException: Unparseable date: "2008-08-07T16:23:22.885Z"</pre></div>
+
+        <p>
+            Solution: Make sure you have altered the container configuration
+            correctly to handle EC2 clients, as explained
+            <a href="reference.html#elastic">here</a>.
+            Container restart required after the configuration change.
+        </p>
+        <p>
+            There is a sample container <i>server-config.wsdd</i> configuration
+            to compare against
+            <a href="sample-server-config.wsdd-supporting-ec2.xml">here</a>.
+        </p>
+    </li>
+
+    <br /><hr />
+
+    <li>
+        <a name="elastic-misconfig-error"> </a>
+        <p>
+            Problem: Trying to use EC2 client <i>for the first time as the
+            site administrator testing the installation</i> but getting an
+            error like: _NAMELINK(elastic-misconfig-error)
+        </p>
+        <div class="screen"><pre>MustUnderstand: Header
+            {Security}http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd
+            was not undertsood by the service.</pre></div>
+
+        <p>
+            Solution: Make sure you have altered the container configuration
+            correctly to handle EC2 clients, as explained
+            <a href="reference.html#elastic">here</a>.
+            Container restart required after the configuration change.
+        </p>
+        <p>
+            In particular, this may be that you have "X509EncryptHandler"
+            disabled instead of "X509SignHandler".
+        </p>
+        <p>
+            There is a sample container <i>server-config.wsdd</i> configuration
+            to compare against
+            <a href="sample-server-config.wsdd-supporting-ec2.xml">here</a>.
+        </p>
+    </li>
+
+</ul>
+<br />
+
+<a name="service"> </a>
+<h2>Service related</h2>
+
+<ul>
+    <li>
+        <a name="service-no-dhcp"> </a>
+        <p>
+            Problem: The VMs do not obtain addresses via DHCP. _NAMELINK(service-no-dhcp)
+        </p>
+        <p>
+            Solution: Make sure dom0's interface name(s) configuration is valid,
+            the "dhcpvif" part of the association configuration in the
+            worksp.conf file. See the backend networking configuration section
+            for more details and the right setting to use.
+        </p>
+    </li>
+
+<br /><hr />
+
+    <li>
+        <a name="service-bad-mac-prefix"> </a>
+        <p>
+            Problem: Sometimes, from the start of the workspace's deployment,
+            one of the VM's NICs is unreachable. (specifically, the ARP protocol
+            does not resolve the IP address to a MAC address) _NAMELINK(service-bad-mac-prefix)
+        </p>
+        <p>
+            Solution: Make sure the MAC address prefix is valid. See the backend
+            networking configuration section for more details and the right
+            setting to use.
+        </p>
+        <p>
+            The service should be checking the validity of the MAC prefix
+            now actually, you should never have this problem...
+        </p>
+    </li>
+
+<br /><hr />
+    
+    <li>
+        <a name="service-two-etc-dirs"> </a>
+        <p>
+            Problem: The container doesn't start anymore and you are getting a
+            long JNDI related exception. You see "InvocationTargetException"
+            and "NameAlreadyBoundException" and probably "Name home is already
+            bound in this Context". > _NAMELINK(service-two-etc-dirs)
+        </p>
+        <p>
+            Solution: This will happen if you make a backup of the
+            "etc/nimbus" directory inside the etc directory. For example,
+            you ran "cp -a nimbus nimbus_backups". The container thinks these
+            are both directories for services and tries to consume both
+            JNDI files. Hence, the configurations are consumed multiple
+            times which is an error because only one of each can be
+            "bound in this context" at a time.
+        </p>
+    </li>
+</ul>
+
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+</div> <!-- ends ulmoveleft (covers whole page) -->
+
+_NIMBUS_CENTER2_COLUMN_END
+_NIMBUS_FOOTER1
+_NIMBUS_FOOTER2
+_NIMBUS_FOOTER3

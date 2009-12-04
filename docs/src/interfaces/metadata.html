@@ -1,0 +1,235 @@
+m4_include(/mcs/m4/worksp.lib.m4)
+_NIMBUS_HEADER(WSRF Interfaces)
+_NIMBUS_HEADER2(n,n,y,n,n,n,n)
+_NIMBUS_INTERFACES_WARNING
+_NIMBUS_LEFT2_COLUMN
+_NIMBUS_LEFT2_INTERFACES_SIDEBAR(n,y,n,n,n,n,n)
+_NIMBUS_LEFT2_COLUMN_END
+_NIMBUS_CENTER2_COLUMN
+_NIMBUS_TP2_2_DEPRECATED
+
+<a name="metadata"></a>
+
+<h2>Workspace Metadata</h2>
+
+<p>A virtual workspace is an abstraction of an execution environment -- in this
+VM-based service, a workspace is defined in terms of VM images and the information
+necessary to instantiate them in a controlled manner.</p>
+
+<p>The workspace metadata type contains information necessary for workspace
+   deployment. This information is deployment-independent; once defined,
+    a workspace may be deployed many times. </p>
+
+<p>This section is divided into three parts:</p>
+<div class="ullispace">
+<ul>
+    <li><a href="#vw">VirtualWorkspace</a></li>
+    <li><a href="#definition">Workspace Definition</a></li>
+    <li><a href="#logistics">Deployment Logistics (networking)</a></li>
+</ul>
+</div>
+
+<a name="vw"></a>
+
+<h2>VirtualWorkspace</h2>
+
+<p>A VirtualWorkspace element consists of a name, definition
+section, and logistics section.</p>
+
+<p><img alt="Virtual Workspace Type" src="../img/VirtualWorkspace02.png"/></p>
+
+<p>You can view the VirtualWorkspace_Type definition online in the
+<a href="../examples/compact/metadata/vw.xsd">vw schema</a>.  You can
+also view a simple
+<a href="../examples/sample-workspace.xml">sample workspace</a> that is
+installed with this version of the workspace client.</p>
+
+<p>Specifying metadata about your own VM should be as simple as taking
+the sample workspace metadata file and adjusting some of the fields (see
+the <a href="../doc/metadata-quickstart.html">metadata quickstart</a>).</p>
+
+<p>The workspace <b>name</b> is a URI that could be used to obtain
+information such as such as its provenance, creation and modification times,
+or detailed software catalog (i.e., the <i>deployment capability</i> of
+a workspace which defines what kinds of applications the workspace can
+support) .  This information is not directly relevant to deployment but
+would be very useful for clients.</p>
+
+
+<a name="definition"></a>
+
+<h2>Definition</h2>
+
+<p>The definition section of the workspace description contains static
+information that cannot change during deployment. This includes: (1)
+requirements (kernel images or versions, kernel parameters, and required CPU
+architecture), (2) references to particular image partitions, and (3) what
+device names for these partition files the OS is expecting. </p>
+
+<p>You can view the definition type online in the
+<a href="../examples/compact/metadata/vw-definition.xsd">vw-definition
+schema</a>.  You can also view a simple
+<a href="../examples/sample-workspace.xml">sample workspace</a> that is
+installed with this version of the workspace client.</p>
+
+<p>
+    The definition section consists of two sections, requirements and
+    diskCollection:
+</p>
+
+<p>
+    <img alt="definition overview" src="../img/definition01.png" />
+</p>
+
+<p>
+    The <b>requirements</b> section lists the CPU architecture, VMM
+    name and version requirements, and kernel requirements.  All of its
+    elements are currently respected (but of the kernel element, currently
+    only the <i>parameters</i> section).
+</p>
+
+<p>
+    The workspace service does not support client specification of
+    kernels until support for multiple image transfers is added.
+    In this version the site should configure a <i>default kernel</i> to use
+    for the VMs or supply a list of (manually cached) kernel names.
+</p>
+
+<p>
+    While multiple disk partitions are supported (including on-the-fly
+    creation of blankspace partitions), currently only one file may be used
+    with the propagation mechanisms.  The others must be files that have
+    been cached already (except for blankspace partitions which are
+    created on-the-fly on the hypervisor nodes).
+</p>
+
+<p>
+    There is no support for fine grain authorization policies about the
+    file being used for partitions unless you configure the service to
+    use the creation time authorization callout (see the
+    <a href="../plugins/index.html">plugins</a> page).
+</p>
+
+<p>
+    The disk location is listed as a URI and bound to a device
+    name ("/dev/hda") or partition ("/dev/hda1"), for an example see the
+    <a href="../examples/sample-workspace.xml">sample workspace</a>.
+</p>
+
+
+<a name="logistics"></a>
+
+<h2>Deployment Logistics</h2>
+
+<p>
+    The <b>logistics</b> section of the workspace description contains
+    information that is typically bound at deployment time only (late binding).
+    In the current version, this is networking requirements.
+    The workspace's networking settings can be the defined by the
+    deployer/broker, the Workspace Service itself, or by the workspace
+    service's interactions with other services coordinating networking
+    settings and as such is considered to be late binding. In this version
+    <b>only the factory service client can specify the logistics
+    information</b>.
+</p>
+
+<p>
+    <i>Note:</i> Logistics are different from values in the
+    <a href="deployment.html">deployment</a> type.  They may change per
+    deployment but also may persist beyond a single deployment.  Therefore they
+    are tied to the defintion but are not strictly what defines the particular
+    workspace. For example, if a workspace uses DHCP
+    when it is booted but then it is paused and migrated, the specific
+    networking information must be part of its definition in order to
+    unpause it successfully on a new subnet.
+</p>
+
+<p>
+    <img alt="networking" src="../img/networking.png" />
+</p>
+
+<p>
+    A VM can have an arbitrary number of virtual network interfaces that
+    are mapped to physical hardware in different ways.  Broadly, there
+    are two types of networking configurations to manage: how the network
+    interfaces inside the VM need to be configured and how these interfaces
+    need to be bridged and managed outside the VM.
+</p>
+
+<p>
+    The <b>name</b> of a NIC is a logical name used to refer to it, for
+    example from the deployment type's bandwidth section.  The <b>MAC</b>
+    address can optionally be specified (it will otherwise be generated).
+</p>
+
+<p>
+    An <b>association</b> string can be configured to give more information
+    that may be necessary such as a IP address pool label.  Keywords
+    could be correlated with different classes
+    of connectivity or different links and subnets. Alternatively it can
+    be used to express inter-VM connectivity requirements.
+</p>
+
+<p>
+    As a simple example, consider a physical node with two physical NICs that
+    is configured with the association "public" and "private."  Each of these
+    keywords map to an in-memory bridge connected to each NIC and one NIC has
+    Internet access and one NIC has private LAN access.  The metadata does not
+    specify the name of the physical bridge the VM needs to be bridged
+    to (since that is hypervisor node specific), it maps to a <i>class of
+    connectivity</i> instead.
+</p>
+
+<p>
+    The <b>ipConfig</b> section specifies how the VM should be
+    <i>internally</i> configured.  Just like the MAC, mode, and
+    association L2, the IP settings may be decided at deploy time.
+    Thus it is necessary to support a wide range of L3 options for
+    the VM's NIC(s) and be able to pass this information to the VM.
+</p>
+
+<p>
+    <img alt="ip config" src="../img/ipconfig.png" />
+</p>
+
+<p>
+    There are three <b>acquisitionMethods</b> the NIC can use for its settings:
+    AcceptAndConfigure, Advisory, and AllocateAndConfigure.
+    <b>AcceptAndConfigure</b> and <b>AllocateAndConfigure</b> signal to the
+    workspace service that it is responsible for configuring the VM itself
+    with specific settings (so that during its boot process the virtual
+    hardware is configured with the specified settings) and <b>Advisory</b>
+    signals that the VM should just be configured with the appropriate hardware
+    and connectivity settings (some other entity will configure the
+    networking settings inside the VM).
+</p>
+
+<p>
+    AcceptAndConfigure means the client must have the exact NIC configuration
+    requested in the deployment request.  AllocateAndConfigure means that the
+    client is requesting an address from a pool of available addresses.  See
+    the text on associations above.  For more information about address pools,
+    see the administrator's guide.
+</p>
+
+<p>
+    This version of the workspace service supports DHCP for the
+    AcceptAndConfigure and AllocateAndConfigure acquisition
+    methods, both require getting specific settings "into" the workspace
+    dynamically. The workspace backend program employs DHCP which will
+    intercept DHCP requests comding from the VM's networking interfaces and
+    assign a specific setting to it.  Note that this includes assigning
+    specific, client requested IP addresses (DHCP can be made to have specific
+    responses to a request).  For more information on setting up DHCP and how
+    it is implemented in such a way that does not interfere with a site's DHCP
+    server, see the administrator's guide.
+</p>
+
+
+_NIMBUS_CENTER2_COLUMN_END
+_NIMBUS_FOOTER1
+_NIMBUS_FOOTER2
+_NIMBUS_FOOTER3
+
+
+

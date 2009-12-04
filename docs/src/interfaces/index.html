@@ -1,0 +1,226 @@
+m4_include(/mcs/m4/worksp.lib.m4)
+_NIMBUS_HEADER(WSRF Interfaces)
+_NIMBUS_HEADER2(n,n,y,n,n,n,n)
+
+<style type="text/css">
+table.ssiimple {
+	border-width: 0 0 0 0;
+	border-spacing: 0;
+	border-style: none none none none;
+	border-color: gray gray gray gray;
+	border-collapse: separate;
+	background-color: white;
+}
+table.ssiimple td {
+	border-width: 0 0 0 0;
+	padding: 4px 4px 4px 4px;
+	border-style: inset inset inset inset;
+	border-color: gray gray gray gray;
+	background-color: white;
+    vertical-align: top;
+}
+
+td.ssiimpleleft {
+    width: 20%;
+}
+
+</style>
+
+_NIMBUS_INTERFACES_WARNING
+_NIMBUS_LEFT2_COLUMN
+_NIMBUS_LEFT2_INTERFACES_SIDEBAR(y,n,n,n,n,n,n)
+_NIMBUS_LEFT2_COLUMN_END
+_NIMBUS_CENTER2_COLUMN
+_NIMBUS_TP2_2_DEPRECATED
+
+<a name="interfaces"></a>
+
+<h2>Nimbus WSRF Interfaces</h2>
+
+<p>
+    The web services interfaces can be broken into these
+    categories:
+</p>
+
+<table class="ssiimple">
+    <tr>
+        <td class="ssiimpleleft">
+            <a href="metadata.html"><b>Workspace Metadata</b></a>
+        </td>
+        <td>
+            Describes deployment-independent information about a workspace.
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <a href="deployment.html"><b>Deployment Request</b></a>
+        </td>
+        <td>
+            Describes the resource allocation requested for a specific
+            deployment of the workspace.
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <a href="factory.html"><b>Factory Service</b></a>
+        </td>
+        <td>
+            Allows an authorized client to deploy a workspace assigned to a
+            specific resource allocation. This may be a group request for
+            multiple workspaces.  <a href="optional.html">Optional
+            parameters</a> may be sent with the creation request.
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <a href="service.html"><b>Workspace Service</b></a>
+        </td>
+        <td>
+            Allows an authorized client to manage a workspace.
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <a href="groupservice.html"><b>Group Service</b></a>
+        </td>
+        <td>
+           Allows an authorized client to manage a group of workspaces at once.
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <b>Ensemble Service</b>
+        </td>
+        <td>
+           Allows an authorized client to co-schedule complex, heteregenous
+           workspaces and workspace groups.  More specific interface
+           documentation is forthcoming.
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <a href="statusservice.html"><b>Status Service</b></a>
+        </td>
+        <td>
+            Allows a client to query the usage data the service has collected
+            about it.
+        </td>
+    </tr>
+</table>
+
+<hr />
+
+<a name="basicoverview"> </a>
+
+<h3>Basic Overview</h3>
+
+<p>
+   The figure below illustrates the basic relationship between the factory and
+   service interfaces.
+</p>
+
+<p>
+    The <a href="factory.html"><b>Workspace Factory Service</b></a> has one
+    operation called <i>create</i>.  <i>Create</i> has two required
+    parameters: <a href="metadata.html"><b>workspace metadata</b></a> and a
+    <a href="deployment.html"><b>deployment request</b></a> for that
+    metadata.  Also, create will accept <a href="optional.html">optional
+    parameters</a>.
+</p>
+
+<p>
+    Once created, a workspace is represented as a WSRF
+    resource and can be inspected and managed through operations of the
+    <a href="service.html"><b>Workspace Service</b></a>.
+</p>
+
+<p><img alt="Workspace Interface Overview"
+        src="../img/interface_overview.jpg" /></p>
+
+<p>
+    An important resource property of the workspace instance is the
+    <a href="deployment.html"><b>deployment</b></a> resource property (RP).
+    It provides deployment information about a workspace such as running
+    time, the state of the workspace, and resource allocation.
+</p>
+
+<p>
+    You can examine the WSDL and XSD files directly online at the
+    <a href="../examples/compact/index.html">WSDL and XSD files</a> page.
+</p>
+
+<hr />
+
+<a name="groupoverview"> </a>
+
+<h3>Group Overview</h3>
+
+<p>
+   The figure below illustrates the relationship between the factory, service,
+   and now <b>group service</b> interfaces.  Here, the deployment request
+   contains a request for more than one 'copy' of the metadata to be deployed.
+</p>
+
+<p>
+    For example, consider the request is for five workspaces.  
+</p>
+
+<p><img alt="Workspace Group Overview"
+        src="../img/group_interface_overview.jpg" /></p>
+
+<p>
+    Five network addresses are available (AllocateAndConfigure networking
+    assignment is in use, see the <a href="metadata.html#logistics">logistics
+    overview</a> for more information) and the scheduling process succeeds for
+    the group request, so the request goes through.  <b>If there was an
+    error at any time during the create process, all allocations, reservations,
+    etc. will be backed out</b>.
+</p>
+
+<p>
+    A group resource instance (with its own unique EPR) is created.
+    Five individual workspace resource instances (each with their own EPR) are
+    also created.  These six EPRs are returned by the factory to the client
+    that invoked <i>create</i>.
+</p>
+
+<p>
+    From this point on, each workspace has its own state, its own network
+    address, etc.  These properties can be inspected (or subscribed to in
+    order to receive notifications when they change) on a one by one basis.
+</p>
+
+<p>
+    The group EPR is used when you want to invoke the same management operation
+    on all the workspaces at the same time.  For example, it would not be
+    efficient to destroy 100 workspaces one by one when you could make one
+    remote call to accomplish the same thing.
+</p>
+
+<p>
+    The invoked group operation is attempted on <b>each remaining workspace</b>
+    in the group.  Consider an example situation where a client destroyed one
+    workspace in a group on an individual basis and then later called destroy
+    via the group service with a group EPR.  That group operation would
+    succeed, but it would only destroy the remaining workspaces.
+</p>
+
+<p>
+    If there is an error with an operation on one of the group members, this
+    is noted in a return fault along with all of the successes. <b>There
+    are no error backout semantics</b> (only during factory group-create, which
+    is an all or nothing process).  A group operation is simply a shortcut
+    for a regular workspace service operation invoked simultaneously on
+    <b>N</b> workspace EPRs.
+</p>
+
+<p>You can examine the WSDL and XSD files directly online at the
+<a href="../examples/compact/index.html">WSDL and XSD files</a> page</p>
+
+
+_NIMBUS_CENTER2_COLUMN_END
+_NIMBUS_FOOTER1
+_NIMBUS_FOOTER2
+_NIMBUS_FOOTER3
+
+

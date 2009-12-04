@@ -1,0 +1,75 @@
+m4_include(/mcs/m4/worksp.lib.m4)
+_NIMBUS_HEADER(WSRF Interfaces)
+_NIMBUS_HEADER2(n,n,y,n,n,n,n)
+_NIMBUS_INTERFACES_WARNING
+_NIMBUS_LEFT2_COLUMN
+_NIMBUS_LEFT2_INTERFACES_SIDEBAR(n,n,n,y,n,n,n)
+_NIMBUS_LEFT2_COLUMN_END
+_NIMBUS_CENTER2_COLUMN
+_NIMBUS_TP2_2_DEPRECATED
+
+<a name="factory"></a>
+
+<h2>Workspace Factory Service</h2>
+
+<p>
+    The factory service allows a client to instantiate a workspace as a
+    WSRF resource by using the <i>create</i> operation with workspace
+    <a href="metadata.html">metadata</a> and a
+    <a href="deployment.html">deployment</a> request.  The factory service's
+    WSDL can be
+    <a href="../examples/compact/workspace_factory_port_type_compact.wsdl">viewed
+    online</a>.  It references a separate
+    <a href="../examples/compact/workspace_types.xsd">types schema</a>.
+</p>
+
+<p>
+    You may send <a href="optional.html">optional parameters</a> alongside the
+    metadata and deployment request in the create operation.
+</p>
+
+<p>
+    In the case of a group request, the factory returns a group EPR.  It
+    always returns at least one single workspace reference element
+    (CreatedWorkspace_Type).  In the
+    case of a group request, this is a list of references (see the interfaces
+    page for an 
+    <a href="index.html#groupoverview">overview of group requests</a>).
+</p>
+<p>
+    In the following picture of a single workspace reference, note that the
+    resource termination timestamp (ActualTerminationTime) represents
+    something different than the running duration added to the instantiation
+    timestamp (which is the shutdown time), there is an offset.  The shutdown
+    time is when you can't run the workspace anymore but it still might be
+    unpropagating etc.  During this time the workspace representation (WSRF
+    resource) still exists even though running the VM is not possible anymore.
+</p>
+
+<p>
+    <img alt="created workspace (returned reference)"
+         src="../img/CreatedWorkspace.png" />
+</p>
+
+<p>
+    Currently the factory service has five resource properties: the maximum
+    workspace running duration, the default running duration, the supported
+    CPU architecture, the supported VMM version(s) if that is necessary to
+    know, and the configured networking associations that can be requested
+    (see the <a href="metadata.html#logistics">logistics</a> section).
+</p>
+
+<p>
+    For notes on the current factory implementation, including fault
+    descriptions, see the
+    authorization explanation on the <a href="../plugins/index.html">plugins
+    page</a>.
+</p>
+
+
+_NIMBUS_CENTER2_COLUMN_END
+_NIMBUS_FOOTER1
+_NIMBUS_FOOTER2
+_NIMBUS_FOOTER3
+
+

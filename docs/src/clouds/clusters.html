@@ -1,0 +1,453 @@
+m4_include(/mcs/m4/worksp.lib.m4)
+_NIMBUS_HEADER(One-Click Clusters)
+_NIMBUS_HEADER2(n,n,n,n,n,n,y)
+_NIMBUS_LEFT2_COLUMN
+
+_NIMBUS_LEFT2_CLOUDS1_SIDEBAR(n,n,n,y,n,n,n)
+
+_NIMBUS_LEFT2_COLUMN_END
+_NIMBUS_CENTER2_COLUMN
+
+<h2>One Click Clusters</h2>
+
+<div style="float: left; width: 80px;"><a href="clusters.html"><img src="img/network-receive-72.png" /></a></div>
+<p>
+  Quickstart and conceptual overview for launching one-click, auto-configuring clusters.
+</p>
+  
+<p>
+  If you are already running on one of the <a href="index.html">science
+  clouds</a>, you could launch and use a cluster right this minute.  Or you
+  could run your own cloud (the 
+  <a href="http://workspace.globus.org/downloads/index.html">software</a>
+  is free and open source).
+</p>
+
+<a name="toc"> </a>
+
+<br />
+
+<table><tr><td>
+Cluster Quickstart:<br />&nbsp;&nbsp;<i>(you are here)</i>
+<ul>
+  <li>
+    <a href="clusters.html#features">Features</a>
+  </li>
+  <li>
+    <a href="clusters.html#background">Background</a>
+  </li>
+  <li>
+    <a href="clusters.html#exampleoverview">Example</a>
+  </li>
+  <li>
+    <a href="clusters.html#examplequick">Super-quick start</a>
+  </li>
+  <li>
+    <a href="clusters.html#examplewalk">Example walkthrough</a>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </li>
+</ul>
+</td><td valign="top">
+Cluster Guide:<br /><br />
+
+<ul>
+  <li>
+    <a href="clusters2.html#howdoes">How does it happen?</a>
+  </li>
+  <li>
+    <a href="clusters2.html#custom">How do I make images of my own do this?</a>
+  </li>
+</ul>
+</td></tr></table>
+
+<br />
+
+<a name="features"> </a>
+<h2>Features _NAMELINK(features)</h2>
+
+<ul>
+  <li>
+    <p>Launch heterogeneous clusters of auto-configuring VMs with one
+    command</p>
+  </li>
+  <li>
+    <p>No private keys need to be on images at the repository, you can collaborate openly and share them freely</p>
+  </li>
+  <li>
+    <p>Configuration tasks that are sensitive to (the changing) network and cryptographic identities are automatically managed upon boot</p>
+  </li>
+  <li>
+    <p>Shared, secure information context created for all launch members</p>
+  </li>
+  <li>
+    <p>Data may be sent to cluster's context by remote client for consumption by the nodes</p>
+  </li>
+  <li>
+    <p>Inside VM, you can attain context information without knowing about any messaging code/protocols</p>
+  </li>
+  <li>
+    <p>Information from VMs is available to remote client via secure path (for example generated SSHd host keys)</p>
+  </li>
+  <li>
+    <p>Common tasks are implemented (optional) like populating /etc/hosts with all cluster member addresses and setting up SSH host-based authentication across all accounts</p>
+  </li>
+</ul>
+
+<br />
+
+<a name="background"> </a>
+<h2>Background _NAMELINK(background)</h2>
+
+<p>
+  Using the "--cluster" option, the cloud client can direct the workspace
+  service to launch any number (and any type) of workspaces simultaneously. 
+  Something called the <i>context broker</i> will work behind the scenes to
+  make sure each node has the information they need to play their various
+  roles.
+</p>
+  
+<p>
+  You can bring up the exact cluster you need whenever necessary. It's portable
+  across clouds, too.  If you need to make some updates you can re-launch from
+  a new template image (that you already tested at small scale).  You can
+  also customize files on a per launch basis to make the cluster have different
+  policies or behaviors.  You can even direct the same image file to take on
+  different roles depending on what the context broker tells it.
+</p>
+
+
+<div style="float: left; width: 56px;"><img src="img/note.png" /></div>
+<p>
+  No private keys need to live on the images in your cluster before
+  they are booted.  This means you can freely collaborate on useful setups and
+  distribute them openly over the internet to end users.
+</p>
+
+<br />
+
+<a name="exampleoverview"></a>
+
+<h2>Example _NAMELINK(exampleoverview)</h2>
+
+<p>
+  If you have access to a science cloud and see the 'base-cluster-01.gz' image
+  in your personal repository directory, you can launch the cluster yourself.
+  You will need a <a href="cloudquickstart.html#install">cloud client</a>
+  009 or later.
+</p>
+
+<p>
+There are four steps to the example:
+</p>
+
+<ol>
+  <li>Edit the access policy to install on the cluster (dictate the grid-mapfile contents)</li>
+  <li>Run one command to launch the cluster</li>
+  <li>Run one scp command to get the cluster's auto-created
+  credential so local job submission tools can trust it </li>
+  <li>Export an environment variable that will point tools to the credential directory</li>
+</ol>
+
+<p>
+  Now you can submit remote work: you have a Torque PBS cluster
+  fronted by GridFTP and GRAM.
+</p>
+
+<p>
+  Steps #1, #3, and #4 are particular to the example cluster, to configure
+  security settings for GridFTP and GRAM.
+</p>
+
+<p class="indent1em">
+  <div style="float: left; width: 56px;"><img src="img/note.png" /></div>
+<p>
+  SSH trust is already setup for you as part of #2. The nodes have been
+  configured to trust your SSH key for logins.  You trust each nodes' generated
+  SSH host keys.
+</p>
+
+<br />
+
+<a name="examplequick"> </a>
+
+<h2>Super-quick start _NAMELINK(examplequick)</h2>
+
+<p>
+  The guide on this page below contains inline explanation of the commands
+  and what's happening.  But if you'd just like to get going with the sample,
+  here is what you need to do:
+</p>
+<ol>
+  <li>Edit <b><i>samples/base-cluster.xml</i></b> to include your DN in the gridmap field</li>
+  <li>Run <b><i>./bin/cloud-client.sh --run --hours 1 --cluster samples/base-cluster.xml</i></b></li>
+  <li>Wait a few minutes</li>
+  <li>At exit, note the hostname printed for "[[ head-node ]]"</li>
+  <li>Configure local tools to trust the cluster:<br/>
+  <div style="margin-left: 15px;"><b><i>scp -r root@HEADNODE-HOSTNAME:certs/* &nbsp;lib/certs/</i></b><br />
+  <b><i>export X509_CERT_DIR=`pwd`/lib/certs</i></b></div>
+  </li>
+</ol>
+
+<p>
+  There is a full sample of commands and output <a href="cluster-all-output.txt">here</a>.
+</p>
+
+<p>
+Now you can send work.  You have your very own, working:
+</p>
+
+<ul>
+  <li>Torque installation for distributing work across the cluster</li>
+  <li><a href="http://www.globus.org/grid_software/computation/gram.php">GRAM4</a> (backed by Torque) installation at <i>"https://HEADNODE_HOSTNAME:8443/wsrf/services/ManagedJobFactoryService"</i></li>
+  <li><a href="http://www.globus.org/toolkit/data/gridftp/">GridFTP</a> server on standard port 2811 of the headnode</li>
+  <li><a href="http://www.globus.org/grid_software/data/rft.php">RFT</a> service at <i>"https://HEADNODE_HOSTNAME:8443/wsrf/services/ReliableFileTransferFactoryService"</i></li>
+</ul>
+
+<p>
+Some notes:
+</p>
+
+<ul>
+  <li>Any user account (including root) can freely SSH across the cluster to corresponding account</li>
+  <li>The "/home" directory is mounted from headnode to each compute over NFS</li>
+  <li>You should map your DN to the 'jobrun' account (like the sample value in base-cluster.xml)</li>
+</ul>
+
+<p>
+  To make your image(s) auto-configure your own software choices, see
+  <i><a href="clusters2.html#custom">How do I make images of my own do 
+  this?</a></i>.  While this will take more than "one click" to set up, our
+  alpha users have had successes in short order.  You can run and
+  auto-configure pretty much any type of software/application that will run 
+  on a normal cluster.
+</p>
+
+<br />
+
+<a name="examplewalk"> </a>
+
+<h2>Example walkthrough _NAMELINK(examplewalk)</h2>
+
+<p>
+  We assume, like with single VM launches you've done, you have run
+  grid-proxy-init.  See the main <a href="index.html">clouds page</a> for
+  more information.
+</p>
+
+<p>
+  We've put a full sample of commands and output <a href="cluster-all-output.txt">here</a> for reference.
+  What follows is a walkthrough of everything that happens.
+</p>
+
+<a name="gridmapedit"> </a>
+<h4>* Configure the grid-mapfile contents you want: _NAMELINK(gridmapedit)</h4>
+<br />
+<p>
+  Edit <i>samples/base-cluster.xml</i>, find the "&lt;data name="gridmap"&gt;"
+  tag and add your DN.  This cluster has a generic account called "jobrun" you
+  can map to (follow the example).
+</p>
+<p>
+  Notice we are requesting one head node and two compute nodes.  This
+  particular cluster can launch with only one head node but any number of
+  compute nodes.
+</p>
+
+<a name="clusterlaunch"> </a>
+<h4>* Launch the cluster: _NAMELINK(clusterlaunch)</h4>
+
+<br />
+        
+<p>Now you can launch:</p>
+
+_EXAMPLE_GENERICCMD_BEGIN
+./bin/cloud-client.sh --run --hours 1 --cluster samples/base-cluster.xml
+_EXAMPLE_CMD_END
+
+<p>
+  Some information is printed (including the assigned IP addresses), just
+  like with single launches.  We quickly move to this output:
+</p>
+  
+<div class="screen"><pre>Launching cluster-001... done.
+
+Waiting for launch updates.</pre>
+</div>
+
+<p>
+  This is the first of two waiting periods, this is when the images files make
+  their way to the hypervisors and it will take a few minutes.  The next
+  waiting period is much shorter.
+</p>
+
+<div style="float: left; width: 56px;"><img src="img/note.png" /></div>
+<p>
+  While you're waiting, make a mental note of the handle.  This will look
+  something like "cluster-001".  This is just like "vm-001" for non-cluster
+  launches, you can use it to manage things, for example terminate
+  (<i>"./bin/cloud-client.sh --terminate --handle cluster-001"</i>)
+</p>
+
+<a name="launched"> </a>
+<h4>* Launched: _NAMELINK(launched)</h4>
+
+<br />
+        
+<p>
+  Information starts to come in:
+</p>
+<div class="screen"><pre>
+  - cluster-001: all members are Running
+  - wrote reports to '/tmp/cloud-client/history/cluster-001/reports-vm'</pre>
+</div>
+<p>
+  Everything is now "Running" which really means the VMs are all at least
+  <b>booting</b>.  If there was a problem, an error notice would
+  print to the screen and the "reports-vm" directory that is listed here would
+  have all the details on any errors.
+</p>
+<p>
+  Information is archived in that directory for successes, too, but you
+  typically only need the hostname to log into or submit jobs to.  That
+  hostname is printed to the screen and also always available by looking at
+  your <i>history/cluster-001/run-log.txt</i> file.
+</p>
+
+<a name="ctxstatus"> </a>
+<h4>* Contextualization status: _NAMELINK(ctxstatus)</h4>
+
+<br />
+        
+<p>
+  Next up, we wait for contextualization.  Shown here is the waiting message
+  along with the result.  It takes much less time than the previous wait.
+</p>
+
+<div class="screen"><pre>
+Waiting for context broker updates.
+  - cluster-001: contextualized
+  - wrote ctx summary to '/tmp/cloud-client/history/cluster-001/reports-ctx/CTX-OK.txt'
+  - wrote reports to '/tmp/cloud-client/history/cluster-001/reports-ctx'</pre>
+</div>
+
+<p>What 'contextualized" means is that every node has:</p>
+<ul>
+  <li>gotten in contact with the context broker</li>
+  <li>provided data to the context broker, e.g. SSH public key</li>
+  <li>gotten all necessary information from the context broker</li>
+  <li>successfully called the just-in-time configuration scripts</li>
+  <li>reported back to context broker that no error occured (ready to go)</li>
+</ul>
+
+<p>
+  Contextualization reports are available at the listed reports directory but
+  like the launch reports, you don't really need to pay attention unless there
+  was an error.  If there is an error, the error reports are written to the
+  reports directory and the cluster is backed out.  These error reports 
+  include all logs of each context agent (all output leading up to the 
+  problem, non-errors included too).
+</p>
+
+<a name="secgap"> </a>
+<h4>* No security gap with SSH logins: _NAMELINK(secgap)</h4>
+
+<br />
+        
+<p>
+  The last thing you will see before the client exits:
+</p>
+
+<div class="screen"><pre>SSH trusts new key for hostname1.cloudurl.edu  [[ head-node ]]
+SSH trusts new key for hostname2.cloudurl.edu  [[ compute-nodes #0 ]]
+SSH trusts new key for hostname3.cloudurl.edu  [[ compute-nodes #1 ]]</pre>
+</div>
+
+<p>
+  That final SSH message means that the client retrieved the SSH
+  public keys from the context broker -- they are installed already to your
+  local known_hosts file.  Which mean you can take an address and log in as
+  <b>root</b>:
+</p>
+
+_EXAMPLE_GENERICCMD_BEGIN
+ssh root@hostname1.cloudurl.edu
+_EXAMPLE_CMD_END
+
+<p>
+  ... and you do not get <i>"The authenticity of host 'xyz (1.2.3.4)' can't be
+  established"</i> messages anymore. 
+</p>
+
+<div style="float: left; width: 56px;"><img src="img/note.png" /></div>
+<p>
+  This relieves you of that pesky 'y' keystroke to accept the key -- and no
+  more "WARNING KEY HAS CHANGED" messages when you've been given an IP that's
+  been seen before.  But this <b>importantly means the gap is closed on
+  possible man-in-the-middle attacks</b>.  Through secure channels end to end,
+  the client is able to know the public key that each instance generated at
+  boot.
+</p>
+
+<div style="float: left; width: 56px;"><img src="img/note.png" /></div>
+<p>
+  You can turn off this
+  auto-configuration of your known_hosts file by removing the "ssh.hostsfile"
+  configuration from the <i>conf/cloud.properties</i> file.
+  Also, to support large virtual clusters, there is an option to only get this
+  SSH adjustment for specific nodes you care about logging in to directly.  
+  For example, you may have 100
+  compute nodes on a NAT'd network behind the edge nodes.  You wouldn't care
+  about known_hosts adjustment for those so you can turn that off on a case
+  by case basis.
+</p>
+
+<a name="trustconfig"> </a>
+<h4>* Configure grid tools trust: _NAMELINK(trustconfig)</h4>
+
+<br />
+        
+<p>
+  Before submitting to the cluster, we need the grid tools to trust the
+  middleware on the headnode.
+  The head node has been configured to create a self-signed host certificate. 
+  Grab it and add it to the embedded trusted cert directory like this:
+</p>
+
+_EXAMPLE_GENERICCMD_BEGIN
+scp -r root@hostname1.cloudurl.edu:certs/* &nbsp;lib/certs/
+_EXAMPLE_CMD_END
+
+<p>
+  Make grid tools trust that host certificate:
+</p>
+
+_EXAMPLE_GENERICCMD_BEGIN
+export X509_CERT_DIR=`pwd`/lib/certs
+_EXAMPLE_CMD_END
+
+<br />
+        
+<a name="endresult"> </a>
+<h4>* Result: _NAMELINK(endresult)</h4>
+
+<br />
+        
+<p>
+You now have your own, working:
+</p>
+<ul>
+  <li>Torque installation for distributing work across the cluster</li>
+  <li><a href="http://www.globus.org/grid_software/computation/gram.php">GRAM4</a> (backed by Torque) installation at <i>"https://HEADNODE_HOSTNAME:8443/wsrf/services/ManagedJobFactoryService"</i></li>
+  <li><a href="http://www.globus.org/toolkit/data/gridftp/">GridFTP</a> server on standard port 2811 of the headnode</li>
+  <li><a href="http://www.globus.org/grid_software/data/rft.php">RFT</a> service at <i>"https://HEADNODE_HOSTNAME:8443/wsrf/services/ReliableFileTransferFactoryService"</i></li>
+</ul>
+
+<br />
+<br />
+<br />
+
+_NIMBUS_CENTER2_COLUMN_END
+_NIMBUS_FOOTER1
+_NIMBUS_FOOTER2
+_NIMBUS_FOOTER3
+

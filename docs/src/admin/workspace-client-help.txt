@@ -1,0 +1,34 @@
+Workspace Service CLI, TP 2.1 - http://workspace.globus.org
+
+Help:
+
+  --help (-h)        Print this help information.
+  --help --ACTION    Print help about a specific action.
+  --extrahelp        Print extra, usually unecessary option information.
+
+One action flag is required:
+
+  --deploy           Deploy a workspace or group.
+  --destroy          Destroy a workspace, group, or ensemble.
+  --factoryrp        Query the factory information (resource property)
+  --rpquery          Query a running workspace.
+  --pause            Pause a workspace or group.
+  --reboot           Reboot a workspace or group.
+  --shutdown         Shutdown a workspace or group.
+  --shutdown-save    Shutdown a workspace or group and trigger unpropagation.
+  --start            Start a propagated instance/group or restart a paused one.
+  --subscribe        Subscribe for notifications.
+  --ens-done         Cause an ensemble to proceed (as a coscheduled request).
+  --ens-monitor      Monitors an ensemble.
+  --ctx-data         Inject data into a context.
+  --ctx-lock         Lock a context.
+  --ctx-monitor      Monitors a context.
+
+Every action may have these optional flags:
+
+  --dryrun           Perform a dry run.
+  --debug (-d)       Enable debug mode.
+
+Every action may be coupled (in any order) with the --help (-h) flag to see
+action-specific help.  For example, send "-h --destroy"
+

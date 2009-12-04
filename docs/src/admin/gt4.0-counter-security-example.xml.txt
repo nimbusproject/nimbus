@@ -1,0 +1,21 @@
+<securityConfig xmlns="http://www.globus.org">
+    <method name="createCounter">
+        <auth-method>
+            <GSITransport/>
+        </auth-method>
+    </method>
+    <method name="destroy">
+        <auth-method>
+            <GSITransport/>
+        </auth-method>
+    </method>
+    <method name="add">
+        <auth-method>
+            <GSITransport/>
+        </auth-method>
+    </method>
+    <auth-method>
+        <none/>
+    </auth-method>
+    <authz value="gridmap"/> 
+</securityConfig>

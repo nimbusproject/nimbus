@@ -1,0 +1,305 @@
+m4_include(/mcs/m4/worksp.lib.m4)
+_NIMBUS_HEADER(TP2.2 Docs)
+_NIMBUS_HEADER2(n,n,y,n,n,n,n)
+
+_NIMBUS_LEFT2_COLUMN
+
+_NIMBUS_LEFT2_DEV1_SIDEBAR(n,n,n,n,n,y,n,n)
+
+_NIMBUS_LEFT2_COLUMN_END
+_NIMBUS_CENTER2_COLUMN
+_NIMBUS_TP2_2_DEPRECATED
+
+<h2>Docs</h2>
+
+<p>
+    Need to edit the docs?
+</p>
+<p>
+    The first thing you should do is check the documentation tree out from CVS.
+    Because each past Nimbus version gets its own tree, the entire checkout
+    is rather large.  But you'll only need to do it once. 
+</p>
+
+<br />
+<a name="checkout"> </a>
+<h4>Checkout _NAMELINK(checkout)</h4>
+
+<p>
+    To check the docs out from CVS anonymously, run these commands:
+</p>
+_EXAMPLE_GENERICCMD_BEGIN
+export CVSROOT=:pserver:anonymous@cvs.globus.org:/home/globdev/CVS/globus-packages
+_EXAMPLE_CMD_END
+_EXAMPLE_GENERICCMD_BEGIN
+cvs co -P -d nimbus-docs workspace/docs
+_EXAMPLE_CMD_END
+
+<p>
+    To check the docs out from CVS with your own account (intending on
+    committing changes directly and not via patch), run these commands
+    with "USERNAME" replaced by your username:
+</p>
+_EXAMPLE_GENERICCMD_BEGIN
+export CVSROOT=:ext:USERNAME@cvs.globus.org:/home/globdev/CVS/globus-packages
+_EXAMPLE_CMD_END
+_EXAMPLE_GENERICCMD_BEGIN
+cvs co -P -d nimbus-docs workspace/docs
+_EXAMPLE_CMD_END
+
+<br />
+<a name="local-build"> </a>
+<h4>Local build _NAMELINK(local-build)</h4>
+
+<p>
+    After you have a copy of the documentation tree, building and serving it
+    locally takes one command:
+</p>
+_EXAMPLE_GENERICCMD_BEGIN
+sh nimbus-docs/scripts/build-and-serve-locally.sh
+_EXAMPLE_CMD_END
+
+<p>
+    This will print the URL to navigate to in your browser (something like
+    "http://localhost:8888")
+</p>
+
+<br />
+<a name="understanding-macros"> </a>
+<h4>Understanding macros _NAMELINK(understanding-macros)</h4>
+<!-- note, you must use the bold tags or some similar convention when talking
+     about a macro on this page... since otherwise the macro processor will
+     dereference it.  -->
+<p>
+    The docs make heavy use of m4 which is a macro processor.  The html page
+    in the source tree will have something like <b>_</b>NIMBUS_HEADER in it
+    which gets turned into the actual header HTML when the documentation is
+    built.
+</p>
+<p>
+    The best bet is to start out by copying already created macros.  If you want
+    to create a new page, copy and paste the source contents (with the macros)
+    of a page that will be next to it.  Change the page title by altering the
+    argument to the <b>_</b>NIMBUS_HEADER macro.
+</p>
+
+<p>
+    You will see something like "n,n,y,n,n,n,n" as an argument to some of the
+    macros.  This controls which option in a list is shaded/selected (like the
+    main navigation bar or a subsection sidebar).  To see which one to use,
+    you may need to dip into the macro definitions in the "m4/worksp.lib.m4"
+    file.
+</p>
+
+<br />
+<a name="popular-macros"> </a>
+<h4>Popular macros _NAMELINK(popular-macros)</h4>
+<!-- note, you must use the bold tags or some similar convention when talking
+     about a macro on this page... since otherwise the macro processor will
+     dereference it.  -->
+<p>
+    To make a command appear like so:
+</p>
+    
+_EXAMPLE_GENERICCMD_BEGIN
+sample command
+_EXAMPLE_CMD_END
+
+<p>
+    ... look for examples of the <b>_</b>EXAMPLE_GENERICCMD_BEGIN macro which
+    must be closed off with the <b>_</b>EXAMPLE_CMD_END macro.
+</p>
+
+<p>
+    The <b>_</b>NAMELINK macro is useful for long pages, especially technical
+    documentation.  Whenever you make an anchor like so:
+    &lt;a name="some-section"&gt;
+</p>
+<p>
+    ... put a <b>_</b>NAMELINK macro with an argument "some-section" like so:
+    <b>_</b>NAMELINK(some-section)
+</p>
+<p>
+    See an example next to the subsections on this page, it produces a hidden
+    link that will show up when you hover next to where the anchor takes you.
+    This lets users and developers quickly find anchors so that specific
+    sections of the documentation can be referred to over email etc.
+</p>
+
+<br />
+<a name="after-changes"> </a>
+<h4>Rebuilding after changes _NAMELINK(after-changes)</h4>
+<p>
+    After you edit or add pages, preview the change by re-running the
+    "build-and-serve-locally.sh" script.  If it was already running, simply
+    press CTRL-C and launch it again.
+</p>
+<p>
+    Once satisfied with the changes:
+</p>
+<ol>
+    <li>Commit changes to CVS: _EXAMPLE_GENERICCMD_BEGIN
+cvs commit
+_EXAMPLE_CMD_END</li>
+    <li>Log in to the computer where the live website lives: _EXAMPLE_GENERICCMD_BEGIN
+ssh <b>USERNAME@cvs.globus.org</b>
+_EXAMPLE_CMD_END</li>
+    <li>Make a scratch directory: _EXAMPLE_GENERICCMD_BEGIN
+mkdir /sandbox/USERNAME/somedir && cd /sandbox/USERNAME/somedir
+_EXAMPLE_CMD_END</li>
+    <li>Get the documentation scripts from CVS: _EXAMPLE_GENERICCMD_BEGIN
+export CVSROOT=:pserver:anonymous@cvs.globus.org:/home/globdev/CVS/globus-packages
+_EXAMPLE_CMD_END</li>
+    <li>_EXAMPLE_GENERICCMD_BEGIN
+cvs co -d docscripts workspace/docs/scripts
+_EXAMPLE_CMD_END</li>
+    <li>Check out and build the documentation: _EXAMPLE_GENERICCMD_BEGIN
+bash docscripts/push_to_mcs_web.sh
+_EXAMPLE_CMD_END</li>
+</ol>
+<p>
+    The "push_to_mcs_web.sh" will push any changes from the scratch directory
+    to the live directory which lives @ "/www/workspace.globus.org/"
+</p>
+<p>
+    After running that all once, you can return anytime to that node/directory
+    and run the following command to push any updates:
+</p>
+_EXAMPLE_GENERICCMD_BEGIN
+bash docscripts/push_to_mcs_web.sh update
+_EXAMPLE_CMD_END
+
+<br />
+<a name="new-releases"> </a>
+<h4>Docs for new releases _NAMELINK(new-releases)</h4>
+<p>
+    Making documentation for a new release consists of two different activities:
+    1) creating and customizing a new "vm/$VERSION" subtree for the new version
+    and 2) updating everything else (like the changelog, download page, news,
+    etc.).
+</p>
+<ol>
+    <li>
+        Copy the last release tree to the new release tree: _EXAMPLE_GENERICCMD_BEGIN
+cp -a vm/TP2.2 vm/TP2.3
+_EXAMPLE_CMD_END
+    </li>
+    <li>
+        Remove any CVS directories: _EXAMPLE_GENERICCMD_BEGIN
+find vm/TP2.3 -name CVS -type d -print -exec rm -rf {} \;
+_EXAMPLE_CMD_END
+    </li>
+    <li>
+        <p>
+        Find/replace any occurence of "TP2.2" in the tree with "TP2.3".  Some
+        of the occurences may be along the lines of "this feature is as of
+        TP2.2" and it is not correct to change these.
+        </p>
+    </li>
+    <li>
+        <p>
+        Make any inserts or changes that are necessary because of changes in
+        the software from the previous version.
+        </p>
+    </li>
+    <li>
+        <p>
+        Find/replace any occurrence of  <b>_</b>NIMBUS_TP2_2_DEPRECATED in
+        the TP2.3 tree with a new macro we will make called
+        <b>_</b>NIMBUS_TP2_3_DEPRECATED
+        </p>
+    </li>
+    <li>
+        <p>
+        Open the "m4/worksp.lib.m4" file and make <b>_</b>NIMBUS_TP2_2_DEPRECATED
+        macro look like a previous one.  And create a new
+        <b>_</b>NIMBUS_TP2_3_DEPRECATED macro that has a comment only.  This
+        will make any page on the TP2.2 pages flash a big deprecated warning
+        and provide a link to the most recent version.  This is useful
+        because people/search engines will often link to a page directly in a
+        version's documentation: arriving here via such a link could mean the
+        person will be unaware there is an update.
+        </p>
+    </li>
+    <li>
+        <p>
+        Update the <b>_</b>WORKSP_PREVIOUS_VM_VERSION and
+        <b>_</b>WORKSP_CURRENT_VM_VERSION macros in the same file.
+        </p>
+    </li>
+    <li>
+        <p>
+        Update the "vm/changelog.html" page with all the new changes for the
+        new release, give it a new section in the changelog that looks like
+        the others.
+        </p>
+    </li>
+    <li>
+        <p>
+        Update the "vm/faq.html" and "vm/features.html" pages with any relevant
+        changes.
+        </p>
+    </li>
+    <li>
+        <p>
+        Update the news with a release announcement (see a
+        <a href="#news-items">following section</a> for information about
+        how to do that).
+        </p>
+    </li>
+    <li>
+        <p>
+        Once all of the tarballs are in place (see the
+        <a href="releases.html">release documentation)</a>, update
+        "downloads/index.html" and "downloads/archive.html".  Move the current
+        links for the old release to the archive page and update all of the
+        text and links on the "downloads/index.html" to reflect the new release.
+        </p>
+    </li>
+    <li>
+        <p>
+            Add new files/directories to CVS and commit all the changes.
+        </p>
+    </li>
+    <li>
+        <p>
+            Doublecheck what happened on the live site.
+        </p>
+    </li>
+</ol>
+
+<br />
+<a name="news-items"> </a>
+<h4>News items _NAMELINK(news-items)</h4>
+<p>
+    Making a news item requires editing three different files.
+</p>
+<p>
+    First, make a unique anchor &lt;a&gt; tag in "news.html" and create an
+    entry that looks like the others.  Only use full links to refer to the
+    workspace documentation, do not use relative links.  If you use full links
+    then people can click on the links in their RSS readers and get to the
+    site.
+</p>
+<p>
+    RSS is currently done manually. Open "rss.xml" and make a new section for
+    a new item. Copy the title in for the title.  Copy the anchor tag for the
+    item into the fields to uniquely identify the item.  Change the build date
+    to reflect the current day.  Now copy in the exact &lt;p&gt; tags and their
+    contents into the RSS entry.
+</p>
+<p>
+    Copy the title and anchor into the front page of the website, "index.html"
+    where the latest news entries are also mentioned.  Delete the oldest item to
+    make room. 
+</p>
+<p>
+    Rebuild the documentation as discussed above.  Test the RSS feed in your
+    RSS reader but also use the link at the bottom of the "news.html" page
+    to automatically test the validity of the rss.xml file against the RSS spec. 
+</p>
+
+_NIMBUS_CENTER2_COLUMN_END
+_NIMBUS_FOOTER1
+_NIMBUS_FOOTER2
+_NIMBUS_FOOTER3

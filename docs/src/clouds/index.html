@@ -1,0 +1,126 @@
+m4_include(/mcs/m4/worksp.lib.m4)
+_NIMBUS_HEADER(Science Clouds)
+_NIMBUS_HEADER2(n,n,n,n,n,n,y)
+_NIMBUS_LEFT2_COLUMN
+
+_NIMBUS_LEFT2_CLOUDS1_SIDEBAR(y,n,n,n,n,n,n)
+
+_NIMBUS_LEFT2_COLUMN_END
+_NIMBUS_CENTER2_COLUMN
+
+<h2>Science Clouds</h2>
+
+<p>
+Science Clouds provide compute cycles in the cloud for
+scientific communities using <a href="http://workspace.globus.org">Nimbus</a>.
+</p>
+<p>
+The Nimbus cloud client allows you to provision
+customized compute nodes (that we call "workspaces") that you have
+full control over using a leasing model based on the Amazon's EC2
+service.
+
+</p>
+<p>
+    The Science Clouds have two objectives: (1) to make it easy for
+scientific and educational projects to experiment with cloud computing
+and (2) to enable us to learn how to make cloud computing a useful
+tool for the scientific community.
+
+</p>
+<p>
+    If you use any of these clouds, and have
+requests, comments, or suggestions please send them to us at <a
+href="mailto:workspace-user@globus.org">workspace-user@globus.org</a>
+    (<a href="/contact.html">subscribe</a>). We
+will very much appreciate your feedback.
+
+<p>
+<a name="clouds"> </a>
+<h2> Available Science Clouds: </h2>
+
+<p>
+<b>To obtain access to a cloud, please contact the administrators of
+the clouds below. </b>Read cloud configuration notes carefully to ensure
+that you end up with the right software and configuration.
+<p>
+
+<ul>
+<li><b><a href="nimbus.html">Nimbus @ University of Chicago</a></b></li>
+<li><b><a href="http://www.acis.ufl.edu/vws/">Stratus @ University of Florida</a></b></li>
+<li><b><a href="http://www.rcac.purdue.edu/teragrid/resources/#wispy">Wispy @ Purdue University</a></b></li>
+<li><b><a href="http://meta.cesnet.cz/cms/opencms/en/docs/clouds">Kupa @ Masaryk University</a></b></li>
+</ul>
+
+<p>
+
+To get started follow the instructions in the
+    <a href="cloudquickstart.html">cloud client quickstart guide</a>.
+    Please subscribe to <a href="mailto:workspace-user@globus.org">workspace-user@globus.org</a>
+    for updates on cloud status (<a href="/contact.html">subscribe</a>).
+<p>
+
+<hr />
+
+<br />
+
+<div style="float: left; width: 60px;"><a href="cloudquickstart.html"><img src="img/gnome-terminal.png" /></a></div>
+<p>
+<b> Use the science clouds as a client: </b> In a typical session you will make a request to
+deploy a workspace based on a specified VM image. You can either use
+one of the VM images already available on a cloud (the workspace cloud
+client provides a command that allows you to see what's already there)
+or upload your own VM image. On deployment, the image will be
+configured with an ssh public key you provide -- in this way once the
+workspace is deployed, you will be able to ssh into it and configure
+it further, upload data, or run your applications.  Follow the
+<a href="cloudquickstart.html">quickstart</a> for specific instructions.
+</p>
+
+<div style="float: left; width: 60px;"><a href="clusters.html"><img src="img/network-receive.png" /></a></div>
+
+<p>
+  <b>Launch one-click, auto-configuring clusters:</b> Once you have gotten 
+  a feel for things with one VM, head over to the 
+  <a href="clusters.html">clusters page</a>.  Launch virtual clusters with one
+  command!  And no need to go configure anything:  cluster configurations are
+  automated with the workspace context broker.  Each VM launches a very
+  lightweight agent that greatly simplifies dealing with changing cluster
+  topologies, identities, and credentials (no secrets need to reside on the
+  image before booting).  Useful sample clusters await you.
+</p>
+
+
+<div style="float: left; width: 60px;"><a href="../downloads/index.html"><img src="img/preferences-system.png" /></a></div>
+<p>
+<b> Build your own EC2-like cloud using the workspace service: </b>
+<a href="../downloads/index.html">Download the workspace service</a> to configure your own resources into a cloud.  It accomodates a wide range of pre-existing cluster and network setups.  See the current version's
+<a href="/vm/_WORKSP_CURRENT_VM_VERSION/doc/cloud.html">Cloud Guide</a>.
+</p>
+
+<br />
+
+<hr />
+<p>
+    Be aware: Science clouds are a beta project deployed on a modest allocation
+    of resources. Over the next few months we will be evolving the software
+    in response to your requests and comments.
+</p>
+<p>
+    Therefore, be aware that
+    the client code may change frequently as new features, services and
+    clouds become available.
+</p>
+<p>
+    Each change will be announced on
+    workspace-user@globus.org (<a href="/contact.html">subscribe</a>) and via
+    <a href="/rss.xml">RSS</a>: keep an eye on those announcements to
+    ensure that your client is up-to-date.
+</p>
+
+_NIMBUS_CENTER2_COLUMN_END
+_NIMBUS_FOOTER1
+_NIMBUS_FOOTER2
+_NIMBUS_FOOTER3
+
+

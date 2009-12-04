@@ -1,0 +1,171 @@
+m4_include(/mcs/m4/worksp.lib.m4)
+_NIMBUS_HEADER(Multi-Cloud Clusters)
+_NIMBUS_HEADER2(n,n,n,n,n,n,y)
+_NIMBUS_LEFT2_COLUMN
+
+_NIMBUS_LEFT2_CLOUDS1_SIDEBAR(n,n,n,n,n,y,n)
+
+_NIMBUS_LEFT2_COLUMN_END
+_NIMBUS_CENTER2_COLUMN
+
+<h2>Multi-Cloud Clusters</h2>
+
+<div style="float: left; width: 80px;"><a href="clusters.html"><img src="img/network-receive-72.png" /></a></div>
+<p>
+  Guide for launching auto-configuring clusters across multiple clouds.
+</p>
+
+<br/>
+
+<h2>Prerequisites</h2>
+<ul>
+    <li>
+        Experimental support for this feature is present in
+    <a href="../downloads/archive.html">cloud-client-012</a> and later.
+    </li>
+    <li>
+        You must have access to multiple <a href="index.html">Nimbus clouds</a>
+        running TP2.2 or later. EC2 is not supported for multi-cloud clusters
+        at this time.
+    </li>
+    <li>
+        You should be familiar with usage of the cloud-client for single cluster
+        contextualization described in the <a href="cloudquickstart.html">Client
+        Quickstart</a> and <a href="clusters.html">One-click Clusters</a>
+        sections.
+    </li>
+</ul>
+
+<h2>Introduction</h2>
+<p>
+    Multi-cloud cluster deployment happens through the meta-cloud-client
+    (<i>bin/meta-cloud-client.sh</i>). However, you'll need to use the regular
+    cloud-client to handle uploading your images to each cloud.
+</p>
+
+<h2>Deployment documents</h2>
+<p>
+    In addition to the usual cluster definition document, you must also provide
+    a document that describes how the cluster members should be spread across
+    the available clouds. The deployment document largely matches the structure
+    of the cluster document. You must have a workspace entry in the deployment
+    for each workspace in the cluster definition.
+</p>
+<p>
+    Below is a sample cluster definition followed by a corresponding deployment
+    document:
+</p>
+
+<div class="screen"><pre>
+&lt;cluster xmlns="http://www.globus.org/2008/06/workspace/metadata/logistics">
+
+  &lt;workspace&gt;
+    &lt;name&gt;head-node&lt;/name&gt;
+    &lt;image&gt;my-head-node&lt;/image&gt;
+    &lt;quantity&gt;1&lt;/quantity&gt;
+    &lt;nic wantlogin="true"&gt;public&lt;/nic&gt;
+  &lt;/workspace&gt;
+
+  &lt;workspace&gt;
+    &lt;name&gt;compute-nodes&lt;/name&gt;
+    &lt;image&gt;my-compute-node&lt;/image&gt;
+    &lt;quantity&gt;2&lt;/quantity&gt;
+    &lt;nic&gt;public&lt;/nic&gt;
+  &lt;/workspace&gt;
+
+&lt;/cluster&gt;
+</pre></div>
+
+<div class="screen"><pre>
+&lt;deployment xmlns="http://www.globus.org/2008/06/workspace/metadata/logistics">
+
+  &lt;workspace&gt;
+    &lt;name&gt;head-node&lt;/name&gt;
+
+    &lt;deploy&gt;
+      &lt;cloud&gt;nimbus&lt;/cloud&gt;
+      &lt;quantity&gt;1&lt;/quantity&gt;
+    &lt;/deploy&gt;
+
+  &lt;/workspace&gt;
+
+  &lt;workspace&gt;
+    &lt;name&gt;compute-nodes&lt;/name&gt;
+
+    &lt;deploy&gt;
+      &lt;cloud&gt;nimbus&lt;/cloud&gt;
+      &lt;quantity&gt;1&lt;/quantity&gt;
+    &lt;/deploy&gt;
+
+    &lt;deploy&gt;
+      &lt;cloud&gt;stratus&lt;/cloud&gt;
+      &lt;quantity&gt;1&lt;/quantity&gt;
+      &lt;image&gt;stratus-compute-node&lt;/image&gt;
+    &lt;/deploy&gt;
+
+  &lt;/workspace&gt;
+
+&lt;/deployment&gt;
+</pre></div>
+<p>
+    In this example, the single <i>head-node</i> workspace is deployed to the
+    cloud named <i>nimbus</i>. Of the two <i>compute-nodes</i> workspaces, one
+    is deployed to <i>nimbus</i> and one to <i>stratus</i>. The <i>stratus</i>
+    deployment uses a special image name which will override the one provided
+    in the cluster document.
+</p>
+
+
+<h2>Configuration</h2>
+<p>
+    Cloud configuration files live in <b>conf/clouds/</b>. Each cloud has its
+    own properties file. The name of the file is important; it is the unique
+    cloud identifier in the deployment documents. Cloud properties files can
+    usually be obtained from the site administrator for your cloud.
+    Below is an example properties file for the Nimbus cloud:
+</p>
+
+<div class="screen"><pre>
+###########################################################################
+# Host+port of Virtal Workspace Service (not the URL)
+###########################################################################
+
+vws.factory=tp-vm1.ci.uchicago.edu:8445
+
+
+###########################################################################
+# Host+port of image repository (not the URL)
+###########################################################################
+
+vws.repository=tp-vm1.ci.uchicago.edu:2811
+
+
+###########################################################################
+# Virtal Workspace Service identity, to verify we are talking to the
+# right machine.
+###########################################################################
+
+vws.factory.identity=/O=Grid/OU=GlobusTest/OU=simple-workspace-ca/CN=host/tp-vm1.ci.uchicago.edu
+
+
+###########################################################################
+# Image repository identity, to verify we are talking to the right machine.
+###########################################################################
+
+vws.repository.identity=/O=Grid/OU=GlobusTest/OU=simple-workspace-ca/CN=host/tp-vm1.ci.uchicago.edu
+</pre></div>
+
+<h2>Usage</h2>
+<p>
+    The meta-cloud-client is launched much like the cloud-client:
+</p>
+
+_EXAMPLE_GENERICCMD_BEGIN
+./bin/meta-cloud-client.sh --run --cluster cluster.xml --deploy deploy.xml --hours 1
+_EXAMPLE_CMD_END
+
+<p>
+    If all goes well, your cluster will be deployed to all clouds involved and
+    contextualized using the Context Broker referenced in the
+    <b>conf/cloud.properties</b> configuration file.
+</p>

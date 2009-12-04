@@ -1,0 +1,311 @@
+m4_include(/mcs/m4/worksp.lib.m4)
+_NIMBUS_HEADER(TP2.2 Extensibility Guide)
+_NIMBUS_HEADER2(n,n,y,n,n,n,n)
+
+<style type="text/css">
+ul.nobullets {
+	list-style: none;
+}
+</style>
+
+_NIMBUS_LEFT2_COLUMN
+_NIMBUS_LEFT2_DEV2_SIDEBAR(n,y,n,n,n,n,n,n)
+
+_NIMBUS_LEFT2_COLUMN_END
+_NIMBUS_CENTER2_COLUMN
+_NIMBUS_TP2_2_DEPRECATED
+
+<h2>Request authorization</h2>
+
+<h4>* Summary:</h4>
+<p>
+    The <a href="service-reqintake.html">Creation</a> process in the
+    <a href="../../faq.html#workspace-service">workspace service</a>
+    makes an optional callout to authorize the request further than the basics. 
+</p>
+<p>
+    <b>NOTE</b>: (see the end of this page for an overview of
+    Nimbus authorization flow)
+</p>
+
+<hr />
+<h4>* Java interface:</h4>
+
+<ol>
+<li>
+<p>
+    The basics are authorized by an implementation of this interface:
+    <b>org.globus.workspace.service.binding.GlobalPolicies</b>
+</p>
+
+<p>
+    Source code: <i>service/service/java/source/src/org/globus/workspace/service/binding/</i>
+</p>
+<p>
+    Activated by way of the <i>$GLOBUS_LOCATION/etc/nimbus/workspace-service/other/main.xml</i>
+    file -- see the "nimbus-rm.service.binding.GlobalPolicies" Spring bean.
+</p>
+
+</li>
+<li>
+<p>
+    If configured, further authorization can be done by an implementation of this interface:
+    <b>org.globus.workspace.service.binding.authorization.CreationAuthorizationCallout</b>
+</p>
+
+<p>
+    Source code: <i>service/service/java/source/src/org/globus/workspace/service/binding/authorization/</i>
+</p>
+<p>
+    Activated by way of the <i>$GLOBUS_LOCATION/etc/nimbus/workspace-service/other/main.xml</i>
+    file -- see the "nimbus-rm.service.binding.Authorize" Spring bean.
+</p>
+</li>
+</ol>
+
+
+<hr />
+<h4>* Default implementation:</h4>
+
+<p>
+    <b>org.globus.workspace.service.binding.defaults.DefaultGlobalPolicies</b>
+</p>
+<p>
+    Source code: <i>service/service/java/source/src/org/globus/workspace/service/binding/defaults/</i>
+</p>
+
+<p>
+    (there is no default CreationAuthorizationCallout, it is <b>optional</b>) 
+</p>
+
+<br />
+
+<a name="groupauthz"> </a>
+<h2>Group authorization plugin _NAMELINK(groupauthz)</h2>
+
+<p>
+    One implementation of <i>CreationAuthorizationCallout</i> is the groupauthz
+    plugin.
+</p>
+
+<p>
+    The plugin can enforce the following policies.  The request data
+    to check is determined on a per-request, per-client basis.
+    The <b>limits</b> are defined on a per group basis (every caller
+    identity must be a part of a group).
+</p>
+<ul>
+    <li>
+        Maximum currently reserved minutes at one point in time.  If the
+        caller has two other workspaces with 10 hours scheduled for each,
+        the value being checked against this policy would be 20 hours
+        plus whatever time the current request is.
+    </li>
+    <li>
+        Maximum elapsed and currently reserved minutes at one point in
+        time.  If the caller has one other workspace with 10 hours
+        scheduled and 80 hours of recorded past usage, the value being
+        checked against this policy would be 90 hours plus whatever time
+        the current request is.  This is the all-time maximum usage cap.
+    </li>
+    <li>
+        Maximum number of running workspaces at one point in time.
+    </li>
+    <li>
+        Maximum number of workspaces per request (the largest group
+        request possible).
+    </li>
+    <li>
+        The image node that must be specified.
+    </li>
+    <li>
+        The image node base directory that must be specified.
+    </li>
+    <li>
+        Support for identity-hash based image subdirectories
+        (see the cloud setup documentation to understand this
+        convention).
+    </li>
+</ul>
+<p>
+    Each policy can be set to disabled/infinite for specific groups
+    if you desire.
+</p>
+
+<br />
+
+<a name="pythonauthz"> </a>
+<h2>Python authorization plugin _NAMELINK(pythonauthz)</h2>
+<p>
+    We also distribute a Python based authorization plugin that allows an
+    administrator to provide only a simple Python script to express policies
+    (using the "Jython" library).
+</p>
+
+<p>
+    This plugin is compatible with both
+    <a href="http://dev.globus.org/wiki/VOMS">VOMS</a>
+    and <a href="http://gridshib.globus.org/about.html">GridShib</a>
+    attribute based authorization if either is enabled to protect the
+    factory service create operation in the GT4 configuration.
+</p>
+        
+<br />
+
+<h2>Authorization flow</h2>
+
+<p>
+    Understanding the authorization possibilities requires some understanding
+    of the factory service's <i>create</i> process, so the explanation below
+    includes extra information that is not authorization related <i>per se</i>.
+</p>
+
+<h3>Default: gridmap setup</h3>
+
+<p>
+    The default installation is configured with gridmap authorization,
+    a DN access control list, that allows only clients in the gridmap
+    file to call the factory create operation.
+</p>
+<ul class="nobullets">
+    <li>
+        <img src="../img/1.png" alt="1" border="0">
+        If the client's DN is not in the grid-mapfile list, the operation will
+        will return a fault with the authorization error explained.
+    </li>
+</ul>
+<p>
+    The request is then validated and default values are filled in if not
+    supplied by the client.  This is also where network addresses are leased
+    if necessary.
+</p>
+<ul class="nobullets">
+    <li>
+        <img src="../img/2.png" alt="2" border="0">
+        If the request is simply invalid, it will be denied and a
+        WorkspaceMetadataFault will be returned.
+    </li>
+    <li>
+        <img src="../img/3.png" alt="3" border="0">
+        If the request is asking for network allocations and there are not
+        enough, the request will be denied and a
+        WorkspaceResourceRequestDeniedFault will be returned.
+    </li>
+</ul>
+<p>
+    Then the request is compared against the master policies configured
+    in the factory.
+</p>
+
+<ul class="nobullets">
+    <li>
+        <img src="../img/4.png" alt="4" border="0">
+        A violation will cause a WorkspaceResourceRequestDeniedFault to be
+        returned.
+    </li>
+</ul>
+
+<p>
+    <br>
+    <img alt="authorization flow 1" src="../img/authorization1.jpg"/>
+</p>
+
+<br />
+
+<h3>Attribute based authorization</h3>
+
+<p>
+    The VOMS and GridShib modules run <i>before</i> the Workspace
+    Factory Service is ever invoked, just like the gridmap authorization:
+</p>
+
+<p>
+    <br>
+    <img alt="authorization flow 2" src="../img/authorization2.jpg"/>
+</p>
+
+<p>
+    As mentioned above there is a plugin interface for creation time
+    authorization.  All relevant information about the request is passed
+    to the plugin including client identity and attributes (if available)
+    as well as the workspace description and resource request.  The
+    callout to this plugin occurs <i>after the validation process</i>:
+</p>
+
+<p>
+    <br>
+    <img alt="authorization flow 3" src="../img/authorization3.jpg"/>
+</p>
+
+<p>
+    The supplied Python based plugin allows an administrator to configure
+    a much richer policy than the factory policies allow for.  For example,
+    any arbitrary combination of <b>resource allocation</b> request (such as
+    RAM), <b>network</b> settings, deployment <b>duration</b>,
+    client <b>DN</b>, and client <b>attributes</b> can be taken into account.
+</p>
+
+<p>
+    This implementation of the authorization callout can present both VOMS
+    credentials and SAML attributes (via GridShib) to the policy evaluation.
+    But before they can be consulted, the "PIP" (Policy Information Point)
+    portion of those modules must be configured.  The PIP is what collects
+    the attributes, the PDP (Policy Decision Point) is what enforces policy.
+    This distinction is being mentioned because the PIP can be
+    configured <i>without the PDP</i> in the VOMS and
+    GridShib packages.  Bear in mind that this might be an option if you
+    are using the workspace authorization callout and want to handle all
+    attribute policy there instead of <i>before the factory service</i> which
+    is when the VOMS and GridShib modules are run.  Thus, the PIP modules
+    can collect the attributes about the client and then the detailed policy
+    about those attributes can be expressed in the workspace creation time
+    authorization callout.
+</p>
+
+
+<br />
+
+<h3>Finally</h3>
+
+<p>
+    In all cases, <b>after the default policy check succeeds</b>, the request
+    is currently passed next to the scheduling/resource management plugin where
+    problems will also lead to a WorkspaceResourceRequestDeniedFault.
+</p>
+
+<p>
+    <b>After scheduling succeeds</b>, the only thing stopping success at this
+    point is an internal error (for example, a database connection problem).
+</p>
+
+<br />
+
+<h3>Once deployed</h3>
+
+<p>
+    <i>Note:</i> Once deployed, a workspace can be managed and inspected
+    via <a href="../interfaces/service.html">Workspace Service</a>
+    or <a href="../interfaces/groupservice.html">Workspace Group Service</a>
+    operations.  Also, destruction may be run when using groups of groups,
+    Workspace Ensemble Service.
+</p>
+<p>
+    Currently, no matter what authorization scheme is in use, once a workspace
+    (or group of them) is deployed, al lof these operations are protected by a
+    DN access control list consisting of the creator DN.  <b>Only the deployer
+    can remotely manage or inspect the workspace</b>.
+</p>
+
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+_NIMBUS_CENTER2_COLUMN_END
+_NIMBUS_FOOTER1
+_NIMBUS_FOOTER2
+_NIMBUS_FOOTER3

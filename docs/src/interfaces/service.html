@@ -1,0 +1,86 @@
+m4_include(/mcs/m4/worksp.lib.m4)
+_NIMBUS_HEADER(WSRF Interfaces)
+_NIMBUS_HEADER2(n,n,y,n,n,n,n)
+_NIMBUS_INTERFACES_WARNING
+_NIMBUS_LEFT2_COLUMN
+_NIMBUS_LEFT2_INTERFACES_SIDEBAR(n,n,n,n,y,n,n)
+_NIMBUS_LEFT2_COLUMN_END
+_NIMBUS_CENTER2_COLUMN
+_NIMBUS_TP2_2_DEPRECATED
+<a name="service"></a>
+
+<h2>Workspace Service</h2>
+
+<p>The Workspace Service allows a client to manage and inspect a workspace
+after it has been instantiated as a WSRF resource by the
+<a href="factory.html">factory service</a>.  The service's
+WSDL can be
+<a href="../examples/compact/workspace_port_type_compact.wsdl">viewed
+online</a>.  It references a separate
+<a href="../examples/compact/workspace_types.xsd">types schema</a>.</p>
+
+<p>There are two operations besides standard WSRF operations: <b>start</b>
+and <b>shutdown</b>.</p>
+
+<p>Start is used in two situations: 1) a workspace may be shutdown by a client
+before it is scheduled to be and 2) a workspace resource can be created
+with a <a href="deployment.html">deployment</a> request that specifies
+a state other than <i>Running</i> to move the workspace to.  In both cases,
+the client can "manually" start the workspace.</p>
+
+<p>The shutdown operation can be used to halt the workspace.  It has one
+parameter, a choice from an enumeration of shutdown options:
+<i>Normal, Pause, Serialize, Reboot, Trash</i>, and
+<i>ReadyForTransport</i>.</p>
+
+<p>The <b>Normal</b> shutdown option sends a halt signal to the virtual
+machine and waits for it shut down properly.  The Workspace Service
+is configured to wait a specific time for the normal shutdown
+to succeed -- after this time
+the workspace service will force the removal of the virtual
+machine (similar to hard powering off a physical node).  In this case,
+the workspace service will mark the workspace corrupted.</p>
+
+<p>The <b>Pause</b> shutdown option will remove the VM from the VMM's
+CPU scheduler, "pausing" its execution of instructions.  It will not
+however serialize the virtual machine to files (some VMMs combine
+these steps).</p>
+
+<p>The <b>Serialize</b> shutdown option will remove the VM from the VMM
+entirely, serializing its current state to files. <b>Serialize is not
+supported</b> in this version.</p>
+
+<p>The <b>Reboot</b> shutdown option will send a reboot signal to the VM.</p>
+
+<p>The <b>Trash</b> shutdown option will immediately power off the VM and
+remove what partition files are only used by the VM (what the client can
+remove will be policy controlled).</p>
+
+<p>The <b>ReadyForTransport</b> shutdown option moves the workspace files
+to a storage node.  In the future this step may be accompanied by other steps,
+for example taking digests of workspace files and signing its metadata.
+ReadyForTransport is discussed in the <a href="deployment.html">deployment</a>
+page's WorkspaceState section.</p>
+
+<p>
+    There are currently two supported resource properties,
+    <a href="deployment.html"><b>WorkspaceDeployment</b></a> and
+    <b>logistics</b> available for inspection.  In this version, there is
+    no support for client modifications of a workspace RP that propagate
+    changes to the workspace - this will be included in future versions.
+</p>
+<p>
+    The service is a NotificationProducer and the client distributed with the
+    Workspace Service subscribes for notifications of changes to these
+    resource properties (for example, a workspace state change can produce
+    useful notifications).
+</p>
+
+
+
+_NIMBUS_CENTER2_COLUMN_END
+_NIMBUS_FOOTER1
+_NIMBUS_FOOTER2
+_NIMBUS_FOOTER3
+
+
