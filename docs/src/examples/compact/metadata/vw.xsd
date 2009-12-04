@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+/*
+ * Copyright 1999-2006 University of Chicago
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy
+ * of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ */
+ -->
+
+<xs:schema
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns="http://www.globus.org/2008/06/workspace/metadata"
+    xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/03/addressing"
+    xmlns:log="http://www.globus.org/2008/06/workspace/metadata/logistics"
+    xmlns:def="http://www.globus.org/2008/06/workspace/metadata/definition"
+    targetNamespace="http://www.globus.org/2008/06/workspace/metadata"
+    xmlns:tns="http://www.globus.org/2008/06/workspace/metadata"
+    elementFormDefault="qualified"
+    attributeFormDefault="unqualified">
+
+    <xs:import
+        schemaLocation="../../ws/addressing/WS-Addressing.xsd"
+        namespace="http://schemas.xmlsoap.org/ws/2004/03/addressing" />
+
+    <xs:import
+        namespace="http://www.globus.org/2008/06/workspace/metadata/logistics"
+        schemaLocation="vw-logistics.xsd" />
+
+    <xs:import
+        namespace="http://www.globus.org/2008/06/workspace/metadata/definition"
+        schemaLocation="vw-definition.xsd" />
+
+    <xs:complexType name="VirtualWorkspace_Type">
+        <xs:sequence>
+            <xs:element name="name"
+                        type="xs:anyURI" />
+
+            <xs:element ref="log:logistics"
+                        minOccurs="0" />
+
+            <xs:element ref="def:definition"
+                        minOccurs="0" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="VirtualWorkspace"
+                type="tns:VirtualWorkspace_Type" />
+
+</xs:schema>

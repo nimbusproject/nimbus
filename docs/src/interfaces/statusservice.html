@@ -1,0 +1,97 @@
+m4_include(/mcs/m4/worksp.lib.m4)
+_NIMBUS_HEADER(WSRF Interfaces)
+_NIMBUS_HEADER2(n,n,y,n,n,n,n)
+_NIMBUS_INTERFACES_WARNING
+_NIMBUS_LEFT2_COLUMN
+_NIMBUS_LEFT2_INTERFACES_SIDEBAR(n,n,n,n,n,n,y)
+_NIMBUS_LEFT2_COLUMN_END
+_NIMBUS_CENTER2_COLUMN
+_NIMBUS_TP2_2_DEPRECATED
+<a name="service"></a>
+
+<h2>Workspace Status Service</h2>
+
+<p>
+    The status service allows a client to query the usage data the service
+    has collected about it.
+</p>
+
+<p>
+    Currently there are two operations, <b>queryCurrentWorkspaces</b> and
+    <b>queryUsedAndReserved</b>.
+</p>
+
+<hr />
+<p>
+    <b>queryCurrentWorkspaces</b> returns some status information on all
+    instantiated workspaces that the caller controls.  It returns the schedule,
+    network addresses, ID number, etc. for each.
+</p>
+
+<hr />
+<p>
+    <b>queryUsedAndReserved</b>
+    returns the time (in minutes) used so far by the client as well as the
+    currently reserved time.
+</p>
+
+<p>
+    The <b>used time</b> is measured from creation time <i>to WSRF resource
+    destruction time</i>.  Note that the end of the measurement is not
+    when the workspace's running time is over.  Thus if you have lengthy
+    stage-out transfers or extend the resource termination time for no
+    good reason (which ties up allocations, including networking addresses),
+    you will still be charged for this time.
+</p>
+
+<p>
+    The <b>reserved time</b> is the aggregate of all your
+    <i>current deployments'</i> requested durations.  When a deployment ends,
+    the used time for that deployment is added to 'used' and the appropriate
+    time is substracted from 'reserved'.
+</p>
+
+<p>  
+    Reserved time is tracked separately mainly for authorization
+    purposes: the authorization policy can look at your past and current 
+    deployments together to render a decision.  If 'used' were the only thing
+    tracked and consulted during authorization, a client could conceivably
+    "blast" the service with requests that would ultimately put it above
+    its quota down the line because the current used tally would be low at
+    creation time.
+</p>
+
+<p>
+    There is currently one resource property <b>chargeGranularity</b>.  This
+    is an integer that tells how running time is being "counted".  If this
+    value is one then anything between zero and one minute (inclusive) is
+    counted as one minute.  If this value is e.g. thirty, then anything between
+    zero and thirty minutes (inclusive) is counted as thirty minutes.
+</p>
+
+<p>
+    Why would chargeGranularity ever be set differently than a value of one?
+    There may be organizational accounting reasons, but the workspace service
+    backend is usually the cause of this.  For example, the alternative backend
+    to Amazon's Elastic Compute Cloud would cause the chargeGranularity to be
+    sixty.  On this backend, the same amount of money is currently charged for
+    any time used between zero and sixty minutes (inclusive), and so this
+    parameter can be altered to accurately express a usage value that directly
+    translates to the real charges.
+</p>
+
+<p>
+    The Status Service WSDL can be
+    <a href="../examples/compact/workspace_status_port_type_compact.wsdl">viewed
+    online</a>.
+</p>
+
+
+
+_NIMBUS_CENTER2_COLUMN_END
+_NIMBUS_FOOTER1
+_NIMBUS_FOOTER2
+_NIMBUS_FOOTER3
+
+
+

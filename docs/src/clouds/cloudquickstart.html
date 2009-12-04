@@ -1,0 +1,438 @@
+m4_include(/mcs/m4/worksp.lib.m4)
+_NIMBUS_HEADER(Cloud Client Quickstart)
+_NIMBUS_HEADER2(n,n,n,n,n,n,y)
+_NIMBUS_LEFT2_COLUMN
+
+_NIMBUS_LEFT2_CLOUDS1_SIDEBAR(n,n,y,n,n,n,n)
+
+_NIMBUS_LEFT2_COLUMN_END
+_NIMBUS_CENTER2_COLUMN
+
+<h2> Cloud Client Quickstart </h2>
+<ul>
+<li><a href="#download">Download the cloud client</a></li>
+<li><a href="#configure">Configure and prepare for deployment</a></li>
+<li><a href="#vm">Pick a virtual machine image to deploy</a></li>
+<li><a href="#run">Deploy a workspace</a></li>
+<li><a href="#interact">Interact with a workspace</a></li>
+<li><a href="#query">Query workspace status</a></li>
+<li><a href="#saving">Save workspace changes</a></li>
+<li><a href="#terminate">Terminate a workspace</a></li>
+<li><a href="#advanced">Advanced Topics</a></li>
+<li><a href="#help">Help resources</a></li>
+</ul>
+
+<br />
+
+<!-- keep 'install' for old links -->
+<a name="install"> </a> <a name="download"> </a>
+<h2>Download the cloud client _NAMELINK(download)</h2>
+
+<p>
+  In order to use the client you will need to have Java (1.5+) installed
+  on your system.
+</p>
+
+<p>
+  Note that using the cloud client requires access to a Nimbus cloud. If you are
+  a member of the academic community, you can gain access to one of several
+  <a href="index.html">science clouds</a>.
+</p>
+
+<p>
+    Download the
+    <a href="/downloads/nimbus-cloud-client-013.tar.gz">latest
+    nimbus cloud client</a> (16M), untar the file, and change to the
+    cloud client directory (<i><a href="/downloads/archive.html#cloudclients">older
+    versions of the cloud client</a></i>).
+</p>
+
+<p> 
+    Congratulations -- you are now the happy owner of a brand new cloud client!
+    At any time, get help like so:
+</p>
+
+_EXAMPLE_GENERICCMD_BEGIN
+./bin/cloud-client.sh --help
+_EXAMPLE_CMD_END
+
+<p>
+    Make sure to subscribe to <i>workspace-user@globus.org</i> (see the
+    <a href="../contact.html">contact</a> page for instruction on how
+    to subscribe) to hear about client version updates.
+</p>
+
+<br />
+
+<a name="configure"> </a>
+<h2>Configure and prepare for deployment _NAMELINK(configure)</h2>
+
+<p>
+  First, see if you have configured the desired certificate:
+</p>
+
+_EXAMPLE_GENERICCMD_BEGIN
+./bin/grid-cert-info.sh
+_EXAMPLE_CMD_END
+
+<p>
+  Then create a proxy credential:
+</p>
+
+_EXAMPLE_GENERICCMD_BEGIN
+./bin/grid-proxy-init.sh
+_EXAMPLE_CMD_END
+
+<p>
+  Alternatively, if you have access to a MyProxy credential you can use the
+  "./bin/myproxy.sh" program.
+</p>
+
+<p>Test the security setup:</p>
+
+_EXAMPLE_GENERICCMD_BEGIN
+./bin/cloud-client.sh --security
+_EXAMPLE_CMD_END
+
+
+<p>
+    Issues? See the <a href="#help">help resources</a> for help.
+</p>
+
+<p>
+    <i>Not enabled on a cloud yet?</i>
+</p>
+<p class="indent">
+    If you have not yet given your DN to the cloud administrators, this
+    would be a good time to do so -- just send the text printed after
+    'Identity:' in the output of the
+    <i>./bin/cloud-client.sh --security</i> command.
+</p>
+
+<p>
+    <i>Does your cloud require VPN?</i>
+</p>
+<p class="indent">
+    Some clouds require the use of virtual private networks. Check the
+    configuration notes for the cloud you want to use and if private
+    networks are required first follow the
+    <a href="appendix.html#vpn">VPN installation steps</a>.
+</p>
+
+<p>
+    <i>Configure cloud and SSH public key:</i>
+</p>
+<div class="indent">
+    <p>
+        If the default client
+        configuration answers your needs you are done with the
+        installation step. In order to decide, take a look at
+        the <i>conf/cloud.properties</i> file.
+    </p>
+
+    <ul>
+        <li>
+            <p>
+                You can point the client at the cloud you will be using by
+                redefining the specific service and repository endpoints (obtain
+                them from the cloud administrator).
+            </p>
+        </li>
+        <li>
+            <p>
+                Most of the time a configuration file tailored to the cloud
+                you want to use should have been made available to you from
+                the administrator or cloud website.
+            </p>
+        </li>
+        <li>
+            <p>
+                You can set up the location of the ssh public key that you
+                want to put on the VM.  This will allow you to log in
+                after launching.
+            </p>
+        </li>
+        <li>
+            <p>
+                Note that you can override options via commandline if desired
+                (see the <i><i>--extrahelp</i></i> option)
+            </p>
+        </li>
+    </ul>
+
+    <p>
+        If you do nothing (a highly recommended and undervalued course
+        of action) these things will be picked up from default locations
+        specified in the file.
+    </p>
+</div>
+
+<br />
+
+<a name="vm"> </a>
+<h2>Pick a virtual machine image to deploy _NAMELINK(vm)</h2>
+
+<p>
+    In order to deploy a VM with custom configuration you need to
+    upload an image to the cloud. To make it easy for you we already
+    uploaded many images to your personal repository directory that you
+    can launch. You can find more detailed descriptions of those images
+    at the <a href="http://workspace.globus.org/vm/marketplace.html">Nimbus
+    marketplace</a>. To see what is available for running, list the images as
+    follows:
+<p>
+
+_EXAMPLE_GENERICCMD_BEGIN
+./bin/cloud-client.sh --list
+_EXAMPLE_CMD_END
+
+<p>
+    If you are feeling adventurous you could also create an image yourself
+    and upload them to the cloud, see this
+    <a href="appendix.html#transferring">appendix entry</a>.  You may as well
+    explore that capability later if this is your first time using the cloud
+    (in order to just get a feel for the cloud client).
+</p>
+
+<br />
+        
+<a name="run"> </a>
+<h2>Deploy a workspace _NAMELINK(run)</h2>
+
+<p>
+    To launch, use the <i>--run</i> option of the client. There are
+    two required run options: (1) <i>--name</i> defines the name of
+    an image and (2) <i>--hours</i> specifies the number of hours for
+    which the image will be deployed. For example, if you want to run
+    the image in your personal repository called "hello-cloud" for 1 hour,
+    run the following command:
+</p>
+  
+_EXAMPLE_GENERICCMD_BEGIN
+./bin/cloud-client.sh --run --name hello-cloud --hours 1
+_EXAMPLE_CMD_END
+
+<p>
+If successful, the run command should produce roughly this output:
+</p>
+  
+<div class="screen"><pre>
+SSH public keyfile contained tilde:
+  - '~/.ssh/id_rsa.pub' --> '/home/guest/.ssh/id_rsa.pub'
+
+Launching workspace.
+
+Using workspace factory endpoint:
+    https://cloudurl.edu:8443/wsrf/services/WorkspaceFactoryService
+
+Creating workspace "vm-023"... done.
+
+       IP address: 123.123.123.123
+         Hostname: ahostname.cloudurl.edu
+       Start time: Fri Feb 29 09:36:39 CST 2008
+    Shutdown time: Fri Feb 29 10:36:39 CST 2008
+ Termination time: Fri Feb 29 10:46:39 CST 2008
+
+Waiting for updates.
+
+State changed: Running
+
+Running: 'vm-023'
+</pre></div>
+
+<p>
+    The output prints out the endpoint information of the Nimbus service
+    associated with the cloud you are using.  This is followed by information
+    about the deployed VM which includes: the name you will use to
+    terminate the VM, the instantiation/termination times, and the
+    contact information for the workspace.
+</p>
+
+<div style="float: left; width: 56px;"><img src="img/note.png" /></div>
+<p>
+    <b>Note</b> that the information printed contains the network address
+    for the VM.  <i>You will need this in order to log in.</i>
+</p>
+
+<br />
+        
+<a name="interact"> </a>
+<h2>Interact with a workspace _NAMELINK(interact)</h2>
+
+<p>
+    Recall that your public key has been configured in the
+    <i>conf/cloud.properties </i> file. At launch time, 
+    the public key file was installed to <i>/root/.ssh/authorized_keys</i>
+    on the VM image, so that after it boots you should be able to log
+    in by typing:
+</p>
+        
+_EXAMPLE_GENERICCMD_BEGIN
+ssh <b>root</b>@ahostname.cloudurl.edu
+_EXAMPLE_CMD_END
+
+<p>
+    Make sure that you log in to the <b>root account</b> -- that's the
+    only one that gets set up with the key. You can create and
+    configure other accounts once you log in.
+</p>
+
+<p>
+    Another useful tip:
+    if you don't want SSH to remember the generated host key in the
+    known-hosts file (and complain when this name is taken by a
+    different VM later), use SSH with the
+    option "-o StrictHostKeyChecking=no"
+    (<a href="clusters.html#secgap">later</a> you will learn how to be more secure)
+</p>
+
+<p>
+    Enjoy! And may we ask that you send us a postcard
+    (workspace-user@globus.org).
+</p>
+
+<br />
+    
+<a name="query"> </a>
+<h2>Querying a workspace _NAMELINK(query)</h2>
+
+<p>
+    Should you ever find yourself somewhat out of touch with your
+    VMs there is an easy way to reestablish relations:
+</p>
+  
+_EXAMPLE_GENERICCMD_BEGIN
+./bin/cloud-client.sh --status --handle vm-023
+_EXAMPLE_CMD_END
+
+<p>
+    If you don't recall what the handle you need is, there are running
+    logs of each run kept in the "history" directory.  The highest numbered
+    subdirectory name in the history directory is probably a good guess.
+</p>
+
+<br />
+        
+<a name="saving"> </a>
+<h2>Saving workspace changes _NAMELINK(saving)</h2>
+
+<p>
+    You can save a template image's changes after use, this command will
+    shutdown the workspace and send the altered file back to your personal
+    repository directory. 
+</p>
+
+_EXAMPLE_GENERICCMD_BEGIN
+./bin/cloud-client.sh --save --handle vm-023 --newname custom-1
+_EXAMPLE_CMD_END
+
+<p>
+    Note that without the <i>--newname</i> parameter this will
+    <b>overwrite the source file</b>.  If you do not have permissions
+    to overwrite the source file (for example, you are using the
+    pre-populated template images that are provided), you must use the
+    <i>--newname</i> parameter which is kind of like the "save as" option
+    for documents in a word processor.
+</p>
+<p>
+    Failing to do so will cause a permissions error and you will lose
+    the changes on that run.  If you uploaded the image personally, you
+    will have the permissions to overwrite the source file (i.e., the
+    ability to use the <i>--save</i> option without also using
+    <i>--newname</i>).
+</p>
+
+<p>
+    As explained in the <a href="#query">query</a> section above, if you
+    do not know the handle you need, have a look in the history directory.
+</p>
+
+<br />
+        
+<a name="terminate"> </a>
+<h2>Terminate a workspace _NAMELINK(terminate)</h2>
+
+<p>
+    All good things come to an end. So it is with workspaces which
+    come to an end in the following way:
+</p>
+  
+_EXAMPLE_GENERICCMD_BEGIN
+./bin/cloud-client.sh --terminate --handle vm-023
+_EXAMPLE_CMD_END
+
+<p>
+    As explained in the <a href="#query">query</a> section above, if you
+    do not know the handle you need, have a look in the history directory.
+</p>
+
+<br />
+        
+<a name="advanced"> </a>
+<h2>Advanced Topics _NAMELINK(advanced)</h2>
+<p>
+    You have now earned your stripes: you have deployed a VM (or two) and
+    got a taste for cloud computing. How do we now move on to something
+    useful? One of the most commonly voiced requirements is to be able to
+    deploy "one-click virtual clusters" -- see <a href="clusters.html">our
+    guide to deploying virtual clusters</a> to learn more.
+</p>
+
+<p>
+  Also, you can find information on miscellaneous topics in the 
+  <a href="appendix.html">Cloud Client Appendix</a> 
+</p>
+
+<br />
+        
+<a name="help"> </a>
+<h2>Help resources _NAMELINK(help)</h2>
+
+<p>
+  For questions (and to see others' questions answered), make sure to subscribe
+  to <i>workspace-user@globus.org</i> (see the 
+  <a href="../contact.html">contact</a> page for instruction on how to
+  subscribe).
+</p>
+
+<p>
+  For help with security issues, you should also inquire to the list.  Before
+  doing so, note that the cloud-client has a "--security" flag for a basic
+  trust check.  And other programs under the "bin" directory have their own
+  help system, for example if you run "<i>./bin/grid-proxy-init.sh -help</i>" 
+  this may solve a problem your having right away.
+</p>
+
+<p>
+  For problems you'd like to keep quiet about (for example security with
+  specific IP adresses etc.), you should email your administrator contact
+  privately.
+</p>
+
+<hr />
+
+<p>Troubleshooting:</p>
+
+<ul>
+  <li>
+  
+    <p>
+      <b>Problem:</b> grid-proxy-init reports that it cannot find your
+      credential's certificate authority (CA) files.
+    </p>
+    
+    <p>
+      You may be using a credential that was only recently trusted by the 
+      cloud.  In this case, add the CA certificate to the "lib/certs" 
+      directory which is where "./bin/grid-proxy-init.sh" looks for CA
+      certificates.
+    </p>
+  
+  </li>
+</ul>
+
+_NIMBUS_CENTER2_COLUMN_END
+_NIMBUS_FOOTER1
+_NIMBUS_FOOTER2
+_NIMBUS_FOOTER3
+

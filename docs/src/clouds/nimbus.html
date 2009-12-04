@@ -1,0 +1,113 @@
+m4_include(/mcs/m4/worksp.lib.m4)
+_NIMBUS_HEADER(Science Clouds)
+_NIMBUS_HEADER2(n,n,n,n,n,n,y)
+_NIMBUS_LEFT2_COLUMN
+
+_NIMBUS_LEFT2_CLOUDS1_SIDEBAR
+
+_NIMBUS_LEFT2_COLUMN_END
+_NIMBUS_CENTER2_COLUMN
+
+<h2>Introduction to Nimbus @ UC</h2>
+
+<p>
+
+The University of Chicago Science Cloud, codenamed "Nimbus", provides
+compute capability in the form of <a href="http://xen.org/">Xen</a>
+virtual machines (VMs) that are deployed on physical nodes of the
+University of Chicago <a href="http://teraport.uchicago.edu/">TeraPort
+cluster</a> (currently 16 nodes) using the <a
+href="http://workspace.globus.org">Nimbus</a> software. 
+
+<p>
+
+The Nimbus cloud is available to all members of the scientific community wanting to
+run in the cloud. To obtain access you will need to provide a
+justification (a few sentences explaining your science project) and a
+valid grid credential (If you don't have a credential, email us. We
+can help). Based on the project, you will be given an allocation on
+the cloud. Send your requests to Nimbus administrators at <a
+href="mailto:nimbus@mcs.anl.gov">nimbus@mcs.anl.gov</a>.
+
+<p>
+
+In a typical session you will make a request to deploy a workspace
+based on a specified VM image. You can either use one of the VM images
+already available on a cloud or upload your own VM image. On
+deployment, the image will be configured with an ssh public key you
+provide so that you can log into your VM once it is deployed. <b>Instructions on how to use the cloud are available 
+<a href="cloudquickstart.html">here</a></b>. Have
+fun!
+
+<p>
+
+<h3> Important Configuration notes: </h3>
+
+<ul>
+<li>Nimbus provides public IP addresses for user's VMs. Thus, you will not need
+private network software to work with Nimbus.</li>
+<li>Nimbus works with version 10 or later of the workspace cloud client
+    (see <a href="cloudquickstart.html#download">instructions</a> for download).</li>
+</ul>
+
+<p> 
+    To start using Nimbus download the workspace cloud client and follow
+    the setup instructions. You will need the following:
+</p>
+
+<ul>
+<li><a href="cloud.properties">Nimbus configuration file</a></li>
+<li>A valid PKI X509 certificate</li>
+</ul>
+
+
+
+<!------------------------------------------------------------>
+<!------------------------------------------------------------>
+
+<br>
+<h3> EC2 clients: </h3>
+
+<p>
+  To try the EC2 clients, download this
+    <a href="http://s3.amazonaws.com/ec2-downloads/ec2-api-tools-1.3-24159.zip">EC2
+    client</a> from Amazon.
+</p>
+
+<p>The specific URL to use:</p>
+
+_EXAMPLE_GENERICCMD_BEGIN
+export EC2_URL=https://tp-vm1.ci.uchicago.edu:8445/wsrf/services/ElasticNimbusService
+_EXAMPLE_CMD_END
+
+<p>
+</p>
+
+<p>
+  See the <a href="../vm/_WORKSP_CURRENT_VM_VERSION/elclients.html">EC2 client notes</a> for more
+  information.  You will likely run into some of the EC2 client problems listed
+  in the
+  <a href="../vm/_WORKSP_CURRENT_VM_VERSION/admin/troubleshooting.html">troubleshooting</a> guide.
+</p>
+
+<p>
+  These requests are not perpetual like on Amazon.  The current running time
+  requested from the backend scheduler and authorization system is
+  three hours.  You will not be "charged" for the whole amount if you use
+  "terminate-instances" to destroy the VMs earlier than this.
+</p>
+
+<br>
+<br>
+<br>
+
+
+_NIMBUS_CENTER2_COLUMN_END
+_NIMBUS_FOOTER1
+_NIMBUS_FOOTER2
+_NIMBUS_FOOTER3
+
+
+
+
+

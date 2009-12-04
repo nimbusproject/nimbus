@@ -1,0 +1,627 @@
+m4_include(/mcs/m4/worksp.lib.m4)
+_NIMBUS_HEADER(One-Click Clusters)
+_NIMBUS_HEADER2(n,n,n,n,n,n,y)
+_NIMBUS_LEFT2_COLUMN
+
+_NIMBUS_LEFT2_CLOUDS1_SIDEBAR(n,n,n,n,y,n,n)
+
+_NIMBUS_LEFT2_COLUMN_END
+_NIMBUS_CENTER2_COLUMN
+
+<h2>Cluster Guide</h2>
+
+<div style="float: left; width: 80px;"><a href="clusters.html"><img src="img/network-receive-72.png" /></a></div>
+<p>
+  Quickstart and conceptual overview for launching one-click, auto-configuring clusters.
+</p>
+  
+<p>
+  If you are already running on one of the <a href="index.html">science
+  clouds</a>, you could launch and use a cluster right this minute.  Or you
+  could run your own cloud (the 
+  <a href="http://workspace.globus.org/downloads/index.html">software</a>
+  is free and open source).
+</p>
+
+<br />
+<a name="toc"> </a>
+
+<table><tr><td>
+Cluster Quickstart:<br /><br />
+<ul>
+  <li>
+    <a href="clusters.html#features">Features</a>
+  </li>
+  <li>
+    <a href="clusters.html#background">Background</a>
+  </li>
+  <li>
+    <a href="clusters.html#exampleoverview">Example</a>
+  </li>
+  <li>
+    <a href="clusters.html#examplequick">Super-quick start</a>
+  </li>
+  <li>
+    <a href="clusters.html#examplewalk">Example walkthrough</a>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </li>
+</ul>
+</td><td valign="top">
+Cluster Guide:<br />&nbsp;&nbsp;<i>(you are here)</i>
+
+<ul>
+  <li>
+    <a href="clusters2.html#howdoes">How does it happen?</a>
+  </li>
+  <li>
+    <a href="clusters2.html#custom">How do I make images of my own do this?</a>
+  </li>
+</ul>
+</td></tr></table>
+
+<br />
+
+<a name="howdoes"> </a>
+
+<h2>How does it happen? _NAMELINK(howdoes)</h2>
+
+<a name="howdid-overview"></a>
+
+<p>
+  A lightweight agent on each VM -- its only dependencies are Python and
+  the ubiquitous curl program -- securely contacts the <i>context broker</i> 
+  using a secret key.  This key was created on the fly and seeded inside 
+  the instance.  This agent gets information concerning the cluster from the
+  context broker and then causes last minute changes inside the image to
+  adapt to the environment.  This is called <i>contextualization</i>.
+</p>
+
+<p>
+  You, as client, specify the types of nodes you want using a simple role-based
+  annotation.  You specify the source image of each type as well as how many
+  instances should be launched.
+</p>
+
+<img src="img/simonsays.png">
+
+<br />
+
+<p>
+  Let's say you have a head node, file server and a pool of homogenous
+  compute nodes.  The head node needs to know what nodes to send work to for
+  computing, the slave nodes need to know what its head node and file server
+  contacts are, etc.
+</p>
+
+<p>
+  To adapt to new network identities as well as new cryptographic identities,
+  configuration files and access policies need to be adjusted.  You may also
+  want to pass different data files in on different launches: in the example
+  (see <a href="clusters.html">quickstart</a>), an access policy for external
+  usage was installed (grid-mapfile).
+</p>
+
+<p>
+  Sorting this out on the fly (and securely) is the responsibility of the
+  context agent on each VM.  The context agent takes all the generic security
+  and message handling steps out of the equation for you as the cluster
+  builder.  You're left with just the task of taking the information you
+  need (identities, new data files, etc) and turning that into the 
+  configuration change that will make your software work.
+</p>
+
+<a name="howdid-basics"></a>
+<h4>* Basic process: _NAMELINK(howdid-basics)</h4>
+<br />
+<p>
+  The numbered steps below correspond to the numbers in the diagram.
+</p>
+
+<div style="float: left; width: 2em;"><img src="img/1.png" /></div>
+<p class="indent2em">
+  You make a <i>cloud-client</i> request.  Instead of using "--name" to
+  specify the image to use, you use "--cluster" and specify a cluster
+  definition file.  This is a simple XML file that defines the layout 
+  you want (we'll look at this later).
+</p>
+
+<p class="indent2em">
+  The client notices you want contextualization and creates a new context for
+  you from the context broker. The broker provides the information that each
+  instance needs to talk to the context broker: a security credential and the
+  broker contact information.
+</p>
+
+
+<div style="float: left; width: 2em;"><img src="img/2.png" /></div>
+
+<p class="indent2em">
+  The client contacts the cloud service with your request, securely passing
+  along the broker contact and security information.
+</p>
+
+<div style="float: left; width: 2em;"><img src="img/3.png" /></div>
+<p class="indent2em">
+  The cloud service launches the instances you asked for, seeding each image
+  with the security credential and the broker contact information. You can
+  launch different images at once, for example two "abc" instances plus three
+  "xyz" instances etc.  You can also make a whole cluster <i>launch from
+  a single image file</i> -- each instance can take on a different personality
+  after it boots, guided by what you request in the cluster definition file.
+  That is how the <i>base-cluster</i> sample works (see <a href="clusters.html">quickstart</a>).
+</p>
+
+<div style="float: left; width: 2em;"><img src="img/4.png" /></div>
+<p class="indent2em">
+  Inside the VM is a lightweight program we will call the <i>context agent</i>.
+  Its only dependencies are Python and the curl program, so it should be able
+  to launch in all but the most stripped down VMs.  This program interprets
+  the bootstrap information (from step #2) and talks with the context broker
+  over HTTPS.  
+</p>
+
+<p class="indent2em">
+  We will go through the concepts of <b>provided roles</b> and
+  <b>required roles</b> later in the cluster definition sections below, but 
+  the basic idea is that the broker tells the agent inside the VM all about the
+  other nodes that it is "required" to know about.  The agent turns around
+  and looks for scripts to call that bear the role name(s) in question.
+</p>
+
+<div style="margin-left: 1.5em;">
+<div style="float: left; width: 4em;"><img src="img/note.png" /></div></div>
+<p class="indent2em">
+  If you are making a cluster yourself, these scripts are what you need to look
+  at and change around to get the right behavior at boot time.  Because only
+  particular scripts are called based on what the context broker tells the
+  agent, this allows you to have one binary VM image that ends up being able
+  to play multiple roles.  If a script is present but is not invoked because
+  of the way you launched that particular instance, then the configuration
+  will just not happen.
+</p>
+
+<div style="float: left; width: 2em;"><img src="img/5.png" /></div>
+<p class="indent2em">
+  Remote clients can query the context broker for information.  One important
+  thing they can retrieve is the SSHd public key generated by every cluster
+  member.  By default, as you saw above, the cloud-client will install these
+  to the known_hosts file for you.  This feature is only available when
+  using contextualization (you can launch workspaces with "--cluster" flag 
+  and NOT use contextualization for some or all of them).
+</p>
+
+<a name="clusterdef"></a>
+<h4>* Cluster definition without contextualization: _NAMELINK(clusterdef)</h4>
+<br />
+<p>
+  The cluster definition file drives the actual request that is made by the
+  cloud-client in step #1 above.  Here is an example that excludes the
+  contextualization related element:
+</p>
+
+<div class="screen"><pre>
+&lt;cluster xmlns="http://www.globus.org/2008/06/workspace/metadata/logistics">
+
+  &lt;workspace&gt;
+    &lt;name&gt;head-node&lt;/name&gt;
+    &lt;image&gt;my-head-node&lt;/image&gt;
+    &lt;quantity&gt;1&lt;/quantity&gt;
+    &lt;nic wantlogin="true"&gt;public&lt;/nic&gt;
+  &lt;/workspace&gt;
+  
+  &lt;workspace&gt;
+    &lt;name&gt;compute-nodes&lt;/name&gt;
+    &lt;image&gt;my-compute-node&lt;/image&gt;
+    &lt;quantity&gt;2&lt;/quantity&gt;
+    &lt;nic&gt;public&lt;/nic&gt;
+  &lt;/workspace&gt;
+  
+&lt;/cluster&gt;
+</pre></div>
+
+<p>
+  Each <b>&lt;workspace&gt;</b> element is like a group (of one to N) identical
+  requests that will only differ by the network identity each instance gets
+  assigned.  You can have unlimited <b>&lt;workspace&gt;</b> sections to make
+  any arbitrary cluster layout.
+</p>
+
+<p>
+  <b>&lt;name&gt;</b> is for local console printing only.  This is helpful for
+  quickly ascertaining which IP address you're interested in.  It's an optional
+  element.
+</p>
+
+<p>
+  The <b>&lt;image&gt;</b> and <b>&lt;quantity&gt;</b> values direct the cloud
+  client to launch one instance of the "my-head-node" image in your personal
+  directory and two instances of the "my-compute-node" image.  Note that you
+  can launch instances from the same image file in different
+  <b>&lt;workspace&gt;</b> groups if they differ in some other way (for
+  example if they have differing contextualization needs).
+</p>
+
+<p>
+  <b>&lt;nic&gt;</b> elements dictate 1) how many network interfaces should be
+  present, 2) what the network name for each one is, and 3) whether or not SSH
+  known_hosts should be updated automatically.
+</p>
+
+<ol>
+  <li>
+    <p>
+        Multiple nic situations are an advanced topic, but briefly: you can
+        have many network situations but a common example would be NAT'd
+        network setups for compute nodes.  Also, the context broker accomodates
+        multiple identities per node, you can specify which identity is needed
+        for a particular service, etc.
+    </p>
+  </li>
+  
+  <li>
+    <p>
+      The network names are specific to the cloud (you will often see the
+      conventional "public" and "private").  You can query for the active
+      ones by running <i>./bin/cloud-client.sh --networks</i>
+    </p>
+  </li>
+  
+  <li>
+    <p>
+      The <b>wantlogin="true"</b> attribute controls whether or not the SSH
+      known_hosts file should be adjusted to include this node(s) SSHd public
+      key. See <a href="#secgap">here</a> for more information.  The attribute
+      is optional, so it can just look like
+      <b>&lt;nic&gt;</b>somenetwork<b>&lt;/nic&gt;</b> if you want no SSH
+      adjustment.
+    </p>
+  </li>
+</ol>
+
+<p>
+  The <b>&lt;ctx&gt;</b> element, if needed, comes after the
+  <b>&lt;nic&gt;</b> elements.
+  The syntax of the <b>&lt;ctx&gt;</b> element is discussed in the
+  next section.  This is an optional element, you can launch clusters
+  that don't contextualize or where only parts of it need contextualization.
+</p>
+
+
+<br />
+
+<a name="custom" ></a>
+
+<h2>How do I make images of my own do this? _NAMELINK(custom)</h2>
+
+<h4>* Context agent:</h4>
+
+<p>
+  You will need to run the context agent inside your VM.  This is available
+  here, we are going to dedicate a download/information page to this program in
+  the future:
+</p>
+
+<ul>
+  <li><a href="/downloads/nimbus-ctx-agent-2.2.tar.gz">nimbus-ctx-agent-2.2.tar.gz</a> (56K)</li>
+</ul>
+
+<a name="agentdeps"> </a>
+Dependencies:
+<ul>
+  <li><a href="http://www.python.org/">Python</a> 2.3+</li>
+  <li>Any recent <a href="http://curl.haxx.se/">curl</a> commandline</li>
+</ul>
+
+<p>
+  It would be very rare that your VM's package management system does not
+  support these two things.  And it's likely that they are already installed:
+</p>
+
+_EXAMPLE_GENERICCMD_BEGIN
+python -V
+_EXAMPLE_CMD_END
+
+<br />
+
+_EXAMPLE_GENERICCMD_BEGIN
+curl -V
+_EXAMPLE_CMD_END
+
+<p>
+  In the curl version (-V) output, make sure "https" is reported (it would be
+  rare it was built without https support but does not hurt to check).
+</p>
+
+<p>
+  Untar the archive.  Move it to live under "/opt/nimbus" (it can be
+  placed elsewhere but you'll have to adjust the conf file to accomodate).
+</p>
+
+_EXAMPLE_GENERICCMD_BEGIN
+wget http://workspace.globus.org/downloads/nimbus-ctx-agent-2.2.tar.gz
+_EXAMPLE_CMD_END
+
+_EXAMPLE_GENERICCMD_BEGIN
+tar xzf nimbus-ctx-agent-2.2.tar.gz
+_EXAMPLE_CMD_END
+
+_EXAMPLE_GENERICCMD_BEGIN
+mkdir /opt/nimbus
+_EXAMPLE_CMD_END
+_EXAMPLE_GENERICCMD_BEGIN
+mv nimbus-ctx-agent-2.2/* /opt/nimbus/
+_EXAMPLE_CMD_END
+
+<p>
+  The <b>ctx</b> directory is where the agent implementation is, the main
+  reason you'd ever need to go there would be to adjust the "ctx.conf" file.
+  The default configurations will all be fine if you are untarring to
+  "/opt/nimbus".
+</p>
+
+<p>
+  The <b>ctx-scripts</b> directory is what you need to look at to make
+  the auto-configurations work.
+</p>
+
+<p>
+  Sanity check by running:
+</p>
+
+_EXAMPLE_GENERICCMD_BEGIN
+/opt/nimbus/ctx/launch.sh
+_EXAMPLE_CMD_END
+
+<p>
+  You'll see something like this message (among others):
+</p>
+  
+<div class="screen"><pre>
+  metadata server URL path '/var/nimbus-metadata-server-url' does not exist on filesystem
+</pre></div>
+
+<p>
+  That's good.  What this means is that the VM was not booted up as part of
+  a context.  The missing bootstrap file is expected in that case.  Since
+  the bootstrap information is needed to contact the broker, it's also 
+  expected that the agent cannot report errors to the broker.
+</p>
+
+<div style="float: left; width: 56px;"><img src="img/note.png" /></div>
+<p>
+  This means you can run your image in standalone mode without nonsense.  The
+  context agent can still start via the init system and have no side effects. 
+  You can start your image, make an edit, save the image back to your
+  repository directory and then launch with contextualization.
+</p>
+
+<a name="agentbasics"> </a>
+<h4>* Usage: _NAMELINK(agentbasics)</h4>
+<br />
+<p>
+  Under this <b>ctx-scripts</b> directory is where your role specific scripts
+  will live.  Say your system is going to run Torque.  One node will be the
+  PBS server and all the others will run the PBS mom daemon.  A simple cluster,
+  easy to picture.
+</p>
+
+<p>
+  You will pick an arbitrary name for each of the <b>roles</b> you want to
+  call out, in our example we have two roles.  In order
+  to follow along with the actual Torque scripts that are provided as
+  (working) samples, we will call the server node <b><i>torquemaster</i></b>
+  and compute nodes <b><i>torqueslave</i></b>.
+</p>
+
+<ol>
+  <li>
+    <p>
+      When the head node instance boots, the context agent runs and is told by 
+      the context broker that it <b>requires</b> "torqueslave" along with a
+      list of identities that <b>provide</b> the "torqueslave" role.
+    </p>
+  </li>
+  
+  <li>
+    <p>
+      A program exists called "torqueslave".  For each torqueslave that this
+      head node is hearing
+      about, the script is called once by the context agent with the identity
+      as arguments.  It configures the PBS nodes file to enable that node as
+      a valid member of the compute cluster.
+    </p>
+  </li>
+  
+  <li>
+    <p>
+      The reverse happens on the compute nodes.  Each node hears about the
+      "torquemaster" they require and that script gets called to configure
+      the PBS mom daemon.
+    </p>
+  </li>
+  
+  <li>
+    <p>
+      After all the configurations are made, the appropriate service is started
+      on each node based on what role it is playing.
+    </p>
+  </li>
+</ol>
+
+<p>
+  That's the main idea.  Every node can "require" and "provide" a role.
+  The broker matches everything up in the context and provides the
+  correct response to every context agent that is querying it.
+  When an instance's agent hears about a certain role it requires, a
+  script matching the role name is called in order to "consume" the
+  required information:
+</p>
+
+<ul>
+  <li>Argument 1: IP</li>
+  <li>Argument 2: short hostname</li>
+  <li>Argument 3: full hostname (FQDN)</li>
+</ul>
+
+<p>
+  There is a restart phase after those role specific scripts are called --
+  this phase gives you the opportunity to start up specific programs based on
+  the roles the node is told it is playing.
+</p>
+
+<p>
+  Data delivery is handled in a similar way:
+</p>
+<p class="indent">
+  A script matching the data name is called.  Only one argument is passed to
+  it, an absolute path to a file with the data contents.  You can consume that
+  file in any way.  This can be a powerful mechanism since you can provide data
+  as the remote client.  The "data" could even be a zero-length value that
+  triggers some behavior merely by calling a particularly named data script.
+</p>
+
+<p>The script directory has subdirectories with an integer prefix:</p>
+<p class="indent">
+  The integer prefix reminds you of the <b>order</b> that the directories are
+  consulted.  For example, the
+  "1-ipandhost" scripts (the workhorse scripts that accept peer identity
+  information) and "3-data" scripts are both called before the "4-restarts"
+  scripts.
+</p>
+
+<p class="indent">
+  The ordering is for a reason: in this Torque example, you would not want to
+  restart the PBS server process (via "4-restarts") until all of the required
+  identities were inserted into the nodes list (via "1-ipandhost").  
+</p>
+
+<p class="indent">
+  In general, by looking at the number prefix, you can remind yourself 
+  quickly that ALL runs of the X directory scripts are guaranteed to have
+  been made before anything in the Y directory is called, when X &lt; Y.
+</p>
+
+<p>
+   The programs in these script directories can be written in any programming 
+   language, they are invoked via normal process fork + arguments.
+</p>
+
+<p>
+   Log output goes to "/opt/nimbus/ctxlog.txt" by default.
+</p>
+
+
+<a name="ctxdef"> </a>
+<h4>* Cluster definition with contextualization: _NAMELINK(ctxdef)</h4>
+<br />
+
+<p>
+  Following our simple Torque example, let's revisit the cluster definition
+  file and add in the contextualization requirements.
+</p>
+
+<div class="screen"><pre>
+&lt;cluster xmlns="http://www.globus.org/2008/06/workspace/metadata/logistics">
+
+  &lt;workspace&gt;
+    &lt;name&gt;head-node&lt;/name&gt;
+    &lt;image&gt;my-head-node&lt;/image&gt;
+    &lt;quantity&gt;1&lt;/quantity&gt;
+    &lt;nic wantlogin="true"&gt;public&lt;/nic&gt;
+    
+    &lt;ctx&gt;
+      <b>&lt;provides&gt;</b>
+          &lt;identity /&gt;
+          &lt;role&gt;torquemaster&lt;/role&gt;
+      <b>&lt;/provides&gt;</b>
+      
+      <b>&lt;requires&gt;</b>
+          &lt;identity /&gt;
+          &lt;role name="torqueslave" hostname="true" pubkey="true" /&gt;
+      <b>&lt;/requires&gt;</b>
+    &lt;/ctx&gt;
+    
+  &lt;/workspace&gt;
+  
+  &lt;workspace&gt;
+    &lt;name&gt;compute-nodes&lt;/name&gt;
+    &lt;image&gt;my-compute-node&lt;/image&gt;
+    &lt;quantity&gt;2&lt;/quantity&gt;
+    &lt;nic&gt;public&lt;/nic&gt;
+    
+    &lt;ctx&gt;
+      <b>&lt;provides&gt;</b>
+          &lt;identity /&gt;
+          &lt;role&gt;torqueslave&lt;/role&gt;
+      <b>&lt;/provides&gt;</b>
+      
+      <b>&lt;requires&gt;</b>
+          &lt;identity /&gt;
+          &lt;role name="torquemaster" hostname="true" pubkey="true" /&gt;
+      <b>&lt;/requires&gt;</b>
+    &lt;/ctx&gt;
+  &lt;/workspace&gt;
+  
+&lt;/cluster&gt;
+</pre></div>
+
+<br >
+
+<p>
+  Besides seeing examples of the provides and requires syntax, two extra 
+  things were introduced in this example:
+</p>
+
+<ol>
+  <li>
+    <p>
+      The <b>&lt;identity /&gt;</b> tags.  Keep these, they signal that each
+      member requires all identities in the cluster.  This is used for 
+      configuring each node's local <i>/etc/hosts</i> with every member in
+      the context and it's very likely you will not want to disable this  
+      behavior.
+    </p>
+  </li>
+  <li>
+    <p>
+      The <b>hostname</b> and <b>pubkey</b> attributes.  This signals that
+      when a node is informed of this required role, it needs to have
+      hostname and SSHd pubkey in the information, otherwise it will not be
+      considered a complete answer.  Responses to context agents concerning
+      this role will be held off until the nodes in question report their SSHd
+      public keys to the context broker.
+    </p>
+  </li>
+</ol>
+
+<div style="float: left; width: 56px;"><img src="img/note.png" /></div>
+<p>
+  Notice that providing contextualization requirements on a per launch basis
+  allows you to use <i>the same image</i> file for different
+  <b>&lt;workspace&gt;</b> sections.  With these Torque roles, you could
+  have the same image file with <b>both</b> sets of configuration scripts.
+  When the VMs are booting and the context agent retrieves role information
+  from the broker, <i>only the appropriate scripts are called</i>.  That is 
+  how the <i>base-cluster</i> sample works (see 
+  <a href="clusters.html">quickstart</a>).
+</p>
+
+<p>
+  This should be enough to get you going, be sure to look at the script
+  samples for comments.
+</p>
+
+<p>
+  If you are not sure about what configuration strategy to take for a 
+  particular piece of software, one thing
+  you might try is asking on the <i>workspace-user@globus.org</i>
+  list for ideas since other cluster authors are lurking there (see the 
+  <a href="../contact.html">contact</a> page for
+  instruction on how to subscribe).
+</p>
+
+_NIMBUS_CENTER2_COLUMN_END
+_NIMBUS_FOOTER1
+_NIMBUS_FOOTER2
+_NIMBUS_FOOTER3
+

@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+/*
+ * Copyright 1999-2008 University of Chicago
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy
+ * of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ */
+ -->
+
+<!-- non processed WSDL, see copyToDeployableComponent ant target -->
+
+<wsdl:definitions
+    name="WorkspaceContextBroker"
+    targetNamespace="http://www.globus.org/2008/06/workspace/contextualization"
+    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:wsdlpp="http://www.globus.org/namespaces/2004/10/WSDLPreprocessor"
+    xmlns:wsbf="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-BaseFaults-1.2-draft-01.xsd"
+    xmlns:wsrp="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties-1.2-draft-01.xsd"
+    xmlns:wsrpw="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties-1.2-draft-01.wsdl"
+    xmlns:tns="http://www.globus.org/2008/06/workspace/contextualization"
+    xmlns:work-types="http://www.globus.org/2008/06/workspace/types"
+    xmlns:cloud-types="http://www.globus.org/2008/06/workspace/cloudtypes">
+
+    <wsdl:import
+        namespace="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties-1.2-draft-01.wsdl"
+        location="../wsrf/properties/WS-ResourceProperties.wsdl" />
+
+    <wsdl:import
+        namespace="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceLifetime-1.2-draft-01.wsdl"
+        location="../wsrf/lifetime/WS-ResourceLifetime.wsdl" />
+
+    <wsdl:import
+        namespace="http://docs.oasis-open.org/wsn/2004/06/wsn-WS-BaseNotification-1.2-draft-01.wsdl"
+        location="../wsrf/notification/WS-BaseN.wsdl" />
+
+    <wsdl:types>
+        <xs:schema
+            targetNamespace="http://www.globus.org/2008/06/workspace/contextualization"
+            xmlns:tns="http://www.globus.org/2008/06/workspace/contextualization"
+            elementFormDefault="qualified">
+
+            <xs:import
+                namespace="http://www.globus.org/2008/06/workspace/types"
+                schemaLocation="./workspace_types.xsd" />
+
+            <!--==================================================-->
+            <!--               Resource properties                -->
+            <!--==================================================-->
+
+            <!-- This needs to be defined here for the topic elements
+                 to be automatically inserted by the WSDL pre-processor
+                 (see non-compact WSDL in common/schema) -->
+            <xs:element name="ContextBrokerRPSet">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element ref="work-types:contextualizationContext" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <!--==================================================-->
+            <!--  Operational input/output type declarations      -->
+            <!--==================================================-->
+
+            <xs:element name="lock"
+                        type="work-types:voidType" />
+
+            <xs:element name="lockResponse"
+                        type="work-types:voidType" />
+
+            <xs:element name="injectData"
+                        type="work-types:injectData_Type" />
+
+            <xs:element name="injectDataResponse"
+                        type="work-types:voidType" />
+
+            <xs:element name="retrieve"
+                        type="work-types:retrieveSend_Type" />
+
+            <xs:element name="retrieveResponse"
+                        type="work-types:retrieveResponse_Type" />
+
+            <xs:element name="errorExiting"
+                        type="work-types:errorExitingSend_Type" />
+
+            <xs:element name="errorExitingResponse"
+                        type="work-types:voidType" />
+
+            <xs:element name="okExiting"
+                        type="work-types:okExitingSend_Type" />
+
+            <xs:element name="okExitingResponse"
+                        type="work-types:voidType" />
+
+            <xs:element name="identities"
+                        type="work-types:identitiesSend_Type" />
+
+            <xs:element name="identitiesResponse"
+                        type="work-types:identitiesResponse_Type" />
+
+        </xs:schema>
+    </wsdl:types>
+
+    <!--==================================================-->
+    <!--            Message declarations                  -->
+    <!--==================================================-->
+
+    <wsdl:message  name="LockInputMessage">
+        <wsdl:part name="parameters"
+                   element="tns:lock" />
+    </wsdl:message>
+
+    <wsdl:message  name="LockOutputMessage">
+        <wsdl:part name="parameters"
+                   element="tns:lockResponse" />
+    </wsdl:message>
+
+    <wsdl:message  name="InjectDataInputMessage">
+        <wsdl:part name="parameters"
+                   element="tns:injectData" />
+    </wsdl:message>
+
+    <wsdl:message  name="InjectDataOutputMessage">
+        <wsdl:part name="parameters"
+                   element="tns:injectDataResponse" />
+    </wsdl:message>
+
+    <wsdl:message  name="RetrieveInputMessage">
+        <wsdl:part name="parameters"
+                   element="tns:retrieve" />
+    </wsdl:message>
+
+    <wsdl:message  name="RetrieveOutputMessage">
+        <wsdl:part name="parameters"
+                   element="tns:retrieveResponse" />
+    </wsdl:message>
+
+    <wsdl:message  name="ErrorExitingInputMessage">
+        <wsdl:part name="parameters"
+                   element="tns:errorExiting" />
+    </wsdl:message>
+
+    <wsdl:message  name="ErrorExitingOutputMessage">
+        <wsdl:part name="parameters"
+                   element="tns:errorExitingResponse" />
+    </wsdl:message>
+
+    <wsdl:message  name="OKExitingInputMessage">
+        <wsdl:part name="parameters"
+                   element="tns:okExiting" />
+    </wsdl:message>
+
+    <wsdl:message  name="OKExitingOutputMessage">
+        <wsdl:part name="parameters"
+                   element="tns:okExitingResponse" />
+    </wsdl:message>
+
+    <wsdl:message  name="IdentitiesInputMessage">
+        <wsdl:part name="parameters"
+                   element="tns:identities" />
+    </wsdl:message>
+
+    <wsdl:message  name="IdentitiesOutputMessage">
+        <wsdl:part name="parameters"
+                   element="tns:identitiesResponse" />
+    </wsdl:message>
+
+    <!-- messages for faults: -->
+
+    <wsdl:message  name="ContextualizationFaultMessage">
+        <wsdl:part name="description"
+                   element="work-types:WorkspaceContextualizationFault" />
+    </wsdl:message>
+
+    <!--==================================================-->
+    <!--            portType declaration                  -->
+    <!--==================================================-->
+
+    <wsdl:portType name="WorkspaceContextBrokerPortType"
+                   wsrp:ResourceProperties="tns:ContextBrokerRPSet"
+                   wsdlpp:extends="wsrpw:GetResourceProperty
+                                   wsrpw:QueryResourceProperties">
+
+        <wsdl:operation  name="lock">
+
+            <wsdl:input  message="tns:LockInputMessage" />
+            <wsdl:output message="tns:LockOutputMessage" />
+
+            <wsdl:fault  name="ContextualizationFault"
+                         message="tns:ContextualizationFaultMessage" />
+        </wsdl:operation>
+
+        <wsdl:operation  name="injectdata">
+
+            <wsdl:input  message="tns:InjectDataInputMessage" />
+            <wsdl:output message="tns:InjectDataOutputMessage" />
+
+            <wsdl:fault  name="ContextualizationFault"
+                         message="tns:ContextualizationFaultMessage" />
+        </wsdl:operation>
+
+        <wsdl:operation  name="retrieve">
+
+            <wsdl:input  message="tns:RetrieveInputMessage" />
+            <wsdl:output message="tns:RetrieveOutputMessage" />
+
+            <wsdl:fault  name="ContextualizationFault"
+                         message="tns:ContextualizationFaultMessage" />
+        </wsdl:operation>
+
+        <wsdl:operation  name="errorExiting">
+
+            <wsdl:input  message="tns:ErrorExitingInputMessage" />
+            <wsdl:output message="tns:ErrorExitingOutputMessage" />
+
+            <wsdl:fault  name="ContextualizationFault"
+                         message="tns:ContextualizationFaultMessage" />
+        </wsdl:operation>
+
+        <wsdl:operation  name="okExiting">
+
+            <wsdl:input  message="tns:OKExitingInputMessage" />
+            <wsdl:output message="tns:OKExitingOutputMessage" />
+
+            <wsdl:fault  name="ContextualizationFault"
+                         message="tns:ContextualizationFaultMessage" />
+        </wsdl:operation>
+
+        <wsdl:operation  name="identities">
+
+            <wsdl:input  message="tns:IdentitiesInputMessage" />
+            <wsdl:output message="tns:IdentitiesOutputMessage" />
+
+            <wsdl:fault  name="ContextualizationFault"
+                         message="tns:ContextualizationFaultMessage" />
+        </wsdl:operation>
+
+    </wsdl:portType>
+
+</wsdl:definitions>

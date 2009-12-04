@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deployment name="defaultServerConfig" 
+    xmlns="http://xml.apache.org/axis/wsdd/" 
+    xmlns:java="http://xml.apache.org/axis/wsdd/providers/java" 
+    xmlns:wsrp=
+      "http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties-1.2-draft-01.xsd" 
+    xmlns:wsnt=
+      "http://docs.oasis-open.org/wsn/2004/06/wsn-WS-BaseNotification-1.2-draft-01.xsd"
+    xmlns:wsa=
+      "http://schemas.xmlsoap.org/ws/2004/03/addressing"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+    <globalConfiguration>
+
+        <!-- NOTE: THIS IS NOT A FUNCTIONING FILE, it only contains the
+             relevant sections as an example.  Start with your own
+             "$GLOBUS_LOCATION/etc/globus_wsrf_core/server-config.wsdd"
+         -->
+
+        <requestFlow>
+            <!-- The AddressingHandler must be first -->
+            <handler type="java:org.globus.wsrf.handlers.AddressingHandler"/>
+            <!-- The URLMapper must be second -->
+            <handler type="java:org.globus.wsrf.handlers.URLMapper"/>
+            <!-- @TOMCAT_SEC_HANDLER@ -->
+            <!-- The AuthenticationServiceHandler must be third -->
+            <handler type="AuthenticationServiceHandler"/>
+
+            <handler type="java:org.globus.wsrf.handlers.MessageLoggingHandler"/>
+            <handler type="java:org.globus.wsrf.handlers.JAXRPCHandler">
+
+            <!-- THIS WAS COMMENTED OUT: -->
+            <!--  <parameter name="className" value="org.globus.wsrf.impl.security.authentication.wssec.WSSecurityHandler"/> -->
+
+            <!-- THIS WAS ADDED: -->
+            <parameter name="className"
+                   value="org.nimbustools.messaging.gt4_0_elastic.rpc.WSSecurityHandler" />
+
+ 	    </handler>
+	    <handler type="java:org.globus.wsrf.impl.security.authentication.SecurityPolicyHandler"/>
+	    <handler type="java:org.globus.wsrf.impl.security.authorization.AuthorizationHandler"/>
+            <!-- The FaultHandler must be last -->
+            <handler type="java:org.globus.wsrf.handlers.FaultHandler"/>
+        </requestFlow>
+
+        <responseFlow>
+            <!-- The WSDLHandler must be first -->
+            <handler type="java:org.globus.wsrf.handlers.WSDLHandler"/>
+            <handler type="java:org.globus.wsrf.handlers.AddressingHandler"/>
+            <handler type="java:org.apache.axis.handlers.JAXRPCHandler">
+                <parameter name="className" value="org.globus.wsrf.impl.security.authentication.securemsg.X509EncryptHandler"/>
+            </handler>
+            <handler type="java:org.apache.axis.handlers.JAXRPCHandler">
+
+                <!-- THIS WAS COMMENTED OUT: -->
+                <!-- <parameter name="className" value="org.globus.wsrf.impl.security.authentication.securemsg.X509SignHandler"/> -->
+
+                <!-- THIS WAS ADDED: -->
+		        <parameter name="className"
+                           value="org.nimbustools.messaging.gt4_0_elastic.rpc.SignHandler" />
+
+ 	        </handler>
+            <handler type="java:org.apache.axis.handlers.JAXRPCHandler">
+                <parameter name="className" value="org.globus.wsrf.impl.security.authentication.UsernameHandler"/>
+            </handler>
+            <handler type="java:org.apache.axis.handlers.JAXRPCHandler">
+               <parameter name="className" value="org.globus.wsrf.impl.security.authentication.secureconv.GSSHandler"/>
+            </handler>
+            <handler 
+                type="java:org.globus.wsrf.handlers.MessageLoggingHandler"/>
+        </responseFlow>
+
+    </globalConfiguration>
+</deployment>

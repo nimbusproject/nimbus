@@ -1,0 +1,63 @@
+m4_include(/mcs/m4/worksp.lib.m4)
+_NIMBUS_HEADER(Module Copying)
+_NIMBUS_HEADER2
+_NIMBUS_CENTER3_COLUMN
+
+<h2>Module Copying Guide</h2>
+
+<p>
+    If your site kernels require modules, the VM will need to be populated.
+</p>
+
+<p>
+    Make sure there is enough space on the partition file.  If not, create a
+    bigger filesystem:
+
+<pre># ls -lh ttylinux-xen
+-rw-r--r-- 1 2894 311 4.0M Apr 20 00:32 ttylinux-xen
+
+# du -sh /lib/modules/2.6.16.33-xen/
+41M     /lib/modules/2.6.16.33-xen/
+
+# mv ttylinux-xen ttylinux-xen-old
+
+# dd if=/dev/zero of=ttylinux-xen bs=1k count=65k
+66560+0 records in
+66560+0 records out
+68157440 bytes (68 MB) copied, 0.425743 s, 160 MB/s
+
+# ls -lh ttylinux-xen
+-rw-r--r-- 1 root root 65M Oct 17 10:49 ttylinux-xen
+
+# mke2fs ttylinux-xen
+mke2fs 1.38 (30-Jun-2005)
+ttylinux-xen is not a block special device.
+Proceed anyway? (y,n) y
+[rest of output snipped]
+</pre>
+</p>
+
+<p>
+    Run a recursive copy of the relevant modules directory into the VM
+    (you may need to obtain these from an administrator).
+    See the <a href="offline-editing.html">Offline Editing Guide</a> for
+    more information about mounting loopback.
+</p>
+<pre># mkdir tmp
+# mount -o loop ttylinux-xen tmp/
+# mkdir tmp2
+# mount -o loop ttylinux-xen-old tmp2/
+# cp -a tmp2/* tmp/
+# umount tmp2/
+# rmdir tmp2
+# cp -a /lib/modules/2.6.16.33-xen tmp/lib/modules/
+# umount tmp
+# rmdir tmp
+</pre>
+
+
+_NIMBUS_CENTER3_COLUMN_END
+_NIMBUS_FOOTER1
+_NIMBUS_FOOTER2
+_NIMBUS_FOOTER3
+

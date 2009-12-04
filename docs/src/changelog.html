@@ -1,0 +1,2187 @@
+m4_include(/mcs/m4/worksp.lib.m4)
+_NIMBUS_HEADER(Changelog)
+_NIMBUS_HEADER2(n,n,n,n,y,n,n)
+_NIMBUS_LEFT2_COLUMN
+
+_NIMBUS_LEFT2_DOWNLOAD_SIDEBAR(n,n,n,y)
+
+_NIMBUS_LEFT2_COLUMN_END
+_NIMBUS_CENTER2_COLUMN
+
+<h2>Changelog</h2>
+
+<p>For cloud client changes, go
+<a href="http://viewcvs.globus.org/viewcvs.cgi/workspace/vm/cloud-client/nimbus-cloud-client-src/CHANGES.txt?view=markup">
+        here.
+    </a>
+</p>
+
+<a name="TP2.2"> </a>
+<h3><a href="./TP2.2/index.html">TP2.2</a> _NAMELINK(TP2.2)</h3>
+
+<i>Summary</i>
+<ul>
+    <li>
+        <p>
+            Introduction of the metadata server which mimics the EC2 HTTP
+            query based metadata server.
+        </p>
+    </li>
+    <li>
+        <p>
+            Introduction of a standalone context broker, see the downloads
+            page.  This runs by itself so that you can use just the context
+            broker to contextualize virtual clusters on EC2.  No Nimbus cluster
+            is necessary.
+        </p>
+    </li>
+    <li>
+        <p>
+            Bug fixes, see below for specifics.
+        </p>
+    </li>
+</ul>
+
+<i>Services</i>
+<ul>
+    <li>
+        <p>
+            Added a metadata server which responds to VMs HTTP queries, using
+            the same path names as the EC2 metadata server.  The URL for this
+            is obtained by looking at <i>/var/nimbus-metadata-server-url</i>
+            on the VM, which is an optional VM customization that can be made.
+            See <i>"etc/nimbus/workspace-service/metadata.conf"</i> for the
+            details.
+        </p>
+        <p>
+            It responds based on source IP address so there is an
+            assumption that the immediately local network is non-spoofable.
+        </p>
+        <p>
+            The metadata server is disabled by default.
+        </p>
+    </li>
+    <li>
+        <p>
+            Introduction of a standalone context broker, see the downloads
+            page.  This runs by itself so that you can use just the context
+            broker to contextualize virtual clusters on EC2.  No Nimbus cluster
+            is necessary.
+        </p>
+    </li>
+    <li>
+        <p>
+            Added user-data support to EC2 remote interfaces.
+        </p>
+    </li>
+    <li>
+        <p>
+            Added user-data support to the WSRF operations, but namespaces did
+            not change.  This maintains client forward compatibility.  If the
+            user data element is missing, that is not an issue for the service.
+        </p>
+    </li>
+    <li>
+        <p>
+            Added getGlobalAll to the RM API, see enhancement request
+            <a href="http://bugzilla.globus.org/bugzilla/show_bug.cgi?id=6556">6556</a>
+        </p>
+    </li>
+    <li>
+        <p>
+            Added <i>MetadataServer</i> module and user-data to <i>VM</i> to
+            the RM API.
+        </p>
+    </li>
+    <li>
+        <p>
+            Added user-data support to EC2 remote interfaces.
+        </p>
+    </li>
+    <li>
+        <p>
+            Fixed these EC2 interface bugs:
+            <a href="http://bugzilla.globus.org/globus/show_bug.cgi?id=6530">wrong
+            instance ID is returned</a> and
+            <a href="http://bugzilla.globus.org/globus/show_bug.cgi?id=6537">describe
+            instances fails with parameter</a>.
+        </p>
+    </li>
+    <li>
+        <p>
+            Fixed misc bugs
+            <a href="http://bugzilla.globus.org/globus/show_bug.cgi?id=6546">6546</a>
+            and <a href="http://bugzilla.globus.org/globus/show_bug.cgi?id=6545">6545
+            (pilot plugin initialization failure)</a>.
+        </p>
+    </li>
+</ul>
+
+<i>Cloud client</i>
+<ul>
+    <li>
+        <p>
+            Current cloud client as of this release is cloud-client-011.  This
+            supports contextualization using the new standalone context broker.
+        </p>
+    </li>
+
+    <li>
+        <p>
+            A lone invocation of "--status" (which prints all your currently
+            running instances) will now print the associated cloud handle
+            of each workspace.
+        </p>
+    </li>
+    <li>
+        <p>
+            Java 1.5 (Java 5) is now a requirement
+        </p>
+    </li>
+    <li>
+        <p>
+            The TP2.2 service side is backwards compatible with the "old
+            style" contextualization but this cloud client only supports
+            the new one.  <i>You can only use this against Nimbus TP2.1
+            installations if you are not using contextualization</i>.
+        </p>
+    </li>
+    <li>
+        <p>
+            Support for contextualizing easily with EC2 resources.  See the
+            output of "--extrahelp" for the new "--ec2script" option.  Sample
+            EC2 cluster.xml file is @ "samples/ec2basecluster.xml"
+        </p>
+        <p>
+            This will take care of the context broker interactions for you and
+            give you a suggested set of EC2 commands to run (including files
+            for metadata) for the virtual cluster to contextualize while running
+            on EC2.
+        </p>
+    </li>
+    <li>
+        <p>
+            Fixed bug in the "lib/this-globus-environment.sh" script, the
+            X509_CERT_DIR variable was being set incorrectly
+        </p>
+    </li>
+</ul>
+
+<i>Context agent</i>
+<ul>
+    <li>
+        <p>
+            A new version of the context agent is necessary to contextualize a
+            virtual cluster with Nimbus TP2.2's metadata server and the new
+            context broker.
+        </p>
+    </li>
+</ul>
+
+<a name="TP2.1"> </a>
+<h3><a href="./TP2.1/index.html">TP2.1</a> _NAMELINK(TP2.1)</h3>
+
+<i>Summary</i>
+<ul>
+    <li>
+        <p>
+            Introduction of an auto-configuration program which
+            guides you through many of the initial configuration steps and
+            run several validity tests.
+        </p>
+    </li>
+    <li>
+        <p>
+            Introduction of the Nimbus AutoContainer program which
+            allows you to set up a Globus Java web services environment from
+            scratch (including security) in less than a minute.
+        </p>
+    </li>
+    <li>
+        <p>
+            Introduction of the <i>cloud-admin</i> program which allows you
+            to very easily manage new users in a cloud configuration.
+        </p>
+    </li>
+
+    <li>
+        <p>
+            No protocol changes to WSRF based messaging.  Previous
+            clients such as cloud-client-010 are compatible.
+        </p>
+    </li>
+    <li>
+        <p>
+            Protocol update to match the current Amazon EC2 deployment,
+            see below for details.
+        </p>
+    </li>
+    <li>
+        <p>
+            New workspace-control configurations options to support more
+            kinds of deployments, see below for details.
+        </p>
+    </li>
+    <li>
+        <p>
+            New service requirement: Java JDK5+ (<i>aka</i> Java 1.5+)
+        </p>
+    </li>
+    <li>
+        <p>
+            Updated documentation.
+            Added an <a href="TP2.1/plugins/index.html">extensibility guide</a>
+            and <a href="TP2.1/admin/upgrading.html">upgrade guide</a>.
+        </p>
+    </li>
+    <li>
+        <p>
+            Bug fixes, see below for specifics.
+        </p>
+    </li>
+</ul>
+
+<i>Services</i>
+<ul>
+    <li>
+        <p>
+            Introduction of an auto-configuration program which will
+            guide you through many of the initial configuration steps and
+            run several validity tests.
+        </p>
+        <p>
+            See <a href="TP2.1/admin/quickstart.html#part-IIb">this section</a> of
+            the administrator quickstart for more information.
+        </p>
+    </li>
+    <li>
+        <p>
+            Introduction of the Nimbus AutoContainer program which will
+            allow you to set up a Globus Java web services environment from
+            scratch (including security) in less than a minute.
+        </p>
+        <p>
+            It requires a separate download.
+            See <a href="TP2.1/admin/quickstart.html#auto-container">this section</a>
+            of the administrator quickstart for more information.
+        </p>
+    </li>
+    <li>
+        <p>
+            Introduction of the "cloud-admin" program which will allow you
+            to very easily manage new users in a
+            <a href="TP2.1/doc/cloud.html">cloud</a> configuration.
+        </p>
+        <p>
+            It is installed at the same time as the auto-configuration program,
+            installed as
+            <i>$GLOBUS_LOCATION/share/nimbus-autoconfig/cloud-admin.sh</i>,
+            see <a href="TP2.1/doc/cloud.html#cloud-admin">this section</a>
+            of the cloud guide for more information
+        </p>
+    </li>
+    <li>
+        <p>
+            Protocol update to match the current Amazon EC2 deployment:
+        </p>
+        <p>
+            Nimbus TP2.1 supports the <i>2008-05-05</i> WSDL
+            (used by
+            <a href="http://s3.amazonaws.com/ec2-downloads/ec2-api-tools-1.3-24159.zip">this
+            EC2 client</a>) as opposed to Nimbus TP2.0 which supported
+            the <i>2008-02-01</i> WSDL
+            (used by
+            <a href="http://s3.amazonaws.com/ec2-downloads/ec2-api-tools-1.3-19403.zip">this
+            EC2 client</a>).
+        </p>
+    </li>
+    <li>
+        <p>
+            New service requirement: Java JDK5+ (<i>aka</i> Java 1.5+)
+        </p>
+    </li>
+    <li>
+        <p>
+            Resolved bug
+            <a href="http://bugzilla.globus.org/bugzilla/show_bug.cgi?id=6390">6390</a>:
+            "notifications script is not sh compliant"
+        </p>
+        <p>
+            The notification scripts now directly use the intended "bash" shell.
+        </p>
+    </li>
+    <li>
+        <p>
+            Resolved bug
+            <a href="http://bugzilla.globus.org/bugzilla/show_bug.cgi?id=6474">6474</a>:
+            "destruction callbacks were not registered"
+        </p>
+        <p>
+            An internal problem was fixed which made the logs wrong as well
+            as causing problems for the client at destroy time.  In particular,
+            a VM would be destroyed but the remote client would not hear the
+            last notification of the event causing it to hang.
+        </p>
+    </li>
+    <li>
+        <p>
+            Resolved bug
+            <a href="http://bugzilla.globus.org/bugzilla/show_bug.cgi?id=6397">6397</a>:
+            "reservation ID mapping verification wrong for single-VM reservations"
+        </p>
+        <p>
+            The EC2 reservation emulation is now working correctly with single
+            VMs.
+        </p>
+    </li>
+    <li>
+        <p>
+            Resolved bug
+            <a href="http://bugzilla.globus.org/bugzilla/show_bug.cgi?id=6475">6475</a>:
+            "repository + scp propagation"
+        </p>
+        <p>
+            The EC2 messaging system now works with setups that use
+            SCP propagation, there is a new relevant
+            configuration in the <i>elastic.conf</i> file.
+        </p>
+    </li>
+    <li>
+        <p>
+            Resolved miscellaneous/cosmetic bugs
+            <a href="http://bugzilla.globus.org/bugzilla/show_bug.cgi?id=6393">6393</a>,
+            <a href="http://bugzilla.globus.org/bugzilla/show_bug.cgi?id=6394">6394</a>,
+            <a href="http://bugzilla.globus.org/bugzilla/show_bug.cgi?id=6396">6396</a>,
+            <a href="http://bugzilla.globus.org/bugzilla/show_bug.cgi?id=6398">6398</a>, and
+            <a href="http://bugzilla.globus.org/bugzilla/show_bug.cgi?id=6416">6416</a>.
+        </p>
+    </li>
+</ul>
+
+<i>Reference clients</i>
+<ul>
+    <li>
+        <p>
+            Cloud and reference clients did not change.  Current cloud client
+            as of this release is cloud-client-010.
+        </p>
+    </li>
+    <li>
+        <p>
+            You will need to update any EC2 client you use with Nimbus:
+        </p>
+        <p>
+            Nimbus TP2.1 supports the <i>2008-05-05</i> WSDL
+            (used by
+            <a href="http://s3.amazonaws.com/ec2-downloads/ec2-api-tools-1.3-24159.zip">this
+            EC2 client</a>) as opposed to Nimbus TP2.0 which supported
+            the <i>2008-02-01</i> WSDL
+            (used by
+            <a href="http://s3.amazonaws.com/ec2-downloads/ec2-api-tools-1.3-19403.zip">this
+            EC2 client</a>).
+        </p>
+    </li>
+</ul>
+
+
+<i>Control agents</i>
+<ul>
+    <li>
+        <p>
+            Added a new option to create VMs with "tap:aio" instead of using
+            the "file" method (these are Xen terms for methods of mounting
+            the disks).  The "tap:aio" method is often
+            used in Xen 3.2 setups and is now possible to use via
+            workspace-control.  See the new <i>worksp.conf.sample</i>.
+        </p>
+    </li>
+    <li>
+        <p>
+            Resolved enhancement request
+            <a href="http://bugzilla.globus.org/bugzilla/show_bug.cgi?id=6326">6326</a>:
+            "use matching initrd with kernel"
+        </p>
+        <p>
+            This allows you to configure workspace-control to take the kernel
+            filename it is launching a VM with and search for a matching
+            initrd based on suffix rules you set up.  This allows you to
+            easily use many of the Xen guest kernels that are created with popular
+            Linux distributions.
+        </p>
+    </li>
+</ul>
+
+
+<a name="TP2.0"> </a>
+<h3><a href="./TP2.0/index.html">TP2.0</a> _NAMELINK(TP2.0)</h3>
+
+<i>Summary</i>
+<ul>
+    <li>
+        <p>
+            Introduction of the <a href="faq.html">FAQ</a> which explains
+            many things you may already know, but it also includes new descriptions
+            of the component system now more clearly articulated in the Nimbus
+            TP2.0 release.
+        </p>
+    </li>
+    <li>
+        <p>
+            Introduction of the Java
+            <a href="faq.html#rm-api">RM API</a> which is
+            a bridge between protocols and resource management implementations.
+            The resource managers can remain protocol/framework/security agnostic
+            (they can be "pure Java") and various protocol implementations
+            can be implemented independently (and even simultaneously). Runtime
+            orchestration of implementation choices is directed by industry
+            standard
+            <a href="http://www.springframework.org/">Spring</a> dependency
+            injection.
+        </p>
+    </li>
+    <li>
+        <p>
+            Introduction of an alternative remote protocol implementation based
+            on Amazon <a href="http://aws.amazon.com/ec2">EC2</a>'s WSDL interface
+            description.  It is only a partial implementation (see below).
+            It can be used simultaneously alongside the WSRF based protocols.
+        </p>
+    </li>
+    <li>
+        <p>
+            More friendly configuration mechanism for administrators including
+            area-specific ".conf" files instead of any XML and the addition of
+            some helper scripts.
+        </p>
+    </li>
+    <li>
+        <p>
+            No protocol changes (only an additional remote protocol).  Previous
+            clients such as cloud-client-009 are compatible.
+        </p>
+    </li>
+</ul>
+
+<i>Services</i>
+<ul>
+    <li>
+        <p>
+            Introduction of the Java
+            <a href="faq.html#rm-api">RM API</a> which is
+            a bridge between protocols and resource management work.  The
+            resource managers below can remain protocol/framework agnostic
+            (they can be "pure Java") and various protocol implementations
+            can be implemented independently.  Runtime directions of choices
+            is directed by <a href="http://www.springframework.org/">Spring</a>
+            dependency injection.
+        </p>
+    </li>
+    <li>
+        <p>
+            Introduction of an alternative remote protocol implementation based
+            on Amazon EC2's WSDL interface description
+             (namespace <i>http://ec2.amazonaws.com/doc/2008-02-01/</i>)
+        </p>
+        <p>
+            It can be used simultaneously alongside the previous remote
+            interfaces.  If the EC2 protocol layer does not recognize instance
+            identifiers being reported by the underling resource manager
+            (for example when gathering "describe-instances" results), it
+            will create new, unique instance and reservation IDs on the fly for
+            them.
+        </p>
+        <p>
+            It is only a partial protocol implementation, the operations behind
+            these EC2 commandline clients are currently provided:
+        </p>
+        <ul>
+            <li>
+                <p>
+                ec2-describe-images - See what images in your personal cloud
+                directory you can run.
+                </p>
+            </li>
+            <li>
+                <p>
+                ec2-run-instances - Run images that are in your personal cloud
+                directory.
+                </p>
+            </li>
+            <li>
+                <p>
+                ec2-describe-instances - Report on currently running instances.
+                </p>
+            </li>
+            <li>
+                <p>
+                ec2-terminate-instances - Destroy currently running instances.
+                </p>
+            </li>
+            <li>
+                <p>
+                ec2-reboot-instances - Reboot currently running instances.
+                </p>
+            </li>
+            <li>
+                <p>
+                ec2-add-keypair [*] - Add personal SSH public key that can be
+                installed for root SSH logins
+                </p>
+            </li>
+            <li>
+                <p>
+                ec2-delete-keypair - Delete keypair mapping.
+                </p>
+            </li>
+        </ul>
+        <p>
+            [*] - One of two add-keypair implementations can be chosen by
+            the administrator.
+        </p>
+        <ul>
+            <li>
+
+                <p>
+                    One is the normal implementation where the
+                    server-side generates a private and public key (using
+                    <a href="http://www.jcraft.com/jsch/">jsch</a>) and delivers
+                    the private key to you.
+                </p>
+            </li>
+            <li>
+
+                <p>
+                    The other (configured by default) is a break from the
+                    regular semantics.  It allows the keypair "name" you
+                    send in the request to be the name AND the public key value.
+                    This means there is never a private key server-side and
+                    also that you can keys you aready have on your system.
+                </p>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>
+            More friendly configuration mechanism for administrators including
+            area-specific ".conf" files (instead of XML) and the addition of
+            some helper scripts.
+        </p>
+        <p>
+            If you are familiar with a previous Nimbus versions (VWS), these
+            ".conf" files hold anything found in the old "jndi-config.xml" file
+            which you don't need to look at anymore.
+            The files hold name=value pairs with surrounding comments.  They
+            are organized by area: accounting.conf, global-policies.conf,
+            logging.conf, pilot.conf, network.conf, ssh.conf, vmm.conf.
+        </p>
+    </li>
+    <li>
+        <p>
+            Service configurations are now in "etc/nimbus/workspace-service" and
+            "etc/nimbus/elastic".  Advanced configurations (which you should
+            not need to alter normally are now in
+            "etc/nimbus/workspace-service/other" and "etc/nimbus/elastic/other".
+        </p>
+    </li>
+    <li>
+        <p>
+            New persistence management wrapper scripts are in "share/nimbus"
+            and the persistence directory has moved to "var/nimbus"
+        </p>
+    </li>
+    <li>
+        <p>
+            Support for site-to-site file management (staging) was removed.
+        </p>
+    </li>
+    <li>
+        <p>
+            Developers: Significant directory reworkings (and subsequent build
+            file changes) to organize modules more coherently, allowing for
+            easier module independence.
+        </p>
+        <p>
+            Build system now clearly separates anything to do with the target
+            deployment (only one target deployment at the moment, GT4.0.x).
+        </p>
+    </li>
+    <li>
+        <p>
+            New Java dependencies:
+        </p>
+        <ul>
+            <li>
+                <a href="http://www.springframework.org/">Spring</a> - just the
+                core dependency injection library.  The
+                <a href="faq.html#rm-api">RM API</a>
+                depends on Spring import statements but no other module has any
+                direct coupling to it.
+            </li>
+            <li>
+                <a href="http://cglib.sourceforge.net/">cglib</a> - used
+                "invisibly" alongside Spring to provide some limited code
+                generation when convenient.
+            </li>
+            <li>
+                <a href="http://ehcache.sourceforge.net/">ehcache</a> - used
+                for in-memory object caching.
+            </li>
+            <li>
+                <a href="http://jug.safehaus.org/">jug</a> - used for UUID
+                generation instead of needing an axis dependency.
+            </li>
+            <li>
+                <a href="http://www.jcraft.com/jsch/">jsch</a> - used for
+                SSH keypair generation if necessary (see [*] in the EC2
+                section).
+            </li>
+        </ul>
+    </li>
+</ul>
+
+<i>Reference clients</i>
+<ul>
+    <li>
+        <p>
+            The clients have stayed the same (on purpose, to reduce too much
+            changing) except for some library package name changes.
+        </p>
+    </li>
+    <li>
+        <p>
+            When using a cloud running the EC2 front end implementation, you
+            can download this
+            <a href="http://s3.amazonaws.com/ec2-downloads/ec2-api-tools.zip">EC2
+            client</a> from Amazon or try a number of different client that are
+            <a href="http://www.google.com/search?hl=en&q=ec2%20client">out there</a>.
+        </p>
+    </li>
+</ul>
+
+
+<i>Control agents</i>
+<ul>
+    <li>
+        <p>
+            Workspace-control has stayed the same (on purpose, to reduce too
+            much changing).
+        </p>
+    </li>
+</ul>
+
+
+<i>Workspace pilot system</i>
+<ul>
+    <li>
+        <p>
+            No changes except that the server side configuration location
+            has moved from the "jndi-config.xml" file to "pilot.conf"
+        </p>
+    </li>
+</ul>
+
+        
+
+<a name="TP1.3.3"> </a>
+<h3><a href="./TP1.3.3/index.html">TP1.3.3.1</a> _NAMELINK(TP1.3.3)</h3>
+
+<i>Summary</i>
+<ul>
+    <li>
+        <p>
+            Introduction of support for contextualization with virtual
+            clusters.  See the <a href="/clouds/">clouds page</a> and the new
+            <a href="/clouds/clusters.html">one-click clusters</a> page to see
+            the various new features in action.
+        </p>
+    </li>
+    <li>
+        <p>
+            New ensemble service report operation allows efficient queries
+            about a large number of workspaces.
+        </p>
+    </li>
+    <li>
+        <p>
+            Support for storing images at the repository in gzip format and
+            retrieving them from the repository in gzip format.  This can
+            save a lot of time in cluster situations.
+        </p>
+    </li>
+    <li>
+        <p>
+            Support for pegging the number of vcpus clients receive.
+        </p>
+    </li>
+    <li>
+        <p>
+            Various client enhancements including internal organization,
+            cleaner output, and new commandline options.  Embedded security
+            tools (like grid-proxy-init) work more out of the box now.
+        </p>
+    </li>
+    <li>
+        <p>
+            No configuration migrations are necessary for moving to this
+            version from TP1.3.2.  Some configuration additions will be
+            necessary if you'd like to take advantage of features.
+        </p>
+    </li>
+    <li>
+        <p>
+            There was a WSDL update: additions, changes and new namespaces.
+            The base namespace for workspace schemas is now
+            <i>http://www.globus.org/2008/06/workspace/</i>
+        </p>
+    </li>
+    <li>
+        <p>
+            Some bug fixes.
+        </p>
+    </li>
+</ul>
+
+<i>Services</i>
+<ul>
+    <li>
+        <p>
+            Integration with context broker.
+        </p>
+    </li>
+    <li>
+        <p>
+            New ensemble service report operation allows efficient queries
+            about a large number of workspaces.  Can retrieve status and
+            error messages about entire ensemble at once.
+        </p>
+    </li>
+    <li>
+        <p>
+            Fixed scheduler backout to correctly handle situation where
+            ensemble wasn't launched yet but ensemble-destroy was invoked.
+        </p>
+    </li>
+    <li>
+        <p>
+            Fixed bug where IP address updates were not passing through cache
+            layer to DB correctly causing a possible inconsistency if container
+            restarted in certain circumstances. <b>NOTE:</b> <i>this bugfix
+            was not present in TP1.3.3 but is present in TP1.3.3.1</i>.
+        </p>
+    </li>
+    <li>
+        <p>
+            Various internal changes (see CVS log)
+        </p>
+    </li>
+    <li>
+        <p>
+            No configuration changes are necessary for moving to this version
+            from TP1.3.2.  But to enable the context broker, you need to
+            configure paths to a credential for it in the jndi-config file
+            and make sure the WSDD file lists the context broker as in the
+            source file "deploy-server.wsdd" (which becomes server-config.wsdd)
+        </p>
+    </li>
+</ul>
+
+<i>Reference clients</i>
+<ul>
+    <li>
+        <p>
+            Added cloud-client cluster and contextualization support.  Includes
+            new "--cluster" flag (see cloud-client CHANGES.txt for full changes
+            there).
+        </p>
+        <p>
+            See the <a href="/clouds/">clouds page</a> and the new
+            <a href="/clouds/clusters.html">clusters</a> page.
+        </p>
+    </li>
+    <li>
+        <p>
+            The regular commandline client has new flags for ensemble
+            and context broker support.  See "-h" output.
+        </p>
+    </li>
+</ul>
+
+
+<i>Workspace-control</i>
+<ul>
+    <li>
+        <p>
+            Support for gzip via filename-sense.  See cloud
+            <a href="/clouds/clusters.html#compression">notes</a> on image
+            compression/decompression.  This can save a lot of time in cluster
+            launch situations since the gzip/gunzip happens on the VMMs
+            simultaneously, cutting transfer times (where there is contention)
+            considerably.
+        </p>
+    </li>
+    <li>
+        <p>
+            Local-locked the control of dhcpd start and stop: now works for
+            situations where multiple workspaces are deployed on a VMM
+            simultaneously (such as one VM per core and launching as part of
+            a cluster).  The DHCP adjustment was being excercised
+            simultaneously, revealing the race.
+        </p>
+    </li>
+    <li>
+        <p>
+            There is no need to change the workspace-control configuration
+            file from a TP1.3.2 compatible one.  There is a new configuration
+            if you want to use it, though.  The "[behavior] --> num_cpu_per_vm"
+            configuration allows you to peg the number of vcpus that are
+            assigned to every workspace.
+        </p>
+        <p>
+            You can choose to not upgrade workspace-control at all if you don't
+            want the features listed here.
+        </p>
+    </li>
+</ul>
+
+
+<i>Workspace pilot program</i>
+<ul>
+    <li>
+        <p>
+            No changes.
+        </p>
+    </li>
+</ul>
+
+<br />
+
+<a name="TP1.3.2"> </a>
+<h3><a href="./TP1.3.2/index.html">TP1.3.2</a> _NAMELINK(TP1.3.2)</h3>
+
+<i>Summary</i>
+<ul>
+    <li>
+        <p>
+            Introduction of the cloud configuration and cloud client for user
+            friendly client access to the workspace service.
+        </p>
+    </li>
+    <li>
+        <p>
+            Introduction of the "groupauthz" authorization plugin for typical
+            configurations including the cloud setup.
+        </p>
+    </li>
+    <li>
+        <p>
+            Clients may now send customization tasks with request, files on the
+            image will be replaced with the content.  The cloud client, for
+            example, is set up by default to send a customization request that
+            sets up the workspace's "/root/.ssh/authorized_keys" file.
+        </p>
+    </li>
+    <li>
+        <p>
+            Clients can request an alternate unpropagation target to save a
+            template VM into a new personal copy.  This new URL may be requested
+            both at creation time and on the fly in a unpropagate request.
+        </p>
+    </li>
+    <li>
+        <p>
+            Centralization of MAC address allocations to the central workspace
+            service.  This allows all backend configurations files to be
+            identical.  Older/advanced configurations are still possible but
+            not recommended unless necessary.
+        </p>
+    </li>
+    <li>
+        <p>
+            Hard disk images are now supported (client may bring a matching
+            kernel along).
+        </p>
+    </li>
+    <li>
+        <p>
+            Various client enhancements including internal organization,
+            cleaner output, and new commandline options.
+        </p>
+    </li>
+    <li>
+        <p>
+            A few bug fixes.
+        </p>
+    </li>
+    <li>
+        <p>
+            There was a WSDL update: additions, changes and new namespaces.
+            The base namespace for workspace schemas is now
+            <i>http://www.globus.org/2008/03/workspace/</i>
+        </p>
+    </li>
+</ul>
+
+<i>Services</i>
+<ul>
+    <li>
+        <p>
+            See the <a href="TP1.3.2/doc/cloud.html">Cloud Guide</a> for an overview
+            of a new set of configurations/conventions that allow for clients
+            to get up and running in minutes even from laptops on NATs.
+            Currently this comes at the cost of obscuring some features like
+            group deployments and multiple NICs.
+        </p>
+    </li>
+    <li>
+        <p>
+            Centralized MAC address allocations to the workspace service.  This
+            allows all backend configurations files to be identical.
+            Older/advanced configurations are still possible but not recommended
+            unless necessary.
+        </p>
+        <p>
+            There is a new configuration in the <i>jndi-config.xml</i> file that
+            allows the administrator to define the valid prefix for MAC
+            address selection.  See <i>WorkspaceFactoryService</i> ->
+            <i>NetworkAdapter</i> -> <i>macPrefix</i>
+        </p>
+        <p>
+            Once an IP is assigned a MAC address (during service initialization)
+            it remains with that IP as long as it is configured as part of the
+            network pools.  This ensures that local network devices can cache
+            MAC/IP bindings without needing to be manually cleared (no need for
+            unsolicited ARP reply to guarantee connectivity).
+        </p>
+    </li>
+    <li>
+        <p>
+            Introduction of the "groupauthz" plugin.  This comes directly with
+            the workspace service (no separate plugin installation is
+            necessary) but it is not enabled by default.  This authorization
+            plugin supports different policies for different group members
+            which you organize by inserting identities into different group
+            files.
+        </p>
+        <p>
+            The plugin can enforce the following policies.  The request data
+            to check is determined on a per-request, per-client basis.
+            The <b>limits</b> are defined on a per group basis (every caller
+            identity must be a part of a group).
+        </p>
+        <ul>
+            <li>
+                Maximum currently reserved minutes at one point in time.  If the
+                caller has two other workspaces with 10 hours scheduled for each,
+                the value being checked against this policy would be 20 hours
+                plus whatever time the current request is.
+            </li>
+            <li>
+                Maximum elapsed and currently reserved minutes at one point in
+                time.  If the caller has one other workspace with 10 hours
+                scheduled and 80 hours of recorded past usage, the value being
+                checked against this policy would be 90 hours plus whatever time
+                the current request is.  This is the all-time maximum usage cap.
+            </li>
+            <li>
+                Maximum number of running workspaces at one point in time.
+            </li>
+            <li>
+                Maximum number of workspaces per request (the largest group
+                request possible).
+            </li>
+            <li>
+                The image node that must be specified.
+            </li>
+            <li>
+                The image node base directory that must be specified.
+            </li>
+            <li>
+                Support for identity-hash based image subdirectories
+                (see the cloud setup documentation to understand this
+                convention).
+            </li>
+        </ul>
+        <p>
+            Each policy can be set to disabled/infinite for specific groups
+            if you desire.
+        </p>
+    </li>
+    <li>
+        <p>
+            Arbitrary file customization tasks may be sent with the workspace
+            creation request.  The image is mounted on the VMM and the contents
+            of the task are placed into the specified file.
+        </p>
+        <p>
+            This requires <i>mount-alter.sh</i> support on the backend which
+            expects the <i>mount -o loop</i> construct to work without specific
+            filesystem selection.  i.e., this will not support workspaces with
+            filesystems that the VMM kernels do not support.
+        </p>
+        <p>
+            This requires three new <i>jndi-config.xml</i> configurations:
+        </p>
+        <ul>
+            <li><i>WorkspaceService</i> -> <i>home</i> -> <i>localTempDirectory</i></li>
+            <li><i>WorkspaceService</i> -> <i>home</i> -> <i>scpPath</i></li>
+            <li><i>WorkspaceService</i> -> <i>home</i> -> <i>backendTempDirectory</i></li>
+        </ul>
+    </li>
+    <li>
+        <p>
+            Inclusion of alternate unpropagation URL.  This allows the client
+            to specify the target URL for where the workspace is unpropagated.
+            It can be specified as part of the creation request or overriden
+            after deployment.  If the default shutdown mechanism was to destroy
+            the workspace, this can still be used (with shutdown-save) to cause
+            unpropagation to the given URL.
+        </p>
+    </li>
+    <li>
+        <p>
+            Authorization enhancement to support late-specified alternate
+            unpropagation URL.  An operation to check the contents of a
+            post-deployment alternate propagation URL request was added to the
+            authorization callout interface.
+        </p>
+        <p>
+            This can be used to filter out invalid requests.  For
+            example, the groupauthz plugin discussed above will use the same
+            logic here for image repository policy checking that it does at
+            create time.  Previously, the authorization callout had only one
+            operation which was called at creation time only.
+        </p>
+    </li>
+    <li>
+        <p>
+            Fault information can now be stored as part of the Corrupted state
+            (for both RP queries and asynchronous state notifications).  This
+            will help the remote client debug issues that can arise after a
+            successful factory creation, such as "the file you specified to
+            propagate does not exist at the image repository" etc.
+        </p>
+    </li>
+    <li>
+        <p>
+            Various internal changes (see CVS log)
+        </p>
+    </li>
+    <li>
+        <p>
+            See the end of the administrator guide for notes on configuration
+            migration to this version from older workspace releases.
+        </p>
+    </li>
+</ul>
+
+<i>Reference clients</i>
+<ul>
+    <li>
+        <p>
+            Introduction of cloud-client system.  This consists of a wrapper
+            program run from a specific directory setup that contains an
+            embedded globus client installation among other things.
+        </p>
+        <p>
+            For more information on the client and setting up a configuration
+            to support it, see the <a href="TP1.3.2/doc/cloud.html">Cloud Guide</a>.
+            To see some examples of end-user commands, see the
+            <a href="/clouds/">clouds</a> page.
+        </p>
+    </li>
+    <li>
+        <p>
+            The main client's help system was reorganized.  For help on options
+            that are specific to an action, use "--help --<i>&lt;name of
+            action&gt;</i>".  See the main "--help" output to get started.
+        </p>
+    </li>
+    <li>
+        <p>
+            The main client has a new "--exit-state" option that causes
+            modes with subscriptions (in either poll or async mode) to wait
+            for the specified state before exiting with success.  If the
+            workspace moves to a terminal state (Corrupted etc.) then this
+            is considered an error.  This is aimed at making scripts that
+            wrap the client more effective.
+        </p>
+    </li>
+    <li>
+        <p>
+            The main client has a new "--save-target" option whose argument is
+            an override to any previous unpropagation URL.  You can use this
+            before or after deployment has succeeded (although it could fail
+            because of authorization issues).  See the client's
+            "-h --shutdown-save" output for more information.
+        </p>
+    </li>
+    <li>
+        <p>
+            Arbitrary customization tasks are possible by defining them in an
+            optional parameters file.  But the main client now also includes a
+            shortcut for the very common task of inserting your SSH public key
+            as the desired contents of the <i>/root/.ssh/authorized_keys</i>
+            file on the VM.  See the client's "-h --deploy" output for more
+            information on this new "--sshfile" option.
+        </p>
+    </li>
+    <li>
+        <p>
+            Support for post-deployment error printing (faults can now be
+            included as part of Corrupted notifications).
+        </p>
+    </li>
+    <li>
+        <p>
+            Status client allows for a bulk query ("in one remote operation,
+            show me a short update of all workspaces I manage at this service").
+        </p>
+    </li>
+    <li>
+        <p>
+            Introduction of a base client API which abstracts operations out
+            from the webservices implementation and provides common subscription
+            tools, utility methods, etc.  (the main workspace client was
+            internally reorganized to use this API: if you are a client
+            developer you could examine this code for a lot of concrete usage
+            samples).
+        </p>
+    </li>
+</ul>
+
+
+<i>Workspace-control</i>
+<ul>
+    <li>
+        <p>
+            (re-)inclusion of mount-alter for file customization tasks.  Using
+            this requires an additional sudo rule.
+        </p>
+    </li>
+    <li>
+        <p>
+            Fix for a bug where certain NIC bridging problems with a workspace
+            that had more than one NIC would not trip a backout.
+        </p>
+    </li>
+    <li>
+        <p>
+            Fix for a bug where the lack of a gateway specification would cause
+            a problem when inserting a workspace's DHCP policy.  Lack of a
+            default gateway is legal (and sometimes necessary).
+        </p>
+    </li>
+    <li>
+        <p>
+            When DHCP configuration file cannot be found, a more helpful error
+            is printed.
+        </p>
+    </li>
+    <li>
+        <p>
+            Files on VMM were not being deleted in one unpropagate situation
+            where they should have been.
+        </p>
+    </li>
+    <li>
+        <p>
+            The VM name prefix sent to the VMM has been shortened from
+            "workspace" to "wrksp".  String length limits for NIC names were
+            being reached too early ("wrksp" should accomodate workspace IDs in
+            the millions).
+        </p>
+    </li>
+    <li>
+        <p>
+            We are including a "foreign-subnet" script that allows VMMs to
+            deliver IP information over DHCP to workspaces even if the VMM
+            itself does not have a presence on the target IP's subnet.  This
+            is an advanced configuration, you should read through the script's
+            leading comments and make sure to clear up any questions before
+            using.
+        </p>
+        <p>
+            This is particularly useful for hosting workspaces with public IPs
+            where the VMMs themselves do not have public IPs.  This is because
+            it does not require a unique interface alias for each VMM (public
+            IPs are often scarce resources).
+        </p>
+    </li>
+    <li>
+        <p>
+            Added support for booting hard disk images (pygrub).  Resolves
+            enhancement request
+            <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=5423">#5423</a>.
+            Client must specify mountpoint like "hda" instead of "hda1" for
+            this to trigger.
+        </p>
+    </li>
+    <li>
+        <p>
+            See the end of the administrator guide for notes on configuration
+            migration to this version from older workspace releases.
+        </p>
+    </li>
+</ul>
+
+
+<i>Workspace pilot program</i>
+<ul>
+    <li>
+        <p>
+            In some situations the sleep() system call that the pilot makes
+            during an unexpected backout situation was returning too early.
+            This syscall been replaced by an alternate implementation that will
+            not fail in those situations.
+        </p>
+    </li>
+</ul>
+
+<br />
+
+<a name="TP1.3.1"> </a>
+<h3><a href="./TP1.3.1/index.html">TP1.3.1</a> _NAMELINK(TP1.3.1)</h3>
+
+<i>Summary</i>
+<ul>
+    <li>
+        <p>
+            Added support for workspace pilot resource management.  The pilot
+            is a program the service will submit to a local site resource
+            manager in order to obtain time on the VMM nodes.  When not
+            allocated to the workspace service, these nodes will be used for
+            jobs as normal (the jobs run in normal system accounts in Xen
+            domain 0 with no guest VMs running).  See below.
+        </p>
+    </li>
+    <li>
+        <p>
+            Added functionality to ensure multiple workspaces (including groups
+            of workspaces) are co-scheduled.  See below.
+        </p>
+    </li>
+    <li>
+        <p>
+            Various client enhancements including ensemble service support,
+            cleaner output, and new commandline options.
+        </p>
+    </li>
+    <li>
+        <p>
+            Various bug fixes.
+        </p>
+    </li>
+    <li>
+        <p>
+            There was a WSDL update: additions, changes and new namespaces.
+        </p>
+    </li>
+</ul>
+
+<i>Services</i>
+<ul>
+    <li>
+        <p>
+            Added support for workspace pilot resource management.  The pilot
+            is a program the service will submit to a local site resource
+            manager in order to obtain time on the VMM nodes.  When not
+            allocated to the workspace service, these nodes will be used for
+            jobs as normal (the jobs run in normal system accounts in Xen
+            domain 0 with no guest VMs running).
+        </p>
+        <p>
+            Several extra safeguards have been added to make sure the node is
+            returned from VM hosting mode at the proper time, including support
+            for:
+            <ul>
+                <li>the workspace service being down or malfunctioning</li>
+                <li>LRM preemption (including deliberate LRM job cancellation)</li>
+                <li>node reboot/shutdown</li>
+            </ul>
+        </p>
+        <p>
+            Also included is a one-command "kill 9" facility for administrators
+            as a "worst case scenario" contingency.
+        </p>
+        <p>
+            Using the pilot is optional.  By default the service does not
+            operate with it, the service instead directly manages the nodes it
+            is configured to manage.
+        </p>
+    </li>
+    <li>
+        <p>
+            Added functionality to ensure multiple workspaces (including groups
+            of workspaces) are co-scheduled.  This includes the introduction
+            of the Workspace Ensemble Service.  This functionality allows
+            complex virtual clusters to have all its component workspaces be
+            scheduled to run at once if that is necessary.  This works with
+            both the default and pilot-based resource managers.
+        </p>
+    </li>
+    <li>
+        <p>
+            All remote interfaces (WSDLs/schemas) have been updated with at
+            least new namespaces.  You can examine them directly online at the
+            <a href="./TP1.3.1/examples/compact/index.html">WSDL and XSD files</a> page
+            (or read the descriptions on the
+            <a href="./TP1.3.1/interfaces/index.html">Interfaces</a> section).  The main
+            difference is an extension to the factory create/deploy operation
+            and the addition of the ensemble service.
+        </p>
+    </li>
+    <li>
+        <p>
+            SSH based workspace-control invocations may now be configured
+            with an alternate private key.
+        </p>
+    </li>
+    <li>
+        <p>
+            SSH based workspace-control invocations now use options to ensure
+            easier identification of misconfigurations (no password entry
+            hang is possible now).
+        </p>
+    </li>
+    <li>
+        <p>
+            If using the pilot mechanisms, a new configuration section in the
+            service configuration file needs to be uncommented for pilot
+            specific configurations (see the configuration comments there).
+        </p>
+    </li>
+    <li>
+        <p>
+            If using the pilot mechanisms, a client may now not submit a flag
+            to the factory that requests the workspace be unpropagated after
+            the running time has elapsed.  Instead, unpropagation must be
+            triggered manually by a client before this deadline is reached.
+        </p>
+    </li>
+    <li>
+        <p>
+            If using the pilot mechanisms, a shared secret must be configured
+            in <i>etc/workspace_service/pilot/users.properties</i> for HTTP
+            digest access authentication based notifications from the pilot.
+            Use the included <i>shared-secret-suggestion.py</i> script.
+            (alternatively SSH may be used for notifications but it is slower)
+        </p>
+    </li>
+    <li>
+        <p>
+            New dependencies (these are distributed with the service):
+            <ul>
+                <li>
+                    <i><a href="http://backport-jsr166.sourceforge.net/">backport-util-concurrent</a></i>
+                </li>
+                <li>
+                    <i><a href="http://jetty.mortbay.org/">jetty</a></i>
+                    - only necessary if using the pilot with the faster, default
+                    HTTP digest access authentication based notifications.
+                </li>
+            </ul>
+        </p>
+    </li>
+    <li>
+        <p>
+            Some platforms+JVMs have buffer size issues which caused some
+            workspace-control invocations to fail.  This problem is addressed.
+        </p>
+    </li>
+    <li>
+        <p>
+            DHCP based network delivery to the VMs now requires unique
+            hostnames for each allocatable address (even if they do not
+            resolve to an IP).  This addresses
+            <a href="http://bugzilla.globus.org/bugzilla/show_bug.cgi?id=5738">Bug #5738</a>.
+        </p>
+    </li>
+
+
+</ul>
+
+<i>Reference clients</i>
+<ul>
+    <li>
+        <p>
+            A new client <i>workspace-ensemble</i> allows you to destroy
+            all workspaces in a running ensemble as well as trigger the workspaces
+            in the ensemble to be co-scheduled and (afterwards) allowed to
+            launch.  This trigger is also available in the last workspace
+            deployment of the ensemble, if desirable (this will save a web
+            services operation).
+        </p>
+    </li>
+    <li>
+        <p>
+            Enhancement
+            <a href="http://bugzilla.globus.org/bugzilla/show_bug.cgi?id=5795">Bug #5795</a>
+            is addressed, this allows an early unpropagate request to be sent.
+            The new <i>workspace</i> action is "--shutdown-save" and requires
+            a single or group workspace EPR.
+        </p>
+    </li>
+    <li>
+        <p>
+            The <i>workspace</i> program includes a new flag
+            "--trash-at-shutdown" which allows callers to include a request
+            that the service simply discards the VM after use (instead
+            of unpropagating it).  This is typical behavior for virtual cluster
+            compute nodes, for example.  The functionality itself is not
+            new in this release, just this flag.  It allows you to include
+            the flag when using commandline based resource requests as
+            well as <i>override</i> a given resource request file with a
+            trash-at-shutdown flag.
+        </p>
+    </li>
+    <li>
+        <p>
+            The <i>workspace</i> program has improved output,
+            especially in the cases where you are launching groups and
+            ensembles.
+        </p>
+    </li>
+</ul>
+
+
+<i>Workspace-control</i>
+<ul>
+    <li>
+        <p>
+            Note: a previously used TP1.2.3 or TP1.3 configuration file for
+            workspace-control will still work because of the nature of these
+            changes.  See
+            <a href="./TP1.3.1/doc/admin-index.html#migrating-workspaceVM">this
+            migration section</a> of the administrator's guide for details.
+        </p>
+    </li>
+
+     <li>
+        <p>
+            A bug with failed propagations has been addressed:
+            <a href="http://bugzilla.globus.org/bugzilla/show_bug.cgi?id=5681">Bug
+            #5681</a>.
+        </p>
+    </li>
+
+    <li>
+        <p>
+            Will now support older ISC DHCP versions (v2 servers). See
+            <a href="http://bugzilla.globus.org/bugzilla/show_bug.cgi?id=5740">Bug
+            #5470</a>.
+        </p>
+    </li>
+
+    <li>
+        <p>
+            The defaults paths for <i>ebtables</i> and the <i>dhcpd.conf</i>
+            file are now the more common occurences:
+            <ul>
+                <li><i>/sbin/ebtables</i> is now <i>/usr/sbin/ebtables</i></li>
+                <li><i>/etc/dhcp/dhcpd.conf</i> is now <i>/etc/dhcpd.conf</i></li>
+            </ul>
+        </p>
+    </li>
+</ul>
+
+
+<i>Workspace pilot program</i>
+<ul>
+    <li>
+        <p>
+            This is a new tarball on the download page and is only necessary
+            when using pilot based resource management.
+        </p>
+    </li>
+</ul>
+
+<br />
+
+<a name="TP1.3"> </a>
+<h3><a href="./TP1.3/index.html">TP1.3</a> _NAMELINK(TP1.3)</h3>
+
+<i>Summary</i>
+<ul>
+    <li>
+        <p>
+            There was a WSDL update, changes and new namespaces.
+        </p>
+    </li>
+    <li>
+        <p>
+            Functionality to start multiple workspaces in one request was
+            added, including introduction of the Workspace Group Service.
+        </p>
+    </li>
+    <li>
+        <p>
+            Optional accounting functionality was added, including introduction
+            of the Workspace Status Service.
+        </p>
+    </li>
+    <li>
+        <p>
+            Configuration enhancements to make service administration easier.
+        </p>
+    </li>
+    <li>
+        <p>
+            Various client enhancements including group and status service
+            support, reorganized help output, and new commandline options.
+        </p>
+    </li>
+    <li>
+        <p>
+            Various bug fixes.
+        </p>
+    </li>
+</ul>
+
+<i>Services</i>
+<ul>
+    <li>
+        <p>
+            All remote interfaces, WSDLs/schemas, have been updated and also
+            have new namespaces.  You can examine them directly online at the
+            <a href="./TP1.3/examples/compact/index.html">WSDL and XSD files</a> page
+            (or read the descriptions on the
+            <a href="./TP1.3/interfaces/index.html">Interfaces</a> section).
+        </p>
+    </li>
+    <li>
+        <p>
+            The <a href="./TP1.3/interfaces/factory.html">Workspace Factory Service</a>
+            was extended to support starting a homogenous group of workspaces
+            in one deployment request.  A global maximum group size can be
+            specified natively (without needing to use an authorization
+            callout).
+        </p>
+    </li>
+    <li>
+        <p>
+            The <a href="./TP1.3/interfaces/groupservice.html">Workspace
+            Group Service</a> was added to manage groups after deployment.
+            See the <a href="./TP1.3/interfaces/index.html#groupoverview">group
+            overview</a> on the main interfaces page.
+        </p>
+    </li>
+    <li>
+        <p>
+            Hooks for accounting modules were added.  These plugins allow you
+            to track clients' used or reserved running time.  There are
+            separate reader and writer interfaces for flexibility.  A default
+            database backed implementation is provided and enabled by default.
+            By default this implementation includes a periodic write to log
+            files on the system (one for current reservations, another for
+            major events).
+            See <a href="http://bugzilla.globus.org/globus/show_bug.cgi?id=5443">Bug 5443</a>.
+        </p>
+    </li>
+    <li>
+        <p>
+            The <a href="./TP1.3/interfaces/statusservice.html">Workspace
+            Status Service</a> was added, it allows a Grid client to consult
+            the usage statistics that the service has tracked about it.
+            See <a href="http://bugzilla.globus.org/globus/show_bug.cgi?id=5444">Bug 5444</a>.
+        </p>
+    </li>
+    <li>
+        <p>
+            Some configurations have been added, changed name or changed
+            location in the JNDI configuration file, see
+            <a href="./TP1.3/doc/admin-index.html#migrating-workspaceVM">this
+            migration section</a> of the administrator's guide for details.
+        </p>
+    </li>
+    <li>
+        <p>
+            Resource selection now favors VMMs not in use.  The previous
+            selection process accepted the first VMM with enough memory
+            which could result in a situation where e.g. two workspaces
+            are running on one VMM but no workspaces are running on another.
+        </p>
+    </li>
+    <li>
+        <p>
+            Resource pool configurations can now be adjusted without
+            resetting the database, see
+            <a href="./TP1.3/doc/admin-index.html#migrating-workspaceVM">this
+            migration section</a> of the administrator's guide for details.
+        </p>
+    </li>
+    <li>
+        <p>
+            Networking address pool configurations can now be adjusted without
+            resetting the database, see
+            <a href="./TP1.3/doc/admin-index.html#migrating-workspaceVM">this
+            migration section</a> of the administrator's guide for details.
+        </p>
+    </li>
+    <li>
+        <p>
+            Resolved <a href="http://bugzilla.globus.org/globus/show_bug.cgi?id=5441">Bug 5441</a>:
+            Add functionality for late network binding to client and service.
+        </p>
+    </li>
+    <li>
+        <p>
+            Resolved <a href="http://bugzilla.globus.org/globus/show_bug.cgi?id=5442">Bug 5442</a>:
+            Move persistence information to its own subdirectory.  All
+            information is not stored under
+            <i>$GLOBUS_LOCATION/var/workspace_service/</i> instead of various
+            subdirectories of <i>$GLOBUS_LOCATION/var</i> itself.
+        </p>
+    </li>
+    <li>
+        <p>
+            Host certificate transfer functionality was removed.  The
+            association configuration and WSDL has changed accordingly.
+        </p>
+    </li>
+    <li>
+        <p>
+            Resolved
+            <a href="http://bugzilla.globus.org/globus/show_bug.cgi?id=5415">Bug 5415</a>:
+            WorkspacePersistenceDB not updated after workspace --shutdown
+        </p>
+    </li>
+    <li>
+        <p>
+            Resolved
+            <a href="http://bugzilla.globus.org/globus/show_bug.cgi?id=5345">Bug 5345</a>:
+            resource not destroyed correctly when time expires and shutdown method is "trash"
+        </p>
+    </li>
+    <li>
+        <p>
+            Asynchronous notifications from workspace-control (propagation
+            events) are handled more reliably.
+        </p>
+    </li>
+    <li>
+        <p>
+            The toplevel build file includes many new convenience targets,
+            including more control over what is deployed/undeployed and more
+            control over the different kinds of persistence information.
+        </p>
+    </li>
+    <li>
+        <p>
+            The build files now do not proceed if your JDK is an earlier
+            version than 1.4.
+        </p>
+    </li>
+</ul>
+
+<i>Reference clients</i>
+<ul>
+    <li>
+        <p>
+            The help system was organized, run the client with "-h" to see the
+            definitive list and explanation of features old and new.
+        </p>
+    </li>
+    <li>
+        <p>
+            The client can subscribe and listen to many workspaces at a time
+            after deploying a group.  As this can be quite verbose for large
+            groups, there are two new options to control subscription output
+            verbosity.  See the "-h" text.
+        </p>
+    </li>
+    <li>
+        <p>
+            There is a <i>numnodes</i> argument that will control how many
+            workspaces will be requested during the create operation.  If
+            there is a NodeNumber element in a given deployment request file,
+            this argument will override that.  For more about group support,
+            see the <a href="./TP1.3/interfaces/index.html">Interfaces</a> section.
+        </p>
+    </li>
+    <li>
+        <p>
+            The client can now run management commands using both regular and
+            group workspace EPRs (it looks at which it is dealing with).
+        </p>
+    </li>
+    <li>
+        <p>
+            Resolved <a href="http://bugzilla.globus.org/globus/show_bug.cgi?id=5441">Bug 5441</a>:
+            Add functionality for late network binding to client and service.
+            In the default case where subscriptions are desired, the client
+            will notice if networking is missing and requery for it when the
+            workspace(s) move to the Running state.
+        </p>
+    </li>
+    <li>
+        <p>
+            Resolved <a href="http://bugzilla.globus.org/globus/show_bug.cgi?id=5445">Bug 5445</a>:
+            various reference client improvements.
+        </p>
+    </li>
+    <li>
+        <p>
+            There is a new <i>workspace-status</i> client for querying
+            accounting information. See
+            <a href="http://bugzilla.globus.org/globus/show_bug.cgi?id=5444">Bug 5444</a>.
+        </p>
+    </li>
+    <li>
+        <p>
+            The sample XML (metadata, resource request, etc) files included
+            with the client have been updated and more samples have been added.
+        </p>
+    </li>
+    <li>
+        <p>
+            The client build now checks that the sample XML (metadata,
+            resource request, etc) files validate against their respective
+            schemas.  If your ant installation does not include the
+            <i>xmlvalidate</i> task, these checks are skipped.
+        </p>
+    </li>
+</ul>
+
+
+<i>Workspace-control</i>
+<ul>
+    <li>
+        <p>
+            Note: a previously used TP1.2.3 configuration file for
+            workspace-control will still work because of the nature of these
+            changes.  See
+            <a href="./TP1.3/doc/admin-index.html#migrating-workspaceVM">this
+            migration section</a> of the administrator's guide for details.
+        </p>
+    </li>
+    <li>
+        <p>
+            Resolved <a href="http://bugzilla.globus.org/globus/show_bug.cgi?id=5360">Bug 5360</a>:
+            destroy log shows dhcp/ebtables backout problem
+        </p>
+    </li>
+    <li>
+        <p>
+            <i>install.py</i> handles user groups better and has an improved
+            <i>--onlyverify</i> mode
+        </p>
+    </li>
+    <li>
+        <p>
+            Removed unecessary configurations from sample <i>worksp.conf</i>
+            file.
+        </p>
+    </li>
+    <li>
+        <p>
+            <i>ebtables-config.sh</i> rule backout handles an additional
+            corner case
+        </p>
+    </li>
+</ul>
+
+<i>Internal (developers only)</i>
+<ul>
+    <li>
+        <p>
+            JNDI class discovery is done differently, this may affect you if
+            you have alternate implementations of any module or plugin
+            interface.  A new workspace Initializable interface can be used.
+            See the <i>org.globus.workspace.Locator</i> class.
+        </p>
+    </li>
+    <li>
+        <p>
+            Message intake and initial validation support is now implemented
+            as a plugin, see the
+            <i>org.globus.workspace.service.binding.BindingAdapter</i>
+            interface.
+        </p>
+    </li>
+    <li>
+        <p>
+            The default scheduler's "node picking" support is now implemented
+            as a plugin, see the
+            <i>org.globus.workspace.scheduler.defaults.SlotManagement</i>
+            interface.
+        </p>
+    </li>
+    <li>
+        <p>
+            AllocateAndConfigure (association) support is now implemented as a
+            plugin, see the
+            <i>org.globus.workspace.network.AssociationAdapter</i> interface.
+        </p>
+    </li>
+    <li>
+        <p>
+            New optional AccountingEventAdapter and AccountingReaderAdapter
+            plugins, see the <i>org.globus.workspace.accounting</i> package.
+        </p>
+    </li>
+    <li>
+        <p>
+            The optional creation-time authorization callout interface was
+            altered to include group requests as well as the caller's accrued
+            used and reserved running minutes (if an accounting reader is
+            running).
+        </p>
+    </li>
+</ul>
+
+<a name="TP1.2.3"> </a>
+<h3><a href="./TP1.2.3/index.html">TP1.2.3</a> _NAMELINK(TP1.2.3)</h3>
+
+<ul>
+    <li>
+        <p>
+            Significant documentation updates including the addition of a
+            guided <a href="TP1.2.3/doc/user-index.html">User Quickstart</a>
+            and the <a href="marketplace.html">Workspace Marketplace</a>.
+        </p>
+    </li>
+    <li>
+        <p>
+            Added the ability to specify multiple partitions for one VM.
+            There is a restriction in this version that only one partition
+            file may be used with the propagation mechanisms, the other
+            partitions must be cached or on a shared filesystem.
+            (<a href="http://bugzilla.globus.org/globus/show_bug.cgi?id=5216">Bug 5216</a>)
+        </p>
+    </li>
+    <li>
+        <p>
+            Added the ability to create blank partitions on the fly if
+            the client specifies to do so by sending a storage request (the
+            MB of blank space needed) in the resource requirements.
+        </p>
+        <p>
+            Currently this hardcodes the filesystem to create on the blank
+            partition (the default is ext2), in the future this may be
+            specifiable by the client.
+            (<a href="http://bugzilla.globus.org/globus/show_bug.cgi?id=5215">Bug 5215</a>)
+        </p>
+    </li>
+    <li>
+        <p>
+            Added an HTTP transfer adapter for pre- and post-deployment
+            staging.  Included is the ability to provide checksums that
+            will be checked after the transfer as well as decompression
+            functionality.  For more details, see the
+            <a href="TP1.2.3/interfaces/optional.html">Optional parameters</a>
+            documentation.
+            (<a href="http://bugzilla.globus.org/globus/show_bug.cgi?id=5219">Bug 5219</a>)
+        </p>
+    </li>
+    <li>
+        <p>
+            Added the ability to choose hypervisors in the resource pool
+            based on what networking associations they support.  For example,
+            a request may arrive for a workspace to have NICs on two
+            separate networks: the pool node selection algorithm will use
+            the requirement to support both of these networks in its search.
+            (<a href="http://bugzilla.globus.org/globus/show_bug.cgi?id=5214">Bug 5214</a>)
+        </p>
+    </li>
+    <li>
+        <p>
+            The workspace types schema, <i>workspace_types.xsd</i>, has a
+            new namespace: the "2006/08" part of it is now "2007/03".
+        </p>
+    </li>
+    <li>
+        <p>
+            Resolved
+            <a href="http://bugzilla.globus.org/globus/show_bug.cgi?id=5211">Bug 5211</a>:
+            networking allocations were not backed out (returned to pool)
+            under all error conditions during initial request processing.
+        </p>
+    </li>
+    <li>
+        <p>
+            Resolved
+            <a href="http://bugzilla.globus.org/globus/show_bug.cgi?id=5212">Bug 5212</a>:
+            queries on the Workspace Factory resource properties gave
+            incorrect asssocaition information after a container restart.
+        </p>
+    </li>
+    <li>
+        <p>
+            Resolved
+            <a href="http://bugzilla.globus.org/globus/show_bug.cgi?id=5213">Bug 5213</a>:
+            the Advisory IP acquisition method was being incorrectly validated.
+        </p>
+    </li>
+    <li>
+        <p>
+            Resolved
+            <a href="http://bugzilla.globus.org/globus/show_bug.cgi?id=5217">Bug 5217</a>:
+            the workspace-control program was not backing out DHCP policy
+            additions under all error conditions.
+        </p>
+    </li>
+</ul>
+
+<a name="TP1.2.2"> </a>
+<h3><a href="./TP1.2.2/index.html">TP1.2.2</a> _NAMELINK(TP1.2.2)</h3>
+
+<ul>
+    <li>
+        <p>
+            Added support for DHCP delivery of networking information.  See
+            the administrator guide
+            <a href="./TP1.2.2/doc/admin-index.html#workspaceVM-backend-config-invm-networking">DHCP
+            overview and configuration section</a> which also includes a link
+            to a design document.
+        </p>
+    </li>
+
+    <li>
+        <p>
+            Added unit tests under "workspace-service/service/java/test/".
+        </p>
+    </li>
+
+    <li>
+        <p>
+            Streamlined the logistics section of metadata, see the
+            <a href="./TP1.2.2/interfaces/metadata.html#logistics">logistics section</a>
+            of the interfaces guide for more information.
+        </p>
+    </li>
+
+    <li>
+        <p>
+            Small bugfixes in StateTransition.
+        </p>
+    </li>
+
+    <li>
+        <p>
+            Internal refactoring to better accomodate unit tests.
+        </p>
+    </li>
+
+</ul>
+
+<a name="TP1.2.1"> </a>
+<h3><a href="./TP1.2.1/index.html">TP1.2.1</a> _NAMELINK(TP1.2.1)</h3>
+
+<ul>
+    <li>
+        <p>
+            Resolved <a href="http://bugzilla.globus.org/globus/show_bug.cgi?id=4792">Bug 4792</a>
+            (propagation via globus-url-copy adds extra file URL scheme)
+        </p>
+    </li>
+    <li>
+        <p>
+            Resolved <a href="http://bugzilla.globus.org/globus/show_bug.cgi?id=4793">Bug 4793</a>
+            (xenlocal arg parsing error)
+        </p>
+    </li>
+    <li>
+        <p>
+            Resolved <a href="http://bugzilla.globus.org/globus/show_bug.cgi?id=4879">Bug 4879</a>
+            (issue with database jars that were already installed)
+        </p>
+    </li>
+    <li>
+        <p>
+            Resolved <a href="http://bugzilla.globus.org/globus/show_bug.cgi?id=4880">Bug 4880</a>
+            (extra semicolons being sent in network information)
+        </p>
+    </li>
+    <li>
+        <p>
+            Fixed client build invocation (WS stubs weren't deployed by default)
+        </p>
+    </li>
+    <li>
+        <p>
+            Minor internal refactoring
+        </p>
+    </li>
+</ul>
+
+<a name="TP1.2"> </a>
+<h3><a href="./TP1.2/index.html">TP1.2</a> _NAMELINK(TP1.2)</h3>
+
+<ul>
+    <li>
+        <p>
+            Added support for a resource pool model that allows one grid
+            service to manage a large group of VMMs, sending incoming
+            workspace deployment requests to appropriate VMM nodes for
+            instantiation.
+        </p>
+    </li>
+    <li>
+        <p>
+            To support the resource pool model, managed file propagation
+            support was added to move files associated with workspaces to
+            and from the resource pool nodes and storage nodes.  The current
+            choices are GridFTP and SCP.
+        </p>
+    </li>
+    <li>
+        <p>
+            An optional RFT staging plugin is available to allow a deployment
+            request to include a stage in and/or stage out directive.  This is
+            to manage client file movement in the grid context as opposed to
+            the managed, inter-site propagation functionality.
+        </p>
+    </li>
+    <li>
+        <p>
+            To support host based authorization (which include a reverse IP
+            check in its algorithm), IP pool entries may now optionally include
+            matching certificate and key pairs that are moved on to the VM when
+            it is allocated a particular networking address.
+        </p>
+    </li>
+    <li>
+        <p>
+            New functionality is supported: create-paused, reboot.  A
+            choice of default shutdown method when the maximum running time
+            has been reached:  normal, trashed.
+        </p>
+    </li>
+    <li>
+        <p>
+            Logging choices for both the grid service and workspace-control
+            program have been significantly enhanced.
+        </p>
+    </li>
+    <li>
+        <p>
+            The VMM workspace-control program has a new installer that will
+            install the executable and create all of its necessary work
+            directories and will review all directory and file permissions
+            for safety (and correct problems if instructed to).
+        </p>
+    </li>
+    <li>
+        <p>
+            The VMM workspace-control program now employs a sudo callout to
+            do its privileged work.
+        </p>
+    </li>
+    <li>
+        <p>
+            The VMM workspace-control program has been enhanced to isolate
+            user files from each other and is set up with a safe environment
+            for image altering.  A new /opt/workspace hierarchy is the default
+            installation option but it allows for flexible choices.
+        </p>
+    </li>
+    <li>
+        <p>
+            The grid service portion has been significantly improved internally
+            for asynchronous event handling, scalability and the ability to
+            replace more of its subsystems with alternate or improved
+            implementations.
+        </p>
+    </li>
+</ul>
+
+<h3><a href="./TP1.1.1/index.html">TP1.1.1</a></h3>
+<a name="TP1.1.1"> </a>
+<h3><a href="./TP1.1.1/index.html">TP1.1.1</a> _NAMELINK(TP1.1.1)</h3>
+
+<ul>
+    <li>
+        <p>
+            Fix for service loading order problem on some JVMs (caused a
+            database not found error).
+            <a href="http://bugzilla.globus.org/bugzilla/show_bug.cgi?id=4602">Bug 4602</a>
+        </p>
+    </li>
+    <li>
+        <p>
+            Some invocations to backend were missing sudo prefix used for
+            Xen3 support.
+        </p>
+    </li>
+    <li>
+        <p>
+            Fixed support for Xen3 networking
+            (<a href="http://bugzilla.globus.org/bugzilla/show_bug.cgi?id=3994">Bug 3994</a>).
+        </p>
+    </li>
+    <li>
+        <p>
+            Better error reporting for sudo misconfigurations
+            (<a href="http://bugzilla.globus.org/bugzilla/show_bug.cgi?id=4601">Bug 4601</a>).
+        </p>
+    </li>
+    <li>
+        <p>
+            Fix for backend interface problem when the Allocate networking
+            method was used for multiple NICs.
+        </p>
+    </li>
+    <li>
+        <p>
+            Xen3 is now the default sample configuration for service and
+            workspace_control.
+        </p>
+    </li>
+</ul>
+
+<a name="TP1.1"> </a>
+<h3><a href="./TP1.1/index.html">TP1.1</a> _NAMELINK(TP1.1)</h3>
+
+<ul>
+    <li>
+        <p>Support for a new, "Allocate" networking method that allows the
+        workspace service administrator to specify pools of IP addresses (and
+        DNS information) which are then assigned to virtual machines on
+        deployment.</p>
+    </li>
+
+    <li>
+        <p>The resource properties have been extended to publish deployment
+        information about a workspace, such as its IP address.</p>
+    </li>
+
+    <li>
+        <p>Workspace metadata validation has been extended to support
+           requirement checking for specific architecture, hypervisor
+           version, and CPU. The workspace factory advertises the supported
+           qualities as a resource property; the requirement section of
+           workspace metadata is checked against the supported set.</p>
+    </li>
+
+    <li>
+        <p>Authorization handling has been significantly extended. The
+           workspace service can now accept and process VOMS credentials
+           and SAML attributes (GridShib).
+           Further, an authorization callout has been added to the service
+           for fine grain policies. This callout can be configured to
+           implementations of a simple attribute list lookup or a python
+           script allowing for arbitrary authorization logic.</p>
+    </li>
+
+    <li>
+        <p>Support for Xen3 has been added.</p>
+    </li>
+
+    <li>
+        <p>The workspace client has been extended to accomodate new
+        functionality. In addition the client interface has been extended to
+        enable subscribing for notifications and specifying the resource
+        allocation information at command-line.</p>
+    </li>
+
+    <li>
+        <p>Installation has been improved -- the client now requires only a
+        minimal installation (as opposed to the full service installation).</p>
+    </li>
+</ul>
+
+
+_NIMBUS_CENTER2_COLUMN_END
+_NIMBUS_FOOTER1
+_NIMBUS_FOOTER2
+_NIMBUS_FOOTER3
