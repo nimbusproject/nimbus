@@ -37,89 +37,6 @@ m4_define([[[_WORKSP_DA_DEPRECATED',
 See the <a href="/da">Dynamic Accounts page</a> for
 the most recent version.</div>
 )m4_dnl
-m4_define([[[_WORKSP_HEADER',
-[[[<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<html>
-<head>
-<title>$1 - Nimbus Open Source IaaS Cloud Computing Software</title>
-<meta name="keywords" content="cloud computing, open source EC2, grid computing, clouds, cloud security, grid security, cloud computing research, grid computing research, Amazon EC2, EC2, cloud computing scheduling, grid computing scheduling, virtualization, Globus, Nimbus, workspace service, virtual workspaces, Kate Keahey, Tim Freeman, xen, vmware, distributed computing, grid research, computer science research, globus toolkit, web services, open science grid, osg, teragrid, egee" />
-<meta name="description" content="Nimbus is an open source cloud computing toolkit that allows you to turn your cluster into an Infrastructure-as-a-Service (IaaS) cloud." />
-<link rel="stylesheet" type="text/css" href="/css/style.css">
-<link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://workspace.globus.org/rss.xml" />
-</head>
-<body topmargin="0" leftmargin="0" marginwidth="0" marginheight="0"
-    text="#333366" link="#333366" alink="#333366" vlink="#333366"
-    bgcolor="#ffffff">
-<a name="top"></a>
-
-<!-- Master Table -->
-<table border=0 cellpadding=0 cellspacing=0 align=left width=95%>
-<tr>
-
-<td colspan=2>
-	<table border="0" cellpadding=0 cellspacing=0 align=left width="100%">
-	<tr>
-	    <td colspan="5">
-            <img src="/img/a0c.gif"
-                 border="0"
-                 width="505"
-                 height="32"
-                 alt=""/>
-        </td>
-	</tr>
-
-    <tr>
-        <td width="134">
-            <a href="http://www.globus.org">
-            <img src="/img/b0c.gif"
-                 border="0"
-                 width="134"
-                 height="38"
-                 alt=""/></a>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <img src="/img/c0c.gif"
-             width="100"
-             height="32"
-             alt=""/>
-        </td>
-    </tr>
-	</table>
-</td></tr>
-<tr>
-
-<td>
-
-<table>
-<tr><td>&nbsp;</td><td><h1>Nimbus</h1></td></tr>
-<!-- left margin.. -->
-<tr>
-<td style="white-space: nowrap" valign="top" rowspan="2">
-<br />
-&nbsp;&nbsp;<a  href="/index.html" >Home</a><br />
-&nbsp;&nbsp;<a  href="/vm/faq.html" >FAQ</a><br />
-&nbsp;&nbsp;<a  href="/vm/features.html" >Features</a><br />
-&nbsp;&nbsp;<a  href="/vm/TP2.2/index.html" >Documentation</a>&nbsp;&nbsp;&nbsp;&nbsp;<br />
-&nbsp;&nbsp;<a  href="/downloads/index.html" >Downloads</a><br />
-&nbsp;&nbsp;<a  href="/clouds/index.html" >Clouds</a><br />
-&nbsp;&nbsp;<a  href="/papers/index.html" >Publications</a><br />
-&nbsp;&nbsp;<a  href="/talks/index.html" >Talks</a><br />
-&nbsp;&nbsp;<a  href="/vm/marketplace.html" >Marketplace</a><br />
-&nbsp;&nbsp;<a  href="/people.html" >Contributors</a><br />
-&nbsp;&nbsp;<a  href="/roadmap.html" >Roadmap</a><br />
-&nbsp;&nbsp;<a  href="/funding.html" >Funding</a><br />
-&nbsp;&nbsp;<a  href="/contact.html" >Contact</a><br />
-&nbsp;&nbsp;<a  href="/news.html" >News</a> <a href="/rss.xml" ><img src="/img/tinyrss.gif" alt="rss feed" /></a><br />
-
-</td>
-
-<td><!-- the page -->
-<!------------------------------------------------------------>
-<!------------------------------------------------------------>
-
-')m4_dnl
 m4_define([[[_NAMELINK',
 <span class="namelink"><a href="#$1">(#)</a></span>
 )m4_dnl
@@ -182,129 +99,8 @@ pageTracker._trackPageview();
 </html>
 
 )m4_dnl
-m4_define([[[_WORKSP_VM_DOCBOOK_HTML_HEADER',
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-)m4_dnl
-m4_define([[[_WORKSP_VM_DOCBOOK_HTML_FOOTER',
-<!-- Google Analytics tracker -->
 
-<!-- See http://www.globus.org/privacy/online-services.php -->
 
-<script type="text/javascript">
-var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-</script>
-<script type="text/javascript">
-var pageTracker = _gat._getTracker("UA-100951-4");
-pageTracker._initData();
-pageTracker._trackPageview();
-</script>
-
-)m4_dnl
-m4_define([[[_WORKSP_VM_DOCBOOK_BODY_HEADER',
-
-<div style="text-align: left">
-<table class="nomargintable" border="0" cellpadding="0" cellspacing="0">
-    <tr>
-        <td width="134">
-            <a href="http://workspace.globus.org">
-            <img src="/img/2b0c.gif"
-                 border="0"
-                 width="134"
-                 height="38"
-                 alt=""/></a>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <img src="/img/2c0c.gif"
-             width="100"
-             height="32"
-             alt=""/>
-        </td>
-    </tr>
-</table>
-</div>
-<br>
-<div id="content">
-<a href="/index.html">Home</a> ->
-<a href="/vm/index.html">Nimbus</a> ->
-<a href="/vm/$1/index.html">$1</a> ->
-<a href="/vm/$1/doc/admin-index.html">Admin Guide</a> / <a href="/vm/$1/doc/user-index.html">User Guide</a>
-
-</div>
-<div id="outer_wrapper">
-  <div id="wrapper">
-    <div id="container">
-		<div id="content">
-)m4_dnl
-m4_define([[[_WORKSP_VM_DOCBOOK_STYLESHEET',
-<link href="/css/globus.css" rel="stylesheet" type="text/css" />
-)m4_dnl
-m4_define([[[_WORKSP_VM_DOCBOOK_FOOTER',
-        	<!-- content ENDS here -->
-			<p>&nbsp;</p>
-		</div>
-      <!--ending div of container-->
-    </div>
-    <div class="clearing">&nbsp;</div>
-    <!--ending div of wrapper-->
-  </div>
-<div id="footer">
-
-  <hr class="first"/>
-
-  <p>For more information see the
-    <a href="http://workspace.globus.org">Nimbus</a>
-    home page</p>
-
-  <p>Globus Project and Globus Toolkit are trademarks<br />
-    held by the University of Chicago</p>
-    <br><br>
-
-</div>
-)m4_dnl
-m4_define([[[_WORKSP_DA_REDIR',
-<script type="text/javascript" src="/redirect.js">
-</script>
-<script type="text/javascript">
-  var redirect = new Redirect( "http://dev.globus.org/wiki/Incubator/Dynamic_Accounts/Documentation" );
-  redirect.setDelay( 3 );
-  redirect.write();
-  redirect.go();
-</script>
-)m4_dnl
-m4_define([[[_WORKSP_DA_HEADER',
-<script type="text/javascript" src="/redirect.js">
-</script>
-<script type="text/javascript">
-  var redirect = new Redirect( "http://dev.globus.org/wiki/Incubator/Dynamic_Accounts/Documentation" );
-  redirect.setDelay( 3 );
-  redirect.write();
-  redirect.go();
-</script>
-
-<ul>
-    <li>
-        <a href="/index.html">Home</a>
-    </li>
-    <li>
-        <img width=20
-             height=10
-             src="/img/right_arrow.gif"
-             alt="">
-        <a href="/da/index.html">Dynamics Accounts</a>
-)m4_dnl
-m4_define([[[_WORKSP_DA_HEADER2',
-    </li>
-</ul>
-)m4_dnl
-m4_define([[[_WORKSP_ARROW',
-        <img width=20
-             height=10
-             src="/img/right_arrow.gif"
-             alt="">
-)m4_dnl
 m4_define([[[_NIMBUS_HEADER',
 [[[<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
@@ -329,61 +125,6 @@ m4_define([[[_NIMBUS_HEADER2',
 <body>
 
 <div id="doc3" class="yui-t7">
-
-	<div id="nui-masthead"> <!-- {{{ *** MASTHEAD BEGIN -->
-
-    <div class="floatleft">
-      <h1><a id="mainnimb" href="/">Nimbus</a></h1>
-    </div>
-
-    <div class="floatright">
-      <img src="/img/globusalliance-nourl.gif"
-           border="0"
-           width="170"
-           height="76"
-           alt="globus alliance"/>
-    </div>
-
-	</div> <!-- MASTHEAD END }}} -->
-
-  <div class="nui-navbar"> <!-- {{{ *** NAVBAR BEGIN -->
-
-    <div id="underlinemenu">
-      <ul>
-
-        <li>
-          <a href="/" title="Home" class="$1">Home</a>
-        </li>
-
-        <li>
-          <a href="/news.html" title="News" class="$2">News</a>
-        </li>
-
-        <li>
-          <a href="/vm/TP2.2/index.html" title="Documentation" class="$3">Documentation</a>
-        </li>
-
-        <li>
-          <a href="/contact.html" title="Community Resources" class="$4">Community Resources</a>
-        </li>
-
-        <li>
-          <a href="/downloads/index.html" title="Download" class="$5">Download</a>
-        </li>
-        
-        <li>
-          <a href="/papers/index.html" title="Publications" class="$6">Publications</a>
-        </li>
-
-        <li>
-          <a href="/clouds/" title="Science Clouds" class="$7">Science Clouds</a>
-        </li>
-      </ul>
-    </div>
-
-
-
-	</div> <!-- NAVBAR END }}} -->
 
   <div id="bd">
 		<div id="yui-main">
@@ -545,69 +286,19 @@ m4_define([[[_NIMBUS_LEFT2_ABOUT_SIDEBAR',
 <div id="sidebarmenu">
     <ul>
         <li>
-          <a href="/vm/_WORKSP_CURRENT_VM_VERSION/summary.html" title="About Nimbus" class="$1">About Nimbus</a>
+          <a href="summary.html" title="About Nimbus" class="$1">About Nimbus</a>
         </li>
         <li>
-          <a href="/vm/faq.html" title="FAQ" class="$2">FAQ</a>
+          <a href="features.html" title="Features" class="$3">Features</a>
         </li>
-        <li>
-          <a href="/vm/features.html" title="Features" class="$3">Features</a>
-        </li>
-        <li>
-          <a href="/roadmap.html" title="Roadmap" class="$4">Roadmap</a>
+		<li>
+          <a href="changelog.html" title="Changelog" class="$4">Changelog</a>
         </li>
     </ul>
 </div>
 
 )m4_dnl
-m4_define([[[_NIMBUS_LEFT2_CONTRIB_SIDEBAR',
 
-<div id="sidebarmenu">
-    <ul>
-        <li>
-          <a href="/people.html" title="Contributors" class="$1">Contributors</a>
-        </li>
-        <li>
-          <a href="/funding.html" title="Funding" class="$2">Funding</a>
-        </li>
-    </ul>
-</div>
-
-)m4_dnl
-m4_define([[[_NIMBUS_LEFT2_DOWNLOAD_SIDEBAR',
-
-<div id="sidebarmenu">
-    <ul>
-        <li>
-          <a href="/downloads/index.html" title="Current" class="$1">Current</a>
-        </li>
-        <li>
-          <a href="/downloads/license.html" title="License" class="$2">License</a>
-        </li>
-        <li>
-          <a href="/downloads/archive.html" title="Archive" class="$3">Archive</a>
-        </li>
-        <li>
-          <a href="/vm/changelog.html" title="Changelog" class="$4">Changelog</a>
-        </li>
-    </ul>
-</div>
-
-)m4_dnl
-m4_define([[[_NIMBUS_LEFT2_PUBS_SIDEBAR',
-
-<div id="sidebarmenu">
-    <ul>
-        <li>
-          <a href="index.html#papers" title="Papers">Papers</a>
-        </li>
-        <li>
-          <a href="index.html#talks" title="Talks">Talks</a>
-        </li>
-    </ul>
-</div>
-
-)m4_dnl
 m4_define([[[_NIMBUS_LEFT2_DEV1_SIDEBAR',
 
 <div id="sidebarmenu">
@@ -783,7 +474,7 @@ m4_define([[[_NIMBUS_LEFT2_CLOUDS2_SIDEBAR',
 
 )m4_dnl
 m4_define([[[_NIMBUS_INTERFACES_WARNING',
-
+<!--
 <p>
     <img src="/img/warning.gif" alt="[warning]" />
     <i>Note</i>: this is only one set of remote interfaces. It is compatible
@@ -793,7 +484,7 @@ m4_define([[[_NIMBUS_INTERFACES_WARNING',
 </p>
 <br />
 <br />
-
+-->
 )m4_dnl
 m4_define([[[_NIMBUS_LEFT2_INTERFACES_SIDEBAR',
 
