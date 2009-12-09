@@ -39,6 +39,7 @@ from IWCObject import IWCObject
 modp = "workspacecontrol.api.modules."
 objp = "workspacecontrol.api.objects."
 interfacesdict = {
+            "AsyncNotification": modp + "IAsyncNotification",
             "ImageEditing"     : modp + "IImageEditing",
             "ImageProcurement" : modp + "IImageProcurement",
             "KernelProcurement": modp + "IKernelProcurement",

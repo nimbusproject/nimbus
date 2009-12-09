@@ -501,3 +501,83 @@ def test_real_procurement_unpropagate3():
         invalid_input = True
     assert invalid_input
     
+
+def test_notification():
+    """Test notification validation (negative1)"""
+    
+    createargs = ["--action", "unpropagate", 
+                  "--name", "wrksp-114",
+                  "--images", "scp://somehost/some-base-cluster-01.gz",
+                  "--notify", "asd",
+                 ]
+    parser = wc_optparse.parsersetup()
+    (opts, args) = parser.parse_args(createargs)
+    
+    p,c = get_pc(opts, realconfigs())
+    c.log.debug("test_notification()")
+    
+    notify_cls = c.get_class_by_keyword("AsyncNotification")
+    notify = notify_cls(p, c)
+    
+    invalid_input = False
+    try:
+        notify.validate()
+    except InvalidInput:
+        invalid_input = True
+    assert invalid_input
+    
+def test_notification2():
+    """Test notification validation (negative2)"""
+    
+    createargs = ["--action", "unpropagate", 
+                  "--name", "wrksp-114",
+                  "--images", "scp://somehost/some-base-cluster-01.gz",
+                  "--notify", "nimbus@somehost:22",
+                 ]
+    parser = wc_optparse.parsersetup()
+    (opts, args) = parser.parse_args(createargs)
+    
+    p,c = get_pc(opts, realconfigs())
+    c.log.debug("test_notification2()")
+    
+    notify_cls = c.get_class_by_keyword("AsyncNotification")
+    notify = notify_cls(p, c)
+    
+    invalid_input = False
+    try:
+        notify.validate()
+    except InvalidInput:
+        invalid_input = True
+    assert invalid_input
+    
+def test_notification3():
+    """Test notification validation"""
+    
+    handle = "wrksp-104"
+    createargs = ["--action", "unpropagate", 
+                  "--name", handle,
+                  "--images", "scp://somehost/some-base-cluster-01.gz",
+                  "--notify", "nimbus@somehost:22/somepath",
+                 ]
+    parser = wc_optparse.parsersetup()
+    (opts, args) = parser.parse_args(createargs)
+    
+    p,c = get_pc(opts, realconfigs())
+    c.log.debug("test_notification3()")
+    
+    notify_cls = c.get_class_by_keyword("AsyncNotification")
+    notify = notify_cls(p, c)
+    
+    # should throw no error
+    notify.validate()
+    
+    # violating interface contract with 'dryrun' argument
+    notify.notify(handle, "propagate", 0, None, dryrun=True)
+    notify.notify(handle, "propagate", 1, "bad\nbad\nbad", dryrun=True)
+    
+    programming_error = False
+    try:
+        notify.notify(handle, "XYZpropagate", 1, "bad\nbad", dryrun=True)
+    except ProgrammingError:
+        programming_error = True
+    assert programming_error

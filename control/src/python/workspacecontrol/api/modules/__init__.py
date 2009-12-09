@@ -3,6 +3,9 @@
 a = []
 __all__ = a
 
+a.append("IAsyncNotification")
+from IAsyncNotification import IAsyncNotification
+
 a.append("IImageEditing")
 from IImageEditing import IImageEditing
 

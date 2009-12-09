@@ -78,9 +78,13 @@ MEMORY = ControlArg("memory", "-m", metavar="MB")
 MEMORY.help = "VM memory in MB"
 a.append(MEMORY)
 
-NAME = ControlArg("name", "-n", createarg=False)
+NAME = ControlArg("name", "-n", metavar="VM_NAME", createarg=False)
 NAME.help = "Unique VM handle for management"
 a.append(NAME)
+
+NOTIFY = ControlArg("notify", None, metavar="user@host:port/path")
+NOTIFY.help = "Required for async actions"
+a.append(NOTIFY)
 
 VCPUS = ControlArg("vcpus", None, since="2.3", metavar="NUM")
 VCPUS.help = "Number of vcpus to assign the VM, overrides configuration"
