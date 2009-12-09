@@ -1,3 +1,4 @@
 from AsyncNotification import DefaultAsyncNotification
+from ImageEditing import DefaultImageEditing
 from KernelProcurement import DefaultKernelProcurement
 from imageprocurement import DefaultImageProcurement

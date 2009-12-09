@@ -118,6 +118,8 @@ def test_kernel2():
     # use providedBy on instances (implementedBy is for classes)
     assert objects.IKernel.providedBy(kernel)
     
+    # clean up
+    procure.process_after_destroy(local_file_set)
     
 def test_mock_create():
     """Test the create command with the libvirt mock adapter"""
@@ -175,6 +177,9 @@ def test_mock_create():
     running_vm = platform.info(handle)
     assert not running_vm
     sys.stderr = tmp
+    
+    # clean up
+    procure.process_after_destroy(local_file_set)
     
 def test_real_procurement_propagate1():
     """Test the procurement adapter propagate awareness (positive)"""
@@ -581,3 +586,111 @@ def test_notification3():
     except ProgrammingError:
         programming_error = True
     assert programming_error
+
+def test_image_editing1():
+    """Test for image editing module task awareness"""
+    
+    handle = "wrksp-911"
+    createargs = ["--action", "create", 
+                  "--name", handle,
+                  "--images", "scp://somehost/some-base-cluster",
+                  "--mnttasks",
+                  "d69a9bda-399a-4016-aaee;/root/.ssh/authorized_keys;;3abc9086-d74b-46b0-a3e9;/var/nimbus-metadata-server-url",
+                 ]
+    parser = wc_optparse.parsersetup()
+    (opts, args) = parser.parse_args(createargs)
+    
+    p,c = get_pc(opts, mockconfigs())
+    c.log.debug("test_real_image_editing1()")
+    
+    editing_cls = c.get_class_by_keyword("ImageEditing")
+    editing = editing_cls(p, c)
+    editing.validate()
+    
+    procure_cls = c.get_class_by_keyword("ImageProcurement")
+    procure = procure_cls(p, c)
+    procure.validate()
+    local_file_set = procure.obtain()
+    
+    editing.process_after_procurement(local_file_set, dryrun=True)
+    
+    # TODO: could actually test for the existence of the task ... the mock
+    # procurement adapter is actually making filesystem images.  But we'd first
+    # need a tool to mount and check a filesystem.  And sudo would need to be
+    # configured.
+    
+    # clean up
+    procure.process_after_destroy(local_file_set)
+    
+def test_image_decompress1():
+    """Test file decompression"""
+    
+    # fake image procurement chooses the file names
+    createargs = ["--action", "create", 
+                  "--name", "wrksp-999",
+                 ]
+    parser = wc_optparse.parsersetup()
+    (opts, args) = parser.parse_args(createargs)
+    
+    p,c = get_pc(opts, mockconfigs())
+    c.log.debug("test_image_decompress1()")
+    
+    procure_cls = c.get_class_by_keyword("ImageProcurement")
+    procure = procure_cls(p, c)
+    procure.validate()
+    local_file_set = procure.obtain()
+    
+    editing_cls = c.get_class_by_keyword("ImageEditing")
+    editing = editing_cls(p, c)
+    editing.validate()
+    
+    # compress each disk
+    oldpaths = []
+    for lf in local_file_set.flist():
+        # test relies on specific impl method we know is there
+        oldpaths.append(lf.path)
+        lf.path = editing._gzip_file_inplace(lf.path, False)
+    
+    for i,lf in enumerate(local_file_set.flist()):
+        #c.log.debug("old path: %s" % oldpaths[i])
+        #c.log.debug("current path: %s" % lf.path)
+        assert oldpaths[i] + ".gz" == lf.path
+    
+    # process incoming images
+    editing.process_after_procurement(local_file_set, dryrun=True)
+    
+    # see if it is now uncompressed
+    for i,lf in enumerate(local_file_set.flist()):
+        #c.log.debug("old path: %s" % oldpaths[i])
+        #c.log.debug("current path: %s" % lf.path)
+        assert oldpaths[i] == lf.path
+    
+    # clean up
+    procure.process_after_destroy(local_file_set)
+    
+def test_image_compress1():
+    """Test file compression"""
+    
+    createargs = ["--action", "unpropagate", 
+                  "--name", "wrksp-929",
+                  "--images", "scp://somehost/some-base-cluster-01",
+                  "--unproptargets", "scp://somehost/some-newfile.gz",
+                 ]
+    parser = wc_optparse.parsersetup()
+    (opts, args) = parser.parse_args(createargs)
+    
+    p,c = get_pc(opts, realconfigs())
+    c.log.debug("test_image_compress1()")
+    
+    procure_cls = c.get_class_by_keyword("ImageProcurement")
+    procure = procure_cls(p, c)
+    procure.validate()
+    local_file_set = procure.obtain()
+    
+    editing_cls = c.get_class_by_keyword("ImageEditing")
+    editing = editing_cls(p, c)
+    editing.validate()
+    
+    editing.process_after_shutdown(local_file_set, dryrun=True)
+    procure.process_after_shutdown(local_file_set, dryrun=True)
+    
