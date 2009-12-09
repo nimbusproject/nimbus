@@ -1,5 +1,6 @@
 import optparse
 import os
+import shutil
 import sys
 
 import wc_optparse
@@ -174,4 +175,329 @@ def test_mock_create():
     running_vm = platform.info(handle)
     assert not running_vm
     sys.stderr = tmp
+    
+def test_real_procurement_propagate1():
+    """Test the procurement adapter propagate awareness (positive)"""
+    
+    handle = "wrksp-411"
+    createargs = ["--action", "create", 
+                  "--name", handle,
+                  "--memory", "256",
+                  "--images", "scp://somehost/some-base-cluster-01.gz",
+                  "--imagemounts", "xvda1",
+                 ]
+    parser = wc_optparse.parsersetup()
+    (opts, args) = parser.parse_args(createargs)
+    
+    p,c = get_pc(opts, realconfigs())
+    c.log.debug("test_real_procurement_propagate1()")
+    
+    procure_cls = c.get_class_by_keyword("ImageProcurement")
+    procure = procure_cls(p, c)
+    procure.validate()
+    assert procure.lengthy_obtain()
+    
+    
+def _create_fake_securedir_files(p, c, handle, filelist):
+    # Requires knowledge of the module implementation
+    securelocaldir = p.get_conf_or_none("images", "securelocaldir")
+    if not os.path.isabs(securelocaldir):
+        securelocaldir = c.resolve_var_dir(securelocaldir)
+    vmdir = os.path.join(securelocaldir, handle)
+    if os.path.exists(vmdir):
+        raise IncompatibleEnvironment("test vmdir already exists: %s" % vmdir)
+    os.mkdir(vmdir)
+    
+    for relative_filename in filelist:
+        path = os.path.join(vmdir, relative_filename)
+        # touch file
+        f = None
+        try:
+            f = open(path, 'w')
+        finally:
+            if f:
+                f.close()
+                del f
+        c.log.debug("created zero byte file: %s" % path)
+    
+def _destroy_fake_securedir(p, c, handle):
+    # Requires knowledge of the module implementation
+    securelocaldir = p.get_conf_or_none("images", "securelocaldir")
+    if not os.path.isabs(securelocaldir):
+        securelocaldir = c.resolve_var_dir(securelocaldir)
+    vmdir = os.path.join(securelocaldir, handle)
+    if not os.path.exists(vmdir):
+        raise IncompatibleEnvironment("test vmdir does not exist? %s" % vmdir)
+    shutil.rmtree(vmdir)
+    
+def test_real_procurement_propagate2():
+    """Test that a local file will not report propagation needed.
+    """
+    
+    handle = "wrksp-412"
+    relative_filename_testfile = "some-base-cluster-01.gz"
+    createargs = ["--action", "create", 
+                  "--name", handle,
+                  "--memory", "256",
+                  "--images", "file://%s" % relative_filename_testfile,
+                  "--imagemounts", "xvda1",
+                 ]
+    parser = wc_optparse.parsersetup()
+    (opts, args) = parser.parse_args(createargs)
+    
+    p,c = get_pc(opts, realconfigs())
+    c.log.debug("test_real_procurement_propagate2()")
+    
+    procure_cls = c.get_class_by_keyword("ImageProcurement")
+    procure = procure_cls(p, c)
+    procure.validate()
+    
+    try:
+        filelist = [relative_filename_testfile]
+        _create_fake_securedir_files(p, c, handle, filelist)
+        
+        assert not procure.lengthy_obtain()
+        
+    finally:
+        _destroy_fake_securedir(p, c, handle)
+        
+def test_real_procurement_propagate3():
+    """Test that an unknown propagation scheme will cause an error.
+    """
+    
+    handle = "wrksp-412"
+    relative_filename_testfile = "some-base-cluster-01.gz"
+    createargs = ["--action", "create", 
+                  "--name", handle,
+                  "--memory", "256",
+                  "--images", "zzfile://%s" % relative_filename_testfile,
+                  "--imagemounts", "xvda1",
+                 ]
+    parser = wc_optparse.parsersetup()
+    (opts, args) = parser.parse_args(createargs)
+    
+    p,c = get_pc(opts, realconfigs())
+    c.log.debug("test_real_procurement_propagate3()")
+    
+    procure_cls = c.get_class_by_keyword("ImageProcurement")
+    procure = procure_cls(p, c)
+    procure.validate()
+    
+    try:
+        filelist = [relative_filename_testfile]
+        _create_fake_securedir_files(p, c, handle, filelist)
+        
+        invalid_input = False
+        try:
+            procure.lengthy_obtain()
+        except InvalidInput:
+            invalid_input = True
+        assert invalid_input
+        
+    finally:
+        _destroy_fake_securedir(p, c, handle)
+        
+def test_real_procurement_propagate4():
+    """Test that a remote scheme with an incomplete URL will cause an error.
+    """
+    
+    handle = "wrksp-499"
+    createargs = ["--action", "create", 
+                  "--name", handle,
+                  "--memory", "256",
+                  "--images", "scp://somehostsome-base-cluster-01.gz",
+                  "--imagemounts", "xvda1",
+                 ]
+    parser = wc_optparse.parsersetup()
+    (opts, args) = parser.parse_args(createargs)
+    
+    p,c = get_pc(opts, realconfigs())
+    c.log.debug("test_real_procurement_propagate4()")
+    
+    procure_cls = c.get_class_by_keyword("ImageProcurement")
+    procure = procure_cls(p, c)
+    procure.validate()
+    
+    invalid_input = False
+    try:
+        procure.lengthy_obtain()
+    except InvalidInput:
+        invalid_input = True
+    assert invalid_input
+    
+def test_real_procurement_propagate5():
+    """Test that a malformed input to the procurement adapter will cause an error
+    """
+    
+    handle = "wrksp-499"
+    createargs = ["--action", "create", 
+                  "--name", handle,
+                  "--memory", "256",
+                  "--images", "scp://somehost/some-base-cluster-01.gz;;x",
+                  "--imagemounts", "xvda1",
+                 ]
+    parser = wc_optparse.parsersetup()
+    (opts, args) = parser.parse_args(createargs)
+    
+    p,c = get_pc(opts, realconfigs())
+    c.log.debug("test_real_procurement_propagate5()")
+    
+    procure_cls = c.get_class_by_keyword("ImageProcurement")
+    procure = procure_cls(p, c)
+    procure.validate()
+    
+    invalid_input = False
+    try:
+        procure.lengthy_obtain()
+    except InvalidInput:
+        invalid_input = True
+    assert invalid_input
+    
+def test_real_procurement_propagate6():
+    """Test that multiple image inputs are OK
+    """
+    
+    handle = "wrksp-499"
+    createargs = ["--action", "create", 
+                  "--name", handle,
+                  "--memory", "256",
+                  "--images", "scp://somehost/some-base-cluster-01.gz;;scp://someotherhost/someother-base-cluster-01.gz",
+                  "--imagemounts", "xvda1;;xvda2",
+                 ]
+    parser = wc_optparse.parsersetup()
+    (opts, args) = parser.parse_args(createargs)
+    
+    p,c = get_pc(opts, realconfigs())
+    c.log.debug("test_real_procurement_propagate6()")
+    
+    procure_cls = c.get_class_by_keyword("ImageProcurement")
+    procure = procure_cls(p, c)
+    procure.validate()
+    
+    assert procure.lengthy_obtain()
+    
+def test_real_procurement_propagate7():
+    """Test that a mismatch of images and mountpoints will cause an error
+    """
+    
+    handle = "wrksp-499"
+    createargs = ["--action", "create", 
+                  "--name", handle,
+                  "--memory", "256",
+                  "--images", "scp://somehost/some-base-cluster-01.gz;;scp://someotherhost/someother-base-cluster-01.gz",
+                  "--imagemounts", "xvda1",
+                 ]
+    parser = wc_optparse.parsersetup()
+    (opts, args) = parser.parse_args(createargs)
+    
+    p,c = get_pc(opts, realconfigs())
+    c.log.debug("test_real_procurement_propagate7()")
+    
+    procure_cls = c.get_class_by_keyword("ImageProcurement")
+    procure = procure_cls(p, c)
+    procure.validate()
+    
+    invalid_input = False
+    try:
+        procure.lengthy_obtain()
+    except InvalidInput:
+        invalid_input = True
+    assert invalid_input
+    
+def test_real_procurement_propagate8():
+    """Test that a mismatch of images and mountpoints will cause an error
+    """
+    
+    handle = "wrksp-499"
+    createargs = ["--action", "create", 
+                  "--name", handle,
+                  "--memory", "256",
+                  "--images", "scp://somehost/some-base-cluster-01.gz",
+                  "--imagemounts", "xvda1;;xvda2",
+                 ]
+    parser = wc_optparse.parsersetup()
+    (opts, args) = parser.parse_args(createargs)
+    
+    p,c = get_pc(opts, realconfigs())
+    c.log.debug("test_real_procurement_propagate8()")
+    
+    procure_cls = c.get_class_by_keyword("ImageProcurement")
+    procure = procure_cls(p, c)
+    procure.validate()
+    
+    invalid_input = False
+    try:
+        procure.lengthy_obtain()
+    except InvalidInput:
+        invalid_input = True
+    assert invalid_input
+    
+def test_real_procurement_unpropagate1():
+    """Test the procurement adapter unpropagate awareness (positive)"""
+    
+    handle = "wrksp-2133"
+    createargs = ["--action", "unpropagate", 
+                  "--name", handle,
+                  "--images", "scp://somehost/some-base-cluster-01.gz",
+                 ]
+    parser = wc_optparse.parsersetup()
+    (opts, args) = parser.parse_args(createargs)
+    
+    p,c = get_pc(opts, realconfigs())
+    c.log.debug("test_real_procurement_unpropagate1()")
+    
+    procure_cls = c.get_class_by_keyword("ImageProcurement")
+    procure = procure_cls(p, c)
+    procure.validate()
+    assert procure.lengthy_shutdown()
+    
+def test_real_procurement_unpropagate2():
+    """Test the procurement adapter unpropagate syntax (negative)"""
+    
+    handle = "wrksp-414"
+    createargs = ["--action", "unpropagate", 
+                  "--name", handle,
+                  "--images", "file://somehost/some-base-cluster-01.gz",
+                 ]
+    parser = wc_optparse.parsersetup()
+    (opts, args) = parser.parse_args(createargs)
+    
+    p,c = get_pc(opts, realconfigs())
+    c.log.debug("test_real_procurement_unpropagate2()")
+    
+    procure_cls = c.get_class_by_keyword("ImageProcurement")
+    procure = procure_cls(p, c)
+    procure.validate()
+    
+    invalid_input = False
+    try:
+        procure.lengthy_shutdown()
+    except InvalidInput:
+        invalid_input = True
+    assert invalid_input
+
+def test_real_procurement_unpropagate3():
+    """Test that procurement adapter rejects blanksspace requests in unpropagate"""
+    
+    handle = "wrksp-414"
+    createargs = ["--action", "unpropagate", 
+                  "--name", handle,
+                  "--images", "scp://somehost/some-base-cluster-01.gz;;blankspace://blah-size-40",
+                 ]
+    parser = wc_optparse.parsersetup()
+    (opts, args) = parser.parse_args(createargs)
+    
+    p,c = get_pc(opts, realconfigs())
+    c.log.debug("test_real_procurement_unpropagate2()")
+    
+    procure_cls = c.get_class_by_keyword("ImageProcurement")
+    procure = procure_cls(p, c)
+    procure.validate()
+    
+    invalid_input = False
+    try:
+        procure.lengthy_shutdown()
+    except InvalidInput:
+        invalid_input = True
+    assert invalid_input
     
