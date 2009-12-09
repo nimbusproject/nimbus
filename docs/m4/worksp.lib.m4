@@ -420,12 +420,6 @@ m4_define([[[_NIMBUS_LEFT2_CLOUDS1_SIDEBAR',
 <div id="sidebarmenu">
     <ul>
         <li>
-          <a href="index.html" title="Clouds Overview" class="$1">Clouds Overview</a>
-        </li>
-        <li>
-          <a href="../vm/marketplace.html" title="Marketplace" class="$2">Marketplace</a>
-        </li>
-        <li>
           <a href="cloudquickstart.html" title="Client quickstart" class="$3">Client quickstart</a>
         </li>
         <li>
@@ -450,9 +444,6 @@ m4_define([[[_NIMBUS_LEFT2_CLOUDS2_SIDEBAR',
     <ul>
         <li>
           <a href="../clouds/index.html" title="Clouds Overview">Clouds Overview</a>
-        </li>
-        <li>
-          <a href="marketplace.html" title="Marketplace" class="y">Marketplace</a>
         </li>
         <li>
           <a href="../clouds/cloudquickstart.html" title="Client quickstart">Client quickstart</a>
