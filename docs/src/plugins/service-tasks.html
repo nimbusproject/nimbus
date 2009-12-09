@@ -1,0 +1,63 @@
+m4_include(/mcs/m4/worksp.lib.m4)
+_NIMBUS_HEADER(TP2.2 Extensibility Guide)
+_NIMBUS_HEADER2(n,n,y,n,n,n,n)
+
+<style type="text/css">
+ul.nobullets {
+	list-style: none;
+}
+</style>
+
+_NIMBUS_LEFT2_COLUMN
+_NIMBUS_LEFT2_DEV2_SIDEBAR(n,y,n,n,n,n,n,n)
+
+_NIMBUS_LEFT2_COLUMN_END
+_NIMBUS_CENTER2_COLUMN
+_NIMBUS_TP2_2_DEPRECATED
+
+<h2>VMM control tasks</h2>
+
+<h4>* Summary:</h4>
+<p>
+    There is an internal module of the
+    <a href="_NIMBUS_WEBSITE/faq/#workspace-service">workspace service</a>
+    that governs what tasks are launched when a particular action is
+    required.  For example, when the service engine determines that a
+    "Start" action is required, a particular implementation of a
+    "WorkspaceTask" is launched, keyed by the type of action.  This "Start"
+    action task may be defined as something that does not call workspace-control
+    anymore, for example.
+</p>
+
+<p>
+    You can exploit this layer of indirection by creating your own task set
+    that does anything you want at the different points in the VM lifecycle
+    (or perhaps does something simultaneously).
+</p>
+
+<hr />
+<h4>* Classes:</h4>
+
+<p>
+    See the <i>org.globus.workspace.xen.xenssh</i> package and the
+    <i>org.globus.workspace.service.impls.async</i> package (for example,
+    the RequestFactoryImpl class).
+</p>
+<p>
+    (This one is more hands on than the other plugins) 
+</p>
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+_NIMBUS_CENTER2_COLUMN_END
+_NIMBUS_FOOTER1
+_NIMBUS_FOOTER2
+_NIMBUS_FOOTER3

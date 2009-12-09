@@ -1,0 +1,70 @@
+m4_include(/mcs/m4/worksp.lib.m4)
+_NIMBUS_HEADER(Offline Editing)
+_NIMBUS_HEADER2
+_NIMBUS_CENTER3_COLUMN
+
+<h2>Offline Editing Guide</h2>
+
+<p>
+    It is often useful to inspect and edit a filesystem image without
+    booting it as a VM.  You can mount a filesystem image under a
+    mountpoint on your current filesystem.
+</p>
+
+<p>
+    Say you have a filesystem image called "ttylinux-xen"
+</p>
+
+<p>
+
+    The following makes the filesystem available for editing in your
+    current (Linux) OS, in most cases you're required to be root:
+
+<pre>mkdir tempmount
+mount -o loop ttylinux-xen tempmount</pre>
+
+</p>
+
+<p>
+    If you encountered a strange error (besides 'only root can do that') you
+    may be missing loopback support from your kernel.
+</p>
+
+<p>
+Make sure to un-mount the filesystem!
+
+<pre>umount tempmount</pre>
+</p>
+
+<p>
+    Note that is 'umount' and not 'unmount'. You can check that it was
+    successfully un-mounted using 'ls' inspections (nothing should be in
+    this 'tempmount' directory anymore) and by checking the currently
+    mounted volumes using the 'df' command.
+</p>
+
+<p>
+    If you get a message saying the volume is busy, you may have another
+    terminal open whose current directory is under the 'tempmount'
+    mountpoint or perhaps you are editing/viewing a file under this
+    mountpoint?  Stopping all use of the volume (including a current
+    terminal directory) will allow the un-mount to succeed.
+</p>
+
+<p>
+    <i><b>WARNING:</b></i>
+</p>
+<p>
+    Always remember to un-mount the filesystems ('umount'). If you boot this
+    file as a VM filesystem while it is still mounted locally, you will have
+    two kernels that think they have control over the same block device.
+    That could, and likely will, lead to filesystem corruption.
+</p>
+
+
+_NIMBUS_CENTER3_COLUMN_END
+_NIMBUS_FOOTER1
+_NIMBUS_FOOTER2
+_NIMBUS_FOOTER3
+
+

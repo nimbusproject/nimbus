@@ -1,0 +1,231 @@
+/* for transcripts of terminal sessions */
+.screen {
+    font-family: monospace;
+    background-color: #eee;
+    border: thin solid black;
+    padding: 0.7em;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    white-space: nowrap; /* avoid accidental newlines in divs */
+}
+
+/* same as .screen, but wrap like normal <pre> */
+pre {
+    font-family: monospace;
+    background-color: #eee;
+    border: thin solid black;
+    padding: 0.7em;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+/* add a scroll bar to longer code snippets */
+textarea.screen {
+    font-family: monospace;
+    background-color: #eee;
+    border: thin solid black;
+    padding: 0em;
+    padding-left: 0.7em;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    white-space: nowrap; /* avoid accidental newlines in divs */
+}
+
+/* Limit the width of pre */
+pre.narrow {
+    width: 40em;
+}
+
+code, tt, kbd {
+    font-family: monospace;
+    white-space: nowrap;
+/*    background-color: #eee;
+    padding: 0.15em;
+    font-size:110%; */
+}
+
+.nav {
+    background: #eee;
+    padding: 0.2em;
+    margin: 0px;
+}
+
+.bugnote {
+    float: right;
+    background: #ff9;
+    text-align: right;
+    color: #b00;
+    font-weight: bold;
+    font-size: 65%;
+    border: thin solid #b66;
+    padding: 1px;
+}
+
+/* Something the reader should type */
+.input {
+    font-family: monospace;
+    color: #080;
+    font-weight: bold;
+}
+
+/* Something the reader will see that is important to take note of */
+.output_highlight {
+    font-family: monospace;
+    color: #d60;
+    font-weight: bold;
+/*    line-height: 160%;
+    border: thin solid #e96;
+    padding: 1px; */
+}
+
+ol.secondary {
+    list-style-type: upper-alpha;
+}
+
+/* Note: tangent doesn't provide top and bottom padding -- you'll have
+ * to supply it yourself, for example in a <p> tag. */
+div.tangent {
+    font-family: sans-serif;
+    float: right;
+/*    background: #e7eeff; */
+    background: #fff3bb;
+    text-align: left;
+    width: 40%;
+    font-size: 80%;
+    border: thin solid #999;
+    padding: 0em;
+    padding-right: 0.3em;
+    padding-left: 0.7em;
+    margin: 0.3em;
+    margin-right: 0em;
+}
+
+div.tangent-narrow {
+    font-family: sans-serif;
+    float: right;
+    background: #fff3bb;
+    text-align: left;
+    width: 25%;
+    font-size: 80%;
+    border: thin solid #999;
+    padding: 0em;
+    padding-right: 0.3em;
+    padding-left: 0.7em;
+    margin: 0.3em;
+    margin-right: 0em;
+}
+
+.deprecated {
+    background: #ccc;
+    color: #666;
+}
+
+.comment {
+    color: #888;
+}
+
+ul.links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+ol.alpha {
+  list-style-type: lower-alpha;
+}
+
+.subsection {
+    color: #333;
+    font-size: 1.1em;
+}
+
+p.indent2em {
+    margin-left: 2em;
+}
+
+p.indent1em {
+    margin-left: 1em;
+}
+
+a img {
+text-decoration:none;
+border:none;
+padding:0px;
+margin:0px;
+}
+
+
+/* ----------------------------------------------- */  
+
+/* Cloud client navigation bar */
+
+#current
+{
+background-color: #ddd;
+}
+
+#navigation {
+font-size:14px;
+height:2.2em;
+line-height:2.2em;
+color:#000;
+margin-left: 5px;
+}
+
+#navigation a:visited {
+  text-decoration:none;
+  color:#000;
+  background-color:transparent;
+}
+
+#navigation li {
+float:left;
+list-style-type:none;
+border-right:1px solid #ffffff;
+white-space:nowrap;}
+
+#navigation li a {
+display:block;
+padding:0 10px;
+font-size:0.8em;
+font-weight:normal;
+text-transform:uppercase;
+text-decoration:none;
+background-color:inherit;
+color: #000;
+}
+
+* html #navigation a {width:1%;}
+
+#navigation .selected {
+  background:#ddd;
+  color:#000;
+  text-decoration:none;
+}
+
+#navigation a:hover {
+  background:#ddd;
+  color:#000;
+  text-decoration:none;
+}
+  
+.navuhli {
+  float:left;
+  border-right:3px solid #fff;
+  white-space:nowrap;
+  background:#eee;
+}
+
+.navuhli a {
+  display:block;
+  padding:0 10px;
+  font-size:0.8em;
+  font-weight:normal;
+  text-decoration:none;
+  background-color:inherit;
+  color: #000;
+}
+  
+
+
+

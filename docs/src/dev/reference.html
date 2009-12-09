@@ -1,0 +1,369 @@
+m4_include(/mcs/m4/worksp.lib.m4)
+_NIMBUS_HEADER(TP2.2 - Developer reference)
+_NIMBUS_HEADER2(n,n,y,n,n,n,n)
+
+_NIMBUS_LEFT2_COLUMN
+
+_NIMBUS_LEFT2_DEV1_SIDEBAR(n,n,n,n,n,n,n,y)
+
+_NIMBUS_LEFT2_COLUMN_END
+_NIMBUS_CENTER2_COLUMN
+_NIMBUS_TP2_2_DEPRECATED
+
+<div>
+<h2>Developer reference</h2>
+
+<p>
+    This section is for miscellaneous information of use to Nimbus developers.
+</p>
+<ul>
+    <li>
+        <p>
+            <a href="#code-layout">Layout of the source directories</a>
+        </p>
+    </li>
+    <li>
+        <p>
+            <a href="#change-wsdl">Changing the WSDL</a>
+        </p>
+    </li>
+</ul>
+
+<br />
+<a name="code-layout"> </a>
+<h2>Layout of the source directories _NAMELINK(code-layout)</h2>
+
+    <p>
+        The code lives under _PATH(workspace/vm) in CVS (see
+        <a href="sccs.html">here</a> for details), all directory names will be
+        referenced with the assumption that this is being prepended.  So if
+        _PATH(backend/workspace) is referenced, in CVS that will be 
+        _PATH(workspace/vm/backend/workspace)
+    </p>
+
+    <p>
+        The source code has been through many changes but in some cases the
+        decision was made to preserve the CVS history rather than moving the
+        directory to a more organized place.  This is not a set in stone
+        decision... whatever works best.
+    </p>
+
+    <p>
+        While reading the following notes, it will help to have
+        <a href="../../faq.html#nimbus-main-components">this picture</a>
+        in mind.
+    </p>
+
+    _MINI_SEP
+
+    <p>
+        The core of Nimbus is the <a href="../../faq.html#rm-api">RM API</a>
+        which lives in the _PATH(service-api/java/source) directory.
+    </p>
+    <p>
+        If you navigate there you will find many things that are common to
+        Nimbus source directories.
+    </p>
+    <p>
+        There is a construct borrowed from other Globus services: the
+        component's hierarchy is first split by the language it is implemented
+        in.  So the first directory here is _PATH(java).  Then there is
+        a directory for source code and a directory for tests.
+    </p>
+    <p>
+        Under _PATH(source) are the _PATH(build.xml) and
+        _PATH(build.properties) files which are specific to the component.
+        Running "ant dist" in any Nimbus directory
+        with a _PATH(build.xml) file is usually all you need to do in order to
+        build that component.
+    </p>
+    <p>
+        Though a much better option is to use the _PATH(bin) scripts for building.
+        The build file that the _PATH(bin) scripts call is:
+        _PATH(bin/lib/gt4.0/build/build.xml)
+    </p>
+    <p>
+        That file will build components with the proper dependencies. On many
+        projects, source trees have their build.xml files call on other things
+        to compile, etc., but this source tree's build.xml files -- if used
+        directly -- will only look for dependencies in other directories.  If
+        those dependencies are not built, then the build fails.  This lets the
+        developer do what he or she wants to do with maximum control when
+        mucking with build files directly.  The scripts in the "bin" directory
+        are what both users and developers will use on a regular basis.
+    </p>
+    <p> 
+        The RM API has no dependencies outside of this tree.  It contains its
+        own "dummy" implementations of the APIs which do nothing.  If you
+        instantiate the API (it bootstraps a
+        <a href="http://www.springframework.net/doc-latest/reference/html/objects.html">Spring
+        inversion of control</a> container), it will use the embedded
+        configuration as its default.  This does nothing, it will just print
+        things to the logger (which can be useful in some situations, for
+        example when developing a new protocol implementation).
+    </p>
+
+    _MINI_SEP
+    
+    <p>
+        Moving along, _PATH(service/service/java/source) contains the
+        <a href="../../faq.html#workspace-service">Workspace Service</a>
+        site manager implementation.
+    </p>
+    <p>
+        That implements the RM API.  Together, these two trees could be used
+        in any number of Java containers.  There is no other dependency.
+    </p>
+    <p>
+        In the _PATH(service/service/java/source/etc/workspace-service/other/main.xml)
+        file you will find the Spring configurations that are used to instantiate
+        the workspace service.  There are a number of internal plug points etc.,
+        this is how that is all arranged.  The _PATH(.conf) files are never examined
+        directly by the service, they are sucked into the Spring configuration
+        using the magic of PropertyPlaceholderConfigurer.  Open the
+        _PATH(main.conflocator.xml) file next to _PATH(main.xml) to see how that works. 
+    </p>
+    <p>
+        The service may call on some components that are not contained in the
+        same tree but instead live in their own top level directories:
+    </p>
+    <ol>
+        <li>
+            <p>
+                _PATH(backend) contains the standalone
+                <a href="../../faq.html#wcontrol">workspace control</a> program
+                that is installed to the VMM nodes.
+            </p>
+        </li>
+        <li>
+            <p>
+                _PATH(pilot) contains the standalone
+                <a href="../../faq.html#wpilot">workspace pilot</a> which is
+                submitted to a local batch scheduler (in some deployments) in
+                order to reserve resources (VMMs).  <i><b>(advanced)</b></i>
+            </p>
+        </li>
+        <li>
+            <p>
+                _PATH(plugins) contains plugin implementations for the workspace
+                service.  These are broken out from the service tree mainly
+                because they require dependencies (such as Jython) that are
+                bulky and/or licensed in ways that may not be acceptable to
+                people that need pure BSD/Apache style licensings.
+                <i><b>(advanced)</b></i>
+            </p>
+        </li>
+    </ol>
+
+    _MINI_SEP
+    
+    <p>
+        Next thing to understand is the _PATH(messaging) directory.
+    </p>
+    <p>
+        While not necessary, the RM API (and the main workspace service
+        implementation of it) are intended to be used with a remote messaging
+        implementation.  Some kind of protocol which is implemented by some kind
+        of WS/REST/binary conventions and hosted by some kind of container
+        technology (in all likelihood).
+    </p>
+    <p>
+        The _PATH(messaging) directory contains two protocol implementations, each
+        of them run in the Axis based Globus 4.0.x Java container.  As you can
+        see from the subdirectories, the container glue and protocol implementations
+        are intertwined.  When making a new permutation of protocol and
+        container, you typically need to worry about both at the same time to
+        make it work.
+    </p>
+    <p>
+        The _PATH(messaging/gt4.0/java/stubs) directory contains the auto-generated
+        Axis stub classes that are used to marshall/demarshall the WSRF protocol
+        based Nimbus messages.
+    </p>
+    <p>
+        The _PATH(messaging/gt4.0/java/msgbridge) directory contains everything
+        necessary to actually take messages off the wire, initially consume
+        them, and translate them into RM API calls.
+    </p>
+    <p>
+        The _PATH(messaging/gt4.0-elastic) directory contains similar things for the
+        EC2 WS protocol hosted in the Globus 4.0.x Java container.
+    </p>
+    <p>
+        The _PATH(messaging/gt4.0/java/gar-builder) directory contains the
+        scripts that produce the "final
+        packaging."  That is, this is the master directory for building a
+        "GAR" file which is what is actually deployed into the Globus 4.0.x Java
+        container.  Both the WSRF and "elastic" interfaces are stuffed into
+        this GAR creation process, as well as any dependency (i.e., the RM API
+        and any of its dependencies ... and the workspace service and any of
+        its dependencies).
+    </p>
+    <p>
+        So the final product for the service (the GAR files) that is deployed
+        is something of an onion.  The layers around the outside are very
+        specific to the deployment and wire technology but as you peel things
+        away you become more and more generic.
+    </p>
+
+    <p>
+        A related thing to understand is that the initialization sequence works
+        in the same way.  The container boots, the Axis service is initialized
+        (because the "loadOnStartup" configuration is true), the service is tied
+        in with the container's JNDI system, a JNDI configuration points to the
+        Spring configuration, and then the Spring configuration takes over.  99%
+        of the configuration is done via Spring, but something needs to kick
+        everything off and via Container->JNDI is how it works.
+    </p>
+
+    _MINI_SEP
+
+    <p>
+        Next up, something needs to call the service.  The
+        _PATH(service/client/java/source) directory is where all of the client code
+        lives (EC2 clients work too).
+    </p>
+    <p>
+        Navigate to _PATH(service/client/java/source/src/org/globus/workspace).
+        There are several different layers here.  _PATH(client_core) is where all of
+        the code is to make actual calls to the service, it is a collection of
+        convenience wrappers around the web services stubs and the returned
+        data structures (and notifications/polling helpers).  These wrappers
+        make it easier to use the different operations as "building blocks" for
+        higher level actions.
+    </p>
+
+    <p>
+        The _PATH(client) package (sibling of _PATH(client_core)) is where the "reference
+        client" is implemented.  This is a commandline wrapper around the
+        _PATH(client_core) basic actions.  It has several "modes" which are each an
+        "orchestration" of various actions.  This client can handle any operation
+        the service supports and provides many useful utilities for getting
+        things done in the expected order ("create, then monitor", etc.).
+    </p>
+
+    <p>
+        Both the _PATH(client) and the _PATH(client_core) classes are ripe for
+        inserting into portals and other new types of clients.
+    </p>
+
+    <p>
+        The _PATH(cloud) package, however, is not geared towards programmatic
+        re-use (parts of it could be, but they were not intentionally written
+        for this).  This is another commandline program but
+        it is fully geared towards human use.  There are many default parameters
+        and behaviors that are
+        simplifications of what is possible with the Nimbus API, but definitely
+        right for users that are getting started or only have the typical needs.
+    </p>
+
+    <p>
+        The cloud client is packaged separately, and this Java code is in it,
+        it gets installed (via "ant deploy" in the _PATH(service/client/java/source)
+        directory) into the embedded GLOBUS_LOCATION in the cloud client
+        (_PATH(lib/globus)).
+    </p>
+
+    _MINI_SEP
+
+    <p>
+        The _PATH(autoconfiguaration) directory contains programs and scripts that
+        run the configuration wizard for installing <i>and maintaining</i> the
+        server side, the "administrator wizard".
+    </p>
+    <p>
+        This is
+        contained in the GAR files when Nimbus is installed to a container, it
+        is installed into the _PATH($GLOBUS_LOCATION/share/nimbus-autoconfig)
+        directory and is a standalone thing.  It asks questions and can alter
+        some of the configuration files, its sole purpose is to make it so the
+        user has to understand less to get things up and running initially.
+    </p>
+
+    <p>
+        The _PATH(autocontainer) directory contains
+        a standalone system for making the, you guessed it,
+        <a href="../../faq.html#autocontainer">AutoContainer</a>.  To make a new
+        release, run the
+        _PATH(autocontainer/lib/prepare-for-auto-container-release.sh) script.
+    </p>
+
+    <p>
+        That script will download a new Globus container (if the tarball is not
+        already present) and adjust some of the config files to make them ready
+        to be autoconfigured when the user downloads and runs the AutoContainer.
+        This ensures we're never storing the ~20MB Globus container itself in
+        source control.
+    </p>
+
+    <p>
+        The _PATH(autocommon) directory contains libraries and code that are
+        used by both the AutoContainer and the administrator wizard.
+    </p>
+
+    _MINI_SEP
+
+    <p>
+        That's the bird's eye view.  Ask questions about any of this on the
+        <a href="_NIMBUS_WEBSITE/contact/#dev">developer's list</a>.
+    </p>
+    <br />
+    <br />
+
+
+<br />
+<a name="change-wsdl"> </a>
+<h2>Changing the WSDL _NAMELINK(change-wsdl)</h2>
+
+<p>
+    This section discusses making changes to WSDL and generating new stub
+    classes, etc.  It assumes you have some understanding of the layers and
+    source code directions discussed in the <a href="#code-layout">code layout
+    section</a>.
+</p>
+
+<p>
+    First run _PATH(bin/all-clean.sh).
+</p>
+<p>
+    Then edit the "compact" WSDL in the
+    _PATH(messaging/gt4.0/schema/compact/workspace/) directory.  Note that the
+    EC2 WSDL works the same way but we are using the WSRF ones as an example.
+</p>
+<p>
+    Compact WSDL
+    is a Globus convention, it facilitates an inheritance mechanism that allows
+    the final WSDL to contain common WSRF/WSN related operations.  You edit the
+    compact WSDL only and then a program will "compile" that into the real
+    WSDL/schemas.
+</p>
+
+<p>
+    Once you have edited something, the changes will not be picked up by the
+    build system until you have run "ant" in the
+    _PATH(messaging/gt4.0/schema/compact/) directory.  This triggers the default
+    ant target of "copyToDeployableComponent" which will take the "compact" files
+    and put the (generated) real WSDL/schemas under the
+    _PATH(messaging/gt4.0/schema/dist/) directory.
+</p>
+
+<p>
+    That directory is what the build system uses to generate the stubs (the
+    Axis classes that are actually referenced by the Nimbus code for
+    un/marshalling of the web services).  So, because you ran
+    _PATH(bin/all-clean.sh) already, running _PATH(bin/all-build.sh) now will
+    generate stubs with the changes you have added.
+</p>
+
+<p>
+    Unless you added something entirely new, the corresponding messaging layer
+    (e.g., _PATH(messaging/gt4.0/java/msgbridge)) will probably not compile
+    now.  So the next step is to move up the stack and make it work.
+</p>
+
+</div>
+
+_NIMBUS_CENTER2_COLUMN_END
+_NIMBUS_FOOTER1
+_NIMBUS_FOOTER2
+_NIMBUS_FOOTER3

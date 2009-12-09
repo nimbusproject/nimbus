@@ -1,0 +1,63 @@
+m4_include(/mcs/m4/worksp.lib.m4)
+_NIMBUS_HEADER(WSRF Interfaces)
+_NIMBUS_HEADER2(n,n,y,n,n,n,n)
+_NIMBUS_INTERFACES_WARNING
+_NIMBUS_LEFT2_COLUMN
+_NIMBUS_LEFT2_INTERFACES_SIDEBAR(n,n,n,n,n,y,n)
+_NIMBUS_LEFT2_COLUMN_END
+_NIMBUS_CENTER2_COLUMN
+_NIMBUS_TP2_2_DEPRECATED
+
+<a name="service"></a>
+
+<h2>Workspace Group Service</h2>
+
+<p>
+    The group service allows a client to manage a set of workspaces that were
+    deployed as a group.
+</p>
+
+<p>
+    See the main interfaces page for an 
+    <a href="index.html#groupoverview">overview of group requests</a>.
+</p>
+
+<p>
+    The same operations listed on the <a href="service.html">service</a> page
+    apply here.  The main differences are:
+</p>
+
+<ul>
+    <li>The group service will apply the operation to all remaining members
+        of the group.
+        <br />
+        <b>This includes WSRF resource destruction</b>.
+        <br /><br />
+    </li>
+    <li>The group service WSRF resources have no resource properties.</li>
+</ul>
+
+<p>
+    As explained in the <a href="index.html#groupoverview">group overview</a>:
+    if there is an error with an operation on one of the group members, this
+    is noted in a return fault along with all of the successes. <b>There
+    are no error backout semantics</b> (only during factory group-create, which
+    is an all or nothing process).  A group operation is simply a shortcut
+    for a regular workspace service operation invoked simultaneously on
+    <b>N</b> workspace EPRs.
+</p>
+
+<p>
+    The WSDL can be
+    <a href="../examples/compact/workspace_group_port_type_compact.wsdl">viewed
+    online</a>.
+</p>
+
+
+_NIMBUS_CENTER2_COLUMN_END
+_NIMBUS_FOOTER1
+_NIMBUS_FOOTER2
+_NIMBUS_FOOTER3
+
+
+

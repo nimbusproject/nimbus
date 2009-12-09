@@ -1,0 +1,89 @@
+
+##################### GRID-PROXY-INIT #########################
+
+mylaptop$ ./bin/grid-proxy-init.sh
+Your identity: DC=org,DC=doegrids,OU=People,CN=Timothy Freeman 964650
+Enter GRID pass phrase for this identity:           
+Creating proxy, please wait...
+Proxy verify OK
+Your proxy is valid until Tue Jul 01 05:02:03 CDT 2008
+
+
+
+
+####################### FIND YOUR DN ##########################
+
+mylaptop$  ./bin/cloud-client.sh --security | grep Identity
+  - Identity: '/DC=org/DC=doegrids/OU=People/CN=Timothy Freeman 964650'
+
+
+
+
+############## ADD DN TO CLUSTER ACCESS POLICY ################
+
+mylaptop$  [[favorite-text-editor]] samples/base-cluster.xml
+
+## (Follow the example in base-cluster.xml, edit the "gridmap" part)
+
+
+
+######################### LAUNCH ##############################
+
+mylaptop$ ./bin/cloud-client.sh --run --hours 1 --cluster samples/base-cluster.xml
+
+SSH public keyfile contained tilde:
+  - '~/.ssh/id_rsa.pub' --> '/home/tim/.ssh/id_rsa.pub'
+
+SSH known_hosts contained tilde:
+  - '~/.ssh/known_hosts' --> '/home/tim/.ssh/known_hosts'
+
+Requesting cluster.
+  - head-node: image 'base-cluster-01.gz', 1 instance
+  - compute-nodes: image 'base-cluster-01.gz', 2 instances
+
+Workspace Factory Service:
+    https://cloudurl.edu:8443/wsrf/services/WorkspaceFactoryService
+
+Creating workspace "head-node"... done.
+  - 10.10.10.1 [ hostname1.cloudurl.edu ]
+
+Creating group "compute-nodes"... done.
+  - 10.10.10.2 [ hostname2.cloudurl.edu ]
+  - 10.10.10.3 [ hostname3.cloudurl.edu ]
+
+Launching cluster-001... done.
+
+Waiting for launch updates.
+  - cluster-001: all members are Running
+  - wrote reports to '/tmp/cloud-client/history/cluster-001/reports-vm'
+
+Waiting for context broker updates.
+  - cluster-001: contextualized
+  - wrote ctx summary to '/tmp/cloud-client/history/cluster-001/reports-ctx/CTX-OK.txt'
+  - wrote reports to '/tmp/cloud-client/history/cluster-001/reports-ctx'
+
+SSH trusts new key for hostname1.cloudurl.edu  [[ head-node ]]
+
+SSH trusts new key for hostname2.cloudurl.edu  [[ compute-nodes #0 ]]
+
+SSH trusts new key for hostname3.cloudurl.edu  [[ compute-nodes #1 ]]
+
+
+
+
+##################### TRUST THE CLUSTER #######################
+
+mylaptop$  scp -r root@hostname1.cloudurl.edu:certs/*  lib/certs/ 
+c50c0236.0                                 100% 1619     1.6KB/s   00:00
+
+
+mylaptop$ export X509_CERT_DIR=`pwd`/lib/certs
+
+mylaptop$ ./lib/check-trusted-certs.sh 
+Your X509_CERT_DIR environment variable has the embedded certificates directory defined. That's probably what you'd like to be the case.
+
+
+
+######## The End.
+
+

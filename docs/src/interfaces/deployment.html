@@ -1,0 +1,296 @@
+m4_include(/mcs/m4/worksp.lib.m4)
+_NIMBUS_HEADER(WSRF Interfaces)
+_NIMBUS_HEADER2(n,n,y,n,n,n,n)
+
+<style type="text/css">
+table.ssiimple {
+	border-width: 0 0 0 0;
+	border-spacing: 0;
+	border-style: none none none none;
+	border-color: gray gray gray gray;
+	border-collapse: separate;
+	background-color: white;
+}
+table.ssiimple td {
+	border-width: 0 0 0 0;
+	padding: 4px 4px 4px 4px;
+	border-style: inset inset inset inset;
+	border-color: gray gray gray gray;
+	background-color: white;
+    vertical-align: top;
+}
+
+</style>
+
+_NIMBUS_INTERFACES_WARNING
+_NIMBUS_LEFT2_COLUMN
+_NIMBUS_LEFT2_INTERFACES_SIDEBAR(n,n,y,n,n,n,n)
+_NIMBUS_LEFT2_COLUMN_END
+_NIMBUS_CENTER2_COLUMN
+_NIMBUS_TP2_2_DEPRECATED
+
+<a name="deployment"></a>
+
+<h2>Workspace Deployment</h2>
+
+<p>
+    Because a workspace can be deployed in the context of many different
+    resource allocations (for discussion, see the
+    <a href="_NIMBUS_WEBSITE/files/VW_ScientificProgrammingJournal06.pdf">Virtual
+    Workspaces</a> paper, section 4),
+    a separate <a href="../examples/compact/negotiable.xsd">schema</a> is
+    used to both request and describe deployment-only parameters.
+</p>
+
+<p>
+    When passed as a parameter to the <a href="factory.html">factory</a> create
+    operation, this is treated as a deployment request and the deployment type
+    can be filled in with ranges of values or exact requests.
+</p>
+<p>
+    However, once deployed only exact values are used and the type is exposed
+    as a workspace resource property. If a deployment request is rejected,
+    the factory service will return a fault (see the
+    <a href="factory.html">factory</a> interfaces).
+</p>
+
+<p>
+    In future versions an authorized client will be able to request
+    adjustments in the resouce allocation during deployment by setting the
+    resource property. As a further refinement, a client will be able to
+    negotiate the resource allocation.
+</p>
+
+<p>A deployment type consists of</p>
+
+<table class="ssiimple">
+    <tr>
+        <td><a href="#time">DeploymentTime</a></td>
+        <td>Requested running time</td>
+    </tr>
+    <tr>
+        <td><a href="#state">WorkspaceState</a></td>
+        <td>Requested starting state</td>
+    </tr>
+    <tr>
+        <td><a href="#allocation">ResourceAllocation</a>&nbsp;&nbsp;&nbsp;</td>
+        <td>Requested resource allocation</td>
+    </tr>
+    <tr>
+        <td><a href="#number">NodeNumber</a></td>
+        <td>Requested number of workspaces</td>
+    </tr>
+    <tr>
+        <td><a href="#shutdown">ShutdownMechanism</a></td>
+        <td>Default shutdown mechanism (optional)</td>
+    </tr>
+    <tr>
+        <td><a href="#postshutdown">PostShutdown</a></td>
+        <td>Post shutdown requests (optional)</td>
+    </tr>
+</table>
+
+<p><img alt="WorkspaceDeployment Type"
+        src="../img/WorkspaceDeployment.png"/></p>
+
+<p>
+    You can view the WorkspaceDeployment_Type definition online in the
+    <a href="../examples/compact/negotiable.xsd">deployment schema</a>.
+    You can also view a simple
+    <a href="../examples/sample-deployment-request.xml">sample deployment
+    request</a> that is installed with this version of the workspace
+    client.
+</p>
+        
+<hr />
+
+<a name="time"></a>
+
+<p>
+    The <b>DeploymentTime</b> element is an xsd duration value that in the
+    factory create call represents the requested <i>running time</i> of the VM.
+    This is not the duration until the WSRF resource is terminated, just the
+    time from the first start to the last shutdown.  This request is filtered
+    through factory duration policies (see the
+    <a href="factory.html">factory</a> page).  When used in a workspace RP,
+    this duration is the running time left in the current allocation (in this
+    version this part of the RP is <b>not</b> currently updated).
+</p>
+
+<hr />
+
+<a name="state"></a>
+
+<p>
+    The <b>WorkspaceState</b> element specifies the different states a
+    workspace can be in <i>during deployment</i>.  When specified in the
+    request, it is a request for the service to only advance the workspace
+    deployment to that specified state (default is <i>Running</i>).  When
+    specified as the workspace resource property, that signals the current
+    state.
+</p>
+
+<p>The WorkspaceState enumeration has these values:</p>
+
+<ul>
+    <li>
+        <p><i>Unstaged</i> - The workspace's files are not staged to the site
+        (within the trusted computing base (<b>TCB</b>)).</p>
+    </li>
+    <li>
+        <p><i>Unpropagated</i> - The workspace's files are staged to the site
+        (within the trusted computing base (<b>TCB</b>)).</p>
+    </li>
+    <li>
+        <p><i>Propagated</i> - The workspace's files are staged to the physical
+        hypervisor node where the workspace will be instantiated.  This
+        state can be reached <i>before</i> or <i>after</i> the workspace is
+        running.  For example, if a workspace is shutdown or serialized, it
+        moves back to the Propagated state.</p>
+    </li>
+    <li>
+        <p><i>Running</i> - The VM is running.</p>
+    </li>
+    <li>
+        <p><i>Paused</i> - The VM is unscheduled from the VMM, but not
+        serialized.</p>
+    </li>
+    <li>
+        <p><i>TransportReady</i> - The workspace's files are packaged for
+        transport after running and accessible from outside the TCB.  This
+        is different than Unpropagated: in the future it will imply that
+        file digests have been taken and signatures applied to metadata
+        if needed.</p>
+    </li>
+    <li>
+        <p><i>StagedOut</i> - The workspace's files have been staged off-site,
+        this is the final state possible in a 'normal' lifecycle.</p>
+    </li>
+    <li>
+        <p><i>Corrupted</i> - A change to this state will be accompanied
+        by a fault or server side error.</p>
+    </li>
+    <li>
+        <p><i>Cancelled</i> - A change to this state implies the WSRF resource
+        representing the workspace's state is being destroyed, along with all
+        remaining artifacts that may have been left on the VMM node.</p>
+    </li>
+</ul>
+
+<hr />
+
+<a name="allocation"></a>
+
+<p>
+    The <b>ResourceAllocation</b> element is used to request and describe
+    allocations such as the VM's memory, CPU percentage, and extra storage
+    requirements.  The storage and bandwidth elements reference logical names
+    in the workspace metadata (these are not currently supported, so we limit
+    explanation).
+</p>
+
+<p>
+    Only the <i>IndividualPhysicalMemory</i> request in the ResourceAllocation
+    element is supported in this version. Client resource property modification
+    that propagates changes to the workspace during deployment is not supported
+    in this version.
+</p>
+
+<hr />
+
+<a name="number"></a>
+
+<p>
+    The <b>NodeNumber</b> element is used to request that more than one
+    workspace (a group request).  The rest of the deployment request is
+    taken to be for <b>each</b> of the group members.  If the client for
+    example requests 2G of memory in ResourceAllocation, that is not for
+    all members of the group, but for each workspace.
+</p>
+
+<p>
+    For more information on group support, see the main
+    <a href="index.html">interfaces</a> page and the 
+    <a href="groupservice.html">group service</a> page.
+</p>
+
+<hr />
+        
+<a name="shutdown"></a>
+<p>
+    The optional <b>ShutdownMechanism</b> element is used to request that when
+    the running time is over, the workspace be shutdown in a different way
+    than normal.  Normally the workspace is shutdown gracefully and
+    unpropagated.  The optional values of ShutdownMechanism are:
+</p>
+
+<ul>
+    <li>
+        Serialize - Serialize will cause the VM's state, including RAM, to be
+        stored into files and then they are unpropagated.  This is not
+        supported in current implementation (because of the current single-file
+        propagation limitation).
+    </li>
+    <li>
+        Trash - Trash is a useful way to end the workspace.  No files are
+        unpropagated and the VM is not shutdown gracefully.  It is simply
+        evicted.  In cases where you are using many workspaces as "worker"
+        or "compute" nodes in a virtual cluster, this is the best way to
+        end the deployment.  The next time the virtual cluster is needed,
+        the compute nodes are simply started again from the template workspace.
+    </li>
+</ul>
+
+<hr />
+
+<a name="postshutdown"></a>
+<p>
+    The optional <b>PostShutdown</b> tasks element currently only contains
+    <b>rootPartitionUnpropagationTarget</b>.  This is for specifying an
+    alternate URL for unpropagation.  You can also specify this in a late
+    binding way by calling on the shutdown-save operation with an alternate
+    URL (see the reference client documentation for --shutdown-save).
+</p>
+
+<p>
+    If it is a group request (and hence starting from the same template image),
+    then the workspace ID# will be appended on the end of each file to
+    differentiate the images after running. 
+</p>
+
+<hr />
+        
+<p>
+    For a full discussion of the WorkspaceDeployment and its role in the
+    overall workspace architecture, see the
+    <a href="_NIMBUS_WEBSITE/files/VW_ScientificProgrammingJournal06.pdf">Virtual
+    Workspaces</a> paper, sections 4 and 5.
+</p>
+
+<!-- this page intentionally left blank -->
+
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+
+_NIMBUS_CENTER2_COLUMN_END
+_NIMBUS_FOOTER1
+_NIMBUS_FOOTER2
+_NIMBUS_FOOTER3
+
+

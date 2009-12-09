@@ -1,0 +1,184 @@
+m4_include(/mcs/m4/worksp.lib.m4)
+_NIMBUS_HEADER(EC2 Client Notes)
+_NIMBUS_HEADER2(n,n,y,n,n,n,n)
+_NIMBUS_CENTER3_COLUMN
+_NIMBUS_TP2_2_DEPRECATED
+
+<h2>EC2 Client Notes (TP2.2)</h2>
+
+<p>
+    When using a cloud running the <a href="../faq.html#ec2-frontend">EC2
+    frontend</a>, you can download this
+    <a href="http://s3.amazonaws.com/ec2-downloads/ec2-api-tools-1.3-24159.zip">EC2
+    client</a> from Amazon or try a number of different client that are
+    <a href="http://www.google.com/search?hl=en&q=ec2%20client">out there</a>.
+</p>
+
+<p>
+    <i>NOTE</i>: Amazon EC2 upgrades happen without warning and so there is sometimes
+    a sync error between their default tools and the tools needed to work with
+    particular Nimbus elastic services.
+</p>
+<ul>
+    <li>
+        Nimbus TP2.2 supports the "2008-05-05" WSDL
+        (<a href="http://s3.amazonaws.com/ec2-downloads/ec2-api-tools-1.3-24159.zip">this EC2
+        client</a>).
+    </li>
+    <li>
+        The older Nimbus TP2.0 supports the "2008-02-01" WSDL
+        (<a href="http://s3.amazonaws.com/ec2-downloads/ec2-api-tools-1.3-19403.zip">this EC2
+        client</a>).
+    </li>
+    <li>
+        So <a href="http://s3.amazonaws.com/ec2-downloads/ec2-api-tools.zip">the
+        default client</a> may not always be the one to use.  See a specific cloud's
+        documentation for the definitive tools URL (for example, the
+        <a href="_clouds/nimbus.html">Nimbus cloud</a>).
+        And see
+        <a href="http://bugzilla.globus.org/globus/show_bug.cgi?id=6558">enhancement 6558</a>.
+    </li>
+</ul>
+
+<br />
+<hr />
+<p>
+    With the client from Amazon, you need to adjust the following environment variables
+    (using other clients, the configurations can vary).
+</p>
+<ul>
+    <li>
+        <i>EC2_HOME</i> - Set the base directory (such that $EC2_HOME/bin is valid)
+    </li>
+    <li>
+        <i>EC2_URL</i> - Set the service endpoint to the Nimbus based service
+    </li>
+    <li>
+        <i>EC2_CERT</i> - Set the public credential to your public .pem
+        based cert
+    </li>
+    <li>
+        <i>EC2_PRIVATE_KEY</i> - Set the private credential to an unencrypted
+        .pem based key
+    </li>
+</ul>
+
+<p>
+    Example:
+</p>
+_EXAMPLE_GENERICCMD_BEGIN
+export EC2_HOME=`pwd`
+_EXAMPLE_CMD_END
+_EXAMPLE_GENERICCMD_BEGIN
+export EC2_URL=https://HOST:PORT/wsrf/services/ElasticNimbusService
+_EXAMPLE_CMD_END
+_EXAMPLE_GENERICCMD_BEGIN
+export EC2_CERT=/tmp/ec2clientcert.pem
+_EXAMPLE_CMD_END
+_EXAMPLE_GENERICCMD_BEGIN
+export EC2_PRIVATE_KEY=/tmp/ec2clientkey.pem
+_EXAMPLE_CMD_END
+
+
+<p>
+    The URL for <i>EC2_URL</i> will be provided to you by an administrator or
+    some documentation
+    (<i>HOST:PORT</i> in the example
+    is a placeholder for an actual hostname and port number)
+</p>
+<p>
+   For example, see the
+    <a href="_SCIENCECLOUDS_WEBSITE/clouds/nimbus.html">Nimbus cloud</a>
+    docs for running EC2 clients.
+</p>
+<p>
+    If you have a problem, consult the
+    <a href="admin/troubleshooting.html">troubleshooting</a> guide.
+</p>
+
+<br />
+<hr />
+
+<p>
+    Before being able to launch an instance, you will need to register a keypair
+    like so:
+</p>
+<ul>
+<li>
+_EXAMPLE_GENERICCMD_BEGIN
+MYPUBKEY=`cat .ssh/id_rsa.pub`
+_EXAMPLE_CMD_END
+</li>
+<li>
+<p>
+    Check to make sure those contents look OK:
+</p>
+_EXAMPLE_GENERICCMD_BEGIN
+echo $MYPUBKEY
+_EXAMPLE_CMD_END
+</li>
+
+<li>
+<p>
+    Send the public key value to the service, labelling it "mykey"
+</p>
+_EXAMPLE_GENERICCMD_BEGIN
+ec2-add-keypair "mykey||$MYPUBKEY"
+_EXAMPLE_CMD_END
+</li>
+</ul>
+
+<hr />
+        
+<p>
+    List the available images in your personal directory:
+</p>
+_EXAMPLE_GENERICCMD_BEGIN
+ec2-describe-images
+_EXAMPLE_CMD_END
+
+<p>
+    Pick one, for example "hello-cloud".  And with the "-k" argument, use the
+    ssh key label you used above to register an ssh public key.
+</p>
+_EXAMPLE_GENERICCMD_BEGIN
+ec2-run-instances -k mykey hello-cloud
+_EXAMPLE_CMD_END
+
+<p>
+    Check status:
+</p>
+_EXAMPLE_GENERICCMD_BEGIN
+ec2-describe-instances
+_EXAMPLE_CMD_END
+
+<p>
+    After seeing 'pending' change to 'running', log in at the address printed:
+</p>
+_EXAMPLE_GENERICCMD_BEGIN
+ssh <b>root</b>@abc.def.com
+_EXAMPLE_CMD_END
+
+<p>
+    Terminate
+    using the "instance ID" printed when you first launched (and also available
+    from <i>ec2-describe-instances</i>).  It looks like "i-4662834e":
+</p>
+_EXAMPLE_GENERICCMD_BEGIN
+ec2-terminate-instances i-4662834e
+_EXAMPLE_CMD_END
+
+
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+        
+_NIMBUS_CENTER3_COLUMN_END
+_NIMBUS_FOOTER1
+_NIMBUS_FOOTER2
+_NIMBUS_FOOTER3

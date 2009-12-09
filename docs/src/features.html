@@ -1,0 +1,418 @@
+m4_include(/mcs/m4/worksp.lib.m4)
+_NIMBUS_HEADER(Features)
+_NIMBUS_HEADER2(n,n,y,n,n,n,n)
+_NIMBUS_LEFT2_COLUMN
+
+_NIMBUS_LEFT2_ABOUT_SIDEBAR(n,n,y,n)
+
+_NIMBUS_LEFT2_COLUMN_END
+_NIMBUS_CENTER2_COLUMN
+
+<h2>Major Features</h2>
+
+<div class="ulmoveleft">
+
+<ul>
+    <li>
+        <a name="remotedep"></a>
+        <h4>Remote deployment and lifecycle management of VMs _NAMELINK(remotedep)</h4>
+
+        <p>Nimbus has been developed in part within the Globus
+            Toolkit 4 framework and provides interfaces to VM management
+            functions based on the WSRF set of protocols.  There is also
+            an alternative implementation implementing Amazon EC2 WSDL.
+            (The underlying service implementation is protocol agnostic)
+        </p>
+
+        <p>
+            Nimbus clients can deploy, pause, restart and shutdown VMs.
+        </p>
+
+        <p>
+            On deployment, the client presents the workspace service with:
+        </p>
+        
+        <ol>
+            <li>
+                <i>meta-data</i> (containing a pointer to the VM
+                image to use as well as configuration information
+                such as networking)
+            </li>
+            <li>
+                <i>resource allocation</i> (specifying what resources:
+                deployment time, CPUs, memory, etc. should be assigned
+                to the VM)
+            </li>
+        </ol>
+        <p>
+            Once a request for VM deployment is accepted by the workspace
+            service, a client can inspect various VM properties (e.g., its
+            lifecycle state, time-to-live, the IP address assigned to a VM
+            on deployment, or the resources assigned to the VM) via WSRF
+            resource properties/notificaitons or polling (such as EC2
+            describe-instances).
+        </p>
+        <p>
+            Before deployment, clients can discover the properties of site
+            configurations (e.g. what VMM is being supported on the site)
+            and match them against the meta-data of workspaces they want to
+            deploy (which describe for example what VMM is required for the
+            workspace).
+        </p>
+    </li>
+
+    <li>
+        <a name="protocols"></a>
+        <h4>Multiple protocol support / Compartmentalized dependencies _NAMELINK(protocols)</h4>
+
+        <p>
+            The workspace service is an implementation of a strong "pure Java"
+            internal interface (see <a href="_NIMBUS_WEBSITE/faq/#rm-api">What is the RM
+            API</a>?) which allows multiple remote protocols to be supported as
+            well as differing underlying manager implementations.
+        </p>
+
+        <p>
+            There is currently one known manager implementation (the workspace
+            service) and two supported remote protocol sets:
+        </p>
+        <div class="uldonotmoveleft">
+        <ul>
+            <li>
+                <p>
+                <a href="http://www.oasis-open.org/committees/tc_home.php?wg_abbrev=wsrf">WSRF</a>
+                based: protocol implementation in longstanding use by previous
+                workspace services and clients including the cloud-client.
+                </p>
+            </li>
+            <li>
+                <p>
+                <a href="http://aws.amazon.com/ec2">EC2</a> based: clients
+                written for EC2 can be used with Nimbus installations.  For
+                more information, see <a href="#ec2-frontend">What is the EC2 frontend</a>?
+                </p>
+            </li>
+        </ul>
+
+        <p>
+            These protocols happen to both be Web Services based and both
+            run in the <a href="http://ws.apache.org/axis/">Apache Axis</a>
+            based GT Java container.  But neither thing is a necessity:
+        </p>
+        <ul>
+            <li>
+                <p>
+                There is nothing specific to web services based remote protocols
+                in the workspace service implementation, the messaging system
+                just needs to be able to speak to Java based libraries.
+                </p>
+            </li>
+            <li>
+                <p>
+                Workspace service dependencies have nothing to do with what
+                container it is running in, they are normal Java application
+                dependencies like
+                <a href="http://www.springframework.org/">Spring</a>,
+                <a href="http://ehcache.sourceforge.net/">ehcache</a>,
+                <a href="http://backport-jsr166.sourceforge.net/">backport-util-concurrent</a>,
+                and JDBC (currently using the embedded
+                <a href="http://db.apache.org/derby/">Derby</a> database).
+                </p>
+            </li>
+        </ul>
+        </div>
+    </li>
+
+    <li>
+        <a name="group"></a>
+        <h4>Flexible group management _NAMELINK(group)</h4>
+
+        <p>
+            The workspace service can start and manage groups of workspaces at
+            a time, as well as groups of groups ("ensembles") where each
+            group's VM images, resource allocation, duration, and node number
+            can be different. Groups and ensembles will be run in a
+            co-scheduled manner.  That is, all group/cluster members will be
+            scheduled to run at same time or none will run, even when using
+            best-effort schedulers (see the <a href="#pilot">pilot section</a>
+            below).
+        </p>
+
+        <p>
+            Support for auto-configuration of these clusters (see the cloud
+            <a href="clouds/clusters.html">clusters</a> page).
+        </p>
+    </li>
+
+
+    <li>
+        <a name="accounting"></a>
+        <h4>Per-client usage tracking _NAMELINK(accounting)</h4>
+
+        <p>
+            The service can track deployment time (both used and currently
+            reserved) on a per-client basis which can be used in
+            authorization decisions about subsequent deployments.  Clients
+            may query the service about their own usage history.
+        </p>
+    </li>
+
+    <li>
+        <a name="ana"></a>
+        <h4>Flexible request authentication and authorization _NAMELINK(ana)</h4>
+
+        <p>
+            The workspace service uses GSI to authenticate and authorize
+            creation requests. Among others, it allows a client to be authorized
+            based on VO/role information contained in the VOMS credentials
+            and attributes obtained via GridShib.  Authorization policies
+            can also be applied to networking request, VM image files,
+            resource request, and time used/reserved by the client.
+        </p>
+
+        <p>
+            An included authorization setup (not enabled by default) allows
+            for straightforward group management.  You can assign identities
+            to logical groups and then write policies about those groups.
+            You can set simultaneous reservation limits, reservation limits
+            that take past workspace usage into account, and detailed repository
+            node and path checks.
+        </p>
+    </li>
+    <li>
+        <a name="cloudadmin"></a>
+        <h4>Easy user management _NAMELINK(cloudadmin)</h4>
+
+        <p>
+            As of version TP2.1, an administrator wizard (<i>cloud-admin.sh</i>)
+            is provided to make adding and removing cloud users simple.  This
+            includes adjusting authorization policies and creating repository
+            directories with sample images, etc.  This is intended for the
+            "<a href="_NIMBUS_WEBSITE/faq/#defcloudkit">cloudkit</a>" setup and requires
+            the group management authorization described in the
+            <a href="#ana">previous section</a>.
+        </p>
+    </li>
+
+    <li>
+        <a name="config"></a>
+        <h4>Configuration management (deployment request) _NAMELINK(config)</h4>
+
+        <p>
+            Some configuration operations need to be finished at
+            deployment-time because they require information that becomes
+            available only late in the deployment process (such as network
+            address assignments, physical host assignments, etc.).
+        </p>
+        <p>
+            The workspace service provides optional mechanisms to carry out
+            such configuration management actions. Configuration actions
+            available are DHCP delivery of network assignments and arbitrary
+            file based customizations (mount + alter image).
+        </p>
+        <p>
+            Also see <a href="#ctx">one-click clusters</a>
+        </p>
+    </li>
+
+    <li>
+        <a name="ctx"></a>
+        <h4>One-click clusters (contextualization) _NAMELINK(ctx)</h4>
+
+        <p>
+            See the cloud <a href="clouds/clusters.html">clusters</a> page for
+            how auto-configuration of entire clusters (contextualization)
+            is supported by the science clouds.  This allows the cloud client
+            to launch "one-click" clusters whose nodes securely configure
+            themselves to operate in new network and security environments.
+        </p>
+    </li>
+
+    <li>
+        <a name="client"></a>
+        <h4>Workspace client _NAMELINK(client)</h4>
+
+        <p>
+            The workspace client allows authorized clients to access
+            all Workspace Service features. The current release contains
+            a Java reference implementation.
+        </p>
+    </li>
+
+    <li>
+        <a name="cloudclient"></a>
+        <h4>Cloud client _NAMELINK(cloudclient)</h4>
+
+        <p>
+            The workspace cloud client allows authorized clients to access
+            many Workspace Service features in a user friendly way.  It is
+            compatible with a certain configuration of the workspace service
+            and aims to get users up and running in a matter of minutes, even
+            from laptops, NATs, etc.
+        </p>
+        <p>
+            See the <a href="/clouds/">clouds page</a> as well as a
+            behind-the-scenes overview of the service
+            <a href="doc/cloud.html">cloud
+            configuration</a>.
+        </p>
+    </li>
+
+    <li>
+        <a name="net"></a>
+        <h4>VM network configuration (deployment request) _NAMELINK(net)</h4>
+
+        <p>
+            The workspace service allows a client to configure networking
+            for the VM accommodating several flexible options (allocating
+            new network address from a site pool, bridging an existing
+            address, etc.).
+        </p>
+        <p>
+            In particular, a client can request configuring a VM on startup
+            with several different NICs allocating different addresses from
+            different pools (e.g., public and private, thus implementing
+            the Edge Service requirement).
+        </p>
+        <p>
+            There are mechanisms for a site to set aside such address pools
+            for the VMs as well as tools intercepting the VM's DHCP requests
+            to deliver the right addresses.
+        </p>
+    </li>
+
+    <li>
+        <a name="backend"></a>
+        <h4>Xen backend plugin _NAMELINK(backend)</h4>
+
+        <p>
+            The current workspace backend plugin is for the Xen
+            hypervisor, an open source, efficient implementation.
+        </p>
+    </li>
+
+    <li>
+        <a name="lrm"></a>
+        <h4>Local resource management plugin _NAMELINK(lrm)</h4>
+
+        <p>
+            The workspace service provides a local resource manager with
+            the capability to manage a pool of nodes on which VMs are
+            deployed to accommodate the service deployment model
+            (as opposed to a batch deployment model).
+        </p>
+        <p>
+            To use it, the pool nodes are configured with a lightweight
+            Python management script called workspace-control.
+        </p>
+        <p>
+            Besides interfacing with Xen, workspace-control maps networking
+            requests to the proper bridge interfaces, controls file isolation
+            between different workspace instances, interfaces with ebtables
+            and DHCP for IP address delivery, and can accomplish local
+            transfers (file propagation from the WAN accessible image node)
+            in daemonized mode.
+        </p>
+    </li>
+
+
+    <li>
+        <a name="pilot"></a>
+        <h4>Non-invasive site scheduler integration _NAMELINK(pilot)</h4>
+
+        <p>
+            When using the local resource management <a href="#lrm">plugin</a>,
+            (the default), a set of VMM resources will be managed entirely by
+            the workspace service.
+            But it can alternatively be integrated with
+            a site's scheduler/resource manager (such as PBS) using the
+            <b>workspace pilot</b> program.
+        </p>
+        <p>
+            This allows a dual use grid cluster to be achieved: regular jobs
+            can run on a VMM node that hosting no guest VMs; but if the node
+            is allocated to the workspace service (at the service's request),
+            VMs can be used.  The site resource manager maintains full control
+            over the cluster and <i>does not need to be modified</i>.
+        </p>
+        <p>
+            Many safeguards are included to ensure nodes are cleanly
+            returned to their normal non-VM-hosting state, including protection
+            against the workspace service not being available, site (resource
+            manager based) early cancellation, node reboots, and to
+            provide a "worst case scenario" contingency it includes a
+            one-command "kill 9" facility for administrators.
+        </p>
+    </li>
+
+    <li>
+        <a name="fine"></a>
+        <h4>VM fine-grain resource usage enforcement (resource allocation) _NAMELINK(fine)</h4>
+
+        <p>
+            The workspace service allows the client to specify (ask for)
+            the resource allocation to be assigned to a VM and manage that
+            resource allocation during deployment. In the current release only
+            memory and deployment time are managed.
+        </p>
+
+    </li>
+
+    <!--
+    <li>
+        <a name="staging"></a>
+        <h4>Image staging adapters</h4>
+
+        <p>
+            Based on request from users we added adapter-based staging to
+            the workspace service; the adapters include support for HTTP GET
+            and the Globus Reliable File Transfer Service (RFT). The staging
+            mechanism can seamlessly handle delegation.
+        </p>
+    </li>
+    -->
+</ul>
+
+</div>
+
+<br />
+<br />
+
+<p>
+    For more details, see the current release's
+    <a href="index.html">documentation</a> and
+    the Nimbus <a href="_NIMBUS_WEBSITE/faq/">FAQ</a>.
+</p>
+
+<!-- This page intentionally left blank -->
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+
+
+_NIMBUS_CENTER2_COLUMN_END
+_NIMBUS_FOOTER1
+_NIMBUS_FOOTER2
+_NIMBUS_FOOTER3
+        

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VirtualWorkspace
+    xmlns="http://www.globus.org/2008/06/workspace/metadata"
+    xmlns:def="http://www.globus.org/2008/06/workspace/metadata/definition"
+    xmlns:log="http://www.globus.org/2008/06/workspace/metadata/logistics"
+    xmlns:jsdl="http://schemas.ggf.org/jsdl/2005/11/jsdl"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
+
+    <!-- name is an arbitrary URI -->
+    <name>http://example1/localhost/image</name>
+
+    <log:logistics>
+        <log:networking>
+            <log:nic>
+                <log:name>eth0</log:name>
+                <log:ipConfig>
+                    <log:acquisitionMethod>AllocateAndConfigure</log:acquisitionMethod>
+                </log:ipConfig>
+
+                <!--
+                The association string allows you to associate the NIC with
+                specific networking contexts (a common example is a string
+                which resolves to which physical NIC to bridge the virtual
+                NIC to; a simple scheme would be 'public' vs. 'private'.
+                Another example is VPN information).  A site will advertise
+                the available assocations in the workspace factory resource
+                properties (to query with the sample client, use the
+                factoryrp option).
+                -->
+                <log:association>public</log:association>
+            </log:nic>
+        </log:networking>
+    </log:logistics>
+
+    <def:definition>
+        <def:requirements>
+            <jsdl:CPUArchitecture>
+                <jsdl:CPUArchitectureName>x86</jsdl:CPUArchitectureName>
+            </jsdl:CPUArchitecture>
+            <def:VMM>
+                <def:type>Xen</def:type>
+                <def:version>3</def:version>
+            </def:VMM>
+        </def:requirements>
+        <def:diskCollection>
+            <def:rootVBD>
+                <!--
+                Relative path names like in this example will be resolved
+                relative to the deployment node's local image repository
+                -->
+                <def:location>file://ttylinux-xen</def:location>
+                <def:mountAs>sda1</def:mountAs>
+                <def:permissions>ReadWrite</def:permissions>
+            </def:rootVBD>
+        </def:diskCollection>
+    </def:definition>
+</VirtualWorkspace>

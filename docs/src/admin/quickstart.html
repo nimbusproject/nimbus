@@ -1,0 +1,1228 @@
+m4_include(/mcs/m4/worksp.lib.m4)
+_NIMBUS_HEADER(TP2.2 Admin Quickstart)
+_NIMBUS_HEADER2(n,n,y,n,n,n,n)
+_NIMBUS_LEFT2_COLUMN
+_NIMBUS_LEFT2_ADMIN_SIDEBAR(n,y,n,n,n)
+_NIMBUS_LEFT2_COLUMN_END
+_NIMBUS_CENTER2_COLUMN
+_NIMBUS_TP2_2_DEPRECATED
+
+<h2>Nimbus TP2.2 Admin Quickstart</h2>
+
+<p>
+    The quickstart assumes the services node you are working on is Linux or
+    some UNIX variant (such as OSX perhaps).  The Xen VMM nodes are required to
+    be Linux.  Most testing is carried out on Linux currently.
+</p>
+
+<p>
+    There are two system accounts involved:
+</p>
+<ul>
+    <li>
+        <p>
+            <b>privileged account</b> - Pick a privileged account to run the
+            remote client facing service.  A privileged account on the VMM nodes
+            is necessary as well.
+            This guide assumes the privileged account on the service node and
+            VMM nodes have the same name but that is not strictly necessary.
+        </p>
+        <p>
+            In this guide (especially in the command samples) we will refer
+            to an account of this type named <i>nimbus</i> with terminal
+            prompts like "<b>nimbus $</b>"
+        </p>
+    </li>
+    <li>
+        <p>
+            <b>superuser account</b> - The root account is necessary to install
+            dependencies on the VMM nodes (Xen, ebtables, etc.) and also to
+            install the Nimbus agent that lives on the VMM nodes (workspace
+            control).
+        </p>
+        <p>
+            In this guide (especially in the command samples) we will refer
+            to an account of this type named <i>root</i> with terminal
+            prompts like "<b>root #</b>"
+        </p>
+    </li>
+</ul>
+
+<p>
+    The quickstart is broken up into these steps:
+</p>
+
+<ul style="list-style: disc">
+    <li>
+        <p>
+            <a href="#part-I">Part I</a> - Install/verify dependencies
+        </p>
+        <ul style="list-style: disc">
+            <li>I.A. <a href="#part-Ia">Service container</a></li>
+            <li>I.B. <a href="#part-Ib">Xen</a></li>
+            <li>I.C. <a href="#part-Ic">Misc. libraries for the VMM nodes</a></li>
+        </ul>
+    </li>
+    <li>
+        <p>
+            <a href="#part-II">Part II</a> -
+            Install/verify the Nimbus service package
+        </p>
+        <ul style="list-style: disc">
+            <li>II.A. <a href="#part-IIa">Download and install</a></li>
+            <li>II.B. <a href="#part-IIb">Necessary configurations</a></li>
+            <li>II.C. <a href="#part-IIc">Test call</a></li>
+        </ul>
+    </li>
+    <li>
+        <p>
+            <a href="#part-III">Part III</a> - Install/verify workspace-control
+        </p>
+        <ul style="list-style: disc">
+            <li>III.A. <a href="#part-IIIa">Download and install</a></li>
+            <li>III.B. <a href="#part-IIIb">Necessary configurations</a></li>
+            <li>III.C. <a href="#part-IIIc">Testing</a></li>
+        </ul>
+    </li>
+    <li>
+        <p>
+            <a href="#part-IV">Part IV</a> - End to end test
+        </p>
+    </li>
+</ul>
+
+<br />
+
+
+
+
+
+<!--- ********************************************************************** -->
+<!--- ********************************************************************** -->
+<!--- ********************************************************************** -->
+
+
+
+
+
+<a name="part-I"> </a>
+<h2>Part I: Install/verify dependencies</h2>
+
+<ul>
+    <li style="list-style: disc">I.A. <a href="#part-Ia">Service container</a></li>
+    <li>I.B. <a href="#part-Ib">Xen</a></li>
+    <li>I.C. <a href="#part-Ic">Misc. libraries for the VMM nodes</a></li>
+</ul>
+
+<a name="auto-container"> </a>
+<a name="part-Ia"> </a>
+<h3>I.A. Service container _NAMELINK(part-Ia) _NAMELINK(auto-container)</h3>
+<p>
+    Currently Nimbus is deployed into a Globus 4.0.x Java container which is a
+    system built around the <a href="http://ws.apache.org/axis/">Apache Axis</a>
+    engine.
+</p>
+
+<p>
+    To get you started with this very quickly,
+    we provide something called the <b><i>AutoContainer</i></b> which is a
+    complete Globus Java web services core environment.  It comes with a setup
+    program that configures everything you need to <b>get a secure web services
+    container running from scratch in about a minute</b>.
+</p>
+<p>
+    This includes creating a new certificate authority, creating a new host
+    certificate, creating a new user certificate(s), and adjusting relevant
+    configuration files. 
+</p>
+
+<p><i>Other (more time consuming) approaches:</i></p>
+<ul>
+    <li>
+        If you are an intermediate Globus user, you may want to check out
+        <a href="reference.html#manual-container">this section</a> of the
+        reference manual for a more manual approach.
+    </li>
+    <li>
+        If you are a veteran Globus user, you will probably already have a Java
+        web services environment set up with security somewhere and can
+        skip this section altogether.
+    </li>
+</ul>
+
+<a name="acquire-auto-container"> </a>
+<h4>* Acquire the AutoContainer: _NAMELINK(acquire-auto-container)</h4>
+
+<p>
+    On the <a href="_NIMBUS_WEBSITE/downloads/">downloads</a> page is a recent version of the
+    AutoContainer.
+</p>
+
+<a name="run-auto-container"> </a>
+<h4>* Run the AutoContainer: _NAMELINK(run-auto-container)</h4>
+
+<p>
+    In the following steps, make sure you've expanded the directory to the
+    place you want to leave it (absolute paths will be used for some
+    configurations).
+</p>
+
+_EXAMPLE_CMD_BEGIN
+tar xzf autocontainer-GT4.0.8-v1.0.tar.gz
+_EXAMPLE_CMD_END
+
+_EXAMPLE_CMD_BEGIN
+cd autocontainer
+_EXAMPLE_CMD_END
+
+_EXAMPLE_CMD_BEGIN
+./bin/setup-container.sh
+_EXAMPLE_CMD_END
+
+<p>
+    That's it.  The program will instruct you on any other necessary steps.
+</p>
+<p>
+    You'll end up being directed to run a test command whose output will look
+    something like this if everything is set up:
+</p>
+_EXAMPLE_CMD_BEGIN
+/somewhere/autocontainer/bin/test-container.sh
+_EXAMPLE_CMD_END
+<div class="screen"><pre>
+Got notification with value: 3
+Counter has value: 3
+Got notification with value: 13</pre>
+</div>
+
+
+<!--- ********************************************************************** -->
+<!--- ********************************************************************** -->
+<!--- ********************************************************************** -->
+
+
+
+<a name="part-Ib"> </a>
+<h3>I.B. Xen _NAMELINK(part-Ib)</h3>
+<p>
+    The workspace service manages <a href="http://www.xen.org">Xen</a> VMs
+    (KVM on its way).
+</p>
+<p>
+    The workspace service itself does not need to run on a Xen node.  You
+    must pick VMM nodes to install Xen on, the workspace service will manage
+    these.  For the quickstart, pick just one node to install and test with.
+    When all goes well, add more into the pool of VMMs the workspace service
+    can send work to.
+</p>
+<p>
+    You need to install Xen and get a basic VM running with bridged networking.
+</p>
+<p>
+    Nimbus has been most heavily tested with the Xen 3.1 series although it
+    is known to be working with 3.2 (this may require the "tap:aio" configuration
+    in workspace-control's "worksp.conf" configuration file).  There is no
+    information yet about Nimbus on the new/upcoming Xen 3.3 series.
+</p>
+
+<p>
+    You can actually put off the whole Xen step until later if you just want to evaluate
+    the Nimbus clients and services:  right out of the box Nimbus makes "fake"
+    calls to workspace control (which is the agent that actually manages things
+    on the VMM nodes).  This allows the service side to be tested independently
+    of the VMM.  You "join them up" by turning off the "fake" switch when you're
+    ready to do end to end testing.
+</p>
+
+<a name="acquire-install-xen"> </a>
+<h4>* Acquire and install Xen: _NAMELINK(acquire-install-xen)</h4>
+
+<p>
+    Your Linux distribution might have good support for Xen (Debian/Ubuntu,
+    RedHat, Gentoo, SUSE, etc.) in which case it is best to defer to
+    distribution specific notes about how to get Xen up and running (with
+    bridged networking).
+</p>
+<p>
+    If your Linux distribution doesn't support Xen well or you are having
+    some inexplicable problem, you can always try installing from source
+    or binary, starting at <a href="http://xen.org/">http://xen.org/</a>
+</p>
+
+<a name="test-xen"> </a>
+<h4>* Test Xen: _NAMELINK(test-xen)</h4>
+
+<p>
+    You can test Xen with any Xen VM image, mostly.  In this guide we will use a
+    small and simple VM image as an example.  Look
+    <a href="_SCIENCECLOUDS_WEBSITE/marketplace/#other">here</a> for some
+    ideas about where to find Xen VM images.  You can also create them from
+    scratch of course, if you have the time.
+</p>
+
+<p>
+    In particular, we will be using a ttylinux-based image. ttylinux is a very
+    small, yet functional, Linux distribution requiring only around 4 MB.
+    Visit the <a href="http://www.minimalinux.org/ttylinux/">ttylinux</a>
+    home page for a list of some of its many nice features.
+</p>
+
+<p>
+    You can download a tarball containg the image
+    <a href="_NIMBUS_WEBSITE/downloads/ttylinux-xen.tgz">here</a>.
+    This directory should contain the following files:
+</p>
+<ul>
+    <li>
+        ttylinux-xen: The VM image
+    </li>
+    <li>
+        ttylinux-xen.conf: A sample Xen configuration for the VM image
+    </li>
+</ul>
+
+<p>
+    Take into account that the provided ttylinux image is not the exact same
+    image you can download from the ttylinux home page. It is preconfigured
+    to obtain a network address through DHCP, and depends on a different root
+    device than a regular ttylinux image (to make the image Xen-friendlier).
+</p>
+
+<p>
+    Test the image using the provided Xen configuration file. First of all, make
+    sure you replace the values of the kernel and disk parameters inside the
+    file with appropriate values. In particular, you should point kernel to
+    your Xen guest kernel and disk to the location of the ttylinux-xen file.
+    The contents of the configuration file should look something like this:
+</p>
+
+<div class="screen"><pre>
+kernel = "/boot/vmlinuz-2.6-xen"
+memory = 64
+name = "ttylinux"
+disk = ['file:/root/ttylinux-xen,sda1,w']
+root = "/dev/sda1 ro"
+vif = ['']</pre>
+</div>
+<p>
+    To test the image, run the following:
+</p>
+
+
+_EXAMPLE_ROOTCMD_BEGIN
+xm create ttylinux-xen.conf -c
+_EXAMPLE_CMD_END
+
+<p>
+    You should see ttylinux boot messages, followed by a login prompt. You can
+    log in using user 'root' and password 'root'. You can use ifconfig to check
+    that the networking interface (eth0) is correctly setup. If you do not have
+    a DHCP server, you can also use ifconfig to configure eth0 with a static
+    IP address. Once the network is correctly set up, you should be able to
+    ping out to some other machine besides dom0 and from that other machine
+    be able to ping this address. Note that you should do all this just for
+    the purposes of verifying that the image works correctly.
+</p>
+<p>
+    Keep the image configured to obtain a network address automatically via
+    DHCP (even if your network doesn't have a DHCP server), as the Workspace
+    Service will use DHCP to dynamically set up networking in it.
+</p>
+<p>
+    <b>Note again</b>: most Xen documentation you will find online about
+    testing and troubleshooting the install
+    is <i>valid</i> in this situation because you are not doing anything
+    specifically related to Nimbus here.
+</p>
+
+<!--- ********************************************************************** -->
+<!--- ********************************************************************** -->
+<!--- ********************************************************************** -->
+
+
+
+
+<a name="part-Ic"> </a>
+<h3>I.C. Misc. libraries for the VMM nodes _NAMELINK(part-Ic)</h3>
+<p>
+    There are a few libraries needed on the VMM nodes before workspace control
+    will work.
+</p>
+
+<p>
+    The <a href="http://www.isc.org/index.pl?/sw/dhcp/" target="_top">ISC
+    DHCP server</a> (or DHCP server with compatible conf file)
+    and <a href="http://ebtables.sourceforge.net/" target="_top">ebtables</a>
+    are required to be running on each hypervisor node.
+</p>
+
+<p>
+    Any recent version of each package should be compatible, the scripts
+    distributed with workspace control that automate the configurations were
+    tested with ISC DHCP 3.0.3 and ebtables 2.0.6 userspace tools.
+</p>
+
+<p>
+    For more information on why this software is now necessary and
+    how it will not interfere with a site's pre-existing DHCP server, see
+    <a href="reference.html#backend-config-invm-networking">the
+    network configuration details section</a> in the reference guide.
+</p>
+
+<p>
+    Since these two pieces of software are relatively common, they may
+    already be present on your hypervisor nodes via the package management
+    system.  Check your distribution tools  for packages called
+    <i>dhcp</i> (ISC DHCP server) and <i>ebtables</i>. You can also check
+    for the existence of <i>/sbin/ebtables</i> or <i>/usr/sbin/ebtables</i>
+    (for ebtables) and any of the following files for the DHCP server:
+</p>
+
+<ul>
+    <li>
+        <p>
+            <i>/etc/dhcp/dhcpd.conf</i>
+        </p>
+    </li>
+
+    <li>
+        <p>
+            <i>/etc/dhcp3/dhcpd.conf</i>
+        </p>
+    </li>
+
+    <li>
+        <p>
+            <i>/etc/init.d/dhcpd</i>
+        </p>
+    </li>
+
+    <li>
+        <p>
+            <i>/etc/init.d/dhcp3-server</i>
+        </p>
+    </li>
+</ul>
+
+<p>
+    If these software packages are not installed, all major Linux distributions
+    include them and you should be able to easily install them with your package
+    management system.  For example, "rpm -ihv dhcp-*.rpm", "apt-get install
+    dhcp", "emerge dhcp", etc.  And similarly for   ebtables.
+</p>
+
+<p>
+    ebtables requires kernel support in dom0, the default Xen kernel
+    includes this support.  If your dom0 kernel does not include these
+    for some reason, the options to enable are under Networking ::
+    Networking options :: Network packet filtering :: Bridge Netfilter
+    Configuration :: Ethernet Bridge Tables
+</p>
+
+<p>
+    workspace-control also requires
+    <a href="http://www.courtesan.com/sudo/">sudo</a> and Python 2.3+ on all
+    VMM nodes under the control of the Workspace Service.
+</p>
+
+
+
+<!--- ********************************************************************** -->
+<!--- ********************************************************************** -->
+<!--- ********************************************************************** -->
+
+
+
+
+<a name="part-Id"> </a>
+<h3>I.D. SSH _NAMELINK(part-Id)</h3>
+<p>
+    Finally, the privileged account on the service node needs to be able to
+    SSH freely to the VMM nodes (without needing a password).  And vice versa,
+    the privileged account on the VMM nodes needs to be able to freely SSH
+    back to the service nodes to deliver notifications.
+</p>
+
+<p>
+    You will be given the opportunity to get this right later during the service
+    auto-configuration steps.  The relevant security setups will be tested
+    interactively, making sure you get this right.
+</p>
+
+
+<!--- ********************************************************************** -->
+<!--- ********************************************************************** -->
+<!--- ********************************************************************** -->
+
+
+<br />
+        
+<a name="part-II"> </a>
+<h2>Part II: Install/verify the Nimbus service package _NAMELINK(part-II)</h2>
+
+<ul style="list-style: disc">
+    <li>II.A. <a href="#part-IIa">Download and install</a></li>
+    <li>II.B. <a href="#part-IIb">Necessary configurations</a></li>
+    <li>II.C. <a href="#part-IIc">Test call</a></li>
+</ul>
+
+
+
+<!--- ********************************************************************** -->
+<!--- ********************************************************************** -->
+<!--- ********************************************************************** -->
+
+
+
+<a name="part-IIa"> </a>
+<h3>II.A. Download and install _NAMELINK(part-IIa)</h3>
+
+<h4>* Retrieve and unpack:</h4>
+<p>
+    Grab the main Nimbus archive from the <a href="_NIMBUS_WEBSITE/downloads">downloads</a>
+    page and unpack the archive:
+</p>
+
+_EXAMPLE_CMD_BEGIN
+wget http://workspace.globus.org/downloads/nimbus-TP2.2.tar.gz
+_EXAMPLE_CMD_END
+
+_EXAMPLE_CMD_BEGIN
+tar xzf nimbus-TP2.2.tar.gz
+_EXAMPLE_CMD_END
+
+<a name="set-gl"> </a>
+<h4>* Set the target container: _NAMELINK(set-gl)</h4>
+<p>
+    Now navigate into the new directory and set the "GLOBUS_LOCATION"
+    variable to the target container directory you installed above:
+</p>
+
+_EXAMPLE_CMD_BEGIN
+cd nimbus-TP2.2
+_EXAMPLE_CMD_END
+
+_EXAMPLE_CMD_BEGIN
+export GLOBUS_LOCATION=/path/to/globus_location
+_EXAMPLE_CMD_END
+
+<p>
+    If you installed the AutoContainer, this would look something like this: 
+</p>
+_EXAMPLE_CMD_BEGIN
+export GLOBUS_LOCATION=/somewhere/autocontainer/gt/ws-core-4.0.8/
+_EXAMPLE_CMD_END
+
+<p>
+    Alternatively you could get that same GLOBUS_LOCATION set in your
+    environment by sourcing this file:
+</p>
+_EXAMPLE_CMD_BEGIN
+source /somewhere/autocontainer/bin/source-me.sh
+_EXAMPLE_CMD_END
+<p>
+    (a quick examination of the <i>source-me.sh</i> script will reveal that
+    there is not much to that)
+</p>
+
+<a name="build-install"> </a>
+<h4>* Build and install: _NAMELINK(build-install)</h4>
+<p>
+    There are several options in the "bin" directory (see the toplevel
+    README file).  Choosing "./bin/all-build-and-install.sh" is all you
+    should need to do.
+</p>
+
+_EXAMPLE_CMD_BEGIN
+./bin/all-build-and-install.sh
+_EXAMPLE_CMD_END
+
+<p>
+    A log of a successful build can be seen <a href="nimbus-build.txt">here</a>.
+</p>
+
+<p>
+    If you look into that output, you can see that several Nimbus components
+    are built and installed by default:
+</p>
+
+<ul>
+    <li>
+        The Java based RM API and workspace service - VM/VMM manager
+    </li>
+    <li>
+        Default clients
+    </li>
+    <li>
+        WSRF frontend - a remote protocol implementation
+        compatible with the default clients
+    </li>
+    <li>
+        EC2 frontend - a remote protocol implementation
+        compatible with EC2 clients
+    </li>
+</ul>
+
+<p>
+    For more information about what these things are, see the
+    <a href="NIMBUS_WEBSITE/faq/">FAQ</a>.
+</p>
+<p>
+    You will not be able to run against the EC2 frontend until you have
+    set up the cloud configuration because it relies on users having a
+    personal repository directory (out of scope of this document).
+</p>
+
+
+
+
+
+
+
+
+
+<!--- ********************************************************************** -->
+<!--- ********************************************************************** -->
+<!--- ********************************************************************** -->
+
+
+
+<a name="part-IIb"> </a>
+<h3>II.B. Necessary configurations _NAMELINK(part-IIb)</h3>
+
+<p>
+    There are a few configurations that cannot have any defaults.
+</p>
+
+<p>
+    As of Nimbus TP2.2, we provide an <b>auto-configuration</b> program
+    to gently take you through these configurations.  During the process,
+    several tests will be made to verify your set up.
+</p>
+
+<p>
+    This is installed by default, run the following command to get started:
+</p>
+
+_EXAMPLE_CMD_BEGIN
+$GLOBUS_LOCATION/share/nimbus-autoconfig/autoconfig.sh
+_EXAMPLE_CMD_END
+
+<p>
+    Otherwise you can refer to
+    <a href="reference.html#manual-nimbus-basics">this section</a>
+    of the reference guide to see the old instructions.
+    Those instructions may shed some light on certain
+    configurations as you move past the testing stage and want to know
+    more about what is happening (but honestly, the best place to look
+    for configuration insight is in the .conf file inline comments).
+</p>
+
+
+<a name="authorization"> </a>
+<h4>* Authorization: _NAMELINK(authorization)</h4>
+<p>
+    In the beginning of the quickstart you may have edited a grid-mapfile to
+    authorize a client to make a secure call to the container?  Or if you
+    are using the <a href="#auto-container">AutoContainer</a>,
+    the container-wide grid-mapfile can be found like so:
+</p>
+
+_EXAMPLE_CMD_BEGIN
+grep gridmap $GLOBUS_LOCATION/etc/globus_wsrf_core/global_security_descriptor.xml
+_EXAMPLE_CMD_END
+
+<p>
+    A grid-mapfile is basically an access control list.  It says which remote
+    identities can access the container or a specific service.
+</p>
+
+<p>
+    There is a grid-mapfile specific to Nimbus set up by default.
+    You can make Nimbus use the master container grid-mapfile that is
+    configured OR you can keep it as a specific policy for Nimbus only.
+</p>
+<p>
+    To make it the same as the master container policy,
+    edit the following file to point at the
+    pre-existing grid-mapfile:
+</p>
+
+_EXAMPLE_CMD_BEGIN
+nano -w $GLOBUS_LOCATION/etc/nimbus/factory-security-config.xml
+_EXAMPLE_CMD_END
+
+<p>
+    To keep it unique to Nimbus, edit the following grid-mapfile and add identities.
+</p>
+
+_EXAMPLE_CMD_BEGIN
+nano -w $GLOBUS_LOCATION/etc/nimbus/nimbus-grid-mapfile
+_EXAMPLE_CMD_END
+
+<p>
+    If you used the AutoContainer, you can just copy the the grid-mapfile we
+    found above (that grep command) onto this path, replacing the
+    default "nimbus-grid-mapfile"
+</p>
+
+<p>
+    In the cloud configuration you
+    will see that there is a handy way to make the grid-mapfile just a basic
+    entry barrier.  The real authorization decision can be made by more fine
+    grained policies on a per user basis (for example, limiting certain users to
+    certain amounts of total VM time, etc.).
+</p>
+
+
+<!--- ********************************************************************** -->
+<!--- ********************************************************************** -->
+<!--- ********************************************************************** -->
+
+
+
+<a name="part-IIc"> </a>
+<h3>II.C. Test call _NAMELINK(part-IIc)</h3>
+
+<p>
+    If you used the auto-configuration program, you are
+    not ready for a live test yet.  You will come back to this section
+    after configuring workspace-control.  <a href="#part-III">Jump there now</a>.
+</p>
+<p>
+    If you did <i>not</i> follow the auto-configuration program, currently Nimbus is
+    set to "fake" mode.  This allows you to get the service and VMM nodes
+    working independently before you "join them up" for the live end to end
+    test.
+</p>
+
+<a name="new-services"> </a>
+<h4>* New services: _NAMELINK(new-services)</h4>
+
+<p>
+    Starting the container again will result in these new services:
+</p>
+
+<div class="screen"><pre>https://10.20.0.1:8443/wsrf/services/ElasticNimbusService
+https://10.20.0.1:8443/wsrf/services/WorkspaceContextBroker
+https://10.20.0.1:8443/wsrf/services/WorkspaceEnsembleService
+https://10.20.0.1:8443/wsrf/services/WorkspaceFactoryService
+https://10.20.0.1:8443/wsrf/services/WorkspaceGroupService
+https://10.20.0.1:8443/wsrf/services/WorkspaceService
+https://10.20.0.1:8443/wsrf/services/WorkspaceStatusService</pre>
+</div>
+
+
+<a name="test-client"> </a>
+<h4>* Client: _NAMELINK(test-client)</h4>
+
+<p>
+    In another terminal, set up the environment variables for <i>GLOBUS_LOCATION</i>
+    and <i>X509_CERT_DIR</i> (as needed) and run this program:
+</p>
+
+_EXAMPLE_CMD_BEGIN
+cd $GLOBUS_LOCATION
+_EXAMPLE_CMD_END
+
+_EXAMPLE_CMD_BEGIN
+./bin/workspace
+_EXAMPLE_CMD_END
+
+
+<div class="screen"><pre>Problem: You must supply an action.
+See help (-h).</pre>
+</div>
+
+<p>
+    OK, let's check out help, then.
+</p>
+
+_EXAMPLE_CMD_BEGIN
+./bin/workspace -h
+_EXAMPLE_CMD_END
+
+<p>
+    See sample output <a href="workspace-client-help.txt">here</a>.
+</p>
+
+<p>
+    A lot of options.  This is the scriptable reference client.  The cloud
+    client is more user friendly.  The cloud configuration which supports
+    the cloud client is the recommended setup to provide users access to.
+    This is very much because the cloud client offers a low entry barrier to
+    people that just want to start getting work done.
+</p>
+
+<p>
+    For this quickstart we are going to run two of the actions listed in help,
+    <i>--deploy</i> and <i>--destroy</i>.
+    You can experiment with other ones, each action has its own help section.
+</p>
+
+_NAMELINK(deploy-test)
+<h4>* Deploy test: _NAMELINK(deploy-test)</h4>
+
+<p>
+    Grab this <a href="test-create.sh">test script</a>.
+</p>
+
+_EXAMPLE_CMD_BEGIN
+wget http://workspace.globus.org/vm/TP2.2/admin/test-create.sh
+_EXAMPLE_CMD_END
+
+<p>
+    Run it:
+</p>
+
+_EXAMPLE_CMD_BEGIN
+sh test-create.sh
+_EXAMPLE_CMD_END
+
+<p>
+    Sample successful output is <a href="test-create-output.txt">here</a>
+</p>
+
+<p>
+    As you can see, an IP address was allocated to the VM, a schedule given,
+    and then some state changes reported.
+</p>
+<p>
+    If you opened a third terminal to destroy, you could see the state change
+    move after the destruction, too.  Or you could type <i>CTRL-C</i> to exit
+    this command and run destroy in the same terminal.
+</p>
+
+_EXAMPLE_CMD_BEGIN
+$GLOBUS_LOCATION/bin/workspace -e test.epr --destroy
+_EXAMPLE_CMD_END     
+
+<p>
+    ... and we get something like:
+</p>
+
+<div class="screen"><pre>Destroying workspace 2 @ "https://10.20.0.1:8443/wsrf/services/WorkspaceService"... destroyed.</pre>
+</div>
+
+<p>
+    If you look at this file, you will now see some usage recorded:
+</p>
+
+_EXAMPLE_CMD_BEGIN
+cat $GLOBUS_LOCATION/var/nimbus/accounting-events.txt
+_EXAMPLE_CMD_END
+
+
+<p>
+    The "CREATED" line is a record of the deployment launch.  A reservation
+    for time is made.
+</p>
+
+<p>
+    The "REMOVED" line is a record of the destruction.  A recording of the
+    actual time used is made.  These actual usage recordings stay long term
+    in an internal accounting database and (along with any current reservations)
+    can be used to make authorization decisions on a per-user basis.
+</p>
+
+
+
+<!--- ********************************************************************** -->
+<!--- ********************************************************************** -->
+<!--- ********************************************************************** -->
+
+
+
+
+<br />
+
+<a name="part-III"> </a>
+<h2>Part III: Install/verify workspace-control _NAMELINK(part-III)</h2>
+
+<ul style="list-style: disc">
+    <li>III.A. <a href="#part-IIIa">Download and install</a></li>
+    <li>III.B. <a href="#part-IIIb">Necessary configurations</a></li>
+    <li>III.C. <a href="#part-IIIc">Testing</a></li>
+</ul>
+
+
+<!--- ********************************************************************** -->
+<!--- ********************************************************************** -->
+<!--- ********************************************************************** -->
+
+<a name="part-IIIa"> </a>
+<h3>III.A. Download and install _NAMELINK(part-IIIa)</h3>
+
+<p>
+    Download the "Control Agents" tar file from the download page, and untar it.
+    The <i>workspace-control</i> directory contains multiple files, but we will be
+    interested in only two of them: the <i>install.py</i> script which we will use
+    to install workspace-control, and the <i>worksp.conf.example</i> file, a
+    sample configuration file which we will need to edit to match the Xen
+    installation.
+</p>
+
+<p>
+    Quickstart assumes you are using "/opt/workspace" as the target directory
+    of the install.  You need to be root in order to run the installer.
+</p>
+
+<a name="choose-active-config"> </a>
+<h4>* Choose active config file: _NAMELINK(choose-active-config)</h4>
+
+<p>
+    First copy over the sample config file:
+</p>
+
+_EXAMPLE_ROOTCMD_BEGIN
+cd workspace-control
+_EXAMPLE_CMD_END
+
+_EXAMPLE_ROOTCMD_BEGIN
+mkdir /opt/workspace
+_EXAMPLE_CMD_END
+
+_EXAMPLE_ROOTCMD_BEGIN
+cp worksp.conf.example /opt/workspace/worksp.conf
+_EXAMPLE_CMD_END
+
+<a name="create-priv-user-and-group"> </a>
+<h4>* Create privileged user and unix group: _NAMELINK(create-priv-user-and-group)</h4>
+        
+<p>
+    Next, you need to choose (or create) a user and unix group that will be
+    used to run the backend script (for this guide, let's assume that your
+    user and group are both called nimbus). Since we do not allow the backend
+    script to be run as root, this user will rely on sudo to run Xen commands
+    and other privileged commands. The installer will check all related
+    permissions for you, create the necessary directories in /opt/workspace,
+    and then adjust their permissions to be correct. In particular,
+    the backend script (workspace-control) and other tools will be placed
+    in directory /opt/workspace/bin, which will be owned by root. For more
+    details on permissions, you can find a detailed note on this topic in
+    the configuration file itself.
+</p>
+
+<a name="run-install-py"> </a>
+<h4>* Run install.py: _NAMELINK(run-install-py)</h4>
+
+
+<p>
+     Now we are ready to run the installer. The install.py program has three
+    modes of operation you can use to install the backend script: 
+</p>
+
+
+<div class="screen"><pre>
+    -n, --noninteractive  Don't ask the user anything (for automated install with
+                          a well-known conf file).
+
+    -o, --onlyverify      Just run the setup tests and print what would have
+                          happened in --noninteractive mode.  Good option to try
+                          first since it will do nothing to the filesystem.
+
+    -i, --install         Install the program, make needed directories, and set
+                          them with default permissions. Will block to ask you
+                          questions if necessary.
+</pre>
+</div>
+
+
+<p>
+    The --noninteractive mode is a good, fast choice if you want to use the
+    default /opt/workspace hierarcy that comes in the sample configuration
+    file. For example, you could run the installer like this: 
+</p>
+
+_EXAMPLE_ROOTCMD_BEGIN
+python install.py -c /opt/workspace/worksp.conf -a nimbus -g nimbus -n
+_EXAMPLE_CMD_END
+
+<p>
+    The "-a" flag is the privileged account to enable.  The "-g" flag is the
+    priviliged group to enable.  The "-c" flag is the pre-existing config
+    file (at its <i>final location</i>).
+</p>
+
+<p>
+    Just before exiting, the installer will print out the sudo policies you
+    need to configure (see the next section).
+</p>
+
+
+<p>
+    To see more installation options, you can run install.py with the --help argument.
+</p>
+
+
+<!--- ********************************************************************** -->
+<!--- ********************************************************************** -->
+<!--- ********************************************************************** -->
+
+<a name="part-IIIb"> </a>
+<h3>III.B. Necessary configurations _NAMELINK(part-IIIb)</h3>
+
+
+<h4>* Configure sudo:</h4>
+
+<p>
+    Using the visudo command, add the sudo policies printed out by the
+    installer to the /etc/sudoers file. These policies should look
+    something like this: 
+</p>
+
+<div class="screen"><pre>
+nimbus ALL=(root) NOPASSWD: /opt/workspace/bin/dhcp-config.sh
+nimbus ALL=(root) NOPASSWD: /opt/workspace/bin/mount-alter.sh
+nimbus ALL=(root) NOPASSWD: /usr/sbin/xm
+nimbus ALL=(root) NOPASSWD: /usr/sbin/xend
+</pre>
+</div>
+
+<p>
+    These policies reflect the user that will be running workspace control
+    (nimbus) and
+    the correct full paths to the dhcp-config.sh and mount-alter.sh tools,
+    the xm program, and the xend daemon (needed only in the case where the
+    workspace-control program is permitted to reboot the daemon if it has
+    fallen). 
+</p>
+
+<p>
+    You may need to comment out any "requiretty" setting in the sudoers policy:
+</p>
+
+<div class="screen"><pre>
+#Defaults    requiretty
+</pre>
+</div>
+
+<p>
+    The commands run via sudo are not using a terminal and so if you have
+    "requiretty" enabled, this can cause a failure.
+</p>
+
+<a name="dhcp-conf"> </a>
+<h4>* Configure DHCP: _NAMELINK(dhcp-conf)</h4>
+
+<p>
+    DHCP is used here as a delivery mechanism only, these DHCP servers do NOT
+    pick the addresses to use on their own. Their policy files are dynamically
+    altered by workspace-control as needed. Policy additions include the MAC
+    addresses which is used to make sure the requester receives the intended
+    DHCP lease.
+</p>
+
+<p>
+    Configuring the DHCP server consists of copying the example DHCP file
+    "dhcp.conf.example" (included in the workspace-control directory) to
+    "/etc/dhcp/dhcpd.conf" and editing it to include the proper subnet lines
+    (see the contents of the example file). The subnet lines are necessary
+    to get the DHCP server to listen on the node's network interface. So,
+    make sure that you add a subnet line that matches the subnet of the
+    node's network interface. No lease configurations, available ranges, etc.
+    should be added: these are added dynamically to the file after the token
+    at the bottom.
+</p>
+
+<p>
+    In most cases it is unecessary, but if you have a non-standard DHCP
+    configuration you may need to look at the "dhcp-config.sh" script in the
+    protected workspace bin directory and look at the "adjust as necessary"
+    section. The assumptions made are as follows:
+</p>
+
+<ul>
+    <li>DHCP policy file to adjust: "/etc/dhcp/dhcpd.conf"</li>
+    <li>Stop DHCP server: "/etc/init.d/dhcpd stop"</li>
+    <li>Start DHCP server: "/etc/init.d/dhcpd start"</li>
+    <li>The standard unix utility "dirname" is assumed to be
+        installed. This is used to find the workspace-control
+        utilities "dhcp-conf-alter.py" and "ebtables-config.sh",
+        we assume they are in the same directory as "dhcp-config.sh"
+        itself. Paths to these can alternatively be hardcoded to fit
+        your preferred configuration.</li>
+</ul>
+
+<p>
+    The "aux/foreign-subnet" script (in the workspace control
+    source directory) may be needed for DHCP support. It allows
+    VMMs to deliver IP information over DHCP to workspaces even if the VMM
+    itself does not have a presence on the target IP's subnet. This is an
+    advanced configuration, you should read through the script's leading
+    comments and make sure to clear up any questions before using. It is
+    particularly useful for hosting workspaces with public IPs where the VMMs
+    themselves do not have public IPs. This is because it does not require
+    a unique interface alias for each VMM (public IPs are often scarce
+    resources).
+</p>
+
+
+<a name="kernel-conf"> </a>
+<h4>* Configure kernel(s): _NAMELINK(kernel-conf)</h4>
+
+<p>
+    Copy any kernels you wish to use to the <i>/opt/workspace/images</i>
+    directory, and list them in the <i>guestkernels</i> option under the
+    <i>[images]</i> 
+    section of the <i>/opt/workspace/worksp.conf</i> configuration file.
+    By doing this, clients can choose from these kernels in the metadata,
+    but they must already exist at the hypervisor node and must be in the
+    guestkernels list.
+</p>
+
+<a name="net-conf"> </a>
+<h4>* Configure network(s): _NAMELINK(net-conf)</h4>
+
+<p>
+    In the workspace-control <i>/opt/workspace/worksp.conf</i> configuration
+    file, find the <i>association_</i> settings in the <i>[networking]</i>
+    section. If <i>xenbr0</i> is the 'public' interface, which is the usual
+    default,add this line:
+</p>
+
+<div class="screen"><pre>
+association_0: private; xenbr0; vif0.0 ; none; 192.168.0.0/24
+</pre></div>
+
+<p>
+    This specifies that there will be an network called 'private' with
+    bridge 'xenbr0' with MAC address prefixes of 'none' (which means allow
+    the service to decide) given to virtual NICs bound to this bridge and
+    with an authorized IP range of 192.168.0.0 to 192.168.0.255.  This should
+    match the service network settings.
+</p>
+
+<p>
+    The third field lists the interface of the NIC that is listening for
+    DHCP requests. This is the interface that DHCP requests originating
+    from VMs should be allowed to broadcast to. Directing the request to a
+    specific interface prevents DHCP requests from being broadcast to other
+    VMs as well as to the real network. You can doublecheck what vif is on
+    what bridge by running "brctl show". Normally you'd run the DHCP server
+    in dom0 and the defaults are like so:
+</p>
+
+<div class="screen"><pre>
+xenbr0 - vif0.0
+xenbr1 - vif0.1
+xenbr2 - vif0.2
+</pre></div>
+
+<p>
+    You are not required to run the DHCP server in dom0, the workspaces' 
+    DHCP request broadcast can be directed to any interface, but currently
+    to run it in another domain would require altering the dhcp-config.sh
+    callout to work remotely.
+</p>
+
+<p>
+    <b>Note:</b> - if you used the auto-configuration program
+    (see <a href="#part-IIb">above</a>), then you may have been given a sample
+    line for the "association_0" setting.
+</p>
+
+
+
+<!--- ********************************************************************** -->
+<!--- ********************************************************************** -->
+<!--- ********************************************************************** -->
+
+<a name="part-IIIc"> </a>
+<h3>III.C. Testing _NAMELINK(part-IIIc)</h3>
+
+<p>
+    For testing with a real VM (see testing section below) using that
+    <a href="test-create.sh">test-create.sh</a> script, add your test VM
+    from the <a href="#part-Ib">Xen</a> section.
+</p>
+
+<p>
+    The script is expecting a file named "ttylinux-xen" in the
+    <i>/opt/workspace/images</i> directory because of the
+    <i>file://ttylinux-xen</i> line in the xml definition file the
+    script points to
+    (<i>$GLOBUS_LOCATION/share/nimbus-clients/sample-workspace.xml</i>).
+</p>
+
+
+
+
+<!--- ********************************************************************** -->
+<!--- ********************************************************************** -->
+<!--- ********************************************************************** -->
+
+
+
+<br />
+
+<a name="part-IV"> </a>
+<h2>Part IV: End to end test _NAMELINK(part-IV)</h2>
+
+<p>
+    Now revisit the service <a href="#part-IIc">Test call</a> section.
+</p>
+
+<p>
+    If you did <i>not</i> use the <a href="#part-IIb">auto-configuration</a> program:
+</p>
+
+<p>
+   You are now ready to turn "fake" mode off and try a real VM launch.  Back
+   on the Nimbus services node:
+</p>
+
+_EXAMPLE_CMD_BEGIN
+nano -w $GLOBUS_LOCATION/etc/nimbus/workspace-service/other/common.conf
+_EXAMPLE_CMD_END
+
+<p>
+    ... and change the "fake.mode" setting to "false"
+</p>
+
+
+<div class="screen"><pre>
+fake.mode=false
+</pre></div>
+
+<p>
+    Now revisit the service <a href="#part-IIc">Test call</a> section.
+</p>
+
+
+<!--- ********************************************************************** -->
+<!--- ********************************************************************** -->
+<!--- ********************************************************************** -->
+
+
+<br />
+<br />
+
+<hr />
+<hr />
+
+<p>
+    Do not hesitate to contact the
+    <a href="_NIMBUS_WEBSITE/contact/">workspace-user</a> mailing list with
+    problems.
+</p>
+<p>
+    We plan to streamline some of the steps and also significantly add to the
+    troubleshooting and reference sections.
+</p>
+
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+
+_NIMBUS_CENTER2_COLUMN_END
+_NIMBUS_FOOTER1
+_NIMBUS_FOOTER2
+_NIMBUS_FOOTER3

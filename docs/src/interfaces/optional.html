@@ -1,0 +1,108 @@
+m4_include(/mcs/m4/worksp.lib.m4)
+_NIMBUS_HEADER(WSRF Interfaces)
+_NIMBUS_HEADER2(n,n,y,n,n,n,n)
+_NIMBUS_INTERFACES_WARNING
+_NIMBUS_LEFT2_COLUMN
+_NIMBUS_LEFT2_INTERFACES_SIDEBAR
+_NIMBUS_LEFT2_COLUMN_END
+_NIMBUS_CENTER2_COLUMN
+_NIMBUS_TP2_2_DEPRECATED
+
+<a name="optional"></a>
+
+<h2>Optional Parameters</h2>
+
+<p>The factory service allows a client to instantiate a workspace as a
+WSRF resource by using the <i>create</i> operation with workspace
+<a href="metadata.html">metadata</a> and a
+<a href="deployment.html">deployment</a> request.  The factory service's
+WSDL can be
+<a href="../examples/compact/workspace_factory_port_type_compact.wsdl">viewed
+online</a>.  It references a separate
+<a href="../examples/compact/workspace_types.xsd">types schema</a>.</p>
+
+<p>You may also send optional parameters alongside the
+    metadata and deployment request in the create operation.</p>
+
+<p>Currently supported optional parameters are for pre- and post-deployment
+staging requests.  These are support by
+<a href="../plugins/index.html">transfer plugins</a> to the workspace service
+that you may need to install separately.</p>
+
+<a name=""></a><br>
+
+<h2>Staging Parameters</h2>
+
+<p><img src="../img/optional.png" alt="optional parameters" /> </p>
+
+<p>You may specify a stage-in or stage-out directive, or both.  The
+<b>stageIn</b> request will be executed before workspace propagation and the
+<b>stageOut</b> request will be executed when the TransportReady state
+has been reached  (see this
+explanation of the <a href="deployment.html#state">workspace state lifecycle</a>).
+</p>
+        
+
+<p>Within each staging request you must supply the <b>source URL</b>, and the
+<b>destination URL</b>:</p>
+
+
+<p><img src="../img/transfer_request.png" alt="transfer request" /></p>
+
+<p>
+    Optionally, you may supply a <b>service endpoint URL</b> that the staging
+    adapter would contact on the client's behalf.  For example, an RFT
+    factory URL.  The HTTP transfer functionality does not need a service
+    URL but RFT and SRM do.
+</p>
+
+<p>
+    Currently in TP1.3, if using the HTTP transfer functionality, you
+    may optionally specify a <b>checksum</b> and <b>checksumtype</b> (you
+    must supply either zero or both of these) in order to verify the transfer
+    succeeded.  Typically supported values for checksumtype are 'md5' and
+    'sha1' (if the service administrator has not disabled one or the other). 
+</p>
+
+<p>
+    Currently in TP1.3, if using the HTTP transfer functionality, you
+    may optionally transfer a <b>compressed gzip image</b>.  This must have
+    the suffix ".gz" and must actually be a gzip image (the service uses the
+    Linux 'file' command to verify this).  Note that if you take advantage
+    of this the destination URL must have the ".gz" suffix.  But the file
+    to specify for propagation in the metadata would end up not having the
+    ".gz" suffix.  This functionality can be disabled.
+</p>
+
+<p>
+    Optionally, you may supply delegated credential EPRs that will be used
+    for the transfer.  The <b>staging credential</b> is the credential to be
+    used for contacting the specified service endpoint and the <b>transfer
+    credential</b> is the credential to be used for the actual transfer.
+</p>
+<p>
+    For example, using the RFT staging plugin, you could supply the URL to
+    the RFT service endpoint, the source and destination of the file to be
+    transferred, the EPR of the delegated credential to use to contact RFT
+    (this must be a credential delegated to a Delegation Service colocated
+    with the workspace service), and the EPR of the delegated credential that
+    will tell RFT what credential to invoke the transfer under (this must
+    be a credential delegated to a Delegation Service colocated with the RFT
+    service).
+</p>
+<p>
+    Very often, the credential used to access a transfer service and the
+    credential used to invoke the transfers are the same ones.  To facilitate
+    this common case, the sample Java
+    client distributed with the workspace service includes (optional) support
+    for contacting a delegation service, delegating your credential, and
+    filling in the necessary elements in your transfer request.
+</p>
+
+
+_NIMBUS_CENTER2_COLUMN_END
+_NIMBUS_FOOTER1
+_NIMBUS_FOOTER2
+_NIMBUS_FOOTER3
+
+

@@ -1,0 +1,1785 @@
+m4_include(/mcs/m4/worksp.lib.m4)
+_NIMBUS_HEADER(TP2.2 Admin Reference)
+_NIMBUS_HEADER2(n,n,y,n,n,n,n)
+_NIMBUS_LEFT2_COLUMN
+_NIMBUS_LEFT2_ADMIN_SIDEBAR(n,n,y,n,n)
+_NIMBUS_LEFT2_COLUMN_END
+_NIMBUS_CENTER2_COLUMN
+_NIMBUS_TP2_2_DEPRECATED
+
+<h2>Nimbus TP2.2 Admin Reference</h2>
+
+<p>
+    This section explains some side tasks as well as some
+    none-default configurations.
+</p>
+
+<ul>
+    <li>
+        <p>
+            <a href="#confs">Notes on conf files</a>
+        </p>
+    </li>
+    <li>
+        <p>
+            <a href="#elastic">Enabling the EC2 frontend</a>
+        </p>
+    </li>
+    <li>
+        <p>
+            <a href="#manual-container">Configuring the container manually without the AutoContainer</a>
+        </p>
+    </li>
+    <li>
+        <p>
+            <a href="#certs">Creating Certificates with SimpleAuthority</a>
+        </p>
+    </li>
+    <li>
+        <p>
+            <a href="#cert-pointing">Configuring the container with a host certificate</a>
+        </p>
+    </li>
+    <li>
+        <p>
+            <a href="#secure-call-test">Testing container security</a>
+        </p>
+    </li>
+    <li>
+        <p>
+            <a href="#manual-nimbus-basics">Configuring Nimbus basics manually without the auto-configuration program</a>
+        </p>
+    </li>
+    <li>
+        <p>
+            <a href="#resource-pool-and-pilot">Resource pool and pilot configurations</a>
+        </p>
+        <ul>
+            <li>
+                <a href="#resource-pool">Resource pool</a>
+            </li>
+            <li>
+                <a href="#pilot">Pilot</a>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>
+            <a href="#backend-config-invm-networking">Network configuration
+                details</a>
+        </p>
+    </li>
+    <li>
+        <p>
+            <a href="#context-broker">Two context broker implementations</a>
+        </p>
+    </li>
+    <li>
+        <p>
+            <a href="#context-broker-old">Configuring the old context broker</a>
+        </p>
+    </li>
+    <li>
+        <p>
+            <a href="#context-broker-new">COnfiguring the new context broker</a>
+        </p>
+    </li>
+
+</ul>
+
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+<br />
+
+<a name="confs"> </a>
+<h2>Notes on conf files _NAMELINK(confs)</h2>
+
+<p>
+    The Nimbus conf files have many comments around each configuration.  Check
+    those out.  Their content will be inlined here in the future.
+</p>
+
+<p>
+    See the <i>$GLOBUS_LOCATION/etc/nimbus/workspace-service</i> directory.
+</p>
+
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+
+
+<br />
+
+<a name="elastic"> </a>
+<h2>Enabling the EC2 frontend _NAMELINK(elastic)</h2>
+<p>
+    After installing, see the <i>$GLOBUS_LOCATION/etc/nimbus/elastic</i>
+    directory.  The .conf file here specifies what the EC2 "instance type"
+    allocations should translate to and what networks should be requested
+    from the underlying workspace service when VM create requests are sent.
+</p>
+
+<p>
+    By default, a Nimbus installation will enable this service:
+</p>
+
+<div class="screen"><pre>
+https://10.20.0.1:8443/wsrf/services/ElasticNimbusService
+</pre></div>
+
+<p>
+    But before the service will work, you must adjust a container configuration.
+    This will account for some security related customs for EC2: 
+</p>
+<ul>
+    <li>
+        <p>
+            Secure message is used, but only on the request.  No secure message
+            envelope is sent around EC2 responses, therefore EC2 clients do not
+            expect such a response.  It relies on the fact that <b>https</b>
+            is being used to protect responses.
+        </p>
+        <p>
+            Both integrity and encryption problems are relevant, be wary of any
+            http endpoint being used with this protocol.  For example, you
+            probably want to make sure that add-keypair private key
+            responses are encrypted (!).
+        </p>
+    </li>
+    <li>
+        <p>
+            Also, adjusting the container configuration gets around a timestamp
+            format incompatibility we discovered (the timestamp is normalized
+            <i>after</i> the message envelope signature/integrity is confirmed).
+        </p>
+    </li>
+</ul>
+
+<p>
+    There is a sample container <i>server-config.wsdd</i> configuration
+    to compare against
+    <a href="sample-server-config.wsdd-supporting-ec2.xml">here</a>.
+</p>
+
+<p>
+    Edit the container deployment configuration:
+</p>
+_EXAMPLE_CMD_BEGIN
+nano -w etc/globus_wsrf_core/server-config.wsdd
+_EXAMPLE_CMD_END
+
+<p>
+    Find the <b>&lt;requestFlow&gt;</b> section and comment out the existing
+    <i>WSSecurityHandler</i> and add this new one:
+</p>
+
+<div class="screen"><pre>
+    &lt;handler type="java:org.globus.wsrf.handlers.JAXRPCHandler"&gt;
+
+        &lt;!-- <b>enabled</b>: --&gt;
+        &lt;parameter name="className"
+                   value="org.nimbustools.messaging.gt4_0_elastic.rpc.WSSecurityHandler" /&gt;
+
+        &lt;!-- <b>disabled</b>: --&gt;
+        &lt;!--&lt;parameter name="className"
+                   value="org.globus.wsrf.impl.security.authentication.wssec.WSSecurityHandler"/&gt; --&gt;
+    &lt;/handler&gt;
+</pre></div>
+
+
+<p>
+    Now find the <b>&lt;responseFlow&gt;</b> section and comment out the existing
+    <i>X509SignHandler</i> and add this new one:
+</p>
+
+<div class="screen"><pre>
+    &lt;handler type="java:org.apache.axis.handlers.JAXRPCHandler"&gt;
+
+        &lt;!-- <b>enabled</b>: --&gt;
+        &lt;parameter name="className"
+                   value="org.nimbustools.messaging.gt4_0_elastic.rpc.SignHandler" /&gt;
+
+        &lt;!-- <b>disabled</b>: --&gt;
+        &lt;!--&lt;parameter name="className" 
+                       value="org.globus.wsrf.impl.security.authentication.securemsg.X509SignHandler"/&gt;--&gt;
+    &lt;/handler&gt;</pre></div>
+
+<p>
+    If you don't make this configuration, you will see
+    <a href="troubleshooting.html#elastic-timestamp-error">this error</a>
+    when trying to use an EC2 client.
+</p>
+<p>
+    Container restart required after the configuration change.
+</p>
+
+
+
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+
+<br />
+
+<a name="manual-container"> </a>
+<h2>Configuring the container manually without the AutoContainer _NAMELINK(manual-container)</h2>
+
+<p>
+    What follows is the instructions for setting up a container as they existed
+    before the AutoContainer came into being.
+</p>
+
+<p>
+    Because the AutoContainer sets up a <i>password-less</i> certificate
+    authority and certificates, you may be interested in the steps here
+    after you're done initial testing.
+</p>
+
+<hr />
+
+
+<p>
+    For the quickstart you will download
+    a new standalone Java core container to run (about a 15M download).
+</p>
+<p>
+    If you already have a container installed, you can skip the next steps and
+    make sure the <i>GLOBUS_LOCATION</i> environment variable is set to the
+    appropriate directory.  Already know that you have security working too?
+    Then you skip this section altogether.
+</p>
+
+<a name="manual-container-retr"> </a>
+<h4>* Retrieve and unpack: _NAMELINK(manual-container-retr)</h4>
+<p>
+    Navigate to the most recent <i>Java WS Core Binary Installer</i> link,
+    the GT4.0.8 binary is at
+    <a href="http://www.globus.org/toolkit/downloads/4.0.8/#wscore_bin">this
+    page</a>.  Take the survey and download the archive:
+</p>
+
+_EXAMPLE_CMD_BEGIN
+wget http://www-unix.globus.org/ftppub/gt4/4.0/4.0.8/ws-core/bin/ws-core-4.0.8-bin.tar.gz
+_EXAMPLE_CMD_END
+
+_EXAMPLE_CMD_BEGIN
+tar xzf ws-core-4.0.8-bin.tar.gz
+_EXAMPLE_CMD_END
+
+
+<a name="manual-container-env"> </a>
+<h4>* Set environment variable: _NAMELINK(manual-container-env)</h4>
+<p>
+    Now navigate into the new directory and set it as your "GLOBUS_LOCATION"
+    variable:
+</p>
+
+_EXAMPLE_CMD_BEGIN
+cd ws-core-4.0.8
+_EXAMPLE_CMD_END
+
+_EXAMPLE_CMD_BEGIN
+export GLOBUS_LOCATION=`pwd`
+_EXAMPLE_CMD_END
+
+<p>
+    Assuming that you have Java installed on your system, you now have a working
+    container.  Well, there's no use running things in the open, first we need
+    to set up security.  <i>Then</i> you have a real services container :-).
+</p>
+
+<a name="manual-container-certconfig"> </a>
+<h4>* Configure certificates: _NAMELINK(manual-container-certconfig)</h4>
+<p>
+    If you do not already have an X509 certificate for your machine or user
+    account, consult <a href="reference.html#certs">this section</a>
+    to get them.
+</p>
+
+<p>
+    OK, so you have an X509 certificate for your machine now, but you don't have
+    the container configured with it?  We need to configure the container to
+    load a specific certificate that it will host services under -- just like any
+    secure remote services, it needs to have its own identity so that clients
+    can be be configured to trust it.   If you're new to the container, consult
+    <a href="reference.html#cert-pointing">this section</a>.
+</p>
+
+<a name="manual-container-security"> </a>
+<h4>* Test security: _NAMELINK(manual-container-security)</h4>
+
+<p>
+    It's important that the container security and X509 identity mechanisms
+    are all in place before installing Nimbus.  This allows you to isolate
+    any issues and also allows you to apply any general container/Globus
+    documentation to any issues (although feel free to use the Nimbus mailing
+    lists for questions).
+</p>
+
+<p>
+    If you're new to the container, check out
+    <a href="#secure-call-test">this
+    section</a> which will help you out by running
+    through an example of getting the "SecureCounterService" working.
+</p>
+
+<p>
+    If you have configured certificates in the past and are used to proxy
+    certificates etc., you need to make sure the grid-mapfile and certificates
+    all work out such that you can make calls to secured services.  You know the
+    drill: https services, grid-mapfile, user/host certificates.
+</p>
+
+
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+<br />
+
+<a name="certs"> </a>
+<h2>Creating Certificates with SimpleAuthority _NAMELINK(certs)</h2>      
+
+<p>
+    Below are instructions for creating a test CA, user certificate, and host
+    certificate to use if you don't have one.  The
+    <a href="http://simpleauthority.com">SimpleAuthority</a> tool is employed.
+</p>
+
+<p>
+    This assumes you are not using the quick and easy
+    <a href="quickstart.html#auto-container">AutoContainer</a>.
+</p>
+        
+<p>
+    Another system to try is the
+    <a href="http://www.globus.org/toolkit/docs/4.0/admin/docbook/ch07.html">SimpleCA</a>
+        (featured in the Globus <a href="http://www.globus.org/toolkit/docs/4.0/admin/docbook/quickstart.html#q-security">quickstart</a>) 
+</p>
+
+<!-- ******************************* -->
+<a name="certs-makedir"> </a>
+<h4>* Make a certificate directory: _NAMELINK(certs-makedir)</h4>
+
+<p>
+    First create a certificates directory somewhere.  Let's just say it's
+    $GLOBUS_LOCATION/certs for simplicity's sake.  Make sure it's a private
+    directory:
+</p>
+
+_EXAMPLE_CMD_BEGIN
+mkdir $GLOBUS_LOCATION/certs
+_EXAMPLE_CMD_END
+
+_EXAMPLE_CMD_BEGIN
+chmod 700 $GLOBUS_LOCATION/certs
+_EXAMPLE_CMD_END
+
+<!-- *********************************** -->
+<a name="certs-download-simpleAuth"> </a>
+<h4>* Download and run SimpleAuthority: _NAMELINK(certs-download-simpleAuth)</h4>
+
+<p>
+    Now navigate your browser to the SimpleAuthority
+    <a href="http://simpleauthority.com/download.html">download page</a>
+    and get the latest version.
+</p>
+
+<p>
+    What follows is what it looks like on Linux for SimpleAuthority 2.4, but
+    this should be nearly identical for other systems and similar for newer
+    SimpleAuthority versions:
+</p>
+
+_EXAMPLE_CMD_BEGIN
+tar xzf SimpleAuthority\ 2.4.tar.gz
+_EXAMPLE_CMD_END
+        
+_EXAMPLE_CMD_BEGIN
+chmod +x simpleauthority
+_EXAMPLE_CMD_END
+
+_EXAMPLE_CMD_BEGIN
+./simpleauthority
+_EXAMPLE_CMD_END
+
+
+<!-- **************************** -->
+<a name="certs-create-simpleAuth"> </a>
+<h4>* Create SimpleAuthority CA: _NAMELINK(certs-create-simpleAuth)</h4>
+
+<p>
+    Greeted by this screen:
+</p>
+<p>
+    <img src="../img/simplescreen1.png" alt="[create CA]" />
+</p>
+<p>
+    Fill in the fields with anything you like, then choose OK.  Follow the
+    instructions.  Remember the password you choose :-)
+</p>
+
+<a name="certs-create-newusercert"> </a>
+<h4>* Create new user certificate: _NAMELINK(certs-create-newusercert)</h4>
+
+<p>
+    Now you should see a screen with "No Name" printed on the right.
+</p>
+<p>
+    This will be your user certificate account, choose a name for that field,
+    like e.g. "Spencer"
+</p>
+<p>
+    The "Certificate Type" should be selected to "General Purpose".
+    Click on "New Certificate" at the bottom:
+</p>
+<p>
+    <img src="../img/simplescreen3.png" alt="[new cert]" />
+</p>
+<p>
+    It should tell you that it created a "p12" file somewhere.  Move this file
+    to the <i>$GLOBUS_LOCATION/certs</i> directory.
+</p>
+<p>
+    Now "right-click" the entry for the newly generated certificate
+    and choose "Export Certificate"
+</p>
+<p>
+    <img src="../img/simplescreen4.png" alt="[new cert]" />
+</p>
+<p>
+    You should choose the "PEM Format" for the export type:
+</p>
+<p>
+    <img src="../img/simplescreen5.png" alt="[PEM export]" />
+</p>
+<p>
+    Now choose the <i>$GLOBUS_LOCATION/certs</i> directory as the place to
+    save that file. 
+</p>
+
+<p>
+    This list command:
+</p>
+
+_EXAMPLE_CMD_BEGIN
+ls $GLOBUS_LOCATION/certs
+_EXAMPLE_CMD_END
+
+<p>
+    ... should now show you something like this:
+</p>
+
+<div class="screen"><pre>
+Spencer_b.p12  Spencer_cert.pem</pre>
+</div>
+
+
+<!-- *************************************** -->
+<a name="certs-extractpem"> </a>
+<h4>* Extract PEM key from p12 certificate: _NAMELINK(certs-extractpem)</h4>
+
+<p>
+    Run this on the p12 file, enter in the password you chose for the Spencer
+    cert in SimpleAuthority
+</p>
+
+_EXAMPLE_CMD_BEGIN
+openssl pkcs12 -nocerts -in Spencer_b.p12 -out userkey.pem
+_EXAMPLE_CMD_END
+
+_EXAMPLE_CMD_BEGIN
+chmod 400 userkey.pem
+_EXAMPLE_CMD_END
+
+
+<!-- *************************** -->
+<a name="certs-test-usercert"> </a>
+<h4>* Testing user certificate: _NAMELINK(certs-test-usercert)</h4>
+
+<p>
+    Now with GLOBUS_LOCATION set, you should be able to run this command:
+</p>
+
+_EXAMPLE_CMD_BEGIN
+$GLOBUS_LOCATION/bin/grid-proxy-init -cert Spencer_cert.pem -key userkey.pem 
+_EXAMPLE_CMD_END
+
+<div class="screen"><pre>
+Your identity: C=US,CN=Spencer
+Enter GRID pass phrase for this identity:
+Creating proxy, please wait...
+Proxy verify failed: Unknown CA</pre>
+</div>
+
+<p>
+    Oh no, Unknown CA?
+</p>
+
+<p>
+    Back to SimpleAuthority, choose the export CA certificate option from the
+    Tools->Export menu:
+</p>
+
+<p>
+    <img src="../img/simplescreen6.png" alt="[CA cert export]" />
+</p>       
+
+<p>
+    Export as PEM file again, but choose a ".0" filename suffix.  Put this
+    in your $GLOBUS_LOCATION/certs directory.  If it does not have a ".0" (or
+    .1, .2, etc.) suffix the tools will not load it as a CA certificate.
+</p>
+
+<p>
+    Now before running grid-proxy-init again, set this directory as the trusted
+    certificates directory:
+</p>
+
+_EXAMPLE_CMD_BEGIN
+export X509_CERT_DIR=$GLOBUS_LOCATION/certs
+_EXAMPLE_CMD_END
+
+<p>
+    And voila:
+</p>
+
+_EXAMPLE_CMD_BEGIN
+$GLOBUS_LOCATION/bin/grid-proxy-init -cert Spencer_cert.pem -key userkey.pem
+_EXAMPLE_CMD_END
+
+<div class="screen"><pre>
+Your identity: C=US,CN=Spencer
+Enter GRID pass phrase for this identity:
+ Creating proxy, please wait...
+Proxy verify OK
+Your proxy is valid until Thu Aug 21 01:00:44 CDT 2008</pre>
+</div>
+
+
+<!-- ************************** -->
+<a name="certs-make-hostcert"> </a>
+<h4>* Make a host certificate: _NAMELINK(certs-make-hostcert)</h4>
+
+<p>
+    Now we need a host certificate for the container to use.
+</p>
+
+<p>
+    Start by picking the host name you will install Nimbus to.  It should match
+    the reverse DNS entry of your IP address.  One way to force this is to make
+    a single line for the IP in your service node's <i>/etc/hosts</i> file
+    like so:
+</p>
+<div class="screen"><pre>
+10.20.30.40 fake.com</pre>
+</div>
+
+<p>
+    Make this hostname a new account in SimpleAuthority.  Choose "SSL server"
+    for the certificate type:
+</p>
+<p>
+    <img src="../img/simplescreen7.png" alt="[host account]" />
+</p>
+<p>
+    Move the generated p12 file to your <i>$GLOBUS_LOCATION/certs</i> directory.
+</p>
+<p>
+    Now do the "export certificate" just like above with the user
+    certificate.  You should end up with something like "lily.com_cert.pem"
+    in your directory (this example uses "lily.com" for the hostname, don't
+    use that, use your own local hostname value for the server hostname).
+</p>
+
+<p>
+    Then get the key from the p12 file just like with the user certificate.
+</p>
+
+_EXAMPLE_CMD_BEGIN
+openssl pkcs12 -nocerts -in lily.com.p12 -out containerkey.pem -nodes
+_EXAMPLE_CMD_END
+
+<p>
+    But importantly, we use the "-nodes" argument which is saying that the
+    extracted key should not be protected by a password.
+</p>
+
+_EXAMPLE_CMD_BEGIN
+chmod 400 containerkey.pem
+_EXAMPLE_CMD_END
+
+<p>
+    Now you have a host/container certificate.
+</p>
+<p>
+    These files are often seen named "containercert.pem" and "containerkey.pem"
+</p>
+
+
+<!-- end of #certs -->
+<p>
+    (If you are here via the quickstart, go back
+    <a href="quickstart.html#part-Ia-certconfig">there</a> now)
+</p>
+
+
+
+
+
+
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+<br />
+
+<a name="cert-pointing"> </a>
+<h2>Configuring the container with a host certificate _NAMELINK(cert-pointing)</h2>
+
+<p>
+    We are now going to configure the container to load a specific certificate
+    that it will host services under.
+</p>
+<p>
+    This assumes you are not using the quick and easy
+    <a href="quickstart.html#auto-container">AutoContainer</a>.
+</p>
+<p>
+    You can run a sanity check on the certificate you will use by running the
+    <i>grid-cert-info</i> command on the public portion of the certificate
+    like so:
+</p>
+_EXAMPLE_CMD_BEGIN
+./bin/grid-cert-info -file $SOMEWHERE/containercert.pem
+_EXAMPLE_CMD_END
+
+<p>
+    That will either print some basic information about the certificate or
+    give you some hideous error :-)
+</p>
+
+<p>
+    The host certificate and host key must be readable by the privileged
+    account running the container.
+</p>
+
+<p>
+    Now we will edit the container security configuration to point to this
+    certificate:
+</p>
+_EXAMPLE_CMD_BEGIN
+nano -w $GLOBUS_LOCATION/etc/globus_wsrf_core/global_security_descriptor.xml
+_EXAMPLE_CMD_END
+
+<p>
+    Make these paths match the certificate and key file you want:
+</p>
+<div class="screen"><pre>
+&lt;key-file value="/etc/grid-security/containerkey.pem"/&gt;
+&lt;cert-file value="/etc/grid-security/containercert.pem"/&gt;
+</pre></div>
+
+<p>
+    Now we "activate" the security configuration:
+</p>
+_EXAMPLE_CMD_BEGIN
+nano -w $GLOBUS_LOCATION/etc/globus_wsrf_core/server-config.wsdd
+_EXAMPLE_CMD_END
+
+<p>
+    Under where you see <i>CONTAINER_SECURITY_DESCRIPTOR</i>, add this
+    &lt;parameter&gt; element:
+</p>
+<div class="screen"><pre>
+&lt;!-- @CONTAINER_SECURITY_DESCRIPTOR@ --&gt;
+&lt;parameter name="containerSecDesc"
+              value="etc/globus_wsrf_core/global_security_descriptor.xml"/&gt;
+</pre></div>
+
+<p>
+    Done.  Now when "globus-start-container" is run, those certificates will
+    be used as the service identity.
+</p>
+
+<p>
+    But some new error shows up?
+</p>
+
+<div class="screen"><pre>
+  [Caused by: Failed to load gridmap: "grid-mapfile"
+    [Caused by: /etc/grid-security/grid-mapfile (No such file or directory)]]]
+</pre></div>
+
+<p>
+    Change this to a blank text file at some location.  You'll deal with
+    this at another time.
+</p>
+
+<p>
+    By the way, if you are interested in all those configuration switches
+    in the <i>server-config.wsdd</i> file, see the container's
+    <a href="http://globus.org/toolkit/docs/4.0/common/javawscore/admin-index.html#s-javawscore-admin-configuring">configuration
+    guide</a>.  Some of the networking ones may save you one day (for example
+    use <i>logicalHost</i> if you want to run services on a public IP:port
+    that maps to a NAT'd address where the container is actually running).
+</p>
+
+<!-- end of #cert-pointing -->
+<p>
+    (If you are here via the quickstart, go back
+    <a href="quickstart.html#part-Ia-certconfig">there</a> now)
+</p>
+
+
+
+
+
+
+
+
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+
+
+
+
+
+
+<br />
+        
+<a name="secure-call-test"> </a>
+<h2>Testing container security _NAMELINK(secure-call-test)</h2>
+<p>
+    This assumes you are not using the quick and easy
+    <a href="quickstart.html#auto-container">AutoContainer</a>.
+</p>
+<p>
+    You've got the container hooked to the certificates you want.  Try
+    to boot it up:
+</p>
+
+_EXAMPLE_CMD_BEGIN
+cd $GLOBUS_LOCATION
+_EXAMPLE_CMD_END
+
+_EXAMPLE_CMD_BEGIN
+./bin/globus-start-container
+_EXAMPLE_CMD_END
+
+<p>
+    If you see some service URLs printed out, great:
+</p>
+<div class="screen"><pre>
+[...]
+[13]: https://10.20.0.1:8443/wsrf/services/SampleAuthzService
+[14]: https://10.20.0.1:8443/wsrf/services/SecureCounterService
+[15]: https://10.20.0.1:8443/wsrf/services/SecurityTestService
+[16]: https://10.20.0.1:8443/wsrf/services/ShutdownService
+[17]: https://10.20.0.1:8443/wsrf/services/SubscriptionManagerService
+[...]
+</pre></div>
+
+<p>
+    If you see some error, check the
+    <a href="troubleshooting.html">troubleshooting</a> page.  Also, a very
+    common error at this point might look like this:
+</p>
+
+<div class="screen"><pre>
+ERROR container.GSIServiceThread [ServiceThread-2,process:155]
+        Error processing requestConnection reset
+Failed to obtain a list of services from
+        'https://10.20.0.1:8443/wsrf/services/ContainerRegistryService' service:
+; nested exception is:
+        org.globus.common.ChainedIOException: Authentication failed
+    [Caused by: Failure unspecified at GSS-API level [Caused by: Unknown CA]]
+</pre></div>
+
+<p>
+    You're getting this "Unknown CA" error because the container doesn't trust
+    its own certificate yet.  At boot time, something in the container is making
+    a call to another service and it generates this error because that call is
+    meant to be secure (even if it is internal, it is still using normal https
+    mechanisms).
+</p>
+
+<p>
+    That's OK.  Find the directory with the certificates and CAs you'd like to
+    trust and set the <i>X509_CERT_DIR</i> variable to point to it.  Typically
+    with Globus this is <i>/etc/grid-security/certificates/</i> and the
+    container will look there by default.  But if you followed the Nimbus
+    reference guide and made a host certificate with SimpleAuthority, there
+    should be a ".0" file in the <i>$GLOBUS_LOCATION/certs</i> directory.
+    Which means you should do this to point the container at the trusted
+    certificate authority (the ".0" file is the certificate of the newly
+    created SimpleAuthority certificate authority)
+</p>
+
+_EXAMPLE_CMD_BEGIN
+export X509_CERT_DIR=$GLOBUS_LOCATION/certs
+_EXAMPLE_CMD_END
+
+_EXAMPLE_CMD_BEGIN
+./bin/globus-start-container
+_EXAMPLE_CMD_END
+
+<p>
+    Once you have those services printing (<b>with https</b> URLs), time to
+    change the SecureCounterService security configuration so we can make
+    the right test.
+</p>
+<p>
+    Edit this file:
+</p>
+
+_EXAMPLE_CMD_BEGIN
+nano -w etc/globus_wsrf_core_samples_counter/security-config.xml
+_EXAMPLE_CMD_END
+
+<p>
+    Change all instances of "GSISecureConversation" to "GSITransport".
+</p>
+<p>
+    Change "self" to "gridmap"
+</p>
+<p>
+    It should look like
+    <a href="gt4.0-counter-security-example.xml.txt">this</a> now.
+</p>
+
+<p>
+    Now start the container back up and find the <i>SecureCounterService</i>
+    URL in your container output, something like this:
+</p>
+
+<div class="screen"><pre>
+https://10.20.0.1:8443/wsrf/services/SecureCounterService
+</pre></div>
+
+<p>
+    Ensure you have the URL to the <b>Secure</b> counter service.  Ensure you
+    have copied your own URL and not the one in the example.
+</p>
+
+<p>
+    In another terminal, make the GLOBUS_LOCATION and X509_CERT_DIR (if you had
+    to set that) environment variables the same exact ones that the container
+    is using.
+</p>
+<p>
+    Then run this:
+</p>
+
+_EXAMPLE_CMD_BEGIN
+cd $GLOBUS_LOCATION
+_EXAMPLE_CMD_END
+
+_EXAMPLE_CMD_BEGIN
+./bin/counter-client -z none -s https://10.20.0.1:8443/wsrf/services/SecureCounterService
+_EXAMPLE_CMD_END
+
+<p>
+    Oh dear, what is this error all about:
+</p>
+
+<div class="screen"><pre>
+Error: ; nested exception is:
+        GSSException: Defective credential detected [Caused by: Proxy file (/tmp/x509up_u1000) not found.]
+</pre></div>
+
+<p>
+    The client is looking for something called a "proxy file" which is a special
+    credential that is only valid for a limited time.
+</p>
+<p>
+    You can learn how to make such a proxy file (and user certificate) in
+    <a href="reference.html#certs">this section</a>.
+</p>
+
+<p>
+    Better:
+</p>
+
+<div class="screen"><pre>
+Your identity: C=US,CN=Spencer
+Enter GRID pass phrase for this identity:
+ Creating proxy, please wait...
+Proxy verify OK
+Your proxy is valid until Thu Aug 21 01:00:44 CDT 2008</pre>
+</div>
+
+<p>
+    And ...
+</p>
+
+_EXAMPLE_CMD_BEGIN
+./bin/counter-client -z none -s https://10.20.0.1:8443/wsrf/services/SecureCounterService
+_EXAMPLE_CMD_END
+
+<div class="screen"><pre>
+Error: org.globus.wsrf.impl.security.authorization.exceptions.AuthorizationException:
+    "/C=US/CN=Spencer" is not authorized to use operation:
+    {http://counter.com}createCounter on this service</pre>
+</div>
+
+<p>
+    Oh.  The container doesn't trust Spencer yet.
+</p>
+<p>
+    Remember that <i>etc/globus_wsrf_core/global_security_descriptor.xml</i>
+    file from <a href="#cert-pointing">this section</a>?  That specifies the
+    "grid-mapfile" to use which is the container's
+    main authorized users list.  You may have set up a pointer to a blank
+    text file.  Or maybe you have used Globus before and this is pointing
+    to a populated grid-mapfile.
+</p>
+<p>
+    Either way, this line needs to be added now (corresponding to the quoted
+    identity in the error output):
+</p>
+<div class="screen"><pre>
+"/C=US/CN=Spencer" not_a_real_account</pre></div>
+
+<p>
+    Using "not_a_real_account" as the account mappings because the counter
+    service and Nimbus both do not need to have system account mappings for
+    the users (the grid-mapfile is an overloaded access control list, it
+    also controls user to account mappings).
+</p>
+<p>
+    And again:
+</p>
+
+_EXAMPLE_CMD_BEGIN
+./bin/counter-client -z none -s https://10.20.0.1:8443/wsrf/services/SecureCounterService
+_EXAMPLE_CMD_END
+<div class="screen"><pre>
+Got notification with value: 3
+Counter has value: 3
+Got notification with value: 13
+</pre></div>
+
+<p>
+    Great.  If you now remove the "-z none" part and it generates an error,
+    this means that you chose the wrong hostname for the container certificate.
+</p>
+<p>
+    You can continue on without fixing that.  This is a general problem with
+    SSL server certificates and DNS.  You can continue to sidestep this in all
+    the clients by using "-z none".
+</p>
+<p>
+    Also, if you plan on setting up the Nimbus cloud
+    configuration, you can specify the exact identity the cloud client should
+    expect by changing a configuration file value.  The cloud users will never
+    encounter and DNS related SSL problem if you do that.  They will just run
+    the one "--list" or "--run" command and not need to think about such things.
+</p>
+
+
+
+
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+
+<br />
+
+<a name="manual-nimbus-basics"> </a>
+<h2>Configuring Nimbus basics manually without the auto-configuration program _NAMELINK(manual-nimbus-basics)</h2>
+
+<p>
+    What follows is the instructions for setting up a container as they existed
+    before the auto-configration program came into being (see
+    <a href="quickstart.html#part-IIb">here</a> for
+    information about the auto-configuration program).
+</p>
+
+<hr />
+
+
+<h4>* Service hostname:</h4>
+<p>
+    Navigate to the workspace-service configuration directory:
+</p>
+
+_EXAMPLE_CMD_BEGIN
+cd $GLOBUS_LOCATION/etc/nimbus/workspace-service
+_EXAMPLE_CMD_END
+
+
+<p>
+    Edit the "ssh.conf" file:
+</p>
+
+_EXAMPLE_CMD_BEGIN
+nano -w ssh.conf
+_EXAMPLE_CMD_END
+
+
+<p>
+    Find this setting:
+</p>
+
+<div class="screen"><pre>
+service.sshd.contact.string=REPLACE_WITH_SERVICE_NODE_HOSTNAME:22</pre>
+</div>
+
+<p>
+    ... and replace the CAPS part with your service node hostname.  This
+    hostname and port should be accessible from the VMM nodes.
+</p>
+
+<p>
+    (The guide assumes you will have the same privileged account name on the
+     service node and VMM nodes, but if not, this is where you would make the
+     changes as you can read in the ssh.conf file comments).
+</p>
+
+
+<h4>* VMM names:</h4>
+<p>
+    Navigate to the workspace service VMM pools directory:
+</p>
+
+_EXAMPLE_CMD_BEGIN
+cd $GLOBUS_LOCATION/etc/nimbus/workspace-service/vmm-pools
+_EXAMPLE_CMD_END
+
+<p>
+    Each file in this directory represents a distinct pool of VMM nodes that
+    are available for the service to run VMs on.  Leave this as one pool (one
+    file, the example file).
+</p>
+
+<p>
+    Edit the example "pool1" file to list only one test VMM node, the node
+    where you installed Xen above.  List the amount of memory you would like
+    allocated to the guest VMs.
+</p>
+
+
+<div class="screen"><pre>
+some-vmm-node 1024</pre>
+</div>
+
+<p>
+    You can SSH there without password from the nimbus account, right?
+</p>
+
+_EXAMPLE_CMD_BEGIN
+ssh some-vmm-node
+_EXAMPLE_CMD_END
+
+<div class="screen"><pre>
+nimbus@some-vmm-node $ ...</pre>
+</div>
+
+<a name="networks"> </a>
+<h4>* Networks:</h4>
+<p>
+    Navigate to the workspace service networks directory:
+</p>
+
+_EXAMPLE_CMD_BEGIN
+cd $GLOBUS_LOCATION/etc/nimbus/workspace-service/network-pools/
+_EXAMPLE_CMD_END
+
+<p>
+    The service is packaged with two sample network files, <i>public</i> and
+    <i>private</i>.
+</p>
+<p>
+    You can name these files anything you want.  The file names will be the
+    names of the networks that are offered to clients.  It's a convention to
+    provide "public" and "private" but these can be anything.
+</p>
+
+<p>
+    The <i>public</i> file has some comments in it.  Edit this file to have
+    the one DNS line at the top and one network address to give out.  The
+    subnet and network you choose should be something the VMM node can bridge
+    to (there are some advanced configs to be able to do DHCP and bridge
+    addresses for addresses that are foreign to the VMM, but this is not
+    something addressed in this guide).
+</p>
+
+_EXAMPLE_CMD_BEGIN
+nano -w public
+_EXAMPLE_CMD_END
+
+<div class="screen"><pre>
+192.168.0.1
+fakepub1 192.168.0.3 192.168.0.1 192.168.0.255 255.255.255.0</pre>
+</div>
+
+
+
+
+
+
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+
+<br />
+
+
+<a name="resource-pool-and-pilot"> </a>
+<h2>Resource pool and pilot configurations _NAMELINK(resource-pool-and-pilot)</h2>
+<p>
+    There are modules for two resource management strategies currently
+    distributed with Nimbus: the default "resource pool" mode and the "pilot"
+    mode.
+</p>
+<p>
+    The "resource pool" mode is where the service has direct control of a pool
+    of VMM nodes.  The service assumes it can start VMs 
+</p>
+<p>
+    The "pilot" mode is where the service makes a request to a cluster's
+    Local Resource Management System (LRMS) such as PBS.  The VMMs are equipped
+    to run regular jobs in domain 0.  But if pilot jobs are submitted, the nodes
+    are secured for VM management for a certain time period by the workspace
+    service.  If the LRM or
+    administrator preempts/kills the pilot job earlier than expected, the VMM
+    is no longer available to the workspace service. 
+</p>
+<p>
+    The "etc/nimbus/workspace-service/other/<b>resource-locator-ACTIVE.xml</b>"
+    file dictates what mode is in use (container restart required if this
+    changes).  See the available
+    "etc/nimbus/workspace-service/other/<b>resource-locator-*</b>" files.
+</p>
+
+<a name="resource-pool"> </a>
+<h3>Resource pool _NAMELINK(resource-pool)</h3>
+<p>
+    This is the default, see the <a href="#resource-pool-and-pilot">overview</a>.
+</p>
+
+<p>
+    A directory of files is located at
+    "etc/nimbus/workspace-service/<b>vmm-pools</b>/"
+</p>
+<p>
+   The pool file format is currently very simple: for each node in the pool,
+   list the hostname and the amount of RAM it can spare for running guest VMs.
+</p>
+<p>
+   Optionally, you can also specify that certain hosts can only
+   support a subset of the available networking associations (see the
+   file comments for syntax).
+</p>
+<p>
+   If you change these configuration files after starting the
+   container, only a fresh container reboot will actually incur the
+   changes.
+</p>
+
+<ul>
+
+    <li>
+        If you <b>add</b> a node, this will be available
+        immediately after the container reboot.
+    </li>
+
+    <li>
+        If you <b>remove</b> a node that is currently
+        in use, no new deployments will be mapped to this VMM.
+        However, this will not destroy (or migrate) any current VMs
+        running there.  If that is necessary it currently needs to be
+        accomplished explicitly.
+    </li>
+
+    <li>
+        If you <b>change</b> a node that is currently
+        in use, the change will take effect for the next lease.
+
+        <p>
+        If you've removed support for an association on a VMM that
+        the current VM(s) is using, this change will not destroy (or
+        migrate) the VM(s) to adjust to this restriction.
+        If that is necessary it currently needs to be accomplished
+        explicitly.
+        </p>
+
+
+        <p>
+        If you've reduced the memory allocation below what the
+        current VM(s) on the node is/are currently using, this will
+        not destroy (or migrate) the current VM(s) to adjust to this
+        restriction.
+        If that is necessary it currently needs to be accomplished
+        explicitly.  Once the VM(s) are gone, the maximum memory
+        available on that VMM will be the new, lower maximum.
+        </p>
+    </li>
+
+</ul>
+
+
+<a name="pilot"> </a>
+<h3>Pilot _NAMELINK(pilot)</h3>
+<p>
+    
+</p>
+
+
+
+<ol>
+    <li>
+        <p>
+            The first step to switching to the pilot based infrastructure
+            is to make sure you have at least one working node configured
+            with workspace-control, following the instructions in this
+            guide as if you were not going to use dynamically allocated
+            VMMs via the pilot.
+        </p>
+
+        <p>
+            If the only nodes available are in the LRM pool, it would be best
+            to drain the jobs from one and take it offline while you confirm
+            the setup.
+        </p>
+    </li>
+
+    <li>
+        <p>
+            Next, make sure that the system account the container is
+            running in can submit jobs to the LRM.  For example, run
+            <b>echo "/bin/true" | qsub</b>
+        </p>
+    </li>
+
+    <li>
+        <p>
+            Next, decide how you would like to organize the cluster nodes,
+            such that the request for time on the nodes from the workspace
+            service in fact makes it end up with usable VMM nodes.
+        </p>
+        <p>
+            For example, if there are only a portion of nodes configured
+            with Xen and workspace-control, you can set up a special node
+            property (e.g. 'xen') or perhaps a septe queue or server.
+            The service supports submitting jobs with node property
+            requirements and also supports the full Torque/PBS
+            '[queue][@server]' destination syntax if desired.
+        </p>
+    </li>
+
+    <li>
+        <p>
+            Copy the
+            "etc/nimbus/workspace-service/other/<b>resource-locator-pilot.xml</b>"
+            to
+            "etc/nimbus/workspace-service/other/<b>resource-locator-ACTIVE.xml</b>"
+        </p>
+
+        <p>
+            The configuration comments in "etc/nimbus/workspace-service/<b>pilot.conf</b>"
+            should be self explanatory.  There are a few to highlight here
+            (and note that advanced configs are in <b>resource-locator-ACTIVE.xml</b>).
+        </p>
+
+        <ul>
+            <li>
+                <p>
+                    HTTP digest access authentication based notifications
+                    is a mechanism for pilot notifications.  Each message
+                    from a pilot process to the workspace service takes
+                    on the order of 10ms on our current testbed which is
+                    reasonable.
+                </p>
+
+                <p>
+                    The <b>contactPort</b> setting is used
+                    to control what port the embedded HTTP server listens
+                    on.  It is also the contact URL passed to the pilot
+                    program, an easy way to get this right is to use an
+                    IP address rather than a hostname.
+                </p>
+
+                <p>
+                    Note the <b>accountsPath</b> setting.
+                    Navigate to that file ("etc/nimbus/workspace_service/<b>pilot-authz.conf</b>"
+                    by default) and change the shared secret to something
+                    not dictionary based and 15 or more characters.
+                    A script in that directory will produce suggestions.
+                </p>
+
+                <p>
+                    This port may be blocked off entirely from WAN access
+                    via firewall if desired, only the pilot programs need
+                    to connect to it.  If it is not blocked off, the use
+                    of HTTP digest access authentication for connections
+                    is still guarding access.
+                </p>
+
+                <p>
+                    Alternatively, you can configure only SSH for these
+                    notifications as well as configure both and use SSH as
+                    a fallback mechanism.
+                    When used as a fallback mechanism, the pilot will try to
+                    contact the HTTP server and if that fails will then
+                    attempt to use SSH.  Those message are written to a
+                    file and will be read when the workspace service
+                    recovers.  This is an advanced configuration, setting
+                    up the infrastructure without this configured is recommended
+                    for the first pass (reduce your misconfiguration chances).
+                </p>
+
+            </li>
+
+            <li>
+                <p>
+                    The <b>maxMB</b> setting is used to
+                    set a hard maximum memory allotment across all workspace
+                    requests (no matter what the authorization layers
+                    allow).  This a "fail fast" setting, making sure
+                    dubious requests are not sent to the LRM.
+                </p>
+                <p>
+                    To arrive at that number, you must arrive at the
+                    maximum amount of memory
+                    to give domain 0 in non-hosting mode.  This should be
+                    as much as possible and you will also configure this later
+                    into the pilot program settings (the pilot will make sure domain
+                    0 gets this memory back when returning the node from hosting
+                    mode to normal job mode).
+                </p>
+                <p>
+                    When the node boots and xend is first run, you should
+                    configure things such that domain 0 is already at this
+                    memory setting.  This way, it will be ready to give
+                    jobs as many resources as possible from its initial
+                    boot state.
+                </p>
+                <p>
+                    Domain 0's memory is set in the boot pmeters.
+                    On the "kernel" line you can add a parameter like this:
+                    <b>dom0_mem=2007M</b>
+                </p>
+                <p>
+                    If it is too high you will make the node unbootable,
+                    2007M is an example from a 2048M node and was arrived
+                    at experimentally.  We are working on ways to
+                    automatically figure out the highest number
+                    this can be without causing boot issues.
+                </p>
+                <p>
+                    Take this setting and subtract at least 128M from it,
+                    allocating the rest for guest workspaces.  Let's label
+                    128M in this example as <b>dom0-min</b>
+                    and 2007 as <b>dom0-max</b>.  Some memory
+                    is necessary for domain 0 to at least do privileged
+                    disk and net I/O for guest domains.
+                </p>
+                <p>
+                    These two memory setting will be configured into the
+                    pilot to make sure domain 0 is always in the correct
+                    state.  Domain 0's memory will never be set below the
+                    <b>dom0-min</b> setting and will always
+                    be returned to the <b>dom0-max</b> when
+                    the pilot program vacates the node.
+                </p>
+                <p>
+                    Instead of letting the workspace request fail on the
+                    backend just before instantiation, the
+                    <b>maxMB</b> setting is configured in
+                    the service so b requests for more memory will be
+                    rejected up front.
+                </p>
+                <p>
+                    So [ <b>dom0-max</b> minus
+                    <b>dom0-min</b> equals
+                    <b>maxMB</b> ].  And again
+                    <b>maxMB</b> is the maximum allowed for
+                    guest workspaces.
+                </p>
+                <p>
+                    ( You could make it smaller.  But it would not make
+                    sense to make it bigger than
+                    [ <b>dom0-max</b> minus
+                    <b>dom0-min</b> ] because this will
+                    cause the pilot program itself to reject the request. )
+                </p>
+            </li>
+
+            <li>
+                <p>
+                    The <b>pilotPath</b> setting must be
+                    gotten right and double checked.
+                    See
+                    <a href="http://bugzilla.globus.org/bugzilla/show_bug.cgi?id=5869">this
+                    bugzilla item</a>
+                </p>
+            </li>
+
+        </ul>
+
+    </li>
+
+    <li>
+        <p>
+            Next, note your pilotPath setting and put a copy of
+            <b>workspacepilot.py</b> there. Run
+            <b>chmod +x</b> on it and that is all
+            that should be necessary for the installation.
+        </p>
+        <p>
+            Python 2.3 or higher (though not Python 3.x) is also required
+            but this was required for workspace-control as well.
+        </p>
+        <p>
+            A sudo rule to the xm program is also required but this was
+            configured when you set up workspace-control.  If the account
+            the pilot jobs are run under is different than the account that
+            runs workspace-control, copy the xm sudo rule for the account.
+        </p>
+    </li>
+
+    <li>
+        <p>
+            Open the <b>workspacepilot.py</b> file in an
+            editor.  These things must be configured correctly and require
+            your intervention (i.e., the software cannot guess at them):
+        </p>
+
+        <ul>
+
+            <li>
+                Search for "<b>secret: pw_here</b>" around
+                line 80.  Replace "pw_here" with the shared secret you
+                configured above.
+            </li>
+
+            <li>
+                Below that, set the "minmem" setting to the value you chose
+                above that we called <b>dom0-min</b>.
+            </li>
+
+            <li>
+                Set the "dom0_mem" setting to the value you chose above
+                that we called <b>dom0-max</b>.
+            </li>
+
+        </ul>
+
+        <p>
+            The other configurations should be explained enough in the
+            comments and they also usually do not need to be altered.
+        </p>
+        <p>
+            You might like to create a directory for the pilot's logfiles
+            instead
+            of the default setting of "/tmp" for the "logfiledir"
+            configuration.  You might also wish to septe out the config
+            file from the program.  The easiest way to do that is
+            to configure the service to call a shell script instead of
+            workspacepiloy.py.  This in turn could wrap the call to the
+            pilot program, for example:
+            <b>"/opt/workspacepilot.py -p /etc/workspace-pilot.conf $@"</b>
+        </p>
+
+    </li>
+
+    <li>
+        Now restart the GT container and submit test workspace requests as
+        usual (cloud requests work too).
+    </li>
+
+</ol>
+
+
+
+
+
+
+
+
+
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+
+
+
+<br />
+
+
+<a name="backend-config-invm-networking"> </a>
+<h2>Network configuration details _NAMELINK(backend-config-invm-networking)</h2>
+<p>
+    For the Workspace backend to support networking information delivery to
+    VMs, you are required to install DHCP and ebtables on each hypervisor
+    node. When networking information in a workspace needs to change at
+    its startup (which is typical upon deployment), workspace-control will
+    make a call via sudo to a program that adds a MAC address to IP mapping
+    into the local DHCP server for each of the workspace's NICs that need
+    to be configured. It will also adjust ebtables rules for each of the
+    workspace's NICs that need to be configured: these make sure the NICs
+    are using the proper MAC and IP address as well as directing DHCP
+    requests to the local DHCP server only.
+</p>
+
+<p>
+    To actually enact networking changes, the VM must set its own L3 networking
+    information (IP address, default gateway, etc) from inside the VM. Currently
+    we only support delivery of the information via DHCP. Booting into DHCP
+    client mode is well supported in virtually every operating system in
+    existence. Previously we passed information via kernel parameters which
+    required a special understanding inside the VM. The result of using DHCP
+    is that workspace images are easier to create and easier to maintain.
+</p>
+
+<p>
+    A DHCP server is required to run on each hypervisor node. The purpose of
+    this server is to respond to broadcast requests from workspace's that
+    are booting locally. Before starting a VM, if any of its NICs need to
+    be configured via DHCP, workspace-control will call out to "dhcp-config.sh"
+    via sudo, passing it a specific MAC address to IP mapping (as well as
+    other information to be passed to the VM such as hostname, dns servers,
+    broadcast address, default gateway, etc).
+</p>
+
+<ul>
+    <li>"Won't this interfere with my current DHCP server?" No.</li>
+    <li>"Will this cause unwanted packets on my physical LAN?" No.</li>
+    <li>"Will other workspaces be able to send broadcasts and get the wrong DHCP lease?" No.</li>
+</ul>
+
+<p>
+    In addition to a DHCP server, we also insert custom ebtables rules when the
+    workspace is deployed. These rules accomplish three things:
+</p>
+
+<ol>
+    <li>Only packets with the correct MAC address for this virtual interface
+        are permitted.</li>
+    <li>Broadcasted DHCP requests are only permitted to be bridged to the
+        correct virtual interface (configured in workspace-control's
+        configuration file).</li>
+    <li>Only packets with the correct IP address for this virtual
+        interface are permitted (as the NIC does not have an IP address yet
+        when making a DHCP request, the IP check only happens if it is not
+        a DHCP request.</li>
+</ol>
+<p>
+    A version of the workspace DHCP design document is available here:
+    <a href="../DHCP-TP1.2.2-draft2.pdf">pdf</a>.
+</p>
+
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+
+<br />
+
+
+<a name="context-broker"> </a>
+<h2>Two context broker implementations _NAMELINK(context-broker)</h2>
+
+<p>
+    The <a href="_NIMBUS_WEBSITE/faq/#ctxbroker">context broker</a> is used to
+    enable <a href="../clouds/clusters.html">one click clusters</a>.
+</p>
+<p>
+    Before TP2.2, there was one implementation of the context broker and its
+    protocols that was in use.  When TP2.2 came out, a new, better style of
+    contextualization was introduced.  Cloud client #11 and beyond supports
+    this style.  Cloud client #10 supports the previous kind.
+</p>
+<p>
+    Because there are so many cloud client 10 users and because the context
+    agents running inside all of the previously created virtual clusters would
+    need to be updated as well, Nimbus TP2.2 will support <b>both</b> kinds of
+    contextualization.
+</p>
+<p>
+    Newly created clusters should use the new TP2.2 broker and context agent
+    implementations.  And old clusters and clients can continue on.
+</p>
+<p>
+    You can deploy Nimbus TP2.2 with <i>BOTH</i> context brokers supported,
+    <i>ZERO</i> context brokers supported, or only <i>ONE</i> context broker
+    supported (either one).
+</p>
+
+
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+
+<br />
+
+<a name="context-broker-old"> </a>
+<h2>Configuring the OLD context broker _NAMELINK(context-broker-old)</h2>
+
+<p>
+    The <a href="_NIMBUS_WEBSITE/faq/#ctxbroker">context broker</a> is used to
+    enable <a href="../clouds/clusters.html">one click clusters</a>.
+</p>
+<p>
+    To set up an OLD broker (see <a href="#context-brokers-two">above</a>)
+    that is compatible with pre-011 cloud clients, follow these steps:
+</p>
+<ol>
+    <li>
+        <p>
+            Unfortunately you need to update a jar in "$GLOBUS_LOCATION/lib"
+            in order to make the old context broker work.  TP2.2 was released
+            with a bug that prevents the old context broker from working with
+            it in a backwards compatible way.
+        </p>
+        <p>
+            See <a href="http://bugzilla.globus.org/bugzilla/show_bug.cgi?id=6633">Bug 6633</a>,
+            there is a jar file you can download and put into the lib directory
+            (or alternatively you can patch the source file yourself).
+        </p>
+    </li>
+    <li>
+        <p>
+            Create a passwordless CA certificate.
+        </p>
+
+        <p>
+            You can do this from an existing CA.  To unencrypt an RSA key, run:
+            <i>openssl rsa -in cakey.pem -out cakey-unencrypted.pem</i>
+        </p>
+        <p>
+            Alternatively, you can create a new throwaway
+            <a href="quickstart.html#auto-container">AutoContainer</a> and
+            use the CA files generated under <i>~/.globus/auto-container-01</i>
+        </p>
+    </li>
+    <li>
+        <p>
+            Make very sure that the CA certificate and key files are read-only
+            and private to the container running account.
+        </p>
+    </li>
+    <li>
+        <p>
+            Remove the comments from the relevant section in
+            <i>$GLOBUS_LOCATION/etc/nimbus/jndi-config.xml</i> in order to
+            enable the broker.  Adjust the paths in the <i>caCertPath</i>
+            and <i>caKeyPath</i> to match the files you created in the
+            previous step.
+        </p>
+    </li>
+    <li>
+        <p>
+            Add the CA certificate to your container's trusted certificates
+            directory.  The context broker (running in the container) creates
+            short term credentials on the fly for the VMs.  The VMs use this
+            to contact the broker: the container needs to be able to verify
+            who is calling.
+        </p>
+    </li>
+    <li>
+        <p>
+            Container restart is required.
+        </p>
+    </li>
+</ol>
+
+
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+        
+<br />
+
+
+<a name="context-broker-new"> </a>
+<h2>Configuring the NEW context broker _NAMELINK(context-broker-new)</h2>
+
+<p>
+    The <a href="_NIMBUS_WEBSITE/faq/#ctxbroker">context broker</a> is used to
+    enable <a href="../clouds/clusters.html">one click clusters</a>.
+</p>
+<p>
+    The new TP2.2 broker (see <a href="#context-broker">above</a>)
+    is installed separately from Nimbus, there is not a
+    dependency on any Nimbus service component.  It can run by itself in a
+    container.  You can use it for deploying virtual clusters on EC2 for
+    example without any other Nimbus service running (the cloud client #11 has
+    an "ec2script" option that will allow you to do this).
+</p>
+<p>
+    To set up a NEW broker that is compatible with post-010 cloud clients,
+    follow these steps:
+</p>
+<ol>
+    <li>
+        <p>
+            Create a passwordless CA certificate.
+        </p>
+
+        <p>
+            You can do this from an existing CA.  To unencrypt an RSA key, run:
+            <i>openssl rsa -in cakey.pem -out cakey-unencrypted.pem</i>
+        </p>
+        <p>
+            Alternatively, you can create a new throwaway
+            <a href="quickstart.html#auto-container">AutoContainer</a> and
+            use the CA files generated under <i>~/.globus/auto-container-01</i>
+        </p>
+    </li>
+    <li>
+        <p>
+            Make very sure that the CA certificate and key files are read-only
+            and private to the container running account.
+        </p>
+    </li>
+    <li>
+        <p>
+            Add the CA certificate to your container's trusted certificates
+            directory.  The context broker (running in the container) creates
+            short term credentials on the fly for the VMs.  The VMs use this
+            to contact the broker: the container needs to be able to verify
+            who is calling.
+        </p>
+    </li>
+    <li>
+        <p>
+           Install the broker by setting <b>$GLOBUS_LOCATION</b> and then
+           running the included <i>deploy-broker.sh</i> script.
+        </p>
+    </li>
+    <li>
+        <p>
+           Navigate to "<i>$GLOBUS_LOCATION/etc/nimbus-context-broker</i>"
+           and adjust the "caCertPath" and "caKeyPath" parameters in the
+           "<i>jndi-config.xml</i>" file to point to the CA certificate
+            and key files you created in previous steps.
+        </p>
+        <p>
+            Note that the old and new context brokers can both use the same
+            CA certificate and key file.
+        </p>
+    </li>
+    <li>
+        <p>
+            Container restart is required.
+        </p>
+    </li>
+</ol>
+        
+
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+
+_NIMBUS_CENTER2_COLUMN_END
+_NIMBUS_FOOTER1
+_NIMBUS_FOOTER2
+_NIMBUS_FOOTER3

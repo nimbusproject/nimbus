@@ -1,0 +1,15 @@
+.namelink{
+  font-style: italic;
+}
+.namelink a{
+  color: white;
+  text-decoration:none;
+}
+.namelink a:visited
+{
+  color: white;
+}
+.namelink a:hover
+{
+  color: gray;
+}

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cluster xmlns="http://www.globus.org/2008/06/workspace/metadata/logistics">
+  <workspace>
+    <name>headwork-node</name>
+    <image>fc8-i386-nimbus-hadoop-cluster-001.gz</image>
+    <quantity>1</quantity>
+    <nic wantlogin="true">public</nic>
+    <ctx>
+      <provides>
+          <identity />
+          <role>hadoop</role>
+          <role>hadoopmaster</role>
+      </provides>
+      <requires>
+          <identity />
+          <role name="hadoopslave" hostname="true" pubkey="true" />
+          <role name="hadoopmaster" hostname="true" pubkey="true" />
+          <data name="exec"><![CDATA[
+#!/bin/sh
+MASTER=`cat /etc/thishostip`
+HADOOPBASE="/opt/hadoop-0.19.0"
+
+# To guarantee that this is only executed by the master
+if [ -f /root/this_node_is_hadoop_master ] ; then
+
+    # Configuring Hadoop
+    sed s/HEADWORKER/$MASTER/g $HADOOPBASE/conf/hadoop-site-template.xml > /tmp/tmp && \
+    mv -f /tmp/tmp $HADOOPBASE/conf/hadoop-site.xml
+    cp /etc/thishostip $HADOOPBASE/conf/masters
+    grep -v $MASTER$ /etc/hostsfile > $HADOOPBASE/conf/slaves
+    cat /etc/thishostip $HADOOPBASE/conf/slaves > /tmp/tmp && \
+    mv -f /tmp/tmp $HADOOPBASE/conf/slaves
+    cp $HADOOPBASE/conf/slaves /etc/hostsfile
+
+    # Copy Hadoop configuration to all other nodes
+    for l in `cat /etc/hostsfile`; do
+        scp $HADOOPBASE/conf/masters $l:$HADOOPBASE/conf/ || echo "failed to copy masters to $l"
+        scp $HADOOPBASE/conf/slaves $l:$HADOOPBASE/conf/ || echo "failed to copy slaves to $l"
+        scp $HADOOPBASE/conf/hadoop-site.xml $l:$HADOOPBASE/conf/ || echo "failed to copy hadoop-site to $l"
+    done
+    # This line is commented out in order to avoid start of hadoop in all nodes
+    # when manual contextualization among multiple cloud providers is necessary
+    #$HADOOPBASE/bin/start-all.sh
+    # Or run cat sample application with hadoop
+    /opt/scripts/runhadoopcat.sh /etc/hostsfile 4 40 &
+
+fi
+          ]]> </data>
+      </requires>
+    </ctx>
+  </workspace>
+
+  <workspace>
+    <name>work-nodes</name>
+    <image>fc8-i386-nimbus-hadoop-cluster-001.gz</image>
+    <quantity>3</quantity>
+    <nic wantlogin="true">public</nic>
+    <ctx>
+      <provides>
+          <identity />
+          <role>hadoopslave</role>
+      </provides>
+      <requires>
+          <identity />
+          <role name="hadoop" hostname="true" pubkey="true" />
+      </requires>
+    </ctx>
+  </workspace>
+</cluster>

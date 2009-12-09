@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VirtualWorkspace
+    xmlns="http://www.globus.org/2008/06/workspace/metadata"
+    xmlns:def="http://www.globus.org/2008/06/workspace/metadata/definition"
+    xmlns:log="http://www.globus.org/2008/06/workspace/metadata/logistics"
+    xmlns:jsdl="http://schemas.ggf.org/jsdl/2005/11/jsdl"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
+
+    <!-- name is an arbitrary URI -->
+    <name>http://workspace.globus.org/hello1</name>
+
+    <log:logistics>
+        <log:networking>
+            <log:nic>
+                <log:name>eth0</log:name>
+                <log:ipConfig>
+                    <log:acquisitionMethod>AllocateAndConfigure</log:acquisitionMethod>
+                </log:ipConfig>
+                <log:association>public</log:association>
+            </log:nic>
+        </log:networking>
+    </log:logistics>
+
+    <def:definition>
+        <def:requirements>
+            <jsdl:CPUArchitecture>
+                <jsdl:CPUArchitectureName>x86</jsdl:CPUArchitectureName>
+            </jsdl:CPUArchitecture>
+            <def:VMM>
+                <def:type>Xen</def:type>
+                <def:version>3</def:version>
+            </def:VMM>
+        </def:requirements>
+        <def:diskCollection>
+            <def:rootVBD>
+                <!--
+                Relative path names like in this example will be resolved
+                relative to the deployment node's local image repository
+                -->
+                <def:location>file://hello1.img</def:location>
+                <def:mountAs>sda1</def:mountAs>
+                <def:permissions>ReadWrite</def:permissions>
+            </def:rootVBD>
+        </def:diskCollection>
+    </def:definition>
+</VirtualWorkspace>

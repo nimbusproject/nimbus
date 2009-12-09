@@ -1,0 +1,111 @@
+m4_include(/mcs/m4/worksp.lib.m4)
+_NIMBUS_HEADER(OSG Cluster 1.0.0)
+_NIMBUS_HEADER2(n,n,n,n,n,n,y)
+_NIMBUS_LEFT2_COLUMN
+
+_NIMBUS_LEFT2_CLOUDS2_SIDEBAR
+
+_NIMBUS_LEFT2_COLUMN_END
+_NIMBUS_CENTER2_COLUMN
+
+<h2>Debian 4.0 Cluster with OSG 1.0.0</h2>
+
+<h3>Overview</h3>
+        
+<p>
+    These images are based on Debian 4.0 image with the OSG 1.0.0 software stack
+    installed in /opt/osg-1.0.0. The setup script generates a cluster definition
+    file that can be used with the cloud client software. The compute element
+    uses GCS to generate a low-quality X.509 certificate for OSG services at
+    boot time.  Clients must have the CA configuration from
+    <a href="http://gcs.globus.org:8080/gcs/setup_ca.html">GCS</a> in order to
+    contact the OSG services on this cluster.
+</p>
+
+<h3>Files</h3>
+
+<ul>
+    <li><a href="http://www.mcs.anl.gov/~bester/workspaces/osg-1.0.0-ce.gz">Compute Element Image</a> [420 MB] [MD5: 1be3f4d7b01e94d372b9f516a96feddf]</li>
+    <li><a href="http://www.mcs.anl.gov/~bester/workspaces/osg-1.0.0-wn.gz">Worker Node Image</a> [618 MB] [MD5: 32215e8799d8871a333922f18d62992a]</li>
+    <li><a href="http://www.mcs.anl.gov/~bester/workspaces/setup-osg-cluster.sh">setup script</a></li>
+
+</ul>
+
+<h3>Requirements</h3>
+
+<p>
+    The setup script requires the
+    <a href="http://www.gnu.org/software/sharutils/">uuencode</a> utility
+    (on Debian systems it is in the sharutils package) and
+    <a href="http://xmlsoft.org/XSLT/downloads.html">xsltproc</a> in order
+    to encode the trusted certificate directory for transfer to the cluster.
+</p>
+
+<h3>Instructions</h3>
+
+<ol>
+    <li>Download the files</li>
+    <li>Transfer the images to a cloud service:
+        <ul>
+            <li>./bin/cloud-client.sh --transfer --sourcefile osg-1.0.0-ce.gz</li>
+            <li>./bin/cloud-client.sh --transfer --sourcefile osg-1.0.0-wn.gz</li>
+        </ul>
+    </li>
+    <li>Generate cluster definition: sh setup-osg-cluster.sh mycluster.xml</li>
+    <li>Deploy cluster: ./bin/cloud-client -run --cluster mycluster.xml --hours 4</li>
+</ol>
+
+<p>
+    The setup script asks four questions:
+</p>
+
+<ul>
+    <li>
+        <p>
+            <i>Enter trusted certificate directory to copy to cluster:</i>
+        </p>
+        <p>
+            This should be a local directory containing the CA certificates that
+            you want the compute element to trust. This directory will be tarred
+            up and sent to the compute elemenrt node during contextualization.
+        </p>
+    </li>
+
+    <li>
+        <p>
+            <i>Enter whitespace-delimited list of user names to create on the cluster:</i>
+        </p>
+        <p>
+            This should be the names of local accounts you want to create on the
+            cluster. The accounts will be created with random passwords, but
+            can be used by the OSG services. These accounts will be created
+            with a NFS-shared home directory across the cluster.
+        </p>
+    </li>
+
+    <li>
+        <p>
+            <i>Enter path to gridmap to add to cluster:</i>
+        </p>
+        <p>
+            This should be a local gridmap file that will be copied to the
+            compute element. Normally this will map names  of certificates
+            signed by the trusted CAs above to the local accounts defined
+            above.
+        </p>
+    </li>
+
+    <li>
+        <p>
+            <i>Enter number of compute nodes for this cluster:</i>
+        </p>
+        <p>
+            This is the number of worker nodes which will be created. The
+            Torque resource manager will run on the compute element and GRAM2
+            or GRAM4 (running on port 9443) will be able to submit jobs to
+            the worker nodes.
+        </p>
+    </li>
+</ul>
+
+    
