@@ -1,0 +1,779 @@
+m4_include(/mcs/m4/worksp.lib.m4)
+_NIMBUS_HEADER(FAQ)
+_NIMBUS_HEADER2(n,n,y,n,n,n,n)
+_NIMBUS_LEFT2_COLUMN
+
+_NIMBUS_LEFT2_ABOUT_SIDEBAR(n,y,n,n)
+
+_NIMBUS_LEFT2_COLUMN_END
+_NIMBUS_CENTER2_COLUMN
+
+<h2>Frequently Asked Questions</h2>
+
+<ul>
+
+    <li>
+        <a href="#nimbus">What is Nimbus</a>?
+    </li>
+    <li>
+        <a href="#cloudkit">What is the main way to deploy Nimbus</a>?
+    </li>
+    <li>
+        <a href="#install">Is Nimbus hard to install</a>?
+    </li>
+    <li>
+        <a href="#nimbus-main-components">What are the main Nimbus components</a>?
+    </li>
+    <li>
+        <a href="#workspace-service">What is the Workspace Service</a>?
+    </li>
+    <li>
+        <a href="#wsrf-frontend">What is the WSRF frontend</a>?
+    </li>
+    <li>
+        <a href="#ec2-frontend">What is the EC2 frontend</a>?
+    </li>
+    <li>
+        <a href="#ec2-messaging">What EC2 operations are supported</a>?
+    </li>
+    <li>
+        <a href="#cloud-client">What is the cloud client</a>?
+    </li>
+    <li>
+        <a href="#reference-client">What is the reference client</a>?
+    </li>
+    <li>
+        <a href="#wpilot">What is the Workspace Pilot</a>?
+    </li>
+    <li>
+        <a href="#rm-api">What is the RM API</a>?
+    </li>
+    <li>
+        <a href="#wcontrol">What is workspace-control</a>?
+    </li>
+    <li>
+        <a href="#ctxbroker">What is the Context Broker</a>?
+    </li>
+    <li>
+        <a href="#ctxagent">What is the Context Agent</a>?
+    </li>
+    <li>
+        <a href="#ec2-backend">What is the EC2 backend</a>?
+    </li>
+    <li>
+        <a href="#defcloudkit">What is the cloudkit</a>?
+    </li>
+    <li>
+        <a href="#autocontainer">What is the AutoContainer</a>?
+    </li>
+    <li>
+        <a href="#opennebula">How does Nimbus compare to OpenNebula</a>?
+    </li>
+    <li>
+        <a href="#license">How is the software licensed</a>?
+    </li>
+</ul>
+
+<h2>&nbsp;</h2>
+<br /> 
+
+<div class="ulmoveleft">
+
+<ul>
+
+    <li>
+        <a name="nimbus"> </a>
+        <p>
+            <b>What is Nimbus? _NAMELINK(nimbus)</b>
+        </p>
+
+        <p>
+            Nimbus is a set of open source tools that together provide
+            an "Infrastructure-as-a-Service" (IaaS) cloud computing
+            solution.  Our mission is to evolve the infrastructure
+            with emphasis on the needs of science, but many
+            non-scientific use cases are supported as well.
+        </p>
+
+        <p>
+            Nimbus allows a client to lease remote resources by deploying
+            virtual machines (VMs) on those resources and configuring
+            them to represent an environment desired by the user.
+        </p>
+
+        <p>
+            It was formerly known as the "Virtual Workspace Service" (VWS)
+            but the "workspace service" is technically just one the components
+            in the software
+            <a href="#nimbus-main-components">collection</a>.
+        </p>
+    </li>
+    
+    <li>
+        <a name="cloudkit"> </a>
+        <p>
+            <b>What is the main way to deploy Nimbus? _NAMELINK(cloudkit)</b>
+        </p>
+
+        <p>
+            Options aren't always a good thing, especially to start with.  The
+            main way to deploy Nimbus is the "cloudkit" configuration.  This
+            involves hosting a site manager service and creating an image
+            repository for clients to have their own personal image directories
+            (see the
+            <a href="doc/cloud.html">cloud
+            guide</a> for details).  You direct your new users to use the
+            <a href="clouds/cloudquickstart.html">cloud client</a> which
+            gets them up and running in just a few minutes if the credential
+            situation is understood.
+        </p>
+
+        <p>
+            <i>Overview of the cloud configuration:</i>
+        </p>
+
+        <img src="_WORKSP_CURRENT_VM_VERSION/img/cloud-overview-rt.png"
+             alt="cloud overview pic" />
+    </li>
+
+    <li>
+        <a name="install"> </a>
+        <p>
+            <b>Is Nimbus hard to install? _NAMELINK(install)</b>
+        </p>
+        <p>
+            Nimbus itself is not hard to install, it has a script driven install
+            option that asks you questions (see the
+            <a href="admin/index.html">administrator
+            guide</a> for details).
+        </p>
+        <p>
+            Nimbus requires that some dependencies are installed first.  On the
+            service node: <b>Java</b> (1.5+) and <b>bash</b>.  On the
+            hypervisor nodes: <b>Python</b> (2.3+), <b>bash</b>,
+            <b>ebtables</b>, <b>DHCPd</b>, and <b>Xen</b>
+            (2 works but 3 is recommended).
+        </p>
+        <p>
+            All of these things are installable via the package management
+            system of all the popular Linux distributions.
+        </p>
+    </li>
+
+    <li>
+        <a name="nimbus-main-components"> </a>
+        <p>
+            <b>What are the main Nimbus components? _NAMELINK(nimbus-main-components)</b>
+        </p>
+
+        <div class="uldonotmoveleft">
+        <ul>
+            <li>
+                <p>
+                    The <a href="#workspace-service">Workspace Service</a> site
+                    manager
+                </p>
+            </li>
+            <li>
+                <p>
+                    A <a href="#wsrf-frontend">WSRF based</a> remote protocol
+                    implementation
+                </p>
+            </li>
+            <li>
+                <p>
+                    An <a href="#ec2-frontend">EC2 based</a> remote protocol
+                    implementation (<a href="#ec2-messaging">partial</a>)
+                </p>
+            </li>
+            <li>
+                <p>
+                    The <a href="#rm-api">RM API</a> bridge between
+                    remote protocols/security and specific site manager
+                    implementations.
+                </p>
+            </li>
+            <li>
+                <p>
+                    The <a href="#cloud-client">cloud client</a> aims to get
+                    users up and running in minutes with instance launches
+                    and one-click clusters.
+                </p>
+            </li>
+            <li>
+                <p>
+                    The <a href="#reference-client">reference client</a>
+                    exposes the entire feature set in the WSRF protocol as
+                    a commandline client (with underlying Java client library).
+                    For advanced uses, scripting, portal integration, etc.
+                </p>
+            </li>
+            <li>
+                <p>
+                    The <a href="#wpilot">Workspace Pilot</a> allows you to
+                    integrate VMs with resources already configured to manage
+                    jobs (i.e., already using a batch scheduler like PBS).
+                </p>
+            </li>
+            <li>
+                <p>
+                    The <a href="#wcontrol">workspace-control</a> agent implements
+                    VMM and network specific tasks on each hypervisor.
+                </p>
+            </li>
+            <li>
+                <p>
+                    The <a href="#ctxbroker">Context Broker</a> allows clients
+                    to coordinate large virtual cluster launches automatically
+                    and repeatably.
+                </p>
+            </li>
+            <li>
+                <p>
+                    The <a href="#ctxagent">Context Agent</a> lives on VMs and
+                    interacts with the Context Broker at VM boot.
+                </p>
+            </li>
+            <li>
+                <p>
+                    The <a href="#ec2-backend">EC2 backend</a> allows the service
+                    to turn around and secure remote resources from off-site.
+                </p>
+            </li>
+
+        </ul>
+        </div>
+
+        <img src="img/nimbus-components.png"
+             alt="component overview pic" />
+        
+        <p>
+            The components are lightweight and self-contained so that they
+            can be selected and composed in a variety of ways.  For example,
+            using the workspace service with the pilot will enable a different
+            cluster integration strategy.  You can mix and match protocol
+            implementations with the "pure Java" resource management module.
+        </p>
+
+        <p>
+            Writing new components should be a matter of "dropping" them
+            in.  For example, this summer saw a workspace-control replacement
+            that adds support for KVM virtual machines (this is a Google Summer
+            of Code project whose result will be integrated into Nimbus
+            officially in the fall).  As explained in
+            "<a href="#rm-api">What is the RM API</a>?", the Java side of things
+            is LEGO&#0174; like.  And we are working towards modularizing
+            even more and providing better implementations for various
+            components.  Any questions, suggestions, and requirements in this
+            area are appreciated.
+        </p>
+    </li>
+
+    <li>
+        <a name="workspace-service"> </a>
+        <p>
+            <b>What is the Workspace Service? _NAMELINK(workspace-service)</b>
+        </p>
+
+        <p>
+            The Workspace service is a standalone site VM manager that different
+            remote protocol frontends can invoke.
+        </p>
+
+        <p>
+            The current supported protocols (WSRF and EC2) happen to both be
+            Web Services based and happen to both
+            run in the <a href="http://ws.apache.org/axis/">Apache Axis</a>
+            based GT Java container.  But neither thing is a necessity:
+        </p>
+
+        <div class="uldonotmoveleft">
+            <ul>
+                <li>
+                    <p>
+                    There is nothing specific to web services based remote protocols
+                    in the workspace service implementation, the messaging system
+                    just needs to be able to speak to Java based libraries.
+                    </p>
+                </li>
+                <li>
+                    <p>
+                    Workspace service dependencies have nothing to do with what
+                    container it is running in, they are normal Java application
+                    dependencies like
+                    <a href="http://www.springframework.org/">Spring</a>,
+                    <a href="http://ehcache.sourceforge.net/">ehcache</a>,
+                    <a href="http://backport-jsr166.sourceforge.net/">backport-util-concurrent</a>,
+                    and JDBC (currently using the embedded
+                    <a href="http://db.apache.org/derby/">Derby</a> database).
+                    </p>
+                </li>
+            </ul>
+        </div>
+    </li>
+
+    <li>
+        <a name="wsrf-frontend"> </a>
+        <p>
+            <b>What is the WSRF frontend? _NAMELINK(wsrf-frontend)</b>
+        </p>
+
+        <p>
+            This is the protocol implementation in longstanding use by previous
+            workspace services and clients including the popular cloud-client.
+            A full protocol guide enumerating differences is forthcoming.
+        </p>
+    </li>
+
+    <li>
+        <a name="ec2-frontend"> </a>
+        <p>
+            <b>What is the EC2 frontend?</b>
+        </p>
+
+        <p>
+            This is an implementation of the Amazon
+            <a href="http://aws.amazon.com/ec2">Elastic Compute Cloud</a> (EC2)
+            web services description (WSDL) that allows you to use clients
+            developed for the real EC2 system against Nimbus based clouds.
+        </p>
+        <p>
+            See <a href="#ec2-messaging">What EC2 operations are supported</a>?
+        </p>
+    </li>
+
+    <li>
+        <a name="ec2-messaging"> </a>
+        <p>
+            <b>What EC2 operations are supported? _NAMELINK(ec2-messaging)</b>
+        </p>
+
+        <p>
+            (See <a href="#ec2-frontend">What is the EC2 frontend</a>?)
+        </p>
+        <p>
+            Nimbus provides a partial protocol implementation of EC2's
+            WSDL (namespace <i>http://ec2.amazonaws.com/doc/2008-05-05/</i>,
+            a previous version supported <i>2008-02-01</i>).
+            The operations behind these EC2 commandline clients are currently
+            provided:
+        </p>
+
+        <div class="uldonotmoveleft">
+            <ul>
+                <li>
+                    <p>
+                    ec2-describe-images - See what images in your personal cloud
+                    directory you can run.
+                    </p>
+                </li>
+                <li>
+                    <p>
+                    ec2-run-instances - Run images that are in your personal cloud
+                    directory.
+                    </p>
+                </li>
+                <li>
+                    <p>
+                    ec2-describe-instances - Report on currently running instances.
+                    </p>
+                </li>
+                <li>
+                    <p>
+                    ec2-terminate-instances - Destroy currently running instances.
+                    </p>
+                </li>
+                <li>
+                    <p>
+                    ec2-reboot-instances - Reboot currently running instances.
+                    </p>
+                </li>
+                <li>
+                    <p>
+                    ec2-add-keypair [*] - Add personal SSH public key that can be
+                    installed for root SSH logins
+                    </p>
+                </li>
+                <li>
+                    <p>
+                    ec2-delete-keypair - Delete keypair mapping.
+                    </p>
+                </li>
+            </ul>
+
+            <p>
+                [*] - There are two options for add-keypair implementations that
+                can be chosen by the administrator in the conf file:
+            </p>
+
+            <ul>
+                <li>
+
+                    <p>
+                        One is the normal implementation where the
+                        server-side generates a private and public key (using
+                        <a href="http://www.jcraft.com/jsch/">jsch</a>) and delivers
+                        the private key to you.
+                    </p>
+                </li>
+                <li>
+
+                    <p>
+                        The other (configured by default) is a break from the
+                        regular semantics.  It allows the keypair "name" you
+                        send in the request to be the name AND the public key value.
+                        This means there is never a private key server-side and
+                        also that you can use keys you aready have created
+                        on your system. (In a sense, this is 
+                        <b>add</b>-keypair as opposed to the normal behavior
+                        which should perhaps be named <b>create</b>-keypair).
+                    </p>
+                </li>
+            </ul>
+        </div>
+    </li>
+
+    <li>
+        <a name="cloud-client"> </a>
+        <p>
+            <b>What is the cloud client? _NAMELINK(cloud-client)</b>
+        </p>
+
+        <p>
+            The cloud client aims to get users up and running in minutes with
+            instance launches and one-click clusters, even from laptops, NATs,
+            etc.  See the cloud client
+            <a href="clouds/cloudquickstart.html">quickstart</a> and
+            <a href="clouds/clusters.html">cluster quickstart</a> to see what
+            it can do.
+        </p>
+    </li>
+
+    <li>
+        <a name="reference-client"> </a>
+        <p>
+            <b>What is the reference client? _NAMELINK(reference-client)</b>
+        </p>
+
+        <p>
+            The reference client exposes all features of the <a href="">WSRF
+            frontend</a> as a commandline client.  It is relatively complex
+            to use and thus typically wrapped by task-specific scripts.
+        </p>
+
+        <p>
+            Internally, it's implemented around a base Java client API suitable
+            for portal integration or any programmatic usage.  Docs
+            on this API are forthcoming but if you are interested check out
+            <i>org.globus.workspace.client_core</i> in the client source tree
+            (contains Javadoc comments and also consult example usages in the
+            <i>org.globus.workspace.client.modes</i> package).
+        </p>
+    </li>
+
+    <li>
+        <a name="wpilot"> </a>
+        <p>
+            <b>What is the Workspace Pilot? _NAMELINK(wpilot)</b>
+        </p>
+
+        <p>
+            The pilot is a program the service will submit to a local site
+            resource manager (LRM) in order to obtain time on the VMM nodes. When
+            not allocated to the workspace service, these nodes will be used
+            for jobs as normal (the jobs run in normal system accounts in Xen
+            domain 0 with no guest VMs running).
+        </p>
+
+        <p>
+            Several extra safeguards have been added to make sure the node is
+            returned from VM hosting mode at the proper time, including
+            support for:
+        </p>
+
+        <div class="uldonotmoveleft">
+            <ul>
+                <li>
+                    the workspace service being down or malfunctioning
+                </li>
+                <li>
+                    LRM preemption (including deliberate LRM job cancellation)
+                </li>
+                <li>
+                    node reboot/shutdown
+                </li>
+            </ul>
+        </div>
+
+        <p>
+            Also included is a one-command "kill 9" facility for administrators
+            as a "worst case scenario" contingency.
+        </p>
+
+        <p>
+            Using the pilot is optional. By default the service does not
+            operate with it, the service instead directly manages the nodes
+            it is configured to manage.
+        </p>
+    </li>
+
+    <li>
+        <a name="rm-api"> </a>
+        <p>
+            <b>What is the RM API? _NAMELINK(rm-api)</b>
+        </p>
+
+        <p>
+            Most things having to do with the Java server side components are
+            very flexible, featuring an extensibility system that allows for
+            customization and replacement at runtime of various behaviors.
+            By employing the
+            <a href="http://www.springframework.org/">Spring</a>
+            framework's "Dependency Injection" system, the Java components are
+            virtually like LEGO&#0174; blocks.
+        </p>
+        <p>
+            One of the very strong internal interfaces here is the site resource
+            management module which allows the remote security and protocol
+            implementations and semantics to be separate from one consistent
+            set of management operations.  The implementing module governs how
+            and when callers get VMs, it assigns resources to use, and takes
+            them away at the appropriate times, etc.
+        </p>
+        <p>
+            You can see the API javadocs online
+            <a href="doc/api/rm/overview-summary.html">here</a>
+            (version _WORKSP_CURRENT_VM_VERSION)
+        </p>
+    </li>
+
+    <li>
+        <a name="wcontrol"> </a>
+        <p>
+            <b>What is workspace-control? _NAMELINK(wcontrol)</b>
+        </p>
+        
+        <p>
+            Program installed on each VMM node used to (1) to start, stop and
+            pause VMs, (2) implement VM image reconstruction and management,
+            (3) securely connect the VMs to the network, and (4) to deliver
+            contextualization information (see Context Broker).
+        </p>
+        <p>
+            Currently, the workspace control tools work with Xen and KVM but
+            only the Xen version is distributed.  A Google Summer of Code
+            student added KVM support which should be fully integrated this
+            fall.
+        </p>
+        <p>
+            Implemented in Python in order to be portable and easy to install.
+            Requires sudo, ebtables, and a DHCP server library.
+        </p>
+    </li>
+
+    <li>
+        <a name="ctxbroker"> </a>
+        <p>
+            <b>What is the Context Broker? _NAMELINK(ctxbroker)</b>
+        </p>
+
+        <p>
+            This is a service that allows clients to coordinate large virtual
+            cluster launches automatically and repeatably.
+        </p>
+        <p>
+            Used to deploy "one-click" virtual clusters that function right
+            after launch as opposed to launching a set of "unconnected"
+            virtual machines like most VM-on-demand services give you.
+            It also provides a facility to "personalize" VMs (seed them with
+            secrets, access policies, and just-in-time configurations).
+            This requires that the VMs run a lightweight script at boot time
+            called the <a href="#ctxagent">Context Agent</a>.
+        </p>
+        <p>
+            This is a user-oriented system that runs as an "overlay" on top of
+            the normal VM-on-demand mechanics.  It's been used on top of Nimbus
+            clouds as well as with EC2 resources via the
+            <a href="#ec2-backend">EC2 backend</a>.
+        </p>
+        <p>
+            See the <a href="clouds/clusters2.html">one-click clusters
+            guide</a> for more detail and the
+            <a href="clouds/clusters.html">one-click cluster example</a> to
+            show just one of the many things this can be used to accomplish.
+        </p>
+    </li>
+    <li>
+        <a name="ctxagent"> </a>
+        <p>
+            <b>What is the Context Agent? _NAMELINK(ctxagent)</b>
+        </p>
+        <p>
+            A lightweight agent on each VM -- its only dependencies are
+            Python and the ubiquitous curl program -- securely contacts the
+            context broker using a secret key.  This key was created on the fly
+            and seeded inside the instance. This agent gets information
+            concerning the cluster from the context broker and then causes
+            last minute changes inside the image to adapt to the environment.
+        </p>
+        <p>
+            See <a href="#ctxbroker">What is the Context Broker</a>?
+            Download it from this one-click clusters
+            guide <a href="clouds/clusters2.html#custom">section</a>.
+        </p>
+    </li>
+
+    <li>
+        <a name="ec2-backend"> </a>
+        <p>
+            <b>What is the EC2 backend? _NAMELINK(ec2-backend)</b>
+        </p>
+
+        <p>
+            This is a workspace service backend that serves as a portal to
+            the Amazon <a href="http://aws.amazon.com/ec2">Elastic Compute
+            Cloud</a> (EC2).
+        </p>
+
+        <p>
+            It allows clients to boot virtual machines in the Amazon
+            cloud using grid protocols and their X509 credentials, first
+            passing through the service's authorization and accounting layers.
+        </p>
+
+        <p>
+            The EC2 gateway provides:
+        </p>
+
+        <div class="uldonotmoveleft">
+            <ul>
+                <li>
+                    The ability to run any public Amazon Machine Image (AMI)
+                    image on Amazon as well
+                    as whatever AMIs the workspace service's credentials have
+                    access to privately.
+                </li>
+                <li>Asynchronous WSN notifications about status (EC2 does not,
+                    it relies on polling)</li>
+                <li>Adjustment of the root account's SSH pubkey authorized_keys
+                    ("personalization") on the VM</li>
+                <li>Running time enforcement</li>
+                <li>It makes the public IP address of the VM known to you via
+                    resource property when the address becomes available (on
+                    EC2 this is known only after it begins to run).</li>
+                <li>Detailed accounting that the authorization layer can use
+                    to make decisions based on a client's current aggregate
+                    and reserved usage.
+                </li>
+            </ul>
+        </div>
+
+        <p>
+            This code is not in a current release, but it is currently
+            <a href="deployments/index.html#teraport-ec2">deployed</a>.
+        </p>
+
+        <p>
+            EC2 currently provides
+            <a href="http://www.amazon.com/b?ie=UTF8&node=370375011">five allocation types</a>.
+        </p>
+    </li>
+    
+    <li>
+        <a name="defcloudkit"> </a>
+        <p>
+            <b>What is the "cloudkit"? _NAMELINK(defcloudkit)</b>
+        </p>
+
+        <p>
+            See <i><a href="#cloudkit">What is the main way to deploy Nimbus</a>?</i>
+        </p>
+    </li>
+
+    <li>
+        <a name="autocontainer"> </a>
+        <p>
+            <b>What is the AutoContainer? _NAMELINK(autocontainer)</b>
+        </p>
+
+        <p>
+            Currently Nimbus is deployed into a Globus 4.0.x Java container
+            which is a system built around the
+            <a href="http://ws.apache.org/axis/">Apache Axis</a> engine.
+        </p>
+
+        <p>
+            To get you started with this system very quickly,
+            we provide something called the <b>AutoContainer</b> which
+            is a complete Globus Java web services core environment.  It comes
+            with a setup program that configures everything you need to get
+            a secure web services container running <i>from scratch in about
+            a minute</i>.
+        </p>
+        <p>
+            Instructions are in
+            <a href="admin/quickstart.html#acquire-auto-container">this
+            section</a> of the
+            <a href="admin/index.html">administrator
+            guide</a>.
+        </p>
+    </li>
+
+    <li>
+        <a name="opennebula"> </a>
+        <p>
+            <b>How does Nimbus compare to OpenNebula? _NAMELINK(opennebula)</b>
+        </p>
+
+        <p>
+            <a href="http://www.opennebula.org">OpenNebula</a> is, like Nimbus,
+            an open source framework that deploys and manages virtual machines
+            on physical resources.  The main difference is that while Nimbus
+            exposes remote interfaces (based on EC2 or WSRF) and handles the
+            related security issues, OpenNebula does not.  Nimbus interfaces
+            can be combined with OpenNebula virtual machine manager on the
+            backend.  In fact, such experimental integration has already been
+            carried out, see
+            <a href="http://www.opennebula.org/doku.php?id=ecosystem#cloud_interface_using_globus_nimbus">here</a>.
+        </p>
+    </li>
+
+    <li>
+        <a name="license"> </a>
+        <p>
+            <b>How is the software licensed? _NAMELINK(license)</b>
+        </p>
+
+        <p>
+            Nimbus is licensed under the terms of the
+            <a href="http://www.apache.org/licenses/LICENSE-2.0"><b>Apache
+            License version 2</b></a>.
+        </p>
+    </li>
+</ul>
+
+</div>
+
+
+<!-- force blankspace at the bottom such that questions near the end of the list
+     appear towards the top of browser window -->
+
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+
+_NIMBUS_CENTER2_COLUMN_END
+_NIMBUS_FOOTER1
+_NIMBUS_FOOTER2
+_NIMBUS_FOOTER3
