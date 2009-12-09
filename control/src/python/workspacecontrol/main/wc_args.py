@@ -66,6 +66,14 @@ KERNELARGS = ControlArg("kernelargs", None)
 KERNELARGS.help = "If allowed, send additional args to kernel at boot"
 a.append(KERNELARGS)
 
+IMAGES = ControlArg("images", "-i", metavar="FILESPEC(s)")
+IMAGES.help = "Image spec(s) for the action.  See examples."
+a.append(IMAGES)
+
+IMAGEMOUNTS = ControlArg("imagemounts", None, metavar="MOUNTPOINT")
+IMAGEMOUNTS.help = "For create action, where to mount each file? See examples, list length must match '%s' list." % IMAGES.long_syntax
+a.append(IMAGEMOUNTS)
+
 MEMORY = ControlArg("memory", "-m", metavar="MB")
 MEMORY.help = "VM memory in MB"
 a.append(MEMORY)

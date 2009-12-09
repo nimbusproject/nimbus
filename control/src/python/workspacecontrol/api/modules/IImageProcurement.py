@@ -20,6 +20,18 @@ class IImageProcurement(workspacecontrol.api.IWCModule):
         common -- instance of Common
         """
     
+    def lengthy_obtain():
+        """Given a set of deployment parameters, return True if it is determined
+        that the 'obtain' operation should be called in a daemonized mode with
+        an asynchronous 'propagated' message being sent afterwards.
+        """
+        
+    def lengthy_shutdown():
+        """Given a set of parameters, return True if it is determined that the
+        'process_after_shutdown' operation should be called in a daemonized mode
+        with an asynchronous 'unpropagated' message being sent afterwards.
+        """
+    
     def obtain():
         """Given a set of deployment parameters, bring this VMM node into a
         state where it can operate on a set of local files.

@@ -12,7 +12,7 @@ class TestProcurement:
     """Implementation of procurement that 'obtains' a fake image set, intended
     to be used for tests that don't involve real VMM interactions.
     
-    It can however be used for some VM interactions, e.g. if code were to
+    It can however be used to test some VM interactions, e.g. if code were to
     mount and edit the filesystem, that would work.  The files created are
     actual ext3 filesystem images.
     
@@ -28,6 +28,12 @@ class TestProcurement:
     
     def validate(self):
         pass
+    
+    def lengthy_obtain():
+        return False
+        
+    def lengthy_shutdown():
+        return False
     
     def obtain(self):
         
