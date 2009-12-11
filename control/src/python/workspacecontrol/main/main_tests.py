@@ -818,3 +818,28 @@ def test_localnet6():
         invalid_config = True
     assert invalid_config
     
+def test_network_bootstrap():
+    """Exercise network bootstrap adapter"""
+    
+    p,c = get_pc(None, mockconfigs())
+    c.log.debug("test_network_bootstrap()")
+    netbootstrap_cls = c.get_class_by_keyword("NetworkBootstrap")
+    netbootstrap = netbootstrap_cls(p,c)
+    netbootstrap.validate()
+    
+    # mock:
+    netlease_cls = c.get_class_by_keyword("NetworkLease")
+    netlease = netlease_cls(p, c)
+    netlease.validate()
+    nic = netlease.obtain("public")
+    assert nic.network == "public"
+    assert nic.bridge
+    nicset_cls = c.get_class_by_keyword("NICSet")
+    nic_set = nicset_cls([nic])
+    
+    netbootstrap.setup(nic_set, dryrun=True)
+    netbootstrap.teardown(nic_set, dryrun=True)
+    
+    netlease.release(nic_set)
+    
+        
