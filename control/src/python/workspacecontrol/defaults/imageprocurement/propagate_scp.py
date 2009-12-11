@@ -1,3 +1,4 @@
+from commands import getstatusoutput
 import os
 import string
 from propagate_adapter import PropagationAdapter
@@ -56,6 +57,14 @@ class propadapter(PropagationAdapter):
         
         cmd = self._get_pull_command(remote_source, local_absolute_target)
         self.c.log.info("Running SCP command: %s" % cmd)
+        
+        ret,output = getstatusoutput(cmd)
+        if ret:
+            errmsg = "problem running command: '%s' ::: return code" % cmd
+            errmsg += ": %d ::: output:\n%s" % (ret, output)
+            self.c.log.error(errmsg)
+            raise UnexpectedError(errmsg)
+        self.c.log.info("Transfer complete.")
     
     def unpropagate(self, local_absolute_source, remote_target):
         self.c.log.info("SCP unpropagation - local source: %s" % local_absolute_source)
@@ -64,6 +73,13 @@ class propadapter(PropagationAdapter):
         cmd = self._get_push_command(local_absolute_source, remote_target)
         self.c.log.info("Running SCP command: %s" % cmd)
         
+        ret,output = getstatusoutput(cmd)
+        if ret:
+            errmsg = "problem running command: '%s' ::: return code" % cmd
+            errmsg += ": %d ::: output:\n%s" % (ret, output)
+            self.c.log.error(errmsg)
+            raise UnexpectedError(errmsg)
+        self.c.log.info("Transfer complete.")
         
     # --------------------------------------------------------------------------
     

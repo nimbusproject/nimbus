@@ -69,6 +69,9 @@ class DefaultAsyncNotification:
         error -- error text for nonzero status codes
         """
         
+        if not self.notifypath:
+            raise UnexpectedError("cannot run notification without notify argument")
+        
         errtxt = ""
         if code:
             if actiondone in ["propagate", "unpropagate"]:

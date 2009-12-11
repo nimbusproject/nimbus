@@ -78,6 +78,10 @@ MEMORY = ControlArg("memory", "-m", metavar="MB")
 MEMORY.help = "VM memory in MB"
 a.append(MEMORY)
 
+MOUNT_TASKS = ControlArg("mnttasks", None, metavar="TASKLIST")
+MOUNT_TASKS.help = "List of mount+edit tasks to perform before VM launch"
+a.append(MOUNT_TASKS)
+
 NAME = ControlArg("name", "-n", metavar="VM_NAME", createarg=False)
 NAME.help = "Unique VM handle for management"
 a.append(NAME)
@@ -85,6 +89,10 @@ a.append(NAME)
 NOTIFY = ControlArg("notify", None, metavar="user@host:port/path")
 NOTIFY.help = "Required for async actions"
 a.append(NOTIFY)
+
+UNPROPTARGETS = ControlArg("unproptargets", None, metavar="FILESPEC(s)")
+UNPROPTARGETS.help = "Use to 'save-as' a file"
+a.append(UNPROPTARGETS)
 
 VCPUS = ControlArg("vcpus", None, since="2.3", metavar="NUM")
 VCPUS.help = "Number of vcpus to assign the VM, overrides configuration"

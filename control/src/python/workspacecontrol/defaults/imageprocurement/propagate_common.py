@@ -180,7 +180,7 @@ class DefaultImageProcurement:
     # obtain(), from ImageProcurement interface
     # --------------------------------------------------------------------------
     
-    def obtain(self):
+    def obtain(self, dryrun=False):
         """Given a set of deployment parameters, bring this VMM node into a
         state where it can operate on a set of local files.
         
@@ -195,7 +195,7 @@ class DefaultImageProcurement:
             
             l_files = self._process_image_args()
             if self._is_propagation_needed(l_files):
-                self._propagate(l_files)
+                self._propagate(l_files, dryrun=dryrun)
                 
         elif action in ["unpropagate"]:
             
@@ -203,12 +203,17 @@ class DefaultImageProcurement:
             
             l_files = self._process_image_args(unprop=True)
             
+            # client requesting new names
+            unproptargets_arg = self.p.get_arg_or_none(wc_args.UNPROPTARGETS)
+            if unproptargets_arg:
+                self._process_new_unproptargets(l_files, unproptargets_arg)
+            
         else:
             raise ProgrammingError("do not know how to handle obtain request for action '%s'" % action)
             
         if action in ["create"]:
             if self._is_blankspace_needed(l_files):
-                self._blankspace(l_files)
+                self._blankspace(l_files, dryrun=dryrun)
             
         local_file_set_cls = self.c.get_class_by_keyword("LocalFileSet")
         local_file_set = local_file_set_cls(l_files)
@@ -218,7 +223,7 @@ class DefaultImageProcurement:
     # process_after_shutdown(), from ImageProcurement interface
     # --------------------------------------------------------------------------
     
-    def process_after_shutdown(self, local_file_set):
+    def process_after_shutdown(self, local_file_set, dryrun=False):
         """Do any necessary work after a VM shuts down and is being prepared
         for teardown.  Will not be called if there is an immediate-destroy
         event because that needs no unpropagation.
@@ -230,7 +235,7 @@ class DefaultImageProcurement:
         
         l_files = local_file_set.flist()
         if self._is_unpropagation_needed(l_files):
-            self._unpropagate(l_files)
+            self._unpropagate(l_files, dryrun=dryrun)
             
         self._destroy_instance_dir()
         
@@ -318,7 +323,7 @@ class DefaultImageProcurement:
         shutil.rmtree(vmdir)
         self.c.log.debug("destroyed %s" % vmdir)
         
-    def _propagate(self, l_files):
+    def _propagate(self, l_files, dryrun=False):
         for l_file in l_files:
             
             if not l_file._propagate_needed:
@@ -334,6 +339,9 @@ class DefaultImageProcurement:
                     
                     self.c.log.debug("propagating from '%s' to '%s'" % (l_file._propagation_source, l_file.path))
                     
+                    if dryrun:
+                        return
+                    
                     adapter.propagate(l_file._propagation_source, l_file.path)
                     
                     if not os.path.exists(l_file.path):
@@ -341,7 +349,7 @@ class DefaultImageProcurement:
                     
                     return
         
-    def _unpropagate(self, l_files):
+    def _unpropagate(self, l_files, dryrun=False):
         for l_file in l_files:
             
             if not l_file._unpropagate_needed:
@@ -355,13 +363,16 @@ class DefaultImageProcurement:
                 if target_scheme == schemestring:
                     adapter = self.adapters[keyword]
                     
-                    self.c.log.debug("unpropagating from '%s' to '%s'" % (l_file.path, ))
+                    self.c.log.debug("unpropagating from '%s' to '%s'" % (l_file.path, l_file._unpropagation_target))
+                    
+                    if dryrun:
+                        return
                     
                     adapter.unpropagate(l_file.path, l_file._unpropagation_target)
                     
                     return
         
-    def _blankspace(self, l_files):
+    def _blankspace(self, l_files, dryrun=False):
         for l_file in l_files:
             
             if l_file._blankspace == 0:
@@ -369,6 +380,8 @@ class DefaultImageProcurement:
 
             cmd = "%s %s %s" % (self.blankcreate_path, l_file.path, l_file._blankspace)
             self.c.log.debug("running '%s'" % cmd)
+            if dryrun:
+                self.c.log.debug("(dryrun, not running that)")
 
             try:
                 ret,output = getstatusoutput(cmd)
@@ -650,7 +663,7 @@ class DefaultImageProcurement:
                 
                 if unprop:
                     lf._unpropagate_needed = True
-                    lf._unpropagation_target = True
+                    lf._unpropagation_target = imgstr
                 else:
                     lf._propagate_needed = True
                     lf._propagation_source = imgstr
@@ -670,3 +683,45 @@ class DefaultImageProcurement:
                     self.c.log.debug("A file is going to be transferred to '%s' because of the input '%s'" % (lf.path, imgstr))
                     
                 return
+                
+    def _process_new_unproptargets(self, l_files, unproptargets_arg):
+        
+        # The given input string might be quoted to escape semicolons for
+        # certain delivery methods (e.g., sh over ssh) and some methods may
+        # not strip quotes (e.g., localhost, direct exe invocation).
+        # So strip extra quotes if present, but don't expect quotes.
+        
+        if unproptargets_arg[0] == "'":
+            unproptargets_arg = unproptargets_arg[1:]
+        # (there is a pathological case where input was only a single quote)
+        if unproptargets_arg and unproptargets_arg[-1] == "'":
+            unproptargets_arg = unproptargets_arg[:-1]
+
+        unproptargets = unproptargets_arg.split(';;')
+        
+        argname = wc_args.UNPROPTARGETS.long_syntax
+        
+        if len(unproptargets) == 0:
+            raise InvalidInput("received %s argument but there are no targets" % argname)
+        
+        num_needs = 0
+        for lf in l_files:
+            if lf._unpropagate_needed:
+                num_needs += 1
+        
+        if num_needs == 0:
+            raise InvalidInput("received %s argument but there are no unpropagations scheduled" % argname)
+            
+        if len(unproptargets) != num_needs:
+            raise InvalidInput("received %s argument but cannot match unpropagations scheduled with targets.  There are %d unprop-targets and %d unpropagation needs" % (argname, len(unproptargets), num_needs))
+        
+        # note how the order is assumed to match -- this is a precarious side
+        # effect of the commandline based syntax
+        counter = -1
+        for lf in l_files:
+            if lf._unpropagate_needed:
+                counter += 1
+                old = lf._unpropagation_target
+                lf._unpropagation_target = unproptargets[counter]
+                self.c.log.debug("old unpropagation target '%s' is now '%s'" % (old, lf._unpropagation_target))
+        

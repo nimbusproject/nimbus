@@ -118,6 +118,8 @@ def test_kernel2():
     # use providedBy on instances (implementedBy is for classes)
     assert objects.IKernel.providedBy(kernel)
     
+    # clean up
+    procure.process_after_destroy(local_file_set)
     
 def test_mock_create():
     """Test the create command with the libvirt mock adapter"""
@@ -175,6 +177,9 @@ def test_mock_create():
     running_vm = platform.info(handle)
     assert not running_vm
     sys.stderr = tmp
+    
+    # clean up
+    procure.process_after_destroy(local_file_set)
     
 def test_real_procurement_propagate1():
     """Test the procurement adapter propagate awareness (positive)"""
@@ -581,3 +586,235 @@ def test_notification3():
     except ProgrammingError:
         programming_error = True
     assert programming_error
+
+def test_image_editing1():
+    """Test for image editing module task awareness"""
+    
+    handle = "wrksp-911"
+    createargs = ["--action", "create", 
+                  "--name", handle,
+                  "--images", "scp://somehost/some-base-cluster",
+                  "--mnttasks",
+                  "d69a9bda-399a-4016-aaee;/root/.ssh/authorized_keys;;3abc9086-d74b-46b0-a3e9;/var/nimbus-metadata-server-url",
+                 ]
+    parser = wc_optparse.parsersetup()
+    (opts, args) = parser.parse_args(createargs)
+    
+    p,c = get_pc(opts, mockconfigs())
+    c.log.debug("test_real_image_editing1()")
+    
+    editing_cls = c.get_class_by_keyword("ImageEditing")
+    editing = editing_cls(p, c)
+    editing.validate()
+    
+    procure_cls = c.get_class_by_keyword("ImageProcurement")
+    procure = procure_cls(p, c)
+    procure.validate()
+    local_file_set = procure.obtain()
+    
+    editing.process_after_procurement(local_file_set, dryrun=True)
+    
+    # TODO: could actually test for the existence of the task ... the mock
+    # procurement adapter is actually making filesystem images.  But we'd first
+    # need a tool to mount and check a filesystem.  And sudo would need to be
+    # configured.
+    
+    # clean up
+    procure.process_after_destroy(local_file_set)
+    
+def test_image_decompress1():
+    """Test file decompression"""
+    
+    # fake image procurement chooses the file names
+    createargs = ["--action", "create", 
+                  "--name", "wrksp-999",
+                 ]
+    parser = wc_optparse.parsersetup()
+    (opts, args) = parser.parse_args(createargs)
+    
+    p,c = get_pc(opts, mockconfigs())
+    c.log.debug("test_image_decompress1()")
+    
+    procure_cls = c.get_class_by_keyword("ImageProcurement")
+    procure = procure_cls(p, c)
+    procure.validate()
+    local_file_set = procure.obtain()
+    
+    editing_cls = c.get_class_by_keyword("ImageEditing")
+    editing = editing_cls(p, c)
+    editing.validate()
+    
+    # compress each disk
+    oldpaths = []
+    for lf in local_file_set.flist():
+        # test relies on specific impl method we know is there
+        oldpaths.append(lf.path)
+        lf.path = editing._gzip_file_inplace(lf.path, False)
+    
+    for i,lf in enumerate(local_file_set.flist()):
+        #c.log.debug("old path: %s" % oldpaths[i])
+        #c.log.debug("current path: %s" % lf.path)
+        assert oldpaths[i] + ".gz" == lf.path
+    
+    # process incoming images
+    editing.process_after_procurement(local_file_set, dryrun=True)
+    
+    # see if it is now uncompressed
+    for i,lf in enumerate(local_file_set.flist()):
+        #c.log.debug("old path: %s" % oldpaths[i])
+        #c.log.debug("current path: %s" % lf.path)
+        assert oldpaths[i] == lf.path
+    
+    # clean up
+    procure.process_after_destroy(local_file_set)
+    
+def test_image_compress1():
+    """Test file compression"""
+    
+    createargs = ["--action", "unpropagate", 
+                  "--name", "wrksp-929",
+                  "--images", "scp://somehost/some-base-cluster-01",
+                  "--unproptargets", "scp://somehost/some-newfile.gz",
+                 ]
+    parser = wc_optparse.parsersetup()
+    (opts, args) = parser.parse_args(createargs)
+    
+    p,c = get_pc(opts, realconfigs())
+    c.log.debug("test_image_compress1()")
+    
+    procure_cls = c.get_class_by_keyword("ImageProcurement")
+    procure = procure_cls(p, c)
+    procure.validate()
+    local_file_set = procure.obtain()
+    
+    editing_cls = c.get_class_by_keyword("ImageEditing")
+    editing = editing_cls(p, c)
+    editing.validate()
+    
+    editing.process_after_shutdown(local_file_set, dryrun=True)
+    procure.process_after_shutdown(local_file_set, dryrun=True)
+    
+def test_localnet1():
+    """Test local network adapter basics"""
+    
+    mock_config_name = "localnet1.conf"
+    p,c = get_pc(None, mockconfigs(basename=mock_config_name))
+    c.log.debug("test_localnet1()")
+    localnet_cls = c.get_class_by_keyword("LocalNetworkSetup")
+    localnet = localnet_cls(p,c)
+    
+    # should validate without error
+    localnet.validate()
+    
+    bridge = localnet.ip_to_bridge("192.168.0.13")
+    assert bridge == "virbr3"
+    
+    bridge = localnet.ip_to_bridge("192.168.2.200")
+    assert bridge == "virbr5"
+    
+    # default:
+    bridge = localnet.ip_to_bridge("10.10.2.34")
+    assert bridge == "virbr1"
+    
+def test_localnet2():
+    """Test local network adapter with no default bridge"""
+    
+    mock_config_name = "localnet2.conf"
+    p,c = get_pc(None, mockconfigs(basename=mock_config_name))
+    c.log.debug("test_localnet2()")
+    localnet_cls = c.get_class_by_keyword("LocalNetworkSetup")
+    localnet = localnet_cls(p,c)
+    localnet.validate()
+    
+    bridge = localnet.ip_to_bridge("192.168.0.13")
+    assert bridge == "virbr3"
+    
+    bridge = localnet.ip_to_bridge("192.168.2.200")
+    assert bridge == "virbr5"
+    
+    # localnet2.conf has no default and this request is not in any range
+    incompat_env = False
+    try:
+        bridge = localnet.ip_to_bridge("10.10.2.34")
+    except IncompatibleEnvironment,e:
+        c.log.debug("IncompatibleEnvironment - %s" % e.msg)
+        incompat_env = True
+    assert incompat_env
+
+def test_localnet3():
+    """Test local network adapter with only a default bridge"""
+    
+    mock_config_name = "localnet3.conf"
+    p,c = get_pc(None, mockconfigs(basename=mock_config_name))
+    c.log.debug("test_localnet3()")
+    localnet_cls = c.get_class_by_keyword("LocalNetworkSetup")
+    localnet = localnet_cls(p,c)
+    localnet.validate()
+    
+    bridge = localnet.ip_to_bridge("10.10.2.34")
+    assert bridge == "virbr1"
+    
+def test_localnet4():
+    """Test local network adapter errors"""
+    
+    mock_config_name = "localnet4.conf"
+    p,c = get_pc(None, mockconfigs(basename=mock_config_name))
+    c.log.debug("test_localnet4()")
+    localnet_cls = c.get_class_by_keyword("LocalNetworkSetup")
+    localnet = localnet_cls(p,c)
+    
+    # localnet4.conf has no default and no IP mappings at all
+    invalid_config = False
+    try:
+        localnet.validate()
+    except InvalidConfig,e:
+        c.log.debug("InvalidConfig - %s" % e.msg)
+        invalid_config = True
+    assert invalid_config
+    
+def test_localnet5():
+    """Test local network adapter, multiple ranges per bridge"""
+    
+    mock_config_name = "localnet5.conf"
+    p,c = get_pc(None, mockconfigs(basename=mock_config_name))
+    c.log.debug("test_localnet5()")
+    localnet_cls = c.get_class_by_keyword("LocalNetworkSetup")
+    localnet = localnet_cls(p,c)
+    
+    localnet.validate()
+    
+    bridge = localnet.ip_to_bridge("10.10.2.34")
+    assert bridge == "virbr3"
+    
+    bridge = localnet.ip_to_bridge("192.168.2.1")
+    assert bridge == "virbr5"
+    
+    bridge = localnet.ip_to_bridge("172.16.5.8")
+    assert bridge == "virbr4"
+    
+    bridge = localnet.ip_to_bridge("172.30.30.99")
+    assert bridge == "virbr4"
+    
+    bridge = localnet.ip_to_bridge("192.168.0.18")
+    assert bridge == "virbr3"
+    
+def test_localnet6():
+    """Test local network adapter errors, multiple bridges with same IP range"""
+    
+    mock_config_name = "localnet6.conf"
+    p,c = get_pc(None, mockconfigs(basename=mock_config_name))
+    c.log.debug("test_localnet6()")
+    localnet_cls = c.get_class_by_keyword("LocalNetworkSetup")
+    localnet = localnet_cls(p,c)
+    
+    # localnet6.conf has two bridges with the same IP ranges
+    # note that this does not cover an *overlap* just the same ranges.
+    # TODO: analyzing overlaps would be better
+    invalid_config = False
+    try:
+        localnet.validate()
+    except InvalidConfig,e:
+        c.log.debug("InvalidConfig - %s" % e.msg)
+        invalid_config = True
+    assert invalid_config
+    

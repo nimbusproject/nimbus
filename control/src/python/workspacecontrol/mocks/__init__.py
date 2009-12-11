@@ -13,7 +13,7 @@ from workspacecontrol.api.exceptions import IncompatibleEnvironment
 from TestProcurement import TestProcurement
 from NetworkLease import NetworkLease
 
-def get_mock_mainconf():
+def get_mock_mainconf(basename="main.conf"):
     # this can be an unintuitive value
     current = os.path.abspath(__file__)
     
@@ -23,7 +23,7 @@ def get_mock_mainconf():
     while True:
         current = "/".join(os.path.dirname(current+"/").split("/")[:-1])
         if os.path.basename(current) == "workspacecontrol":
-            return os.path.join(current, "mocks/etc/main.conf")
+            return os.path.join(current, "mocks/etc/%s" % basename)
         if not os.path.basename(current):
             raise IncompatibleEnvironment("cannot find mock confs")
     
