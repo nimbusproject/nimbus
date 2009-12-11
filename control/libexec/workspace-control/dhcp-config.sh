@@ -95,8 +95,9 @@ function strlen (){
 #       sent into a program run under sudo.  Consider what could happen if the
 #       priviliged account could send in any argument for the conf file to
 #       adjust or any argument for the command to run 'start' and 'stop' with.
-#       Those capabilities could be abused to do no good.
-
+#       In the event that someone compromises the privileged account, allowing
+#       arbitrary arguments for those things could allow the attacker to abuse
+#       the sudo privilege to do other, unexpected things.
 
 # Policy file for script to adjust
 #DHCPD_CONF="/etc/dhcp/dhcpd.conf"

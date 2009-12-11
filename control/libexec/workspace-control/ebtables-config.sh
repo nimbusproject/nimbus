@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright 1999-2006 University of Chicago
+# Copyright 1999-2010 University of Chicago
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
 # use this file except in compliance with the License. You may obtain a copy
@@ -45,11 +45,12 @@
 # ADJUST AS NECESSARY #
 #######################
 
+# NOTE: The ebtables path is configured here in order to make sure that if
+#       someone compromises the privileged account, it cannot use the sudo
+#       privilige of running this program to do more than desired.
+
 #EBTABLES=/sbin/ebtables
 EBTABLES=/usr/sbin/ebtables
-
-# to test a dryrun, replace EBTABLES with a script that just prints args
-# (e.g., echo "$@")
 
 
 #############
