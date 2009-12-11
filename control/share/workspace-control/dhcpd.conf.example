@@ -1,0 +1,64 @@
+# dhcpd.conf
+#
+# Configuration file for ISC dhcpd for workspaces
+
+
+#################
+## GLOBAL OPTS ##
+#################
+
+# Option definitions common or default to all supported networks
+
+# Keep this:
+ddns-update-style none;
+
+# Can be overriden in host entry:
+default-lease-time 120;
+max-lease-time 240;
+
+
+#############
+## SUBNETS ##
+#############
+
+# Make an entry like this for each supported subnet.  Otherwise, the DHCP
+# daemon will not listen for requests on the interface of that subnet.
+
+subnet 192.168.0.0 netmask 255.255.255.0 {
+}
+
+subnet 172.16.65.0 netmask 255.255.255.0 {
+}
+
+
+# For multiple networks off the same (local) interface, comment out the
+# above and use the following construct:
+
+#shared-network networks_ether1 {
+#
+#  subnet 10.135.125.0 netmask 255.255.255.0 {
+#  }
+#
+#  subnet 172.22.0.0 netmask 255.255.0.0 {
+#  }
+#}
+
+# Most DHCP servers will require an actual IP presence on these other
+# networks.
+#
+# For example, consider the local eth0 has this address: 10.135.125.17.
+# To support the other network 172.22.0.0/16, make an eth0 interface alias
+# like this:  "ip link set veth1 name eth0:0".
+#
+# Then assign it an IP on the other network, for example:
+# "ifconfig eth0:0 172.22.0.1 netmask 255.255.0.0"
+# Note this IP cannot be one that is leased to a VM in the workspace
+# service network pool configurations.
+
+
+### DO NOT EDIT BELOW, the following entries are added and 
+### removed programmatically.
+
+### DHCP-CONFIG-AUTOMATIC-BEGINS ###
+
+
