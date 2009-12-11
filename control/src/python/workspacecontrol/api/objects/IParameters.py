@@ -36,3 +36,12 @@ class IParameters(workspacecontrol.api.IWCObject):
         is not distinguishing between "key not present" in the conf file vs.
         "key present with empty value," both cause None to be returned.
         """
+
+    def all_confs_in_section(section):
+        """Get list of all keyword and values of a configuration section.
+        Return empty list if it did not exist or if it is empty.
+        If a keyword is present in the section with no assigned value, it is not
+        returned in the list.
+        Return list of tuples, (keyword, value)
+        """
+        

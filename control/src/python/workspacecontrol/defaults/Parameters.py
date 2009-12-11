@@ -57,6 +57,23 @@ class DefaultParameters:
             return None
             
         return aconf
+        
+    def all_confs_in_section(self, section):
+        if not self.conf:
+            return []
+        if not section:
+            return []
+        try:
+            keywords = self.conf.options(section)
+        except NoSectionError:
+            return []
+            
+        conflist = []
+        for keyword in keywords:
+            value = self.get_conf_or_none(section, keyword)
+            if value:
+                conflist.append((keyword,value))
+        return conflist
 
 def _create_optdict(opts):
     d = {}
