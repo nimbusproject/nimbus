@@ -9,8 +9,6 @@ import workspacecontrol.api.modules
 from workspacecontrol.api.exceptions import *
 import workspacecontrol.main.wc_args as wc_args
 
-from imageprocurement import propagate_common
-
 class DefaultImageEditing:
     
     """ImageEditing is the wcmodule responsible for taking a procured set of
