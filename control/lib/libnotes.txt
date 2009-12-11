@@ -14,3 +14,7 @@ It may require a flag to the package system or on some systems
 require the 'python-devel' to be installed on your system before
 libvirt is installed.
 
+------------------------- IPy 0.42 -------------------------
+
+http://c0re.23.nu/c0de/IPy/
+BSD style license
