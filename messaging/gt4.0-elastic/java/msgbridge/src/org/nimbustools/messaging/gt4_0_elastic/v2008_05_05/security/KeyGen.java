@@ -16,7 +16,7 @@
 
 package org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.security;
 
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.CreateKeyPairResponseType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.CreateKeyPairResponseType;
 import org.nimbustools.messaging.gt4_0_elastic.DisabledException;
 import org.nimbustools.api.repr.Caller;
 

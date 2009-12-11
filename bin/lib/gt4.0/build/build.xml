@@ -65,6 +65,8 @@
         <ant dir="${nimbus.messaging.gt4_0-elastic.schemas.builddir}" target="clean" />
         <ant dir="${nimbus.messaging.gt4_0-elastic.stubs.builddir}" target="clean" />
 
+        <ant dir="${nimbus.messaging.query.service.builddir}" target="clean" />
+        
 
     </target>
 
@@ -263,6 +265,7 @@
         <ant dir="${nimbus.messaging.gt4_0.common.builddir}" target="dist" />
         <ant dir="${nimbus.messaging.gt4_0.service.builddir}" target="dist" />
         <ant dir="${nimbus.messaging.gt4_0-elastic.service.builddir}" target="dist" />
+        <ant dir="${nimbus.messaging.query.service.builddir}" target="dist" />
 
     </target>
 

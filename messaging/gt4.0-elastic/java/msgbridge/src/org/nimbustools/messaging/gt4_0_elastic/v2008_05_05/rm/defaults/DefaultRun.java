@@ -35,13 +35,7 @@ import org.nimbustools.api.repr.vm.ResourceAllocation;
 import org.nimbustools.api.repr.vm.State;
 import org.nimbustools.api.repr.vm.VM;
 import org.nimbustools.api.repr.vm.VMFile;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.GroupItemType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.GroupSetType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.ReservationInfoType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.RunInstancesType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.RunningInstancesItemType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.RunningInstancesSetType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.UserDataType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.*;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.Networks;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.ResourceAllocations;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.image.Repository;
@@ -233,7 +227,7 @@ public class DefaultRun implements Run {
         return creq;
     }
 
-    public ReservationInfoType translateCreateResult(CreateResult result,
+    public RunInstancesResponseType translateCreateResult(CreateResult result,
                                                      Caller caller,
                                                      String sshKeyName)
             throws Exception {
@@ -308,19 +302,19 @@ public class DefaultRun implements Run {
 
         logger.info(buf.toString());
 
-        final ReservationInfoType rit = new ReservationInfoType();
-        rit.setGroupSet(this.getGroupStub());
+        final RunInstancesResponseType ret = new RunInstancesResponseType();
+        ret.setGroupSet(this.getGroupStub());
         final String ownerID = this.container.getOwnerID(caller);
         if (ownerID == null) {
             throw new CannotTranslateException("Cannot find owner ID");
         }
-        rit.setOwnerId(ownerID);
-        rit.setReservationId(resID);
-
+        ret.setOwnerId(ownerID);
+        ret.setReservationId(resID);
         rist.setItem(riits);
-        rit.setInstancesSet(rist);
+        ret.setInstancesSet(rist);
+        ret.setRequesterId(ownerID);
 
-        return rit;
+        return ret;
     }
 
 

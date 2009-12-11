@@ -147,6 +147,14 @@
                 <include name="*.jar"/>
                 <include name="*LICENSE*"/>
             </fileset>
+            <fileset dir="${nimbus.messaging.query.dist.dir}">
+                <include name="*.jar"/>
+                <include name="*LICENSE*"/>
+            </fileset>
+            <fileset dir="${nimbus.messaging.query.lib.dir}">
+                <include name="*.jar"/>
+                <include name="*LICENSE*"/>
+            </fileset>
 
         </copy>
     </target>
@@ -162,6 +170,9 @@
         </copy>
         <copy todir="${nimbus.messaging.gt4_0.gar.build.etc.dir}">
             <fileset dir="${nimbus.messaging.gt4_0-elastic.etc.dir}" />
+        </copy>
+        <copy todir="${nimbus.messaging.gt4_0.gar.build.etc.dir}">
+            <fileset dir="${nimbus.messaging.query.etc.dir}" />
         </copy>
         <copy todir="${nimbus.messaging.gt4_0.gar.build.etc.dir}">
             <fileset dir="${nimbus.messaging.gt4_0.gar.etc.dir}" />

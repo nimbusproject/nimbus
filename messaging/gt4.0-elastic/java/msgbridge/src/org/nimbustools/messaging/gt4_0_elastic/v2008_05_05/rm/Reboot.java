@@ -16,7 +16,7 @@
 
 package org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm;
 
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.RebootInstancesType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.RebootInstancesType;
 import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.services.rm.Manager;
 

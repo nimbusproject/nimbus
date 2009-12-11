@@ -16,74 +16,7 @@
 
 package org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.service;
 
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.AuthorizeSecurityGroupIngressResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.ConfirmProductInstanceResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DescribeKeyPairsResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.ConfirmProductInstanceType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.AllocateAddressResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DescribeSecurityGroupsType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DescribeInstancesResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.CreateKeyPairType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.ResetImageAttributeResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.TerminateInstancesResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DescribeImagesResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.ModifyImageAttributeResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DescribeAvailabilityZonesType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.RegisterImageResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.CreateSecurityGroupResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DescribeImageAttributeResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DeleteSecurityGroupType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.ModifyImageAttributeType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.ResetImageAttributeType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DescribeAvailabilityZonesResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.RevokeSecurityGroupIngressType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.GetConsoleOutputResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.RevokeSecurityGroupIngressResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.RebootInstancesType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.CreateSecurityGroupType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.CreateKeyPairResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DescribeKeyPairsType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DescribeImageAttributeType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DescribeSecurityGroupsResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.ReservationInfoType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.RegisterImageType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DescribeImagesType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.RebootInstancesResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.AuthorizeSecurityGroupIngressType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DeregisterImageType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.RunInstancesType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DeleteKeyPairResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DescribeInstancesType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DeleteSecurityGroupResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DeregisterImageResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.TerminateInstancesType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DeleteKeyPairType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.GetConsoleOutputType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.ReleaseAddressResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.AllocateAddressType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.AssociateAddressResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DisassociateAddressType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DisassociateAddressResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.AssociateAddressType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DescribeAddressesType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DescribeAddressesResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.ReleaseAddressType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.CreateSnapshotResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.CreateSnapshotType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DescribeVolumesType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.CreateVolumeType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DescribeVolumesResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.CreateVolumeResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DeleteSnapshotResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DeleteSnapshotType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.AttachVolumeType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DescribeSnapshotsResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DescribeSnapshotsType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DeleteVolumeResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DeleteVolumeType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DetachVolumeResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DetachVolumeType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.AttachVolumeResponseType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.*;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.ServiceAll;
 
 import java.rmi.RemoteException;
@@ -97,7 +30,7 @@ public class UnimplementedOperations implements ServiceAll {
     // RM MANAGER RELATED
     // -------------------------------------------------------------------------
 
-    public ReservationInfoType runInstances(
+    public RunInstancesResponseType runInstances(
                         RunInstancesType runInstancesRequestMsg)
             throws RemoteException {
         throw new RemoteException(UNIMPLEMENTED + "runInstances");
@@ -168,6 +101,23 @@ public class UnimplementedOperations implements ServiceAll {
         throw new RemoteException(UNIMPLEMENTED + "confirmProductInstance");
     }
 
+    public BundleInstanceResponseType bundleInstance(
+            BundleInstanceType bundleInstanceRequestMsg)
+        throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "bundleInstance");
+    }
+
+    public DescribeBundleTasksResponseType describeBundleTasks(
+            DescribeBundleTasksType describeBundleTasksRequestMsg)
+        throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "describeBundleTasks");
+    }
+
+    public CancelBundleTaskResponseType cancelBundleTask(
+            CancelBundleTaskType cancelBundleTaskRequestMsg)
+        throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "cancelBundleTask");
+    }
 
     // -------------------------------------------------------------------------
     // SECURITY RELATED
@@ -267,11 +217,24 @@ public class UnimplementedOperations implements ServiceAll {
         throw new RemoteException(UNIMPLEMENTED + "getConsoleOutput");
     }
 
+    public GetPasswordDataResponseType getPasswordData(
+            GetPasswordDataType getPasswordRequestMsg) throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "getPasswordData");
+    }
+
     public DescribeAvailabilityZonesResponseType describeAvailabilityZones(
                         DescribeAvailabilityZonesType describeAvailabilityZonesRequestMsg)
             throws RemoteException {
         throw new RemoteException(UNIMPLEMENTED + "describeAvailabilityZones");
     }
+
+    public DescribeRegionsResponseType describeRegions(
+                        DescribeRegionsType describeRegionsRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "describeRegions");
+    }
+
+
 
 
     // -------------------------------------------------------------------------
@@ -325,4 +288,179 @@ public class UnimplementedOperations implements ServiceAll {
             throws RemoteException {
         throw new RemoteException(UNIMPLEMENTED + "describeSnapshots");
     }
+    
+    public ModifySnapshotAttributeResponseType modifySnapshotAttribute(
+                ModifySnapshotAttributeType modifySnapshotAttributeRequestMsgReq)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "modifySnapshotAttribute");
+    }
+    
+    public ResetSnapshotAttributeResponseType resetSnapshotAttribute(
+                ResetSnapshotAttributeType resetSnapshotAttributeRequestMsgReq)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "resetSnapshotAttribute");
+    }
+    
+    public DescribeSnapshotAttributeResponseType describeSnapshotAttribute(
+                DescribeSnapshotAttributeType describeSnapshotAttributeRequestMsgReq)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "describeSnapshotAttribute");
+    }
+
+    public DescribeReservedInstancesOfferingsResponseType describeReservedInstancesOfferings(
+            DescribeReservedInstancesOfferingsType describeReservedInstancesOfferingsRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "describeReservedInstancesOfferings");
+    }
+
+    public PurchaseReservedInstancesOfferingResponseType purchaseReservedInstancesOffering(
+            PurchaseReservedInstancesOfferingType purchaseReservedInstancesOfferingRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "purchaseReservedInstancesOffering");
+    }
+
+    public DescribeReservedInstancesResponseType describeReservedInstances(
+            DescribeReservedInstancesType describeReservedInstancesRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "describeReservedInstances");
+    }
+
+    public MonitorInstancesResponseType monitorInstances(
+            MonitorInstancesType monitorInstancesRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "monitorInstances");
+    }
+
+    public MonitorInstancesResponseType unmonitorInstances(
+            MonitorInstancesType unmonitorInstancesRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "unmonitorInstances");
+    }
+
+    public CreateCustomerGatewayResponseType createCustomerGateway(
+            CreateCustomerGatewayType createCustomerGatewayRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "createCustomerGateway");
+    }
+
+    public DeleteCustomerGatewayResponseType deleteCustomerGateway(
+            DeleteCustomerGatewayType deleteCustomerGatewayRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "deleteCustomerGateway");
+    }
+
+    public DescribeCustomerGatewaysResponseType describeCustomerGateways(
+            DescribeCustomerGatewaysType describeCustomerGatewaysRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "describeCustomerGateways");
+    }
+
+    public CreateVpnGatewayResponseType createVpnGateway(
+            CreateVpnGatewayType createVpnGatewayRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "createVpnGateway");
+    }
+
+    public DeleteVpnGatewayResponseType deleteVpnGateway(
+            DeleteVpnGatewayType deleteVpnGatewayRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "deleteVpnGateway");
+    }
+
+    public DescribeVpnGatewaysResponseType describeVpnGateways(
+            DescribeVpnGatewaysType describeVpnGatewaysRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "describeVpnGateways");
+    }
+
+    public CreateVpnConnectionResponseType createVpnConnection(
+            CreateVpnConnectionType createVpnConnectionRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "createVpnConnection");
+    }
+
+    public DeleteVpnConnectionResponseType deleteVpnConnection(
+            DeleteVpnConnectionType deleteVpnConnectionRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "deleteVpnConnection");
+    }
+
+    public DescribeVpnConnectionsResponseType describeVpnConnections(
+            DescribeVpnConnectionsType describeVpnConnectionsRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "describeVpnConnections");
+    }
+
+    public AttachVpnGatewayResponseType attachVpnGateway(
+            AttachVpnGatewayType attachVpnGatewayRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "attachVpnGateway");
+    }
+
+    public DetachVpnGatewayResponseType detachVpnGateway(
+            DetachVpnGatewayType detachVpnGatewayRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "detachVpnGateway");
+    }
+
+    public CreateVpcResponseType createVpc(
+            CreateVpcType createVpcRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "createVpc");
+    }
+
+    public DeleteVpcResponseType deleteVpc(
+            DeleteVpcType deleteVpcRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "deleteVpc");
+    }
+
+    public DescribeVpcsResponseType describeVpcs(
+            DescribeVpcsType describeVpcsRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "describeVpcs");
+    }
+
+    public CreateSubnetResponseType createSubnet(
+            CreateSubnetType createSubnetRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "createSubnet");
+    }
+
+    public DeleteSubnetResponseType deleteSubnet(
+            DeleteSubnetType deleteSubnetRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "deleteSubnet");
+    }
+
+    public DescribeSubnetsResponseType describeSubnets(
+            DescribeSubnetsType describeSubnetsRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "describeSubnets");
+    }
+
+    public CreateDhcpOptionsResponseType createDhcpOptions(
+            CreateDhcpOptionsType createDhcpOptionsRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "createDhcpOptions");
+    }
+
+    public DescribeDhcpOptionsResponseType describeDhcpOptions(
+            DescribeDhcpOptionsType describeDhcpOptionsRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "describeDhcpOptions");
+    }
+
+    public DeleteDhcpOptionsResponseType deleteDhcpOptions(
+            DeleteDhcpOptionsType deleteDhcpOptionsRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "deleteDhcpOptions");
+    }
+
+    public AssociateDhcpOptionsResponseType associateDhcpOptions(
+            AssociateDhcpOptionsType associateDhcpOptionsRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "associateDhcpOptions");
+    }
+
 }

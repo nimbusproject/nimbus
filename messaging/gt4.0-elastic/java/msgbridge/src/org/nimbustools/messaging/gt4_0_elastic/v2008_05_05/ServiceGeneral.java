@@ -16,10 +16,7 @@
 
 package org.nimbustools.messaging.gt4_0_elastic.v2008_05_05;
 
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.GetConsoleOutputResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.GetConsoleOutputType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DescribeAvailabilityZonesResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DescribeAvailabilityZonesType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.*;
 
 import java.rmi.RemoteException;
 
@@ -36,4 +33,35 @@ public interface ServiceGeneral {
     public DescribeAvailabilityZonesResponseType describeAvailabilityZones(
                         DescribeAvailabilityZonesType describeAvailabilityZonesRequestMsg)
             throws RemoteException;
+
+    public GetPasswordDataResponseType getPasswordData(
+            GetPasswordDataType getPasswordRequestMsg) throws RemoteException;
+
+    public DescribeRegionsResponseType describeRegions(
+            DescribeRegionsType describeRegionsRequestMsg)
+            throws RemoteException;
+
+    public DescribeReservedInstancesOfferingsResponseType describeReservedInstancesOfferings(
+            DescribeReservedInstancesOfferingsType describeReservedInstancesOfferingsRequestMsg)
+            throws RemoteException;
+
+    public PurchaseReservedInstancesOfferingResponseType purchaseReservedInstancesOffering(
+            PurchaseReservedInstancesOfferingType purchaseReservedInstancesOfferingRequestMsg)
+            throws RemoteException;
+
+    public DescribeReservedInstancesResponseType describeReservedInstances(
+            DescribeReservedInstancesType describeReservedInstancesRequestMsg)
+            throws RemoteException;
+
+    public CreateCustomerGatewayResponseType createCustomerGateway(
+            CreateCustomerGatewayType createCustomerGatewayRequestMsg)
+            throws RemoteException;
+
+    public DeleteCustomerGatewayResponseType deleteCustomerGateway(
+            DeleteCustomerGatewayType deleteCustomerGatewayRequestMsg)
+            throws RemoteException;
+
+    public DescribeCustomerGatewaysResponseType describeCustomerGateways(
+            DescribeCustomerGatewaysType describeCustomerGatewaysRequestMsg)
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        throws RemoteException;
 }

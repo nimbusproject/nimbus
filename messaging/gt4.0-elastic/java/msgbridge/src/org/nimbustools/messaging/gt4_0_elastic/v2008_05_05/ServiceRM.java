@@ -16,14 +16,7 @@
 
 package org.nimbustools.messaging.gt4_0_elastic.v2008_05_05;
 
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DescribeInstancesResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DescribeInstancesType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.RebootInstancesResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.RebootInstancesType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.ReservationInfoType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.RunInstancesType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.TerminateInstancesResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.TerminateInstancesType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.*;
 
 import java.rmi.RemoteException;
 
@@ -33,7 +26,7 @@ public interface ServiceRM {
     // RM RELATED
     // -------------------------------------------------------------------------
 
-    public ReservationInfoType runInstances(
+    public RunInstancesResponseType runInstances(
                         RunInstancesType runInstancesRequestMsg)
             throws RemoteException;
 
@@ -47,5 +40,13 @@ public interface ServiceRM {
 
     public DescribeInstancesResponseType describeInstances(
                         DescribeInstancesType describeInstancesRequestMsg)
+            throws RemoteException;
+
+    public MonitorInstancesResponseType monitorInstances(
+            MonitorInstancesType monitorInstancesRequestMsg)
+            throws RemoteException;
+
+    public MonitorInstancesResponseType unmonitorInstances(
+            MonitorInstancesType unmonitorInstancesRequestMsg)
             throws RemoteException;
 }

@@ -5,6 +5,9 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans
                            http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
+    <bean id="nimbus-elastic.rm.modulelocator"
+          class="org.nimbustools.messaging.gt4_0.common.NimbusLocalModuleLocator" />
+
 
     <!-- ************ ServiceRM *********** -->
     
@@ -16,6 +19,7 @@
         <constructor-arg ref="nimbus-elastic.rm.reboot" />
         <constructor-arg ref="nimbus-elastic.rm.describe" />
         <constructor-arg ref="nimbus-elastic.rm.containerInterface" />
+        <constructor-arg ref="nimbus-elastic.rm.modulelocator" />
 
     </bean>
 
@@ -29,6 +33,7 @@
         <constructor-arg ref="nimbus-elastic.rm.containerInterface" />
         <constructor-arg ref="nimbus-elastic.security.sshkeys" />
         <constructor-arg ref="nimbus-elastic.image.repository" />
+        <constructor-arg ref="nimbus-elastic.rm.modulelocator" />
 
     </bean>
 
@@ -59,7 +64,10 @@
     </bean>
 
     <bean id="nimbus-elastic.rm.containerInterface"
-          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultContainerInterface" />
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultContainerInterface">
+
+        <constructor-arg ref="nimbus-elastic.rm.modulelocator" />
+    </bean>
 
     <bean id="nimbus-elastic.rm.idmappings"
           class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultIDMgmt">
@@ -84,6 +92,8 @@
      <bean id="nimbus-elastic.general.ra"
            class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.defaults.DefaultResourceAllocations"
            init-method="validate">
+
+         <constructor-arg ref="nimbus-elastic.rm.modulelocator" />
 
          <property name="smallMemory" value="$ELASTIC{memory.small}" />
          <property name="largeMemory" value="$ELASTIC{memory.large}" />
@@ -175,6 +185,7 @@
           init-method="validate">
 
         <constructor-arg ref="nimbus-elastic.rm.containerInterface" />
+        <constructor-arg ref="nimbus-elastic.rm.modulelocator" />
 
         <property name="baseDirectory" value="$ELASTIC{base.directory.url}" />
         <property name="scheme" value="$ELASTIC{propagation.method}" />
@@ -182,6 +193,18 @@
 
         <property name="enableListing" value="$ELASTIC{repository.listing.enabled}" />
         <property name="idAuthz" value="$ELASTIC{repository.idauthz}" />
+
+    </bean>
+    
+    <bean id="nimbus-query.httpserver" 
+          class="org.nimbustools.messaging.query.HttpQuery" 
+          init-method="startListening">
+        
+        <property name="enabled" value="$QUERY{https.enabled}"/>
+        <property name="port" value="$QUERY{https.port}" />
+        <property name="keystoreLocation" value="$QUERY{keystore.path}"/>
+        <property name="keystorePassword" value="$QUERY{keystore.password}"/>
+        <property name="springConfig" value="$QUERY{query.spring.path}"/>
 
     </bean>
 

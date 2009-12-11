@@ -1,0 +1,151 @@
+<?xml version="1.0"?>
+
+<project default="dist" basedir="." name="GT4.0 elastic messaging bridge">
+
+    <description>Nimbus CXF Elastic Query Interface</description>
+
+    <!-- load user nimbus.build.properties file, if it exists -->
+    <property file="${user.home}/nimbus.build.properties"/>
+
+    <!-- load defaults from colocated build.properties file -->
+    <property file="build.properties"/>
+
+
+    <!-- *******************************************************************
+         LOCATE GT DEPENDENCIES
+         ******************************************************************* -->
+
+    <property environment="env"/>
+    <property name="abs.deploy.dir" location="${env.GLOBUS_LOCATION}"/>
+    <property name="gt4_0.lib.dir" location="${abs.deploy.dir}/lib"/>
+
+
+    <!-- *******************************************************************
+         CHECK MINIMUM JDK
+         ******************************************************************* -->
+
+    <target name="checkjdk">
+        <available property="jdk1.4+" classname="java.lang.CharSequence"/>
+        <fail message="Aborting: determined you are not building with >= JDK 1.4"
+              unless="jdk1.4+" />
+    </target>
+
+
+    <!-- *******************************************************************
+         INITIALIZE
+         ******************************************************************* -->
+
+    <target name="init" depends="checkjdk">
+        <mkdir dir="${nimbus.messaging.query.build.dir}"/>
+        <mkdir dir="${nimbus.messaging.query.build.dest}"/>
+        <mkdir dir="${nimbus.messaging.query.dist.dir}"/>
+        <mkdir dir="${nimbus.messaging.query.lib.dir}" />
+    </target>
+
+
+    <!-- *******************************************************************
+         COMPILATION
+         ******************************************************************* -->
+
+    <path id="nimbus.messaging.query.classpath">
+
+        <fileset dir="${gt4_0.lib.dir}">
+            <include name="*.jar"/>
+            <exclude name="nimbus-*.jar" />
+        </fileset>
+
+        <fileset dir="${vws.gt4_0.stubs.build.lib.dir}">
+            <include name="*.jar"/>
+        </fileset>
+
+        <fileset dir="${nimbus.messaging.gt4_0-elastic.dist.dir}">
+            <include name="*.jar"/>
+        </fileset>
+
+        <fileset dir="${nimbus.messaging.gt4_0-elastic.lib.dir}">
+            <include name="*.jar"/>
+        </fileset>
+
+        <fileset dir="${nimbus.messaging.query.lib.dir}">
+            <include name="*.jar"/>
+        </fileset>
+
+        <fileset dir="${nimbus.messaging.gt4_0.common.lib.dir}">
+            <include name="*.jar"/>
+        </fileset>
+
+        <fileset dir="${nimbus.messaging.gt4_0.common.dist.dir}">
+            <include name="*.jar"/>
+        </fileset>
+
+        <fileset dir="${nimbus.service.api.lib.dir}">
+              <include name="*.jar"/>
+        </fileset>
+
+        <fileset dir="${nimbus.service.api.dist.dir}">
+              <include name="*.jar"/>
+        </fileset>
+
+    </path>
+
+    <target name="compile" depends="init">
+
+        <javac srcdir="${nimbus.messaging.query.src.dir}"
+               destdir="${nimbus.messaging.query.build.dest}"
+               classpathref="nimbus.messaging.query.classpath"
+               debug="on">
+
+            <include name="**/*.java"/>
+            <compilerarg value="${nimbus.java.compilerarg}" />
+
+        </javac>
+
+        <copy todir="${nimbus.messaging.query.build.dest}" >
+
+              <fileset dir="${nimbus.messaging.query.src.dir}"
+                       includes="**/*.properties" />
+
+              <fileset dir="${nimbus.messaging.query.src.dir}"
+                       includes="**/*.xml" />
+
+              <fileset dir="${nimbus.messaging.query.src.dir}"
+                       includes="**/*.txt" />
+        </copy>
+
+    </target>
+
+
+    <!-- *******************************************************************
+         CREATE ARCHIVE FILE
+         ******************************************************************* -->
+
+    <target name="jar" depends="compile">
+        <jar destfile="${nimbus.messaging.query.dist.dir}/${nimbus.messaging.query.jar.name}"
+             basedir="${nimbus.messaging.query.build.dest}"/>
+    </target>
+
+
+    <!-- *******************************************************************
+         CLEAN
+         ******************************************************************* -->
+
+    <target name="clean">
+        <delete dir="${nimbus.messaging.query.build.dir}"/>
+        <delete dir="${nimbus.messaging.query.dist.dir}"/>
+        <echo message="Cleaned: ${basedir}" />
+    </target>
+
+
+    <!-- *******************************************************************
+         CREATE DISTRIBUTION
+         ******************************************************************* -->
+
+    <target name="dist">
+        <echo message="**** Module: ${basedir}" />
+        <echo>Building: ${nimbus.messaging.query.print-noun}</echo>
+        <antcall target="jar" />
+        <echo>Built: ${nimbus.messaging.query.print-noun}
+        </echo>
+    </target>
+
+</project>

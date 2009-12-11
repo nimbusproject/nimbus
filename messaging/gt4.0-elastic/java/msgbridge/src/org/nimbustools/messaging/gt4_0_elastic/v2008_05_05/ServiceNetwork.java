@@ -16,16 +16,7 @@
 
 package org.nimbustools.messaging.gt4_0_elastic.v2008_05_05;
 
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.AllocateAddressResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.AllocateAddressType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.ReleaseAddressResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.ReleaseAddressType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DescribeAddressesResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DescribeAddressesType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.AssociateAddressResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.AssociateAddressType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DisassociateAddressResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DisassociateAddressType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.*;
 
 import java.rmi.RemoteException;
 
@@ -53,5 +44,77 @@ public interface ServiceNetwork {
 
     public DisassociateAddressResponseType disassociateAddress(
                         DisassociateAddressType disassociateAddressRequestMsg)
+            throws RemoteException;
+
+    public CreateVpnGatewayResponseType createVpnGateway(
+            CreateVpnGatewayType createVpnGatewayRequestMsg)
+            throws RemoteException;
+
+    public DeleteVpnGatewayResponseType deleteVpnGateway(
+            DeleteVpnGatewayType deleteVpnGatewayRequestMsg)
+            throws RemoteException;
+
+    public DescribeVpnGatewaysResponseType describeVpnGateways(
+            DescribeVpnGatewaysType describeVpnGatewaysRequestMsg)
+            throws RemoteException;
+
+    public CreateVpnConnectionResponseType createVpnConnection(
+            CreateVpnConnectionType createVpnConnectionRequestMsg)
+            throws RemoteException;
+
+    public DeleteVpnConnectionResponseType deleteVpnConnection(
+            DeleteVpnConnectionType deleteVpnConnectionRequestMsg)
+            throws RemoteException;
+
+    public DescribeVpnConnectionsResponseType describeVpnConnections(
+            DescribeVpnConnectionsType describeVpnConnectionsRequestMsg)
+            throws RemoteException;
+
+    public AttachVpnGatewayResponseType attachVpnGateway(
+            AttachVpnGatewayType attachVpnGatewayRequestMsg)
+            throws RemoteException;
+
+    public DetachVpnGatewayResponseType detachVpnGateway(
+            DetachVpnGatewayType detachVpnGatewayRequestMsg)
+            throws RemoteException;
+
+    public CreateVpcResponseType createVpc(
+            CreateVpcType createVpcRequestMsg)
+            throws RemoteException;
+
+    public DeleteVpcResponseType deleteVpc(
+            DeleteVpcType deleteVpcRequestMsg)
+            throws RemoteException;
+
+    public DescribeVpcsResponseType describeVpcs(
+            DescribeVpcsType describeVpcsRequestMsg)
+            throws RemoteException;
+
+    public CreateSubnetResponseType createSubnet(
+            CreateSubnetType createSubnetRequestMsg)
+            throws RemoteException;
+
+    public DeleteSubnetResponseType deleteSubnet(
+            DeleteSubnetType deleteSubnetRequestMsg)
+            throws RemoteException;
+
+    public DescribeSubnetsResponseType describeSubnets(
+            DescribeSubnetsType describeSubnetsRequestMsg)
+            throws RemoteException;
+
+    public CreateDhcpOptionsResponseType createDhcpOptions(
+            CreateDhcpOptionsType createDhcpOptionsRequestMsg)
+            throws RemoteException;
+
+    public DescribeDhcpOptionsResponseType describeDhcpOptions(
+            DescribeDhcpOptionsType describeDhcpOptionsRequestMsg)
+            throws RemoteException;
+
+    public DeleteDhcpOptionsResponseType deleteDhcpOptions(
+            DeleteDhcpOptionsType deleteDhcpOptionsRequestMsg)
+            throws RemoteException;
+
+    public AssociateDhcpOptionsResponseType associateDhcpOptions(
+            AssociateDhcpOptionsType associateDhcpOptionsRequestMsg)
             throws RemoteException;
 }

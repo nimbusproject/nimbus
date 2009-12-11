@@ -30,19 +30,14 @@ import org.nimbustools.api.services.metadata.MetadataServer;
 import org.nimbustools.api.services.rm.ManageException;
 import org.nimbustools.api.services.rm.Manager;
 import org.nimbustools.messaging.gt4_0.common.AddCustomizations;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DescribeInstancesResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.DescribeInstancesType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.RebootInstancesResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.RebootInstancesType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.ReservationInfoType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.RunInstancesType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.TerminateInstancesResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2008_05_05.TerminateInstancesType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.*;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.ServiceRM;
+import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.service.UnimplementedOperations;
 
 import java.rmi.RemoteException;
 
-public class ServiceRMImpl implements ServiceRM {
+public class ServiceRMImpl extends UnimplementedOperations
+        implements ServiceRM {
 
     // -------------------------------------------------------------------------
     // STATIC VARIABLES
@@ -119,7 +114,7 @@ public class ServiceRMImpl implements ServiceRM {
     // RUN
     // -------------------------------------------------------------------------
 
-    public ReservationInfoType runInstances(RunInstancesType req)
+    public RunInstancesResponseType runInstances(RunInstancesType req)
             throws RemoteException {
 
         if (req == null) {
@@ -168,7 +163,8 @@ public class ServiceRMImpl implements ServiceRM {
 
         final Caller caller = this.container.getCaller();
         final boolean result = this.reboot.reboot(req, caller, this.manager);
-        return new RebootInstancesResponseType(result);
+        return new RebootInstancesResponseType(result, "");
+        // TODO do something real with requestId
     }
 
 
