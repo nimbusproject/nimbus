@@ -22,10 +22,15 @@ _NIMBUS_TP2_2_DEPRECATED
     </li>
     <li>
         <p>
-            <a href="#elastic">Enabling the EC2 frontend</a>
+            <a href="#elastic">Enabling the EC2 SOAP frontend</a>
         </p>
     </li>
     <li>
+        <p>
+            <a href="#elastic">Enabling the EC2 Query frontend</a>
+        </p>
+    </li>
+	<li>
         <p>
             <a href="#manual-container">Configuring the container manually without the AutoContainer</a>
         </p>
@@ -112,7 +117,7 @@ _NIMBUS_TP2_2_DEPRECATED
 <br />
 
 <a name="elastic"> </a>
-<h2>Enabling the EC2 frontend _NAMELINK(elastic)</h2>
+<h2>Enabling the EC2 SOAP frontend _NAMELINK(elastic)</h2>
 <p>
     After installing, see the <i>$GLOBUS_LOCATION/etc/nimbus/elastic</i>
     directory.  The .conf file here specifies what the EC2 "instance type"
@@ -214,7 +219,51 @@ _EXAMPLE_CMD_END
     Container restart required after the configuration change.
 </p>
 
+<br />
 
+<a name="query"> </a>
+<h2>Enabling the EC2 Query frontend _NAMELINK(query)</h2>
+<p>
+The EC2 Query frontend supports the same operations as the SOAP frontend.
+However, it does not run in the same container. It listens on HTTPS using Jetty.
+By default it is not enabled and must be configured with a Java keystore.
+</p>
+
+<p>
+After installing, see the <i>$GLOBUS_LOCATION/etc/nimbus/query</i> directory.
+This contains a configuration file <i>query.conf</i> and a sample user mapping
+file <i>users.txt</i>. Before enabling the query frontend, you must provide a 
+Java keystore file. This keystore is used for SSL support. See
+<a href="http://docs.codehaus.org/display/JETTY/How+to+configure+SSL#HowtoconfigureSSL-step1">
+here</a> for instructions on creating a keystore using Java's <i>keytool</i> 
+utility. Once you have a keystore file, edit the <i>query.conf</i> file and
+set appropriate values for <i>keystore.path</i> and <i>keystore.password</i>.
+</p>
+
+<p>
+To enable the Query frontend, edit the <i>query.conf</i> file and choose an open
+port number for the <i>https.port</i> value. Then change <i>https.enabled</i> to
+<b>true</b> and restart the container.
+</p>
+
+<p>
+The Query interface does not rely on X509 certificates for security. Instead,
+it uses a symmetric signature-based approach. Each user is assigned an access
+identifier and secret key. These credentials are also maintained by the service.
+Each request is "signed" by the client by generating a hash of parts of the
+request and attaching them. The service performs this same signature process
+and compares its result with the one included in the request.
+</p>
+
+<p>
+For the initial release of the Query frontend, Nimbus users are mapped to
+Query credentials in a flat text file. By default, this file is located at
+<i>$GLOBUS_LOCATION/etc/nimbus/query/users.txt</i> but it may be placed
+elsewhere by altering the <i>query.usermap.path</i> configuration value in
+<i>query.conf</i>. This file must be manually managed but in the near future
+it will be tied into the administrative web application. Changes to this file
+do not require a container restart.
+</p>
 
 <!-- *********************************************************************** -->
 <!-- *********************************************************************** -->
