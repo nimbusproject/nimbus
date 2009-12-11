@@ -29,7 +29,7 @@ fi
 (cd $THISDIR ; $MACRO_EXE $MACRO_PROGRAM)
 
 echo ""
-OUTPUT_DIR=$THISDIR/../m4-processed
+OUTPUT_DIR=$THISDIR/../html
 OUTPUT_DIR2=`cd $OUTPUT_DIR; pwd`
 echo "Website built @ $OUTPUT_DIR2"
 echo ""
