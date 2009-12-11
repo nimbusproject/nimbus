@@ -694,3 +694,127 @@ def test_image_compress1():
     editing.process_after_shutdown(local_file_set, dryrun=True)
     procure.process_after_shutdown(local_file_set, dryrun=True)
     
+def test_localnet1():
+    """Test local network adapter basics"""
+    
+    mock_config_name = "localnet1.conf"
+    p,c = get_pc(None, mockconfigs(basename=mock_config_name))
+    c.log.debug("test_localnet1()")
+    localnet_cls = c.get_class_by_keyword("LocalNetworkSetup")
+    localnet = localnet_cls(p,c)
+    
+    # should validate without error
+    localnet.validate()
+    
+    bridge = localnet.ip_to_bridge("192.168.0.13")
+    assert bridge == "virbr3"
+    
+    bridge = localnet.ip_to_bridge("192.168.2.200")
+    assert bridge == "virbr5"
+    
+    # default:
+    bridge = localnet.ip_to_bridge("10.10.2.34")
+    assert bridge == "virbr1"
+    
+def test_localnet2():
+    """Test local network adapter with no default bridge"""
+    
+    mock_config_name = "localnet2.conf"
+    p,c = get_pc(None, mockconfigs(basename=mock_config_name))
+    c.log.debug("test_localnet2()")
+    localnet_cls = c.get_class_by_keyword("LocalNetworkSetup")
+    localnet = localnet_cls(p,c)
+    localnet.validate()
+    
+    bridge = localnet.ip_to_bridge("192.168.0.13")
+    assert bridge == "virbr3"
+    
+    bridge = localnet.ip_to_bridge("192.168.2.200")
+    assert bridge == "virbr5"
+    
+    # localnet2.conf has no default and this request is not in any range
+    incompat_env = False
+    try:
+        bridge = localnet.ip_to_bridge("10.10.2.34")
+    except IncompatibleEnvironment,e:
+        c.log.debug("IncompatibleEnvironment - %s" % e.msg)
+        incompat_env = True
+    assert incompat_env
+
+def test_localnet3():
+    """Test local network adapter with only a default bridge"""
+    
+    mock_config_name = "localnet3.conf"
+    p,c = get_pc(None, mockconfigs(basename=mock_config_name))
+    c.log.debug("test_localnet3()")
+    localnet_cls = c.get_class_by_keyword("LocalNetworkSetup")
+    localnet = localnet_cls(p,c)
+    localnet.validate()
+    
+    bridge = localnet.ip_to_bridge("10.10.2.34")
+    assert bridge == "virbr1"
+    
+def test_localnet4():
+    """Test local network adapter errors"""
+    
+    mock_config_name = "localnet4.conf"
+    p,c = get_pc(None, mockconfigs(basename=mock_config_name))
+    c.log.debug("test_localnet4()")
+    localnet_cls = c.get_class_by_keyword("LocalNetworkSetup")
+    localnet = localnet_cls(p,c)
+    
+    # localnet4.conf has no default and no IP mappings at all
+    invalid_config = False
+    try:
+        localnet.validate()
+    except InvalidConfig,e:
+        c.log.debug("InvalidConfig - %s" % e.msg)
+        invalid_config = True
+    assert invalid_config
+    
+def test_localnet5():
+    """Test local network adapter, multiple ranges per bridge"""
+    
+    mock_config_name = "localnet5.conf"
+    p,c = get_pc(None, mockconfigs(basename=mock_config_name))
+    c.log.debug("test_localnet5()")
+    localnet_cls = c.get_class_by_keyword("LocalNetworkSetup")
+    localnet = localnet_cls(p,c)
+    
+    localnet.validate()
+    
+    bridge = localnet.ip_to_bridge("10.10.2.34")
+    assert bridge == "virbr3"
+    
+    bridge = localnet.ip_to_bridge("192.168.2.1")
+    assert bridge == "virbr5"
+    
+    bridge = localnet.ip_to_bridge("172.16.5.8")
+    assert bridge == "virbr4"
+    
+    bridge = localnet.ip_to_bridge("172.30.30.99")
+    assert bridge == "virbr4"
+    
+    bridge = localnet.ip_to_bridge("192.168.0.18")
+    assert bridge == "virbr3"
+    
+def test_localnet6():
+    """Test local network adapter errors, multiple bridges with same IP range"""
+    
+    mock_config_name = "localnet6.conf"
+    p,c = get_pc(None, mockconfigs(basename=mock_config_name))
+    c.log.debug("test_localnet6()")
+    localnet_cls = c.get_class_by_keyword("LocalNetworkSetup")
+    localnet = localnet_cls(p,c)
+    
+    # localnet6.conf has two bridges with the same IP ranges
+    # note that this does not cover an *overlap* just the same ranges.
+    # TODO: analyzing overlaps would be better
+    invalid_config = False
+    try:
+        localnet.validate()
+    except InvalidConfig,e:
+        c.log.debug("InvalidConfig - %s" % e.msg)
+        invalid_config = True
+    assert invalid_config
+    
