@@ -91,6 +91,13 @@ function strlen (){
 # ADJUST AS NECESSARY #
 #######################
 
+# NOTE: these things are configured here, sorry.  They can not be arguments
+#       sent into a program run under sudo.  Consider what could happen if the
+#       priviliged account could send in any argument for the conf file to
+#       adjust or any argument for the command to run 'start' and 'stop' with.
+#       Those capabilities could be abused to do no good.
+
+
 # Policy file for script to adjust
 #DHCPD_CONF="/etc/dhcp/dhcpd.conf"
 DHCPD_CONF="/etc/dhcpd.conf"
