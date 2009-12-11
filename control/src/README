@@ -9,6 +9,7 @@ Testing/development
 
 Sample:
 
+$ source src/env.sh
 $ nosetests --nologcapture -x -v -w src/python/workspacecontrol/main
 
 During (test driven) development this can be conveniently combined with:
