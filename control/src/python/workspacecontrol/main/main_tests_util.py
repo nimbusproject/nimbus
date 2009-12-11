@@ -4,8 +4,8 @@ from workspacecontrol.main import get_all_configs
 from workspacecontrol.mocks import get_mock_mainconf
 from workspacecontrol.main import get_class_by_keyword
 
-def mockconfigs():
-    return get_all_configs(get_mock_mainconf())
+def mockconfigs(basename="main.conf"):
+    return get_all_configs(get_mock_mainconf(basename=basename))
     
 def realconfigs():
     # only a best effort guess, tests assume it is under $basedir/etc
