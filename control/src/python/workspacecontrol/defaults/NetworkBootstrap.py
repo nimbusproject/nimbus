@@ -1,10 +1,7 @@
 from commands import getstatusoutput
 import os
-import string
 import sys
 import zope.interface
-
-import IPy
 
 import workspacecontrol.api.modules
 from workspacecontrol.api.exceptions import *
@@ -25,16 +22,9 @@ class DefaultNetworkBootstrap:
     zope.interface.implements(workspacecontrol.api.modules.INetworkBootstrap)
     
     def __init__(self, params, common):
-         """
-         params -- instance of Parameters
-         
-         common -- instance of Common
-         """
          self.p = params
          self.c = common
          self.dhcpconfig = None
-         self.dhcpd_path = None
-         self.dhcpd_conf_path = None
          self.sudo_path = None
          
          # dict of bridge name --> DHCPd vif
@@ -42,7 +32,7 @@ class DefaultNetworkBootstrap:
          
     def validate(self):
         
-        self.dhcpconfig = self.p.get_conf_or_none("mount", "mounttool")
+        self.dhcpconfig = self.p.get_conf_or_none("dhcp", "dhcpconfig")
         if not self.dhcpconfig:
             self.c.log.warn("no dhcpconfig configuration (networks.conf), DHCP configuration disabled")
             return
@@ -78,7 +68,7 @@ class DefaultNetworkBootstrap:
         
         self.sudo_path = self.p.get_conf_or_none("sudo", "sudo")
         if not self.sudo_path:
-            raise InvalidConfig("mount tool is configured but there is no sudo configuration")
+            raise InvalidConfig("dhcp-config tool is configured but there is no sudo configuration")
             
         if not os.path.isabs(self.sudo_path):
             raise InvalidConfig("path to sudo must be absolute")
@@ -89,7 +79,7 @@ class DefaultNetworkBootstrap:
         if not os.access(self.sudo_path, os.X_OK):
             raise InvalidConfig("sudo is configured with an absolute path, but it does not seem executable: '%s'" % self.sudo_path)
 
-        self.c.log.info("sudo configured: %s" % self.sudo_path)
+        self.c.log.info("sudo configured for DHCP: %s %s" % (self.sudo_path, self.dhcpconfig))
     
     def setup(self, nic_set, dryrun=False):
         """Do any necessary work to set up the network bootstrapping process,
@@ -110,7 +100,7 @@ class DefaultNetworkBootstrap:
                 if not nic.bridge:
                     raise InvalidConfig("Cannot choose a DHCP vif without a bridge assignment for this NIC: %s" % nic.ip)
                 if self.vifdict.has_key(nic.bridge):
-                    nic.dhcpvifname = vifdict[nic.bridge]
+                    nic.dhcpvifname = self.vifdict[nic.bridge]
                 else:
                     raise InvalidConfig("Cannot choose a DHCP vif for NIC with IP '%s' -- there is no DHCP vif configuration for its bridge '%s' (see networks.conf)" % (nic.ip, nic.bridge))
             
@@ -138,12 +128,18 @@ class DefaultNetworkBootstrap:
 
             dns2 = "none"
 
-            if nic.hostname:
-                hostname = nic.hostname
-            else:
-                hostname = self.opts.name # ... todo: ?
-
-
+            if not nic.vifname:
+                raise InvalidInput("NIC object has no vifname")
+            if not nic.ip:
+                raise InvalidInput("NIC object has no ip")
+            if not nic.dhcpvifname:
+                raise InvalidInput("NIC object has no dhcpvifname")
+            if not nic.mac:
+                raise InvalidInput("NIC object has no mac")
+            if not nic.hostname:
+                raise InvalidInput("NIC object has no hostname")
+            
+            
             # 3. make the adjustment
             
             cmd = "%s %s add %s %s %s %s %s %s %s %s %s %s" % (self.sudo_path, self.dhcpconfig, nic.vifname, nic.ip, nic.dhcpvifname, nic.mac, brd, netmask, gtwy, nic.hostname, dns, dns2)
@@ -160,7 +156,7 @@ class DefaultNetworkBootstrap:
                 self.c.log.error(errmsg)
                 raise UnexpectedError(errmsg)
             else:
-                self.c.log.debug("altered DHCP rules successfully: %s" % cmd)
+                self.c.log.debug("added DHCP rules successfully: %s" % cmd)
 
     
     def teardown(self, nic_set, dryrun=False):
@@ -176,6 +172,12 @@ class DefaultNetworkBootstrap:
             return
         
         for nic in nic_set.niclist():
+            
+            if not nic.vifname:
+                raise InvalidInput("NIC object has no vifname")
+            if not nic.ip:
+                raise InvalidInput("NIC object has no ip")
+                
             cmd = "%s %s rem %s %s " % (self.sudo_path, self.dhcpconfig, nic.vifname, nic.ip)
             
             self.c.log.debug("command = '%s'" % cmd)

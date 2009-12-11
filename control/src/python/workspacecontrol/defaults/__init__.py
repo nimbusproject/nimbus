@@ -4,3 +4,4 @@ from imageprocurement import DefaultImageProcurement
 from KernelProcurement import DefaultKernelProcurement
 from LocalNetworkSetup import DefaultLocalNetworkSetup
 from NetworkBootstrap import DefaultNetworkBootstrap
+from NetworkSecurity import DefaultNetworkSecurity
