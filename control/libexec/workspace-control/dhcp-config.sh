@@ -21,7 +21,7 @@
 # ABOUT #
 #########
 
-# This script is called via sudo to adjust ebtables and dhcp policies.
+# This script is called via sudo to adjust dhcp policies.
 # Use sudo version greater or equal to 1.6.8p2
 # See: http://www.gratisoft.us/sudo/alerts/bash_functions.html
 
@@ -106,16 +106,15 @@ SLEEP=0
 
 # If DIRNAME is not available and commented out, you must adjust these
 # files to their absolute paths. By default, $DIRNAME is used to find
-# the DHCP_CONF_ALTER and EBTABLES_CONFIG scripts, the assumption being
-# that they are in the same directory as this script (dhcp-config.sh).
+# the DHCP_CONF_ALTER script, the assumption being that it is in the same
+# directory as this script (dhcp-config.sh).
 DHCP_CONF_ALTER="dhcp-conf-alter.py"
-EBTABLES_CONFIG="ebtables-config.sh"
 
 DIRNAME="dirname"
 
 function die_dirname() {
   echo "ERROR: DIRNAME invocation failed.  Suggestion: use hardcoded"
-  echo "       paths to $DHCP_CONF_ALTER and $EBTABLES_CONFIG"
+  echo "       path to $DHCP_CONF_ALTER"
   exit 1
 }
 
@@ -124,20 +123,13 @@ if [ "X$DIRNAME" != "X" ]; then
   curdir=`$DIRNAME $0` || die_dirname
 
   DHCP_CONF_ALTER=$curdir/$DHCP_CONF_ALTER
-  EBTABLES_CONFIG=$curdir/$EBTABLES_CONFIG
 fi
 
-# Instead of adjusting DHCP_CONF_ALTER and EBTABLES_CONFIG (if it is
-# necessary), you could also just hardcode these CMDs if you want to,
-# DHCP_CONF_ALTER and EBTABLES_CONFIG are not used again after this
 DHCP_CONF_ALTER_CMD="python $DHCP_CONF_ALTER"
-EBTABLES_CONFIG_CMD="bash $EBTABLES_CONFIG"
 
 echo "DHCP_CONF_ALTER_CMD: $DHCP_CONF_ALTER_CMD"
-echo "EBTABLES_CONFIG_CMD: $EBTABLES_CONFIG_CMD"
 
 unset DHCP_CONF_ALTER
-unset EBTABLES_CONFIG
 unset DIRNAME
 unset curdir
 
@@ -197,32 +189,6 @@ if [ "$ADDREM" = "add" ]; then
   fi
 fi
 
-#############################
-#### EBTABLES ADJUSTMENT ####
-#############################
-
-SUCCESS="y"
-
-if [ "$ADDREM" = "rem" ]; then
-  echo "CMD: $EBTABLES_CONFIG_CMD rem $VIFNAME"
-  $EBTABLES_CONFIG_CMD rem $VIFNAME || SUCCESS="n"
-  if [ "$SUCCESS" != "y" ]; then
-    echo "ERROR: ebtables remove failed"
-  else
-    echo "ebtables remove succeeded"
-  fi
-fi
-
-function die_ebtables() {
-  echo "ERROR: ebtables addition failed"
-  exit 1
-}
-
-if [ "$ADDREM" = "add" ]; then
-  echo "CMD: $EBTABLES_CONFIG_CMD add $VIFNAME $DHCPIF $MACADDR $IPADDR"
-  $EBTABLES_CONFIG_CMD add $VIFNAME $DHCPIF $MACADDR $IPADDR || die_ebtables
-  echo "ebtables addition succeeded"
-fi
 
 ##########################
 #### DHCPD ADJUSTMENT ####
