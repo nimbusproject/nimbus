@@ -5,14 +5,14 @@ class INetworkSecurity(workspacecontrol.api.IWCModule):
     """NetworkSecurity is a wcmodule that sets up (or tears down) anything that
     is needed for the VM to be booted and obtain a secure networking setup.
     
-    The typical mechanism for this so far is to configure ebtables with the rules
-    necessary for anti-spoofing enforcement of all packets.  
+    The typical mechanism for this so far is to configure ebtables with the
+    rules necessary for anti-spoofing enforcement of all packets.  
     
     This includes knowing where target DHCP requests should go, so there is
     currently some coordination necessary between NetworkBootstrap and
     NetworkSecurity implementations (this has resulted in practice that the
     NetworkBootstrap implementation will fill in the "dhcpvifname" attribute
-    on the NIC instance.
+    on the NIC instance).
     """
     
     def __init__(params, common):

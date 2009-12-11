@@ -71,10 +71,10 @@ class NetworkLease:
         nic_cls = self.c.get_class_by_keyword("NIC")
         
         for i in range(10,35):
-            nic = self._populate_onenic(i, nic_cls, "public", "xenbr0")
+            nic = self._populate_onenic(i, nic_cls, "public", "virbr1")
             allnics.append((False,nic))
         for i in range(55,80):
-            nic = self._populate_onenic(i, nic_cls, "private", "xenbr1")
+            nic = self._populate_onenic(i, nic_cls, "private", "virbr3")
             allnics.append((False,nic))
             
         return allnics
@@ -85,6 +85,8 @@ class NetworkLease:
             
         nic = nic_cls()
         nic.network = network_name
+        
+        # not lease's responsibility to populate but in here for mock's sake
         nic.bridge = bridge_name
         
         nic.mac = "AA:23:4d:21:6c:%d" % i
@@ -95,7 +97,7 @@ class NetworkLease:
         
         if network_name == "public":
             nic.name = "pubnic-%d" % i
-            nic.dhcpvifname = "vif0.1"
+            nic.dhcpvifname = None # not lease's responsibility
             nic.ip = "10.0.0.%d" % i
             nic.gateway = "10.0.0.1"
             nic.broadcast = "255.0.0.0"
@@ -104,7 +106,7 @@ class NetworkLease:
             nic.hostname = "publichost-%d" % i
         else:
             nic.name = "privnic-%d" % i
-            nic.dhcpvifname = "vif0.2"
+            nic.dhcpvifname = None # not lease's responsibility
             nic.ip = "192.168.0.%d" % i
             nic.gateway = "192.168.0.1"
             nic.broadcast = "192.168.0.255"
