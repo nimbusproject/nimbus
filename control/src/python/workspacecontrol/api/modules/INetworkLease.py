@@ -14,16 +14,22 @@ class INetworkLease(workspacecontrol.api.IWCModule):
         common -- instance of Common
         """
     
-    def obtain(network_name):
+    def obtain(vm_name, nic_name, network_name):
         """Decide on a network lease.
+        
+        vm_name -- the unique VM deployment name
+        
+        nic_name -- an internal name unique across the VM's NICs
         
         network_name -- desired network's logical name
         
         Return a new instance of NIC or None
         """
     
-    def release(nic_set):
+    def release(vm_name, nic_set):
         """Release network leases.
         
-        nic_set -- the instance of NICSet to release
+        vm_name -- the unique VM deployment name
+        
+        nic_set -- instance of NICSet
         """

@@ -78,7 +78,7 @@ def test_mock_network_lease():
     netlease_cls = c.get_class_by_keyword("NetworkLease")
     netlease = netlease_cls(p, c)
     netlease.validate()
-    nic = netlease.obtain("public")
+    nic = netlease.obtain("vm1", "nic1", "public")
     
     assert nic.network == "public"
     
@@ -148,7 +148,7 @@ def test_mock_create():
     netlease_cls = c.get_class_by_keyword("NetworkLease")
     netlease = netlease_cls(p, c)
     netlease.validate()
-    nic = netlease.obtain("public")
+    nic = netlease.obtain(handle, "nic1", "public")
     nicset_cls = c.get_class_by_keyword("NICSet")
     nic_set = nicset_cls([nic])
     
@@ -831,7 +831,7 @@ def test_network_bootstrap():
     netlease_cls = c.get_class_by_keyword("NetworkLease")
     netlease = netlease_cls(p, c)
     netlease.validate()
-    nic = netlease.obtain("public")
+    nic = netlease.obtain("vm1", "nic1", "public")
     assert nic.network == "public"
     assert nic.bridge
     nicset_cls = c.get_class_by_keyword("NICSet")
@@ -860,7 +860,7 @@ def test_network_security1():
     netlease_cls = c.get_class_by_keyword("NetworkLease")
     netlease = netlease_cls(p, c)
     netlease.validate()
-    nic = netlease.obtain("public")
+    nic = netlease.obtain("vm1", "nic1", "public")
     assert nic.network == "public"
     nicset_cls = c.get_class_by_keyword("NICSet")
     nic_set = nicset_cls([nic])
@@ -885,3 +885,192 @@ def test_network_security1():
     netsecurity.teardown(nic_set, dryrun=True)
     netlease.release(nic_set)
     
+def test_netlease1():
+    """Test network leases based on old commandline args"""
+    
+    # a direct sample from logs, trailing null business (the very first
+    # contextualization impl) is ignored entirely in the new workspace-control
+    arg = "publicnic;public;A2:AA:BB:2C:36:9A;Bridged;Static;"
+    arg += "128.135.125.22;128.135.125.1;128.135.125.255;"
+    arg += "255.255.255.0;128.135.247.50;tp-x002.ci.uchicago.edu"
+    arg += ";null;null;null;null"
+    
+    parser = wc_optparse.parsersetup()
+    (opts, args) = parser.parse_args(["--networking", arg])
+    
+    p,c = get_pc(opts, realconfigs())
+    c.log.debug("test_netlease1()")
+    netlease_cls = c.get_class_by_keyword("NetworkLease")
+    netlease = netlease_cls(p,c)
+    
+    # should validate without error
+    netlease.validate()
+    
+    nic = netlease.obtain("vm1", "publicnic", "public")
+    assert nic
+    assert nic.name == "publicnic"
+    assert nic.network == "public"
+    assert nic.mac == "A2:AA:BB:2C:36:9A"
+    assert nic.ip == "128.135.125.22"
+    assert nic.gateway == "128.135.125.1"
+    assert nic.broadcast == "128.135.125.255"
+    assert nic.netmask == "255.255.255.0"
+    assert nic.dns == "128.135.247.50"
+    assert nic.hostname == "tp-x002.ci.uchicago.edu"
+    
+def test_netlease2():
+    """Test network leases based on old commandline args 2"""
+    
+    arg = "publicnic;public;A2:AA:BB:2C:36:9A;Bridged;Static;"
+    arg += "128.135.125.22;128.135.125.1;128.135.125.255;"
+    arg += "255.255.255.0;128.135.247.50;tp-x002.ci.uchicago.edu"
+    
+    parser = wc_optparse.parsersetup()
+    (opts, args) = parser.parse_args(["--networking", arg])
+    
+    p,c = get_pc(opts, realconfigs())
+    c.log.debug("test_netlease2()")
+    netlease_cls = c.get_class_by_keyword("NetworkLease")
+    netlease = netlease_cls(p,c)
+    
+    # should validate without error
+    netlease.validate()
+    
+    nic = netlease.obtain("vm1", "publicnic", "public")
+    assert nic
+    assert nic.name == "publicnic"
+    assert nic.network == "public"
+    assert nic.mac == "A2:AA:BB:2C:36:9A"
+    assert nic.ip == "128.135.125.22"
+    assert nic.gateway == "128.135.125.1"
+    assert nic.broadcast == "128.135.125.255"
+    assert nic.netmask == "255.255.255.0"
+    assert nic.dns == "128.135.247.50"
+    assert nic.hostname == "tp-x002.ci.uchicago.edu"
+    
+def netlease_errors_common(arg, test_description):
+    parser = wc_optparse.parsersetup()
+    (opts, args) = parser.parse_args(["--networking", arg])
+    p,c = get_pc(opts, realconfigs())
+    c.log.debug(test_description)
+    netlease_cls = c.get_class_by_keyword("NetworkLease")
+    netlease = netlease_cls(p,c)
+    
+    # should not validate
+    invalid_input = False
+    try:
+        netlease.validate()
+    except InvalidInput:
+        invalid_input = True
+    assert invalid_input
+    
+def test_netlease_errors1():
+    """Test network lease errors"""
+    
+    desc = "not enough fields"
+    
+    arg = "public;A2:AA:BB:2C:36:9A;Bridged;Static;"
+    arg += "128.135.125.22;128.135.125.1;128.135.125.255;"
+    arg += "255.255.255.0;128.135.247.50;tp-x002.ci.uchicago.edu"
+    
+    netlease_errors_common(arg, desc)
+    
+def test_netlease_errors2():
+    """Test network lease errors 2"""
+    
+    desc = "bad MAC address"
+    
+    arg = "publicnic;public;A:AA:BB:2C:36:9A;Bridged;Static;"
+    arg += "128.135.125.22;128.135.125.1;128.135.125.255;"
+    arg += "255.255.255.0;128.135.247.50;tp-x002.ci.uchicago.edu"
+    
+    netlease_errors_common(arg, desc)
+    
+    
+def test_netlease_errors3():
+    """Test network lease errors 3"""
+    
+    desc = "bad IP address"
+    
+    arg = "publicnic;public;A2:AA:BB:2C:36:9A;Bridged;Static;"
+    arg += "328.135.125.22;128.135.125.1;128.135.125.255;"
+    arg += "255.255.255.0;128.135.247.50;tp-x002.ci.uchicago.edu"
+    
+    netlease_errors_common(arg, desc)
+    
+def test_netlease_errors4():
+    """Test network lease errors 4"""
+    
+    desc = "bad gateway"
+    
+    arg = "publicnic;public;A2:AA:BB:2C:36:9A;Bridged;Static;"
+    arg += "128.135.125.22;128.135.256.1;128.135.125.255;"
+    arg += "255.255.255.0;128.135.247.50;tp-x002.ci.uchicago.edu"
+    
+    netlease_errors_common(arg, desc)
+    
+def test_netlease_errors5():
+    """Test network lease errors 5"""
+    
+    desc = "bad netmask"
+    
+    arg = "publicnic;public;A2:AA:BB:2C:36:9A;Bridged;Static;"
+    arg += "128.135.125.22;128.135.125.1;128.135.125.255;"
+    arg += "256.255.255.0;128.135.247.50;tp-x002.ci.uchicago.edu"
+    
+    netlease_errors_common(arg, desc)
+    
+def test_netlease_errors6():
+    """Test network lease errors 6"""
+    
+    desc = "bad dns"
+    
+    arg = "publicnic;public;A2:AA:BB:2C:36:9A;Bridged;Static;"
+    arg += "128.135.125.22;128.135.125.1;128.135.125.255;"
+    arg += "255.255.255.0;128.135.247.258;tp-x002.ci.uchicago.edu"
+    
+    netlease_errors_common(arg, desc)
+    
+def test_netlease_errors7():
+    """Test network lease errors 7"""
+    
+    desc = "bad IP address x1"
+    
+    arg = "publicnic;public;A2:AA:BB:2C:36:9A;Bridged;Static;"
+    arg += "x128.135.125.22;128.135.125.1;128.135.125.255;"
+    arg += "255.255.255.0;128.135.247.50;tp-x002.ci.uchicago.edu"
+    
+    netlease_errors_common(arg, desc)
+    
+def test_netlease_errors8():
+    """Test network lease errors 8"""
+    
+    desc = "bad IP address x2"
+    
+    arg = "publicnic;public;A2:AA:BB:2C:36:9A;Bridged;Static;"
+    arg += "128.x135.125.22;128.135.125.1;128.135.125.255;"
+    arg += "255.255.255.0;128.135.247.50;tp-x002.ci.uchicago.edu"
+    
+    netlease_errors_common(arg, desc)
+    
+def test_netlease_errors9():
+    """Test network lease errors 9"""
+    
+    desc = "bad IP address x3"
+    
+    arg = "publicnic;public;A2:AA:BB:2C:36:9A;Bridged;Static;"
+    arg += "128.135.x125.22;128.135.125.1;128.135.125.255;"
+    arg += "255.255.255.0;128.135.247.50;tp-x002.ci.uchicago.edu"
+    
+    netlease_errors_common(arg, desc)
+    
+def test_netlease_errors10():
+    """Test network lease errors 10"""
+    
+    desc = "bad IP address x4"
+    
+    arg = "publicnic;public;A2:AA:BB:2C:36:9A;Bridged;Static;"
+    arg += "128.x135.125.x22;128.135.125.1;128.135.125.255;"
+    arg += "255.255.255.0;128.135.247.50;tp-x002.ci.uchicago.edu"
+    
+    netlease_errors_common(arg, desc)

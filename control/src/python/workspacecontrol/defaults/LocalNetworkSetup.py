@@ -1,10 +1,9 @@
 from commands import getstatusoutput
+import IPy
 import os
 import string
 import sys
 import zope.interface
-
-import IPy
 
 import workspacecontrol.api.modules
 from workspacecontrol.api.exceptions import *

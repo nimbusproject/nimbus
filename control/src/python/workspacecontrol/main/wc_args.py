@@ -86,6 +86,10 @@ NAME = ControlArg("name", "-n", metavar="VM_NAME", createarg=False)
 NAME.help = "Unique VM handle for management"
 a.append(NAME)
 
+NETWORKING = ControlArg("networking", None, metavar="NETSPEC(s)")
+NETWORKING.help = "NIC spec(s) for the VM"
+a.append(NETWORKING)
+
 NOTIFY = ControlArg("notify", None, metavar="user@host:port/path")
 NOTIFY.help = "Required for async actions"
 a.append(NOTIFY)
