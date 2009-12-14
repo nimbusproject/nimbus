@@ -36,6 +36,7 @@ OPT_FINDHASH="--find-hash"
 OPT_ALL_DNS="--all-dns"
 OPT_AUTHZ_ON="--enable-groupauthz"
 OPT_AUTHZ_OFF="--disable-groupauthz"
+OPT_ADD_QUERY_DN="--add-query-dn"
 
 # }}}
 
@@ -57,6 +58,8 @@ function help() {
   echo "$OPT_FIND_DN \"/CN=Some DN\"      Checks for a DN"
   echo ""
   echo "$OPT_HASH_DN \"/CN=Some DN\"      Outputs cloud hash for a DN"
+  echo ""
+  echo "$OPT_ADD_QUERY_DN \"/CN=Some DN\" Authorizes DN for query interface (interactive)"
   echo ""
   echo "$OPT_FINDHASH 1234abcd         Looks in policies for a DN with this hash"
   echo ""
@@ -621,6 +624,19 @@ do_repo_add() {
   return 0
 }
 
+action_add_query_dn() {
+  QUERY_CONF_PATH="$GLOBUS_LOCATION/etc/nimbus/query/query.conf"
+
+  if [ ! -f "$QUERY_CONF_PATH" ]; then
+    echo "Not a file: '$QUERY_CONF_PATH'"
+    return 1
+  fi
+
+  $JAVA_BIN $NIMWIZ_JAVA_OPTS $EXE_QUERY_ADD $QUERY_CONF_PATH "$1"
+  return $?
+}
+
+
 action_add_dn() {
   check_decision_file "adding a DN."
   echo ""
@@ -856,6 +872,15 @@ elif [ "$1" = "$OPT_FINDHASH" ]; then
   else
     # 2+ extras
     echo "Requires just one argument, the hash to search for."
+    exit 1
+  fi
+elif [ "$1" = "$OPT_ADD_QUERY_DN" ]; then
+  if [ "X$3" = "X" ]; then
+    action_add_query_dn "$2"
+  else
+    # 2+ extras
+    echo "Requires just one argument, the DN to add."
+    echo "Did you make sure to quote DNs that have spaces?"
     exit 1
   fi
 else

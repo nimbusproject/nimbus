@@ -152,6 +152,9 @@ export EXE_GRIDMAP_ADD
 EXE_GRIDMAP_DEL="org.nimbustools.auto_config.GridMapDel"
 export EXE_GRIDMAP_DEL
 
+EXE_QUERY_ADD="org.nimbustools.auto_config.QueryUserAdd"
+export EXE_QUERY_ADD
+
 NIMWIZ_ENVIRONMENT_DEFINED="X"
 export NIMWIZ_ENVIRONMENT_DEFINED
 
