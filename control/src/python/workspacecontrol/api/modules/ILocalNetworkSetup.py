@@ -39,3 +39,9 @@ class ILocalNetworkSetup(workspacecontrol.api.IWCModule):
         
         Return bridge name
         """
+
+    def choose_vifnames(nic_set, vm_name):
+        """Given a NIC set, choose the local interface names that will appear
+        """
+        
+        

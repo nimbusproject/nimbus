@@ -2,9 +2,10 @@ import os
 import sys
 import traceback
 
+import wc_core
+import wc_deprecated
 import wc_optparse
 from workspacecontrol.api.exceptions import *
-import wc_core
 
 def main(argv=None):
     if os.name != 'posix':
@@ -19,12 +20,14 @@ def main(argv=None):
         (opts, args) = parser.parse_args()
         
     try:
+        dbgmsgs = wc_deprecated.deprecated_args(opts)
+        
         # From here 'down' there is no concept of a commandline program, only
         # 'args' which could be coming from any kind of protocol based request.
         # To make such a thing, construct an opts objects with the expected
         # member names (see the wc_args module) and pass it in.
         
-        wc_core.core(opts)
+        wc_core.core(opts, dbgmsgs=dbgmsgs)
         
     except InvalidInput, e:
         msg = "Problem with input: %s" % e.msg

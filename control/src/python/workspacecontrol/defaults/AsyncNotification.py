@@ -58,7 +58,7 @@ class DefaultAsyncNotification:
         self.c.log.debug("sshargs: %s" % self.sshargs)
         
     
-    def notify(self, name, actiondone, code, error, dryrun=False):
+    def notify(self, name, actiondone, code, error):
         """
         name -- handle of the VM this is about
         
@@ -107,7 +107,7 @@ class DefaultAsyncNotification:
         cmd = self.ssh + " " + self.sshargs + " " + ' '.join(exeargs)
 
         self.c.log.debug("running notification command '%s'" % cmd)
-        if dryrun:
+        if self.c.dryrun:
             self.c.log.debug("just kidding, dryrun")
             return
         

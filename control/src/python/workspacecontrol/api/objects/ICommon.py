@@ -21,6 +21,10 @@ class ICommon(workspacecontrol.api.IWCObject):
     supported, you can make your module a no-op or print something instead
     """)
     
+    logfilehandler = zope.interface.Attribute(
+    """log may never be None
+    """)
+    
     def __init__(params):
         """
         params -- instance of Parameters

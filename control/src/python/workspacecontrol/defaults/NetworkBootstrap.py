@@ -81,7 +81,7 @@ class DefaultNetworkBootstrap:
 
         self.c.log.info("sudo configured for DHCP: %s %s" % (self.sudo_path, self.dhcpconfig))
     
-    def setup(self, nic_set, dryrun=False):
+    def setup(self, nic_set):
         """Do any necessary work to set up the network bootstrapping process,
         this is always called after a network lease is secured but before a VM
         is launched.
@@ -145,7 +145,7 @@ class DefaultNetworkBootstrap:
             cmd = "%s %s add %s %s %s %s %s %s %s %s %s %s" % (self.sudo_path, self.dhcpconfig, nic.vifname, nic.ip, nic.dhcpvifname, nic.mac, brd, netmask, gtwy, nic.hostname, dns, dns2)
 
             self.c.log.debug("command = '%s'" % cmd)
-            if dryrun:
+            if self.c.dryrun:
                 self.c.log.debug("(dryrun, didn't run that)")
                 continue
 
@@ -159,7 +159,7 @@ class DefaultNetworkBootstrap:
                 self.c.log.debug("added DHCP rules successfully: %s" % cmd)
 
     
-    def teardown(self, nic_set, dryrun=False):
+    def teardown(self, nic_set):
         """Do any necessary work to tear down the network bootstrapping process,
         this is always called after a VM is shutdown for good but before a 
         network lease is returned.
@@ -181,14 +181,15 @@ class DefaultNetworkBootstrap:
             cmd = "%s %s rem %s %s " % (self.sudo_path, self.dhcpconfig, nic.vifname, nic.ip)
             
             self.c.log.debug("command = '%s'" % cmd)
-            if dryrun:
+            if self.c.dryrun:
                 self.c.log.debug("(dryrun, didn't run that)")
                 continue
                 
             try:
                 ret,output = getstatusoutput(cmd)
-            except:
-                self.c.log.exception("problem removing DHCP rules")
+            except Exception,e:
+                self.c.log.error("problem removing DHCP rules")
+                self.c.log.exception(e)
 
             if ret:
                 errmsg = "problem running command: '%s' ::: return code" % cmd

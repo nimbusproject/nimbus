@@ -14,12 +14,23 @@ tests -- Programmatically drives various 'main' requests with real or mock
 ncmodules. See workspacecontrol/mocks/__init__.py.  Nose testing is used (easy_install nose).
 """
 
-__all__ = ["get_class_by_keyword", "get_all_configs"]
+__all__ = ["get_class_by_keyword", "get_all_configs", "ACTIONS"]
 
 import ConfigParser
 import os
 from workspacecontrol.api import interfacesdict
 from workspacecontrol.api.exceptions import InvalidConfig, ProgrammingError
+
+class ACTIONS:
+    CREATE = "create"
+    REMOVE = "remove"
+    INFO = "info"
+    REBOOT = "reboot"
+    PAUSE = "pause"
+    UNPAUSE = "unpause"
+    PROPAGATE = "propagate"
+    UNPROPAGATE = "unpropagate"
+    ALL = [CREATE, REMOVE, INFO, REBOOT, PAUSE, UNPAUSE, PROPAGATE, UNPROPAGATE]
 
 # -----------------------------------------------------------------------------
 # "DEPENDENCY INJECTION"
@@ -90,7 +101,7 @@ def get_all_configs(mainconf_file_path):
 
 def _get_one_config(filepath, config=None):
     if not filepath:
-        raise InvalidConfig("filepath was not supplied to getconfig()")
+        raise InvalidConfig("filepath was not supplied to _get_one_config()")
     if not config:
         config = ConfigParser.RawConfigParser()
     config.read(filepath)

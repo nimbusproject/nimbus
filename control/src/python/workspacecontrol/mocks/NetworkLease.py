@@ -20,13 +20,19 @@ class NetworkLease:
     def validate(self):
         pass
     
-    def obtain(self, network_name):
+    def obtain(self, vm_name, nic_name, network_name):
         """Decide on a network lease.
+        
+        vm_name -- the unique VM deployment name
+        
+        nic_name -- an internal name unique across the VM's NICs
         
         network_name -- desired network's logical name
         
         Return a new instance of NIC or None
         """
+        
+        # NOTE: nic_name is ignored by this mock impl
         
         self.c.log.debug("asked for nic lease from network '%s'" % network_name)
         

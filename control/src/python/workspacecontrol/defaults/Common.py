@@ -5,6 +5,7 @@ import zope.interface
 
 import workspacecontrol.api.objects
 from workspacecontrol.api.exceptions import *
+import workspacecontrol.main.wc_args as wc_args
 
 # used for default object impls, modules are not required to use this:
 from workspacecontrol.main import get_class_by_keyword as main_gcbk
@@ -26,7 +27,9 @@ class DefaultCommon:
         if not p:
             raise InvalidConfig("parameters object may not be None")
         self.trace = False
-        self.dryrun = False # TODO
+        self.dryrun = p.get_arg_or_none(wc_args.DRYRUN)
+        self.logfilehandler = None
+        self.logfilepath = None
         self.log = self._configure_logging()
         
     def resolve_var_dir(self, name):
@@ -91,6 +94,21 @@ class DefaultCommon:
         if not implstr:
             raise UnexpectedError("could not locate implementation class for keyword '%s'" % keyword)
         return main_gcbk(keyword, implstr=implstr)
+        
+# -----------------------------------------------------------------------------
+        
+    def close_logfile(self):
+        if not self.logfilepath:
+            return
+        if not self.logfilehandler:
+            return
+        self.logfilehandler.close()
+        self.logfilehandler = None
+        
+    def reopen_logfile(self):
+        if not self.logfilepath:
+            return
+        return self._configure_logging_common(self.log)
         
 # -----------------------------------------------------------------------------
         
@@ -160,23 +178,32 @@ class DefaultCommon:
             logfiledir = self.resolve_var_dir(logfiledir)
             
         # base filename on time, action and name
-        logfilepath = logfiledir + "/" + time.strftime("wclog-%Y-%m-%d-%H.%M.%S")
-        #TODO #logfilepath += "-" + str(name) + "-" + action
-        
+        self.logfilepath = logfiledir + "/" + time.strftime("wclog-%Y-%m-%d-%H.%M.%S")
+        name = self.p.get_arg_or_none(wc_args.NAME)
+        if name:
+            self.logfilepath += "-" + str(name)
+        action = self.p.get_arg_or_none(wc_args.ACTION)
+        if action:
+            self.logfilepath += "-" + str(action)
+            
         f = None
         try:
-            if os.path.exists(logfilepath):
+            if os.path.exists(self.logfilepath):
                 time.sleep(0.1)
-                logfilepath += "-" + str(time.time())
-            if os.path.exists(logfilepath):
+                self.logfilepath += "-" + str(time.time())
+            if os.path.exists(self.logfilepath):
                 raise ProgrammingError("sleep() or time() not working?")
                 
-            f = file(logfilepath, 'w')
+            f = file(self.logfilepath, 'w')
             f.write("\n## auto-generated @ %s\n\n" % time.ctime())
         finally:
             if f:
                 f.close()
                 
+        return self._configure_logging_common(log)
+                
+    def _configure_logging_common(self, log):
+    
         fileloglevel = self.p.get_conf_or_none("logging", "fileloglevel")
         try:
             n = int(fileloglevel)
@@ -185,7 +212,7 @@ class DefaultCommon:
         except:
             raise InvalidConfig("File log level expected to be an integer")
                 
-        # r.e. "obscure side not" in logging.conf.  Trace is set only once here
+        # r.e. "obscure side note" in logging.conf.  Trace is set only once here
         # and used in a "if trace: log.debug()" fashion.  So if both stdout
         # and file logging have DEBUG level on, but only one of them was set
         # to trace level, they will effectively both get trace level.
@@ -193,15 +220,15 @@ class DefaultCommon:
         if n == 0:
             self.trace = True
                 
-        logfilehandler = logging.FileHandler(logfilepath)
-        logfilehandler.setLevel(_logleveldict[n])
+        self.logfilehandler = logging.FileHandler(self.logfilepath)
+        self.logfilehandler.setLevel(_logleveldict[n])
         if n > 1:
             formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
         else:
             formatter = logging.Formatter("%(asctime)s - %(module)s:%(lineno)d - %(levelname)s - %(message)s")
-        logfilehandler.setFormatter(formatter)
-        log.addHandler(logfilehandler)
-        log.debug("file logging enabled, path = '%s'" % logfilepath)
+        self.logfilehandler.setFormatter(formatter)
+        log.addHandler(self.logfilehandler)
+        log.debug("file logging enabled, path = '%s'" % self.logfilepath)
         if n == 0:
             log.debug("trace enabled for fileloglevel")
             
