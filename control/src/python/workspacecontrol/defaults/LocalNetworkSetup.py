@@ -52,9 +52,10 @@ class DefaultLocalNetworkSetup:
             for value in values:
                 try:
                     new_iprange = IPy.IP(value)
-                except:
+                except Exception,e:
                     errstr = "IP range '%s' for bridge '%s' is invalid" % (value, tup[0])
-                    self.c.log.exception(errstr)
+                    self.c.log.error(errstr)
+                    self.c.log.exception(e)
                     exception_type = sys.exc_type
                     try:
                         exceptname = exception_type.__name__ 
@@ -134,6 +135,28 @@ class DefaultLocalNetworkSetup:
             raise IncompatibleEnvironment("Cannot map the IP address '%s' to a bridge to use and there is no default bridge (see networks.conf)" % ipaddress)
             
         return self.defaultbridge
+        
+    # --------------------------------------------------------------------------
+    # choose_vifnames() from LocalNetworkSetup interface
+    # --------------------------------------------------------------------------
+    
+    def choose_vifnames(self, nic_set, vm_name):
+        """Given a NIC set, choose the local interface names that will appear.
+        Network security needs to know this information ahead of deployment.
+        
+        nic_set -- populated instance of NICSet
+        
+        vm_name -- deployment name
+        """
+        
+        for i,nic in enumerate(nic_set.niclist()):
+            
+            nic.vifname = vm_name + "-%d" % i
+            
+            if len(nic.vifname) > 15:
+                raise InvalidInput("vifname exceeds maximum interface name length: %s" % nic.vifname)
+            
+            self.c.log.debug("%s: chose '%s' for vif name" % (logstr, nic.vifname))
         
     # --------------------------------------------------------------------------
     # network_name_to_bridge() from LocalNetworkSetup interface

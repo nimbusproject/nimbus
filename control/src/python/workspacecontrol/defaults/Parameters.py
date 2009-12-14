@@ -15,7 +15,6 @@ class DefaultParameters:
     
     def __init__(self, allconfigs, opts):
         self.optdict = _create_optdict(opts)
-        _munge_optdict(self.optdict)
         self.conf = allconfigs
     
     def get_arg_or_none(self, key):
@@ -80,9 +79,10 @@ def _create_optdict(opts):
     
     if not opts:
         return d
-    
+        
     for arg in wc_args.ALL_WC_ARGS_LIST:
-        d[arg.name] = _get_one_attr(opts, arg.name)
+        if not arg.deprecated:
+            d[arg.name] = _get_one_attr(opts, arg.name)
     
     return d
     
@@ -94,14 +94,4 @@ def _get_one_attr(opts, name):
         return val
     except:
         return None
-    
-    
-def _munge_optdict(d):
-    """Account for deprecated commandline arguments.  The given optdict is a
-    'pure' representation of the given arguments, this method transforms it
-    into a 'normalized' representation that the program understands.  This
-    allows old arguments to work without anything but the arg intake knowing
-    about the changes.
-    """
-    pass
     

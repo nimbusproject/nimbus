@@ -129,9 +129,7 @@ class DefaultKernelProcurement:
         UnexpectedError if none can be found (may not return None)
         """
         
-        # TODO: checkSecurePath
-        
-        # don't use "not self.authz_kernels" because an empty list is OK
+        # don't use "if not self.authz_kernels" because an empty list is OK
         if self.authz_kernels is None:
             self.validate()
         

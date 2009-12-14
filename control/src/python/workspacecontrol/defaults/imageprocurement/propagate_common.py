@@ -8,6 +8,7 @@ import zope.interface
 
 import workspacecontrol.api.modules
 from workspacecontrol.api.exceptions import *
+from workspacecontrol.main import ACTIONS
 import workspacecontrol.main.wc_args as wc_args
 from propagate_adapter import PropagationAdapter
 
@@ -126,7 +127,7 @@ class DefaultImageProcurement:
 
         x = os.access(securelocaldir, os.W_OK | os.X_OK | os.R_OK)
         if x:
-            self.c.log.info("'%s' exists on the filesystem and is "
+            self.c.log.debug("'%s' exists on the filesystem and is "
                        "rwx-able" % securelocaldir)
         else:
             raise InvalidConfig("'%s' exists on the filesystem but is not rwx" 
@@ -180,7 +181,7 @@ class DefaultImageProcurement:
     # obtain(), from ImageProcurement interface
     # --------------------------------------------------------------------------
     
-    def obtain(self, dryrun=False):
+    def obtain(self):
         """Given a set of deployment parameters, bring this VMM node into a
         state where it can operate on a set of local files.
         
@@ -189,15 +190,15 @@ class DefaultImageProcurement:
         
         action = self.p.get_arg_or_none(wc_args.ACTION)
         
-        if action in ["create", "propagate"]:
+        if action in [ACTIONS.CREATE, ACTIONS.PROPAGATE]:
             
             self._ensure_instance_dir()
             
             l_files = self._process_image_args()
             if self._is_propagation_needed(l_files):
-                self._propagate(l_files, dryrun=dryrun)
+                self._propagate(l_files)
                 
-        elif action in ["unpropagate"]:
+        elif action in [ACTIONS.UNPROPAGATE]:
             
             self._ensure_instance_dir()
             
@@ -208,12 +209,16 @@ class DefaultImageProcurement:
             if unproptargets_arg:
                 self._process_new_unproptargets(l_files, unproptargets_arg)
             
+        elif action in [ACTIONS.REMOVE]:
+            
+            l_files = []
+            
         else:
             raise ProgrammingError("do not know how to handle obtain request for action '%s'" % action)
             
-        if action in ["create"]:
+        if action == ACTIONS.CREATE:
             if self._is_blankspace_needed(l_files):
-                self._blankspace(l_files, dryrun=dryrun)
+                self._blankspace(l_files)
             
         local_file_set_cls = self.c.get_class_by_keyword("LocalFileSet")
         local_file_set = local_file_set_cls(l_files)
@@ -223,7 +228,7 @@ class DefaultImageProcurement:
     # process_after_shutdown(), from ImageProcurement interface
     # --------------------------------------------------------------------------
     
-    def process_after_shutdown(self, local_file_set, dryrun=False):
+    def process_after_shutdown(self, local_file_set):
         """Do any necessary work after a VM shuts down and is being prepared
         for teardown.  Will not be called if there is an immediate-destroy
         event because that needs no unpropagation.
@@ -235,7 +240,7 @@ class DefaultImageProcurement:
         
         l_files = local_file_set.flist()
         if self._is_unpropagation_needed(l_files):
-            self._unpropagate(l_files, dryrun=dryrun)
+            self._unpropagate(l_files)
             
         self._destroy_instance_dir()
         
@@ -319,11 +324,11 @@ class DefaultImageProcurement:
         vmdir = self._derive_instance_dir()
         if not os.path.exists(vmdir):
             return
-        self.c.log.info("Destroying VM's unique directory: %s" % vmdir)
+        self.c.log.debug("Destroying %s" % vmdir)
         shutil.rmtree(vmdir)
-        self.c.log.debug("destroyed %s" % vmdir)
+        self.c.log.info("Destroyed VM's unique directory: %s" % vmdir)
         
-    def _propagate(self, l_files, dryrun=False):
+    def _propagate(self, l_files):
         for l_file in l_files:
             
             if not l_file._propagate_needed:
@@ -339,7 +344,8 @@ class DefaultImageProcurement:
                     
                     self.c.log.debug("propagating from '%s' to '%s'" % (l_file._propagation_source, l_file.path))
                     
-                    if dryrun:
+                    if self.c.dryrun:
+                        self.c.log.debug("dryrun, not propagating")
                         return
                     
                     adapter.propagate(l_file._propagation_source, l_file.path)
@@ -349,7 +355,7 @@ class DefaultImageProcurement:
                     
                     return
         
-    def _unpropagate(self, l_files, dryrun=False):
+    def _unpropagate(self, l_files):
         for l_file in l_files:
             
             if not l_file._unpropagate_needed:
@@ -365,14 +371,15 @@ class DefaultImageProcurement:
                     
                     self.c.log.debug("unpropagating from '%s' to '%s'" % (l_file.path, l_file._unpropagation_target))
                     
-                    if dryrun:
+                    if self.c.dryrun:
+                        self.c.log.debug("dryrun, not unpropagating")
                         return
                     
                     adapter.unpropagate(l_file.path, l_file._unpropagation_target)
                     
                     return
         
-    def _blankspace(self, l_files, dryrun=False):
+    def _blankspace(self, l_files):
         for l_file in l_files:
             
             if l_file._blankspace == 0:
@@ -380,8 +387,9 @@ class DefaultImageProcurement:
 
             cmd = "%s %s %s" % (self.blankcreate_path, l_file.path, l_file._blankspace)
             self.c.log.debug("running '%s'" % cmd)
-            if dryrun:
+            if self.c.dryrun:
                 self.c.log.debug("(dryrun, not running that)")
+                return
 
             try:
                 ret,output = getstatusoutput(cmd)
@@ -446,7 +454,7 @@ class DefaultImageProcurement:
 
         self.c.log.debug("found %d valid partitions/HD images" % len(l_files))
         
-        if action != "create":
+        if action != ACTIONS.CREATE:
             # only creation requires mountpoints which is checked below
             return l_files
             

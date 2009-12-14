@@ -5,6 +5,7 @@ import libvirt
 import workspacecontrol.api.modules
 from workspacecontrol.api.exceptions import *
 import workspacecontrol.main.wc_args as wc_args
+from workspacecontrol.main import ACTIONS
 
 import lvrt_adapter_xen3
 import lvrt_adapter_kvm0
@@ -63,12 +64,17 @@ class Platform:
         
         self.c.log.debug("XML being sent to libvirt:\n\n%s\n" % xml)
         
+        if self.c.dryrun:
+            self.c.log.debug("dryrun, not sending")
+            return
+            
         newvm = None
         try:
             newvm = self._vmm().createXML(xml, 0)
         except libvirt.libvirtError,e:
             shorterr = "Problem creating the VM: %s" % str(e)
-            self.c.log.exception(shorterr)
+            self.c.log.error(shorterr)
+            self.c.log.exception(e)
             raise UnexpectedError(shorterr)
             
         self.c.log.info("launched '%s'" % newvm.name())
@@ -84,7 +90,8 @@ class Platform:
             vm.destroy()
         except libvirt.libvirtError,e:
             shorterr = "Problem destroying the '%s' VM: %s" % (name, str(e))
-            self.c.log.exception(shorterr)
+            self.c.log.error(shorterr)
+            self.c.log.exception(e)
             raise UnexpectedError(shorterr)
             
     def shutdown(self, running_vm):
@@ -98,7 +105,8 @@ class Platform:
             vm.shutdown()
         except libvirt.libvirtError,e:
             shorterr = "Problem shutting down the '%s' VM: %s" % (name, str(e))
-            self.c.log.exception(shorterr)
+            self.c.log.error(shorterr)
+            self.c.log.exception(e)
             raise UnexpectedError(shorterr)
        
     def reboot(self, running_vm):
@@ -112,7 +120,8 @@ class Platform:
             vm.reboot()
         except libvirt.libvirtError,e:
             shorterr = "Problem rebooting the '%s' VM: %s" % (name, str(e))
-            self.c.log.exception(shorterr)
+            self.c.log.error(shorterr)
+            self.c.log.exception(e)
             raise UnexpectedError(shorterr)
        
     def pause(self, running_vm):
@@ -126,7 +135,8 @@ class Platform:
             vm.suspend()
         except libvirt.libvirtError,e:
             shorterr = "Problem suspending (pausing) the '%s' VM: %s" % (name, str(e))
-            self.c.log.exception(shorterr)
+            self.c.log.error(shorterr)
+            self.c.log.exception(e)
             raise UnexpectedError(shorterr)
        
     def unpause(self, running_vm):
@@ -140,7 +150,8 @@ class Platform:
             vm.resume()
         except libvirt.libvirtError,e:
             shorterr = "Problem resuming (unpausing) the '%s' VM: %s" % (name, str(e))
-            self.c.log.exception(shorterr)
+            self.c.log.error(shorterr)
+            self.c.log.exception(e)
             raise UnexpectedError(shorterr)
        
     def info(self, handle):
@@ -221,7 +232,8 @@ class Platform:
             return self.adapter.get_vmm_connection()
         except libvirt.libvirtError,e:
             shorterr = "Problem with connection to the VMM: %s" % str(e)
-            self.c.log.exception(shorterr)
+            self.c.log.error(shorterr)
+            self.c.log.exception(e)
             raise UnexpectedError(shorterr)
 
     def _get_vm_by_handle(self, handle):
@@ -255,10 +267,10 @@ class Platform:
             # the actual user cmdline intake will require an action
             return
             
-        if action == "create":
+        if action == ACTIONS.CREATE:
             self._validate_create_basics(dom)
     
-        if action in ["create", "remove", "info", "reboot", "pause", "unpause", "propagate", "unpropagate"]:
+        if action in [ACTIONS.CREATE, ACTIONS.REMOVE, ACTIONS.INFO, ACTIONS.REBOOT, ACTIONS.PAUSE, ACTIONS.UNPAUSE, ACTIONS.PROPAGATE, ACTIONS.UNPROPAGATE]:
             name = self.p.get_arg_or_none(wc_args.NAME)
             if not name:
                 raise InvalidInput("The %s action requires a name" % action)

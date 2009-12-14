@@ -68,7 +68,7 @@ class DefaultNetworkSecurity:
 
         self.c.log.info("sudo configured for network security: %s %s" % (self.sudo_path, self.ebtablesconfig))
   
-    def setup(self, nic_set, dryrun=False):
+    def setup(self, nic_set):
         """Do any necessary work to set up the network security mechanisms,
         this is always called after a network lease is secured and after the
         network bootstrap mechanisms are set up but before a VM is launched.
@@ -94,7 +94,7 @@ class DefaultNetworkSecurity:
             cmd = "%s %s add %s %s %s %s" % (self.sudo_path, self.ebtablesconfig, nic.vifname, nic.dhcpvifname, nic.mac, nic.ip)
 
             self.c.log.debug("command = '%s'" % cmd)
-            if dryrun:
+            if self.c.dryrun:
                 self.c.log.debug("(dryrun, didn't run that)")
                 continue
 
@@ -107,7 +107,7 @@ class DefaultNetworkSecurity:
             else:
                 self.c.log.debug("added ebtables rules successfully: %s" % cmd)
   
-    def teardown(self, nic_set, dryrun=False):
+    def teardown(self, nic_set):
         """Do any necessary work to tear down the network security mechanisms,
         this is always called after a VM is shutdown for good but before an IP
         lease is returned.
@@ -127,7 +127,7 @@ class DefaultNetworkSecurity:
             cmd = "%s %s rem %s" % (self.sudo_path, self.ebtablesconfig, nic.vifname)
 
             self.c.log.debug("command = '%s'" % cmd)
-            if dryrun:
+            if self.c.dryrun:
                 self.c.log.debug("(dryrun, didn't run that)")
                 continue
 

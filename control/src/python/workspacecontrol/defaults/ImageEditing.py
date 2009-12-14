@@ -101,7 +101,7 @@ class DefaultImageEditing:
         if not os.access(self.mounttool_path, os.X_OK):
             raise InvalidConfig("mounttool is not executable: '%s'" % self.mounttool_path)
 
-        self.c.log.info("mount+edit tool configured: %s" % self.mounttool_path)
+        self.c.log.debug("mount+edit tool configured: %s" % self.mounttool_path)
         
         self.sudo_path = self.p.get_conf_or_none("sudo", "sudo")
         if not self.sudo_path:
@@ -202,7 +202,7 @@ class DefaultImageEditing:
     # process_after_procurement(), from ImageEditing interface
     # --------------------------------------------------------------------------
     
-    def process_after_procurement(self, local_file_set, dryrun=False):
+    def process_after_procurement(self, local_file_set):
         """Do any necessary work after all files are local or otherwise
         accessible but before a VM launches.
         
@@ -213,7 +213,7 @@ class DefaultImageEditing:
         
         for lf in local_file_set.flist():
             if lf.path[-3:] == ".gz":
-                lf.path = self._gunzip_file_inplace(lf.path, dryrun)
+                lf.path = self._gunzip_file_inplace(lf.path)
         
         # disabled
         if not self.mounttool_path:
@@ -235,13 +235,13 @@ class DefaultImageEditing:
             if not rootdisk:
                 raise InvalidInput("there is no root disk to perform the mount+edit tasks on")
             
-            self._doMountCopyTasks(rootdisk, vm_name, mnttask_list, dryrun)
+            self._doMountCopyTasks(rootdisk, vm_name, mnttask_list)
         
     # --------------------------------------------------------------------------
     # process_after_shutdown(), from ImageEditing interface
     # --------------------------------------------------------------------------
     
-    def process_after_shutdown(self, local_file_set, dryrun=False):
+    def process_after_shutdown(self, local_file_set):
         """Do any necessary work after a VM shuts down and is being prepared
         for teardown.  Will not be called if there is an immediate-destroy
         event because that needs no unpropagation.
@@ -257,7 +257,7 @@ class DefaultImageEditing:
             except AttributeError:
                 raise ProgrammingError("this image editing implementation is tied to the default procurement implementation with respect to the process_after_shutdown method. If you are running into this error, either implement the '_unpropagation_target' attribute as well, or come up with new arguments to the program for expressing compression needs in a saner way than looking for '.gz' in paths (which is tenuous)")
             if lf._unpropagation_target[-3:] == ".gz":
-                lf.path = self._gzip_file_inplace(lf.path, dryrun)
+                lf.path = self._gzip_file_inplace(lf.path)
                 self.c.log.debug("after gzip, file is now %s" % lf.path)
         
 
@@ -266,11 +266,11 @@ class DefaultImageEditing:
     # --------------------------------------------------------------------------
 
     # returns newfilename
-    def _gzip_file_inplace(self, path, dryrun):
+    def _gzip_file_inplace(self, path):
         self.c.log.info("gzipping '%s'" % path)
         try:
             cmd = "gzip --fast %s" % path
-            if dryrun:
+            if self.c.dryrun:
                 self.c.log.debug("dryrun, command is: %s" % cmd)
                 return path + ".gz"
                 
@@ -300,11 +300,11 @@ class DefaultImageEditing:
             raise UnexpectedError(errstr)
 
     # returns newfilename
-    def _gunzip_file_inplace(self, path, dryrun):
+    def _gunzip_file_inplace(self, path):
         self.c.log.info("gunzipping '%s'" % path)
         try:
             cmd = "gunzip %s" % path
-            if dryrun:
+            if self.c.dryrun:
                 self.c.log.debug("dryrun, command is: %s" % cmd)
                 return path[:-3]
             
@@ -338,7 +338,7 @@ class DefaultImageEditing:
     # MOUNT/COPY IMPL
     # --------------------------------------------------------------------------
 
-    def _doMountCopyTasks(self, imagepath, vm_name, mnttask_list, dryrun):
+    def _doMountCopyTasks(self, imagepath, vm_name, mnttask_list):
         """execute mount+copy tasks. failures here are fatal"""
 
         mntpath = self.mountdir + "/" + vm_name
@@ -382,17 +382,17 @@ class DefaultImageEditing:
         try:
             for task in mnttask_list:
                 src = os.path.join(self.tmpdir, task[0])
-                self._doOneMountCopyTask(imagepath, src, task[1], mntpath, dryrun)
+                self._doOneMountCopyTask(imagepath, src, task[1], mntpath)
         finally:
             # would only fail if someone changed permissions while
             # the tasks ran
             self._deldirs(mntpath)
 
-    def _doOneMountCopyTask(self, imagepath, src, dst, mntpath, dryrun):
+    def _doOneMountCopyTask(self, imagepath, src, dst, mntpath):
 
         cmd = "%s %s one %s %s %s %s" % (self.sudo_path, self.mounttool_path, imagepath, mntpath, src, dst)
 
-        if dryrun:
+        if self.c.dryrun:
             self.c.log.debug("command = '%s'" % cmd)
             self.c.log.debug("(dryrun, didn't run that)")
             return
