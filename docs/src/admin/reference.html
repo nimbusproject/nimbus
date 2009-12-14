@@ -273,7 +273,7 @@ do not require a container restart.
 </p>
 
 <div class="screen"><pre>
-# <b>./cloud-admin.sh --add-query-dn "/O=Grid/OU=GlobusTest/OU=simple-workspace-ca/OU=uchicago.edu/CN=Somee User Name"</b>
+# <b>./cloud-admin.sh --add-query-dn "/O=Grid/OU=GlobusTest/OU=uchicago.edu/CN=Some User"</b>
 Generated query credentials for user:
 	Access ID: b9747c9a
 	Secret key: vay/1xelRSr9Koq2MX09S+SvD3vrSQIsmfO4Cq16fZY=
@@ -284,7 +284,8 @@ Generated query credentials for user:
 <p>
     This utility is by no means a complete administrative tool for query users.
     For all other management, you'll need to edit the <i>users.txt</i> file
-    directly.
+    directly. A forthcoming release will include support for managing and distributing
+    query tokens (and other credentials) within a web interface.
 </p>
 
 <!-- *********************************************************************** -->
