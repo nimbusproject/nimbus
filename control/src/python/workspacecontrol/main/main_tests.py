@@ -563,6 +563,7 @@ def test_notification3():
                   "--name", handle,
                   "--images", "scp://somehost/some-base-cluster-01.gz",
                   "--notify", "nimbus@somehost:22/somepath",
+                  "--dryrun"
                  ]
     parser = wc_optparse.parsersetup()
     (opts, args) = parser.parse_args(createargs)
@@ -576,13 +577,12 @@ def test_notification3():
     # should throw no error
     notify.validate()
     
-    # violating interface contract with 'dryrun' argument
-    notify.notify(handle, "propagate", 0, None, dryrun=True)
-    notify.notify(handle, "propagate", 1, "bad\nbad\nbad", dryrun=True)
+    notify.notify(handle, "propagate", 0, None)
+    notify.notify(handle, "propagate", 1, "bad\nbad\nbad")
     
     programming_error = False
     try:
-        notify.notify(handle, "XYZpropagate", 1, "bad\nbad", dryrun=True)
+        notify.notify(handle, "XYZpropagate", 1, "bad\nbad")
     except ProgrammingError:
         programming_error = True
     assert programming_error
@@ -596,6 +596,7 @@ def test_image_editing1():
                   "--images", "scp://somehost/some-base-cluster",
                   "--mnttasks",
                   "d69a9bda-399a-4016-aaee;/root/.ssh/authorized_keys;;3abc9086-d74b-46b0-a3e9;/var/nimbus-metadata-server-url",
+                  "--dryrun"
                  ]
     parser = wc_optparse.parsersetup()
     (opts, args) = parser.parse_args(createargs)
@@ -612,7 +613,7 @@ def test_image_editing1():
     procure.validate()
     local_file_set = procure.obtain()
     
-    editing.process_after_procurement(local_file_set, dryrun=True)
+    editing.process_after_procurement(local_file_set)
     
     # TODO: could actually test for the existence of the task ... the mock
     # procurement adapter is actually making filesystem images.  But we'd first
@@ -628,6 +629,7 @@ def test_image_decompress1():
     # fake image procurement chooses the file names
     createargs = ["--action", "create", 
                   "--name", "wrksp-999",
+                  "--dryrun"
                  ]
     parser = wc_optparse.parsersetup()
     (opts, args) = parser.parse_args(createargs)
@@ -649,7 +651,7 @@ def test_image_decompress1():
     for lf in local_file_set.flist():
         # test relies on specific impl method we know is there
         oldpaths.append(lf.path)
-        lf.path = editing._gzip_file_inplace(lf.path, False)
+        lf.path = editing._gzip_file_inplace(lf.path)
     
     for i,lf in enumerate(local_file_set.flist()):
         #c.log.debug("old path: %s" % oldpaths[i])
@@ -657,7 +659,7 @@ def test_image_decompress1():
         assert oldpaths[i] + ".gz" == lf.path
     
     # process incoming images
-    editing.process_after_procurement(local_file_set, dryrun=True)
+    editing.process_after_procurement(local_file_set)
     
     # see if it is now uncompressed
     for i,lf in enumerate(local_file_set.flist()):
@@ -675,6 +677,7 @@ def test_image_compress1():
                   "--name", "wrksp-929",
                   "--images", "scp://somehost/some-base-cluster-01",
                   "--unproptargets", "scp://somehost/some-newfile.gz",
+                  "--dryrun"
                  ]
     parser = wc_optparse.parsersetup()
     (opts, args) = parser.parse_args(createargs)
@@ -691,8 +694,8 @@ def test_image_compress1():
     editing = editing_cls(p, c)
     editing.validate()
     
-    editing.process_after_shutdown(local_file_set, dryrun=True)
-    procure.process_after_shutdown(local_file_set, dryrun=True)
+    editing.process_after_shutdown(local_file_set)
+    procure.process_after_shutdown(local_file_set)
     
 def test_localnet1():
     """Test local network adapter basics"""
@@ -823,6 +826,7 @@ def test_network_bootstrap():
     
     p,c = get_pc(None, mockconfigs())
     c.log.debug("test_network_bootstrap()")
+    c.dryrun = True
     netbootstrap_cls = c.get_class_by_keyword("NetworkBootstrap")
     netbootstrap = netbootstrap_cls(p,c)
     netbootstrap.validate()
@@ -837,8 +841,8 @@ def test_network_bootstrap():
     nicset_cls = c.get_class_by_keyword("NICSet")
     nic_set = nicset_cls([nic])
     
-    netbootstrap.setup(nic_set, dryrun=True)
-    netbootstrap.teardown(nic_set, dryrun=True)
+    netbootstrap.setup(nic_set)
+    netbootstrap.teardown(nic_set)
     
     netlease.release(nic_set)
     
@@ -847,6 +851,8 @@ def test_network_security1():
     
     p,c = get_pc(None, mockconfigs())
     c.log.debug("test_network_security1()")
+    c.dryrun = True
+    
     netsecurity_cls = c.get_class_by_keyword("NetworkSecurity")
     netsecurity = netsecurity_cls(p,c)
     netsecurity.validate()
@@ -870,19 +876,19 @@ def test_network_security1():
     # test that there is an error if that dhcpvifname is missing:
     invalid_input = False
     try:
-        netsecurity.setup(nic_set, dryrun=True)
+        netsecurity.setup(nic_set)
     except InvalidInput:
         invalid_input = True
     assert invalid_input
     
     # run nic_set through bootstrap, as intended
-    netbootstrap.setup(nic_set, dryrun=True)
+    netbootstrap.setup(nic_set)
     
     # setup() should now succeed
-    netsecurity.setup(nic_set, dryrun=True)
+    netsecurity.setup(nic_set)
     
-    netbootstrap.teardown(nic_set, dryrun=True)
-    netsecurity.teardown(nic_set, dryrun=True)
+    netbootstrap.teardown(nic_set)
+    netsecurity.teardown(nic_set)
     netlease.release(nic_set)
     
 def test_netlease1():
