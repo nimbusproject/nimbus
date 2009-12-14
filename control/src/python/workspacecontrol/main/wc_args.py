@@ -46,8 +46,11 @@ class ControlArg:
 ################################################################################
 # WC ARGUMENTS
 #
-# The following cmdline arguments may be queried via Parameters.get_arg*()
-# using the name.
+# The following cmdline arguments may be queried via Parameters, using either
+# the 'name' as the argument or simply the object like:
+#   
+#   params.get_arg_or_none(wc_args.KERNEL)
+# 
 ################################################################################
 
 ACTION = ControlArg("action", "-a", since="2.3", createarg=False)
@@ -57,6 +60,14 @@ a.append(ACTION)
 CONF = ControlArg("conf", "-c", createarg=False, metavar="PATH")
 CONF.help = "Absolute path to main.conf.  * Always required *"
 a.append(CONF)
+
+DELETE_ALL = ControlArg("deleteall", None, createarg=False, noval=True)
+DELETE_ALL.help = "Used with remove action to trigger an ungentle destruction"
+a.append(DELETE_ALL)
+
+DRYRUN = ControlArg("dryrun", None, createarg=False, noval=True)
+DRYRUN.help = "Do as little as possible 'for real', will still affect filesystem, for example logs and information persistence"
+a.append(DRYRUN)
 
 KERNEL = ControlArg("kernel", "-k", metavar="FILENAME (not path)")
 KERNEL.help = "Override the configured kernel"
@@ -98,6 +109,10 @@ UNPROPTARGETS = ControlArg("unproptargets", None, metavar="FILESPEC(s)")
 UNPROPTARGETS.help = "Use to 'save-as' a file"
 a.append(UNPROPTARGETS)
 
+VALIDATE_ONLY = ControlArg("validate-only", None, since="2.3", createarg=False, noval=True)
+VALIDATE_ONLY.help = "Run through validation routines and exit, only a log file will be created"
+a.append(VALIDATE_ONLY)
+
 VCPUS = ControlArg("vcpus", None, since="2.3", metavar="NUM")
 VCPUS.help = "Number of vcpus to assign the VM, overrides configuration"
 a.append(VCPUS)
@@ -111,38 +126,75 @@ a.append(VCPUS)
 # compatibility.
 ################################################################################
 
-CREATE = ControlArg("create", None, deprecated=True, noval=True)
-CREATE.help = "Works, but use '--action create' from now on"
-a.append(CREATE)
+# actions move to the --action argument:
 
-REMOVE = ControlArg("remove", None, deprecated=True, noval=True)
-REMOVE.help = "Works, but use '--action remove' from now on"
-a.append(REMOVE)
+DEPRECATED_CREATE = ControlArg("create", None, deprecated=True, noval=True)
+DEPRECATED_CREATE.help = "Works, but use '--action create' from now on"
+a.append(DEPRECATED_CREATE)
 
-INFO = ControlArg("info", None, deprecated=True, noval=True)
-INFO.help = "Works, but use '--action info' from now on"
-a.append(INFO)
+DEPRECATED_REMOVE = ControlArg("remove", None, deprecated=True, noval=True)
+DEPRECATED_REMOVE.help = "Works, but use '--action remove' from now on"
+a.append(DEPRECATED_REMOVE)
 
-REBOOT = ControlArg("reboot", None, deprecated=True, noval=True)
-REBOOT.help = "Works, but use '--action reboot' from now on"
-a.append(REBOOT)
+DEPRECATED_INFO = ControlArg("info", None, deprecated=True, noval=True)
+DEPRECATED_INFO.help = "Works, but use '--action info' from now on"
+a.append(DEPRECATED_INFO)
 
-PAUSE = ControlArg("pause", None, deprecated=True, noval=True)
-PAUSE.help = "Works, but use '--action pause' from now on"
-a.append(PAUSE)
+DEPRECATED_REBOOT = ControlArg("reboot", None, deprecated=True, noval=True)
+DEPRECATED_REBOOT.help = "Works, but use '--action reboot' from now on"
+a.append(DEPRECATED_REBOOT)
 
-UNPAUSE = ControlArg("unpause", None, deprecated=True, noval=True)
-UNPAUSE.help = "Works, but use '--action unpause' from now on"
-a.append(UNPAUSE)
+DEPRECATED_PAUSE = ControlArg("pause", None, deprecated=True, noval=True)
+DEPRECATED_PAUSE.help = "Works, but use '--action pause' from now on"
+a.append(DEPRECATED_PAUSE)
 
-PROPAGATE = ControlArg("propagate", None, deprecated=True, noval=True)
-PROPAGATE.help = "Works, but use '--action propagate' from now on"
-a.append(PROPAGATE)
+DEPRECATED_UNPAUSE = ControlArg("unpause", None, deprecated=True, noval=True)
+DEPRECATED_UNPAUSE.help = "Works, but use '--action unpause' from now on"
+a.append(DEPRECATED_UNPAUSE)
 
-UNPROPAGATE = ControlArg("unpropagate", None, deprecated=True, noval=True)
-UNPROPAGATE.help = "Works, but use '--action unpropagate' from now on"
-a.append(UNPROPAGATE)
+DEPRECATED_PROPAGATE = ControlArg("propagate", None, deprecated=True, noval=True)
+DEPRECATED_PROPAGATE.help = "Works, but use '--action propagate' from now on"
+a.append(DEPRECATED_PROPAGATE)
 
-STARTPAUSED = ControlArg("startpaused", None, deprecated=True, noval=True)
-STARTPAUSED.help = "Will not work anymore"
-a.append(STARTPAUSED)
+DEPRECATED_UNPROPAGATE = ControlArg("unpropagate", None, deprecated=True, noval=True)
+DEPRECATED_UNPROPAGATE.help = "Works, but use '--action unpropagate' from now on"
+a.append(DEPRECATED_UNPROPAGATE)
+
+
+# Arguments that are both deprecated and not working. These arguments are taken
+# in and rejected with special messages.
+
+DEPRECATED_STARTPAUSED = ControlArg("startpaused", None, deprecated=True, noval=True)
+DEPRECATED_STARTPAUSED.help = "Will not work anymore"
+a.append(DEPRECATED_STARTPAUSED)
+
+DEPRECATED_RAMDISK = ControlArg("ramdisk", None, deprecated=True)
+DEPRECATED_RAMDISK.help = "Will not work anymore: ramdisks are configured in kernels.conf"
+a.append(DEPRECATED_RAMDISK)
+
+
+# Arguments that are deprecated but deemed safe to ignore with a debug message
+
+DEPRECATED_LOGLEVEL = ControlArg("loglevel", None, deprecated=True)
+DEPRECATED_LOGLEVEL.help = "Ignored: logging is now only controlled by logging.conf"
+a.append(DEPRECATED_LOGLEVEL)
+
+DEPRECATED_LONGHELP = ControlArg("longhelp", None, deprecated=True, noval=True)
+DEPRECATED_LONGHELP.help = "Ignored: use --help"
+a.append(DEPRECATED_LONGHELP)
+
+DEPRECATED_WORKSPACEIMPL = ControlArg("workspaceimpl", None, deprecated=True)
+DEPRECATED_WORKSPACEIMPL.help = "Ignored"
+a.append(DEPRECATED_WORKSPACEIMPL)
+
+DEPRECATED_PERSISTENCEDIR = ControlArg("persistencedir", None, deprecated=True)
+DEPRECATED_PERSISTENCEDIR.help = "Ignored"
+a.append(DEPRECATED_PERSISTENCEDIR)
+
+DEPRECATED_CHKDOWN = ControlArg("checkshutdown", None, deprecated=True)
+DEPRECATED_CHKDOWN.help = "Ignored"
+a.append(DEPRECATED_CHKDOWN)
+
+DEPRECATED_CHKDOWNP = ControlArg("checkshutdownpause", None, deprecated=True)
+DEPRECATED_CHKDOWNP.help = "Ignored"
+a.append(DEPRECATED_CHKDOWNP)
