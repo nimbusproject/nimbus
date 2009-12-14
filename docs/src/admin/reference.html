@@ -265,6 +265,28 @@ it will be tied into the administrative web application. Changes to this file
 do not require a container restart.
 </p>
 
+<p>
+    To ease the process of authorizing users for the Query interface during the
+    period before support is added to the administrative web application, we have
+    added a utility to the <i>cloud-admin.sh</i> tool. This utility generates
+    a secret key for a user and adds an entry to the <i>users.txt</i> file.
+</p>
+
+<div class="screen"><pre>
+# <b>./cloud-admin.sh --add-query-dn "/O=Grid/OU=GlobusTest/OU=simple-workspace-ca/OU=uchicago.edu/CN=Somee User Name"</b>
+Generated query credentials for user:
+	Access ID: b9747c9a
+	Secret key: vay/1xelRSr9Koq2MX09S+SvD3vrSQIsmfO4Cq16fZY=
+*Securely* distribute these tokens to the user.
+
+</pre></div>
+
+<p>
+    This utility is by no means a complete administrative tool for query users.
+    For all other management, you'll need to edit the <i>users.txt</i> file
+    directly.
+</p>
+
 <!-- *********************************************************************** -->
 <!-- *********************************************************************** -->
 <!-- *********************************************************************** -->
