@@ -65,9 +65,9 @@ def parsersetup():
             
     grouptxt1 = "  Arguments"
     grouptxt2 = "  Creation arguments"
-    grouptxt3 = "  Deprecated.  These will work for backwards compatibility"
-    # For each one, always use the length of the longest one:
-    groupline = (len(grouptxt3)-1) * "-"
+    grouptxt3 = "  Deprecated"
+    # For each one, use twice length of the longest one:
+    groupline = (len(2*grouptxt2)-1) * "-"
     
     # 1 - other_args
     group = optparse.OptionGroup(parser, grouptxt1, groupline)
