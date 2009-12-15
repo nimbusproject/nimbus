@@ -25,18 +25,7 @@ import org.nimbustools.api.repr.vm.VMFile;
 import org.nimbustools.api.repr.vm.State;
 import org.nimbustools.api.repr.vm.ResourceAllocation;
 import org.nimbustools.api.repr.vm.Schedule;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeInstancesInfoType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeInstancesItemType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeInstancesResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeInstancesType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.ReservationInfoType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.ReservationSetType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.RunningInstancesItemType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.InstanceStateType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.PlacementResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.GroupSetType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.GroupItemType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.RunningInstancesSetType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.*;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.Validity;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.Networks;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.ResourceAllocations;
@@ -356,6 +345,7 @@ public class DefaultDescribe implements Describe {
         riit.setInstanceType(this.getInstanceType(vm));
         riit.setLaunchTime(this.getLaunchTime(vm));
         riit.setPlacement(this.getPlacement());
+        riit.setMonitoring(new InstanceMonitoringStateType("disabled"));
         
         final String[] availableKernels = this.kernels.getAvailableKernels();
         if (availableKernels == null || availableKernels.length == 0) {
