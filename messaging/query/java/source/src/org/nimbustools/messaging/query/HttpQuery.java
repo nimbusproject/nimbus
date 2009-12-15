@@ -88,7 +88,6 @@ public class HttpQuery {
         WebAppContext webappcontext = new WebAppContext();
         webappcontext.setContextPath("/");
         server.start();
-        server.join();
     }
 
     public boolean isEnabled() {
