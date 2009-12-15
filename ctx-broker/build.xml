@@ -1,0 +1,166 @@
+<?xml version="1.0"?>
+
+<project default="dist" basedir="." name="context broker">
+
+    <description>Context Broker build file</description>
+
+    <!-- load user nimbus.build.properties file, if it exists -->
+    <property file="${user.home}/nimbus.build.properties"/>
+
+    <!-- load defaults from colocated build.properties file -->
+    <property file="build.properties"/>
+
+
+    <!-- *******************************************************************
+         LOCATE GT DEPENDENCIES
+         ******************************************************************* -->
+
+    <property environment="env"/>
+    <property name="abs.deploy.dir"
+              location="${env.GLOBUS_LOCATION}"/>
+    <property name="gt4_0.lib.dir"
+              location="${abs.deploy.dir}/lib"/>
+    
+
+    <!-- *******************************************************************
+         CHECK MINIMUM JDK
+         ******************************************************************* -->
+
+    <target name="checkjdk">
+        <available property="jdk1.4+" classname="java.lang.CharSequence"/>
+        <antcall target="old-jdk" />
+        <antcall target="ok-jdk" />
+    </target>
+
+    <target name="old-jdk" unless="jdk1.4+">
+        <fail message="Aborting: determined you are not building with >= JDK 1.4" />
+    </target>
+
+    <target name="ok-jdk" if="jdk1.4+">
+        <echo message="Determined you are building with >= JDK 1.4" />
+    </target>
+
+    
+    <!-- *******************************************************************
+         INITIALIZE
+         ******************************************************************* -->
+
+    <target name="init" depends="checkjdk">
+        <mkdir dir="${nimbus.ctxbroker.build.dir}"/>
+        <mkdir dir="${nimbus.ctxbroker.build.dest}"/>
+        <mkdir dir="${nimbus.ctxbroker.dist.dir}"/>
+    </target>
+
+
+    <!-- *******************************************************************
+         WSDL, STUBS ETC
+         ******************************************************************* -->
+
+    <target name="stubs" depends="init">
+        <ant dir="${nimbus.ctxbroker.stubs.dir}" target="dist" />
+    </target>
+
+
+    <!-- *******************************************************************
+         COMPILATION
+         ******************************************************************* -->
+
+    <path id="nimbus.ctxbroker.classpath">
+
+        <fileset dir="${gt4_0.lib.dir}">
+            <include name="*.jar"/>
+            <exclude name="nimbus-*.jar" />
+        </fileset>
+
+        <fileset dir="${nimbus.ctxbroker.stubs.dist}">
+              <include name="*.jar"/>
+        </fileset>
+    </path>
+
+    <target name="compile" depends="stubs">
+
+        <javac srcdir="${nimbus.ctxbroker.src.dir}"
+               destdir="${nimbus.ctxbroker.build.dest}"
+               classpathref="nimbus.ctxbroker.classpath"
+               classpath="${nimbus.ctxbroker.stubs.dist}/*jar"
+               debug="on">
+
+            <include name="**/*.java"/>
+
+        </javac>
+
+        <copy todir="${nimbus.ctxbroker.build.dest}" >
+
+              <fileset dir="${nimbus.ctxbroker.src.dir}"
+                       includes="**/*.properties" />
+
+              <fileset dir="${nimbus.ctxbroker.src.dir}"
+                       includes="**/*.xml" />
+
+              <fileset dir="${nimbus.ctxbroker.src.dir}"
+                       includes="**/*.txt" />
+        </copy>
+
+    </target>
+
+
+    <!-- *******************************************************************
+         CREATE ARCHIVE FILE
+         ******************************************************************* -->
+
+    <target name="jar" depends="compile">
+        <jar destfile="${nimbus.ctxbroker.dist.dir}/${nimbus.ctxbroker.jar.name}"
+             basedir="${nimbus.ctxbroker.build.dest}"/>
+    </target>
+
+    
+    <!-- *******************************************************************
+         CLEAN
+         ******************************************************************* -->
+
+    <target name="clean">
+        <delete file=".ant-targets-build.xml" />
+        <delete dir="${nimbus.ctxbroker.build.dir}"/>
+        <delete dir="${nimbus.ctxbroker.dist.dir}"/>
+        <ant dir="${nimbus.ctxbroker.wsdl.compact.dir}" target="clean" />
+        <ant dir="${nimbus.ctxbroker.stubs.dir}" target="clean" />
+        <ant dir="${nimbus.ctxbroker.gar.dir}" target="clean" />
+    </target>
+
+    
+    <!-- *******************************************************************
+         CREATE DISTRIBUTION
+         ******************************************************************* -->
+
+    <target name="dist" depends="clean, jar" />
+
+
+    <!-- *******************************************************************
+         GAR RELATED
+         ******************************************************************* -->
+
+    <target name="gar">
+        <ant dir="${nimbus.ctxbroker.gar.dir}" target="dist" />
+    </target>
+
+    <target name="deploy" depends="dist, gar">
+        <ant dir="${nimbus.ctxbroker.gar.dir}" target="deploy" />
+    </target>
+
+    <target name="undeploy">
+        <ant dir="${nimbus.ctxbroker.gar.dir}" target="undeploy" />
+    </target>
+
+
+    <!-- *******************************************************************
+         NEW WSDL
+         ******************************************************************* -->
+
+    <target name="newcompact">
+        <ant dir="${nimbus.ctxbroker.wsdl.compact.dir}" target="clean" />
+        <ant dir="${nimbus.ctxbroker.wsdl.compact.dir}" target="copyToDeployableComponent" />
+        <ant dir="${nimbus.ctxbroker.stubs.dir}" target="clean" />
+        <ant dir="${nimbus.ctxbroker.stubs.dir}" target="dist" />
+    </target>
+
+</project>

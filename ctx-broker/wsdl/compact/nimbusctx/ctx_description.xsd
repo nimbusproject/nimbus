@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/*
+ * Copyright 1999-2008 University of Chicago
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy
+ * of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ */
+ -->
+<xs:schema
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://www.globus.org/2008/12/nimbus/ctxdescription"
+    xmlns="http://www.globus.org/2008/12/nimbus/ctxdescription"
+    xmlns:tns="http://www.globus.org/2008/12/nimbus/ctxdescription"
+    attributeFormDefault="qualified"
+    elementFormDefault="qualified">
+
+    <!--==================================================-->
+    <!--          Agent self-description                  -->
+    <!--==================================================-->
+
+    <xs:complexType name="agentDescription_Type">
+        <xs:sequence>
+            <xs:element name="identity"
+                        type="tns:IdentityProvides_Type"
+                        maxOccurs="unbounded" />
+            <xs:element name="cluster"
+                        type="tns:cloudcluster_Type" />
+        </xs:sequence>
+    </xs:complexType>
+
+
+    <!--==================================================-->
+    <!--          User data contents                      -->
+    <!--==================================================-->
+
+    <xs:element name="nimbusctx"
+                type="nimbusctx_Type" />
+
+    <xs:complexType name="nimbusctx_Type">
+        <xs:sequence>
+            <xs:element name="contact"
+                        type="brokerContactType" />
+            <xs:element ref="cluster" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="brokerContactType">
+        <xs:sequence>
+             <xs:element name="brokerURL"
+                        type="xs:string" />
+            <xs:element name="contextID"
+                        type="xs:string" />
+            <xs:element name="secret"
+                        type="xs:string" />
+        </xs:sequence>
+    </xs:complexType>
+
+
+    <!--==================================================-->
+    <!--          Cluster and deployment descriptions     -->
+    <!--==================================================-->
+
+    <xs:element name="cluster"
+                type="cloudcluster_Type" />
+
+    <xs:complexType name="cloudcluster_Type">
+        <xs:sequence>
+            <xs:element name="workspace"
+                        type="cloudworkspace_Type"
+                        maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="deployment"
+                type="clouddeployment_Type" />
+
+    <xs:complexType name="clouddeployment_Type">
+        <xs:sequence>
+            <xs:element name="workspace"
+                        type="clouddeployworkspace_Type"
+                        maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="cloudworkspace_Type">
+        <xs:sequence>
+            <xs:element name="active"
+                        type="xs:boolean"
+                        minOccurs="0" />
+            <xs:element name="name"
+                        type="xs:string"
+                        minOccurs="0" />
+            <xs:element name="image"
+                        type="xs:string" />
+            <xs:element name="quantity"
+                        type="xs:short" />
+            <xs:element name="nic"
+                        type="cloudnic_Type"
+                        maxOccurs="unbounded" />
+            <xs:element name="ctx"
+                        type="Contextualization_Type" />
+            <xs:element name="deploy"
+                        type="clouddeploy_Type"
+                        minOccurs="0"
+                        maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="clouddeployworkspace_Type">
+        <xs:sequence>
+            <xs:element name="name"
+                        type="xs:string" />
+            <xs:element name="deploy"
+                        type="clouddeploy_Type"
+                        minOccurs="0"
+                        maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="cloudnic_Type">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="interface"
+                              type="xs:string"
+                              use="optional" />
+                <xs:attribute name="wantlogin"
+                              type="xs:boolean"
+                              use="optional" />
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="clouddeploy_Type">
+        <xs:sequence>
+            <xs:element name="cloud"
+                        type="xs:string" />
+            <xs:element name="image"
+                        type="xs:string"
+                        minOccurs="0" />
+            <xs:element name="quantity"
+                        type="xs:short" />
+        </xs:sequence>
+    </xs:complexType>
+
+
+
+
+    <!--==================================================-->
+    <!--          Per node ctx description                -->
+    <!--==================================================-->
+    
+    <xs:element name="contextualization"
+                type="Contextualization_Type" />
+
+    <xs:complexType name="Contextualization_Type">
+        <xs:sequence>
+
+            <xs:element name="provides"
+                        type="Provides_Type"
+                        minOccurs="0" />
+
+            <xs:element name="requires"
+                        type="Requires_Type"
+                        minOccurs="0" />
+
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="IdentityProvides_Type">
+        <xs:sequence>
+            <xs:element name="interface"
+                        type="xs:string"
+                        minOccurs="0" />
+            <xs:element name="ip"
+                        type="xs:string"
+                        minOccurs="0" />
+            <xs:element name="hostname"
+                        type="xs:string"
+                        minOccurs="0" />
+            <xs:element name="pubkey"
+                        type="xs:string"
+                        minOccurs="0" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="Provides_Type">
+        <xs:sequence>
+            <xs:element name="identity"
+                        type="IdentityProvides_Type"
+                        maxOccurs="unbounded" />
+
+            <xs:element name="role" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:simpleContent>
+                        <xs:extension base="xs:string">
+                            <xs:attribute name="interface"
+                                          type="xs:string"
+                                          use="optional" />
+                        </xs:extension>
+                    </xs:simpleContent>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="Requires_Type">
+        <xs:sequence>
+            <xs:element name="identity" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="ip"
+                                type="xs:string"
+                                minOccurs="0" />
+                        <xs:element name="hostname"
+                                type="xs:string"
+                                minOccurs="0" />
+                        <xs:element name="pubkey"
+                                type="xs:string"
+                                minOccurs="0" />
+                    </xs:sequence>
+                </xs:complexType>
+
+            </xs:element>
+
+            <xs:element name="role" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:simpleContent>
+                        <xs:extension base="xs:string">
+                            <xs:attribute name="name"
+                                          type="xs:string"
+                                          use="required" />
+                            <xs:attribute name="hostname"
+                                          type="xs:boolean"
+                                          default="false"
+                                          use="optional" />
+                            <xs:attribute name="pubkey"
+                                          type="xs:boolean"
+                                          default="false"
+                                          use="optional" />
+                        </xs:extension>
+                    </xs:simpleContent>
+                </xs:complexType>
+            </xs:element>
+
+            <!-- should handle base64 in the future -->
+            <xs:element name="data" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:simpleContent>
+                        <xs:extension base="xs:string">
+                            <xs:attribute name="name"
+                                          type="xs:string"
+                                          use="required" />
+                        </xs:extension>
+                    </xs:simpleContent>
+                </xs:complexType>
+            </xs:element>
+
+        </xs:sequence>
+    </xs:complexType>
+
+</xs:schema>

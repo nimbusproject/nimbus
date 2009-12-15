@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+/*
+ * Copyright 1999-2008 University of Chicago
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy
+ * of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ */
+ -->
+
+<!-- non processed WSDL, see copyToDeployableComponent ant target -->
+
+<wsdl:definitions
+        name="NimbusContextBroker"
+        targetNamespace="http://www.globus.org/2008/12/nimbus/contextualization"
+        xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+        xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:wsdlpp="http://www.globus.org/namespaces/2004/10/WSDLPreprocessor"
+        xmlns:wsbf="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-BaseFaults-1.2-draft-01.xsd"
+        xmlns:wsrp="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties-1.2-draft-01.xsd"
+        xmlns:wsrpw="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties-1.2-draft-01.wsdl"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:tns="http://www.globus.org/2008/12/nimbus/contextualization"
+        xmlns:ctx-types="http://www.globus.org/2008/12/nimbus/ctxtypes"
+        xmlns:ctxdesc="http://www.globus.org/2008/12/nimbus/ctxdescription"
+        xsi:schemaLocation="http://www.globus.org/2008/12/nimbus/ctxtypes ctx_types.xsd">
+
+    <wsdl:import
+            namespace="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties-1.2-draft-01.wsdl"
+            location="../wsrf/properties/WS-ResourceProperties.wsdl" />
+
+    <wsdl:types>
+        <xs:schema
+                targetNamespace="http://www.globus.org/2008/12/nimbus/contextualization"
+                xmlns:tns="http://www.globus.org/2008/12/nimbus/contextualization"
+                elementFormDefault="qualified">
+
+            <xs:import
+                namespace="http://www.globus.org/2008/12/nimbus/ctxtypes"
+                schemaLocation="./ctx_types.xsd" />
+
+             <xs:import
+                namespace="http://www.globus.org/2008/12/nimbus/ctxdescription"
+                schemaLocation="./ctx_description.xsd" />
+
+            <!--==================================================-->
+            <!--               Resource properties                -->
+            <!--==================================================-->
+
+            <!-- This needs to be defined here for the topic elements
+                 to be automatically inserted by the WSDL pre-processor
+                 (see non-compact WSDL in common/schema) -->
+            <xs:element name="ContextBrokerRPSet">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element ref="ctx-types:contextualizationContext" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <!--==================================================-->
+            <!--  Operational input/output type declarations      -->
+            <!--==================================================-->
+
+            <xs:element name="createContext"
+                        type="ctx-types:createContext_Type" />
+
+            <xs:element name="createContextResponse"
+                        type="ctx-types:createContextResponse_Type" />
+
+            <xs:element name="noMoreInjections"
+                        type="ctx-types:voidType" />
+
+            <xs:element name="noMoreInjectionsResponse"
+                        type="ctx-types:voidType" />
+
+            <xs:element name="injectData"
+                        type="ctx-types:injectData_Type" />
+
+            <xs:element name="injectDataResponse"
+                        type="ctx-types:voidType" />
+
+            <xs:element name="retrieve"
+                        type="ctxdesc:agentDescription_Type" />
+
+            <xs:element name="retrieveResponse"
+                        type="ctx-types:retrieveResponse_Type" />
+
+            <xs:element name="errorExiting"
+                        type="ctx-types:errorExitingSend_Type" />
+
+            <xs:element name="errorExitingResponse"
+                        type="ctx-types:voidType" />
+
+            <xs:element name="okExiting"
+                        type="ctx-types:okExitingSend_Type" />
+
+            <xs:element name="okExitingResponse"
+                        type="ctx-types:voidType" />
+
+            <xs:element name="identities"
+                        type="ctx-types:identitiesSend_Type" />
+
+            <xs:element name="identitiesResponse"
+                        type="ctx-types:identitiesResponse_Type" />
+
+            <xs:element name="NimbusContextualizationFault">
+                <xs:complexType>
+                    <xs:complexContent>
+                        <xs:extension base="wsbf:BaseFaultType" />
+                    </xs:complexContent>
+                </xs:complexType>
+            </xs:element>
+
+        </xs:schema>
+    </wsdl:types>
+
+    <!--==================================================-->
+    <!--            Message declarations                  -->
+    <!--==================================================-->
+
+    <wsdl:message name="CreateInputMessage">
+        <wsdl:part name="parameters"
+                   element="tns:createContext" />
+    </wsdl:message>
+
+    <wsdl:message name="CreateOutputMessage">
+        <wsdl:part name="parameters"
+                   element="tns:createContextResponse" />
+    </wsdl:message>
+
+    <wsdl:message name="NoMoreInjectionsInputMessage">
+        <wsdl:part name="parameters"
+                   element="tns:noMoreInjections" />
+    </wsdl:message>
+
+    <wsdl:message name="NoMoreInjectionsOutputMessage">
+        <wsdl:part name="parameters"
+                   element="tns:noMoreInjectionsResponse" />
+    </wsdl:message>
+
+    <wsdl:message name="InjectDataInputMessage">
+        <wsdl:part name="parameters"
+                   element="tns:injectData" />
+    </wsdl:message>
+
+    <wsdl:message name="InjectDataOutputMessage">
+        <wsdl:part name="parameters"
+                   element="tns:injectDataResponse" />
+    </wsdl:message>
+
+    <wsdl:message name="RetrieveInputMessage">
+        <wsdl:part name="parameters"
+                   element="tns:retrieve" />
+    </wsdl:message>
+
+    <wsdl:message name="RetrieveOutputMessage">
+        <wsdl:part name="parameters"
+                   element="tns:retrieveResponse" />
+    </wsdl:message>
+
+    <wsdl:message name="ErrorExitingInputMessage">
+        <wsdl:part name="parameters"
+                   element="tns:errorExiting" />
+    </wsdl:message>
+
+    <wsdl:message name="ErrorExitingOutputMessage">
+        <wsdl:part name="parameters"
+                   element="tns:errorExitingResponse" />
+    </wsdl:message>
+
+    <wsdl:message name="OKExitingInputMessage">
+        <wsdl:part name="parameters"
+                   element="tns:okExiting" />
+    </wsdl:message>
+
+    <wsdl:message name="OKExitingOutputMessage">
+        <wsdl:part name="parameters"
+                   element="tns:okExitingResponse" />
+    </wsdl:message>
+
+    <wsdl:message name="IdentitiesInputMessage">
+        <wsdl:part name="parameters"
+                   element="tns:identities" />
+    </wsdl:message>
+
+    <wsdl:message name="IdentitiesOutputMessage">
+        <wsdl:part name="parameters"
+                   element="tns:identitiesResponse" />
+    </wsdl:message>
+
+    <!-- messages for faults: -->
+
+    <wsdl:message name="ContextualizationFaultMessage">
+        <wsdl:part name="description"
+                   element="tns:NimbusContextualizationFault" />
+    </wsdl:message>
+
+    <!--==================================================-->
+    <!--            portType declaration                  -->
+    <!--==================================================-->
+
+    <wsdl:portType name="NimbusContextBrokerPortType"
+                   wsrp:ResourceProperties="tns:ContextBrokerRPSet"
+                   wsdlpp:extends="wsrpw:GetResourceProperty
+                                   wsrpw:QueryResourceProperties">
+
+        <wsdl:operation name="create">
+
+            <wsdl:input message="tns:CreateInputMessage" />
+            <wsdl:output message="tns:CreateOutputMessage" />
+
+            <wsdl:fault name="ContextualizationFault"
+                        message="tns:ContextualizationFaultMessage" />
+        </wsdl:operation>
+
+        <wsdl:operation name="noMoreInjections">
+
+            <wsdl:input message="tns:NoMoreInjectionsInputMessage" />
+            <wsdl:output message="tns:NoMoreInjectionsOutputMessage" />
+
+            <wsdl:fault name="ContextualizationFault"
+                        message="tns:ContextualizationFaultMessage" />
+        </wsdl:operation>
+
+        <wsdl:operation name="injectdata">
+
+            <wsdl:input message="tns:InjectDataInputMessage" />
+            <wsdl:output message="tns:InjectDataOutputMessage" />
+
+            <wsdl:fault name="ContextualizationFault"
+                        message="tns:ContextualizationFaultMessage" />
+        </wsdl:operation>
+
+        <wsdl:operation name="retrieve">
+
+            <wsdl:input message="tns:RetrieveInputMessage" />
+            <wsdl:output message="tns:RetrieveOutputMessage" />
+
+            <wsdl:fault name="ContextualizationFault"
+                        message="tns:ContextualizationFaultMessage" />
+        </wsdl:operation>
+
+        <wsdl:operation name="errorExiting">
+
+            <wsdl:input message="tns:ErrorExitingInputMessage" />
+            <wsdl:output message="tns:ErrorExitingOutputMessage" />
+
+            <wsdl:fault name="ContextualizationFault"
+                        message="tns:ContextualizationFaultMessage" />
+        </wsdl:operation>
+
+        <wsdl:operation name="okExiting">
+
+            <wsdl:input message="tns:OKExitingInputMessage" />
+            <wsdl:output message="tns:OKExitingOutputMessage" />
+
+            <wsdl:fault name="ContextualizationFault"
+                        message="tns:ContextualizationFaultMessage" />
+        </wsdl:operation>
+
+        <wsdl:operation name="identities">
+
+            <wsdl:input message="tns:IdentitiesInputMessage" />
+            <wsdl:output message="tns:IdentitiesOutputMessage" />
+
+            <wsdl:fault name="ContextualizationFault"
+                        message="tns:ContextualizationFaultMessage" />
+        </wsdl:operation>
+
+    </wsdl:portType>
+
+</wsdl:definitions>

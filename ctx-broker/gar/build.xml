@@ -1,0 +1,267 @@
+<project basedir="." default="disp" name="GT4.0 Nimbus Context Broker GAR">
+
+    <description>GT4.0 context broker GAR builder</description>
+
+    <!-- load user nimbus.build.properties file, if it exists -->
+    <property file="${user.home}/nimbus.build.properties" />
+
+    <!-- load defaults from colocated build.properties file -->
+    <property file="build.properties" />
+
+
+    <!-- *******************************************************************
+         LOCATE GT DEPENDENCIES
+         ******************************************************************* -->
+
+    <property environment="env"/>
+    <property name="abs.deploy.dir"
+              location="${env.GLOBUS_LOCATION}"/>
+    <property name="gt4_0.lib.dir"
+              location="${abs.deploy.dir}/lib"/>
+    <property name="build.packages"
+              location="${abs.deploy.dir}/share/globus_wsrf_common/build-packages.xml"/>
+    <property name="build.stubs"
+              location="${abs.deploy.dir}/share/globus_wsrf_tools/build-stubs.xml"/>
+
+
+    <!-- *******************************************************************
+         GT RELATED PROPERTIES
+         ******************************************************************* -->
+
+    <!-- gar.name -->
+    <property name="gar.name"
+              value="${nimbusctx.gt4_0.gar.dist.dir}/${nimbusctx.gt4_0.gar.package.name}.gar"/>
+
+    <!-- garjars.id -->
+    <fileset dir="${nimbusctx.gt4_0.gar.build.lib.dir}" id="garjars"/>
+    <property name="garjars.id" value="garjars"/>
+
+    <!-- garetc.id -->
+    <fileset dir="${nimbusctx.gt4_0.gar.build.etc.dir}" id="garEtc"/>
+    <property name="garetc.id" value="garEtc"/>
+
+    <!--
+    <property name="noSchema" value="true"/>
+    If we want to deploy the WSDL, we must *not* set this property at all
+    -->
+
+    <property name="garserverdeployment.file"
+              location="${nimbusctx.gt4_0.gar.wsddfile}"/>
+
+    <property name="garjndiconfigdeployment.file"
+              location="${nimbusctx.gt4_0.gar.jndifile}"/>
+
+    <!-- *********************
+         unused GAR properties
+         setting these to avoid build warning messages from GT...
+         ********************* -->
+
+    <!-- garshare.id -->
+    <fileset dir="${nimbusctx.gt4_0.gar.build.share.dir}" id="garshare"/>
+    <property name="garshare.id" value="garshare"/>
+
+    <!-- garschema.id -->
+    <fileset dir="${nimbusctx.gt4_0.gar.build.schema.dir}" id="garschema"/>
+    <property name="garschema.id" value="garschema"/>
+
+    <!-- gardocs.id -->
+    <fileset dir="${nimbusctx.gt4_0.gar.build.docs.dir}" id="gardocs"/>
+    <property name="gardocs.id" value="gardocs"/>
+
+    <!-- garbin.id -->
+    <fileset dir="${nimbusctx.gt4_0.gar.build.bin.dir}" id="garbin"/>
+    <property name="garbin.id" value="garbin"/>
+
+
+
+    <!-- *******************************************************************
+         MODULE NAME
+         ******************************************************************* -->
+
+    <target name="disp">
+        <echo message="**** Module: ${basedir}" />
+    </target>
+
+
+    <!-- *******************************************************************
+         CHECK MINIMUM JDK
+         ******************************************************************* -->
+
+    <target name="checkjdk">
+        <available property="jdk1.4+" classname="java.lang.CharSequence"/>
+        <fail message="Aborting: determined you are not building with >= JDK 1.4"
+              unless="jdk1.4+" />
+    </target>
+
+
+    <!-- *******************************************************************
+         INITIALIZE
+         ******************************************************************* -->
+
+    <target name="init" depends="checkjdk">
+        <mkdir dir="${nimbusctx.gt4_0.gar.build.dir}"/>
+        <mkdir dir="${nimbusctx.gt4_0.gar.build.lib.dir}"/>
+        <mkdir dir="${nimbusctx.gt4_0.gar.build.etc.dir}"/>
+        <mkdir dir="${nimbusctx.gt4_0.gar.build.share.dir}"/>
+        <mkdir dir="${nimbusctx.gt4_0.gar.build.docs.dir}"/>
+        <mkdir dir="${nimbusctx.gt4_0.gar.build.bin.dir}"/>
+        <mkdir dir="${nimbusctx.gt4_0.gar.dist.dir}"/>
+    </target>
+
+
+    <!-- *******************************************************************
+         CHECK FOR COMPONENTS
+         ******************************************************************* -->
+
+    <target name="check" depends="init">
+
+        <copy todir="${nimbusctx.gt4_0.gar.build.lib.dir}">
+
+            <fileset dir="${nimbusctx.gt4_0.stubs.dist}">
+                <include name="*.jar"/>
+                <include name="*LICENSE*"/>
+            </fileset>
+            <fileset dir="${nimbusctx.gt4_0.service.dist}">
+                <include name="*.jar"/>
+                <include name="*LICENSE*"/>
+            </fileset>
+
+        </copy>
+
+    </target>
+
+    
+    <!-- *******************************************************************
+         COPIES FOR ETC DIRECTORY
+         ******************************************************************* -->
+
+    <target name="etc_copies" depends="init">
+        <copy todir="${nimbusctx.gt4_0.gar.build.etc.dir}">
+            <fileset dir="${nimbusctx.gt4_0.gar.etc.dir}" />
+        </copy>
+    </target>
+    
+    
+    <!-- *******************************************************************
+         CREATE DISTRIBUTION
+         ******************************************************************* -->
+
+    <target name="_dist" depends="check, etc_copies">
+        <ant antfile="${build.packages}" target="makeGar">
+            <reference refid="${garjars.id}"/>
+            <reference refid="${garetc.id}"/>
+            <reference refid="${garshare.id}"/>
+            <reference refid="${garschema.id}"/>
+            <reference refid="${gardocs.id}"/>
+            <reference refid="${garbin.id}"/>
+        </ant>
+        <!-- makeGar is also looking at:
+             - gar.name
+             - garserverdeployment.file
+             - garjndiconfigdeployment.file
+        -->
+
+        <delete dir="tmp"/>
+    </target>
+
+    <target name="dist" depends="disp">
+        <echo>Building: ${nimbusctx.gt4_0.gar.print-noun}</echo>
+        <antcall target="_dist" />
+        <echo>Built: ${nimbusctx.gt4_0.gar.print-noun}
+        </echo>
+    </target>
+
+
+    <!-- *******************************************************************
+         DEPLOYMENT
+         ******************************************************************* -->
+
+    <target name="assessGarPresence">
+        <available property="garIsPresent"
+                   type="file"
+                   file="${gar.name}" />
+    </target>
+
+    <target name="gar.not.present"
+            depends="assessGarPresence"
+            unless="garIsPresent">
+
+        <echo>
+
+
+
+***************** ERROR *****************
+
+Cannot find archive to install: ${gar.name}
+
+Did you build?
+
+
+
+        </echo>
+
+        <fail message="Cannot find archive to install: ${gar.name}" />
+
+    </target>
+
+    <target name="_deploy" depends="gar.not.present">
+        <ant antfile="${build.packages}" target="deployGar">
+            <property name="gar.id" value="${nimbusctx.gt4_0.gar.package.name}"/>
+        </ant>
+        <delete dir="tmp"/>
+    </target>
+
+    <target name="deploy" depends="disp">
+        <echo>Installing: ${nimbusctx.gt4_0.stubs.print-noun}</echo>
+        <antcall target="_deploy" />
+        <echo>Installed: ${nimbusctx.gt4_0.stubs.print-noun}
+        </echo>
+    </target>
+
+    <target name="assessDeployed">
+
+        <available property="isDeployed"
+                   type="dir"
+                   file="${abs.deploy.dir}/etc/globus_packages/${nimbusctx.gt4_0.gar.package.name}" />
+
+        <condition property="isNotDeployed" value="true">
+            <not>
+                <isset property="isDeployed" />
+            </not>
+        </condition>
+
+    </target>
+
+    <target name="printDeployed"
+            depends="assessDeployed"
+            unless="isDeployed">
+
+        <echo message="Already undeployed: ${nimbusctx.gt4_0.gar.package.name}"/>
+
+    </target>
+
+    <target name="undeploy" depends="printDeployed" unless="isNotDeployed">
+
+        <ant antfile="${build.packages}" target="undeployGar">
+            <property name="gar.id" value="${nimbusctx.gt4_0.gar.package.name}"/>
+        </ant>
+
+        <echo message="Undeployed: ${nimbusctx.gt4_0.gar.package.name}"/>
+
+    </target>
+
+
+
+    <!-- *******************************************************************
+         CLEAN
+         ******************************************************************* -->
+
+    <target name="clean">
+        <delete file=".ant-targets-build.xml"/>
+        <delete dir="${nimbusctx.gt4_0.gar.build.dir}"/>
+        <delete dir="${nimbusctx.gt4_0.gar.dist.dir}"/>
+        <echo message="Cleaned: ${basedir}" />
+    </target>
+
+</project>
+    
