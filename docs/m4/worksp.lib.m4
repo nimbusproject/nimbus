@@ -80,21 +80,6 @@ m4_define([[[_WORKSP_FOOTER',
 
 </table> <!-- end master table -->
 
-
-<!-- Google Analytics tracker -->
-
-<!-- See http://www.globus.org/privacy/online-services.php -->
-
-<script type="text/javascript">
-var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-</script>
-<script type="text/javascript">
-var pageTracker = _gat._getTracker("UA-100951-4");
-pageTracker._initData();
-pageTracker._trackPageview();
-</script>
-
 </body>
 </html>
 
@@ -259,20 +244,6 @@ m4_define([[[_NIMBUS_FOOTER3',
     <br />
     <br />
     <br />
-
-    <!-- Google Analytics tracker -->
-
-    <!-- See http://www.globus.org/privacy/online-services.php -->
-
-    <script type="text/javascript">
-    var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-    </script>
-    <script type="text/javascript">
-    var pageTracker = _gat._getTracker("UA-100951-4");
-    pageTracker._initData();
-    pageTracker._trackPageview();
-    </script>
 
 	</div>  <!-- FOOTER END }}} -->
 
