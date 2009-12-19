@@ -178,10 +178,10 @@ class DefaultCommon:
             logfiledir = self.resolve_var_dir(logfiledir)
             
         # base filename on time, action and name
-        self.logfilepath = logfiledir + "/" + time.strftime("wclog-%Y-%m-%d-%H.%M.%S")
+        self.logfilepath = logfiledir + "/" + time.strftime("wclog--%Y-%m-%d--h%H.m%M.s%S")
         name = self.p.get_arg_or_none(wc_args.NAME)
         if name:
-            self.logfilepath += "-" + str(name)
+            self.logfilepath += "--" + str(name)
         action = self.p.get_arg_or_none(wc_args.ACTION)
         if action:
             self.logfilepath += "-" + str(action)

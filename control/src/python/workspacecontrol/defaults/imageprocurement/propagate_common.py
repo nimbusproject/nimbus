@@ -684,12 +684,12 @@ class DefaultImageProcurement:
                 lf.path = self._derive_instance_dir()
                 lf.path = os.path.join(lf.path, local_filename)
                     
-                if os.path.exists(lf.path):
+                pathexists = os.path.exists(lf.path)
+                if pathexists and lf._propagate_needed:
                     raise InvalidInput("file is going to be transferred to this host but the target exists already: '%s'" % lf.path)
+                if not pathexists and lf._unpropagate_needed:
+                    raise InvalidInput("file is going to be transferred from this host but it does not exist: '%s'" % lf.path)
                 
-                if self.c.trace:
-                    self.c.log.debug("A file is going to be transferred to '%s' because of the input '%s'" % (lf.path, imgstr))
-                    
                 return
                 
     def _process_new_unproptargets(self, l_files, unproptargets_arg):

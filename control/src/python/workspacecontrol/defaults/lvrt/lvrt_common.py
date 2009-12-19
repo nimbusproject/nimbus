@@ -207,7 +207,8 @@ class Platform:
             raise UnexpectedError("Unrecognized state information from libvirt: %s" % str(infolist[0]))
             
         if state == DOM_STATE_NOSTATE:
-            self.c.log.warn("found VM with name '%s' but it has no state -- is this a persistent VM?  Pretending it was not found at all.")
+            # this is the case right after a graceful shutdown succeeds
+            self.c.log.debug("found VM with name '%s' but it has no state -- from the perspective 'above' this means it was not found at all." % handle)
             return None
             
         if state == DOM_STATE_RUNNING:
@@ -295,6 +296,10 @@ class Platform:
             memory = int(memory)
         except:
             raise InvalidInput("memory given for create is not an integer: %s" % memory)
+            
+        # convert MB -> kB
+        memory = memory * 1024
+            
         if dom:
             dom.memory = memory
         self.c.log.debug("memory for create: %d" % memory)
@@ -352,6 +357,7 @@ class Platform:
             interface = lvrt_model.Interface()
             interface.source = nic.bridge
             interface.mac = nic.mac
+            interface.target = nic.vifname
             dom.devices.interfaces.append(interface)
         
         self.intakeadapter.fill_model(dom, local_file_set, nic_set, kernel)

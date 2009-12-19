@@ -101,15 +101,15 @@ DRYRUN="false"  # or "true"
 
 # Only requests to mount files UNDER this directory are honored.
 # You must use absolute path and include trailing slash.
-IMAGE_DIR=/opt/workspace/secureimages/
+IMAGE_DIR=/opt/nimbus/var/workspace-control/secureimages/
 
 # Only requests to mount files TO this directory are honored.
 # You must use absolute path and include trailing slash.
-MOUNTPOINT_DIR=/opt/workspace/mnt/
+MOUNTPOINT_DIR=/opt/nimbus/var/workspace-control/mnt/
 
 # Only requests to copy over files UNDER this directory are honored.
 # You must use absolute path and include trailing slash.
-FILE_DIR=/opt/workspace/tmp/
+FILE_DIR=/opt/nimbus/var/workspace-control/tmp/
 
 
 #############

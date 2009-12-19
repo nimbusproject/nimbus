@@ -156,7 +156,7 @@ class DefaultLocalNetworkSetup:
             if len(nic.vifname) > 15:
                 raise InvalidInput("vifname exceeds maximum interface name length: %s" % nic.vifname)
             
-            self.c.log.debug("%s: chose '%s' for vif name" % (logstr, nic.vifname))
+            self.c.log.debug("nic-%d: chose '%s' for vif name" % (i, nic.vifname))
         
     # --------------------------------------------------------------------------
     # network_name_to_bridge() from LocalNetworkSetup interface

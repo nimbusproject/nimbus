@@ -1,4 +1,6 @@
 import string
+import sys
+import time
 
 from workspacecontrol.api.exceptions import *
 import wc_core_creation
@@ -189,18 +191,12 @@ def _core(vm_name, action, p, c):
         if running_vm:
             if deleteall:
                 platform.destroy(running_vm)
-                running_vm = platform.info(vm_name)
-                
+                c.log.info("%s VM was destroyed" % vm_name)
             else:
-                if running_vm.shutting_down:
-                    c.log.warn("Already in the process of shutting down '%s'" % vm_name)
-                
-                if running_vm.running or running_vm.blocked or running_vm.paused:
-                    platform.shutdown(running_vm)
+                graceful_shutdown(p, c, platform, vm_name, running_vm)
+                c.log.info("%s VM was gracefully shutdown" % vm_name)
             
-                # TODO: wait loop... for how long: that was old
-                #       checkshutdownpause config.  TODO: do with live system
-                running_vm = platform.info(vm_name)
+        running_vm = platform.info(vm_name)
             
         if running_vm:
             raise ProgrammingError("Cannot proceed until the VMM is removed entirely from the hypervisor")
@@ -212,14 +208,8 @@ def _core(vm_name, action, p, c):
             return
             
         # deleteall requested, vacate everything forcefully
-        
-        local_file_set = images.obtain()
-        images.process_after_destroy(local_file_set)
-        netbootstrap.teardown(nic_set)
-        netsecurity.teardown(nic_set)
-        netlease.release(nic_set)
-        
-        persistence.remove_nic_set(vm_name)
+        vacate(c, images, netbootstrap, netsecurity, netlease, vm_name, nic_set, persistence)
+        c.log.info("vacated '%s' from workspace-control" % vm_name) 
         
     elif action == ACTIONS.INFO:
         
@@ -291,6 +281,96 @@ def running_vm_dump(running_vm):
         
     return ret
 
+# -----------------------------------------------------------------------------
+# For REMOVE action
+# -----------------------------------------------------------------------------
+
+def graceful_shutdown(p, c, platform, vm_name, running_vm):
+    
+    if running_vm.shutting_down:
+        c.log.warn("Already in the process of shutting down '%s'" % vm_name)
+    
+    if running_vm.running or running_vm.blocked or running_vm.paused:
+        platform.shutdown(running_vm)
+
+    defaultwait = 15
+    shutdown_wait = p.get_conf_or_none("vmshutdown", "shutdown_wait")
+    if not shutdown_wait:
+        shutdown_wait = defaultwait
+    else:
+        try:
+            shutdown_wait = int(shutdown_wait)
+        except:
+            raise UnexpectedError("the configuration for 'shutdown_wait' is not an integer, this needs to be the number of seconds a graceful shutdown should wait before killing a VM.  Current config is '%s'" % str(shutdown_wait))
+            
+    # Check every $interval seconds if it's shut down yet.
+    # If shutdown_wait number of seconds pass by and the platform still thinks
+    # it exists in any capacity, destroy.
+    interval = 0.5
+    count = shutdown_wait
+    while count > 0:
+        time.sleep(interval)
+        c.log.debug("checking on VM '%s'" % vm_name)
+        running_vm = platform.info(vm_name)
+        if not running_vm:
+            c.log.debug("VM '%s' not present anymore" % vm_name)
+            return
+        count -= interval
+
+    # while loop finished without returning:
+    c.log.error("forced to kill the '%s' VM, the configured amount of time (%d seconds) has passed without a graceful shutdown" % (vm_name, shutdown_wait))
+    platform.destroy(running_vm)
+    c.log.error("destroyed successfully: %s" % vm_name)
+
+def vacate(c, images, netbootstrap, netsecurity, netlease, vm_name, nic_set, persistence):
+    
+    try:
+        local_file_set = images.obtain()
+        images.process_after_destroy(local_file_set)
+    except:
+        exception_type = sys.exc_type
+        try:
+            exceptname = exception_type.__name__ 
+        except AttributeError:
+            exceptname = exception_type
+        errstr = "Possible issue with image teardown: %s: %s" % (str(exceptname), str(sys.exc_value))
+        c.log.error(errstr)
+        
+    try:
+        netbootstrap.teardown(nic_set)
+    except:
+        exception_type = sys.exc_type
+        try:
+            exceptname = exception_type.__name__ 
+        except AttributeError:
+            exceptname = exception_type
+        errstr = "Possible issue with netbootstrap teardown: %s: %s" % (str(exceptname), str(sys.exc_value))
+        c.log.error(errstr)
+        
+    try:
+        netsecurity.teardown(nic_set)
+    except:
+        exception_type = sys.exc_type
+        try:
+            exceptname = exception_type.__name__ 
+        except AttributeError:
+            exceptname = exception_type
+        errstr = "Possible issue with netsecurity teardown: %s: %s" % (str(exceptname), str(sys.exc_value))
+        c.log.error(errstr)
+        
+    try:
+        netlease.release(vm_name, nic_set)
+    except:
+        exception_type = sys.exc_type
+        try:
+            exceptname = exception_type.__name__ 
+        except AttributeError:
+            exceptname = exception_type
+        errstr = "Possible issue with netlease teardown: %s: %s" % (str(exceptname), str(sys.exc_value))
+        c.log.error(errstr)
+    
+    persistence.remove_nic_set(vm_name)
+    c.log.debug("removed VM from persistence")
 
 # -----------------------------------------------------------------------------
 # GLOBAL VALIDATIONS
