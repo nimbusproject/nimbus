@@ -117,7 +117,7 @@ class Platform:
             err = "could not find VM with name '%s'" % name
             raise UnexpectedError(err)
         try:
-            vm.reboot()
+            vm.reboot(0)
         except libvirt.libvirtError,e:
             shorterr = "Problem rebooting the '%s' VM: %s" % (name, str(e))
             self.c.log.error(shorterr)
