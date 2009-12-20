@@ -85,7 +85,12 @@ def daemonize(common, func, funcargs):
     common.reopen_logfile()
     common.log.info("\n\n## Process has daemonized, file logging is now re-enabled.\n\n")
 
-    if not funcargs:
-        func()
-    else:
-        func(*funcargs)
+    try:
+        if not funcargs:
+            func()
+        else:
+            func(*funcargs)
+    except:            
+        os._exit(13)
+    os._exit(0)
+    
