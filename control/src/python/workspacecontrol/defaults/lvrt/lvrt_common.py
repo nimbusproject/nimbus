@@ -310,8 +310,11 @@ class Platform:
         if vcpus:
             self.c.log.debug("vcpus given on cmdline: %s" % vcpus)
         else:
-            self.c.log.debug("vcpus retrieved from config file: %s" % vcpus)
             vcpus = self.p.get_conf_or_none("vmcreation", "num_cpu_per_vm")
+            if vcpus:
+                self.c.log.debug("vcpu number retrieved from config file: %s" % vcpus)
+            else:
+                self.c.log.debug("no vcpu number given by argument or configuration, using default of 1")
         
         if vcpus:
             try:

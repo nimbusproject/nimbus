@@ -183,33 +183,38 @@ def _core(vm_name, action, p, c):
             # Still can be files left over when there is no nic_set.  For 
             # example propagation happened but not create.
             if deleteall:
-                local_file_set = images.obtain()
-                images.process_after_destroy(local_file_set)
-            
+                vacate_images(c, images)
+                c.log.info("vacated '%s' images from workspace-control (no nic_set)" % vm_name)
             return
         
         if running_vm:
-            if deleteall:
-                platform.destroy(running_vm)
-                c.log.info("%s VM was destroyed" % vm_name)
-            else:
-                graceful_shutdown(p, c, platform, vm_name, running_vm)
-                c.log.info("%s VM was gracefully shutdown" % vm_name)
-            
-        running_vm = platform.info(vm_name)
-            
-        if running_vm:
-            raise ProgrammingError("Cannot proceed until the VMM is removed entirely from the hypervisor")
-            
+            try:
+                if deleteall:
+                    platform.destroy(running_vm)
+                    c.log.info("%s VM was destroyed" % vm_name)
+                else:
+                    graceful_shutdown(p, c, platform, vm_name, running_vm)
+                    c.log.info("%s VM was gracefully shutdown" % vm_name)
+            except Exception,e:
+                exception_type = sys.exc_type
+                try:
+                    exceptname = exception_type.__name__ 
+                except AttributeError:
+                    exceptname = exception_type
+                errstr = "Issue with shutdown/destroy: %s: %s" % (str(exceptname), str(sys.exc_value))
+                c.log.error(errstr)
+        
+        vacate_networking(c, netbootstrap, netsecurity, netlease, vm_name, nic_set, persistence)
+        c.log.info("vacated '%s' from workspace-control (networking)" % vm_name)
+                
         # If deleteall is not requested, the VM will now be moved back to
         # 'propagated' from the service's perspective.  There is no other
         # work to do.
         if not deleteall:
             return
             
-        # deleteall requested, vacate everything forcefully
-        vacate(c, images, netbootstrap, netsecurity, netlease, vm_name, nic_set, persistence)
-        c.log.info("vacated '%s' from workspace-control" % vm_name) 
+        vacate_images(c, images)
+        c.log.info("vacated '%s' from workspace-control (images)" % vm_name) 
         
     elif action == ACTIONS.INFO:
         
@@ -312,7 +317,11 @@ def graceful_shutdown(p, c, platform, vm_name, running_vm):
         time.sleep(interval)
         c.log.debug("checking on VM '%s'" % vm_name)
         running_vm = platform.info(vm_name)
-        if not running_vm:
+        if running_vm:
+            if running_vm.shutoff:
+                c.log.debug("VM '%s' is now in the shutoff state" % vm_name)
+                return
+        else:
             c.log.debug("VM '%s' not present anymore" % vm_name)
             return
         count -= interval
@@ -322,7 +331,7 @@ def graceful_shutdown(p, c, platform, vm_name, running_vm):
     platform.destroy(running_vm)
     c.log.error("destroyed successfully: %s" % vm_name)
 
-def vacate(c, images, netbootstrap, netsecurity, netlease, vm_name, nic_set, persistence):
+def vacate_images(c, images):
     
     try:
         local_file_set = images.obtain()
@@ -335,6 +344,8 @@ def vacate(c, images, netbootstrap, netsecurity, netlease, vm_name, nic_set, per
             exceptname = exception_type
         errstr = "Possible issue with image teardown: %s: %s" % (str(exceptname), str(sys.exc_value))
         c.log.error(errstr)
+        
+def vacate_networking(c, netbootstrap, netsecurity, netlease, vm_name, nic_set, persistence):
         
     try:
         netbootstrap.teardown(nic_set)

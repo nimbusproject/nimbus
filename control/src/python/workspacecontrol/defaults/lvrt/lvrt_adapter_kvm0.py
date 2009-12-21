@@ -23,5 +23,5 @@ class intakeadapter(PlatformInputAdapter):
         
     def fill_model(self, dom, local_file_set, nic_set, kernel):
         dom._type = "qemu"
-        dom.os.type = "linux"
+        dom.os.type = "hvm"
         
