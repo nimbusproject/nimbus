@@ -17,6 +17,7 @@
 package org.globus.workspace.cloud.client.util;
 
 import org.apache.axis.message.addressing.EndpointReferenceType;
+import org.apache.axis.types.URI;
 import org.globus.workspace.client_core.ExecutionProblem;
 import org.globus.workspace.client_core.ParameterProblem;
 import org.globus.workspace.client_core.repr.Workspace;
@@ -26,6 +27,10 @@ import org.globus.workspace.common.print.Print;
 import org.globus.wsrf.encoding.DeserializationException;
 import org.globus.wsrf.encoding.ObjectDeserializer;
 import org.xml.sax.InputSource;
+import org.nimbustools.messaging.gt4_0.generated.metadata.VirtualWorkspace_Type;
+import org.nimbustools.messaging.gt4_0.generated.metadata.definition.Definition;
+import org.nimbustools.messaging.gt4_0.generated.metadata.definition.DiskCollection_Type;
+import org.nimbustools.messaging.gt4_0.generated.metadata.definition.BoundDisk_Type;
 
 import java.io.File;
 import java.io.PrintStream;
@@ -41,6 +46,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Iterator;
+import java.util.StringTokenizer;
 
 public class CloudClientUtil {
 
@@ -475,6 +481,14 @@ public class CloudClientUtil {
                         print.infoln("      *Possible handles: " + matches);
                     } else {
                         print.infoln("      *Handle: " + matches);
+						final String images =
+								getImageNames(matchLookPath, matches.trim(), print);
+						String[] imageparts = images.trim().split(",");
+						if (imageparts.length > 1) {
+							print.infoln("       Images: " + images);
+						} else {
+							print.infoln("       Image: " + images);
+						}
                     }
                 }
             }
@@ -532,6 +546,88 @@ public class CloudClientUtil {
 
         return matches;
     }
+
+	// get all images in the metadata files in this history subdir
+	private static String getImageNames(String matchLookPath, String matchSubdir, Print pr) {
+
+		final File dir = new File(matchLookPath);
+        if (!dir.isDirectory()) {
+            pr.errln("      '" + matchLookPath + "' is not a directory?");
+            return "none"; // *** EARLY RETURN ***
+        }
+
+        final File subdir = new File(dir, matchSubdir);
+		pr.debugln("examining '" + subdir.getAbsolutePath() + "' for image strings");
+        if (!subdir.exists()) {
+            pr.errln("      Not a subdirectory?");
+            return "none"; // *** EARLY RETURN ***
+        }
+
+		final String[] subfiles = subdir.list(new fileFilter());
+
+		if (subfiles == null || subfiles.length == 0) {
+            return "none";
+        }
+
+		String ret = "";
+
+        for (String subfile : subfiles) {
+
+			final File f = new File(subdir, subfile);
+            if (fileExistsAndReadable(f)) {
+
+                VirtualWorkspace_Type vwType;
+                try {
+                    vwType = (VirtualWorkspace_Type)
+                            ObjectDeserializer.deserialize(
+                                new InputSource(new FileInputStream(f)),
+                                                VirtualWorkspace_Type.class);
+                } catch (Throwable t) {
+                    // not an issue, some of these are text files etc.
+                    continue;
+                }
+
+                if (vwType != null) {
+                    try {
+                        final Definition def = vwType.getDefinition();
+						if (def != null) {
+							final DiskCollection_Type dct = def.getDiskCollection();
+							if (dct != null) {
+								final BoundDisk_Type bdt = dct.getRootVBD();
+								if (bdt != null) {
+									final URI uri = bdt.getLocation();
+									if (uri != null) {
+										String path = uri.getPath();
+										StringTokenizer st = new StringTokenizer(path, "/");
+										String last = "";
+										while (st.hasMoreTokens()) {
+											last = st.nextToken();
+										}
+										if (ret.length() > 0) {
+											ret += ", " + last;
+										} else {
+											ret += last;
+										}
+									}
+								}
+							}
+						}
+                    } catch (Throwable t) {
+                        continue;
+                    }
+                }
+            }
+			
+
+
+		}
+
+		if (ret.length() == 0) {
+			return "none";
+		} else {
+			return ret;
+		}
+	}
 
     private static String clusterMatch(File topdir,
                                        String subdir,
