@@ -2,6 +2,7 @@
 *.iml
 *.ipr
 *.iws
+target/
 build/
 dist/
 autocontainer/downloads/

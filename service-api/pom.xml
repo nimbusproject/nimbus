@@ -9,7 +9,6 @@
         <version>2.3-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.nimbustools.api</groupId>
     <packaging>jar</packaging>
     <artifactId>service-api</artifactId>
 

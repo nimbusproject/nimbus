@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.nimbustools</groupId>
+        <artifactId>nimbus</artifactId>
+        <version>2.3-SNAPSHOT</version>
+    </parent>
+
+    <groupId>org.nimbustools</groupId>
+    <packaging>jar</packaging>
+    <artifactId>service</artifactId>
+
+    <name>Nimbus Service</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>${groupId}</groupId>
+            <artifactId>service-api</artifactId>
+            <version>${version}</version>
+        </dependency>
+        <dependency>
+            <groupId>backport-util-concurrent</groupId>
+            <artifactId>backport-util-concurrent</artifactId>
+        </dependency>
+        <!--<dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring</artifactId>
+        </dependency>
+        -->
+<dependency>
+  <groupId>org.apache.geronimo.specs</groupId>
+  <artifactId>geronimo-j2ee_1.4_spec</artifactId>
+  <version>1.1</version>
+</dependency>
+        <dependency>
+  <groupId>org.safehaus.jug</groupId>
+  <artifactId>jug</artifactId>
+  <version>2.0.0</version>
+  <classifier>asl</classifier>
+</dependency>
+        <dependency>
+  <groupId>net.sf.ehcache</groupId>
+  <artifactId>ehcache</artifactId>
+  <version>1.5.0</version>
+</dependency>
+        <dependency>
+  <groupId>org.mortbay.jetty</groupId>
+  <artifactId>jetty</artifactId>
+  <version>6.1.7</version>
+</dependency>
+    </dependencies>
+
+
+
+</project>
+
