@@ -1880,8 +1880,10 @@ public class ExecuteUtil {
         }
 
         try {
-            final URI runName =
-                    new URI("https://" + hostport + "/" + newDirName);
+			final String newDirName_nospaces = newDirName.replace(' ', '_');
+			final String runNameString = "https://" + hostport + "/" + newDirName_nospaces;
+			print.debugln("name for metadata: '" + runNameString + "'");
+            final URI runName = new URI(runNameString);
             metadata.setName(runName);
         } catch (URI.MalformedURIException e) {
             throw new ExecutionProblem(e.getMessage(), e);
