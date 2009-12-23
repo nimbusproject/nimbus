@@ -32,14 +32,14 @@ INCLUDED_COMMANDLINE_STRING="--conf $USER_PROPFILE --cloud-dir $CLOUD_DIR --hist
 ####### JAVA CHECK ##########
 
 if [ "X$JAVA_HOME" = "X" ] ; then
-  $_RUNJAVA=java
+  _RUNJAVA=java
  else
-  $_RUNJAVA="$JAVA_HOME"/bin/java
+  _RUNJAVA="$JAVA_HOME"/bin/java
 fi
 
 COMMONJAR="$GLOBUS_LOCATION/lib/nimbus-messaging-common-gt4.0.jar"
 if [ -f $COMMONJAR ]; then
-  _RUNJAVA -classpath $COMMONJAR org.nimbustools.messaging.gt4_0.common.OKJVM
+  $_RUNJAVA -classpath $COMMONJAR org.nimbustools.messaging.gt4_0.common.OKJVM
   if [ $? -eq 2 ]; then
     echo -e "\n\n" >&2
     echo -e "WARNING: You seem to be using libgcj which has known issues." >&2
