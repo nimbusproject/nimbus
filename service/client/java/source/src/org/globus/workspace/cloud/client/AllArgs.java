@@ -183,6 +183,14 @@ public class AllArgs {
         final CommandLineParser parser = new PosixParser();
         final CommandLine line = parser.parse(options, args);
 
+		final List leftovers = line.getArgList();
+		if (leftovers != null && !leftovers.isEmpty()) {
+			// there are situations where this could cause dataloss, see:
+			// https://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=6873
+			throw new ParameterProblem("There are unrecognized arguments, check -h to make " +
+					"sure you are doing the intended thing: " + leftovers.toString());
+		}
+
         // note debug was already recognized and configured, keeping this
         // block here for completeness (and for gotCmdLine logging)
         if (line.hasOption(Opts.DEBUG_OPT_STRING)) {
