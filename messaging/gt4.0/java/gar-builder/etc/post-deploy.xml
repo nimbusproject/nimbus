@@ -118,6 +118,8 @@
                    value="${base.package.name}" />
             <entry key="derby.classpath.dir.prop"
                    value="${deploy.dir}/lib" />
+            <entry key="pwGen.path.prop"
+                   value="${workspace.conf.dir}/other/shared-secret-suggestion.py"/>
             
         </propertyfile>
     </target>
@@ -154,6 +156,8 @@
                   value="${base.package.name}" />
         <property name="derby.classpath.dir.prop"
                   value="${deploy.dir}/lib" />
+        <property name="pwGen.path.prop"
+                   value="${workspace.conf.dir}/other/shared-secret-suggestion.py"/>
 
         <ant antfile="${dbsetup.antfile}" target="setupWorkspacePersistence" />
     </target>

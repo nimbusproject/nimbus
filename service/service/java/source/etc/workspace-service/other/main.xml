@@ -623,6 +623,8 @@
                   value="org.apache.derby.jdbc.EmbeddedDriver" />
         <property name="url"
                   value="jdbc:derby:nimbus/WorkspacePersistenceDB" />
+        <property name="username" value="nimbus"/>
+        <property name="password" value="$DERBY{derby.user.nimbus}"/>
         
     </bean>
 
@@ -637,6 +639,8 @@
                   value="org.apache.derby.jdbc.EmbeddedDriver" />
         <property name="url"
                   value="jdbc:derby:nimbus/WorkspaceAccountingDB" />
+        <property name="username" value="nimbus"/>
+        <property name="password" value="$DERBY{derby.user.nimbus}"/>
         
     </bean>
 

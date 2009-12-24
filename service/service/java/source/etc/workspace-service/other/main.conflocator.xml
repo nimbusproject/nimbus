@@ -109,4 +109,13 @@
                   value="$METADATA{" />
     </bean>
 
+    <bean id="derbySettings"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="location"
+                  value="/@DERBY_DIR@/derby.properties" />
+        <property name="placeholderPrefix"
+                  value="$DERBY{" />
+        
+    </bean>
+
 </beans>
