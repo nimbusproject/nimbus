@@ -2,7 +2,7 @@
 
 Nimbus - Open Source IaaS Cloud Computing Software
 
-* <p><http://workspace.globus.org></p>
+* <p><http://www.nimbusproject.org></p>
 * <p><http://github.com/nimbusproject/nimbus></p>
 * <p>[Build instructions and license](http://github.com/nimbusproject/nimbus/tree/master/bin/lib/gt4.0/dist/topdocs/)
 
@@ -16,7 +16,7 @@ Please direct all queries to <workspace-dev@globus.org>
 
 Note that the most recent activity in this repository will usually be in branches.
 
-* If you are viewing on GitHub, choose a branch from the dropdown menu called "all branches"
+* If you are viewing on GitHub, choose a branch from the dropdown menu called "Branches"
 
 * If you are viewing directly via git:
   1. git branch - _view current branches_
