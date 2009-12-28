@@ -27,17 +27,10 @@
          ******************************************************************* -->
 
     <target name="checkjdk">
-        <available property="jdk1.4+" classname="java.lang.CharSequence"/>
-        <antcall target="old-jdk" />
-        <antcall target="ok-jdk" />
-    </target>
-
-    <target name="old-jdk" unless="jdk1.4+">
-        <fail message="Aborting: determined you are not building with >= JDK 1.4" />
-    </target>
-
-    <target name="ok-jdk" if="jdk1.4+">
-        <echo message="Determined you are building with >= JDK 1.4" />
+        <available property="jdk1.5+"
+                   classname="java.lang.Readable"/>
+        <fail message="Aborting: determined you are not building with >= JDK 1.5"
+              unless="jdk1.5+" />
     </target>
 
     

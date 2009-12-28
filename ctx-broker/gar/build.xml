@@ -212,10 +212,9 @@ Did you build?
     </target>
 
     <target name="deploy" depends="disp">
-        <echo>Installing: ${nimbusctx.gt4_0.stubs.print-noun}</echo>
+        <echo>Installing: ${nimbusctx.gt4_0.gar.print-noun}</echo>
         <antcall target="_deploy" />
-        <echo>Installed: ${nimbusctx.gt4_0.stubs.print-noun}
-        </echo>
+        <echo>Installed: ${nimbusctx.gt4_0.gar.print-noun}</echo>
     </target>
 
     <target name="assessDeployed">
