@@ -32,6 +32,16 @@ _NIMBUS_TP2_2_DEPRECATED
     </li>
 	<li>
         <p>
+            <a href="#nimbusweb-config">Configuring the Nimbus Web interface</a>
+        </p>
+    </li>
+    <li>
+        <p>
+            <a href="#nimbusweb-usage">Using the Nimbus Web interface</a>
+        </p>
+    </li>
+	<li>
+        <p>
             <a href="#manual-container">Configuring the container manually without the AutoContainer</a>
         </p>
     </li>
@@ -219,6 +229,10 @@ _EXAMPLE_CMD_END
     Container restart required after the configuration change.
 </p>
 
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+
 <br />
 
 <a name="query"> </a>
@@ -287,6 +301,109 @@ Generated query credentials for user:
     directly. A forthcoming release will include support for managing and distributing
     query tokens (and other credentials) within a web interface.
 </p>
+
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+
+<br />
+
+<a name="nimbusweb-config"> </a>
+<h2>Configuring the Nimbus Web interface <span class="namelink"><a href="#nimbusweb-config">(#)</a></span>
+</h2>
+
+<p>
+    The Nimbus Web component is intended to be installed independently from the main
+    Nimbus service. It is a standalone Django app with robust bootstrapping scripts.
+</p>
+<p>
+    To get started, grab the Nimbus Web bundle from the
+    <a href="_NIMBUS_WEBSITE/downloads/">downloads page</a> and untar it into your
+    target installation directory. Once in place, run the <i>bin/run-standalone-ssl.sh</i>
+    script to get started. On the first invocation, the script will request some
+    information from you and generate the base configuration.
+</p>
+<p>
+    Once you have been guided through basic configuration and creation of a
+    superuser account, the bootstrap script will print a URL to the console.
+    Paste this URL into your browser and login using the account you just created.
+</p>
+<p>
+    You will likely want to tweak the configuration a bit for your site. For example,
+    if you want to change the port number the service listens on. Take a look at the
+    <i>nimbusweb.conf</i> file. Each option is well documented. Changes to this file
+    require a restart of the service.
+</p>
+
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+
+<br />
+
+<a name="nimbusweb-usage"> </a>
+<h2>Using the Nimbus Web interface <span class="namelink"><a href="#nimbusweb-usage">(#)</a></span>
+</h2>
+
+<p>
+    While the Nimbus Web application is still under heavy development, its current
+    functionality is useful enough to release in its early form. In the 2.3 release,
+    Nimbus Web provides basic facilities for distributing X509 credentials to users.
+    Previously this was a tedious process that was difficult to do in a secure way
+    that was also user friendly. Nimbus Web allows an admin to upload credentials
+    for a user and then send them a custom URL which invites them to create an
+    account.
+</p>
+<p>
+    To get started, log into the web interface as a superuser and go to the
+    <i>Administrative Panel</i>. This page has a section for creating users
+    as well as viewing pending and existing users. The initial release does not
+    have embedded CA functionality. You must use an external CA to generate
+    the user credentials. You must also manually authorize the new user for the
+    Nimbus service (probably via the cloud-admin tool).
+</p>
+
+<p>
+    Create a new user by filling in the appropriate fields and uploading an X509
+    certificate and key for the user. Note that the application expects plain
+    text files, so depending on your browser you may need to rename files to have
+    a .txt extension before you can upload them. Once the new account is created,
+    you will be provided with a custom URL. You must paste this URL into an email
+    to the user along with usage instructions.
+</p>
+
+<p>
+    When the user accesses the custom URL, they will be asked to create a password
+    and login. Inside their account, they can download the certificate and key which
+    were provided for them by the admin. Note that the design of the application attempts
+    to maximize the security of the process, with several important features:
+</p>
+<ul>
+    <li>
+        <b>The URL token can only be successfully used once</b>. After a
+        user creates a password and logs in, future attempts to access that URL will
+        fail. This is to prevent someone from intercepting the URL and using it to
+        access the user's credentials. If this happens, the real user will be unable
+        to login and will (hopefully) contact the administrator immediately.
+    </li>
+    <li>
+        In the same spirit, <b>the URL token will expire</b> after a configurable number of
+        hours (default: 12).
+    </li>
+    <li>
+        <b>The user private key can be downloaded once and only once</b>.
+        After this download occurs,
+        the key will be deleted from the server altogether. In an ideal security system,
+        no person or system will ever be in possession of a private key, except for the
+        user/owner of the key itself. Because we don't follow this for the sake of usability,
+        we attempt to minimize the time that the private key is in the web app database.
+    </li>
+    <li>
+        When a URL token is accessed or a private key is downloaded, the time and IP address of
+        this access is logged and displayed in the administrative panel. 
+    </li>
+</ul>
+      
 
 <!-- *********************************************************************** -->
 <!-- *********************************************************************** -->
