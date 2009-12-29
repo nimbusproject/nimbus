@@ -116,7 +116,7 @@ class DefaultImageEditing:
         if not os.access(self.sudo_path, os.X_OK):
             raise InvalidConfig("sudo is configured with an absolute path, but it does not seem executable: '%s'" % self.sudo_path)
 
-        self.c.log.info("sudo configured for image editing: %s %s" % (self.sudo_path, self.mounttool_path))
+        self.c.log.debug("sudo configured for image editing: %s %s" % (self.sudo_path, self.mounttool_path))
 
     def _validate_mountdir(self):
         mountdir = self.p.get_conf_or_none("mount", "mountdir")
