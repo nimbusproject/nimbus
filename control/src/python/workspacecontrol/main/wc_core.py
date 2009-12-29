@@ -256,7 +256,7 @@ def _core(vm_name, action, p, c):
         if running_vm:
             raise UnexpectedError("Received unpropagation request for VM with name '%s' but that was found running." % vm_name)
         
-        wc_core_propagation.unpropagate(vm_name, c, async, images)
+        wc_core_propagation.unpropagate(vm_name, c, async, images, editing)
     
     else:
         raise ProgrammingError("unhandled action %s" % action)

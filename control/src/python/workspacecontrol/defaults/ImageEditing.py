@@ -252,10 +252,20 @@ class DefaultImageEditing:
         """
         
         for lf in local_file_set.flist():
+            
+            # The following edit is applicable for either case, if unprop target
+            # is gz or even if not.
+            # This is because the local "muxing" of the file was to bring the
+            # source from 'x.gz' to 'x', so on the way back to the repo, the
+            # transfer or gzip commands will need to start with the non-gz form.
+            if lf.path[-3:] == ".gz":
+                lf.path = lf.path[:-3]
+            
             try:
                 lf._unpropagation_target
             except AttributeError:
                 raise ProgrammingError("this image editing implementation is tied to the default procurement implementation with respect to the process_after_shutdown method. If you are running into this error, either implement the '_unpropagation_target' attribute as well, or come up with new arguments to the program for expressing compression needs in a saner way than looking for '.gz' in paths (which is tenuous)")
+            
             if lf._unpropagation_target[-3:] == ".gz":
                 lf.path = self._gzip_file_inplace(lf.path)
                 self.c.log.debug("after gzip, file is now %s" % lf.path)

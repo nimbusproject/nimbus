@@ -60,17 +60,18 @@ def propagate_under_daemonization(vm_name, common, async, images):
         common.log.error(errstr)
         return None
     
-def unpropagate(vm_name, common, async, images):
+def unpropagate(vm_name, common, async, images, editing):
     if not images.lengthy_shutdown():
         c.log.warn("Unpropagation asked for but it is not required.")
         return
     
-    args = [vm_name, common, async, images]
+    args = [vm_name, common, async, images, editing]
     wc_daemonize.daemonize(common, unpropagate_under_daemonization, args)
     
-def unpropagate_under_daemonization(vm_name, common, async, images):
+def unpropagate_under_daemonization(vm_name, common, async, images, editing):
     try:
         local_file_set = images.obtain()
+        editing.process_after_shutdown(local_file_set)
         images.process_after_shutdown(local_file_set)
     except Exception,e:
         common.log.error("Problem unpropagating.")

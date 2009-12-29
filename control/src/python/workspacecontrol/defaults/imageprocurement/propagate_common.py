@@ -446,7 +446,7 @@ class DefaultImageProcurement:
             self.c.log.debug("%s is valid" % logstr)
             
             # convention in the past is that first is rootdisk, a new arg
-            # scheme might come about but for now trying to match the old
+            # scheme might come about but for now we must match the old
             # workspace-control syntax
             if i == 1:
                 lf.rootdisk = True
@@ -687,8 +687,14 @@ class DefaultImageProcurement:
                 pathexists = os.path.exists(lf.path)
                 if pathexists and lf._propagate_needed:
                     raise InvalidInput("file is going to be transferred to this host but the target exists already: '%s'" % lf.path)
-                if not pathexists and lf._unpropagate_needed:
-                    raise InvalidInput("file is going to be transferred from this host but it does not exist: '%s'" % lf.path)
+                    
+                # You would think you can make the following commented-out check
+                # here, but you can't.  Things that are leaving the host can't
+                # be checked for ahead of time before the transfer because
+                # filenames can be changed (consider *.gz).
+                ###if not pathexists and lf._unpropagate_needed:
+                ###    raise InvalidInput("file is going to be transferred from 
+                ###this host but it does not exist: '%s'" % lf.path)
                 
                 return
                 
