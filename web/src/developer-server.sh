@@ -1,3 +1,4 @@
+#!/bin/bash
 # Running under cherrypy doesn't give you the nice python source reloading that
 # Django's development server does.
 #
