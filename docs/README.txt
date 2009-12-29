@@ -15,4 +15,8 @@ To locally view docs, run build-and-serve-locally.sh and then open your web
 browser to the URL printed out.
 
 To push docs to the live site, run push_to_mcs_web.sh. You must be on an MCS
-shell (with access to /mcs/ filesystem).
+shell (with access to /mcs/ filesystem). By default this script will drop
+docs in the dev/ subdirectory of the docs section of the site. You can
+supply an argument to have it go somewhere else. Like:
+     push_to_mcs_web.sh foo/
+
