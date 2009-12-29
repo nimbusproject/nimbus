@@ -73,7 +73,7 @@ class DefaultImageProcurement:
                 raise InvalidConfig(msg)
             
         if len(self.adapters) == 0:
-            self.c.log.info("There are no propagation adapters configured, propagation is disabled")
+            self.c.log.warn("There are no propagation adapters configured, propagation is disabled")
             return
             
         for keyword in self.adapters.keys():
@@ -97,7 +97,7 @@ class DefaultImageProcurement:
             raise InvalidConfig("localdir is not a directory: %s" % localdir)
             
         self.localdir = localdir
-        self.c.log.info("local image directory (localdir): %s" % self.localdir)
+        self.c.log.debug("local image directory (localdir): %s" % self.localdir)
         
     def _validate_securelocaldir(self):
         securelocaldir = self.p.get_conf_or_none("images", "securelocaldir")
@@ -108,7 +108,7 @@ class DefaultImageProcurement:
             securelocaldir = self.c.resolve_var_dir(securelocaldir)
         
         if not os.path.exists(securelocaldir):
-            self.c.log.info("securelocaldir is configured, but '%s' does not"
+            self.c.log.warn("securelocaldir is configured, but '%s' does not"
                        " exist on the filesystem, attemping to create "
                        " it" % securelocaldir)
             try:
@@ -123,7 +123,7 @@ class DefaultImageProcurement:
                 raise InvalidConfig("Problem creating securelocaldir: %s: %s" 
                            % (str(exceptname), str(sys.exc_value)))
 
-            self.c.log.info("created secure localdir '%s'" % securelocaldir)
+            self.c.log.warn("created secure localdir '%s'" % securelocaldir)
 
         x = os.access(securelocaldir, os.W_OK | os.X_OK | os.R_OK)
         if x:
@@ -134,12 +134,12 @@ class DefaultImageProcurement:
                        % securelocaldir)
             
         self.securelocaldir = securelocaldir
-        self.c.log.info("secure image directory (per-instance images): %s" % self.securelocaldir)
+        self.c.log.debug("secure image directory (per-instance images): %s" % self.securelocaldir)
         
     def _validate_blankspacecreate(self):
         blankcreate_path = self.p.get_conf_or_none("images", "blankcreate")
         if not blankcreate_path:
-            self.c.log.info("No images->blankcreate configuration, blankspace creation is disabled")
+            self.c.log.warn("No images->blankcreate configuration, blankspace creation is disabled")
             return
         
         if not os.path.isabs(blankcreate_path):

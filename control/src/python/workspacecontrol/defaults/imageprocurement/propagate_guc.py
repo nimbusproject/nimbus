@@ -24,7 +24,7 @@ class propadapter(PropagationAdapter):
             if not os.access(self.guc, os.X_OK):
                 raise InvalidConfig("globus-url-copy is configured with an absolute path, but it does not seem executable: '%s'" % self.guc)
 
-        self.c.log.info("globus-url-copy configured: %s" % self.guc)
+        self.c.log.debug("globus-url-copy configured: %s" % self.guc)
 
     def validate_propagate_source(self, imagestr):
         # will throw errors if invalid

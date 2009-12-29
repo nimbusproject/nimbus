@@ -34,7 +34,7 @@ class DefaultAsyncNotification:
             if not os.access(self.ssh, os.X_OK):
                 raise InvalidConfig("SSH is configured with an absolute path, but it does not seem executable: '%s'" % self.ssh)
 
-        self.c.log.info("SSH configured: %s" % self.ssh)
+        self.c.log.debug("SSH configured: %s" % self.ssh)
         
         notifyspec = self.p.get_arg_or_none(wc_args.NOTIFY)
         
@@ -112,7 +112,7 @@ class DefaultAsyncNotification:
             return
         
         (notif_errcode, notif_output) = getstatusoutput(cmd)
-        self.c.log.info("notification command error code = %d" % notif_errcode)
+        self.c.log.info("notification command exit code = %d" % notif_errcode)
         if notif_errcode:
             err = "notification command error output:\n%s\n" % notif_output
             self.c.log.error(err)

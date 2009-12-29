@@ -3,7 +3,7 @@ import wc_daemonize
 
 def propagate(vm_name, common, async, images):
     if not images.lengthy_obtain():
-        c.log.info("Propagation asked for but it is not required.")
+        c.log.warn("Propagation asked for but it is not required.")
         return
         
     args = [vm_name, common, async, images]
@@ -62,7 +62,7 @@ def propagate_under_daemonization(vm_name, common, async, images):
     
 def unpropagate(vm_name, common, async, images):
     if not images.lengthy_shutdown():
-        c.log.info("Unpropagation asked for but it is not required.")
+        c.log.warn("Unpropagation asked for but it is not required.")
         return
     
     args = [vm_name, common, async, images]

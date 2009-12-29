@@ -32,7 +32,7 @@ class DefaultKernelProcurement:
             
         if not os.path.isabs(kerneldir):
             kerneldir = self.c.resolve_var_dir(kerneldir)
-        self.c.log.info("kernel directory: %s" % kerneldir)
+        self.c.log.debug("kernel directory: %s" % kerneldir)
             
         authz_conf = self.p.get_conf_or_none("kernels", "authz_kernels")
         if not authz_conf:
@@ -79,7 +79,7 @@ class DefaultKernelProcurement:
                 authz_txt += "no)"
                 
             authz_txt += "\n"
-        self.c.log.info("\n\nActive authorized kernels:\n%s" % authz_txt)
+        self.c.log.debug("\n\nActive authorized kernels:\n%s" % authz_txt)
         
     def _check_hdimage(self, local_file_set, kernel_arg):
         
