@@ -1,3 +1,15 @@
+nimbus-cloud-client-014
+-----------------------
+
+[*] Added name of image to output of --status
+
+[*] Added warning when libgcj is detected
+
+[*] Fixed bug with handling of spaces in cluster names
+
+[*] Fixed bug with argument parsing
+
+
 nimbus-cloud-client-013
 -----------------------
 
