@@ -43,18 +43,18 @@ export NIMWIZ_SCP_BATCH_OPTIONS
 NIMWIZ_NO_NETWORK_CONFIGS="(( not configuring ))"
 export NIMWIZ_NO_NETWORK_CONFIGS
 
-CONTROL_TARBALL_SHORT="nimbus-controls-TP2.2.tar.gz"
-CONTROL_TARBALL_DIR="nimbus-controls-TP2.2"
+CONTROL_TARBALL_SHORT="nimbus-controls-2.3RC1.tar.gz"
+CONTROL_TARBALL_DIR="nimbus-controls-2.3RC1"
 CONTROL_TARBALL="http://workspace.globus.org/downloads/$CONTROL_TARBALL_SHORT"
 export CONTROL_TARBALL_DIR CONTROL_TARBALL_SHORT CONTROL_TARBALL
 
-WORKSPACE_CONTROL_DOC_LINK="http://workspace.globus.org/vm/TP2.2/admin/quickstart.html#part-III"
+WORKSPACE_CONTROL_DOC_LINK="http://www.nimbusproject.org/docs/?doc=2.3/admin/quickstart.html#part-III"
 export WORKSPACE_CONTROL_DOC_LINK
 
-CONTROL_EXE="/opt/workspace/bin/workspace-control"
+CONTROL_EXE="/opt/nimbus/bin/workspace-control.sh"
 export CONTROL_EXE
 
-CONTROL_TMPDIR="/opt/workspace/tmp"
+CONTROL_TMPDIR="/opt/nimbus/var/workspace-control/tmp"
 export CONTROL_TMPDIR
 
 CLASSPATH_BASE1=$GLOBUS_LOCATION/lib

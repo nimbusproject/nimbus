@@ -532,60 +532,6 @@ echo "Look for the documentation at:"
 echo "  - $WORKSPACE_CONTROL_DOC_LINK"
 
 echo ""
-echo "----------"
-echo ""
-echo "A sample installation command set can be provided for you here if you supply a group name.  Group privileges are used for some configurations and programs." 
-
-DO_SAMPLE_CMD="n"
-NORESPONSE="undefined_129831298739821y39821y39821y39821y31"
-VMM_RUNNER_GROUP="$NORESPONSE"
-
-count=0
-while [ $count -lt 6 ]; do
-  count=$((count + 1))
-  echo ""
-  echo "What is a privileged unix group of $VMM_RUNNER on $TEST_VMM?  Or type 'n' to skip this step."
-  read unix_group
-  if [ "Xn" = "X$unix_group" ]; then
-    count=10
-  elif [ ! "X" = "X$unix_group" ]; then
-    VMM_RUNNER_GROUP=$unix_group
-    DO_SAMPLE_CMD="y"
-    count=10
-  else
-    echo "Please enter 'n' or a privileged group name."
-  fi
-  
-done
-
-if [ "Xn" = "X$DO_SAMPLE_CMD" ]; then
-  echo "No sample commands will be provided."
-  echo ""
-  echo "----------"
-else
-  echo ""
-  echo "----------"
-  echo ""
-  echo "*** Sample workspace-control installation commands:"
-  echo ""
-  echo "    ssh root@$TEST_VMM"
-  echo "        ^^^^ YOU NEED TO BE ROOT"
-  echo ""
-  echo "    wget $CONTROL_TARBALL"
-  echo "    tar xzf $CONTROL_TARBALL_SHORT"
-  echo "    cd $CONTROL_TARBALL_DIR"
-  echo ""
-  echo "    mkdir -p /opt/workspace"
-  echo "    cp worksp.conf.example /opt/workspace/worksp.conf"
-  echo "    python install.py -i -c /opt/workspace/worksp.conf -a $VMM_RUNNER -g $VMM_RUNNER_GROUP"
-  echo ""
-  echo ""
-  echo "*** (see 'python install.py -h' for other options, including non-interactive installation)"
-  echo ""
-  echo "----------"
-fi
-
-echo ""
 echo "Waiting for you to install workspace control for the account '$VMM_RUNNER' on the test VMM '$TEST_VMM'"
 echo ""
 echo "After this is accomplished, press return to continue."

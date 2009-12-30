@@ -538,24 +538,6 @@ if [ "$DO_NET" = "y" ]; then
   echo "" >> $NETPATH
   
   echo "    ... created '$NETPATH'"
-  
-  echo ""
-  echo "----------"
-  echo ""
-  echo "NOTE: you need to MATCH this network in the workspace-control configuration file."
-  echo "This configuration file is at '/opt/workspace/worksp.conf' by default"
-  echo ""
-  echo "For example, you might have this line:"
-  echo ""
-  echo "association_0: public; xenbr0; vif0.1 ; none; $NIMBUS_CONFIG_TEST_VM_NETWORK_ADDRESS/24"
-  
-  echo ""
-  echo "    ... \"public\" is the name of the network we chose."
-  echo "    ... \"xenbr0\" is the name of the bridge to put VMs in this network on."
-  echo "    ... \"vif0.1\" is the interface where the DHCP server is listening in dom0 on the VMM"
-  echo "    ... and the network address range serves as a sanity check (you can disable that check in the conf file)"
-  echo ""
-  
   echo "----------"
   echo ""
 fi
@@ -583,7 +565,3 @@ echo ""
 
 echo "Finished."
 echo ""
-if [ "$DO_NET" = "y" ]; then
-    echo "See 'NOTE' above."
-    echo ""
-fi

@@ -1,5 +1,5 @@
 m4_include(/mcs/m4/worksp.lib.m4)
-_NIMBUS_HEADER(TP2.2 Admin Quickstart)
+_NIMBUS_HEADER(2.3 Admin Quickstart)
 _NIMBUS_HEADER2(n,n,y,n,n,n,n)
 _NIMBUS_LEFT2_COLUMN
 _NIMBUS_LEFT2_ADMIN_SIDEBAR(n,y,n,n,n)
@@ -7,11 +7,11 @@ _NIMBUS_LEFT2_COLUMN_END
 _NIMBUS_CENTER2_COLUMN
 _NIMBUS_TP2_2_DEPRECATED
 
-<h2>Nimbus TP2.2 Admin Quickstart</h2>
+<h2>Nimbus 2.3 Admin Quickstart</h2>
 
 <p>
     The quickstart assumes the services node you are working on is Linux or
-    some UNIX variant (such as OSX perhaps).  The Xen VMM nodes are required to
+    some UNIX variant (such as OSX perhaps).  The VMM nodes are required to
     be Linux.  Most testing is carried out on Linux currently.
 </p>
 
@@ -36,7 +36,7 @@ _NIMBUS_TP2_2_DEPRECATED
     <li>
         <p>
             <b>superuser account</b> - The root account is necessary to install
-            dependencies on the VMM nodes (Xen, ebtables, etc.) and also to
+            dependencies on the VMM nodes (Xen/KVM, ebtables, etc.) and also to
             install the Nimbus agent that lives on the VMM nodes (workspace
             control).
         </p>
@@ -110,7 +110,7 @@ _NIMBUS_TP2_2_DEPRECATED
 
 <ul>
     <li style="list-style: disc">I.A. <a href="#part-Ia">Service container</a></li>
-    <li>I.B. <a href="#part-Ib">Xen</a></li>
+    <li>I.B. <a href="#part-Ib">Xen/KVM and libvirt</a></li>
     <li>I.C. <a href="#part-Ic">Misc. libraries for the VMM nodes</a></li>
 </ul>
 
@@ -203,30 +203,36 @@ Got notification with value: 13</pre>
 
 
 <a name="part-Ib"> </a>
-<h3>I.B. Xen _NAMELINK(part-Ib)</h3>
+<h3>I.B. Xen/KVM and libvirt _NAMELINK(part-Ib)</h3>
 <p>
-    The workspace service manages <a href="http://www.xen.org">Xen</a> VMs
-    (KVM on its way).
+    The workspace service manages <a href="http://www.xen.org">Xen</a>
+    or <a href="http://www.linux-kvm.org">KVM</a> VMs.  It interfaces with both
+    of these systems using a library called 
+    <a href="http://libvirt.org/">libvirt</a>.
 </p>
 <p>
-    The workspace service itself does not need to run on a Xen node.  You
-    must pick VMM nodes to install Xen on, the workspace service will manage
-    these.  For the quickstart, pick just one node to install and test with.
+    The workspace service itself does not need to run on a VMM node.  You
+    must pick VMM nodes to install Xen or KVM on, the workspace service will
+    manage these.  For the quickstart, pick just one node to install and test
+    with.
     When all goes well, add more into the pool of VMMs the workspace service
     can send work to.
 </p>
 <p>
-    You need to install Xen and get a basic VM running with bridged networking.
+    You need to install Xen/KVM and get a basic VM running with bridged
+    networking.
 </p>
 <p>
     Nimbus has been most heavily tested with the Xen 3.1 series although it
-    is known to be working with 3.2 (this may require the "tap:aio" configuration
-    in workspace-control's "worksp.conf" configuration file).  There is no
-    information yet about Nimbus on the new/upcoming Xen 3.3 series.
+    is known to be working with 3.2 (this may require the "tap:aio"
+    configuration
+    in workspace-control's "xen.conf" configuration file).  There is no
+    information yet about Nimbus on the new/upcoming Xen 3.3 series.  Nimbus
+    has also been tested with QEMU/KVM 0.11.0
 </p>
 
 <p>
-    You can actually put off the whole Xen step until later if you just want to evaluate
+    You can actually put off the whole VMM step until later if you just want to evaluate
     the Nimbus clients and services:  right out of the box Nimbus makes "fake"
     calls to workspace control (which is the agent that actually manages things
     on the VMM nodes).  This allows the service side to be tested independently
@@ -234,19 +240,19 @@ Got notification with value: 13</pre>
     ready to do end to end testing.
 </p>
 
-<a name="acquire-install-xen"> </a>
-<h4>* Acquire and install Xen: _NAMELINK(acquire-install-xen)</h4>
+<a name="acquire-install-vmm"> </a>
+<h4>* Acquire and install VMM: _NAMELINK(acquire-install-xen)</h4>
 
 <p>
-    Your Linux distribution might have good support for Xen (Debian/Ubuntu,
-    RedHat, Gentoo, SUSE, etc.) in which case it is best to defer to
-    distribution specific notes about how to get Xen up and running (with
-    bridged networking).
+    Your Linux distribution might have good support for Xen or KVM
+    (Debian/Ubuntu, RedHat, Gentoo, SUSE, etc.) in which case it is best to
+    defer to distribution specific notes about how to get it up and running
+    (with libvirt and bridged networking).
 </p>
 <p>
-    If your Linux distribution doesn't support Xen well or you are having
+    If your Linux distribution doesn't support Xen or KVM well or you are having
     some inexplicable problem, you can always try installing from source
-    or binary, starting at <a href="http://xen.org/">http://xen.org/</a>
+    or binary, starting at <a href="http://libvirt.org/">libvirt.org</a> (and either <a href="http://xen.org/">xen.org</a> or <a href="http://www.linux-kvm.org">linux-kvm.org</a>).
 </p>
 
 <a name="test-xen"> </a>
@@ -268,16 +274,16 @@ Got notification with value: 13</pre>
 </p>
 
 <p>
-    You can download a tarball containg the image
-    <a href="_NIMBUS_WEBSITE/downloads/ttylinux-xen.tgz">here</a>.
+    You can download a tarball containing the image
+    <a href="_NIMBUS_WEBSITE/downloads/ttylinux-xen-libvirt.tar.gz">here</a>.
     This directory should contain the following files:
 </p>
 <ul>
     <li>
-        ttylinux-xen: The VM image
+        ttylinux-xen.img: The partition image
     </li>
     <li>
-        ttylinux-xen.conf: A sample Xen configuration for the VM image
+        libvirt-ttylinux.xml: A sample libvirt configuration
     </li>
 </ul>
 
@@ -289,28 +295,26 @@ Got notification with value: 13</pre>
 </p>
 
 <p>
-    Test the image using the provided Xen configuration file. First of all, make
+    Test the image using the provided configuration file. First of all, make
     sure you replace the values of the kernel and disk parameters inside the
     file with appropriate values. In particular, you should point kernel to
     your Xen guest kernel and disk to the location of the ttylinux-xen file.
-    The contents of the configuration file should look something like this:
 </p>
 
-<div class="screen"><pre>
-kernel = "/boot/vmlinuz-2.6-xen"
-memory = 64
-name = "ttylinux"
-disk = ['file:/root/ttylinux-xen,sda1,w']
-root = "/dev/sda1 ro"
-vif = ['']</pre>
-</div>
 <p>
     To test the image, run the following:
 </p>
 
+_EXAMPLE_ROOTCMD_BEGIN
+virsh -c "xen:///" create libvirt-ttylinux.xml
+_EXAMPLE_CMD_END
+
+<p>
+    Logging in via terminal using:
+</p>
 
 _EXAMPLE_ROOTCMD_BEGIN
-xm create ttylinux-xen.conf -c
+vncviewer localhost::5900
 _EXAMPLE_CMD_END
 
 <p>
@@ -329,17 +333,51 @@ _EXAMPLE_CMD_END
     Service will use DHCP to dynamically set up networking in it.
 </p>
 <p>
-    <b>Note again</b>: most Xen documentation you will find online about
+    <b>Note</b>: most Xen documentation you will find online about
     testing and troubleshooting the install
     is <i>valid</i> in this situation because you are not doing anything
     specifically related to Nimbus here.
+</p>
+<p>
+    <b>Note</b>: make sure you read the section below about <a href="#libvirt-connection">libvirt connection strings</a>.
+</p>
+
+<a name="test-kvm"> </a>
+<h4>* Test KVM: _NAMELINK(test-kvm)</h4>
+
+<p>
+    To test KVM we do not have a ready made image for you yet.  Use an image
+    you have already gotten to run using "virsh -c qemu:///system"
+</p>
+
+<p>
+    <b>Note</b>: make sure you read the section below about <a href="#libvirt-connection">libvirt connection strings</a>.
+</p>
+
+<a name="libvirt-connection"> </a>
+<h4>* Libvirt connection: _NAMELINK(libvirt-connection)</h4>
+
+<p>
+    The workspace-control tool will be operating from a privileged UNIX account
+    that is NOT root.  The best way to allow this account to interface with
+    libvirt is to use UNIX domain sockets and group permissions.  See
+    libvirtd.conf (usually located in the /etc directory) for details.
+</p>
+<p>
+    The connection strings for KVM and Xen
+    will usually be similar to "qemu:///system" and
+    "///var/run/xend/xend-socket" respectively for this method.
+</p>
+<p>
+    Ultimately do what is best for your deployment situation, the details can be
+    found on the <a href="http://libvirt.org/uri.html">libvirt site</a>.
+    Whatever connection URI you choose to use, it must be configured in
+    workspace-control's "libvirt.conf" file.
 </p>
 
 <!--- ********************************************************************** -->
 <!--- ********************************************************************** -->
 <!--- ********************************************************************** -->
-
-
 
 
 <a name="part-Ic"> </a>
@@ -484,11 +522,11 @@ _EXAMPLE_CMD_END
 </p>
 
 _EXAMPLE_CMD_BEGIN
-wget http://workspace.globus.org/downloads/nimbus-TP2.2.tar.gz
+wget http://workspace.globus.org/downloads/nimbus-2.3.tar.gz
 _EXAMPLE_CMD_END
 
 _EXAMPLE_CMD_BEGIN
-tar xzf nimbus-TP2.2.tar.gz
+tar xzf nimbus-2.3.tar.gz
 _EXAMPLE_CMD_END
 
 <a name="set-gl"> </a>
@@ -499,7 +537,7 @@ _EXAMPLE_CMD_END
 </p>
 
 _EXAMPLE_CMD_BEGIN
-cd nimbus-TP2.2
+cd nimbus-2.3
 _EXAMPLE_CMD_END
 
 _EXAMPLE_CMD_BEGIN
@@ -595,7 +633,7 @@ _EXAMPLE_CMD_END
 </p>
 
 <p>
-    As of Nimbus TP2.2, we provide an <b>auto-configuration</b> program
+    We provide an <b>auto-configuration</b> program
     to gently take you through these configurations.  During the process,
     several tests will be made to verify your set up.
 </p>
@@ -768,7 +806,7 @@ _NAMELINK(deploy-test)
 </p>
 
 _EXAMPLE_CMD_BEGIN
-wget http://workspace.globus.org/vm/TP2.2/admin/test-create.sh
+wget http://workspace.globus.org/vm/2.3/admin/test-create.sh
 _EXAMPLE_CMD_END
 
 <p>
@@ -855,105 +893,47 @@ _EXAMPLE_CMD_END
 
 <p>
     Download the "Control Agents" tar file from the download page, and untar it.
-    The <i>workspace-control</i> directory contains multiple files, but we will be
-    interested in only two of them: the <i>install.py</i> script which we will use
-    to install workspace-control, and the <i>worksp.conf.example</i> file, a
-    sample configuration file which we will need to edit to match the Xen
-    installation.
 </p>
 
 <p>
-    Quickstart assumes you are using "/opt/workspace" as the target directory
-    of the install.  You need to be root in order to run the installer.
+    This quickstart assumes you are using "/opt/nimbus" as the target directory
+    of the install.  You need root privileges to complete the installation.
 </p>
-
-<a name="choose-active-config"> </a>
-<h4>* Choose active config file: _NAMELINK(choose-active-config)</h4>
-
-<p>
-    First copy over the sample config file:
-</p>
-
-_EXAMPLE_ROOTCMD_BEGIN
-cd workspace-control
-_EXAMPLE_CMD_END
-
-_EXAMPLE_ROOTCMD_BEGIN
-mkdir /opt/workspace
-_EXAMPLE_CMD_END
-
-_EXAMPLE_ROOTCMD_BEGIN
-cp worksp.conf.example /opt/workspace/worksp.conf
-_EXAMPLE_CMD_END
 
 <a name="create-priv-user-and-group"> </a>
-<h4>* Create privileged user and unix group: _NAMELINK(create-priv-user-and-group)</h4>
+<h4>* Create privileged user: _NAMELINK(create-priv-user)</h4>
         
 <p>
-    Next, you need to choose (or create) a user and unix group that will be
+    First, you need to choose (or create) a user that will be
     used to run the backend script (for this guide, let's assume that your
-    user and group are both called nimbus). Since we do not allow the backend
+    user is called nimbus). Since we do not allow the backend
     script to be run as root, this user will rely on sudo to run Xen commands
-    and other privileged commands. The installer will check all related
-    permissions for you, create the necessary directories in /opt/workspace,
-    and then adjust their permissions to be correct. In particular,
-    the backend script (workspace-control) and other tools will be placed
-    in directory /opt/workspace/bin, which will be owned by root. For more
-    details on permissions, you can find a detailed note on this topic in
-    the configuration file itself.
+    and other privileged commands.
 </p>
 
-<a name="run-install-py"> </a>
-<h4>* Run install.py: _NAMELINK(run-install-py)</h4>
-
-
 <p>
-     Now we are ready to run the installer. The install.py program has three
-    modes of operation you can use to install the backend script: 
-</p>
-
-
-<div class="screen"><pre>
-    -n, --noninteractive  Don't ask the user anything (for automated install with
-                          a well-known conf file).
-
-    -o, --onlyverify      Just run the setup tests and print what would have
-                          happened in --noninteractive mode.  Good option to try
-                          first since it will do nothing to the filesystem.
-
-    -i, --install         Install the program, make needed directories, and set
-                          them with default permissions. Will block to ask you
-                          questions if necessary.
-</pre>
-</div>
-
-
-<p>
-    The --noninteractive mode is a good, fast choice if you want to use the
-    default /opt/workspace hierarcy that comes in the sample configuration
-    file. For example, you could run the installer like this: 
+    Next, as root you should change permissions like so:
 </p>
 
 _EXAMPLE_ROOTCMD_BEGIN
-python install.py -c /opt/workspace/worksp.conf -a nimbus -g nimbus -n
+cd /opt/nimbus
 _EXAMPLE_CMD_END
 
-<p>
-    The "-a" flag is the privileged account to enable.  The "-g" flag is the
-    priviliged group to enable.  The "-c" flag is the pre-existing config
-    file (at its <i>final location</i>).
-</p>
+_EXAMPLE_ROOTCMD_BEGIN
+chown -R root bin etc lib libexec src
+_EXAMPLE_CMD_END
 
-<p>
-    Just before exiting, the installer will print out the sudo policies you
-    need to configure (see the next section).
-</p>
+_EXAMPLE_ROOTCMD_BEGIN
+chown -R nimbus var
+_EXAMPLE_CMD_END
 
+_EXAMPLE_ROOTCMD_BEGIN
+find . -type d -exec chmod 775 {} \;
+_EXAMPLE_CMD_END
 
-<p>
-    To see more installation options, you can run install.py with the --help argument.
-</p>
-
+_EXAMPLE_ROOTCMD_BEGIN
+find . -type f -exec chmod 664 {} \;
+_EXAMPLE_CMD_END
 
 <!--- ********************************************************************** -->
 <!--- ********************************************************************** -->
@@ -968,24 +948,25 @@ _EXAMPLE_CMD_END
 <p>
     Using the visudo command, add the sudo policies printed out by the
     installer to the /etc/sudoers file. These policies should look
-    something like this: 
+    something like this.
 </p>
 
 <div class="screen"><pre>
-nimbus ALL=(root) NOPASSWD: /opt/workspace/bin/dhcp-config.sh
-nimbus ALL=(root) NOPASSWD: /opt/workspace/bin/mount-alter.sh
-nimbus ALL=(root) NOPASSWD: /usr/sbin/xm
-nimbus ALL=(root) NOPASSWD: /usr/sbin/xend
+nimbus ALL=(root) NOPASSWD: /opt/nimbus/libexec/workspace-control/mount-alter.sh
+nimbus ALL=(root) NOPASSWD: /opt/nimbus/libexec/workspace-control/dhcp-config.sh
+nimbus ALL=(root) NOPASSWD: /opt/nimbus/libexec/workspace-control/xen-ebtables-config.sh
 </pre>
 </div>
 
 <p>
     These policies reflect the user that will be running workspace control
     (nimbus) and
-    the correct full paths to the dhcp-config.sh and mount-alter.sh tools,
-    the xm program, and the xend daemon (needed only in the case where the
-    workspace-control program is permitted to reboot the daemon if it has
-    fallen). 
+    the correct full paths to the libexec tools.  See 
+    "/opt/nimbus/etc/workspace-control/sudo.conf" for more information
+</p>
+
+<p>
+    Also note that there is a specific ebtables script for xen and kvm.
 </p>
 
 <p>
@@ -1062,10 +1043,8 @@ nimbus ALL=(root) NOPASSWD: /usr/sbin/xend
 <h4>* Configure kernel(s): _NAMELINK(kernel-conf)</h4>
 
 <p>
-    Copy any kernels you wish to use to the <i>/opt/workspace/images</i>
-    directory, and list them in the <i>guestkernels</i> option under the
-    <i>[images]</i> 
-    section of the <i>/opt/workspace/worksp.conf</i> configuration file.
+    Copy any kernels you wish to use to the <i>/opt/nimbus/var/workspace-control/kernels</i>
+    directory, and list them in the <i>authz_kernels</i> option in the <i>kernels.conf</i> configuration file.
     By doing this, clients can choose from these kernels in the metadata,
     but they must already exist at the hypervisor node and must be in the
     guestkernels list.
@@ -1075,51 +1054,8 @@ nimbus ALL=(root) NOPASSWD: /usr/sbin/xend
 <h4>* Configure network(s): _NAMELINK(net-conf)</h4>
 
 <p>
-    In the workspace-control <i>/opt/workspace/worksp.conf</i> configuration
-    file, find the <i>association_</i> settings in the <i>[networking]</i>
-    section. If <i>xenbr0</i> is the 'public' interface, which is the usual
-    default,add this line:
-</p>
-
-<div class="screen"><pre>
-association_0: private; xenbr0; vif0.0 ; none; 192.168.0.0/24
-</pre></div>
-
-<p>
-    This specifies that there will be an network called 'private' with
-    bridge 'xenbr0' with MAC address prefixes of 'none' (which means allow
-    the service to decide) given to virtual NICs bound to this bridge and
-    with an authorized IP range of 192.168.0.0 to 192.168.0.255.  This should
-    match the service network settings.
-</p>
-
-<p>
-    The third field lists the interface of the NIC that is listening for
-    DHCP requests. This is the interface that DHCP requests originating
-    from VMs should be allowed to broadcast to. Directing the request to a
-    specific interface prevents DHCP requests from being broadcast to other
-    VMs as well as to the real network. You can doublecheck what vif is on
-    what bridge by running "brctl show". Normally you'd run the DHCP server
-    in dom0 and the defaults are like so:
-</p>
-
-<div class="screen"><pre>
-xenbr0 - vif0.0
-xenbr1 - vif0.1
-xenbr2 - vif0.2
-</pre></div>
-
-<p>
-    You are not required to run the DHCP server in dom0, the workspaces' 
-    DHCP request broadcast can be directed to any interface, but currently
-    to run it in another domain would require altering the dhcp-config.sh
-    callout to work remotely.
-</p>
-
-<p>
-    <b>Note:</b> - if you used the auto-configuration program
-    (see <a href="#part-IIb">above</a>), then you may have been given a sample
-    line for the "association_0" setting.
+    In the workspace-control <i>networks.conf</i> configuration
+    file, find notes about specifying the bridge name to use.
 </p>
 
 
@@ -1139,7 +1075,7 @@ xenbr2 - vif0.2
 
 <p>
     The script is expecting a file named "ttylinux-xen" in the
-    <i>/opt/workspace/images</i> directory because of the
+    <i>/opt/nimbus/var/workspace-control/images</i> directory because of the
     <i>file://ttylinux-xen</i> line in the xml definition file the
     script points to
     (<i>$GLOBUS_LOCATION/share/nimbus-clients/sample-workspace.xml</i>).

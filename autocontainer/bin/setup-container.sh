@@ -225,10 +225,17 @@ fi
 CA_PUBPEM="$NEW_CONTAINER_DIR/ca/$UUID.pem"
 CA_PUBPEM2="$UUID.0"
 CA_PRIVPEM="$NEW_CONTAINER_DIR/ca/private-key-$UUID.pem"
+CA_SIGNING_POLICY="$NEW_CONTAINER_DIR/ca/$UUID.signing_policy"
 
 chmod 400 $CA_PRIVPEM
 if [ $? -ne 0 ]; then
   echo "Problem setting permissions on $CA_PRIVPEM"
+  exit 1
+fi
+
+$JAVA_BIN $JAVA_OPTS $EXE_WRITE_SIGNING_POLICY $CA_PUBPEM $CA_SIGNING_POLICY
+if [ $? -ne 0 ]; then
+  echo "Problem creating new certificate authority signing policy, exiting."
   exit 1
 fi
 
