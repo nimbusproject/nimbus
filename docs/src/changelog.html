@@ -10,10 +10,8 @@ _NIMBUS_CENTER2_COLUMN
 
 <h2>Changelog</h2>
 
-<p>For cloud client changes, go
-<a href="http://github.com/nimbusproject/nimbus/raw/master/cloud-client/nimbus-cloud-client-src/CHANGES.txt">
-        here.
-    </a>
+<p>For cloud client changes, see
+<a href="http://github.com/nimbusproject/nimbus/raw/master/cloud-client/nimbus-cloud-client-src/CHANGES.txt">here.</a>
 </p>
 
 <a href="2.3"> </a>
@@ -37,7 +35,7 @@ _NIMBUS_CENTER2_COLUMN
             Refactored workspace-control and integrated with
             <a href="http://libvirt.org/">libvirt</a>. Includes initial
             support for the
-            <a href="http://kvm.qumranet.com/kvmwiki">KVM</a> hypervisor.
+            <a href="http://www.linux-kvm.org">KVM</a> hypervisor.
         </p>
     </li>
     <li>
@@ -51,7 +49,7 @@ _NIMBUS_CENTER2_COLUMN
 <ul>
     <li>
         <p>
-            Support for the EC2 Query API is early but functional. Tested with the Python
+            Support for the EC2 Query API.  Tested with the Python
             <a href="http://code.google.com/p/boto/">boto</a> client but should
             work with others. The service does not run in the standard Globus container,
             it spawns a separate Jetty process. While installed by default, it requires
@@ -70,10 +68,10 @@ _NIMBUS_CENTER2_COLUMN
     </li>
     <li>
         <p>
-            The new administrative web portal is based on Django and is a standalone
+            The new Nimbus web portal is based on Django and is a standalone
             component with (in this version) no ties to the other Nimbus services. This
             component's current sole functionality to facilitate securely
-            providing users with their X509 and query credentials. 
+            providing users with their X509 and query credentials.  It will be expanded in future releases to include more functionality for both users and administrators.
         </p>
     </li>
     <li>
@@ -89,7 +87,7 @@ _NIMBUS_CENTER2_COLUMN
             is disabled by default. At install, passwords are generated and stored
             in <i>var/derby.properties</i>. The Nimbus service still uses the
             embedded interface. See
-            <a href="https://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=6516">bug 6516</a>
+            <a href="https://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=6516">Bug 6516</a>
             for details.
         </p>
     </li>
@@ -102,14 +100,14 @@ _NIMBUS_CENTER2_COLUMN
             <li><a href="https://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=6633">
                  Bug 6633 -  backwards compatibility with context broker is broken  
             </a></li>
+            <li><a href="https://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=6735">
+                 Bug 6735 -  blankspace regression
+            </a></li>
             <li><a href="https://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=6856">
                  Bug 6856 -  user data is broken
             </a></li>
             <li><a href="https://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=6869">
                 Bug 6869 - blankspace creation regression
-            </a></li>
-            <li><a href="https://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=6735">
-                 Bug 6735 -  blankspace regression
             </a></li>
         </ul>
     </li>
@@ -148,9 +146,13 @@ _NIMBUS_CENTER2_COLUMN
 <ul>
     <li>
         <p>
-            Current cloud client as of this release is cloud-client-014. This service
+            The current cloud client as of this release is cloud-client-014. This service
             release should also work with cloud clients 011 through 013.
         </p>
+        
+        <p>
+            For cloud client changes, see
+            <a href="http://github.com/nimbusproject/nimbus/raw/master/cloud-client/nimbus-cloud-client-src/CHANGES.txt">here.</a>
     </li>
 </ul>
 
