@@ -126,6 +126,8 @@ def _newuser(newuserform, request_files):
         profile.initial_login_key = token
         profile.cert = cert
         profile.certkey = key
+        profile.query_id = cd[NewUserForm.KEYS.query_id]
+        profile.query_secret = cd[NewUserForm.KEYS.query_secret]
         
         now = datetime.now()
         profile.login_key_expires = now + relativedelta(hours=+expire_hours)

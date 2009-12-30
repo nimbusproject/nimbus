@@ -7,6 +7,8 @@ class NewUserForm(forms.Form):
     email = forms.EmailField()
     cert = forms.FileField(required=False)
     key = forms.FileField(required=False)
+    query_id = forms.CharField(required=False)
+    query_secret = forms.CharField(required=False)
     
     class KEYS:
         """don't screw up typing strings in multiple places"""
@@ -16,6 +18,8 @@ class NewUserForm(forms.Form):
         email = "email"
         cert = "cert"
         key = "key"
+        query_id = "query_id"
+        query_secret = "query_secret"
 
     def clean_common(self, name):
         """Adds strip() to string validation.  
@@ -35,3 +39,9 @@ class NewUserForm(forms.Form):
         
     def clean_lastname(self):
         return self.clean_common(self.KEYS.lastname)
+
+    def clean_query_id(self):
+        return self.clean_common(self.KEYS.query_id)
+
+    def clean_query_secret(self):
+        return self.clean_common(self.KEYS.query_secret)
