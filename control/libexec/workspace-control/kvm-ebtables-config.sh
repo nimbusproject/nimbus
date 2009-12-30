@@ -41,8 +41,12 @@
 #       someone compromises the privileged account, it cannot use the sudo
 #       privilige of running this program to do more than desired.
 
+PATH=/bin:/usr/bin:/sbin
+export PATH
+
+EBTABLES=ebtables
 #EBTABLES=/sbin/ebtables
-EBTABLES=/usr/sbin/ebtables
+#EBTABLES=/usr/sbin/ebtables
 
 
 #############
