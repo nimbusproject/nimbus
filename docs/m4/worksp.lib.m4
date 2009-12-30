@@ -2,7 +2,7 @@ m4_changequote(`[[[', `'')m4_dnl
 m4_dnl
 m4_define([[[_NIMBUS_WEBSITE',http://www.nimbusproject.org)m4_dnl
 m4_define([[[_SCIENCECLOUDS_WEBSITE',http://www.scienceclouds.org)m4_dnl
-m4_define([[[_WORKSP_CURRENT_VM_VERSION', TP2.2)m4_dnl
+m4_define([[[_WORKSP_CURRENT_VM_VERSION', 2.3RC1)m4_dnl
 m4_define([[[_WORKSP_CURRENT_VM_VERSION_LONG', Technology Preview 2.0)m4_dnl
 m4_define([[[_BREADCRUMB',<a href="/index.html">Home</a> ->)m4_dnl
 m4_define([[[_BREADCRUMB_VM',<a href="/index.html">Home</a>)m4_dnl
