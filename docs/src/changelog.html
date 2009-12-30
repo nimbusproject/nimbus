@@ -11,10 +11,148 @@ _NIMBUS_CENTER2_COLUMN
 <h2>Changelog</h2>
 
 <p>For cloud client changes, go
-<a href="http://viewcvs.globus.org/viewcvs.cgi/workspace/vm/cloud-client/nimbus-cloud-client-src/CHANGES.txt?view=markup">
+<a href="http://github.com/nimbusproject/nimbus/raw/master/cloud-client/nimbus-cloud-client-src/CHANGES.txt">
         here.
     </a>
 </p>
+
+<a href="2.3"> </a>
+<h3>2.3</h3>
+
+<i>Summary</i>
+<ul>
+    <li>
+        <p>
+            Support for the EC2 Query API.
+        </p>
+    </li>
+    <li>
+        <p>
+            Introduction of administrative web portal interface. Supports
+            securely distributing user credentials.
+        </p>
+    </li>
+    <li>
+        <p>
+            Refactored workspace-control and integrated with
+            <a href="http://libvirt.org/">libvirt</a>. Includes initial
+            support for the
+            <a href="http://kvm.qumranet.com/kvmwiki">KVM</a> hypervisor.
+        </p>
+    </li>
+    <li>
+        <p>
+            Assorted bug fixes and minor enhancements.
+        </p>
+    </li>
+</ul>
+
+<i>Services</i>
+<ul>
+    <li>
+        <p>
+            Support for the EC2 Query API is early but functional. Tested with the Python
+            <a href="http://code.google.com/p/boto/">boto</a> client but should
+            work with others. The service does not run in the standard Globus container,
+            it spawns a separate Jetty process. While installed by default, it requires
+            configuration before it can be used.
+        </p>
+    </li>
+    <li>
+        <p>
+            EC2 SOAP API support has been upgraded to version 2009-08-15. This means
+            ec2-api-tools clients must be upgraded to
+            <a href="http://s3.amazonaws.com/ec2-downloads/ec2-api-tools-1.3-42584.zip">
+            this version</a>. Early work has been done to support multiple versions
+            concurrently, but this functionality is not yet available.
+
+        </p>
+    </li>
+    <li>
+        <p>
+            The new administrative web portal is based on Django and is a standalone
+            component with (in this version) no ties to the other Nimbus services. This
+            component's current sole functionality to facilitate securely
+            providing users with their X509 and query credentials. 
+        </p>
+    </li>
+    <li>
+        <p>
+            The Context Broker has been refactored and merged into the main Nimbus
+            source tree. It is installed by default but is not enabled because it
+            needs configuration.
+        </p>
+    </li>
+    <li>
+        <p>
+            The Nimbus Derby configuration now supports network access, though it
+            is disabled by default. At install, passwords are generated and stored
+            in <i>var/derby.properties</i>. The Nimbus service still uses the
+            embedded interface. See
+            <a href="https://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=6516">bug 6516</a>
+            for details.
+        </p>
+    </li>
+    <li>
+        <p>Assorted bugfixes:</p>
+        <ul>
+            <li><a href="https://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=6631">
+                 Bug 6631 -  inconsistency with resource reservations
+            </a></li>
+            <li><a href="https://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=6633">
+                 Bug 6633 -  backwards compatibility with context broker is broken  
+            </a></li>
+            <li><a href="https://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=6856">
+                 Bug 6856 -  user data is broken
+            </a></li>
+            <li><a href="https://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=6869">
+                Bug 6869 - blankspace creation regression
+            </a></li>
+            <li><a href="https://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=6735">
+                 Bug 6735 -  blankspace regression
+            </a></li>
+        </ul>
+    </li>
+</ul>
+
+<i>Control Agents</i>
+<ul>
+    <li>
+        <p>
+            The workspace-control component has been significantly refactored.
+            It has been moved from <i>backend/</i> to <i>control/</i> in the
+            source tree.
+            Direct command-line invocation of Xen operations has been replaced with
+            calls to the excellent <a href="http://libvirt.org/">libvirt</a>
+            library. This opens the door to easier integration with several other
+            hypervisors, starting with KVM.
+        </p>
+    </li>
+    <li>
+        <p>
+            Initial <a href="http://kvm.qumranet.com/kvmwiki">KVM</a> support is
+            provided. 
+        </p>
+    </li>
+    <li>
+        <p>Assorted bugfixes:</p>
+        <ul>
+            <li><a href="https://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=6868">
+                  Bug 6868 -  in non-cloud configurations, .gz support is broken
+            </a></li>
+        </ul>
+    </li>
+</ul>
+
+<i>Cloud client</i>
+<ul>
+    <li>
+        <p>
+            Current cloud client as of this release is cloud-client-014. This service
+            release should also work with cloud clients 011 through 013.
+        </p>
+    </li>
+</ul>
 
 <a name="TP2.2"> </a>
 <h3>TP2.2</h3>
