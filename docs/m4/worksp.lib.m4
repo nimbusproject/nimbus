@@ -2,7 +2,7 @@ m4_changequote(`[[[', `'')m4_dnl
 m4_dnl
 m4_define([[[_NIMBUS_WEBSITE',http://www.nimbusproject.org)m4_dnl
 m4_define([[[_SCIENCECLOUDS_WEBSITE',http://www.scienceclouds.org)m4_dnl
-m4_define([[[_WORKSP_CURRENT_VM_VERSION', 2.3RC1)m4_dnl
+m4_define([[[_WORKSP_CURRENT_VM_VERSION', 2.3)m4_dnl
 m4_define([[[_BREADCRUMB',<a href="/index.html">Home</a> ->)m4_dnl
 m4_define([[[_BREADCRUMB_VM',<a href="/index.html">Home</a>)m4_dnl
 m4_define([[[_BREADCRUMB_DA',<a href="/index.html">Home</a> -> <a href="/da/index.html">Dynamic Accounts</a>)m4_dnl
@@ -26,6 +26,7 @@ m4_define([[[_BREADCRUMB_DA_TP5',<a href="/index.html">Home</a> -> <a href="/da/
 m4_dnl
 m4_define([[[_NIMBUS_TP2_1_DEPRECATED',<br><h1><font color="red"><b>DEPRECATED</b>: The most recent version is <a href="/vm/TP2.2/index.html">Nimbus TP2.2</a></font></h1><br>)m4_dnl
 m4_define([[[_NIMBUS_TP2_2_DEPRECATED',<!-- TP2.2 is the current version -->)m4_dnl
+m4_define([[[_NIMBUS_TP2_3_DEPRECATED',<!-- 2.3 is the current version -->)m4_dnl
 m4_dnl
 m4_define([[[_WORKSP_DA_DEPRECATED',
 <div style="border:2px solid #000000;">
