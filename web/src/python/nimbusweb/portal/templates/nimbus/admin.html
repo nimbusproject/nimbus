@@ -69,6 +69,22 @@
                     </span>
                     {{ newuserform.key.errors }}
                 </div>
+
+                <div class="frow">
+                    <label for="id_query_id" class="flabel">Query ID</label>
+                    <span class="finput">
+                    {{ newuserform.query_id }} (not required)
+                    </span>
+                    {{ newuserform.query_id.errors }}
+                </div>
+                
+                <div class="frow">
+                    <label for="id_query_secret" class="flabel">Query Secret</label>
+                    <span class="finput">
+                    {{ newuserform.query_secret }} (not required)
+                    </span>
+                    {{ newuserform.query_secret.errors }}
+                </div>
                 
                 <div class="frow">
                     <input type="hidden" name="op" value="newuser">

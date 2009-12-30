@@ -98,16 +98,23 @@ def profile(request):
     
     cert_present = False
     key_present = False
+    query_present = False
+
     up = user.get_profile()
     if up.cert:
         cert_present = True
     if up.certkey:
         key_present = True
+    if up.query_id or up.query_secret:
+        query_present = True
     
     templateparams = {'message': message, 
                       'user': user,
                       'cert_present': cert_present,
                       'key_present': key_present,
+                      'query_present': query_present,
+                      'query_id': up.query_id,
+                      'query_secret': up.query_secret
                      }
     return render_to_response('nimbus/profile.html', templateparams)
 

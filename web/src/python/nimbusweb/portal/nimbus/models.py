@@ -23,6 +23,8 @@ class UserProfile(models.Model):
     certkey = models.TextField(null=True)
     certkey_ip = models.IPAddressField(null=True)
     certkey_time = models.DateTimeField(auto_now=False, null=True)
+    query_id = models.TextField(null=True)
+    query_secret = models.TextField(null=True)
     
 # register userprofile with the django auth system
 def user_post_save(sender, instance, **kwargs):

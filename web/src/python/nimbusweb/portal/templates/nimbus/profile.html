@@ -29,7 +29,7 @@
     
     <h3>Your credentials</h3>
     
-    {% if cert_present or key_present %}
+    {% if cert_present or key_present or query_present %}
     <div class="profile">
         {% if cert_present %}
         <div class="lrow">
@@ -51,6 +51,16 @@
             <b>Warning</b>: The key file will not work without running "chmod 0600" on it after you download.
         </p>
         {% endif %}
+
+        {% if query_present %}
+        <div class="lrow">
+            <span class="flabel">Query ID:</span>
+            <span class="finput">{{ query_id }}</span>
+            <span class="flabel">Secret:</span>
+            <span class="finput">{{ query_secret }}</span>
+        </div>
+        {% endif %}
+
     </div>
     <br>
     {% else %}
