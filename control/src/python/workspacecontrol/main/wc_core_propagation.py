@@ -3,7 +3,7 @@ import wc_daemonize
 
 def propagate(vm_name, common, async, images):
     if not images.lengthy_obtain():
-        c.log.info("Propagation asked for but it is not required.")
+        c.log.warn("Propagation asked for but it is not required.")
         return
         
     args = [vm_name, common, async, images]
@@ -46,9 +46,9 @@ def propagate_under_daemonization(vm_name, common, async, images):
         return None
         
     try:
-        c.log.info("propagation was successful")
+        common.log.info("propagation was successful")
         async.notify(vm_name, "propagate", 0, None)
-        c.log.info("notification of propagation success was successful")
+        common.log.info("notification of propagation success was successful")
         return local_file_set
     except:
         exception_type = sys.exc_type
@@ -60,17 +60,19 @@ def propagate_under_daemonization(vm_name, common, async, images):
         common.log.error(errstr)
         return None
     
-def unpropagate(vm_name, common, async, images):
+def unpropagate(vm_name, common, async, images, editing):
     if not images.lengthy_shutdown():
-        c.log.info("Unpropagation asked for but it is not required.")
+        c.log.warn("Unpropagation asked for but it is not required.")
         return
     
-    args = [vm_name, common, async, images]
+    args = [vm_name, common, async, images, editing]
     wc_daemonize.daemonize(common, unpropagate_under_daemonization, args)
     
-def unpropagate_under_daemonization(vm_name, common, async, images):
+def unpropagate_under_daemonization(vm_name, common, async, images, editing):
     try:
-        images.process_after_shutdown()
+        local_file_set = images.obtain()
+        editing.process_after_shutdown(local_file_set)
+        images.process_after_shutdown(local_file_set)
     except Exception,e:
         common.log.error("Problem unpropagating.")
         common.log.exception(e)
@@ -97,9 +99,9 @@ def unpropagate_under_daemonization(vm_name, common, async, images):
         return False
         
     try:
-        c.log.info("unpropagate was successful")
+        common.log.info("unpropagate was successful")
         async.notify(vm_name, "unpropagate", 0, None)
-        c.log.info("notification of unpropagation success was successful")
+        common.log.info("notification of unpropagation success was successful")
         return True
     except:
         exception_type = sys.exc_type

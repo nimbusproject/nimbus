@@ -51,7 +51,7 @@ class DefaultNetworkSecurity:
         if not os.access(self.ebtablesconfig, os.X_OK):
             raise InvalidConfig("ebtales config tool is not executable: '%s'" % self.ebtablesconfig)
 
-        self.c.log.info("ebtables configuration tool configured: %s" % self.ebtablesconfig)
+        self.c.log.debug("ebtables configuration tool configured: %s" % self.ebtablesconfig)
         
         self.sudo_path = self.p.get_conf_or_none("sudo", "sudo")
         if not self.sudo_path:
@@ -66,7 +66,7 @@ class DefaultNetworkSecurity:
         if not os.access(self.sudo_path, os.X_OK):
             raise InvalidConfig("sudo is configured with an absolute path, but it does not seem executable: '%s'" % self.sudo_path)
 
-        self.c.log.info("sudo configured for network security: %s %s" % (self.sudo_path, self.ebtablesconfig))
+        self.c.log.debug("sudo configured for network security: %s %s" % (self.sudo_path, self.ebtablesconfig))
   
     def setup(self, nic_set):
         """Do any necessary work to set up the network security mechanisms,

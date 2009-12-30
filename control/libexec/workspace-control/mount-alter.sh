@@ -30,10 +30,6 @@
 # This script must be owned and writable only by root and placed in a non-
 # tamperable directory.
 
-
-# TODO: groud/ctx generalize later
-# SYNTAX 1 = <program> one <imagefile> <mntpoint> <datafile> <target>
-
 # See the "adjust as necessary" section below.
 
 
@@ -101,15 +97,15 @@ DRYRUN="false"  # or "true"
 
 # Only requests to mount files UNDER this directory are honored.
 # You must use absolute path and include trailing slash.
-IMAGE_DIR=/opt/workspace/secureimages/
+IMAGE_DIR=/opt/nimbus/var/workspace-control/secureimages/
 
 # Only requests to mount files TO this directory are honored.
 # You must use absolute path and include trailing slash.
-MOUNTPOINT_DIR=/opt/workspace/mnt/
+MOUNTPOINT_DIR=/opt/nimbus/var/workspace-control/mnt/
 
 # Only requests to copy over files UNDER this directory are honored.
 # You must use absolute path and include trailing slash.
-FILE_DIR=/opt/workspace/tmp/
+FILE_DIR=/opt/nimbus/var/workspace-control/tmp/
 
 
 #############
@@ -134,6 +130,7 @@ mountpoint=$3
 echo "  - mountpoint: $mountpoint"
 datafile=$4
 datatarget=$5
+offset=$6
 
 if [ "$subcommand" = "config" ]; then
   subcommand="CONFIG"
@@ -145,6 +142,8 @@ elif [ "$subcommand" = "cert" ]; then
   exit 1
 elif [ "$subcommand" = "one" ]; then
   subcommand="ONE"
+elif [ "$subcommand" = "hdone" ]; then
+  subcommand="HDONE"
 else
   echo "invalid subcommand"
   exit 1
@@ -152,7 +151,7 @@ fi
 
 if [ "$subcommand" = "ONE" ]; then
   if [ $# -ne 5 ]; then
-    echo "one subcommand requires 5 and only 5 arguments: config <imagefile> <mntpoint> <datafile> <datatarget>"
+    echo "one subcommand requires 5 and only 5 arguments: one <imagefile> <mntpoint> <datafile> <datatarget>"
     exit 1
   fi
   echo "  - datafile: $datafile"
@@ -160,6 +159,30 @@ if [ "$subcommand" = "ONE" ]; then
 
   sourcefiles="$datafile"
   targetfiles="$datatarget"
+  
+elif [ "$subcommand" = "HDONE" ]; then
+  if [ $# -ne 6 ]; then
+    echo "hdone subcommand requires 6 and only 6 arguments: hdone <imagefile> <mntpoint> <datafile> <datatarget> <offset>"
+    exit 1
+  fi
+  echo "  - datafile: $datafile"
+  echo "  - datatarget: $datatarget"
+  echo "  - offset: $offset"
+  
+  offsetint=$(($offset * 1))
+  if [ $? -ne 0 ]; then
+    echo "not an integer: $offset"
+    exit 2
+  fi
+  
+  if [ $offsetint -le 0 ]; then
+    echo "expecting offset to be greater than zero: $offsetint"
+    exit 2
+  fi
+
+  sourcefiles="$datafile"
+  targetfiles="$datatarget"
+  
 else
   echo "??"
   exit 64
@@ -283,7 +306,14 @@ echo ""
 echo "Altering image (dryrun = $DRYRUN):"
 echo ""
 
-cmd="$MOUNT -o loop,noexec,nosuid,nodev,noatime,sync $imagefile $mountpoint"
+if [ "$subcommand" = "ONE" ]; then
+  cmd="$MOUNT -o loop,noexec,nosuid,nodev,noatime,sync $imagefile $mountpoint"
+elif [ "$subcommand" = "HDONE" ]; then
+  cmd="$MOUNT -o loop,noexec,nosuid,nodev,noatime,sync,offset=$offsetint $imagefile $mountpoint"
+else
+  echo "??"
+  exit 65
+fi
 
 echo "command = $cmd"
 if [ "$DRYRUN" != "true" ]; then
@@ -296,13 +326,16 @@ if [ "$DRYRUN" != "true" ]; then
   fi
 fi
 
+problem="false"
+
 if [ "$subcommand" = "ONE" ]; then
   cmd="$CP $datafile $mountpoint/$datatarget"
+elif [ "$subcommand" = "HDONE" ]; then
+  cmd="$CP $datafile $mountpoint/$datatarget"
 else
-  cmd="echo subcommand?"
+  echo "??"
+  problem="true"
 fi
-
-problem="false"
 
 echo "command = $cmd"
 if [ "$DRYRUN" != "true" ]; then

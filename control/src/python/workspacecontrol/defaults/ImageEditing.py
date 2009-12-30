@@ -1,5 +1,6 @@
 from commands import getstatusoutput
 import os
+import re
 import shutil
 import stat
 import sys
@@ -33,6 +34,7 @@ class DefaultImageEditing:
         self.c = common
         self.sudo_path = None
         self.mounttool_path = None
+        self.fdisk_path = None
         self.mountdir = None
         self.tmpdir = None
         
@@ -40,6 +42,10 @@ class DefaultImageEditing:
         self.mounttool_path = self.p.get_conf_or_none("mount", "mounttool")
         if not self.mounttool_path:
             self.c.log.warn("no mount tool configuration, mount+edit functionality is disabled")
+            
+        self.fdisk_path = self.p.get_conf_or_none("mount", "fdisk")
+        if not self.fdisk_path:
+            self.c.log.warn("no fdisk configuration, mount+edit functionality for HD images is disabled")
             
         # if functionality is disabled but arg exists, should fail program
         self._validate_args_if_exist()
@@ -116,7 +122,7 @@ class DefaultImageEditing:
         if not os.access(self.sudo_path, os.X_OK):
             raise InvalidConfig("sudo is configured with an absolute path, but it does not seem executable: '%s'" % self.sudo_path)
 
-        self.c.log.info("sudo configured for image editing: %s %s" % (self.sudo_path, self.mounttool_path))
+        self.c.log.debug("sudo configured for image editing: %s %s" % (self.sudo_path, self.mounttool_path))
 
     def _validate_mountdir(self):
         mountdir = self.p.get_conf_or_none("mount", "mountdir")
@@ -227,15 +233,21 @@ class DefaultImageEditing:
                 raise InvalidInput("The %s argument is required." % wc_args.NAME.long_syntax)
             
             rootdisk = None
+            hdimage = False
             for lf in local_file_set.flist():
                 if lf.rootdisk:
                     rootdisk = lf.path
+                    if not lf.editable:
+                        raise InvalidInput("mount+edit request but the file is not marked as editable: %s" % lf.path)
+                    # simplistic check for hard disk image vs. partition...
+                    if lf.mountpoint and not lf.mountpoint[-1].isdigit():
+                        hdimage = True
                     break
             
             if not rootdisk:
                 raise InvalidInput("there is no root disk to perform the mount+edit tasks on")
             
-            self._doMountCopyTasks(rootdisk, vm_name, mnttask_list)
+            self._doMountCopyTasks(rootdisk, vm_name, mnttask_list, hdimage)
         
     # --------------------------------------------------------------------------
     # process_after_shutdown(), from ImageEditing interface
@@ -252,10 +264,20 @@ class DefaultImageEditing:
         """
         
         for lf in local_file_set.flist():
+            
+            # The following edit is applicable for either case, if unprop target
+            # is gz or even if not.
+            # This is because the local "muxing" of the file was to bring the
+            # source from 'x.gz' to 'x', so on the way back to the repo, the
+            # transfer or gzip commands will need to start with the non-gz form.
+            if lf.path[-3:] == ".gz":
+                lf.path = lf.path[:-3]
+            
             try:
                 lf._unpropagation_target
             except AttributeError:
                 raise ProgrammingError("this image editing implementation is tied to the default procurement implementation with respect to the process_after_shutdown method. If you are running into this error, either implement the '_unpropagation_target' attribute as well, or come up with new arguments to the program for expressing compression needs in a saner way than looking for '.gz' in paths (which is tenuous)")
+            
             if lf._unpropagation_target[-3:] == ".gz":
                 lf.path = self._gzip_file_inplace(lf.path)
                 self.c.log.debug("after gzip, file is now %s" % lf.path)
@@ -338,7 +360,7 @@ class DefaultImageEditing:
     # MOUNT/COPY IMPL
     # --------------------------------------------------------------------------
 
-    def _doMountCopyTasks(self, imagepath, vm_name, mnttask_list):
+    def _doMountCopyTasks(self, imagepath, vm_name, mnttask_list, hdimage):
         """execute mount+copy tasks. failures here are fatal"""
 
         mntpath = self.mountdir + "/" + vm_name
@@ -382,15 +404,19 @@ class DefaultImageEditing:
         try:
             for task in mnttask_list:
                 src = os.path.join(self.tmpdir, task[0])
-                self._doOneMountCopyTask(imagepath, src, task[1], mntpath)
+                self._doOneMountCopyTask(imagepath, src, task[1], mntpath, hdimage)
         finally:
             # would only fail if someone changed permissions while
             # the tasks ran
             self._deldirs(mntpath)
 
-    def _doOneMountCopyTask(self, imagepath, src, dst, mntpath):
+    def _doOneMountCopyTask(self, imagepath, src, dst, mntpath, hdimage):
 
-        cmd = "%s %s one %s %s %s %s" % (self.sudo_path, self.mounttool_path, imagepath, mntpath, src, dst)
+        if hdimage:
+            offsetint = self._guess_offset(imagepath)
+            cmd = "%s %s hdone %s %s %s %s %d" % (self.sudo_path, self.mounttool_path, imagepath, mntpath, src, dst, offsetint)
+        else:
+            cmd = "%s %s one %s %s %s %s" % (self.sudo_path, self.mounttool_path, imagepath, mntpath, src, dst)
 
         if self.c.dryrun:
             self.c.log.debug("command = '%s'" % cmd)
@@ -424,3 +450,45 @@ class DefaultImageEditing:
             self.c.log.error(errstr)
             raise UnexpectedError(errstr)
                 
+    def _guess_offset(self, imagepath):
+        
+        if not self.fdisk_path:
+            raise InvalidConfig("image editing is being requested but that functionality has been disabled for HD images due to the lack of an fdisk program configuration")
+        
+        cmd = "%s -lu %s" % (self.fdisk_path, imagepath)
+        
+        ret,output = getstatusoutput(cmd)
+        if ret:
+            errmsg = "problem running command: '%s' ::: return code" % cmd
+            errmsg += ": %d ::: output:\n%s" % (ret, output)
+            self.c.log.error(errmsg)
+            raise IncompatibleEnvironment(errmsg)
+        
+        part_pattern = re.compile(r'\n%s.*' % imagepath)
+        lines = []
+        for m in part_pattern.finditer(output):
+            lines.append(m.group())
+        
+        if len(lines) == 0:
+            raise IncompatibleEnvironment("fdisk stdout is not parseable: '%s'" % output)
+            
+        firstparts = lines[0].split()
+        if len(firstparts) < 5:
+            raise IncompatibleEnvironment("fdisk stdout is not parseable: '%s'" % output)
+            
+        if firstparts[1] == "*":
+            sector_count = firstparts[2]
+        else:
+            sector_count = firstparts[1]
+            
+        try:
+            sector_count = int(sector_count)
+        except:
+            raise IncompatibleEnvironment("fdisk stdout is not parseable, sector_count is not an integer ('%s'), full output: '%s'" % (sector_count, output))
+            
+        offset = 512 * sector_count
+        
+        self.c.log.debug("offset guess is %d for HD image %s" % (offset, imagepath))
+        
+        return offset
+        

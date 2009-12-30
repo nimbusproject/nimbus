@@ -187,6 +187,9 @@ class Interface:
         # <mac address='aa:00:00:00:00:11'/>
         self.mac = None
         
+        # <target dev='wrksp-40-0'/>
+        self.target = None
+        
         # <script path='/etc/xen/scripts/vif-bridge'/>
         self.script_path = None
         
@@ -196,6 +199,9 @@ class Interface:
         
         x.write(L(3, "<source bridge='%s' />" % self.source))
         x.write(L(3, "<mac address='%s' />" % self.mac))
+        
+        if self.target:
+            x.write(L(3, "<target dev='%s' />" % self.target))
         
         if self.script_path:
             x.write(L(3, "<script path='%s' />" % self.script_path))

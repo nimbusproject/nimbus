@@ -270,6 +270,7 @@ until my_lockfile ; do
     fi
 done
 
+SUCCESS="y"
 
 if [ "$ADDREM" = "rem" ]; then
   echo "CMD: $DHCPD_STOP"

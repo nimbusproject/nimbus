@@ -24,14 +24,14 @@ class propadapter(PropagationAdapter):
             if not os.access(self.scp, os.X_OK):
                 raise InvalidConfig("SCP is configured with an absolute path, but it does not seem executable: '%s'" % self.scp)
 
-        self.c.log.info("SCP configured: %s" % self.scp)
+        self.c.log.debug("SCP configured: %s" % self.scp)
         
 
         self.scpuser = self.p.get_conf_or_none("propagation", "scp_user")
         if self.scpuser:
-            self.c.log.info("SCP default user: %s" % self.scpuser)
+            self.c.log.debug("SCP default user: %s" % self.scpuser)
         else:
-            self.c.log.info("no SCP default user")
+            self.c.log.debug("no SCP default user")
             
         override_conf = self.p.get_conf_or_none("propagation", "scp_user_override")
         

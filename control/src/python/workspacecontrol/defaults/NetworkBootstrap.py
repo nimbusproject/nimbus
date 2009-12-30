@@ -64,7 +64,7 @@ class DefaultNetworkBootstrap:
         if not os.access(self.dhcpconfig, os.X_OK):
             raise InvalidConfig("dhcp config tool is not executable: '%s'" % self.dhcpconfig)
 
-        self.c.log.info("DHCP configuration tool configured: %s" % self.dhcpconfig)
+        self.c.log.debug("DHCP configuration tool configured: %s" % self.dhcpconfig)
         
         self.sudo_path = self.p.get_conf_or_none("sudo", "sudo")
         if not self.sudo_path:
@@ -79,7 +79,7 @@ class DefaultNetworkBootstrap:
         if not os.access(self.sudo_path, os.X_OK):
             raise InvalidConfig("sudo is configured with an absolute path, but it does not seem executable: '%s'" % self.sudo_path)
 
-        self.c.log.info("sudo configured for DHCP: %s %s" % (self.sudo_path, self.dhcpconfig))
+        self.c.log.debug("sudo configured for DHCP: %s %s" % (self.sudo_path, self.dhcpconfig))
     
     def setup(self, nic_set):
         """Do any necessary work to set up the network bootstrapping process,

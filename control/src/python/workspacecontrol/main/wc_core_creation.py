@@ -26,7 +26,7 @@ def _create_local(vm_name, p, c, async, editing, images, kernels, localnet, netb
     
     _common(local_file_set, vm_name, p, c, editing, kernels, localnet, netbootstrap, netlease, netsecurity, persistence, platform)
     
-def _common(local_file_set, vm_name, c, editing, kernels, localnet, netbootstrap, netlease, netsecurity, persistence, platform):
+def _common(local_file_set, vm_name, p, c, editing, kernels, localnet, netbootstrap, netlease, netsecurity, persistence, platform):
     """To understand _common(), it might make sense to go look at
     "_common_withnetsecurity()" first and work backwards
     """
@@ -86,6 +86,9 @@ def _common(local_file_set, vm_name, c, editing, kernels, localnet, netbootstrap
                 dbstring += str(nic.ip)
             c.log.debug(dbstring)
         
+        localnet.choose_vifnames(nic_set, vm_name)
+        persistence.store_nic_set(vm_name, nic_set, ok_to_replace=True)
+        
         _common_withnics(nic_set, kernel, local_file_set, c, localnet, netbootstrap, netsecurity, platform)
         
     except Exception,e:
@@ -127,7 +130,7 @@ def _common_withnetbootstrap(nic_set, kernel, local_file_set, c, netsecurity, pl
     
     netsecurity.setup(nic_set)
     try:
-        _common_withnetsecurity(nic_set, kernel, local_file_set, platform)
+        platform.create(local_file_set, nic_set, kernel)
     except Exception,e:
         c.log.exception(e)
         try:
@@ -137,13 +140,6 @@ def _common_withnetbootstrap(nic_set, kernel, local_file_set, c, netsecurity, pl
         except Exception,e2:
             c.log.exception(e2)
         raise e
-    
-def _common_withnetsecurity(nic_set, kernel, local_file_set, platform):
-    
-    if c.trace:
-        c.log.debug("_common_withnetsecurity()")
-    
-    platform.create(local_file_set, nic_set, kernel)
 
 def _discover_nic_and_network_names(p, c):
     

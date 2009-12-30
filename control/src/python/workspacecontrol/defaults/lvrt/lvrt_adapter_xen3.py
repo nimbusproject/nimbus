@@ -7,8 +7,12 @@ class vmmadapter(PlatformAdapter):
     
     def __init__(self, params, common):
         PlatformAdapter.__init__(self, params, common)
-        testuri = ""
-        self.connection_uri = testuri
+        other_uri = self.p.get_conf_or_none("libvirt_connections", "xen3")
+        if other_uri:
+            self.connection_uri = other_uri
+        else:
+            self.connection_uri = "xen:///"
+        self.c.log.debug("Xen libvirt URI: '%s'" % self.connection_uri)
 
     def validate(self):
         self.c.log.debug("validating libvirt xen3 adapter")
@@ -61,6 +65,17 @@ class intakeadapter(PlatformInputAdapter):
         if kernel.initrd_path:
             dom.os.initrd = kernel.initrd_path
             
+        rootmountpoint = None
+        for lf in local_file_set.flist():
+            if lf.rootdisk:
+                rootmountpoint = lf.mountpoint
+        if not rootmountpoint:
+            raise UnexpectedError("cannot find root disk's mountpoint")
+            
+        rootstring = "ro root=/dev/%s" % rootmountpoint
         if kernel.kernel_args:
-            dom.os.cmdline = kernel.kernel_args
+            dom.os.cmdline = "%s %s" % (rootstring, kernel.kernel_args)
+        else:
+            dom.os.cmdline = "%s" % (rootstring)
+            
 
