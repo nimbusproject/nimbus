@@ -126,25 +126,60 @@
 
         <copy todir="${nimbus.controls.dest}">
             <fileset dir="${nimbus.controls.builddir}">
-                <include name="*.*"/>
+                <include name="*"/>
             </fileset>
         </copy>
-        <copy todir="${nimbus.controls.dest}/workspace">
-            <fileset dir="${nimbus.controls.builddir}/workspace"/>
+        <copy todir="${nimbus.controls.dest}/bin">
+            <fileset dir="${nimbus.controls.builddir}/bin"/>
         </copy>
-        <copy todir="${nimbus.controls.dest}/aux">
-            <fileset dir="${nimbus.controls.builddir}/aux"/>
+        <copy todir="${nimbus.controls.dest}/etc">
+            <fileset dir="${nimbus.controls.builddir}/etc"/>
         </copy>
+        <copy todir="${nimbus.controls.dest}/lib">
+            <fileset dir="${nimbus.controls.builddir}/lib"/>
+        </copy>
+        <copy todir="${nimbus.controls.dest}/libexec">
+            <fileset dir="${nimbus.controls.builddir}/libexec"/>
+        </copy>
+        <copy todir="${nimbus.controls.dest}/sbin">
+            <fileset dir="${nimbus.controls.builddir}/sbin"/>
+        </copy>
+        <copy todir="${nimbus.controls.dest}/share">
+            <fileset dir="${nimbus.controls.builddir}/share"/>
+        </copy>
+        <copy todir="${nimbus.controls.dest}/src">
+            <fileset dir="${nimbus.controls.builddir}/src"/>
+        </copy>
+        <copy todir="${nimbus.controls.dest}/var">
+            <fileset dir="${nimbus.controls.builddir}/var"/>
+        </copy>
+        
+        <chmod perm="755" type="file">
+          <fileset dir="${nimbus.controls.dest}" includes="bin/" />
+          <fileset dir="${nimbus.controls.dest}" includes="sbin/" />
+          <fileset dir="${nimbus.controls.dest}/libexec"
+                   includes="workspace-control/" />
+        </chmod>
+        
         <copy todir="${nimbus.controls2.dest}/">
             <fileset file="${nimbus.controls2.builddir}/workspacepilot.py"/>
         </copy>
 
+    <!--
         <tar destfile="${distbuild.dir}/${nimbus.controls}.tar"
              longfile="gnu">
             <tarfileset dir="${distbuild.dir}">
                 <include name="${nimbus.controls}/**"/>
             </tarfileset>
-        </tar>
+        </tar> -->
+        
+        <exec executable="tar">
+            <arg value="cvf"/>
+            <arg value="${distbuild.dir}/${nimbus.controls}.tar"/>
+            <arg value="-C"/>
+            <arg value="${distbuild.dir}"/>
+            <arg value="${nimbus.controls}/"/>
+        </exec>
 
         <gzip src="${distbuild.dir}/${nimbus.controls}.tar"
               destfile="${dist.dir}/${nimbus.controls}.${tgz.suffix}"/>
