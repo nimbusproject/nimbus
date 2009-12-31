@@ -25,7 +25,7 @@ public class Version {
     public static final int MAJOR = 2;
 
     /** The minor release number */
-    public static final int MINOR = 2;
+    public static final int MINOR = 3;
 
     /** The patchlevel of the current release */
     public static final int PATCH = 0;
