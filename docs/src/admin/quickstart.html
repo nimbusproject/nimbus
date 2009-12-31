@@ -59,7 +59,7 @@ _NIMBUS_2_3_DEPRECATED
         </p>
         <ul style="list-style: disc">
             <li>I.A. <a href="#part-Ia">Service container</a></li>
-            <li>I.B. <a href="#part-Ib">Xen</a></li>
+            <li>I.B. <a href="#part-Ib">Xen/KVM and libvirt</a></li>
             <li>I.C. <a href="#part-Ic">Misc. libraries for the VMM nodes</a></li>
         </ul>
     </li>
@@ -241,10 +241,10 @@ Got notification with value: 13</pre>
 </p>
 
 <a name="acquire-install-vmm"> </a>
-<h4>* Acquire and install VMM: _NAMELINK(acquire-install-xen)</h4>
+<h4>* Acquire and install VMM software: _NAMELINK(acquire-install-xen)</h4>
 
 <p>
-    Your Linux distribution might have good support for Xen or KVM
+    Your Linux distribution probably has good support for libvirt, Xen or KVM
     (Debian/Ubuntu, RedHat, Gentoo, SUSE, etc.) in which case it is best to
     defer to distribution specific notes about how to get it up and running
     (with libvirt and bridged networking).
@@ -253,6 +253,27 @@ Got notification with value: 13</pre>
     If your Linux distribution doesn't support Xen or KVM well or you are having
     some inexplicable problem, you can always try installing from source
     or binary, starting at <a href="http://libvirt.org/">libvirt.org</a> (and either <a href="http://xen.org/">xen.org</a> or <a href="http://www.linux-kvm.org">linux-kvm.org</a>).
+</p>
+
+<p>
+    <b>Note:</b> an important step is to make sure that your libvirt 
+    installation supports the libvirt "python bindings."  This is how the
+    Nimbus software actually interacts with libvirt.  In some cases, the
+    bindings (which come with a normal libvirt installation) are not installed.
+    On some systems you need to trigger this by installing the "python-dev"
+    package first.  In order to check you have the right install, Nimbus
+    includes a script in the workspace-control download.
+</p>
+
+_EXAMPLE_ROOTCMD_BEGIN
+./sbin/test-dependencies.sh
+_EXAMPLE_CMD_END
+
+<p>
+    If this script reports you have a problem, look into your distribution's
+    libvirt support and don't hesitate to contact the
+    <a href="_NIMBUS_WEBSITE/contact/">workspace-user</a> mailing list with
+    problems.
 </p>
 
 <a name="test-xen"> </a>
@@ -806,7 +827,7 @@ _NAMELINK(deploy-test)
 </p>
 
 _EXAMPLE_CMD_BEGIN
-wget http://www.nimbusproject.org/docs/?doc=2.2/admin/test-create.sh
+wget http://www.nimbusproject.org/docs/?doc=2.3/admin/test-create.sh
 _EXAMPLE_CMD_END
 
 <p>
