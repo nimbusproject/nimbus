@@ -21,7 +21,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 /**
- * <p><img src="http://workspace.globus.org/img/sh.png" /> Use to instantiate
+ * <p><img src="http://www.nimbusproject.org/images/sh.png" /> Use to instantiate
  * an application context (via Spring IoC).</p>
  *
  * <p>This is the only concrete class in the exposed API (besides exceptions),

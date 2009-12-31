@@ -28,7 +28,7 @@ import org.nimbustools.api.repr.vm.VM;
 import java.util.Calendar;
 
 /**
- * <p><img src="http://workspace.globus.org/img/sh.png" alt="[Start here] " /> 
+ * <p><img src="http://www.nimbusproject.org/images/sh.png" alt="[Start here] " /> 
  * The main RM interface.</p>
  *
  * <p>Better documentation/diagrams coming, the best way to learn right now is to
