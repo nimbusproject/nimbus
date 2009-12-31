@@ -989,6 +989,22 @@ nimbus ALL=(root) NOPASSWD: /opt/nimbus/libexec/workspace-control/xen-ebtables-c
 </p>
 
 <p>
+    The Xen ebtables script is configured by default.
+    If you are using KVM, you must configure the "kvm-ebtables-config.sh"
+    script in two places.  First in the sudo rules so that it can be invoked
+    (see workspace-control's "sudo.conf" file for details). Second, in
+    workspace-control's "networks.conf" file.
+</p>
+
+<p>
+    <b>Note:</b> currently the KVM ebtables script can only support spoofing
+    protection when there is one KVM virtual machine running at a time on
+    each VMM node (this is the most common deployment configuration for sites 
+    supporting science).  Nimbus' Xen support allows many guest VMs to be
+    running while also ensuring there is no MAC and IP address spoofing.
+</p>
+
+<p>
     You may need to comment out any "requiretty" setting in the sudoers policy:
 </p>
 
