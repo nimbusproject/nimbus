@@ -98,7 +98,7 @@ m4_define([[[_NIMBUS_HEADER',
 <link rel="stylesheet" type="text/css" href="/css/nimbus.css">
 <link rel="alternate"
       type="application/rss+xml" 
-      title="RSS 2.0" href="http://workspace.globus.org/rss.xml" />
+      title="RSS 2.0" href="http://www.nimbusproject.org/news/rss/" />
 
 ')m4_dnl
 m4_define([[[_NIMBUS_HEADER2',
@@ -440,7 +440,7 @@ m4_define([[[_NIMBUS_INTERFACES_WARNING',
     <i>Note</i>: this is only one set of remote interfaces. It is compatible
     with WSRF technology. Nimbus supports multiple remote protocols (even
     simultaneously) like the implementation of the
-    <a href="http://workspace.globus.org/vm/faq.html#ec2-frontend">EC2 protocol</a>.
+    <a href="http://www.nimbusproject.org/docs/?doc=current/faq.html#ec2-frontend">EC2 protocol</a>.
 </p>
 <br />
 <br />

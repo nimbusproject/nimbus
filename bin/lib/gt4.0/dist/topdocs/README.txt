@@ -1,6 +1,6 @@
 Nimbus
 
-See the documentation at http://workspace.globus.org
+See the documentation at http://www.nimbusproject.org
 
 Under the "bin" directory:
 

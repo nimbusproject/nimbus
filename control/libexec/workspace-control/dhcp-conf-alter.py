@@ -14,7 +14,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-# For more information see: http://workspace.globus.org
+# For more information see: http://www.nimbusproject.org
 
 import ConfigParser
 import fcntl
@@ -500,7 +500,7 @@ def unlock(opts):
 # ----------------------- ARGPARSE SETUP ----------------------- #
 
 def setup():
-    ver="DHCP configuration tool: %prog\nhttp://workspace.globus.org/vm/"
+    ver="DHCP configuration tool: %prog\nhttp://www.nimbusproject.org"
     parser = optparse.OptionParser(version=ver)
 
     parser.add_option("-q", "--quiet",

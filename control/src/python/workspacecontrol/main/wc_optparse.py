@@ -41,7 +41,7 @@ def _add_boolean_option(group, arg):
 def parsersetup():
     """Return configured command-line parser."""
 
-    ver="Workspace Control %s - http://workspace.globus.org" % WC_VERSION
+    ver="Workspace Control %s - http://www.nimbusproject.org" % WC_VERSION
     usage="see help (-h)."
     parser = optparse.OptionParser(version=ver, usage=usage)
 

@@ -65,7 +65,7 @@ class ARGS:
 def parsersetup():
     """Return configured command-line parser."""
 
-    ver="Local build and serve docs for: http://workspace.globus.org"
+    ver="Local build and serve docs for: http://www.nimbusproject.org"
     usage="see help (-h)."
     parser = optparse.OptionParser(version=ver, usage=usage)
 

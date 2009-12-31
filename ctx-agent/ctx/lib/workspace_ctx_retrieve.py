@@ -2,7 +2,7 @@
 
 # Copyright 1999-2009 University of Chicago
 
-# Project home: http://workspace.globus.org
+# Project home: http://www.nimbusproject.org
 
 # ############################################################
 # Globals
@@ -29,7 +29,7 @@ permissions and limitations under the License.
 
 """
 
-# Project home: http://workspace.globus.org
+# Project home: http://www.nimbusproject.org
 
 # In the future, this value may come from bootstrap or the information
 # may even be notification based.
@@ -3064,7 +3064,7 @@ class ARGS:
 def parsersetup():
     """Return configured command-line parser."""
 
-    ver="Workspace VM context agent %s, http://workspace.globus.org" % VERSION
+    ver="Workspace VM context agent %s, http://www.nimbusproject.org" % VERSION
     usage="see help (-h)."
     parser = optparse.OptionParser(version=ver,usage=usage)
 
