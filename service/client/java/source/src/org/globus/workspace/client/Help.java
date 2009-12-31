@@ -32,8 +32,8 @@ public class Help {
     // -------------------------------------------------------------------------
 
     public static final String FIRST_LINE =
-            "Workspace Service CLI, TP " + Version.getVersion() +
-                    " - http://workspace.globus.org\n";
+            "Workspace Service CLI, " + Version.getVersion() +
+                    " - http://www.nimbusproject.org\n";
 
 
     // -------------------------------------------------------------------------

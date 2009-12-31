@@ -2,7 +2,7 @@
 
 # Copyright 1999-2008 University of Chicago
 
-# Project home: http://workspace.globus.org
+# Project home: http://www.nimbusproject.org
 
 # A code folding editor is recommended, folds hand-marked with {{{ and }}}
 # Alternatively, see INDEX below for section line numbers.
@@ -4352,7 +4352,7 @@ It is allowed to run external, non-invasive testing commands."
 def parsersetup():
     """Return configured command-line parser."""
 
-    ver="Workspace Pilot %s - http://workspace.globus.org" % VERSION
+    ver="Workspace Pilot %s - http://www.nimbusproject.org" % VERSION
     usage="see help (-h)."
     parser = optparse.OptionParser(version=ver, usage=usage)
 

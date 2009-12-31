@@ -1,3 +1,3 @@
 #!/bin/sh
-epydoc --show-imports -u "http://workspace.globus.org" -n "Workspace Pilot" workspacepilot.py
+epydoc --show-imports -u "http://www.nimbusproject.org" -n "Workspace Pilot" workspacepilot.py
 
