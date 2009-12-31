@@ -47,12 +47,10 @@
 
         <ant dir="${nimbus.service.api.builddir}" target="clean" />
         <ant dir="${nimbus.service.main.builddir}" target="clean" />
-        <ant dir="${nimbus.gateway.main.builddir}" target="clean" />
         <ant dir="${nimbus.metadata-server.basedir}" target="clean" />
 
         <ant dir="${nimbus.messaging.gt4_0.client.builddir}" target="clean" />
         <ant dir="${nimbus.messaging.gt4_0.gar.builddir}" target="clean" />
-        <ant dir="${nimbus.messaging.gt4_0.gatewaygar.builddir}" target="clean" />
         <ant dir="${nimbus.autocommon.gt4_0.builddir}" target="clean" />
         <ant dir="${nimbus.wizard.gt4_0.builddir}" target="clean" />
         <ant dir="${nimbus.messaging.gt4_0.common.builddir}" target="clean" />
@@ -84,7 +82,6 @@
         <ant dir="${nimbus.messaging.gt4_0-elastic.stubs.builddir}" target="undeploy" />
         <ant dir="${nimbus.messaging.gt4_0.client.builddir}" target="undeploy" />
         <ant dir="${nimbus.messaging.gt4_0.gar.builddir}" target="undeploy" />
-        <ant dir="${nimbus.messaging.gt4_0.gatewaygar.builddir}" target="undeploy" />
         <ant dir="${nimbus.wizard.gt4_0.builddir}" target="undeploy" />
         <ant dir="${nimbus.ctx-broker.gt4_0.builddir}" target="undeploy" />
 
@@ -93,10 +90,6 @@
 
     <target name="delete-GT4.0-service-persistence" depends="checkgl">
         <ant dir="${nimbus.messaging.gt4_0.gar.builddir}" target="deletePersistence" />
-    </target>
-
-    <target name="delete-GT4.0-gateway-persistence" depends="checkgl">
-        <ant dir="${nimbus.messaging.gt4_0.gatewaygar.builddir}" target="deletePersistence" />
     </target>
 
 
@@ -201,54 +194,6 @@
         <ant dir="${nimbus.messaging.gt4_0.stubs.builddir}" target="deploy" />
         <ant dir="${nimbus.messaging.gt4_0.client.builddir}" target="deploy" />
 
-    </target>
-
-
-    <!-- *******************************************************************
-         BUILD GATEWAY
-         ******************************************************************* -->
-
-    <target name="_build-gateway"
-            if="build.also">
-        <antcall target="build-gateway" />
-    </target>
-
-    <target name="build-gateway"
-            depends="checkgl">
-
-        <echo>Building gateway:
-        </echo>
-
-        <ant dir="${nimbus.service.api.builddir}" target="dist" />
-        <ant dir="${nimbus.gateway.main.builddir}" target="dist" />
-
-        <ant dir="${nimbus.messaging.gt4_0.schemas.builddir}" target="dist" />
-        <ant dir="${nimbus.messaging.gt4_0-elastic.schemas.builddir}" target="dist" />
-
-        <!-- if the gt4.common "ctx" subpackage was factored out, this wouldn't be the case -->
-        <echo message="( These WSRF stubs are only a compile-time dependency for the gateway: )" />
-        <echo message=" " />
-        <ant dir="${nimbus.messaging.gt4_0.stubs.builddir}" target="dist" />
-
-        <ant dir="${nimbus.messaging.gt4_0-elastic.stubs.builddir}" target="dist" />
-        <ant dir="${nimbus.messaging.gt4_0.common.builddir}" target="dist" />
-        <ant dir="${nimbus.messaging.gt4_0-elastic.service.builddir}" target="dist" />
-        <ant dir="${nimbus.messaging.gt4_0.gatewaygar.builddir}" target="dist" />
-    </target>
-
-    <!-- *******************************************************************
-         INSTALL GATEWAY
-         ******************************************************************* -->
-
-    <target name="deploy-gateway"
-            depends="checkgl, _build-gateway">
-
-        <echo>Default gateway installation to GT4.0 GLOBUS_LOCATION:
-        </echo>
-
-        <ant dir="${nimbus.messaging.gt4_0-elastic.schemas.builddir}" target="deploy" />
-        <ant dir="${nimbus.messaging.gt4_0-elastic.stubs.builddir}" target="deploy" />
-        <ant dir="${nimbus.messaging.gt4_0.gatewaygar.builddir}" target="deploy" />
     </target>
 
     <!-- *******************************************************************
