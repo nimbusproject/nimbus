@@ -36,16 +36,6 @@ if [ "X$JAVA_HOME" = "X" ] ; then
   _RUNJAVA="$JAVA_HOME"/bin/java
 fi
 
-COMMONJAR="$GLOBUS_LOCATION/lib/nimbus-messaging-common-gt4.0.jar"
-if [ -f $COMMONJAR ]; then
-  $_RUNJAVA -classpath $COMMONJAR org.nimbustools.messaging.gt4_0.common.OKJVM
-  if [ $? -eq 2 ]; then
-    echo -e "\n\n" >&2
-    echo -e "WARNING: You seem to be using libgcj which has known issues." >&2
-    echo -e "         See https://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=6871\n\n" >&2
-  fi
-fi
-
 ####### Generated globus client sh script follows.  It is slightly modified (see "NOTE").
 
 DELIM="#"
