@@ -72,8 +72,14 @@
         <copy todir="${distbuild.dir}/${nimbus.main}/autoconfiguration">
             <fileset dir="${nimbus.basedir}/autoconfiguration"/>
         </copy>
+        <copy todir="${distbuild.dir}/${nimbus.main}/ctx-broker">
+            <fileset dir="${nimbus.basedir}/ctx-broker"/>
+        </copy>
         <copy todir="${distbuild.dir}/${nimbus.main}/messaging">
             <fileset dir="${nimbus.basedir}/messaging"/>
+        </copy>
+        <copy todir="${distbuild.dir}/${nimbus.main}/metadata">
+            <fileset dir="${nimbus.basedir}/metadata"/>
         </copy>
         <copy todir="${distbuild.dir}/${nimbus.main}/plugins">
             <fileset dir="${nimbus.basedir}/plugins"/>
@@ -91,7 +97,9 @@
             <exclude name="${nimbus.main}/bin/*sh" />
             <include name="${nimbus.main}/autocommon/**"/>
             <include name="${nimbus.main}/autoconfiguration/**"/>
+            <include name="${nimbus.main}/ctx-broker/**"/>
             <include name="${nimbus.main}/messaging/**"/>
+            <include name="${nimbus.main}/metadata/**"/>
             <include name="${nimbus.main}/plugins/**"/>
             <include name="${nimbus.main}/service/**"/>
             <include name="${nimbus.main}/service-api/**"/>
