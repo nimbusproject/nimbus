@@ -3,7 +3,11 @@ Workspace Cloud Client
 
 For more information, see: 
 
-   http://workspace.globus.org/clouds/
+   http://www.nimbusproject.org/docs/?doc=current/clouds/cloudquickstart.html
+   
+And:
+
+   http://www.scienceclouds.org/
 
 It is recommended that you follow the quickstarts at the web site, it usually
 contains a better walkthrough.

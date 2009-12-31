@@ -81,7 +81,8 @@ workspace-cloud-client-009
 [*] Added cluster and contextualization support.  New "--cluster" option,
     see samples directory for sample cluster definition files.
 
-    See quickstart: http://workspace.globus.org/clouds/clusters.html
+    See quickstart:
+    http://www.nimbusproject.org/docs/?doc=current/clouds/clusters.html
 
 [*] Added "--usage" (-u) option to give a short syntax reminder for people
     already familiar with the cloud client.  The "--help" option is
@@ -94,7 +95,8 @@ workspace-cloud-client-009
 
 [*] Added support for image compression/decompression
 
-    See: http://workspace.globus.org/clouds/appendix.html#compression
+    See:
+    http://www.nimbusproject.org/docs/?doc=current/clouds/appendix.html#compression
 
 [*] Cleaned up "--list" output.  Main enhancement is distinguishing the
     read-only template images from your own read/write images.
