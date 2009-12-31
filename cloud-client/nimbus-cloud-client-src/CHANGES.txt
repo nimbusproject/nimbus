@@ -2,12 +2,16 @@ nimbus-cloud-client-014
 -----------------------
 
 [*] Added name of image to output of --status
+    http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=6810
 
 [*] Added warning when libgcj is detected
+    http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=6871
 
 [*] Fixed bug with handling of spaces in cluster names
+    http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=6728
 
-[*] Fixed bug with argument parsing
+[*] Fixed misleading argument parsing
+    http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=6873
 
 
 nimbus-cloud-client-013
