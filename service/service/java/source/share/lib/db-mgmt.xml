@@ -199,6 +199,8 @@
 
         <fail message="must specify 'pwGen.path.prop' (path to password generation command)"
               unless="pwGen.path.prop"/>
+              
+        <antcall target="make.persistence.dir" />
 
         <exec executable="${pwGen.path.prop}" outputproperty="derby.user.pass"/>
         <exec executable="${pwGen.path.prop}" outputproperty="derby.guest.pass"/>
