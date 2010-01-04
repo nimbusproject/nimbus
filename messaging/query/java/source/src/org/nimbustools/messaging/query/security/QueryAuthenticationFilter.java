@@ -148,6 +148,9 @@ public class QueryAuthenticationFilter extends GenericFilterBean {
         final String checkSig = createSignature(getStringToSign(request),
                 secret, signatureMethod);
 
+        // Note that this comparison will succeed if both inputs are null.
+        // (But checkSig can't be null in this implementation)
+
         if (!QueryUtils.safeStringEquals(signature, checkSig)) {
             logger.warn("Signature check failed on request for accessID: "+accessId);
             throw new QueryException(QueryError.SignatureDoesNotMatch,
