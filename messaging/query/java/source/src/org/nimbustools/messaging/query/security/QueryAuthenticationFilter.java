@@ -24,6 +24,7 @@ import org.springframework.web.filter.GenericFilterBean;
 import org.springframework.dao.DataAccessException;
 import org.nimbustools.messaging.query.QueryException;
 import org.nimbustools.messaging.query.QueryError;
+import org.nimbustools.messaging.query.QueryUtils;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -147,7 +148,7 @@ public class QueryAuthenticationFilter extends GenericFilterBean {
         final String checkSig = createSignature(getStringToSign(request),
                 secret, signatureMethod);
 
-        if (!checkSig.equals(signature)) {
+        if (!QueryUtils.safeStringEquals(signature, checkSig)) {
             logger.warn("Signature check failed on request for accessID: "+accessId);
             throw new QueryException(QueryError.SignatureDoesNotMatch,
                     "Signature check failed!");

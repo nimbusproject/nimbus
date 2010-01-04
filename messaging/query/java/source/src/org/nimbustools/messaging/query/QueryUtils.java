@@ -75,4 +75,22 @@ public class QueryUtils {
         }
 
     }
+
+    public static boolean safeStringEquals(String s1, String s2) {
+
+        // string comparison that is safe from timing attacks
+        // when strings are of equal length, compares all chars
+
+        if (s1 == null || s2 == null) {
+            return s1 == s2;
+        }
+        if (s1.length() != s2.length()) {
+            return false;
+        }
+        byte result = 0;
+        for (int i=0; i< s1.length(); i++) {
+            result |= s1.charAt(i) ^ s2.charAt(i);
+        }
+        return result == 0;
+    }
 }
