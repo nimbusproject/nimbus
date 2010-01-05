@@ -20,7 +20,7 @@
  *       
  * For comments or questions please contact the above e-mail address 
  * OR    
- * Ian Gable - igable@uvic.ca
+ * HEPNet Technical Manager - Ian Gable - igable@uvic.ca
  *
  * """
 
@@ -45,7 +45,11 @@ NAGIOS_RET_UNKNOWN = 3
 
 
 def pluginExit(messageString, logString, returnCode):
-
+""" This method should be the only exit point for all the plug-ins. This ensures that 
+    Nagios requirements are meant and performance data is properly formatted to work
+    with the rest of the code. Do NOT just call sys.exit in the code (if you want your
+    plug-in to function with the rest of the code!
+"""
     # ALRIGHT, so the log string is seperated by  my "delimiter" ';'
     # Thus, I'm going to assume the following log style format:
 
@@ -62,13 +66,14 @@ def pluginExit(messageString, logString, returnCode):
     # I need to check if ANY 'ERROR' log entries exist. If that's the case
     # then a different XML string should be formatted and sent out
 
+    # There doesn't seem to be any error handling I can do here... Ugly
     localIP = (socket.gethostbyaddr( socket.gethostname() ))[2][0]
     
     resourceString = "<RES LOC=\""+ localIP+"\" TYPE=\""+messageString+"\">"
     outputString.write(resourceString)
     lines = logString.splitlines()
     for line in lines:
-        # If we encounter an 'error' entry in the logger, skip over it
+        # If we encounter an 'error' entry in the logger, make sure to alert the NAGIOS admin
         if (line.find("ERROR") != -1):
             returnCode = NAGIOS_RET_WARNING
             continue
@@ -86,7 +91,10 @@ def pluginExit(messageString, logString, returnCode):
 
 
 class PluginObject:    
-
+""" The most 'senior' of the base classes. This class sets up appropriate logging mechanisms to 
+    conform with Nagios' API and plug-in coding rules. The log format is also setup, and cannot
+    be changed without breaking almost all the code. Don't change the log format!
+"""
     def __init__(self, callingClass):
         self.logString = StringIO()
         self.logger = logging.getLogger(callingClass)
@@ -104,7 +112,10 @@ class PluginObject:
         self.logger.addHandler(errorOutputHndlr)
 
 class Virtualized(PluginObject):
-
+""" This class is designed to be a "Abstract Base Class" in C++ terms, meaning it is intended to
+    be derived from to complete functionality. All the libvirt lookups take place here to centralize
+    logic
+"""
         # Lookup the available "domains" from libvirt, and other usefull stuff
         def __init__(self):
             PluginObject.__init__(self,self.__class__.__name__)
@@ -131,7 +142,10 @@ class Virtualized(PluginObject):
 # I thought I'd have to define the __call__ function, but it seems like the 
 # ctr is doing what I need it to for the 'Callback' functionality
 class VMMemory(Virtualized):
-
+""" This class will look up the amount of memory/RAM currently allocated to each VM on the 
+    local node. This is done through libvirt calls in the 'Virtualized' base class
+    Used memory is reported back in kB.
+"""
     #This ctr's interface is as such to match the 'callback' interface of the optionParser
     def __init__(self): #,option, opt_str, value, parser):
         Virtualized.__init__(self)
@@ -144,7 +158,9 @@ class VMMemory(Virtualized):
         pluginExit(self.resourceName, self.logString.getvalue(), NAGIOS_RET_OK)
 
 class VMVirt(Virtualized):
-
+""" This class will determine what virtualization technology is being used on each Virtual Machine
+    running on the local node. This is done through a libvirt call in the 'Virtualized' base class
+"""
     def __init__(self):
         Virtualized.__init__(self)
         self.resourceName = 'VM-Virtualization'
@@ -155,7 +171,9 @@ class VMVirt(Virtualized):
         pluginExit(self.resourceName, self.logString.getvalue(), NAGIOS_RET_OK)
 
 class VMCpuCores(Virtualized):
-
+""" This class will determine the number of CPU cores running on the local node. This is done through a libvirt
+    call done in the 'Virtualized' base class
+"""
     def __init__(self):
         Virtualized.__init__(self)
         self.resourceName = 'VM-CPUCores'
@@ -167,7 +185,10 @@ class VMCpuCores(Virtualized):
         pluginExit(self.resourceName, self.logString.getvalue(), NAGIOS_RET_OK)        
 
 class VMCpuFreq(Virtualized):
-
+""" This class determines the CPU frequency of the local nodes processor. This was tested with a uniprocessor
+    machine only, so a multi-CPU-socket machine with different core speeds may report differently. I believe that
+    only the latest, most cutting edge CPUs from Intel (Nehalem) have this capability....
+""" 
     
     def __init__(self):
         Virtualized.__init__(self)
@@ -183,8 +204,12 @@ ARCH_MAP = {    "i686"  : "x86",
                         "i386"  : "x86",
                         "x86_64":"x86_64"}
            # This entry seems rebarbative but it provides a uniform interface
-
 class VMCpuArch(Virtualized):
+""" The class determines what the underlying CPU architecture is, and uses this information to determine
+    whether the machine is running in 32bit or 64bit mode. This code was only tested on 32bit Sempron
+    processors, so I'm relying on the fact that a 64bit machine running a 32bit OS will report either
+    'i386' or 'i686' through libvirt.
+"""
 
     def __init__(self):
         Virtualized.__init__(self)
@@ -196,7 +221,9 @@ class VMCpuArch(Virtualized):
         pluginExit(self.resourceName, self.logString.getvalue(), NAGIOS_RET_OK)
 
 class VMOs(Virtualized):
-
+""" This class looks up what OS is running on each virtual machine deployed on the local node. An example
+    is 'linux'. This lookup is done through a libvirt call in the 'Virtualized' base class
+"""
     def __init__(self):
         Virtualized.__init__(self)
         self.resourceName = "VM-OS"
@@ -208,7 +235,10 @@ class VMOs(Virtualized):
         pluginExit(self.resourceName, self.logString.getvalue(), NAGIOS_RET_OK)
         
 class VMFreeMem(Virtualized):
-
+""" This class determines how much free memory remains on the local node with all current virtual
+    machines booted. This lookup is again done through a libvirt call in the 'Virtualized' base
+    class. ALso, memory is reported by in kB.
+"""
     def __init__(self):
         Virtualized.__init__(self)
         self.resourceName = "VM-FreeMemory"
@@ -229,7 +259,10 @@ class VMFreeMem(Virtualized):
 
 
 class PluginCmdLineOpts(PluginObject):
-
+""" This class acts as the "central dispatcher" for determining what resource will be reported back
+    to Nagios. Command line parameters act as the switches and determine which of the above classes
+    gets instantianted.
+"""
     def __init__(self):
         PluginObject.__init__(self,self.__class__.__name__)
         # Parse command-line options.
@@ -256,7 +289,6 @@ class PluginCmdLineOpts(PluginObject):
     # (since that would make only a single resource to monitor)
     # Instead, this one script will be executed multiple time with different commandline options
     # to facilitate the monitoring of the different resources independant of one another
-
     def validate(self):
 
         # Parse the command line arguments and store them in 'options'
