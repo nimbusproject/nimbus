@@ -20,10 +20,9 @@
  *       
  * For comments or questions please contact the above e-mail address 
  * OR    
- * Ian Gable - igable@uvic.ca
+ * HEPNet Technical Manager - Ian Gable - igable@uvic.ca
  *
  * """
-
 
 __VERSION__ = '0.01'
 
@@ -37,7 +36,9 @@ import subprocess
 from subprocess import *
 
 class Loggable:
+""" A simple base class to encapsulate useful logging features - Meant to be derived from
 
+"""
         def __init__(self, callingClass):
                 self.logString = StringIO()
 
@@ -59,7 +60,6 @@ class ResourceHandler(ContentHandler):
     def __init__(self): 
                 self.isResource = False
                 self.isEntry = False
-    #    self.initializeList = True
                 self.collectedResources = {}
                 self.repeatedResource = False
     def startElement(self,name,attr):
@@ -77,10 +77,6 @@ class ResourceHandler(ContentHandler):
                     self.isEntry = True
                     self.thirdLevelKey = attr.getValue('ID')
                     identifiers = self.thirdLevelKey.split(":")
-               #         if(self.initializeList == True):
-#            self.collectedResources[self.topLevelKey][self.secondLevelKey][self.thirdLevelKey] = []    
-    #            if(identifiers > 1):
-    #                self.initializeList = False
             
                     if(self.thirdLevelKey in self.collectedResources[self.topLevelKey][self.secondLevelKey].keys()):
                         self.repeatedResource = True
@@ -89,12 +85,10 @@ class ResourceHandler(ContentHandler):
 
     def characters (self, ch):
         if (self.isEntry == True and self.repeatedResource == False):
-            #self.collectedResources[self.topLevelKey][self.secondLevelKey][self.thirdLevelKey].append( ch)
             self.collectedResources[self.topLevelKey][self.secondLevelKey][self.thirdLevelKey] = ch
     def endElement(self, name):
                 if name == 'RES':
                     self.isResource = False
-    #        self.initializeList = True
                 elif name == 'ENTRY':
                     self.isEntry = False
                     self.repeatedResource = False
@@ -111,13 +105,14 @@ class MDSResourceException(Exception):
         return repr(self.value)
         
 
-# Get the XML string from the MDS registry first
-
 SERVER_ADDRESS = "https://gridsn.phys.uvic.ca:8443/wsrf/services/DefaultIndexService"
 XML_ROOT_TAG = "ROOT"
 
 class MDSResourceQuery(Loggable):
-
+""" This class handles all the details of querying the MDS to retrieve XML then process the text
+    into a useful data structure for further use. This includes post querying transformation of 
+    the Network Pools information to provide the "Available Slots" information
+"""
     def __init__(self):
         Loggable.__init__(self,self.__class__.__name__)
 
@@ -140,12 +135,10 @@ class MDSResourceQuery(Loggable):
             if retrievedError != "":
                 self.logger.error("Failed to execute external command :"+retrievedError)
                 raise MDSResourceException("Failed to execute external command :"+retrievedError)
-                #sys.exit(1)
 
         #These exception handlers aren't being called... Stupid python
         except Exception, e:
             self.logger.error("An unknown Exception has occured: "+e.getMessage())
-            #self.exit(1)
             raise MDSResourceException("Unknown Exception has occured: "+e.getMessage())
         # According to the Python API docs, the subprocess.Popen command can throw an OSError or ValueError
         # but neither of these exception could be raised in testing (with Python 2.4.3)
@@ -172,7 +165,6 @@ class MDSResourceQuery(Loggable):
             xml.sax.parseString(retrievedXML.strip(), xmlHandler)
         except xml.sax.SAXException, e:
             self.logger.error("Failed to parse retrieved XML: "+e.getMessage())    
-            #sys.exit(1)
             raise MDSResourceException("Failed to parse retrieved XML: "+e.getMessage())
         self.netPoolProcessing(xmlHandler.getResources())
 
@@ -237,7 +229,6 @@ class MDSResourceQuery(Loggable):
         for entry in totalIPs:
             # both the 'keys()' and 'values()' should return a list of 1 item, so the [0] to extract it 
             pools[entry.keys()[0]].append(entry.values()[0])    
-        #print pools    
         
         for ip in usedQueue:
             for key in pools.keys():
@@ -248,18 +239,17 @@ class MDSResourceQuery(Loggable):
         # Remove the USED mapping as it is no longer required
                 if( "Used" in pools):
                     del(pools["Used"])
-        #print pools
         
         # Insert the "NetPoolsAvailable" resource into the 'resources' data structure
         resources[netPoolsIP]["NetPools:Available"] = {}
         for pool in pools.keys():
             resources[netPoolsIP]["NetPools:Available"][pool] = len(pools[pool])
 
-        #print netPoolsIP
-
 
 myQuery = MDSResourceQuery()
 
+# This print statement is just a visual way of seeing the work performed inside the driver
+# and is not pivotal or even necessary for the driver to function properly
 print myQuery(SERVER_ADDRESS,XML_ROOT_TAG)
 
 sys.exit(0)
