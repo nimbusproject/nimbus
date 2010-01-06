@@ -20,7 +20,7 @@
  * 
  * For comments or questions please contact the above e-mail address 
  * OR
- * Ian Gable - igable@uvic.ca
+ * HEPNet Technical Manager - Ian Gable - igable@uvic.ca
  *
  * """
 
@@ -62,10 +62,18 @@ class PluginObject:
 
 PERFORMANCE_DATA_LOC = "/tmp/service-perfdata"
 TARGET_XML_FILE = "/tmp/mdsresource.xml"
+
+# This value specifies 300 seconds, or 5 minutes for out "sliding window" view into the 
+# performance data. Change this value accordingly to fit the rest of the Nagios reporting
+# intervals, but don't make it too large or "old" data will start creeping into the MDS, 
+# which may not accurately describe the cluster state
 TIME_WINDOW = 300
 
 class NagiosPerfDataProcessor(PluginObject):
-
+""" This class takes all the various snippets of XML from the Nagios service-performance-file
+    and aggregates them into a single, well formed XML document that can be utilized by our
+    Nimbus MDS Aggregator
+"""
     def __init__(self):
         PluginObject.__init__(self,self.__class__.__name__)
         self.parser = make_parser()
@@ -138,11 +146,15 @@ class NagiosPerfDataProcessor(PluginObject):
         xml.sax.parseString(finalXML.getvalue(), self.curHandler)
         self.totalResources = self.curHandler.getResources()
         return self.totalResources
-# This class implements the SAX API functions 'startElement', 'endElement' and 'characters'
-# It is also intimately tied to the XML format used by the client side plugins
+
+
 
 class ResourceHandler(ContentHandler):
-    def __init__(self): 
+"""
+   This class implements the SAX API functions 'startElement', 'endElement' and 'characters'
+   It is also intimately tied to the XML format used by the client side plugins
+"""  
+  def __init__(self): 
          
         self.isResource = False
         self.isEntry = False

@@ -20,7 +20,7 @@
  *       
  * For comments or questions please contact the above e-mail address 
  * OR    
- * Ian Gable - igable@uvic.ca
+ * HEPNet Technical Manager - Ian Gable - igable@uvic.ca
  *
  * """
 
@@ -33,8 +33,13 @@ from subprocess import *
 import time
 
 REG_FILE = "mdsVirtReg.xml"
+
+#Update this for your respective server location/address
 SERVER_ADDRESS = "https://gridsn.phys.uvic.ca:8443/wsrf/services/DefaultIndexService"
 PID_PATH = "/tmp/nimbusMDSReg.pid"
+
+# Since this script is NOT invoked by NAGIOS as a plug-in, environment variables may
+# be used in the subprocess.Popen call below without error
 
 def mdsRegister():
     try:

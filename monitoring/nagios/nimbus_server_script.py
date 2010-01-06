@@ -20,7 +20,7 @@
  * 
  * For comments or questions please contact the above e-mail address 
  * OR
- * Ian Gable - igable@uvic.ca
+ * HEPNet Technical Manager - Ian Gable - igable@uvic.ca
  *
  * """
 
@@ -65,6 +65,11 @@ NIMBUS_PBS_SUPPORT = "/other/resource-locator-ACTIVE.xml"
 
 
 def pluginExit(messageString, logString, returnCode):
+""" This method should be the only exit point for all the plug-ins. This ensures that 
+    Nagios requirements are meant and performance data is properly formatted to work
+    with the rest of the code. Do NOT just call sys.exit in the code (if you want your
+    plug-in to function with the rest of the code!
+"""
 
     # ALRIGHT, so the log string is seperated by  my "delimiter" ';'
     # Thus, I'm going to assume the following log style format:
@@ -99,6 +104,10 @@ def pluginExit(messageString, logString, returnCode):
     sys.exit(returnCode)
 
 class PluginObject:    
+""" The most 'senior' of the base classes. This class sets up appropriate logging mechanisms to 
+    conform with Nagios' API and plug-in coding rules. The log format is also setup, and cannot
+    be changed without breaking almost all the code. Don't change the log format!
+"""
 
     def __init__(self, callingClass):
         self.logString = StringIO()
@@ -119,6 +128,10 @@ class PluginObject:
 
 
 class PluginCmdLineOpts(PluginObject):
+""" This class acts as the "central dispatcher" for determining what resource will be reported back
+    to Nagios. Command line parameters act as the switches and determine which of the above classes
+    gets instantianted.
+"""
 
         def __init__(self):
                 PluginObject.__init__(self,self.__class__.__name__)
@@ -144,7 +157,10 @@ class PluginCmdLineOpts(PluginObject):
 
 
 class HeadNodePBSSupport(PluginObject):
-
+""" This class parses the Nimbus configuration file that dictates whether Torque/PBS or Nimbus along controls
+    job submission & queueing. The prescense of a certain string within the file is enough to define which of
+    the two options is active. 
+"""
     def __init__(self):
         self.resourceName = "PBS-Support"
         PluginObject.__init__(self, self.__class__.__name__)
@@ -168,7 +184,11 @@ class HeadNodePBSSupport(PluginObject):
             pluginExit(self.resourceName, self.logString.getvalue(), NAGIOS_RET_OK)
 
 class HeadNodePBSMemory(PluginObject):
-
+""" The class parses the Nimbus configuration files to determine how much total memory is available
+    to Torque/PBS jobs (should Torque/PBS be active). This only has meaning of course if Torque/PBS
+    is the active scheduling & queueing component. Note that this resource replaces the VMM-Pools
+    memory counts (that is they are not used should Torque/PBS be the queuer & scheduler)
+"""
     def __init__(self):
         self.resourceName = "PBS-Memory"
         PluginObject.__init__(self, self.__class__.__name__)
@@ -197,7 +217,27 @@ class HeadNodePBSMemory(PluginObject):
             
             
 class HeadNodeDBConsistent(PluginObject):
+""" O boy... This is a complicated class for attempting to solve the problem of determing if the 
+    Nimbus DerbyDB embedded within itself is "consistent". "Consistent" isn't rigorously defined 
+    anywhere, which creates a bit of a challenge.
 
+    So, this plug-in utilizes the 'ij' utility included with the DerbyDB distribution. A static
+    text file with the requisite connection string & query is redirected from STDIN to the ij
+    utility to perform a query to find all the used IP addresses recorded. These addresses are
+    then 'pinged' to see if they are alive. This of course relies on VMs having proper networking
+    configurations & allow ICMP pings to reach them. Should these addresses not be reachable, it 
+    is assumed the DB is in an inconsistent state and the plug-in reports an error.
+
+    After the above "first pass" the 'ij' utility and another static connect/query file is utilized
+    to find all the used IP addresses and the Startup, shutdown & termination times. The shutdown time
+    is then compared to the current time to see if we have passed the time when shutdown should occur. 
+    If we have passed the shutdown time, then the IP address is again 'pinged' to see if the VM is 
+    still alive. If it is, then the DB is considered to be inconsistent and the plug-in report the
+    error.
+
+    This obviously isn't an ideal way of determining 'consistency', but its the best fit given the 
+    lack of a formal definition of 'consistent'
+"""
     def __init__(self):
         self.resourceName = "DerbyDB-Consistency"
         PluginObject.__init__(self,self.__class__.__name__)
@@ -294,7 +334,10 @@ class HeadNodeDBConsistent(PluginObject):
 
 
 class HeadNodeVMMPools(PluginObject):
-      
+""" This class parses the Nimbus VMM Pool configuration files to build a representation of how much memory is 
+    available to each defined VMM pool. This is done by parsing the appropriate configuration files in the 
+    Nimbus distribution.
+"""      
     def __init__(self):
         PluginObject.__init__(self,self.__class__.__name__)
         self.resourceName = "VMM-Pools"
@@ -351,12 +394,17 @@ class HeadNodeVMMPools(PluginObject):
 
         for key in poolListing.keys():
             for entry in totalNetPools.keys():
-                self.logger.info(key+" ; "+entry+" ; "+str(poolListing[key][entry]))            
+		# The additional '*1024' was added to convert MB to kB and maintain consistency across all plug-ins
+                self.logger.info(key+" ; "+entry+" ; "+str(poolListing[key][entry]*1024))            
             
         pluginExit(self.resourceName, self.logString.getvalue(), NAGIOS_RET_OK)
 
 class HeadNodeNetPools(PluginObject):
-
+""" The class parses the Nimbus Network Pools configuration files to determine how many IP address slots are 
+    configured for Nimbus to make use of. This is strictly a reporting feature and does not calculate how
+    many free slots there are. THat functionality is handled by the querying driver program, as there is
+    some non-trivial processing that needs to occur which doesn't fit into this script's architecture
+"""
     def __init__(self):
         PluginObject.__init__(self, self.__class__.__name__)
         self.resourceName = "NetPools"
