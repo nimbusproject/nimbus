@@ -65,11 +65,12 @@ NIMBUS_PBS_SUPPORT = "/other/resource-locator-ACTIVE.xml"
 
 
 def pluginExit(messageString, logString, returnCode):
-""" This method should be the only exit point for all the plug-ins. This ensures that 
-    Nagios requirements are meant and performance data is properly formatted to work
-    with the rest of the code. Do NOT just call sys.exit in the code (if you want your
-    plug-in to function with the rest of the code!
-"""
+ 
+#    This method should be the only exit point for all the plug-ins. This ensures that 
+#    Nagios requirements are meant and performance data is properly formatted to work
+#    with the rest of the code. Do NOT just call sys.exit in the code (if you want your
+#    plug-in to function with the rest of the code!
+
 
     # ALRIGHT, so the log string is seperated by  my "delimiter" ';'
     # Thus, I'm going to assume the following log style format:
@@ -104,10 +105,10 @@ def pluginExit(messageString, logString, returnCode):
     sys.exit(returnCode)
 
 class PluginObject:    
-""" The most 'senior' of the base classes. This class sets up appropriate logging mechanisms to 
+    """The most 'senior' of the base classes. This class sets up appropriate logging mechanisms to 
     conform with Nagios' API and plug-in coding rules. The log format is also setup, and cannot
     be changed without breaking almost all the code. Don't change the log format!
-"""
+    """
 
     def __init__(self, callingClass):
         self.logString = StringIO()
@@ -128,39 +129,39 @@ class PluginObject:
 
 
 class PluginCmdLineOpts(PluginObject):
-""" This class acts as the "central dispatcher" for determining what resource will be reported back
+    """ This class acts as the "central dispatcher" for determining what resource will be reported back
     to Nagios. Command line parameters act as the switches and determine which of the above classes
     gets instantianted.
-"""
+    """
 
-        def __init__(self):
-                PluginObject.__init__(self,self.__class__.__name__)
-                # Parse command-line options.
-                parser = OptionParser()
+    def __init__(self):
+            PluginObject.__init__(self,self.__class__.__name__)
+            # Parse command-line options.
+            parser = OptionParser()
 
-                parser.add_option("--HNconsisten", action="callback",help="Verify internal Derby database consistency", callback=HeadNodeDBConsistent())
-                parser.add_option("--HNvmmpool", action="callback",help="Publish Nimbus VMM pool information", callback=HeadNodeVMMPools())
-                parser.add_option("--HNnetpool", action="callback",help="Publish Nimbus network pool information", callback=HeadNodeNetPools())         
-                parser.add_option("--HNpbsmem", action="callback",help="Publish PBS/Torque available memory information", callback=HeadNodePBSMemory())
-                parser.add_option("--HNpbssupport", action="callback",help="Publish support for PBS/Torque Pilot Jobs", callback=HeadNodePBSSupport())
-                self.parser = parser
+            parser.add_option("--HNconsisten", action="callback",help="Verify internal Derby database consistency", callback=HeadNodeDBConsistent())
+            parser.add_option("--HNvmmpool", action="callback",help="Publish Nimbus VMM pool information", callback=HeadNodeVMMPools())
+            parser.add_option("--HNnetpool", action="callback",help="Publish Nimbus network pool information", callback=HeadNodeNetPools())         
+            parser.add_option("--HNpbsmem", action="callback",help="Publish PBS/Torque available memory information", callback=HeadNodePBSMemory())
+            parser.add_option("--HNpbssupport", action="callback",help="Publish support for PBS/Torque Pilot Jobs", callback=HeadNodePBSSupport())
+            self.parser = parser
 
-        # This method is also responsible for "picking" what resource to monitor via the appropriate
-        # command line switches (which I need to define). I don't want a single, monolithic script
-        # running for ALL the resources, since this waters down NAGIOS's monitoring capabilities
-        # (since that would make only a single resource to monitor)
-        # Instead, this one script will be executed multiple time with different commandline options
-        # to facilitate the monitoring of the different resources independant of one another
+    # This method is also responsible for "picking" what resource to monitor via the appropriate
+    # command line switches (which I need to define). I don't want a single, monolithic script
+    # running for ALL the resources, since this waters down NAGIOS's monitoring capabilities
+    # (since that would make only a single resource to monitor)
+    # Instead, this one script will be executed multiple time with different commandline options
+    # to facilitate the monitoring of the different resources independant of one another
 
-        def validate(self):
-            (options, args) = self.parser.parse_args()
+    def validate(self):
+        (options, args) = self.parser.parse_args()
 
 
 class HeadNodePBSSupport(PluginObject):
-""" This class parses the Nimbus configuration file that dictates whether Torque/PBS or Nimbus along controls
+    """ This class parses the Nimbus configuration file that dictates whether Torque/PBS or Nimbus along controls
     job submission & queueing. The prescense of a certain string within the file is enough to define which of
     the two options is active. 
-"""
+    """
     def __init__(self):
         self.resourceName = "PBS-Support"
         PluginObject.__init__(self, self.__class__.__name__)
@@ -184,11 +185,11 @@ class HeadNodePBSSupport(PluginObject):
             pluginExit(self.resourceName, self.logString.getvalue(), NAGIOS_RET_OK)
 
 class HeadNodePBSMemory(PluginObject):
-""" The class parses the Nimbus configuration files to determine how much total memory is available
+    """ The class parses the Nimbus configuration files to determine how much total memory is available
     to Torque/PBS jobs (should Torque/PBS be active). This only has meaning of course if Torque/PBS
     is the active scheduling & queueing component. Note that this resource replaces the VMM-Pools
     memory counts (that is they are not used should Torque/PBS be the queuer & scheduler)
-"""
+    """
     def __init__(self):
         self.resourceName = "PBS-Memory"
         PluginObject.__init__(self, self.__class__.__name__)
@@ -217,7 +218,7 @@ class HeadNodePBSMemory(PluginObject):
             
             
 class HeadNodeDBConsistent(PluginObject):
-""" This is a complicated class for attempting to solve the problem of determing if the 
+    """ This is a complicated class for attempting to solve the problem of determing if the 
     Nimbus DerbyDB embedded within itself is "consistent". "Consistent" isn't rigorously defined 
     anywhere, which creates a bit of a challenge.
 
@@ -237,7 +238,7 @@ class HeadNodeDBConsistent(PluginObject):
 
     This obviously isn't an ideal way of determining 'consistency', but its the best fit given the 
     lack of a formal definition of 'consistent'
-"""
+    """
     def __init__(self):
         self.resourceName = "DerbyDB-Consistency"
         PluginObject.__init__(self,self.__class__.__name__)
@@ -334,10 +335,10 @@ class HeadNodeDBConsistent(PluginObject):
 
 
 class HeadNodeVMMPools(PluginObject):
-""" This class parses the Nimbus VMM Pool configuration files to build a representation of how much memory is 
+    """ This class parses the Nimbus VMM Pool configuration files to build a representation of how much memory is 
     available to each defined VMM pool. This is done by parsing the appropriate configuration files in the 
     Nimbus distribution.
-"""      
+    """      
     def __init__(self):
         PluginObject.__init__(self,self.__class__.__name__)
         self.resourceName = "VMM-Pools"
@@ -400,11 +401,11 @@ class HeadNodeVMMPools(PluginObject):
         pluginExit(self.resourceName, self.logString.getvalue(), NAGIOS_RET_OK)
 
 class HeadNodeNetPools(PluginObject):
-""" The class parses the Nimbus Network Pools configuration files to determine how many IP address slots are 
+    """ The class parses the Nimbus Network Pools configuration files to determine how many IP address slots are 
     configured for Nimbus to make use of. This is strictly a reporting feature and does not calculate how
     many free slots there are. THat functionality is handled by the querying driver program, as there is
     some non-trivial processing that needs to occur which doesn't fit into this script's architecture
-"""
+    """
     def __init__(self):
         PluginObject.__init__(self, self.__class__.__name__)
         self.resourceName = "NetPools"
