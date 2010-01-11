@@ -70,10 +70,10 @@ TARGET_XML_FILE = "/tmp/mdsresource.xml"
 TIME_WINDOW = 300
 
 class NagiosPerfDataProcessor(PluginObject):
-""" This class takes all the various snippets of XML from the Nagios service-performance-file
+    """ This class takes all the various snippets of XML from the Nagios service-performance-file
     and aggregates them into a single, well formed XML document that can be utilized by our
     Nimbus MDS Aggregator
-"""
+    """
     def __init__(self):
         PluginObject.__init__(self,self.__class__.__name__)
         self.parser = make_parser()
@@ -149,11 +149,11 @@ class NagiosPerfDataProcessor(PluginObject):
 
 
 class ResourceHandler(ContentHandler):
-"""
-   This class implements the SAX API functions 'startElement', 'endElement' and 'characters'
-   It is also intimately tied to the XML format used by the client side plugins
-"""  
-  def __init__(self): 
+    """
+    This class implements the SAX API functions 'startElement', 'endElement' and 'characters'
+    It is also intimately tied to the XML format used by the client side plugins
+    """  
+    def __init__(self): 
          
         self.isResource = False
         self.isEntry = False

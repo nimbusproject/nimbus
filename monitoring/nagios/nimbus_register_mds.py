@@ -35,7 +35,7 @@ import time
 REG_FILE = "mdsVirtReg.xml"
 
 #Update this for your respective server location/address
-SERVER_ADDRESS = "https://gridsn.phys.uvic.ca:8443/wsrf/services/DefaultIndexService"
+SERVER_ADDRESS = "https://vmcgs29.phys.uvic.ca:8443/wsrf/services/DefaultIndexService"
 PID_PATH = "/tmp/nimbusMDSReg.pid"
 
 # Since this script is NOT invoked by NAGIOS as a plug-in, environment variables may
@@ -43,7 +43,6 @@ PID_PATH = "/tmp/nimbusMDSReg.pid"
 
 def mdsRegister():
     try:
-    
         if(os.path.exists(PID_PATH)):
             try:
                 pidFile = open(PID_PATH,"r")

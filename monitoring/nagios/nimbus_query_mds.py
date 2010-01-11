@@ -35,22 +35,26 @@ import xml
 import subprocess
 from subprocess import *
 
+SERVER_ADDRESS = "https://vmcgs29.phys.uvic.ca:8443/wsrf/services/DefaultIndexService"
+XML_ROOT_TAG = "ROOT"
+
 class Loggable:
-""" A simple base class to encapsulate useful logging features - Meant to be derived from
+    """ A simple base class to encapsulate useful logging features - Meant to be derived from
 
-"""
-        def __init__(self, callingClass):
-                self.logString = StringIO()
+    """
+    def __init__(self, callingClass):
+        
+        self.logString = StringIO()
 
-                self.logger = logging.getLogger(callingClass)
-                self.logger.setLevel(logging.INFO)
-                formatter = logging.Formatter('%(asctime)s ; %(name)s ; %(levelname)s ; %(message)s')
+        self.logger = logging.getLogger(callingClass)
+        self.logger.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(asctime)s ; %(name)s ; %(levelname)s ; %(message)s')
 
-                errorOutputHndlr = logging.StreamHandler(sys.stderr)
-                errorOutputHndlr.setFormatter(formatter)
-                errorOutputHndlr.setLevel(logging.ERROR)
+        errorOutputHndlr = logging.StreamHandler(sys.stderr)
+        errorOutputHndlr.setFormatter(formatter)
+        errorOutputHndlr.setLevel(logging.ERROR)
 
-                self.logger.addHandler(errorOutputHndlr)
+        self.logger.addHandler(errorOutputHndlr)
 
         
 # This class implements the SAX API functions 'startElement', 'endElement' and 'characters'
@@ -105,14 +109,11 @@ class MDSResourceException(Exception):
         return repr(self.value)
         
 
-SERVER_ADDRESS = "https://gridsn.phys.uvic.ca:8443/wsrf/services/DefaultIndexService"
-XML_ROOT_TAG = "ROOT"
-
 class MDSResourceQuery(Loggable):
-""" This class handles all the details of querying the MDS to retrieve XML then process the text
+    """ This class handles all the details of querying the MDS to retrieve XML then process the text
     into a useful data structure for further use. This includes post querying transformation of 
     the Network Pools information to provide the "Available Slots" information
-"""
+    """
     def __init__(self):
         Loggable.__init__(self,self.__class__.__name__)
 
