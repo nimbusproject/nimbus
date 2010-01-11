@@ -116,28 +116,28 @@ class Virtualized(PluginObject):
     be derived from to complete functionality. All the libvirt lookups take place here to centralize
     logic
     """
-        # Lookup the available "domains" from libvirt, and other usefull stuff
-        def __init__(self):
-            PluginObject.__init__(self,self.__class__.__name__)
-            #Establish a connection to the local VM Hypervisor (XEN)
-            self.VMConnection  = libvirt.openReadOnly(None)
-            if self.VMConnection == None:
-                self.logger.error('Unable to open a Read-Only connection to local XEN Hypervisor')
-                pluginExit("Virtualized - Base Class",self.logString.getvalue(), NAGIOS_RET_ERROR)
+    # Lookup the available "domains" from libvirt, and other usefull stuff
+    def __init__(self):
+        PluginObject.__init__(self,self.__class__.__name__)
+        #Establish a connection to the local VM Hypervisor (XEN)
+        self.VMConnection  = libvirt.openReadOnly(None)
+        if self.VMConnection == None:
+            self.logger.error('Unable to open a Read-Only connection to local XEN Hypervisor')
+            pluginExit("Virtualized - Base Class",self.logString.getvalue(), NAGIOS_RET_ERROR)
         
 
-            self.VMDomainsID = self.VMConnection.listDomainsID()
-            self.VMs={}
-            for id in self.VMDomainsID:
-                #So, the VMs 'dictionary' stores virDomain (libvirt) objects
-                try:
-                # Skip over Dom0 or Domain-0 (hypervisor)
-                    if(id == 0):
-                        continue
-                    self.VMs[id] = (self.VMConnection.lookupByID(id))
-                except:
-                    self.logger.error("Failed to lookup a VM from a VMConnection by \'id\'")
-                    pluginExit("Virtualized - Base Class",self.logString.getvalue(), NAGIOS_RET_ERROR)
+        self.VMDomainsID = self.VMConnection.listDomainsID()
+        self.VMs={}
+        for id in self.VMDomainsID:
+            #So, the VMs 'dictionary' stores virDomain (libvirt) objects
+            try:
+            # Skip over Dom0 or Domain-0 (hypervisor)
+                if(id == 0):
+                    continue
+                self.VMs[id] = (self.VMConnection.lookupByID(id))
+            except:
+                self.logger.error("Failed to lookup a VM from a VMConnection by \'id\'")
+                pluginExit("Virtualized - Base Class",self.logString.getvalue(), NAGIOS_RET_ERROR)
 
 # I thought I'd have to define the __call__ function, but it seems like the 
 # ctr is doing what I need it to for the 'Callback' functionality

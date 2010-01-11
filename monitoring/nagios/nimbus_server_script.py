@@ -53,7 +53,7 @@ SQL_IP_SCRIPT = "/usr/local/nagios/libexec/nimbus_derby_used_ips.sql"
 SQL_RUNNING_VM_SCRIPT = "/usr/local/nagios/libexec/nimbus_derby_running_vms.sql"
 # Attempting to access the environment variables from within Nagios' context errors out!
 ENV_DERBY_HOME = "/opt/sun/javadb"        #os.environ["DERBY_HOME"]
-ENV_GLOBUS_LOC = "/usr/local/globus-4.0.8"#os.environ["GLOBUS_LOCATION"]
+ENV_GLOBUS_LOC = "/usr/local/nimbus"      #os.environ["GLOBUS_LOCATION"]
 ENV_JAVA_HOME = "/usr/java/latest"        #os.environ["JAVA_HOME"]
 #The "NIMBUS_" entries are relative to the ENV_GLOBUS_LOC var
 NIMBUS_CONF = "/etc/nimbus/workspace-service"
