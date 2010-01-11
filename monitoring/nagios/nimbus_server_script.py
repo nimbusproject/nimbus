@@ -217,7 +217,7 @@ class HeadNodePBSMemory(PluginObject):
             
             
 class HeadNodeDBConsistent(PluginObject):
-""" O boy... This is a complicated class for attempting to solve the problem of determing if the 
+""" This is a complicated class for attempting to solve the problem of determing if the 
     Nimbus DerbyDB embedded within itself is "consistent". "Consistent" isn't rigorously defined 
     anywhere, which creates a bit of a challenge.
 

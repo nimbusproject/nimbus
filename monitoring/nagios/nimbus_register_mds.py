@@ -88,5 +88,3 @@ def mdsRegister():
 
 mdsRegister()
 sys.exit(0)
-
-

@@ -128,7 +128,6 @@ class NagiosPerfDataProcessor(PluginObject):
                     continue
                 else:
                     # This will only print the XML string from the found line
-                    #print line[xmlHeaderIndex:]
                     # To find the 'end' of the xml header and effectively 
                     # strip it off so the XML can be aggregated into 1 source
                     tagIndex = line.find("?>") + 2
