@@ -1,3 +1,22 @@
+2010-01-11  Adam Bishop <ahbishop@uvic.ca>
+
+Bug fixes and documentation/commenting updates absent from initial 
+commit of 2009-08-20
+
+   * nimbus_nagios_data_processing.py: Fixed the XML handler to 
+   accurately match XML generated in the other monitoring scripts
+
+   * nimbus_server_script.py: Commenting and code formatting 
+   cleanups
+
+   * nimbus_worker_script.py: Commenting and code formatting 
+   cleanups
+
+   * nimbus_register_mds.py: Commenting and code formatting
+   cleanups
+
+   * nimbus_query_mds.py: Commenting and code formatting cleaups
+
 2009-08-20  Adam Bishop <ahibshop@uvic.ca>
 
 This is the initial commit of the newly create Nimbus Monitoring tools.
