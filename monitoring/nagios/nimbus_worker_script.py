@@ -19,6 +19,7 @@
  * AUTHOR - Adam Bishop - ahbishop@uvic.ca
  *       
  * For comments or questions please contact the above e-mail address 
+ * or Ian Gable - igable@uvic.ca
  *
  * """
 

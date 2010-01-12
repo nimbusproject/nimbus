@@ -3,6 +3,9 @@
 Bug fixes and documentation/commenting updates absent from initial 
 commit of 2009-08-20
 
+Plug-ins deployed and tested against the 2.3RC1 release of Nimbus
+in preperation for the final 2.3 Nimbus release
+
    * nimbus_nagios_data_processing.py: Fixed the XML handler to 
    accurately match XML generated in the other monitoring scripts
 
