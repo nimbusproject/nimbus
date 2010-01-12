@@ -74,7 +74,7 @@ NAGIOS_LOCATION = "Nagios_Location"
 JAVA_LOCATION = "Java_Location"
 # Both 'IJ_LOCATION' and 'DERBY_LOCATION' map to the same path
 IJ_LOCATION = "IJ_Location"
-DERBY_LOCATION = "IJ_Location"
+DERBY_LOCATION = "Derby_Location"
 ConfigMapping = {}
 
 def loadNimbusConfig():
@@ -90,7 +90,7 @@ def loadNimbusConfig():
             ConfigMapping[JAVA_LOCATION] = cfgFile.get(CONF_FILE_SECTION, JAVA_LOCATION,0)
             ConfigMapping[IJ_LOCATION] = cfgFile.get(CONF_FILE_SECTION,IJ_LOCATION,0)
             ConfigMapping[GLOBUS_LOCATION] = cfgFile.get(CONF_FILE_SECTION,GLOBUS_LOCATION,0)
-            ConfigMapping[DERBY_LOCATION] = ConfigMapping[IJ_LOCATION]
+            ConfigMapping[DERBY_LOCATION] = cfgFile.get(CONF_FILE_SECTION,DERBY_LOCATION,0)
         except ConfigParser.NoSectionError:
             print "Unable to locate "+CONF_FILE_SECTION+" section in conf file - Malformed config file?"
             sys.exit(NAGIOS_RET_CRITICAL)
@@ -286,8 +286,13 @@ class HeadNodeDBConsistent(PluginObject):
         isConsistent = True
 
         query = ConfigMapping[IJ_LOCATION]+ " "+SQL_IP_SCRIPT
-        output,status = (subprocess.Popen([query],stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell=True, env={'DERBY_HOME':ConfigMapping[DERBY_LOCATION],'JAVA_LOCATION':ConfigMapping[JAVA_LOCATION],'GLOBUS_LOCATION':ConfigMapping[GLOBUS_LOCATION]})).communicate()
-
+        #print query
+        output,status = (subprocess.Popen([query],stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell=True, env={'DERBY_HOME':ConfigMapping[DERBY_LOCATION],'JAVA_HOME':ConfigMapping[JAVA_LOCATION],'GLOBUS_HOME':ConfigMapping[NIMBUS_LOCATION]})).communicate()
+	#print output
+	#print status
+        #print ConfigMapping[DERBY_LOCATION]
+	#print ConfigMapping[JAVA_LOCATION]
+        #print ConfigMapping[NIMBUS_LOCATION]
         derbyIPs = []
         patt = re.compile(r"(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})") 
         for line in output.split():
