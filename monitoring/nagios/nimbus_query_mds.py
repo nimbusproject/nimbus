@@ -34,7 +34,7 @@ import xml
 import subprocess
 from subprocess import *
 
-SERVER_ADDRESS = "https://vmcgs29.phys.uvic.ca:8443/wsrf/services/DefaultIndexService"
+SERVER_ADDRESS = "https://someserver.ca:8443/wsrf/services/DefaultIndexService"
 XML_ROOT_TAG = "ROOT"
 
 class Loggable:
