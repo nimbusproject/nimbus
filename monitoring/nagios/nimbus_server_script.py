@@ -48,13 +48,8 @@ NAGIOS_RET_WARNING = 1
 NAGIOS_RET_CRITICAL = 2
 NAGIOS_RET_UNKNOWN = 3
 
-#IJ_LOCATION = "/opt/sun/javadb/bin/ij"
 SQL_IP_SCRIPT = "/usr/local/nagios/libexec/nimbus_derby_used_ips.sql"
 SQL_RUNNING_VM_SCRIPT = "/usr/local/nagios/libexec/nimbus_derby_running_vms.sql"
-# Attempting to access the environment variables from within Nagios' context errors out!
-#ENV_DERBY_HOME = "/opt/sun/javadb"        #os.environ["DERBY_HOME"]
-#ENV_GLOBUS_LOC = "/usr/local/nimbus"      #os.environ["GLOBUS_LOCATION"]
-#ENV_JAVA_HOME = "/usr/java/latest"        #os.environ["JAVA_HOME"]
 
 #The "NIMBUS_" entries are relative to the ENV_GLOBUS_LOC var
 NIMBUS_CONF = "/etc/nimbus/workspace-service"
@@ -72,7 +67,6 @@ GLOBUS_LOCATION = "Globus_Install_Location"
 SERVER_TMP_LOCATION = "Server_Tmp_Location"
 NAGIOS_LOCATION = "Nagios_Location"
 JAVA_LOCATION = "Java_Location"
-# Both 'IJ_LOCATION' and 'DERBY_LOCATION' map to the same path
 IJ_LOCATION = "IJ_Location"
 DERBY_LOCATION = "Derby_Location"
 ConfigMapping = {}
@@ -94,8 +88,8 @@ def loadNimbusConfig():
         except ConfigParser.NoSectionError:
             print "Unable to locate "+CONF_FILE_SECTION+" section in conf file - Malformed config file?"
             sys.exit(NAGIOS_RET_CRITICAL)
-        except ConfigParser.NoOptionError:
-            print "Op"
+        except ConfigParser.NoOptionError, nopt:
+            print nopt.message+" of configuration file"
             sys.exit(NAGIOS_RET_CRITICAL)
     else:
         print "Configuration file not found in Nagios Plug-ins directory"
@@ -288,11 +282,10 @@ class HeadNodeDBConsistent(PluginObject):
         query = ConfigMapping[IJ_LOCATION]+ " "+SQL_IP_SCRIPT
         #print query
         output,status = (subprocess.Popen([query],stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell=True, env={'DERBY_HOME':ConfigMapping[DERBY_LOCATION],'JAVA_HOME':ConfigMapping[JAVA_LOCATION],'GLOBUS_HOME':ConfigMapping[NIMBUS_LOCATION]})).communicate()
-	#print output
-	#print status
-        #print ConfigMapping[DERBY_LOCATION]
-	#print ConfigMapping[JAVA_LOCATION]
-        #print ConfigMapping[NIMBUS_LOCATION]
+	
+        if(status != ""):
+            self.logger.error("An error occured querying DerbyDB with IJ "+ status)
+        
         derbyIPs = []
         patt = re.compile(r"(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})") 
         for line in output.split():
@@ -317,6 +310,10 @@ class HeadNodeDBConsistent(PluginObject):
 
         query = ConfigMapping[IJ_LOCATION] + " " + SQL_RUNNING_VM_SCRIPT
         output,status = (subprocess.Popen([query],stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell=True, env={'DERBY_HOME':ConfigMapping[DERBY_LOCATION],'JAVA_HOME':ConfigMapping[JAVA_LOCATION],'GLOBUS_HOME':ConfigMapping[NIMBUS_LOCATION]})).communicate()
+
+        if(status != ""):
+            self.logger.error("An error occured querying DerbyDB with IJ "+ status)
+
 
         ijOutput = output.split()
         counter = 0
@@ -387,9 +384,17 @@ class HeadNodeVMMPools(PluginObject):
         self.resourceName = "VMM-Pools"
 
     def __call__(self, option, opt_str, value, parser):
-        vmmPools = os.listdir(str(ConfigMapping[NIMBUS_LOCATION])+NIMBUS_CONF+NIMBUS_PHYS_CONF)
+        
+        try:
+            vmmPools = os.listdir(str(ConfigMapping[NIMBUS_LOCATION])+NIMBUS_CONF+NIMBUS_PHYS_CONF)
+        except OSError, ose:
+            self.logger.error("Error listing VMMPool directory: "+str(ose))  
 
-        netPools = os.listdir(ConfigMapping[NIMBUS_LOCATION]+NIMBUS_CONF+NIMBUS_NET_CONF)
+        try:
+            netPools = os.listdir(ConfigMapping[NIMBUS_LOCATION]+NIMBUS_CONF+NIMBUS_NET_CONF)
+        except OSError, ose:
+           self.logger.error("Error listing NetPool directory: "+str(ose))
+
         poolListing = {}
         for pool in vmmPools:
             
