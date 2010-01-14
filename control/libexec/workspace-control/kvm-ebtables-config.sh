@@ -144,12 +144,12 @@ function delete_vifname_chain() {
   return $?
 }
 
-function add_forward_rule() {
+function add_input_rule() {
   $EBTABLES -A INPUT -i $VIFNAME -j $VIFNAME
   return $?
 }
 
-function rem_forward_rule() {
+function rem_input_rule() {
   $EBTABLES -D INPUT -i $VIFNAME -j $VIFNAME
   return $?
 }
@@ -162,12 +162,12 @@ function rem_forward_rule() {
 if [ "$ADDREM" = "rem" ]; then
 
   SUCCESS="y"
-  rem_forward_rule
+  rem_input_rule
   if [ $? -ne 0 ]; then
-    echo "ERROR: Failed to remove $VIFNAME FORWARD rule"
+    echo "ERROR: Failed to remove $VIFNAME INPUT rule"
     SUCCESS="n"
   else
-    echo "Removed $VIFNAME FORWARD rule"
+    echo "Removed $VIFNAME INPUT rule"
   fi
 
   delete_vifname_chain
@@ -194,12 +194,12 @@ if [ "$ADDREM" = "add" ]; then
     echo "Created $VIFNAME chain"
   fi
 
-  add_forward_rule
+  add_input_rule
   if [ $? -ne 0 ]; then
-    echo "ERROR: Failed to add $VIFNAME FORWARD rule"
+    echo "ERROR: Failed to add $VIFNAME INPUT rule"
     exit 1
   else
-    echo "Added $VIFNAME FORWARD rule"
+    echo "Added $VIFNAME INPUT rule"
     exit 0
   fi
 fi
