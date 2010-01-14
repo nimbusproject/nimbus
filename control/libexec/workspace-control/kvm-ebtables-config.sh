@@ -21,15 +21,16 @@
 # ABOUT #
 #########
 
-# This script adjusts ebtables rules to packets coming from a bridged interface
+# This script adjusts ebtables rules to prevent MAC and IP spoofing.
 # Unlike the 'main' ebtables-config script used with Xen, this will NOT allow
-# you to host multiple VMs on the same host and still get proper spoofing
-# protection.
+# you to stop DHCP packets from workspaces escaping to the site network.
 
-# 1. Is the MAC address incorrect?  Drop the packet.
-# 2. Is this is a DHCP packet?
-# 3. If so, allow it to be bridged.
-# 4. If not a DHCP packet, it must have the correct source IP address,
+# 1. Is the packet coming from a workspace virtual interface?
+# 2. If not, proceed without further processing.
+# 3. If so, is the MAC address incorrect?  Drop the packet.
+# 4. Is this is a DHCP packet?
+# 5. If so, allow it to be bridged.
+# 6. If not a DHCP packet, it must have the correct source IP address,
 #    otherwise the packet is dropped.
 
 
@@ -144,12 +145,12 @@ function delete_vifname_chain() {
 }
 
 function add_forward_rule() {
-  $EBTABLES -A INPUT -j $VIFNAME
+  $EBTABLES -A INPUT -i $VIFNAME -j $VIFNAME
   return $?
 }
 
 function rem_forward_rule() {
-  $EBTABLES -D INPUT -j $VIFNAME
+  $EBTABLES -D INPUT -i $VIFNAME -j $VIFNAME
   return $?
 }
 
