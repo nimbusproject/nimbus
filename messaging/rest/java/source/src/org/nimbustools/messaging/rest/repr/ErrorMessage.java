@@ -13,26 +13,26 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package org.nimbustools.messaging.rest;
+package org.nimbustools.messaging.rest.repr;
 
-public class User {
+/**
+ * Simple error container shipped across the wire
+ */
+public class ErrorMessage {
 
-    private String id;
-    private String name;
+    private final String message;
+    private final String requestId;
 
-    public String getId() {
-        return id;
+    public ErrorMessage(String msg, String requestId) {
+        this.message = msg;
+        this.requestId = requestId;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public String getMessage() {
+        return message;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+    public String getRequestId() {
+        return requestId;
     }
 }

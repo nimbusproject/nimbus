@@ -36,11 +36,29 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
     <jaxrs:server id="NimbusRestServer"
                   address="/">
         <jaxrs:serviceBeans>
-            <ref bean="admin"/>
+            <ref bean="adminResource"/>
         </jaxrs:serviceBeans>
+        <jaxrs:providers>
+            <ref bean="nimbusWebExceptionMapper"/>
+        </jaxrs:providers>
     </jaxrs:server>
 
-    <bean id="admin" class="org.nimbustools.messaging.rest.Admin"/>
+
+    <bean id="nimbusWebExceptionMapper"
+          class="org.nimbustools.messaging.rest.NimbusWebExceptionMapper">
+        <property name="responseUtil" ref="responseUtil"/>
+    </bean>
+    
+    <bean id="adminResource" class="org.nimbustools.messaging.rest.AdminResource">
+        <property name="responseUtil" ref="responseUtil"/>
+        <property name="usersResource" ref="usersResource"/>
+    </bean>
+
+    <bean id="usersResource" class="org.nimbustools.messaging.rest.UsersResource">
+    </bean>
+
+    <bean id="responseUtil" class="org.nimbustools.messaging.rest.ResponseUtil"/>
+    
 
 </beans>
 
