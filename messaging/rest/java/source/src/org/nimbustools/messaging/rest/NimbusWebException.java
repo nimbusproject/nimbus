@@ -15,12 +15,24 @@
  */
 package org.nimbustools.messaging.rest;
 
+import javax.ws.rs.core.Response;
 import java.util.UUID;
 
 public class NimbusWebException extends RuntimeException {
 
     private final int status;
     private final String requestId;
+
+    public NimbusWebException(Response.Status status, String msg, Throwable t) {
+        super(msg, t);
+
+        if (status == null) {
+            throw new IllegalArgumentException("status may not be null");
+        }
+
+        this.status = status.ordinal();
+        this.requestId = UUID.randomUUID().toString();
+    }
 
     public NimbusWebException(int status, String msg, Throwable t) {
 

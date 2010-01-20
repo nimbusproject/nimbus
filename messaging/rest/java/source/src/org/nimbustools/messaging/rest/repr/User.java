@@ -15,17 +15,39 @@
  */
 package org.nimbustools.messaging.rest.repr;
 
+import org.nimbustools.messaging.gt4_0.common.SecurityUtil;
+
+import java.security.NoSuchAlgorithmException;
+
 public class User {
 
-    private String id;
+    private String dn;
     private String name;
+    private String group;
 
     public String getId() {
-        return id;
+
+        if (dn == null) {
+            return null;
+        }
+
+        return "0"+getDnHash();
     }
 
-    public void setId(String id) {
-        this.id = id;
+    private String getDnHash() {
+        try {
+            return SecurityUtil.hashDN(dn);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public String getDn() {
+        return dn;
+    }
+
+    public void setDn(String dn) {
+        this.dn = dn;
     }
 
     public String getName() {
@@ -34,5 +56,13 @@ public class User {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getGroup() {
+        return group;
+    }
+
+    public void setGroup(String group) {
+        this.group = group;
     }
 }

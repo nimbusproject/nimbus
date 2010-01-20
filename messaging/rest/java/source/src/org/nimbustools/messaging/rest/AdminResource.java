@@ -38,16 +38,6 @@ public class AdminResource implements InitializingBean {
 
     private ResponseUtil responseUtil;
 
-    @GET
-    @Path("/test")
-    @Produces(JSON_CONTENT_TYPE)
-    public Response test() {
-        User u = new User();
-        u.setId("32456743256");
-        u.setName("Fakey McAllister");
-        
-        return responseUtil.createJsonResponse(u);
-    }
 
     // subresources have annotated getters
 

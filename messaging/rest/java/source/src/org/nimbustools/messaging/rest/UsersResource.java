@@ -20,10 +20,18 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.core.UriBuilder;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.lang.reflect.Method;
+import java.net.URI;
 
 import static org.nimbustools.messaging.rest.ResponseUtil.JSON_CONTENT_TYPE;
 import org.nimbustools.messaging.rest.repr.User;
+import org.nimbustools.messaging.rest.repr.AccessKey;
 import org.springframework.beans.factory.InitializingBean;
 
 /**
@@ -34,40 +42,106 @@ public class UsersResource implements InitializingBean{
     private UsersService usersService;
     private ResponseUtil responseUtil;
 
+    private final Method getUserMethod;
+
+    public UsersResource() {
+        try {
+            getUserMethod = this.getClass().getMethod("getUser", String.class);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @GET
     @Path("/")
     @Produces(JSON_CONTENT_TYPE)
-    Response getUsers() {
+    public Response getUsers(@Context UriInfo uriInfo) {
 
         List<User> users = this.usersService.getUsers();
 
-        return this.responseUtil.createJsonResponse(users);
+        Map<URI, User> userMap = new HashMap<URI, User>(users.size());
+
+        final UriBuilder ub =
+                uriInfo.getAbsolutePathBuilder().path(getUserMethod);
+
+        for (User u : users) {
+            final URI uri = ub.build(u.getId());
+
+            userMap.put(uri,u);
+        }
+
+        return this.responseUtil.createJsonResponse(userMap);
     }
 
     @GET
     @Path("/{id}")
     @Produces(JSON_CONTENT_TYPE)
-    Response getUser(@PathParam("id") String id) {
+    public Response getUser(@PathParam("id") String id) {
 
-        User user = this.usersService.getUserById(id);
+        final User user = getUserById(id);
 
         return this.responseUtil.createJsonResponse(user);
+    }
 
+    private User getUserById(String id) {
+        User user;
+        try {
+
+            user = this.usersService.getUserById(id);
+
+        } catch (UnknownUserException e) {
+            throw new NimbusWebException(Response.Status.NOT_FOUND,
+                    "No such user",e);
+        }
+        return user;
     }
 
     @POST
     @Path("/")
     @Consumes(JSON_CONTENT_TYPE)
-    Response addUser(String userJson) {
+    public Response addUser(@Context UriInfo uriInfo, String userJson) {
 
         User user = responseUtil.fromJson(userJson, User.class);
 
         //TODO validate user
 
-        usersService.addUser(user);
+        try {
+            usersService.addUser(user);
+        } catch (DuplicateUserException e) {
+            throw new NimbusWebException("A user with the provided DN already exists",e);
+        }
 
-        return null;
+        final UriBuilder ub = uriInfo.getAbsolutePathBuilder().path(getUserMethod);
+        return responseUtil.createCreatedResponse(ub.build(user.getId()));
+    }
+
+    @GET
+    @Path("/{userId}/accesskey")
+    @Produces(JSON_CONTENT_TYPE)
+    public Response getAccessKey(@PathParam("userId") String userId) {
+
+        final User user = getUserById(userId);
+
+        try {
+            final AccessKey accessKey = usersService.getAccessKey(user);
+
+            return responseUtil.createJsonResponse(accessKey);
+
+        } catch (UnknownKeyException e) {
+            throw new NimbusWebException(Response.Status.NOT_FOUND,
+                    "An access key does not exist for this user", e);
+        }
+    }
+
+    @POST
+    @Path("/{userId}/accesskey")
+    @Produces(JSON_CONTENT_TYPE)
+    public Response generateAccessKey(@PathParam("userId") String userId) {
+
+        final User user = getUserById(userId);
+        final AccessKey accessKey = usersService.createAccessKey(user);
+
+        return responseUtil.createJsonResponse(accessKey);
     }
 
     public UsersService getUsersService() {

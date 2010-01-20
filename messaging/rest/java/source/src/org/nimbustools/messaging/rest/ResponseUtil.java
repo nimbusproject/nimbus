@@ -15,13 +15,18 @@
  */
 package org.nimbustools.messaging.rest;
 
-import com.google.gson.Gson;
+import com.google.gson.*;
 
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.nimbustools.messaging.rest.repr.ErrorMessage;
+import org.joda.time.DateTime;
+
+import java.net.URI;
+import java.lang.reflect.Type;
+import java.util.Date;
 
 public class ResponseUtil {
 
@@ -30,7 +35,16 @@ public class ResponseUtil {
     private static final Log logger =
             LogFactory.getLog(ResponseUtil.class.getName());
 
-    final Gson gson = new Gson();
+    final Gson gson;
+
+    public ResponseUtil() {
+        final GsonBuilder gsonBuilder = new GsonBuilder();
+
+        gsonBuilder.registerTypeAdapter(DateTime.class,
+                new DateTimeTypeConverter());
+
+        this.gson = gsonBuilder.create();
+    }
 
     public Response createJsonResponse(Object obj) {
 
@@ -64,6 +78,13 @@ public class ResponseUtil {
         return Response.status(status).entity(json).build();
     }
 
+    public Response createCreatedResponse(URI uri) {
+        if (uri == null) {
+            throw new IllegalArgumentException("uri may not be null");
+        }
+        return Response.created(uri).build();
+    }
+
     public <T> T fromJson(String json, Class<T> classOfT) {
         try {
             return gson.fromJson(json, classOfT);
@@ -72,6 +93,26 @@ public class ResponseUtil {
                     classOfT.getSimpleName(), e);
         }
     }
+
+    // sample JodaTime adapter from:
+    // http://sites.google.com/site/gson/gson-type-adapters-for-common-classes-1
+    private static class DateTimeTypeConverter
+      implements JsonSerializer<DateTime>, JsonDeserializer<DateTime> {
+    public JsonElement serialize(DateTime src, Type srcType, JsonSerializationContext context) {
+      return new JsonPrimitive(src.toString());
+    }
+
+    public DateTime deserialize(JsonElement json, Type type, JsonDeserializationContext context)
+        throws JsonParseException {
+      try {
+        return new DateTime(json.getAsString());
+      } catch (IllegalArgumentException e) {
+        // May be it came in formatted as a java.util.Date, so try that
+        Date date = context.deserialize(json, Date.class);
+        return new DateTime(date);
+      }
+    }
+  }
 
     
 }

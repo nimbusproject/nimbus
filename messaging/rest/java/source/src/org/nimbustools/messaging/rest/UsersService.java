@@ -32,26 +32,31 @@ public interface UsersService {
      * Retrieve a specific user by ID
      * @param id ID of user to retrieve
      * @return The user
+     * @throws UnknownUserException A user with specified ID does not exist
      */
-    User getUserById(String id);
+    User getUserById(String id) throws UnknownUserException;
 
     /**
      * Add a new user
-     * @param user
+     * @param user The user
      * @return
+     * @throws DuplicateUserException User already exists
      */
-    User addUser(User user);
+    User addUser(User user) throws DuplicateUserException;
 
-    List<AccessKey> getAccessKeys(User user);
+    /**
+     * Retrieve the access key for a user
+     * @param user The user
+     * @return The access key
+     * @throws UnknownKeyException User does not have an access key
+     */
+    AccessKey getAccessKey(User user) throws UnknownKeyException;
 
-    AccessKey getAccessKey(String key);
-
+    /**
+     * Creates an access key for user. If a key exists, it will
+     * be discarded and replaced with a new one.
+     * @param user The user
+     * @return New access key
+     */
     AccessKey createAccessKey(User user);
-
-    boolean setAccessKeyState(String key, boolean enabled);
-
-    boolean deleteAccessKey(String key);
-
-
-    
 }
