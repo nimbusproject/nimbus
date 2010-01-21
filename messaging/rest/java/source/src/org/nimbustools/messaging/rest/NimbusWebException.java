@@ -30,7 +30,7 @@ public class NimbusWebException extends RuntimeException {
             throw new IllegalArgumentException("status may not be null");
         }
 
-        this.status = status.ordinal();
+        this.status = status.getStatusCode();
         this.requestId = UUID.randomUUID().toString();
     }
 

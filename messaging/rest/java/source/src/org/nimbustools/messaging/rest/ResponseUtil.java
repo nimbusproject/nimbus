@@ -51,16 +51,17 @@ public class ResponseUtil {
         if (obj == null) {
             throw new IllegalArgumentException("obj may not be null");
         }
-
-        final String json;
-        try {
-            json = gson.toJson(obj);
-        } catch (Exception e) {
-            logger.error("Failed to convert response to JSON! Bug!", e);
-            return createServerErrorResponse();
-        }
+        final String json = gson.toJson(obj);
 
         return Response.ok(json, JSON_CONTENT_TYPE).build();
+    }
+
+    public String createJsonString(Object obj) {
+        if (obj == null) {
+            throw new IllegalArgumentException("obj may not be null");
+        }
+
+        return gson.toJson(obj);
     }
 
     public Response createServerErrorResponse() {

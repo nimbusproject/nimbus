@@ -45,7 +45,7 @@ public class NimbusWebExceptionMapper
             status = Response.Status.BAD_REQUEST;
         }
 
-        logger.info("Mapping exception to error response. RequestId="+
+        logger.debug("Mapping exception to error response. RequestId="+
                 e.getRequestId(), e);
 
         return responseUtil.createErrorResponse(err, status);
