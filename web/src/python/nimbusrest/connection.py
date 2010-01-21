@@ -66,7 +66,7 @@ class Connection(object):
         (resp, body) = self.client.request(uri, method, body, headers)
 
         if resp.status >= 400:
-            self.handle_error_response(resp, body)
+            return self.handle_error_response(resp, body)
         else:
             return self.handle_ok_response(resp, body)
 

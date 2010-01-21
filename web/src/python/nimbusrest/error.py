@@ -12,6 +12,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import json
+
 """
 Nimbus exception types. Subclassed for specific errors
 """
@@ -38,10 +40,19 @@ class NimbusServerError(Exception):
     def __init__(self, status, reason, body=None):
         self.status = status
         self.reason = reason
-        self.body = body
+        
+        if body:
+			b = json.loads(body)
+			if b.has_key('message'):
+				self.msg = b['message']
+			if b.has_key('requestId'):
+				self.request_id = b['requestId']
+
 
     def __repr__(self):
-        return 'NimbusServerError: %s %s' % (self.status, self.reason)
+		return 'NimbusServerError: %s (Request ID: %s)' % ( 
+				(self.msg or self.reason), self.request_id)
     
     def __str__(self):
-        return 'NimbusServerError: %s %s' % (self.status, self.reason)
+		return 'NimbusServerError: %s (Request ID: %s)' % ( 
+				(self.msg or self.reason), self.request_id)

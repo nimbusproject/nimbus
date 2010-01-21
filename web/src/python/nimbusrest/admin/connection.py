@@ -12,9 +12,19 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import json
+
 from nimbusrest.connection import Connection
 
 class AdminConnection(Connection):
 
     def __init__(self, uri, key=None, secret=None):
         Connection.__init__(self, uri, key, secret)
+
+    def list_users(self):
+        return self.request('GET', 'users/')
+
+    def add_user(self, user):
+        s = json.dumps(user)
+
+        self.request('POST', 'users/')
