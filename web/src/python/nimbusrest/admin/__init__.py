@@ -12,4 +12,47 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+class User(object):
+"""
+A single Nimbus user
+"""
+    def __init__(self, dn, conn=None, id=None):
+        self.dn = dn
+        self.conn = conn
+        self.id = id
+
+    def get_access_key(self):
+        """
+        Retrieves access key pair for this user.
+        Raises error if there is not an access key.
+        """
+
+        self._assureConnection()
+        return self.conn.get_user_access_key(self.id)
+    
+    def generate_access_key(self):
+        """
+        Generates an access key pair for user and returns it.
+        If a key pair already exists for user, it will be discarded
+        and replaced.
+        """
+
+        self._assureConnection()
+        return self.conn.generate_user_access_key(self.id)
+
+    def _assureConnection(self):
+        if not self.conn:
+            raise NimbusClientError('User object has no associated connection')
+        if not self.id:
+            raise NimbusClientError('User object has no ID')
+
+
+class AccessKey(object):
+"""
+A user's access key and secret
+"""
+
+    def __init__(self, key, secret):
+        self.key = key
+        self.secret = secret
 
