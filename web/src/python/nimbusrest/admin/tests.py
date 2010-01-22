@@ -28,8 +28,6 @@ class NotReallyAUnitTest(unittest.TestCase):
         u = User('a fake dn')
         u = admin.add_user(u)
 
-        print u.id
-
         has_key = True
         try:
             u.get_access_key()

@@ -12,7 +12,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import json
 from urllib import quote_plus
 
 from nimbusrest.connection import Connection
@@ -76,5 +75,5 @@ class AdminConnection(Connection):
         return AccessKey(k['key'], k['secret'])
 
 
-def escape_id(str):
-    return quote_plus(str)
+def escape_id(user_id):
+    return quote_plus(user_id)

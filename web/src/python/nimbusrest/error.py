@@ -12,11 +12,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import json
-
 """
 Nimbus exception types. Subclassed for specific errors
 """
+
+import json
 
 class NimbusClientError(Exception):
     """
@@ -25,6 +25,7 @@ class NimbusClientError(Exception):
 
     def __init__(self, reason):
         self.reason = reason
+        Exception.__init__(reason)
 
     def __repr__(self):
         return '%s: %s' % (self.__class__.__name__, self.reason)
@@ -42,20 +43,21 @@ class NimbusServerError(Exception):
         self.reason = reason
         
         if body:
-			b = json.loads(body)
-			if b.has_key('message'):
-				self.msg = b['message']
-			if b.has_key('requestId'):
-				self.request_id = b['requestId']
-
+            data = json.loads(body)
+            if data.has_key('message'):
+                self.msg = data['message']
+            if data.has_key('requestId'):
+                self.request_id = data['requestId']
+        
+        Exception.__init__(reason)
 
     def __repr__(self):
-		return '%s: %s (Request ID: %s)' % (self.__class__.__name__, 
-				(self.msg or self.reason), self.request_id)
-    
+        return '%s: %s (Request ID: %s)' % (self.__class__.__name__, 
+                (self.msg or self.reason), self.request_id)
+        
     def __str__(self):
-		return '%s: %s (Request ID: %s)' % (self.__class__.__name__, 
-				(self.msg or self.reason), self.request_id)
+        return '%s: %s (Request ID: %s)' % (self.__class__.__name__, 
+                (self.msg or self.reason), self.request_id)
 
 class NotFoundError(NimbusServerError):
     """

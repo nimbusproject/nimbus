@@ -18,7 +18,7 @@ from urlparse import urljoin
 import httplib2
 import json
 
-from nimbusrest.error import NimbusServerError,NotFoundError
+from nimbusrest.error import NimbusServerError, NotFoundError
 
 class Connection(object):
     """

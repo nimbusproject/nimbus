@@ -12,8 +12,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+"""
+Client to the Nimbus RESTful web service
+"""
 
-Version = '0.1'
+VERSION = '0.1'
 
 def connect_admin(uri, key=None, secret=None, **kwargs):
     """
