@@ -27,10 +27,10 @@ class NimbusClientError(Exception):
         self.reason = reason
 
     def __repr__(self):
-        return 'NimbusError: %s' % self.reason
+        return '%s: %s' % (self.__class__.__name__, self.reason)
 
     def __str__(self):
-        return 'NimbusError: %s' % self.reason
+        return '%s: %s' % (self.__class__.__name__, self.reason)
 
 class NimbusServerError(Exception):
     """
@@ -50,9 +50,15 @@ class NimbusServerError(Exception):
 
 
     def __repr__(self):
-		return 'NimbusServerError: %s (Request ID: %s)' % ( 
+		return '%s: %s (Request ID: %s)' % (self.__class__.__name__, 
 				(self.msg or self.reason), self.request_id)
     
     def __str__(self):
-		return 'NimbusServerError: %s (Request ID: %s)' % ( 
+		return '%s: %s (Request ID: %s)' % (self.__class__.__name__, 
 				(self.msg or self.reason), self.request_id)
+
+class NotFoundError(NimbusServerError):
+    """
+    Server couldn't find requested resource
+    """
+    pass

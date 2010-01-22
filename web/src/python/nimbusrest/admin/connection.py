@@ -24,14 +24,37 @@ class AdminConnection(Connection):
         Connection.__init__(self, uri, key, secret)
 
     def list_users(self):
-        #TODO not done
-        return self.request('GET', 'users/')
+        """
+        Retrieves a list of users from service
+        """
+
+        r = self.request('GET', 'users/')
+        return [self._user_from_data(u) for u in r]
 
     def add_user(self, user):
-        #TODO not done
-        s = json.dumps(user)
+        """
+        Adds a new user and returns it with server-generated
+        fields populated.
+        """
 
-        self.request('POST', 'users/')
+        #TODO validate user?
+
+        udict = {'dn' : user.dn}
+
+        u = self.post_json('users/', udict)
+        return self._user_from_data(u)
+
+    def get_user(self, user_id):
+        """
+        Retrieves a single user from service
+        """
+
+        u = self.request('GET', 'users/%s' % (escape_id(user_id)))
+
+        return self._user_from_data(u)
+
+    def _user_from_data(self, data):
+        return User(data['dn'], conn=self, id=data['id']) 
 
     def get_user_access_key(self, user_id):
         """
@@ -39,8 +62,7 @@ class AdminConnection(Connection):
         Raises error if there is not an access key.
         """
         
-        s = self.request('GET', 'users/%s/access_key' % (escape_id(user_id)))
-        k = json.loads(s)
+        k = self.request('GET', 'users/%s/access_key' % escape_id(user_id))
         return AccessKey(k['key'], k['secret'])
 
     def generate_user_access_key(self, user_id):
@@ -50,8 +72,7 @@ class AdminConnection(Connection):
         and replaced.
         """
 
-        s = self.request('POST', 'users/%s/access_key' % (escape_id(user_id)))
-        k = json.loads(s)
+        k = self.request('POST', 'users/%s/access_key' % escape_id(user_id))
         return AccessKey(k['key'], k['secret'])
 
 

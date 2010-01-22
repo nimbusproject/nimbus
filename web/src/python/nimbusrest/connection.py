@@ -18,7 +18,7 @@ from urlparse import urljoin
 import httplib2
 import json
 
-from nimbusrest.error import NimbusServerError
+from nimbusrest.error import NimbusServerError,NotFoundError
 
 class Connection(object):
     """
@@ -50,6 +50,23 @@ class Connection(object):
         #TODO better url normalization/validation
         self.uri = uri+'/'
 
+    def post_json(self, path, body, headers=None):
+        """
+        Makes a POST request with a json content type.
+        If the body is not already a string, it is
+        json-encoded.
+        """
+
+        if headers == None:
+            headers = {}
+        else:
+            headers = headers.copy()
+        headers['Content-Type'] = 'application/json'
+
+        if not isinstance(body, basestring):
+            body = json.dumps(body)
+
+        return self.request('POST', path, body, headers)
 
     def request(self, method, path, body=None, headers=None):
         """
@@ -82,9 +99,9 @@ class Connection(object):
             response['content-type'] == 'application/json'):
 
             obj = json.loads(body)
-            return (response, obj)
+            return obj
 
-        return (response, body)
+        return body
 
 
     def handle_error_response(self, response, body):
@@ -94,5 +111,9 @@ class Connection(object):
         Override this in subclasses to raise specific errors.
         """
 
-        raise NimbusServerError(response.status, response.reason, body)
+        if response.status == 404:
+            err = NotFoundError(response.status, response.reason, body)
+        else:
+            err = NimbusServerError(response.status, response.reason, body)
 
+        raise err

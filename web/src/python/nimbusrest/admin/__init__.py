@@ -13,9 +13,9 @@
 # under the License.
 
 class User(object):
-"""
-A single Nimbus user
-"""
+    """
+    A single Nimbus user
+    """
     def __init__(self, dn, conn=None, id=None):
         self.dn = dn
         self.conn = conn
@@ -48,11 +48,9 @@ A single Nimbus user
 
 
 class AccessKey(object):
-"""
-A user's access key and secret
-"""
-
+    """
+    A user's access key and secret
+    """
     def __init__(self, key, secret):
         self.key = key
         self.secret = secret
-
