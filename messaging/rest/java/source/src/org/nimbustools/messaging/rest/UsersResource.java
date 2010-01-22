@@ -24,10 +24,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.core.UriBuilder;
 import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
 import java.lang.reflect.Method;
-import java.net.URI;
 
 import static org.nimbustools.messaging.rest.ResponseUtil.JSON_CONTENT_TYPE;
 import org.nimbustools.messaging.rest.repr.User;
@@ -55,22 +52,11 @@ public class UsersResource implements InitializingBean{
     @GET
     @Path("/")
     @Produces(JSON_CONTENT_TYPE)
-    public Response getUsers(@Context UriInfo uriInfo) {
+    public Response getUsers() {
 
         List<User> users = this.usersService.getUsers();
 
-        Map<URI, User> userMap = new HashMap<URI, User>(users.size());
-
-        final UriBuilder ub =
-                uriInfo.getAbsolutePathBuilder().path(getUserMethod);
-
-        for (User u : users) {
-            final URI uri = ub.build(u.getId());
-
-            userMap.put(uri,u);
-        }
-
-        return this.responseUtil.createJsonResponse(userMap);
+        return this.responseUtil.createJsonResponse(users);
     }
 
     @GET
@@ -106,17 +92,17 @@ public class UsersResource implements InitializingBean{
         //TODO validate user
 
         try {
-            usersService.addUser(user);
+            user = usersService.addUser(user);
         } catch (DuplicateUserException e) {
             throw new NimbusWebException("A user with the provided DN already exists",e);
         }
 
         final UriBuilder ub = uriInfo.getAbsolutePathBuilder().path(getUserMethod);
-        return responseUtil.createCreatedResponse(ub.build(user.getId()));
+        return responseUtil.createCreatedResponse(ub.build(user.getId()), user);
     }
 
     @GET
-    @Path("/{userId}/accesskey")
+    @Path("/{userId}/access_key")
     @Produces(JSON_CONTENT_TYPE)
     public Response getAccessKey(@PathParam("userId") String userId) {
 
@@ -134,7 +120,7 @@ public class UsersResource implements InitializingBean{
     }
 
     @POST
-    @Path("/{userId}/accesskey")
+    @Path("/{userId}/access_key")
     @Produces(JSON_CONTENT_TYPE)
     public Response generateAccessKey(@PathParam("userId") String userId) {
 

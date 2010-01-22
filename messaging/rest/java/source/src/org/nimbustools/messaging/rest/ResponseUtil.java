@@ -79,11 +79,18 @@ public class ResponseUtil {
         return Response.status(status).entity(json).build();
     }
 
-    public Response createCreatedResponse(URI uri) {
+    public Response createCreatedResponse(URI uri, Object body) {
         if (uri == null) {
             throw new IllegalArgumentException("uri may not be null");
         }
-        return Response.created(uri).build();
+
+
+        final Response.ResponseBuilder builder = Response.created(uri);
+        if (body != null) {
+            builder.entity(createJsonString(body));
+            builder.type(JSON_CONTENT_TYPE);
+        }
+        return builder.build();
     }
 
     public <T> T fromJson(String json, Class<T> classOfT) {

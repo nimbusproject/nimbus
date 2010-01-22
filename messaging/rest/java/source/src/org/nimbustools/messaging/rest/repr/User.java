@@ -15,31 +15,21 @@
  */
 package org.nimbustools.messaging.rest.repr;
 
-import org.nimbustools.messaging.gt4_0.common.SecurityUtil;
-
-import java.security.NoSuchAlgorithmException;
-
 public class User {
 
+    private String id;
     private String dn;
     private String name;
     private String group;
 
+
+
     public String getId() {
-
-        if (dn == null) {
-            return null;
-        }
-
-        return "0"+getDnHash();
+        return id;
     }
 
-    private String getDnHash() {
-        try {
-            return SecurityUtil.hashDN(dn);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getDn() {

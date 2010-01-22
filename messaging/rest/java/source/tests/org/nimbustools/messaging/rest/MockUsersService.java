@@ -18,6 +18,7 @@ import org.nimbustools.messaging.rest.UsersService;
 import org.nimbustools.messaging.rest.UnknownKeyException;
 import org.nimbustools.messaging.rest.repr.User;
 import org.nimbustools.messaging.rest.repr.AccessKey;
+import org.nimbustools.messaging.gt4_0.common.SecurityUtil;
 import org.springframework.security.core.codec.Base64;
 import org.joda.time.DateTime;
 
@@ -47,6 +48,9 @@ public class MockUsersService implements UsersService {
     }
 
     public User addUser(User user) {
+
+        user.setId(getDnHash(user.getDn()));
+
         users.put(user.getId(), user);
         return user;
     }
@@ -80,6 +84,14 @@ public class MockUsersService implements UsersService {
         keys.put(user.getId(), accessKey);
 
         return accessKey;
+    }
+
+    private String getDnHash(String dn) {
+        try {
+            return SecurityUtil.hashDN(dn);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
