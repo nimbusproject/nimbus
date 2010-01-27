@@ -21,13 +21,13 @@ class NewUserForm(forms.Form):
         query_id = "query_id"
         query_secret = "query_secret"
 
-    def clean_common(self, name):
+    def clean_common(self, name, allow_empty=False):
         """Adds strip() to string validation.  
         The django cleaning functions accept extraneous spaces, even strings that are just spaces.  (email validation does not)
         """
         x = self.cleaned_data[name]
         x = x.strip()
-        if not x:
+        if (not x) and (not allow_empty):
             raise forms.ValidationError("Must contain actual characters")
         return x
 
@@ -41,7 +41,7 @@ class NewUserForm(forms.Form):
         return self.clean_common(self.KEYS.lastname)
 
     def clean_query_id(self):
-        return self.clean_common(self.KEYS.query_id)
+        return self.clean_common(self.KEYS.query_id, allow_empty=True)
 
     def clean_query_secret(self):
-        return self.clean_common(self.KEYS.query_secret)
+        return self.clean_common(self.KEYS.query_secret, allow_empty=True)
