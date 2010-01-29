@@ -32,9 +32,6 @@ import os
 import logging
 from cStringIO import StringIO
 from optparse import OptionParser
-from xml.sax import make_parser
-from xml.sax.handler import ContentHandler
-import xml
 import subprocess
 import commands
 import re
@@ -95,13 +92,12 @@ def loadNimbusConfig():
         print "Configuration file not found in Nagios Plug-ins directory"
         sys.exit(NAGIOS_RET_CRITICAL)
 
+def pluginExitN(messageIdentifier, pluginInfo, returnCode):
 
-def pluginExit(messageString, logString, returnCode):
- 
-#    This method should be the only exit point for all the plug-ins. This ensures that 
-#    Nagios requirements are meant and performance data is properly formatted to work
-#    with the rest of the code. Do NOT just call sys.exit in the code (if you want your
-#    plug-in to function with the rest of the code!
+    # This method should be the only exit point for all the plug-ins. This ensures that 
+    # Nagios requirements are meant and performance data is properly formatted to work
+    # with the rest of the code. Do NOT just call sys.exit in the code (if you want your
+    # plug-in to function with the rest of the code!
 
 
     # ALRIGHT, so the log string is seperated by  my "delimiter" ';'
@@ -109,31 +105,26 @@ def pluginExit(messageString, logString, returnCode):
 
     # 2009-05-29 13:48:55,638 ; VMMemory ; INFO ; sl52base ; MEMORY ; 524288
 
-    # The pertinent information should be located in the "4th col" and on
-    # The 3rd col lists the "logger lvl", which I'm using to indicate
-    # if it's standard plug-in output or an error
-
     outputString = StringIO()
     outputString.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
 
     localIP = (socket.gethostbyaddr( socket.gethostname() ))[2][0]
+    outputString.write("<Head Node>")
+    outputString.write("<Physical IP>"+localIP+"</Physical IP>")
 
-    lines = logString.splitlines()
-    for line in lines:
-        # If we encounter an 'error' entry in the logger, skip over it
-        if (line.find("ERROR") != -1):
-            returnCode = NAGIOS_RET_CRITICAL
-            continue
-        logStringEntries = line.split(';')
-        
-        outputString.write("<RES LOC=\""+localIP+"\" TYPE=\""+messageString+":" +logStringEntries[3].strip()+"\">")
+    outputString.write("<"+messageIdentifier+">")
+    for key in pluginInfo.keys():            
+            outputString.write("<"+key.strip()+">")
+            if( type(pluginInfo[key]) == type(list())):
+                for val in pluginInfo[key]:
+                    outputString.write("<"+val+"/>")
+            else:
+                outputString.write(pluginInfo[key])
+            outputString.write("</"+key.strip()+">") 
+    outputString.write("</"+messageIdentifier+">")
+    outputString.write("</Head Node>")
 
-        outputString.write("<ENTRY ID=\""+logStringEntries[4].strip()+"\">")
-        outputString.write(logStringEntries[5].strip())
-        outputString.write("</ENTRY>")
-        outputString.write("</RES>")
-
-    sys.stdout.write(messageString+" | "+ outputString.getvalue()+"\n")
+    sys.stdout.write(messageIdentifier+" | "+ outputString.getvalue()+"\n")
     sys.exit(returnCode)
 
 class PluginObject:    
@@ -143,20 +134,15 @@ class PluginObject:
     """
 
     def __init__(self, callingClass):
-        self.logString = StringIO()
     
         self.logger = logging.getLogger(callingClass)
         self.logger.setLevel(logging.INFO)
         formatter = logging.Formatter('%(asctime)s ; %(name)s ; %(levelname)s ; %(message)s')
-        xmlOutputHndlr = logging.StreamHandler(self.logString)
-        xmlOutputHndlr.setFormatter(formatter)
-        xmlOutputHndlr.setLevel(logging.INFO)
 
         errorOutputHndlr = logging.StreamHandler(sys.stdout)
         errorOutputHndlr.setFormatter(formatter)
         errorOutputHndlr.setLevel(logging.ERROR)
 
-        self.logger.addHandler(xmlOutputHndlr)
         self.logger.addHandler(errorOutputHndlr)
 
 
@@ -200,6 +186,8 @@ class HeadNodePBSSupport(PluginObject):
 
     def __call__(self, option, opt_str, value, parser):
 
+        pluginOutput = {}
+
         try:
             fileHandle = open(ConfigMapping[NIMBUS_LOCATION]+NIMBUS_CONF+NIMBUS_PBS_SUPPORT)
         except IOError:
@@ -213,8 +201,8 @@ class HeadNodePBSSupport(PluginObject):
                 else:
                     pbsSupported = True
             fileHandle.close()    
-            self.logger.info("-; PilotJobSupport; "+str(pbsSupported))
-            pluginExit(self.resourceName, self.logString.getvalue(), NAGIOS_RET_OK)
+            pluginOutput["Active"] = str(pbsSupported)
+            pluginExitN(self.resourceName,pluginOutput, NAGIOS_RET_OK)
 
 class HeadNodePBSMemory(PluginObject):
     """ The class parses the Nimbus configuration files to determine how much total memory is available
@@ -227,6 +215,8 @@ class HeadNodePBSMemory(PluginObject):
         PluginObject.__init__(self, self.__class__.__name__)
 
     def __call__(self, option, opt_str, value, parser):
+
+        pluginOutput = {}
 
         try:
             fileHandle = open(ConfigMapping[NIMBUS_LOCATION]+NIMBUS_CONF+NIMBUS_PBS_CONF)
@@ -243,8 +233,8 @@ class HeadNodePBSMemory(PluginObject):
                     lineSegs = line.split("=")
                     memory = int(lineSegs[1].strip())
             fileHandle.close()
-            self.logger.info("-; Available; "+str(memory))    
-            pluginExit(self.resourceName, self.logString.getvalue(), NAGIOS_RET_OK)
+            pluginOutput["Total Memory"] = str(memory)
+            pluginExitN(self.resourceName, pluginOutput, NAGIOS_RET_OK)
             
             
 class HeadNodeDBConsistent(PluginObject):
@@ -275,6 +265,7 @@ class HeadNodeDBConsistent(PluginObject):
     
     def __call__(self, option, opt_str, value, parser):
     
+        pluginOutput = {}
         isConsistent = True
 
         query = ConfigMapping[IJ_LOCATION]+ " "+SQL_IP_SCRIPT
@@ -312,7 +303,6 @@ class HeadNodeDBConsistent(PluginObject):
         if(status != ""):
             self.logger.error("An error occured querying DerbyDB with IJ "+ status)
 
-
         ijOutput = output.split()
         counter = 0
         VMs = []
@@ -338,10 +328,7 @@ class HeadNodeDBConsistent(PluginObject):
                     VMs.append({"IP":networkEntries[5], "TermTime":termTime,"StartTime":startTime, "ShutdownTime":shutdownTime})
                 counter += 1
         currentTime = int(time.time())
-        #print VMs
         for entry in VMs:
-            #print currentTime
-            #print entry["ShutdownTime"]
             if(int(currentTime) > int(entry["ShutdownTime"] )):
                 # Need to ping the VM to see if it's still alive
                 if(self.ping(entry["IP"])  ):
@@ -353,9 +340,8 @@ class HeadNodeDBConsistent(PluginObject):
             retCode = NAGIOS_RET_OK
         else:
             retCode = NAGIOS_RET_CRITICAL
-        self.logger.info("Head-Node; Consistent ; "+str(isConsistent))
-        
-        pluginExit(self.resourceName, self.logString.getvalue(), retCode)
+        pluginOutput["Consistent"] = str(isConsistent)
+        pluginExitN(self.resourceName,pluginOutput,  retCode)
 
     # The only "tunable" paramter for this function is the number value that comes after the '-c' in the Popen
     # command below. This is a parameter for the 'ping' command line utility and dictates the number of 'pings'
@@ -382,16 +368,19 @@ class HeadNodeVMMPools(PluginObject):
         self.resourceName = "VMM-Pools"
 
     def __call__(self, option, opt_str, value, parser):
-        
+       
+        pluginOutput = {}
+ 
         try:
-            vmmPools = os.listdir(str(ConfigMapping[NIMBUS_LOCATION])+NIMBUS_CONF+NIMBUS_PHYS_CONF)
+            vmmPools = os.listdir(str(ConfigMapping[NIMBUS_LOCATION])+NIMBUS_CONF+NIMBUS_PHYS_CONF+"poop")
         except OSError, ose:
             self.logger.error("Error listing VMMPool directory: "+str(ose))  
-
+            sys.exit(NAGIOS_RET_CRITICAL)
         try:
             netPools = os.listdir(ConfigMapping[NIMBUS_LOCATION]+NIMBUS_CONF+NIMBUS_NET_CONF)
         except OSError, ose:
            self.logger.error("Error listing NetPool directory: "+str(ose))
+           sys.exit(NAGIOS_RET_CRITICAL)
 
         poolListing = {}
         for pool in vmmPools:
@@ -438,12 +427,12 @@ class HeadNodeVMMPools(PluginObject):
             except IOError:
                 self.logger.error("Error opening VMM-pool: "+ConfigMapping[GLOBUS_LOCATION]+NIMBUS_CONF+NIMBUS_PHYS_CONF+ pool)
                 sys.exit(NAGIOS_RET_CRITICAL)
-
         for key in poolListing.keys():
             for entry in totalNetPools.keys():
-                self.logger.info(key+" ; "+entry+" ; "+str(poolListing[key][entry]))            
             
-        pluginExit(self.resourceName, self.logString.getvalue(), NAGIOS_RET_OK)
+                pluginOutput[key+":"+entry] = str(poolListing[key][entry])
+        
+        pluginExitN(self.resourceName, pluginOutput,  NAGIOS_RET_OK)
 
 class HeadNodeNetPools(PluginObject):
     """ The class parses the Nimbus Network Pools configuration files to determine how many IP address slots are 
@@ -458,6 +447,8 @@ class HeadNodeNetPools(PluginObject):
 
     def __call__(self, option, opt_str, value, parser):
         
+        pluginOutput = {}
+ 
         try:
             netPools = os.listdir(ConfigMapping[NIMBUS_LOCATION]+NIMBUS_CONF+NIMBUS_NET_CONF)
         except OSError, ose:
@@ -492,7 +483,7 @@ class HeadNodeNetPools(PluginObject):
                 totalNetPools.append(netPoolData)
             except IOError:
                 self.logger.error("Error opening network-pool: "+ConfigMapping[NIMBUS_LOCATION]+NIMBUS_CONF+NIMBUS_NET_CONF+"/"+pool)
-                sys.exit(NAGIOS_RET_ERROR)
+                sys.exit(NAGIOS_RET_CRITICAL)
 
         query = ConfigMapping[IJ_LOCATION]+ " "+SQL_IP_SCRIPT
         output,status = (subprocess.Popen([query],stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell=True, env={'DERBY_HOME':ConfigMapping[DERBY_LOCATION],'JAVA_HOME':ConfigMapping[JAVA_LOCATION],'GLOBUS_HOME':ConfigMapping[NIMBUS_LOCATION]})).communicate()
@@ -503,20 +494,32 @@ class HeadNodeNetPools(PluginObject):
             myRe = patt.search(line)
             if(myRe):
                 derbyIPs.append(line.strip())
-        uniqueID = 0
         for ip in derbyIPs:
-            self.logger.info("Used:"+str(uniqueID)+ " ; Used; "+ str(ip))
-            uniqueID = uniqueID+1
-        uniqueID = 0
-        for dict in totalNetPools:
-            count = len(dict["NETWORK"])
+            try:
+                pluginOutput["Allocated IPs"].append(str(ip))
+            except KeyError:
+                pluginOutput["Allocated IPs"] = []
+                pluginOutput["Allocated IPs"].append(str(ip))
+        for pool in totalNetPools:
+            count = len(pool["NETWORK"])
                       
-                      
-            self.logger.info("Totals ;"+dict["ID"]+";"+ str(count))
-            for entry in dict["NETWORK"]:
-                self.logger.info(str(uniqueID)+";"+dict["ID"]+";"+str(entry[1]))    
-                uniqueID = uniqueID+1
-        pluginExit(self.resourceName, self.logString.getvalue(), NAGIOS_RET_OK)
+            pluginOutput["Total IPs:"+str(pool["ID"])] = str(count)
+            available = count
+            for entry in pool["NETWORK"]:
+                try:
+                    pluginOutput[pool["ID"]].append(str(entry[1]))
+                except KeyError:
+                    pluginOutput[pool["ID"]] = []
+                    pluginOutput[pool["ID"]].append(str(entry[1]))
+                
+                try:
+                    for allocIP in pluginOutput["Allocated IPs"]:
+                        if (entry[1] == allocIP):
+                            available -= 1
+                except KeyError:
+                   pass
+                pluginOutput["Available IPs:"+str(pool["ID"])] = str(available) 
+        pluginExitN(self.resourceName,pluginOutput, NAGIOS_RET_OK)
 
 if __name__ == '__main__':
     loadNimbusConfig()

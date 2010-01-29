@@ -23,7 +23,6 @@
  *
  * """
 
-
 __VERSION__ = '0.01'
 
 import sys
@@ -43,7 +42,7 @@ NAGIOS_RET_CRITICAL = 2
 NAGIOS_RET_UNKNOWN = 3
 
 
-def pluginExit(messageString, logString, returnCode):
+def pluginExit(messageIdentifier, logString, returnCode):
     """ This method should be the only exit point for all the plug-ins. This ensures that 
     Nagios requirements are meant and performance data is properly formatted to work
     with the rest of the code. Do NOT just call sys.exit in the code (if you want your
@@ -67,9 +66,9 @@ def pluginExit(messageString, logString, returnCode):
 
     # There doesn't seem to be any error handling I can do here... Ugly
     localIP = (socket.gethostbyaddr( socket.gethostname() ))[2][0]
-    
-    resourceString = "<RES LOC=\""+ localIP+"\" TYPE=\""+messageString+"\">"
-    outputString.write(resourceString)
+    outputString.write("<Worker Node>")    
+    outputString.write("<Node IP>"+ localIP+ "</Node IP>")
+    #outputString.write(resourceString)
     lines = logString.splitlines()
     for line in lines:
         # If we encounter an 'error' entry in the logger, make sure to alert the NAGIOS admin
@@ -78,14 +77,45 @@ def pluginExit(messageString, logString, returnCode):
             continue
         logStringEntries = line.split(';')
         
-        outputString.write("<ENTRY ID=\""+logStringEntries[3].strip()+"\">")
 
-        outputString.write(logStringEntries[5].strip())
-        outputString.write("</ENTRY>")
-        outputString.write("</RES>")
+        outputString.write("<"+logStringEntries[3].strip()+">") 
+        outputString.write("<"+messageIdentifier +">"+logStringEntries[5].strip()+"</"+messageIdentifier+">")
+        outputString.write("</"+logStringEntries[3].strip()+">")
+        #outputString.write("</ENTRY>")
+    outputString.write("</Worker Node>")
 
 
-    print messageString+" | "+ outputString.getvalue()
+    print messageIdentifier+" | "+ outputString.getvalue()
+    sys.exit(returnCode)
+
+def pluginExitN(messageIdentifier, pluginInfo, returnCode):
+
+    # This method should be the only exit point for all the plug-ins. This ensures that 
+    # Nagios requirements are meant and performance data is properly formatted to work
+    # with the rest of the code. Do NOT just call sys.exit in the code (if you want your
+    # plug-in to function with the rest of the code!
+
+
+    outputString = StringIO()
+    outputString.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
+
+    localIP = (socket.gethostbyaddr( socket.gethostname() ))[2][0]
+    outputString.write("<Worker Node>")
+    outputString.write("<Physical IP>"+localIP+"</Physical IP>")
+
+    outputString.write("<"+messageIdentifier+">")
+    for key in pluginInfo.keys():
+            outputString.write("<"+key.strip()+">")
+            if( type(pluginInfo[key]) == type(list())):
+                for val in pluginInfo[key]:
+                    outputString.write("<"+val+"/>")
+            else:
+                outputString.write(pluginInfo[key])
+            outputString.write("</"+key.strip()+">")
+    outputString.write("</"+messageIdentifier+">")
+    outputString.write("</Worker Node>")
+
+    sys.stdout.write(messageIdentifier+" | "+ outputString.getvalue()+"\n")
     sys.exit(returnCode)
 
 
@@ -95,20 +125,22 @@ class PluginObject:
     be changed without breaking almost all the code. Don't change the log format!
     """
     def __init__(self, callingClass):
-        self.logString = StringIO()
+      #  self.logString = StringIO()
         self.logger = logging.getLogger(callingClass)
         self.logger.setLevel(logging.INFO)
         formatter = logging.Formatter('%(asctime)s ; %(name)s ; %(levelname)s ; %(message)s')
-        xmlOutputHndlr = logging.StreamHandler(self.logString)
-        xmlOutputHndlr.setFormatter(formatter)
-        xmlOutputHndlr.setLevel(logging.INFO)
+       # xmlOutputHndlr = logging.StreamHandler(self.logString)
+       # xmlOutputHndlr.setFormatter(formatter)
+       # xmlOutputHndlr.setLevel(logging.INFO)
 
         errorOutputHndlr = logging.StreamHandler(sys.stdout)
         errorOutputHndlr.setFormatter(formatter)
         errorOutputHndlr.setLevel(logging.ERROR)
 
-        self.logger.addHandler(xmlOutputHndlr)
+        #self.logger.addHandler(xmlOutputHndlr)
         self.logger.addHandler(errorOutputHndlr)
+
+        self.pluginOutput = {}
 
 class Virtualized(PluginObject):
     """ This class is designed to be a "Abstract Base Class" in C++ terms, meaning it is intended to
@@ -122,9 +154,9 @@ class Virtualized(PluginObject):
         self.VMConnection  = libvirt.openReadOnly(None)
         if self.VMConnection == None:
             self.logger.error('Unable to open a Read-Only connection to local XEN Hypervisor')
-            pluginExit("Virtualized - Base Class",self.logString.getvalue(), NAGIOS_RET_ERROR)
+            sys.exit(NAGIOS_RET_CRITICAL)
+            #pluginExit("Virtualized - Base Class",self.logString.getvalue(), NAGIOS_RET_ERROR)
         
-
         self.VMDomainsID = self.VMConnection.listDomainsID()
         self.VMs={}
         for id in self.VMDomainsID:
@@ -136,7 +168,8 @@ class Virtualized(PluginObject):
                 self.VMs[id] = (self.VMConnection.lookupByID(id))
             except:
                 self.logger.error("Failed to lookup a VM from a VMConnection by \'id\'")
-                pluginExit("Virtualized - Base Class",self.logString.getvalue(), NAGIOS_RET_ERROR)
+                sys.exit(NAGIOS_RET_CRITICAL)
+                #pluginExit("Virtualized - Base Class",self.logString.getvalue(), NAGIOS_RET_ERROR)
 
 # I thought I'd have to define the __call__ function, but it seems like the 
 # ctr is doing what I need it to for the 'Callback' functionality
@@ -152,9 +185,10 @@ class VMMemory(Virtualized):
 
     def __call__(self, option, opt_str, value, parser):
         for vm in self.VMs.values():
-            self.logger.info(vm.name()+' ; '+self.resourceName+ " ; %d", (vm.maxMemory()/1024))
+            self.pluginOutput[vm.name()] = str(vm.maxMemory())
+            #self.logger.info(vm.name()+' ; '+self.resourceName+ " ; %d", vm.maxMemory())
 
-        pluginExit(self.resourceName, self.logString.getvalue(), NAGIOS_RET_OK)
+        pluginExitN(self.resourceName, self.pluginOutput, NAGIOS_RET_OK)
 
 class VMVirt(Virtualized):
     """ This class will determine what virtualization technology is being used on each Virtual Machine
@@ -165,9 +199,28 @@ class VMVirt(Virtualized):
         self.resourceName = 'VM-Virtualization'
 
     def __call__(self,option, opt_str, value,parser):
-        self.logger.info(self.VMConnection.getHostname()+";"+self.resourceName+";"+self.VMConnection.getType())
+        #self.logger.info(self.VMConnection.getHostname()+";"+self.resourceName+";"+self.VMConnection.getType())
+        self.pluginOutput[self.VMConnection.getHostname().strip()] = str(self.VMConnection.getType())
+        pluginExitN(self.resourceName, self.pluginOutput, NAGIOS_RET_OK)
 
-        pluginExit(self.resourceName, self.logString.getvalue(), NAGIOS_RET_OK)
+        
+# Below is from libvirt.org and documents the layout of the data structure returned from the getInfo() call
+# While this is a C struct, the layout and format is identical in Python
+
+# Currently this info is useful for the VMCpuCores, VMCpuFreq and VMCpuArch plugins
+
+        #struct virNodeInfo{
+
+        #charmodel[32]  model   : string indicating the CPU model
+        #unsigned long  memory  : memory size in kilobytes
+        #unsigned int   cpus    : the number of active CPUs
+        #unsigned int   mhz     : expected CPU frequency
+        #unsigned int   nodes   : the number of NUMA cell, 1 for uniform mem access
+        #unsigned int   sockets : number of CPU socket per node
+        #unsigned int   cores   : number of core per socket
+        #unsigned int   threads : number of threads per core
+        #}
+
 
 class VMCpuCores(Virtualized):
     """ This class will determine the number of CPU cores running on the local node. This is done through a libvirt
@@ -180,8 +233,9 @@ class VMCpuCores(Virtualized):
     def __call__(self, option, opt_str, value, parser):
 
         tempRes = self.VMConnection.getInfo()
-        self.logger.info(self.VMConnection.getHostname()+';'+self.resourceName+';'+str(tempRes[2]))
-        pluginExit(self.resourceName, self.logString.getvalue(), NAGIOS_RET_OK)        
+
+        self.pluginOutput[self.VMConnection.getHostname().strip()] = str(tempRes[2])
+        pluginExitN(self.resourceName, self.pluginOutput, NAGIOS_RET_OK)        
 
 class VMCpuFreq(Virtualized):
     """ This class determines the CPU frequency of the local nodes processor. This was tested with a uniprocessor
@@ -196,13 +250,9 @@ class VMCpuFreq(Virtualized):
     def __call__(self,option, opt_str, value, parser):
 
         tempRes = self.VMConnection.getInfo()
-        self.logger.info(self.VMConnection.getHostname()+';'+self.resourceName+';'+str(tempRes[3]))       
-        pluginExit(self.resourceName, self.logString.getvalue(), NAGIOS_RET_OK)
+        self.pluginOutput[self.VMConnection.getHostname().strip()] = str(tempRes[3])
+        pluginExitN(self.resourceName, self.pluginOutput, NAGIOS_RET_OK)
 
-ARCH_MAP = {    "i686"  : "x86",
-                        "i386"  : "x86",
-                        "x86_64":"x86_64"}
-           # This entry seems rebarbative but it provides a uniform interface
 class VMCpuArch(Virtualized):
     """ The class determines what the underlying CPU architecture is, and uses this information to determine
     whether the machine is running in 32bit or 64bit mode. This code was only tested on 32bit Sempron
@@ -210,14 +260,19 @@ class VMCpuArch(Virtualized):
     'i386' or 'i686' through libvirt.
     """
 
+    ARCH_MAP = {    "i686"  : "x86",
+                        "i386"  : "x86",
+                        "x86_64":"x86_64"}
+           # This entry seems rebarbative but it provides a uniform interface
+
     def __init__(self):
         Virtualized.__init__(self)
         self.resourceName = 'VM-CPUArch'
 
     def __call__(self, option, opt_str, value,parser):
         tempRes = self.VMConnection.getInfo()
-        self.logger.info(self.VMConnection.getHostname()+';'+self.resourceName+";"+ARCH_MAP[tempRes[0]])
-        pluginExit(self.resourceName, self.logString.getvalue(), NAGIOS_RET_OK)
+        self.pluginOutput[self.VMConnection.getHostname().strip()] = self.ARCH_MAP[tempRes[0]]
+        pluginExitN(self.resourceName, self.pluginOutput, NAGIOS_RET_OK)
 
 class VMOs(Virtualized):
     """ This class looks up what OS is running on each virtual machine deployed on the local node. An example
@@ -229,9 +284,9 @@ class VMOs(Virtualized):
 
     def __call__(self, option, opt_str, value, parser):
         for vm in self.VMs.values():
-            self.logger.info(vm.name()+' ; '+self.resourceName+ " ; "+ vm.OSType())
-
-        pluginExit(self.resourceName, self.logString.getvalue(), NAGIOS_RET_OK)
+            #self.logger.info(vm.name()+' ; '+self.resourceName+ " ; "+ vm.OSType())
+            self.pluginOutput[vm.name().strip()] = str(vm.OSType())
+        pluginExitN(self.resourceName, self.pluginOutput, NAGIOS_RET_OK)
         
 class VMFreeMem(Virtualized):
     """ This class determines how much free memory remains on the local node with all current virtual
@@ -251,9 +306,9 @@ class VMFreeMem(Virtualized):
         totalMem = int(tempRes[1])
         
         availableMem =totalMem -(usedMemory/1024)
-        self.logger.info(self.VMConnection.getHostname()+';'+self.resourceName+';'+str(availableMem))
 
-        pluginExit(self.resourceName, self.logString.getvalue(), NAGIOS_RET_OK)
+        #self.logger.info(self.VMConnection.getHostname()+';'+self.resourceName+';'+str(availableMem))
+        pluginExitN(self.resourceName, self.pluginOutput, NAGIOS_RET_OK)
 
 
 
