@@ -100,8 +100,8 @@ def pluginExitN(messageIdentifier, pluginInfo, returnCode):
     outputString.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
 
     localIP = (socket.gethostbyaddr( socket.gethostname() ))[2][0]
-    outputString.write("<Worker Node>")
-    outputString.write("<Physical IP>"+localIP+"</Physical IP>")
+    outputString.write("<WorkerNode>")
+    outputString.write("<PhysicalIP>"+localIP+"</PhysicalIP>")
 
     outputString.write("<"+messageIdentifier+">")
     for key in pluginInfo.keys():
@@ -113,7 +113,7 @@ def pluginExitN(messageIdentifier, pluginInfo, returnCode):
                 outputString.write(pluginInfo[key])
             outputString.write("</"+key.strip()+">")
     outputString.write("</"+messageIdentifier+">")
-    outputString.write("</Worker Node>")
+    outputString.write("</WorkerNode>")
 
     sys.stdout.write(messageIdentifier+" | "+ outputString.getvalue()+"\n")
     sys.exit(returnCode)
@@ -185,7 +185,9 @@ class VMMemory(Virtualized):
 
     def __call__(self, option, opt_str, value, parser):
         for vm in self.VMs.values():
-            self.pluginOutput[vm.name()] = str(vm.maxMemory())
+            # vm.maxMemory reports 'kB' of memory, but we want to report 'MB' to be consistent across all plugins
+            # hence, vm.maxMemory/1024 will convert from 'kB'->'MB'
+            self.pluginOutput[vm.name()] = str(vm.maxMemory()/1024)
             #self.logger.info(vm.name()+' ; '+self.resourceName+ " ; %d", vm.maxMemory())
 
         pluginExitN(self.resourceName, self.pluginOutput, NAGIOS_RET_OK)
@@ -303,11 +305,12 @@ class VMFreeMem(Virtualized):
             usedMemory = usedMemory + vm.maxMemory()
 
         tempRes = self.VMConnection.getInfo()
-        totalMem = int(tempRes[1])
-        
-        availableMem =totalMem -(usedMemory/1024)
-
+        totalMemory = int(tempRes[1])
+        # 'usedMemory' is reported from libvirt's 'vm.maxMemory' in kB, thus usedMemory/1024 = MB, which
+        # then matches what's reported from the 'getInfo()' call, which is in MB
+        availableMemory =totalMemory -(usedMemory/1024)
         #self.logger.info(self.VMConnection.getHostname()+';'+self.resourceName+';'+str(availableMem))
+        self.pluginOutput[self.VMConnection.getHostname().strip()] = str(availableMemory)
         pluginExitN(self.resourceName, self.pluginOutput, NAGIOS_RET_OK)
 
 
@@ -327,7 +330,7 @@ class PluginCmdLineOpts(PluginObject):
             action="store_false", help="Diplay version information",default=True)
         #parser.add_option("-v","--verbose",dest="verbosity",help="Set verbosity level (0-3)",default=0)
 
-        parser.add_option("--VMmem", help="Discover the of memory dedicated to each VM (in MB)", action="callback", callback=VMMemory())
+        parser.add_option("--VMmem", help="Discover the of memory dedicated to each VM (in KB)", action="callback", callback=VMMemory())
         parser.add_option("--VMos", help="Discover the OS running on each VM", action="callback", callback=VMOs())
         parser.add_option("--VMcpuarch",help="Discover the host CPU architecture (x86 or x86_64)", action="callback", callback=VMCpuArch())        
         parser.add_option("--VMvirt", help="Discover the host virtualization technology",action="callback", callback=VMVirt())
