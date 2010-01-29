@@ -242,8 +242,6 @@ class HeadNodePBSMemory(PluginObject):
                 else:
                     lineSegs = line.split("=")
                     memory = int(lineSegs[1].strip())
-            # Convert the megabytes to kbytes for consistency with other memory reporting 
-            memory *= 1024
             fileHandle.close()
             self.logger.info("-; Available; "+str(memory))    
             pluginExit(self.resourceName, self.logString.getvalue(), NAGIOS_RET_OK)
@@ -460,7 +458,13 @@ class HeadNodeNetPools(PluginObject):
 
 
     def __call__(self, option, opt_str, value, parser):
-        netPools = os.listdir(ConfigMapping[NIMBUS_LOCATION]+NIMBUS_CONF+NIMBUS_NET_CONF)
+        
+        try:
+            netPools = os.listdir(ConfigMapping[NIMBUS_LOCATION]+NIMBUS_CONF+NIMBUS_NET_CONF)
+        except OSError, ose:
+            self.logger.error("Error listing the Network Pools directory: "+ str(ose))
+            sys.exit(NAGIOS_RET_CRITICAL)
+
         totalNetPools = []
         for pool in netPools:
 
@@ -520,5 +524,5 @@ if __name__ == '__main__':
     testObject = PluginCmdLineOpts()
     testObject.validate()
 
-# This sys.exit call should NEVER be reached under normal circumstances, or any....
-sys.exit(NAGIOS_RET_CRITICAL)
+    # This sys.exit call should NEVER be reached under normal circumstances, or any....
+    sys.exit(NAGIOS_RET_CRITICAL)
