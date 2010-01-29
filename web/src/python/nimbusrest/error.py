@@ -16,7 +16,10 @@
 Nimbus exception types. Subclassed for specific errors
 """
 
-import json
+try:
+    import json
+except ImportError:
+    import simplejson as json
 
 class NimbusClientError(Exception):
     """

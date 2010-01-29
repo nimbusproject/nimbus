@@ -16,7 +16,10 @@ import os
 from urlparse import urljoin
 
 import httplib2
-import json
+try:
+    import json
+except ImportError:
+    import simplejson as json
 
 from nimbusrest.error import NimbusServerError, NotFoundError
 

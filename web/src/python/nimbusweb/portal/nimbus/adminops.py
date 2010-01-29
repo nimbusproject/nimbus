@@ -152,17 +152,7 @@ def _newuser(newuserform, request_files):
     # filled in to help the user re-enter content when there is an error.
     return (None, noerror_flash_msg, None)
 
-def nimbus_user_create(user_instance):
-    """Use the Nimbus API to register a new Nimbus User.
-    """
-    from nimbusrest.connection import Connection
-    service_uri = settings.NIMBUS_SERVICE_URI
-    conn = Connection(service_uri) #, nimbus_key, nimbus_secret)
-    body = {"username":user_instance.username} #XXX what else is needed?
-    response = conn.post_json("/user/create", body) #let caller handle errors
-    return response
-    
-    
+   
 def ok_token_attempt(ipaddress, maxcount):
     """Return False if this IP has submitted too many tokens"""
     try:

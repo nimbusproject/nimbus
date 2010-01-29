@@ -1,0 +1,8 @@
+TODO: should this file go here?
+
+
+Running tests
+-------------
+
+Example: test only the "nimbus" app test:
+    $ python nimbusweb/portal/manage.py test nimbus --pythonpath="."
