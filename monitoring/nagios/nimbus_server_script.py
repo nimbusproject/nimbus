@@ -441,8 +441,7 @@ class HeadNodeVMMPools(PluginObject):
 
         for key in poolListing.keys():
             for entry in totalNetPools.keys():
-		# The additional '*1024' was added to convert MB to kB and maintain consistency across all plug-ins
-                self.logger.info(key+" ; "+entry+" ; "+str(poolListing[key][entry]*1024))            
+                self.logger.info(key+" ; "+entry+" ; "+str(poolListing[key][entry]))            
             
         pluginExit(self.resourceName, self.logString.getvalue(), NAGIOS_RET_OK)
 
