@@ -11,10 +11,12 @@ MARKERFILE="nimbusweb.empty.marker"
 DJANGO_TARGET="$NIMBUS_WEBDIR/lib/python/django"
 CHERRPY_TARGET="$NIMBUS_WEBDIR/lib/python/cherrypy"
 AUTOCOMMON_JAR_TARGET="$NIMBUS_WEBDIR/lib/java"
+PROCESSMAN_TARGET="$NIMBUS_WEBDIR/lib/python/ProcessManager.py"
 
 if [ ! -f "$DJANGO_TARGET/$MARKERFILE" ] &&
    [ ! -f "$CHERRPY_TARGET/$MARKERFILE" ] &&
-   [ ! -f "$AUTOCOMMON_JAR_TARGET/$MARKERFILE" ]; then
+   [ ! -f "$AUTOCOMMON_JAR_TARGET/$MARKERFILE" ] &&
+   [ -f $PROCESSMAN_TARGET ]; then # processman is only a single file
      
     #echo "debug: no marker files found"
     exit 0
@@ -28,6 +30,7 @@ TMPDIR="$NIMBUS_WEBDIR/var/tmplibdir"
 DJANGO_ARCHIVE="$NIMBUS_WEBDIR/lib/Django-1.1.1.tar.gz"
 CHERRPY_ARCHIVE="$NIMBUS_WEBDIR/lib/CherryPy-3.1.2.tar.gz"
 AUTOCOMMON_ARCHIVE="$NIMBUS_WEBDIR/lib/nimbus-autocommon.tar.gz"
+PROCESSMAN_SRCFILE="$NIMBUS_WEBDIR/lib/ProcessManager.py"
 
 if [ -e $TMPDIR ]; then
     echo "Cannot proceed, the temp directory exists: $TMPDIR"
@@ -139,6 +142,17 @@ if [ -f "$AUTOCOMMON_JAR_TARGET/$MARKERFILE" ]; then
         echo "Could not remove $AUTOCOMMON_JAR_TARGET/$MARKERFILE"
         exit 1
     fi
+fi
+
+if [ ! -f $PROCESSMAN_TARGET ]; then
+    
+    if [ ! -f $PROCESSMAN_SRCFILE ]; then
+        echo "Could not find ProcessManager source file: $PROCESSMAN_SRCFILE"
+        exit 1
+    fi
+    
+    cp $PROCESSMAN_SRCFILE $PROCESSMAN_TARGET
+    
 fi
 
 rm -rf $TMPDIR
