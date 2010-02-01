@@ -165,9 +165,10 @@ class Process:
                   program,
                   args,
                   workingDir,
-                  uid,
-                  gid,
-                  stopSignal = None ):
+                  uid = None,
+                  gid = None,
+                  stopSignal = None,
+                  postStartDelay = POST_PROCESS_START_DELAY):
         """
         Creates a process with the given name/identifier, description,
         program executable path, argument tuple, and working
@@ -187,12 +188,19 @@ class Process:
         self.args.extend( args )
         self.workingDir = workingDir
         self.stopSignal = stopSignal
+        self.postStartDelay = postStartDelay
         
-        import grp
-        import pwd
-
-        self.gid = grp.getgrnam( gid )[2]
-        self.uid = pwd.getpwnam( uid )[2]
+        if gid: 
+            import grp
+            self.gid = grp.getgrnam( gid )[2]
+        else:
+            self.gid = None
+        
+        if uid:
+            import pwd
+            self.uid = pwd.getpwnam( uid )[2]
+        else:
+            self.uid = None
 
     def _pidfile( self ):
         """
@@ -270,8 +278,12 @@ class Process:
         forkResult = os.fork()
         if forkResult == 0:
             # We're the child process.
-            os.setgid( self.gid )
-            os.setuid( self.uid )
+
+            if self.gid:
+                os.setgid( self.gid )
+            
+            if self.uid:
+                os.setuid( self.uid )
 
             os.chdir( self.workingDir )
 
@@ -299,7 +311,8 @@ class Process:
             f.write( "%d" % pid )
             f.close()
 
-            time.sleep( POST_PROCESS_START_DELAY )
+            if self.postStartDelay:
+                time.sleep(self.postStartDelay)
 
             retVal = os.waitpid( pid, os.WNOHANG )
             if retVal == (0, 0):
@@ -426,6 +439,15 @@ def _checkPrivileges():
     Checks to ensure that the current user has the proper privileges
     to run the ProcessManager; exits the program if not.
     """
+
+    needRoot = False
+    for process in _processes.values():
+        if process.gid or process.uid:
+            needRoot = True
+            break
+    
+    if not needRoot:
+        return
 
     if os.getuid() != 0:
         print "ERROR: This script must be run as root."
