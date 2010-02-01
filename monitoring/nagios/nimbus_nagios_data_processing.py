@@ -12,7 +12,7 @@ import time
 import os
 
 TARGET_XML_FILE = "xmlCapture.xml"#"/tmp/mdsresource.xml"
-DUPLICATE_REM_XSL = "dp2.xsl"
+DUPLICATE_REM_XSL = "dupRemove.xsl"
 OUTPUT_XML_FILE = "outputXML.xml"
 TIME_WINDOW = 300
 
