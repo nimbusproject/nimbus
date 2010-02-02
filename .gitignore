@@ -14,3 +14,4 @@ web/src/python/nimbusweb/portal/generated_settings.py
 web/var/
 control/var/workspace-control/logs/wclog*
 derby.log
+bin/tmp/
