@@ -1,3 +1,4 @@
+import sys
 from django.db import models
 from django.contrib.auth.models import User, UserManager
 import remote
@@ -28,9 +29,5 @@ class UserProfile(models.Model):
     query_secret = models.TextField(null=True)
     nimbus_userid = models.TextField(null=True)
     
-# register userprofile with the django auth system
-def user_post_save(sender, instance, **kwargs):
-    profile, new = UserProfile.objects.get_or_create(user=instance)
-models.signals.post_save.connect(user_post_save, User)
-
-models.signals.post_save.connect(remote.nimbus_user_create, User)
+if sys.argv.count("test") != 1: #are we running tests? better way?
+    models.signals.post_save.connect(remote.nimbus_user_create, User)

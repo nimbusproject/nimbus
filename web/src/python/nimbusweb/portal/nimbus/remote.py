@@ -1,18 +1,18 @@
 import sys
 from django.conf import settings
-from nimbusrest.connection import Connection
+from nimbusrest.admin.connection import AdminConnection
 import models 
 
-def nimbus_user_create_remote(user_instance, path="/users/create", nimbus_key=None, nimbus_secret=None):
+
+def nimbus_user_create_remote(user_instance, nimbus_key=None, nimbus_secret=None):
     """Use the Nimbus API to register a new Nimbus User.
     
     `user_instance` is a `Django User` instance.
     """
-    service_uri = getattr(settings, "NIMBUS_SERVICE_URI", "http://some.sensible.default/")
-    conn = Connection(service_uri, nimbus_key, nimbus_secret)
-    body = {"username":user_instance.username} #XXX what else is needed?
-    response = conn.post_json(path, body) #let caller handle errors
-    return response
+    service_uri = getattr(settings, "NIMBUS_SERVICE_URI", None)
+    conn = AdminConnection(service_uri, nimbus_key, nimbus_secret)
+    nimbus_user = conn.add_user(user_instance)
+    return nimbus_user
 
 def nimbus_user_create(sender, instance, **kwargs):
     """Django User model `post_save` function.
@@ -21,22 +21,21 @@ def nimbus_user_create(sender, instance, **kwargs):
     creation attempt, or, in the case of failure, remove 
     the recently created `Django User` and send failure 
     message back to User create Form.
+    
+    Notes:
+        - Only attempt to create Nimbus User on Django User creation.
     """
-    print "complete_nimbus_user_create => ", sender, instance, kwargs
-    remote_user_creator = kwargs.get("remote_user_creator")
-    if remote_user_creator is None:
-        remote_user_creator = nimbus_user_create_remote
-    # only attempt to create Nimbus User on Django User creation.
     if kwargs.get('created'):
-        response = remote_user_creator(instance)
+        remote_user_creator = kwargs.get("remote_user_creator")
+        if remote_user_creator is None:
+            remote_user_creator = nimbus_user_create_remote
         try:
-            response = remote_user_creator(instance)
+            nimbus_user = remote_user_creator(instance)
         except:
             #Nimbus User failed to be created, delete Django User
             instance.delete() #XXX  how to handle this?
-            raise Exception(sys.exc_type)
-        up = models.UserProfile.objects.get(user=instance)
-        up.nimbus_userid = response["nimbus_userid"]
+            raise Exception(sys.exc_info())
+        up, created = models.UserProfile.objects.get_or_create(user=instance)
+        up.nimbus_userid = nimbus_user.user_id
         up.save()
         return True
- 
