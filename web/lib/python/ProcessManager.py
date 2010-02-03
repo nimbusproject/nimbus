@@ -260,7 +260,7 @@ class Process:
                 print "Process '%s' is already running!" % self.name
                 return
             else:
-                print "Hmm. Process '%s' seems to have died prematurely." % self.name
+                print "Process '%s' may have died prematurely." % self.name
 
         # Start the process now.
         leftColumnText = "Launching %s..." % self.name
@@ -384,8 +384,12 @@ def _isPidRunning( pid ):
     """
     Returns whether or not a process with the given pid is running.
     """
-    
-    return os.path.exists( "/proc/%d" % pid )
+    try:
+        os.kill(pid, 0)
+    except OSError:
+        return False
+    else:
+        return True
 
 def add( process ):
     """
