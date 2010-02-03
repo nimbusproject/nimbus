@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<wsdl:definitions name="WorkspaceEnsembleService" targetNamespace="http://www.globus.org/2008/06/workspace/ensemble/bindings" xmlns:porttype="http://www.globus.org/2008/06/workspace/ensemble" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions name="WorkspaceEnsembleService" targetNamespace="http://www.globus.org/2008/06/workspace/ensemble/bindings" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:porttype="http://www.globus.org/2008/06/workspace/ensemble" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
   <wsdl:import namespace="http://www.globus.org/2008/06/workspace/ensemble" location="workspace_ensemble_port_type.wsdl"/>
   <wsdl:binding name="WorkspaceEnsemblePortTypeSOAPBinding" type="porttype:WorkspaceEnsemblePortType">
     <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
@@ -41,11 +41,11 @@
       <wsdl:output>
         <soap:body use="literal"/>
       </wsdl:output>
-      <wsdl:fault name="ResourceNotDestroyedFault">
-        <soap:fault name="ResourceNotDestroyedFault" use="literal"/>
-      </wsdl:fault>
       <wsdl:fault name="ResourceUnknownFault">
         <soap:fault name="ResourceUnknownFault" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="ResourceNotDestroyedFault">
+        <soap:fault name="ResourceNotDestroyedFault" use="literal"/>
       </wsdl:fault>
     </wsdl:operation>
   </wsdl:binding>

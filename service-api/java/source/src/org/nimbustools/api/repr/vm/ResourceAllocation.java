@@ -31,6 +31,7 @@ public interface ResourceAllocation {
 
     public String getArchitecture();
     public int getIndCpuSpeed();
+    public int getIndCpuCount();
     public int getCpuPercentage();
     public int getMemory();
     public int getNodeNumber();

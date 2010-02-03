@@ -22,6 +22,7 @@ public interface _ResourceAllocation extends ResourceAllocation {
 
     public void setArchitecture(String architecture);
     public void setIndCpuSpeed(int indCpuSpeed);
+    public void setIndCpuCount(int indCpuCount);
     public void setCpuPercentage(int cpuPercentage);
     public void setMemory(int memory);
     public void setNodeNumber(int nodeNumber);

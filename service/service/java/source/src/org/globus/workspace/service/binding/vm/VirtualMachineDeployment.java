@@ -32,6 +32,7 @@ public class VirtualMachineDeployment {
     private String CPUArchitecture;
     // TODO: change these to double?  JSDL RangeValue_Type uses doubles
     private int individualCPUSpeed = NOTSET;
+    private int individualCPUCount = NOTSET;
     private int CPUPercentage = NOTSET;
     private int individualPhysicalMemory = NOTSET;
 
@@ -112,6 +113,14 @@ public class VirtualMachineDeployment {
         this.individualCPUSpeed = individualCPUSpeed;
     }
 
+    public int getIndividualCPUCount() {
+        return this.individualCPUCount;
+    }
+
+    public void setIndividualCPUCount(int individualCPUCount) {
+        this.individualCPUCount = individualCPUCount;
+    }
+
     public int getCPUPercentage() {
         return this.CPUPercentage;
     }
@@ -140,6 +149,7 @@ public class VirtualMachineDeployment {
         newvmd.CPUArchitecture = vmd.CPUArchitecture;
         newvmd.CPUPercentage = vmd.CPUPercentage;
         newvmd.individualCPUSpeed = vmd.individualCPUSpeed;
+        newvmd.individualCPUCount = vmd.individualCPUCount;
         newvmd.individualPhysicalMemory = vmd.individualPhysicalMemory;
         newvmd.minDuration = vmd.minDuration;
         newvmd.requestedDefaultShutdown = vmd.requestedDefaultShutdown;

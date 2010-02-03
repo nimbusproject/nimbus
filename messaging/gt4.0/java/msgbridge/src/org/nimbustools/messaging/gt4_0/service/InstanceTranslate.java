@@ -321,6 +321,14 @@ public class InstanceTranslate extends BaseTranslate {
                     new RangeValue_Type(exacts,null,null,null));
         }
 
+        final int raCpus = ra.getIndCpuCount();
+        if (raCpus > -1) {
+            final Exact_Type ex = new Exact_Type(raCpus);
+            final Exact_Type[] exacts = {ex};
+            alloc.setIndividualCPUCount(
+                    new RangeValue_Type(exacts,null,null,null));
+        }
+
         final int raCpuPercent = ra.getCpuPercentage();
         if (raCpuPercent > -1) {
             final Exact_Type ex = new Exact_Type(raCpuPercent);
