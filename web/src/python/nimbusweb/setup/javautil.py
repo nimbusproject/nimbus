@@ -18,7 +18,7 @@ def run(basedir, log, klass, args=[]):
     cmd += " " + klass
     for arg in args:
         cmd += " \"" + arg + "\""
-    return runutil.runexe(cmd, log)
+    return runutil.runexe(cmd, log, killtime=0)
 
 def jarsdir(basedir):
     return pathutil.pathjoin(basedir, "lib/java")
