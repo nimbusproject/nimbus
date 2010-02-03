@@ -22,6 +22,8 @@ DEFAULTCONFIG = """
 hostcert: var/hostcert.pem
 hostkey: var/hostkey.pem
 
+CA.dir: var/ca
+
 gridmap: var/gridmap
 
 debug: off
@@ -89,21 +91,27 @@ def getconfig(filepath=None):
     return config
     
 class ARGS:
-
     """Class for command-line argument constants"""
 
     BASEDIR_LONG = "--basedir"
     BASEDIR = "-b"
     BASEDIR_HELP = "Path to base Nimbus directory"
 
-    CONFIGPATH_LONG="--conf"
-    CONFIGPATH="-c"
-    CONFIGPATH_HELP="Path to configuration file"
+    CONFIGPATH_LONG = "--conf"
+    CONFIGPATH = "-c"
+    CONFIGPATH_HELP = "Path to configuration file"
     
-    DEBUG_LONG="--debug"
-    DEBUG="-d"
-    DEBUG_HELP="Log debug messages"
-    
+    DEBUG_LONG = "--debug"
+    DEBUG = "-d"
+    DEBUG_HELP = "Log debug messages"
+
+    HOSTNAME_LONG = "--hostname"
+    HOSTNAME = "-H"
+    HOSTNAME_HELP = "Fully qualified hostname of machine"
+
+    CANAME_LONG= "--caname"
+    CANAME = "-C"
+    CANAME_HELP = "Unique name to give CA"
     
 def validateargs(opts):
     
@@ -115,8 +123,8 @@ def validateargs(opts):
 def parsersetup():
     """Return configured command-line parser."""
 
-    ver="Nimbus setup"
-    usage="see help (-h)."
+    ver = "Nimbus setup"
+    usage = "see help (-h)."
     parser = optparse.OptionParser(version=ver, usage=usage)
 
     # ----
@@ -137,80 +145,154 @@ def parsersetup():
     
     parser.add_option_group(group)
 
+    group = optparse.OptionGroup(parser, "Configuration options", 
+            "-------------")
+    
+    group.add_option(ARGS.HOSTNAME, ARGS.HOSTNAME_LONG,
+            dest="hostname", metavar="HOST", help=ARGS.HOSTNAME_HELP)
+
+    group.add_option(ARGS.CANAME, ARGS.CANAME_LONG,
+            dest="ca_name", metavar="NAME", help=ARGS.CANAME_HELP)
+
     return parser
 
-def validate_environment(basedir):
-    if not pathutil.is_absolute_path(basedir):
-        raise IncompatibleEnvironment("Base directory setting is not absolute")
+def fold_opts_to_config(opts, config):
+    if opts.hostname:
+        config.set(CONFIGSECTION, 'hostname', opts.hostname)
+    if opts.ca_name:
+        config.set(CONFIGSECTION, 'ca.name', opts.ca_name)
 
-    pathutil.ensure_dir_exists(basedir, "base")
+def ask_question(question, valuename, default=None):
 
-    webdir = get_webdir_path(basedir)
-    pathutil.ensure_dir_exists(webdir, "web")
+    answer = None
+    while not answer:
+        print "\n%s\n" % question
+        if default:
+            print "Press ENTER to use the default (%s)\n"%default
 
-    gtdir = get_gtdir_path(basedir)
-    pathutil.ensure_dir_exists(webdir, "GT container")
+        value = raw_input(valuename+": ")
+        if value:
+            answer = value.strip()
+        elif default:
+            answer = default
+        if not answer:
+            print "Invalid input. You must specify a value. Or hit Ctrl-C to give up."
+    return answer
 
-    # check that we have some java
-    javautil.check(webdir, log)
+class NimbusSetup(object):
+    def __init__(self, basedir, config, interactive=True):
+        self.basedir = basedir
+        self.config = config
+        self.interactive = interactive
 
-def get_webdir_path(basedir):
-    return pathutil.pathjoin(basedir, 'web/')
+    def get_config(self, key):
+        try:
+            return self.config.get(CONFIGSECTION, key)
+        except ConfigParser.NoOptionError:
+            return None
 
-def get_gtdir_path(basedir):
-    return pathutil.pathjoin(basedir, 'services/')
+    def set_config(self, key, value):
+        return self.config.set(CONFIGSECTION, key, value)
 
-def get_cadir_path(basedir):
-    return pathutil.pathjoin(basedir, 'var/ca/')
+    def validate_environment(self):
+        if not pathutil.is_absolute_path(self.basedir):
+            raise IncompatibleEnvironment(
+                    "Base directory setting is not absolute")
+        pathutil.ensure_dir_exists(self.basedir, "base")
+        pathutil.ensure_dir_exists(self.webdir_path(), "web")
+        pathutil.ensure_dir_exists(self.gtdir_path(), "GT container")
+        
+        # check that we have some java
+        javautil.check(self.webdir_path(), log)
 
-def get_hostname():
+    def resolve_path(self, path):
+        """
+        Resolves a path relative to base directory. 
+        If absolute, returns as-is. If relative, 
+        joins with self.basedir and returns.
+        """
+        
+        if os.path.isabs(path):
+            return path
+        return os.path.join(self.basedir, path)
 
-    hostname = socket.getfqdn()
+    def webdir_path(self):
+        return self.resolve_path('web/')
 
-    print "\nWhat is the fully qualified hostname of this machine? If you \
-don't know or care right now, hit return to use the detected hostname: \
-%s\n" % hostname
+    def gtdir_path(self):
+        return self.resolve_path('services/')
 
-    input = raw_input("Hostname: ")
-    if input:
-        hostname = input
+    def cadir_path(self):
+        path = self.get_config('CA.dir')
+        return self.resolve_path(path or 'var/ca/')
     
-    return hostname
+    def hostcert_path(self):
+        path = self.get_config('hostcert')
+        return self.resolve_path(path)
 
-def perform_setup(basedir, config):
+    def hostkey_path(self):
+        path = self.get_config('hostkey')
+        return self.resolve_path(path)
 
-    # first, set up CA and host cert/key
+    def gridmap_path(self):
+        path = self.get_config('gridmap')
+        return self.resolve_path(path)
 
-    webdir = get_webdir_path(basedir)
-    cadir = get_cadir_path(basedir)
-    gtdir = get_gtdir_path(basedir)
-    hostcert = pathutil.pathjoin(basedir, config.get(CONFIGSECTION, 'hostcert'))
-    hostkey = pathutil.pathjoin(basedir, config.get(CONFIGSECTION, 'hostkey'))
-    gridmap = pathutil.pathjoin(basedir, config.get(CONFIGSECTION, 'gridmap'))
-    hostname = get_hostname()
+    def hostname(self):
+        hostguess = self.get_config('hostname')
+        if not hostguess:
+            hostguess = socket.getfqdn()
 
-    checkssl.run(webdir, hostcert, hostkey, log, cadir=cadir, hostname=hostname)
+        if self.interactive:
+            question = "What is the fully qualified hostname of this machine?"
+            hostname = ask_question(question, "Hostname", hostguess)
+        else:
+            print "Using hostname: '%s'" % hostguess
+            hostname = hostguess
+        
+        self.set_config('hostname', hostname)
+        return hostname
 
-    # then adjust the web config to point to these keys
+    def perform_setup(self):
 
-    webconfpath = pathutil.pathjoin(webdir, 'nimbusweb.conf')
-    webconf = ConfigParser.SafeConfigParser()
-    if not webconf.read(webconfpath):
-        raise IncompatibleEnvironment("nimbus web config does not exist: %s" %
-                webconfpath)
-    webconf.set('nimbusweb', 'ssl.cert', hostcert)
-    webconf.set('nimbusweb', 'ssl.key', hostkey)
+        # first, set up CA and host cert/key
 
-    with open(webconfpath, 'wb') as webconffile:
-        webconf.write(webconffile)
+        webdir = self.webdir_path()
+        cadir = self.cadir_path()
+        gtdir = self.gtdir_path()
+        hostcert = self.hostcert_path()
+        hostkey = self.hostkey_path()
+        gridmap = self.gridmap_path()
+        
+        # some potentially interactive queries
+        hostname = self.hostname()
+        
+        checkssl.run(webdir, hostcert, hostkey, log, cadir=cadir, 
+                hostname=hostname)
+        
+        # then adjust the web config to point to these keys
+        
+        webconfpath = pathutil.pathjoin(webdir, 'nimbusweb.conf')
+        webconf = ConfigParser.SafeConfigParser()
+        if not webconf.read(webconfpath):
+            raise IncompatibleEnvironment(
+                    "nimbus web config does not exist: %s" % webconfpath)
+        webconf.set('nimbusweb', 'ssl.cert', hostcert)
+        webconf.set('nimbusweb', 'ssl.key', hostkey)
 
-    # then setup GT container
+        with open(webconfpath, 'wb') as webconffile:
+            webconf.write(webconffile)
+        
+        if not os.path.exists(gridmap):
+            example_gridmap = self.resolve_path('var/gridmap.example')
+            import shutil
+            shutil.copyfile(example_gridmap, gridmap)
 
-    gtcontainer.adjust_hostname(hostname, webdir, gtdir, log)
-    gtcontainer.adjust_secdesc_path(webdir, gtdir, log)
-    gtcontainer.adjust_host_cert(hostcert, hostkey, webdir, gtdir, log)
-    gtcontainer.adjust_gridmap_file(gridmap, webdir, gtdir, log)
-
+        # then setup GT container
+        gtcontainer.adjust_hostname(hostname, webdir, gtdir, log)
+        gtcontainer.adjust_secdesc_path(webdir, gtdir, log)
+        gtcontainer.adjust_host_cert(hostcert, hostkey, webdir, gtdir, log)
+        gtcontainer.adjust_gridmap_file(gridmap, webdir, gtdir, log)
 
 def main(argv=None):
     if os.name != 'posix':
@@ -231,14 +313,13 @@ def main(argv=None):
     
     try:
         
-        # 1. Intake args and confs
-        
         validateargs(opts)
         config = getconfig(filepath=opts.configpath)
         
-        # 2. Setup logging
+        #Some command line options are folded into the config object
+        fold_opts_to_config(opts, config)
         
-        confdebug = config.get("nimbussetup", "debug")
+        confdebug = config.get(CONFIGSECTION, "debug")
         if confdebug == "on":
             printdebugoutput = True
         elif opts.debug:
@@ -249,18 +330,21 @@ def main(argv=None):
         else:
             configureLogging(logging.INFO)
             
-        # 3. Dump settings
-            
         basedir = opts.basedir
         log.debug("base directory: %s" % basedir)
-        
-        # 4. Validate enviroment
-        validate_environment(basedir)
 
-        # 5. Go forth and setup
-        
-        perform_setup(basedir, config)
-        
+        setup = NimbusSetup(basedir, config)
+        setup.validate_environment()
+
+        setup.perform_setup()
+
+        if opts.configpath:
+            log.debug("saving settings to %s" % opts.configpath)
+            try:
+                with open(opts.configpath, 'wb') as f:
+                    config.write(f)
+            except:
+                log.info("Failed to save settings to %s!" % opts.configpath)
 
     except InvalidInput, e:
         msg = "\nProblem with input: %s" % e.msg

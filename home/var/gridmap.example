@@ -1,0 +1,5 @@
+# This file controls access to the Nimbus services
+#
+# Format: DN account_name
+# Example:
+#   "/C=SomeCertificateAuthority/CN=Fakey Mcallister" not_a_real_account

@@ -16,8 +16,10 @@ if not os.path.isdir(NIMBUS_HOME):
 
 NIMBUS_RUN_DIR = os.path.join(NIMBUS_HOME, 'var/run/')
 if not os.path.isdir(NIMBUS_RUN_DIR):
-    sys.exit("The run directory ($NIMBUS_HOME/var/run/) does not exist: "+
-            NIMBUS_RUN_DIR)
+    try:
+        os.mkdir(NIMBUS_RUN_DIR)
+    except:
+        sys.exit("Failed to create run directory: %s" % NIMBUS_RUN_DIR)
 
 NIMBUS_SERVICES_EXE = os.path.join(NIMBUS_HOME, 'sbin/run-services.sh')
 if not os.path.exists(NIMBUS_SERVICES_EXE):
