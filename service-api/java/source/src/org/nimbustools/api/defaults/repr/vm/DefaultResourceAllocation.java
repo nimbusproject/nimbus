@@ -26,6 +26,7 @@ public class DefaultResourceAllocation implements _ResourceAllocation {
 
     private String architecture;
     private int indCpuSpeed = -1;
+    private int indCpuCount = -1;
     private int cpuPercentage = -1;
     private int memory;
     private int nodeNumber;
@@ -42,6 +43,11 @@ public class DefaultResourceAllocation implements _ResourceAllocation {
     public int getIndCpuSpeed() {
         return this.indCpuSpeed;
     }
+
+    public int getIndCpuCount() {
+        return this.indCpuCount;
+    }
+
 
     public int getCpuPercentage() {
         return this.cpuPercentage;
@@ -68,6 +74,10 @@ public class DefaultResourceAllocation implements _ResourceAllocation {
         this.indCpuSpeed = indCpuSpeed;
     }
 
+    public void setIndCpuCount(int indCpuCount) {
+        this.indCpuCount = indCpuCount;
+    }
+
     public void setCpuPercentage(int cpuPercentage) {
         this.cpuPercentage = cpuPercentage;
     }
@@ -89,6 +99,7 @@ public class DefaultResourceAllocation implements _ResourceAllocation {
         return "DefaultResourceAllocation{" +
                 "architecture='" + architecture + '\'' +
                 ", indCpuSpeed=" + indCpuSpeed +
+                ", indCpuCount=" + indCpuCount +
                 ", cpuPercentage=" + cpuPercentage +
                 ", memory=" + memory +
                 ", nodeNumber=" + nodeNumber +

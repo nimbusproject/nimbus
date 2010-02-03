@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<wsdl:definitions name="WorkspaceFactoryService" targetNamespace="http://www.globus.org/2008/06/workspace/bindings" xmlns:porttype="http://www.globus.org/2008/06/workspace" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions name="WorkspaceFactoryService" targetNamespace="http://www.globus.org/2008/06/workspace/bindings" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:porttype="http://www.globus.org/2008/06/workspace" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
   <wsdl:import namespace="http://www.globus.org/2008/06/workspace" location="workspace_factory_port_type.wsdl"/>
   <wsdl:binding name="WorkspaceFactoryPortTypeSOAPBinding" type="porttype:WorkspaceFactoryPortType">
     <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
@@ -11,17 +11,17 @@
       <wsdl:output>
         <soap:body use="literal"/>
       </wsdl:output>
-      <wsdl:fault name="WorkspaceMetadataFault">
-        <soap:fault name="WorkspaceMetadataFault" use="literal"/>
+      <wsdl:fault name="WorkspaceCreationFault">
+        <soap:fault name="WorkspaceCreationFault" use="literal"/>
       </wsdl:fault>
       <wsdl:fault name="WorkspaceResourceRequestDeniedFault">
         <soap:fault name="WorkspaceResourceRequestDeniedFault" use="literal"/>
       </wsdl:fault>
-      <wsdl:fault name="WorkspaceCreationFault">
-        <soap:fault name="WorkspaceCreationFault" use="literal"/>
-      </wsdl:fault>
       <wsdl:fault name="WorkspaceSchedulingFault">
         <soap:fault name="WorkspaceSchedulingFault" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="WorkspaceMetadataFault">
+        <soap:fault name="WorkspaceMetadataFault" use="literal"/>
       </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="QueryResourceProperties">
@@ -32,24 +32,24 @@
       <wsdl:output>
         <soap:body use="literal"/>
       </wsdl:output>
-      <wsdl:fault name="InvalidResourcePropertyQNameFault">
-        <soap:fault name="InvalidResourcePropertyQNameFault" use="literal"/>
-      </wsdl:fault>
-      <wsdl:fault name="InvalidQueryExpressionFault">
-        <soap:fault name="InvalidQueryExpressionFault" use="literal"/>
+      <wsdl:fault name="UnknownQueryExpressionDialectFault">
+        <soap:fault name="UnknownQueryExpressionDialectFault" use="literal"/>
       </wsdl:fault>
       <wsdl:fault name="QueryEvaluationErrorFault">
         <soap:fault name="QueryEvaluationErrorFault" use="literal"/>
       </wsdl:fault>
+      <wsdl:fault name="InvalidQueryExpressionFault">
+        <soap:fault name="InvalidQueryExpressionFault" use="literal"/>
+      </wsdl:fault>
+      <wsdl:fault name="InvalidResourcePropertyQNameFault">
+        <soap:fault name="InvalidResourcePropertyQNameFault" use="literal"/>
+      </wsdl:fault>
       <wsdl:fault name="ResourceUnknownFault">
         <soap:fault name="ResourceUnknownFault" use="literal"/>
       </wsdl:fault>
-      <wsdl:fault name="UnknownQueryExpressionDialectFault">
-        <soap:fault name="UnknownQueryExpressionDialectFault" use="literal"/>
-      </wsdl:fault>
     </wsdl:operation>
-    <wsdl:operation name="GetMultipleResourceProperties">
-      <soap:operation soapAction="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties/GetMultipleResourceProperties"/>
+    <wsdl:operation name="GetResourceProperty">
+      <soap:operation soapAction="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties/GetResourceProperty"/>
       <wsdl:input>
         <soap:body use="literal"/>
       </wsdl:input>
@@ -63,8 +63,8 @@
         <soap:fault name="ResourceUnknownFault" use="literal"/>
       </wsdl:fault>
     </wsdl:operation>
-    <wsdl:operation name="GetResourceProperty">
-      <soap:operation soapAction="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties/GetResourceProperty"/>
+    <wsdl:operation name="GetMultipleResourceProperties">
+      <soap:operation soapAction="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties/GetMultipleResourceProperties"/>
       <wsdl:input>
         <soap:body use="literal"/>
       </wsdl:input>

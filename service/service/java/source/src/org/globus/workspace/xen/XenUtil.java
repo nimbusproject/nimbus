@@ -268,6 +268,11 @@ public class XenUtil implements WorkspaceConstants {
                 cmd.add("--memory");
                 cmd.add(Integer.toString(dep.getIndividualPhysicalMemory()));
             }
+
+            if (dep.getIndividualCPUCount() > 0) {
+                cmd.add("--vcpus");
+                cmd.add(Integer.toString(dep.getIndividualCPUCount()));
+            }
         }
 
         if (vm.getKernel() != null) {

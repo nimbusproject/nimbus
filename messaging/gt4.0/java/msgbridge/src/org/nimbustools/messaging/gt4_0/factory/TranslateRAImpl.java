@@ -159,6 +159,7 @@ public class TranslateRAImpl implements TranslateRA {
         }
 
         ra.setMemory(this.getMemoryMB(wsra));
+        ra.setIndCpuCount(this.getCPUCount(wsra));
 
         boolean noFiles = false;
         final VMFile[] files = req.getVMFiles();
@@ -204,6 +205,30 @@ public class TranslateRAImpl implements TranslateRA {
 
         // casting double
         return (int) exact_mem.get_value();
+    }
+
+    protected int getCPUCount(ResourceAllocation_Type wsra)
+            throws CannotTranslateException {
+
+        if (wsra == null) {
+            //throw new IllegalArgumentException("wsra may not be null");
+            return -1;
+        }
+
+        final RangeValue_Type cores =  wsra.getIndividualCPUCount();
+        if (cores == null) {
+            //throw new CannotTranslateException("no multi core CPU request");
+            return -1;
+        }
+
+        //TODO: support ranges and Exact_Type[]
+        final Exact_Type exact_cores = cores.getExact(0);
+        if (exact_cores == null) {
+            throw new CannotTranslateException("no exact multi core CPU request");
+        }
+
+        // casting double
+        return (int) exact_cores.get_value();
     }
 
     protected void consumeEntries(Entry[] entries, VMFile[] files)

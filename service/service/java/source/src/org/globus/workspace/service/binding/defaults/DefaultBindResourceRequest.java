@@ -58,5 +58,6 @@ public class DefaultBindResourceRequest implements BindResourceRequest {
         }
 
         dep.setIndividualPhysicalMemory(requestedRA.getMemory());
+        dep.setIndividualCPUCount(requestedRA.getIndCpuCount());
     }
 }

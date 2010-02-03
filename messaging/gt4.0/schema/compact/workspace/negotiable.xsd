@@ -144,6 +144,9 @@
                         type="jsdl:RangeValue_Type"
                         minOccurs="0" />
 
+            <xs:element ref="jsdl:IndividualCPUCount"
+                        minOccurs="0" />
+
             <xs:element ref="jsdl:IndividualPhysicalMemory"
                         minOccurs="0" />
 
