@@ -3,4 +3,6 @@ from django.contrib.auth.views import login, logout, password_change, password_c
 
 urlpatterns = patterns('nimbusweb.portal.usercreate.views',
     (r'^$', 'index'),
+    (r'^(?P<method>.*)/$', 'method'),
+    (r'^success/$', 'success'),
 )
