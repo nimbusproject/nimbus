@@ -17,6 +17,7 @@
 	<!--[if IE 6]>
 		<link rel="stylesheet" type="text/css" href="/static/ie6.0.3.css" media="screen, projection" />
 	<![endif]-->
+  {% block extrahead %}{% endblock %}
 </head>
 
 <body id="home">
@@ -46,7 +47,7 @@
     </footer>
     
     <!-- JS link will go here -->
-    
+    {% block extrafooter %}{% endblock %}
 </body>
 
 </html>
