@@ -2,6 +2,7 @@
 	{% block title %}New User successfully created{% endblock %}
 {% block content %}
 
-    <p>New User successfully created</p>
+    <h3>New User successfully created</h3>
+    <p>Email the following registration link to the new User: <pre>{{ url }}{{ token }}</pre></p>
 
 {% endblock %}

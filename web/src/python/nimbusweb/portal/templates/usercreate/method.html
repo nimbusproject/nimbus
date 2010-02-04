@@ -2,7 +2,11 @@
 {% extends "base.html" %}
 	{% block title %}Create a new User{% endblock %}
 {% block content %}
-
-    <p>{{ method }}</p>
+    <a href="../">&laquo;&nbsp;Back to User create options</a>
+    <h3>{{ methodinfo }}</h3>
+    <form enctype="multipart/form-data" method="post" action="">
+      {{ form.as_p }}
+    <input type="submit" value="Create User">
+    </form>
 
 {% endblock %}
