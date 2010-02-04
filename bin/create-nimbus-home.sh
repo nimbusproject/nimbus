@@ -95,10 +95,8 @@ echo "Building and installing Nimbus to service container.."
 GLOBUS_LOCATION=$CONTAINER_DIR
 export GLOBUS_LOCATION
 
-#$NIMBUS_SRC/scripts/all-build-and-install.sh
+$NIMBUS_SRC/scripts/all-build-and-install.sh
 if [ $? -ne 0 ]; then
     echo "Build and install FAILED!"
     exit 1
 fi
-
-echo "OK, successfully deployed to $NIMBUS_HOME!"

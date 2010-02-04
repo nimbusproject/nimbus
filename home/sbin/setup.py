@@ -10,7 +10,7 @@ import ConfigParser
 from StringIO import StringIO
 import readline
 
-from nimbusweb.setup import pathutil, javautil, checkssl, gtcontainer
+from nimbusweb.setup import pathutil,javautil,checkssl,gtcontainer
 from nimbusweb.setup.setuperrors import *
 
 CONFIGSECTION = 'nimbussetup'
@@ -267,6 +267,7 @@ class NimbusSetup(object):
         # some potentially interactive queries
         hostname = self.hostname()
         
+        #TODO this may require interaction
         checkssl.run(webdir, hostcert, hostkey, log, cadir=cadir, 
                 hostname=hostname)
         
@@ -282,7 +283,7 @@ class NimbusSetup(object):
 
         with open(webconfpath, 'wb') as webconffile:
             webconf.write(webconffile)
-        
+
         if not os.path.exists(gridmap):
             example_gridmap = self.resolve_path('var/gridmap.example')
             import shutil
