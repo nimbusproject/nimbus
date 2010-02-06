@@ -67,7 +67,7 @@ def pluginExit(messageIdentifier, logString, returnCode):
     # There doesn't seem to be any error handling I can do here... Ugly
     localIP = (socket.gethostbyaddr( socket.gethostname() ))[2][0]
     outputString.write("<Worker Node>")    
-    outputString.write("<Node IP>"+ localIP+ "</Node IP>")
+    #outputString.write("<Node IP>"+ localIP+ "</Node IP>")
     #outputString.write(resourceString)
     lines = logString.splitlines()
     for line in lines:
@@ -101,7 +101,7 @@ def pluginExitN(messageIdentifier, pluginInfo, returnCode):
 
     localIP = (socket.gethostbyaddr( socket.gethostname() ))[2][0]
     outputString.write("<WorkerNode>")
-    outputString.write("<PhysicalIP>"+localIP+"</PhysicalIP>")
+  #  outputString.write("<PhysicalIP>"+localIP+"</PhysicalIP>")
 
     outputString.write("<"+messageIdentifier+">")
     for key in pluginInfo.keys():
@@ -153,7 +153,7 @@ class Virtualized(PluginObject):
         #Establish a connection to the local VM Hypervisor (XEN)
         self.VMConnection  = libvirt.openReadOnly(None)
         if self.VMConnection == None:
-            self.logger.error('Unable to open a Read-Only connection to local XEN Hypervisor')
+            self.logger.error('Unable to open a Read-Only connection to local Hypervisor')
             sys.exit(NAGIOS_RET_CRITICAL)
             #pluginExit("Virtualized - Base Class",self.logString.getvalue(), NAGIOS_RET_ERROR)
         
@@ -187,22 +187,23 @@ class VMMemory(Virtualized):
         for vm in self.VMs.values():
             # vm.maxMemory reports 'kB' of memory, but we want to report 'MB' to be consistent across all plugins
             # hence, vm.maxMemory/1024 will convert from 'kB'->'MB'
-            self.pluginOutput[vm.name()] = str(vm.maxMemory()/1024)
+#                              vm.name()
+            self.pluginOutput["AllocatedMB"] = str(vm.maxMemory()/1024)
             #self.logger.info(vm.name()+' ; '+self.resourceName+ " ; %d", vm.maxMemory())
 
         pluginExitN(self.resourceName, self.pluginOutput, NAGIOS_RET_OK)
 
-class VMVirt(Virtualized):
+class HostVirt(Virtualized):
     """ This class will determine what virtualization technology is being used on each Virtual Machine
     running on the local node. This is done through a libvirt call in the 'Virtualized' base class
     """
     def __init__(self):
         Virtualized.__init__(self)
-        self.resourceName = 'VM-Virtualization'
+        self.resourceName = 'Host-Virtualization'
 
     def __call__(self,option, opt_str, value,parser):
         #self.logger.info(self.VMConnection.getHostname()+";"+self.resourceName+";"+self.VMConnection.getType())
-        self.pluginOutput[self.VMConnection.getHostname().strip()] = str(self.VMConnection.getType())
+        self.pluginOutput["Type"] = str(self.VMConnection.getType())
         pluginExitN(self.resourceName, self.pluginOutput, NAGIOS_RET_OK)
 
         
@@ -224,22 +225,22 @@ class VMVirt(Virtualized):
         #}
 
 
-class VMCpuCores(Virtualized):
+class HostCpuCores(Virtualized):
     """ This class will determine the number of CPU cores running on the local node. This is done through a libvirt
     call done in the 'Virtualized' base class
     """
     def __init__(self):
         Virtualized.__init__(self)
-        self.resourceName = 'VM-CPUCores'
+        self.resourceName = 'Host-CPUCores'
 
     def __call__(self, option, opt_str, value, parser):
 
         tempRes = self.VMConnection.getInfo()
 
-        self.pluginOutput[self.VMConnection.getHostname().strip()] = str(tempRes[2])
+        self.pluginOutput["CoreCount"] = str(tempRes[2])
         pluginExitN(self.resourceName, self.pluginOutput, NAGIOS_RET_OK)        
 
-class VMCpuFreq(Virtualized):
+class HostCpuFreq(Virtualized):
     """ This class determines the CPU frequency of the local nodes processor. This was tested with a uniprocessor
     machine only, so a multi-CPU-socket machine with different core speeds may report differently. I believe that
     only the latest, most cutting edge CPUs from Intel (Nehalem) have this capability....
@@ -247,15 +248,15 @@ class VMCpuFreq(Virtualized):
     
     def __init__(self):
         Virtualized.__init__(self)
-        self.resourceName = 'VM-CPUFreq'
+        self.resourceName = 'Host-CPUFreq'
 
     def __call__(self,option, opt_str, value, parser):
 
         tempRes = self.VMConnection.getInfo()
-        self.pluginOutput[self.VMConnection.getHostname().strip()] = str(tempRes[3])
+        self.pluginOutput["CPUCoreFequency"] = str(tempRes[3])
         pluginExitN(self.resourceName, self.pluginOutput, NAGIOS_RET_OK)
 
-class VMCpuArch(Virtualized):
+class HostCpuArch(Virtualized):
     """ The class determines what the underlying CPU architecture is, and uses this information to determine
     whether the machine is running in 32bit or 64bit mode. This code was only tested on 32bit Sempron
     processors, so I'm relying on the fact that a 64bit machine running a 32bit OS will report either
@@ -269,35 +270,35 @@ class VMCpuArch(Virtualized):
 
     def __init__(self):
         Virtualized.__init__(self)
-        self.resourceName = 'VM-CPUArch'
+        self.resourceName = 'Host-CPUArch'
 
     def __call__(self, option, opt_str, value,parser):
         tempRes = self.VMConnection.getInfo()
-        self.pluginOutput[self.VMConnection.getHostname().strip()] = self.ARCH_MAP[tempRes[0]]
+        self.pluginOutput["Type"] = self.ARCH_MAP[tempRes[0]]
         pluginExitN(self.resourceName, self.pluginOutput, NAGIOS_RET_OK)
 
-class VMOs(Virtualized):
-    """ This class looks up what OS is running on each virtual machine deployed on the local node. An example
-    is 'linux'. This lookup is done through a libvirt call in the 'Virtualized' base class
-    """
-    def __init__(self):
-        Virtualized.__init__(self)
-        self.resourceName = "VM-OS"
+#class VMOs(Virtualized):
+#    """ This class looks up what OS is running on each virtual machine deployed on the local node. An example
+#    is 'linux'. This lookup is done through a libvirt call in the 'Virtualized' base class
+#    """
+#    def __init__(self):
+#        Virtualized.__init__(self)
+#        self.resourceName = "VM-OS"
 
-    def __call__(self, option, opt_str, value, parser):
-        for vm in self.VMs.values():
+#    def __call__(self, option, opt_str, value, parser):
+#        for vm in self.VMs.values():
             #self.logger.info(vm.name()+' ; '+self.resourceName+ " ; "+ vm.OSType())
-            self.pluginOutput[vm.name().strip()] = str(vm.OSType())
-        pluginExitN(self.resourceName, self.pluginOutput, NAGIOS_RET_OK)
+#            self.pluginOutput[vm.name().strip()] = str(vm.OSType())
+#        pluginExitN(self.resourceName, self.pluginOutput, NAGIOS_RET_OK)
         
-class VMFreeMem(Virtualized):
+class HostFreeMem(Virtualized):
     """ This class determines how much free memory remains on the local node with all current virtual
     machines booted. This lookup is again done through a libvirt call in the 'Virtualized' base
     class. ALso, memory is reported by in kB.
     """
     def __init__(self):
         Virtualized.__init__(self)
-        self.resourceName = "VM-FreeMemory"
+        self.resourceName = "HostFreeMemory"
 
     def __call__(self,option,opt_str,value,parser):
         usedMemory = 0
@@ -310,7 +311,7 @@ class VMFreeMem(Virtualized):
         # then matches what's reported from the 'getInfo()' call, which is in MB
         availableMemory =totalMemory -(usedMemory/1024)
         #self.logger.info(self.VMConnection.getHostname()+';'+self.resourceName+';'+str(availableMem))
-        self.pluginOutput[self.VMConnection.getHostname().strip()] = str(availableMemory)
+        self.pluginOutput["MegaBytes"] = str(availableMemory)
         pluginExitN(self.resourceName, self.pluginOutput, NAGIOS_RET_OK)
 
 
@@ -330,13 +331,13 @@ class PluginCmdLineOpts(PluginObject):
             action="store_false", help="Diplay version information",default=True)
         #parser.add_option("-v","--verbose",dest="verbosity",help="Set verbosity level (0-3)",default=0)
 
-        parser.add_option("--VMmem", help="Discover the of memory dedicated to each VM (in KB)", action="callback", callback=VMMemory())
-        parser.add_option("--VMos", help="Discover the OS running on each VM", action="callback", callback=VMOs())
-        parser.add_option("--VMcpuarch",help="Discover the host CPU architecture (x86 or x86_64)", action="callback", callback=VMCpuArch())        
-        parser.add_option("--VMvirt", help="Discover the host virtualization technology",action="callback", callback=VMVirt())
-        parser.add_option("--VMcpufreq",help="Discover the host CPU frequency (in Hz)", action="callback", callback=VMCpuFreq())
-        parser.add_option("--VMcpucores",help="Discover the number of host CPU cores", action="callback", callback=VMCpuCores())
-        parser.add_option("--VMfreemem",help="Discover the amount of free/unsed memory of host",action="callback",callback=VMFreeMem())
+        parser.add_option("--VMmem", help="Discover the of memory dedicated to each VM (in MB)", action="callback", callback=VMMemory())
+ #       parser.add_option("--VMos", help="Discover the OS running on each VM", action="callback", callback=VMOs())
+        parser.add_option("--HostCpuArch",help="Discover the host CPU architecture (x86 or x86_64)", action="callback", callback=HostCpuArch())        
+        parser.add_option("--HostVirt", help="Discover the host virtualization technology",action="callback", callback=HostVirt())
+        parser.add_option("--HostCpuFreq",help="Discover the host CPU frequency (in Hz)", action="callback", callback=HostCpuFreq())
+        parser.add_option("--HostCpuCores",help="Discover the number of host CPU cores", action="callback", callback=HostCpuCores())
+        parser.add_option("--HostFreemem",help="Discover the amount of free/unsed memory of host",action="callback",callback=HostFreeMem())
 
         self.parser = parser
 

@@ -110,7 +110,7 @@ def pluginExitN(messageIdentifier, pluginInfo, returnCode):
 
     localIP = (socket.gethostbyaddr( socket.gethostname() ))[2][0]
     outputString.write("<HeadNode>")
-    outputString.write("<PhysicalIP>"+localIP+"</PhysicalIP>")
+ #   outputString.write("<PhysicalIP>"+localIP+"</PhysicalIP>")
 
     outputString.write("<"+messageIdentifier+">")
     for key in pluginInfo.keys():            
@@ -164,7 +164,7 @@ class PluginCmdLineOpts(PluginObject):
 
             parser.add_option("--HNconsistent", action="callback",help="Verify internal Derby database consistency", callback=HeadNodeDBConsistent())
             parser.add_option("--HNvmmpool", action="callback",help="Publish Nimbus VMM pool information", callback=HeadNodeVMMPools())
-            parser.add_option("--HNnetpool", action="callback",help="Publish Nimbus network pool information", callback=HeadNodeNetPools())         
+#            parser.add_option("--HNnetpool", action="callback",help="Publish Nimbus network pool information", callback=HeadNodeNetPools())         
             parser.add_option("--HNpbsmem", action="callback",help="Publish PBS/Torque available memory information", callback=HeadNodePBSMemory())
             parser.add_option("--HNpbssupport", action="callback",help="Publish support for PBS/Torque Pilot Jobs", callback=HeadNodePBSSupport())
             self.parser = parser
@@ -235,7 +235,7 @@ class HeadNodePBSMemory(PluginObject):
                     memory = int(lineSegs[1].strip())
             
             fileHandle.close()
-            self.pluginOutput["TotalMemory"] = str(memory)
+            self.pluginOutput["TotalMemoryMB"] = str(memory)
             pluginExitN(self.resourceName, self.pluginOutput, NAGIOS_RET_OK)
             
             
@@ -262,7 +262,7 @@ class HeadNodeDBConsistent(PluginObject):
     lack of a formal definition of 'consistent'
     """
     def __init__(self):
-        self.resourceName = "DerbyDB-Consistency"
+        self.resourceName = "MetaDataDB"
         PluginObject.__init__(self,self.__class__.__name__)
     
     def __call__(self, option, opt_str, value, parser):
@@ -414,10 +414,10 @@ class HeadNodeVMMPools(PluginObject):
 
                         keyList = entry[2].split(",")
                     try:
-                        self.pluginOutput["Nodes"][str(entry[0])] = (str(entry[1]))
+                        self.pluginOutput["Nodes"].append( (str(entry[1])))
                     except KeyError:
-                        self.pluginOutput["Nodes"] = {}
-                        self.pluginOutput["Nodes"][str(entry[0])] = str(entry[1])
+                        self.pluginOutput["Nodes"] = []
+                        self.pluginOutput["Nodes"].append ( str(entry[1]))
                     #self.pluginOutput[str(entry[0]).strip()] = str(entry[1]).strip()
                     for network in keyList:
 
@@ -437,92 +437,92 @@ class HeadNodeVMMPools(PluginObject):
             for entry in totalNetPools.keys():
             
                 self.pluginOutput[key+"-"+entry] = str(poolListing[key][entry])
-        
+#        print str(self.pluginOutput)
         pluginExitN(self.resourceName, self.pluginOutput,  NAGIOS_RET_OK)
 
-class HeadNodeNetPools(PluginObject):
-    """ The class parses the Nimbus Network Pools configuration files to determine how many IP address slots are 
-    configured for Nimbus to make use of. This is strictly a reporting feature and does not calculate how
-    many free slots there are. THat functionality is handled by the querying driver program, as there is
-    some non-trivial processing that needs to occur which doesn't fit into this script's architecture
-    """
-    def __init__(self):
-        PluginObject.__init__(self, self.__class__.__name__)
-        self.resourceName = "NetPools"
+#class HeadNodeNetPools(PluginObject):
+#    """ The class parses the Nimbus Network Pools configuration files to determine how many IP address slots are 
+#    configured for Nimbus to make use of. This is strictly a reporting feature and does not calculate how
+#    many free slots there are. THat functionality is handled by the querying driver program, as there is
+#    some non-trivial processing that needs to occur which doesn't fit into this script's architecture
+#    """
+#    def __init__(self):
+#        PluginObject.__init__(self, self.__class__.__name__)
+#        self.resourceName = "NetPools"
 
 
-    def __call__(self, option, opt_str, value, parser):
+#    def __call__(self, option, opt_str, value, parser):
  
-        try:
-            netPools = os.listdir(ConfigMapping[NIMBUS_LOCATION]+NIMBUS_CONF+NIMBUS_NET_CONF)
-        except OSError, ose:
-            self.logger.error("Error listing the Network Pools directory: "+ str(ose))
-            sys.exit(NAGIOS_RET_CRITICAL)
-        totalNetPools = []
-        for pool in netPools:
+#        try:
+#            netPools = os.listdir(ConfigMapping[NIMBUS_LOCATION]+NIMBUS_CONF+NIMBUS_NET_CONF)
+#        except OSError, ose:
+#            self.logger.error("Error listing the Network Pools directory: "+ str(ose))
+#            sys.exit(NAGIOS_RET_CRITICAL)
+#        totalNetPools = []
+#        for pool in netPools:
 
-            if(pool.startswith(".")):
-                continue
-            netPoolData = {}
-            netPoolData["ID"] = pool
-            try:
-                fileHandle = open(ConfigMapping[NIMBUS_LOCATION]+NIMBUS_CONF+NIMBUS_NET_CONF+"/"+pool)
-                VMNetConfig = []
+#            if(pool.startswith(".")):
+#                continue
+#            netPoolData = {}
+#            netPoolData["ID"] = pool
+#            try:
+#                fileHandle = open(ConfigMapping[NIMBUS_LOCATION]+NIMBUS_CONF+NIMBUS_NET_CONF+"/"+pool)
+#                VMNetConfig = []
                 
-                for entry in fileHandle:
-                    if(entry.startswith("#") or entry.isspace()):
-                        continue
-                    t = entry.split()
+#                for entry in fileHandle:
+#                    if(entry.startswith("#") or entry.isspace()):
+#                        continue
+#                    t = entry.split()
                     # This looks for the DNS server entry and skips over it
                     # The config file stipulates that each line in the file must have
                     # 5 entries for the net config, so I can use this condition to 
                     # identify the lone DNS entry line
-                    if(len(t) < 5):
-                        continue
-                    VMNetConfig.append(t)
-                
-                netPoolData["NETWORK"] = VMNetConfig                
-                fileHandle.close()
-                totalNetPools.append(netPoolData)
-            except IOError:
-                self.logger.error("Error opening network-pool: "+ConfigMapping[NIMBUS_LOCATION]+NIMBUS_CONF+NIMBUS_NET_CONF+"/"+pool)
-                sys.exit(NAGIOS_RET_CRITICAL)
+#                    if(len(t) < 5):
+#                        continue
+#                    VMNetConfig.append(t)
+#                
+#                netPoolData["NETWORK"] = VMNetConfig                
+#                fileHandle.close()
+#                totalNetPools.append(netPoolData)
+#            except IOError:
+#                self.logger.error("Error opening network-pool: "+ConfigMapping[NIMBUS_LOCATION]+NIMBUS_CONF+NIMBUS_NET_CONF+"/"+pool)
+#                sys.exit(NAGIOS_RET_CRITICAL)
 
-        query = ConfigMapping[IJ_LOCATION]+ " "+SQL_IP_SCRIPT
-        output,status = (subprocess.Popen([query],stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell=True, env={'DERBY_HOME':ConfigMapping[DERBY_LOCATION],'JAVA_HOME':ConfigMapping[JAVA_LOCATION],'GLOBUS_HOME':ConfigMapping[NIMBUS_LOCATION]})).communicate()
+#        query = ConfigMapping[IJ_LOCATION]+ " "+SQL_IP_SCRIPT
+#        output,status = (subprocess.Popen([query],stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell=True, env={'DERBY_HOME':ConfigMapping[DERBY_LOCATION],'JAVA_HOME':ConfigMapping[JAVA_LOCATION],'GLOBUS_HOME':ConfigMapping[NIMBUS_LOCATION]})).communicate()
         
-        derbyIPs = []
-        patt = re.compile(r"(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})")
-        for line in output.split():
-            myRe = patt.search(line)
-            if(myRe):
-                derbyIPs.append(line.strip())
-        for ip in derbyIPs:
-            try:
-                self.pluginOutput["AllocatedIPs"].append(str(ip))
-            except KeyError:
-                self.pluginOutput["AllocatedIPs"] = []
-                self.pluginOutput["AllocatedIPs"].append(str(ip))
-        for pool in totalNetPools:
-            count = len(pool["NETWORK"])
-                      
-            self.pluginOutput["TotalIPs-"+str(pool["ID"])] = str(count)
-            available = count
-            for entry in pool["NETWORK"]:
-                try:
-                    self.pluginOutput[pool["ID"]].append(str(entry[1]))
-                except KeyError:
-                    self.pluginOutput[pool["ID"]] = []
-                    self.pluginOutput[pool["ID"]].append(str(entry[1]))
+#        derbyIPs = []
+#        patt = re.compile(r"(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})")
+#        for line in output.split():
+#            myRe = patt.search(line)
+#            if(myRe):
+#                derbyIPs.append(line.strip())
+#        for ip in derbyIPs:
+#            try:
+#                self.pluginOutput["AllocatedIPs"].append(str(ip))
+#            except KeyError:
+#                self.pluginOutput["AllocatedIPs"] = []
+#                self.pluginOutput["AllocatedIPs"].append(str(ip))
+#        for pool in totalNetPools:
+#            count = len(pool["NETWORK"])
+#                      
+#            self.pluginOutput["TotalIPs-"+str(pool["ID"])] = str(count)
+#            available = count
+#            for entry in pool["NETWORK"]:
+#                try:
+#                    self.pluginOutput[pool["ID"]].append(str(entry[1]))
+#                except KeyError:
+#                    self.pluginOutput[pool["ID"]] = []
+#                    self.pluginOutput[pool["ID"]].append(str(entry[1]))
                 
-                try:
-                    for allocIP in self.pluginOutput["AllocatedIPs"]:
-                        if (entry[1] == allocIP):
-                            available -= 1
-                except KeyError:
-                   pass
-                self.pluginOutput["AvailableIPs-"+str(pool["ID"])] = str(available) 
-        pluginExitN(self.resourceName,self.pluginOutput, NAGIOS_RET_OK)
+#                try:
+#                    for allocIP in self.pluginOutput["AllocatedIPs"]:
+#                        if (entry[1] == allocIP):
+#                            available -= 1
+#                except KeyError:
+#                   pass
+#                self.pluginOutput["AvailableIPs-"+str(pool["ID"])] = str(available) 
+#        pluginExitN(self.resourceName,self.pluginOutput, NAGIOS_RET_OK)
 
 if __name__ == '__main__':
     loadNimbusConfig()
