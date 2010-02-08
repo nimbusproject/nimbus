@@ -4,7 +4,7 @@ import pathutil
 from setuperrors import *
 import sys
 
-def run(basedir, certconf, keyconf, log):
+def run(basedir, certconf, keyconf, log, cadir=None, hostname=None):
     log.debug("Checking SSL")
     
     # If the configurations themselves are missing, we cannot continue.
@@ -57,7 +57,8 @@ def run(basedir, certconf, keyconf, log):
     print "Cannot find configured certificate and key for HTTPS, creating these for you."
     
     # If the internal CA does not exist, create that first.
-    cadir = pathutil.pathjoin(basedir, "var/ca")
+    if not cadir:
+        cadir = pathutil.pathjoin(basedir, "var/ca")
     if not pathutil.check_path_exists(cadir):
         print "\nCannot find internal CA, creating this for you.\n"
         print "Please pick a unique, one word CA name or hit return to use a UUID.\n"
@@ -74,13 +75,14 @@ def run(basedir, certconf, keyconf, log):
         
         autoca.createCA(ca_name, basedir, cadir, log)
         print "\nCreated internal CA: %s" % cadir
-        
-    print "\nEnter the fully qualified hostname of this machine.  If you don't know or care right now, hit return to use 'localhost'.\n"
     
-    hostname = raw_input("Hostname: ")
     if not hostname:
-        hostname = "localhost"
-    print "Using '%s'" % hostname
+        print "\nEnter the fully qualified hostname of this machine.  If you don't know or care right now, hit return to use 'localhost'.\n"
+        
+        hostname = raw_input("Hostname: ")
+        if not hostname:
+            hostname = "localhost"
+        print "Using '%s'" % hostname
     
     autoca.createCert(hostname, basedir, cadir, certconf, keyconf, log)
     print "\nCreated certificate: %s" % certconf

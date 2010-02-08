@@ -277,5 +277,4 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
     <import resource="main.conflocator.xml"/>
 
 </beans>
-        <!-- END SNIPPET: beans -->
 

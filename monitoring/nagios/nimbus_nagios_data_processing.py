@@ -188,9 +188,10 @@ class ResourceHandler(ContentHandler):
     def getResources(self):
         return self.collectedResources
         
+if __name__ == '__main__':
 
-myProc = NagiosPerfDataProcessor()
-myProc.parse()
-myProc.output(TARGET_XML_FILE)
+    myProc = NagiosPerfDataProcessor()
+    myProc.parse()
+    myProc.output(TARGET_XML_FILE)
 
-sys.exit(0)
+    sys.exit(0)

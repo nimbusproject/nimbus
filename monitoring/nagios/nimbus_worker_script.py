@@ -152,7 +152,7 @@ class VMMemory(Virtualized):
 
     def __call__(self, option, opt_str, value, parser):
         for vm in self.VMs.values():
-            self.logger.info(vm.name()+' ; '+self.resourceName+ " ; %d", vm.maxMemory())
+            self.logger.info(vm.name()+' ; '+self.resourceName+ " ; %d", (vm.maxMemory()/1024))
 
         pluginExit(self.resourceName, self.logString.getvalue(), NAGIOS_RET_OK)
 
@@ -180,7 +180,7 @@ class VMCpuCores(Virtualized):
     def __call__(self, option, opt_str, value, parser):
 
         tempRes = self.VMConnection.getInfo()
-        self.logger.info(self.VMConnection.getHostname()+';'+self.resourceName+';'+str(tempRes[6]))
+        self.logger.info(self.VMConnection.getHostname()+';'+self.resourceName+';'+str(tempRes[2]))
         pluginExit(self.resourceName, self.logString.getvalue(), NAGIOS_RET_OK)        
 
 class VMCpuFreq(Virtualized):
@@ -248,9 +248,9 @@ class VMFreeMem(Virtualized):
             usedMemory = usedMemory + vm.maxMemory()
 
         tempRes = self.VMConnection.getInfo()
-        totalMem = int(tempRes[1])*1024
+        totalMem = int(tempRes[1])
         
-        availableMem =totalMem -usedMemory
+        availableMem =totalMem -(usedMemory/1024)
         self.logger.info(self.VMConnection.getHostname()+';'+self.resourceName+';'+str(availableMem))
 
         pluginExit(self.resourceName, self.logString.getvalue(), NAGIOS_RET_OK)
@@ -272,7 +272,7 @@ class PluginCmdLineOpts(PluginObject):
             action="store_false", help="Diplay version information",default=True)
         #parser.add_option("-v","--verbose",dest="verbosity",help="Set verbosity level (0-3)",default=0)
 
-        parser.add_option("--VMmem", help="Discover the of memory dedicated to each VM (in KB)", action="callback", callback=VMMemory())
+        parser.add_option("--VMmem", help="Discover the of memory dedicated to each VM (in MB)", action="callback", callback=VMMemory())
         parser.add_option("--VMos", help="Discover the OS running on each VM", action="callback", callback=VMOs())
         parser.add_option("--VMcpuarch",help="Discover the host CPU architecture (x86 or x86_64)", action="callback", callback=VMCpuArch())        
         parser.add_option("--VMvirt", help="Discover the host virtualization technology",action="callback", callback=VMVirt())
@@ -295,8 +295,10 @@ class PluginCmdLineOpts(PluginObject):
 
 
 # The "main" code starts here & begins execution here
-testObject = PluginCmdLineOpts()
-testObject.validate()
+if __name__ == '__main__':
 
-# This line should never be reached in any code path
-sys.exit(NAGIOS_RET_CRITICAL)
+    testObject = PluginCmdLineOpts()
+    testObject.validate()
+
+    # This line should never be reached in any code path
+    sys.exit(NAGIOS_RET_CRITICAL)

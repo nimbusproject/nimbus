@@ -40,6 +40,7 @@ import commands
 import re
 import socket
 import time
+import ConfigParser
 # NAGIOS Plug-In API return code values
 
 NAGIOS_RET_OK = 0
@@ -47,13 +48,9 @@ NAGIOS_RET_WARNING = 1
 NAGIOS_RET_CRITICAL = 2
 NAGIOS_RET_UNKNOWN = 3
 
-IJ_LOCATION = "/opt/sun/javadb/bin/ij"
 SQL_IP_SCRIPT = "/usr/local/nagios/libexec/nimbus_derby_used_ips.sql"
 SQL_RUNNING_VM_SCRIPT = "/usr/local/nagios/libexec/nimbus_derby_running_vms.sql"
-# Attempting to access the environment variables from within Nagios' context errors out!
-ENV_DERBY_HOME = "/opt/sun/javadb"        #os.environ["DERBY_HOME"]
-ENV_GLOBUS_LOC = "/usr/local/nimbus"      #os.environ["GLOBUS_LOCATION"]
-ENV_JAVA_HOME = "/usr/java/latest"        #os.environ["JAVA_HOME"]
+
 #The "NIMBUS_" entries are relative to the ENV_GLOBUS_LOC var
 NIMBUS_CONF = "/etc/nimbus/workspace-service"
 NIMBUS_NET_CONF = "/network-pools"
@@ -61,6 +58,42 @@ NIMBUS_PHYS_CONF = "/vmm-pools"
 
 NIMBUS_PBS_CONF = "/pilot.conf"
 NIMBUS_PBS_SUPPORT = "/other/resource-locator-ACTIVE.xml"
+
+CONF_FILE = "/usr/local/nagios/libexec/monitoring_config.cfg"
+CONF_FILE_SECTION = "Nimbus_Monitoring"
+NIMBUS_ADDRESS = "Nimbus_Server_Address"
+NIMBUS_LOCATION = "Nimbus_Install_Location"
+GLOBUS_LOCATION = "Globus_Install_Location"
+SERVER_TMP_LOCATION = "Server_Tmp_Location"
+NAGIOS_LOCATION = "Nagios_Location"
+JAVA_LOCATION = "Java_Location"
+IJ_LOCATION = "IJ_Location"
+DERBY_LOCATION = "Derby_Location"
+ConfigMapping = {}
+
+def loadNimbusConfig():
+
+    cfgFile = ConfigParser.ConfigParser()
+    if(os.path.exists(CONF_FILE)):
+        cfgFile.read(CONF_FILE)
+        try:
+            ConfigMapping[NIMBUS_ADDRESS] = cfgFile.get(CONF_FILE_SECTION,NIMBUS_ADDRESS,0)
+            ConfigMapping[NIMBUS_LOCATION] = cfgFile.get(CONF_FILE_SECTION,NIMBUS_LOCATION,0)
+            ConfigMapping[SERVER_TMP_LOCATION] = cfgFile.get(CONF_FILE_SECTION, SERVER_TMP_LOCATION,0)
+            ConfigMapping[NAGIOS_LOCATION] = cfgFile.get(CONF_FILE_SECTION, NAGIOS_LOCATION,0)
+            ConfigMapping[JAVA_LOCATION] = cfgFile.get(CONF_FILE_SECTION, JAVA_LOCATION,0)
+            ConfigMapping[IJ_LOCATION] = cfgFile.get(CONF_FILE_SECTION,IJ_LOCATION,0)
+            ConfigMapping[GLOBUS_LOCATION] = cfgFile.get(CONF_FILE_SECTION,GLOBUS_LOCATION,0)
+            ConfigMapping[DERBY_LOCATION] = cfgFile.get(CONF_FILE_SECTION,DERBY_LOCATION,0)
+        except ConfigParser.NoSectionError:
+            print "Unable to locate "+CONF_FILE_SECTION+" section in conf file - Malformed config file?"
+            sys.exit(NAGIOS_RET_CRITICAL)
+        except ConfigParser.NoOptionError, nopt:
+            print nopt.message+" of configuration file"
+            sys.exit(NAGIOS_RET_CRITICAL)
+    else:
+        print "Configuration file not found in Nagios Plug-ins directory"
+        sys.exit(NAGIOS_RET_CRITICAL)
 
 
 def pluginExit(messageString, logString, returnCode):
@@ -138,7 +171,7 @@ class PluginCmdLineOpts(PluginObject):
             # Parse command-line options.
             parser = OptionParser()
 
-            parser.add_option("--HNconsisten", action="callback",help="Verify internal Derby database consistency", callback=HeadNodeDBConsistent())
+            parser.add_option("--HNconsistent", action="callback",help="Verify internal Derby database consistency", callback=HeadNodeDBConsistent())
             parser.add_option("--HNvmmpool", action="callback",help="Publish Nimbus VMM pool information", callback=HeadNodeVMMPools())
             parser.add_option("--HNnetpool", action="callback",help="Publish Nimbus network pool information", callback=HeadNodeNetPools())         
             parser.add_option("--HNpbsmem", action="callback",help="Publish PBS/Torque available memory information", callback=HeadNodePBSMemory())
@@ -168,7 +201,7 @@ class HeadNodePBSSupport(PluginObject):
     def __call__(self, option, opt_str, value, parser):
 
         try:
-            fileHandle = open(ENV_GLOBUS_LOC+NIMBUS_CONF+NIMBUS_PBS_SUPPORT)
+            fileHandle = open(ConfigMapping[NIMBUS_LOCATION]+NIMBUS_CONF+NIMBUS_PBS_SUPPORT)
         except IOError:
             self.logger.error("IOError opening resource-locator-ACTIVE.xml for processing!")
             sys.exit(NAGIOS_RET_CRITICAL)
@@ -196,7 +229,7 @@ class HeadNodePBSMemory(PluginObject):
     def __call__(self, option, opt_str, value, parser):
 
         try:
-            fileHandle = open(ENV_GLOBUS_LOC+NIMBUS_CONF+NIMBUS_PBS_CONF)
+            fileHandle = open(ConfigMapping[NIMBUS_LOCATION]+NIMBUS_CONF+NIMBUS_PBS_CONF)
         except IOError:
             self.logger.error("IOError opening pilot.conf for processing!")
             sys.exit(NAGIOS_RET_CRITICAL)
@@ -209,8 +242,6 @@ class HeadNodePBSMemory(PluginObject):
                 else:
                     lineSegs = line.split("=")
                     memory = int(lineSegs[1].strip())
-            # Convert the megabytes to kbytes for consistency with other memory reporting 
-            memory *= 1024
             fileHandle.close()
             self.logger.info("-; Available; "+str(memory))    
             pluginExit(self.resourceName, self.logString.getvalue(), NAGIOS_RET_OK)
@@ -246,9 +277,13 @@ class HeadNodeDBConsistent(PluginObject):
     
         isConsistent = True
 
-        query = IJ_LOCATION+ " "+SQL_IP_SCRIPT
-        output,status = (subprocess.Popen([query],stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell=True, env={'DERBY_HOME':ENV_DERBY_HOME,'JAVA_HOME':ENV_JAVA_HOME,'GLOBUS_LOCATION':ENV_GLOBUS_LOC})).communicate()
-
+        query = ConfigMapping[IJ_LOCATION]+ " "+SQL_IP_SCRIPT
+        #print query
+        output,status = (subprocess.Popen([query],stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell=True, env={'DERBY_HOME':ConfigMapping[DERBY_LOCATION],'JAVA_HOME':ConfigMapping[JAVA_LOCATION],'GLOBUS_HOME':ConfigMapping[NIMBUS_LOCATION]})).communicate()
+	
+        if(status != ""):
+            self.logger.error("An error occured querying DerbyDB with IJ "+ status)
+        
         derbyIPs = []
         patt = re.compile(r"(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})") 
         for line in output.split():
@@ -271,8 +306,12 @@ class HeadNodeDBConsistent(PluginObject):
                 isConsistent = False
         # OK, so now are their reachable VMs that should be terminated?
 
-        query = IJ_LOCATION + " " + SQL_RUNNING_VM_SCRIPT
-        output,status = (subprocess.Popen([query],stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell=True, env={'DERBY_HOME':ENV_DERBY_HOME,'JAVA_HOME':ENV_JAVA_HOME,'GLOBUS_LOCATION':ENV_GLOBUS_LOC})).communicate()
+        query = ConfigMapping[IJ_LOCATION] + " " + SQL_RUNNING_VM_SCRIPT
+        output,status = (subprocess.Popen([query],stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell=True, env={'DERBY_HOME':ConfigMapping[DERBY_LOCATION],'JAVA_HOME':ConfigMapping[JAVA_LOCATION],'GLOBUS_HOME':ConfigMapping[NIMBUS_LOCATION]})).communicate()
+
+        if(status != ""):
+            self.logger.error("An error occured querying DerbyDB with IJ "+ status)
+
 
         ijOutput = output.split()
         counter = 0
@@ -343,9 +382,17 @@ class HeadNodeVMMPools(PluginObject):
         self.resourceName = "VMM-Pools"
 
     def __call__(self, option, opt_str, value, parser):
-        vmmPools = os.listdir(ENV_GLOBUS_LOC+NIMBUS_CONF+NIMBUS_PHYS_CONF)
+        
+        try:
+            vmmPools = os.listdir(str(ConfigMapping[NIMBUS_LOCATION])+NIMBUS_CONF+NIMBUS_PHYS_CONF)
+        except OSError, ose:
+            self.logger.error("Error listing VMMPool directory: "+str(ose))  
 
-        netPools = os.listdir(ENV_GLOBUS_LOC+NIMBUS_CONF+NIMBUS_NET_CONF)
+        try:
+            netPools = os.listdir(ConfigMapping[NIMBUS_LOCATION]+NIMBUS_CONF+NIMBUS_NET_CONF)
+        except OSError, ose:
+           self.logger.error("Error listing NetPool directory: "+str(ose))
+
         poolListing = {}
         for pool in vmmPools:
             
@@ -358,7 +405,7 @@ class HeadNodeVMMPools(PluginObject):
                     continue
                 totalNetPools.update({npool:0})
             try:
-                fileHandle = open(ENV_GLOBUS_LOC+NIMBUS_CONF+NIMBUS_PHYS_CONF+"/"+pool)
+                fileHandle = open(ConfigMapping[NIMBUS_LOCATION]+NIMBUS_CONF+NIMBUS_PHYS_CONF+"/"+pool)
                 workerNodes = []
                 for entry in fileHandle:
                     if(entry.startswith("#") or entry.isspace()):
@@ -389,13 +436,12 @@ class HeadNodeVMMPools(PluginObject):
                             self.logger.error("Erroneous entry in the VMM configuration: "+ network+" - Ignoring")
                 poolListing[pool] = totalNetPools
             except IOError:
-                self.logger.error("Error opening VMM-pool: "+ENV_GLOBUS_LOC+NIMBUS_CONF+NIMBUS_PHYS_CONF+ pool)
+                self.logger.error("Error opening VMM-pool: "+ConfigMapping[GLOBUS_LOCATION]+NIMBUS_CONF+NIMBUS_PHYS_CONF+ pool)
                 sys.exit(NAGIOS_RET_CRITICAL)
 
         for key in poolListing.keys():
             for entry in totalNetPools.keys():
-		# The additional '*1024' was added to convert MB to kB and maintain consistency across all plug-ins
-                self.logger.info(key+" ; "+entry+" ; "+str(poolListing[key][entry]*1024))            
+                self.logger.info(key+" ; "+entry+" ; "+str(poolListing[key][entry]))            
             
         pluginExit(self.resourceName, self.logString.getvalue(), NAGIOS_RET_OK)
 
@@ -411,7 +457,13 @@ class HeadNodeNetPools(PluginObject):
 
 
     def __call__(self, option, opt_str, value, parser):
-        netPools = os.listdir(ENV_GLOBUS_LOC+NIMBUS_CONF+NIMBUS_NET_CONF)
+        
+        try:
+            netPools = os.listdir(ConfigMapping[NIMBUS_LOCATION]+NIMBUS_CONF+NIMBUS_NET_CONF)
+        except OSError, ose:
+            self.logger.error("Error listing the Network Pools directory: "+ str(ose))
+            sys.exit(NAGIOS_RET_CRITICAL)
+
         totalNetPools = []
         for pool in netPools:
 
@@ -420,7 +472,7 @@ class HeadNodeNetPools(PluginObject):
             netPoolData = {}
             netPoolData["ID"] = pool
             try:
-                fileHandle = open(ENV_GLOBUS_LOC+NIMBUS_CONF+NIMBUS_NET_CONF+"/"+pool)
+                fileHandle = open(ConfigMapping[NIMBUS_LOCATION]+NIMBUS_CONF+NIMBUS_NET_CONF+"/"+pool)
                 VMNetConfig = []
                 
                 for entry in fileHandle:
@@ -439,11 +491,11 @@ class HeadNodeNetPools(PluginObject):
                 fileHandle.close()
                 totalNetPools.append(netPoolData)
             except IOError:
-                self.logger.error("Error opening network-pool: "+ENV_GLOBUS_LOC+NIMBUS_CONF+NIMBUS_NET_CONF+"/"+pool)
+                self.logger.error("Error opening network-pool: "+ConfigMapping[NIMBUS_LOCATION]+NIMBUS_CONF+NIMBUS_NET_CONF+"/"+pool)
                 sys.exit(NAGIOS_RET_ERROR)
 
-        query = IJ_LOCATION+ " "+SQL_IP_SCRIPT
-        output,status = (subprocess.Popen([query],stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell=True, env={'DERBY_HOME':ENV_DERBY_HOME,'JAVA_HOME':ENV_JAVA_HOME,'GLOBUS_LOCATION':ENV_GLOBUS_LOC})).communicate()
+        query = ConfigMapping[IJ_LOCATION]+ " "+SQL_IP_SCRIPT
+        output,status = (subprocess.Popen([query],stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell=True, env={'DERBY_HOME':ConfigMapping[DERBY_LOCATION],'JAVA_HOME':ConfigMapping[JAVA_LOCATION],'GLOBUS_HOME':ConfigMapping[NIMBUS_LOCATION]})).communicate()
         
         derbyIPs = []
         patt = re.compile(r"(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})")
@@ -467,8 +519,9 @@ class HeadNodeNetPools(PluginObject):
         pluginExit(self.resourceName, self.logString.getvalue(), NAGIOS_RET_OK)
 
 if __name__ == '__main__':
+    loadNimbusConfig()
     testObject = PluginCmdLineOpts()
     testObject.validate()
 
-# This sys.exit call should NEVER be reached under normal circumstances, or any....
-sys.exit(NAGIOS_RET_CRITICAL) 
+    # This sys.exit call should NEVER be reached under normal circumstances, or any....
+    sys.exit(NAGIOS_RET_CRITICAL)

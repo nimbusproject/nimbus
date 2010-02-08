@@ -200,7 +200,7 @@
           class="org.nimbustools.messaging.query.HttpQuery" 
           init-method="startListening">
         
-        <property name="enabled" value="$QUERY{https.enabled}"/>
+        <property name="enabled" value="$QUERY{query.enabled}"/>
         <property name="port" value="$QUERY{https.port}" />
         <property name="keystoreLocation" value="$QUERY{keystore.path}"/>
         <property name="keystorePassword" value="$QUERY{keystore.password}"/>

@@ -6,7 +6,8 @@ build/
 dist/
 autocontainer/downloads/
 autocontainer/gt/
-web/lib/python/
+web/lib/python/cherrypy/
+web/lib/python/django/
 web/lib/java/
 web/src/env.sh
 web/src/python/nimbusweb/portal/generated_secrets.py
@@ -14,3 +15,4 @@ web/src/python/nimbusweb/portal/generated_settings.py
 web/var/
 control/var/workspace-control/logs/wclog*
 derby.log
+bin/tmp/

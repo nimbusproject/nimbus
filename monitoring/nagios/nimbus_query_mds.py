@@ -33,9 +33,48 @@ from xml.sax.handler import ContentHandler
 import xml
 import subprocess
 from subprocess import *
+import ConfigParser
+import os
 
-SERVER_ADDRESS = "https://someserver.ca:8443/wsrf/services/DefaultIndexService"
 XML_ROOT_TAG = "ROOT"
+
+
+CONF_FILE = "monitoring_config.cfg"
+CONF_FILE_SECTION = "Nimbus_Monitoring"
+NIMBUS_ADDRESS = "Nimbus_Server_Address"
+NIMBUS_LOCATION = "Nimbus_Install_Location"
+GLOBUS_LOCATION = "Globus_Install_Location"
+SERVER_TMP_LOCATION = "Server_Tmp_Location"
+NAGIOS_LOCATION = "Nagios_Location"
+JAVA_LOCATION = "Java_Location"
+IJ_LOCATION = "IJ_Location"
+DERBY_LOCATION = "Derby_Location"
+ConfigMapping = {}
+
+def loadNimbusConfig():
+    
+    cfgFile = ConfigParser.ConfigParser()
+    if(os.path.exists(CONF_FILE)):
+        cfgFile.read(CONF_FILE)
+        try:
+            ConfigMapping[NIMBUS_ADDRESS] = cfgFile.get(CONF_FILE_SECTION,NIMBUS_ADDRESS,0)
+            ConfigMapping[NIMBUS_LOCATION] = cfgFile.get(CONF_FILE_SECTION,NIMBUS_LOCATION,0)
+            ConfigMapping[SERVER_TMP_LOCATION] = cfgFile.get(CONF_FILE_SECTION, SERVER_TMP_LOCATION,0)
+            ConfigMapping[NAGIOS_LOCATION] = cfgFile.get(CONF_FILE_SECTION, NAGIOS_LOCATION,0)
+            ConfigMapping[JAVA_LOCATION] = cfgFile.get(CONF_FILE_SECTION, JAVA_LOCATION,0)
+            ConfigMapping[IJ_LOCATION] = cfgFile.get(CONF_FILE_SECTION,IJ_LOCATION,0)
+            ConfigMapping[GLOBUS_LOCATION] = cfgFile.get(CONF_FILE_SECTION,GLOBUS_LOCATION,0)
+            ConfigMapping[DERBY_LOCATION] = cfgFile.get(CONF_FILE_SECTION,DERBY_LOCATION,0)
+        except ConfigParser.NoSectionError: 
+            print "Unable to locate "+CONF_FILE_SECTION+" section in conf file - Malformed config file?"
+            sys.exit(-1)
+        except ConfigParser.NoOptionError, nopt:
+            print nopt.message+" of configuration file"
+            sys.exit(-1)
+    else:
+        print "Configuration file not found in current directory"
+        sys.exit(-1)
+
 
 class Loggable:
     """ A simple base class to encapsulate useful logging features - Meant to be derived from
@@ -125,7 +164,7 @@ class MDSResourceQuery(Loggable):
         # xml data can be brought into this script for processing
         try:
             
-            process = subprocess.Popen("$GLOBUS_LOCATION/bin/wsrf-query "+argString, shell=True,stderr=PIPE, stdout=PIPE).communicate()
+            process = subprocess.Popen(ConfigMapping[GLOBUS_LOCATION]+"/bin/wsrf-query "+argString, shell=True,stderr=PIPE, stdout=PIPE).communicate()
             # STDOUT from the command just executed
             retrievedXML = process[0]
             # STDERR from the command just executed
@@ -138,8 +177,8 @@ class MDSResourceQuery(Loggable):
 
         #These exception handlers aren't being called... Stupid python
         except Exception, e:
-            self.logger.error("An unknown Exception has occured: "+e.getMessage())
-            raise MDSResourceException("Unknown Exception has occured: "+e.getMessage())
+            self.logger.error("An unknown Exception has occured: "+ str(e))
+            raise MDSResourceException("Unknown Exception has occured: "+str(e))
         # According to the Python API docs, the subprocess.Popen command can throw an OSError or ValueError
         # but neither of these exception could be raised in testing (with Python 2.4.3)
 
@@ -164,8 +203,8 @@ class MDSResourceQuery(Loggable):
         try:
             xml.sax.parseString(retrievedXML.strip(), xmlHandler)
         except xml.sax.SAXException, e:
-            self.logger.error("Failed to parse retrieved XML: "+e.getMessage())    
-            raise MDSResourceException("Failed to parse retrieved XML: "+e.getMessage())
+            self.logger.error("Failed to parse retrieved XML: "+str(e))    
+            raise MDSResourceException("Failed to parse retrieved XML: "+str(e))
         self.netPoolProcessing(xmlHandler.getResources())
 
         return xmlHandler.getResources()
@@ -245,11 +284,11 @@ class MDSResourceQuery(Loggable):
         for pool in pools.keys():
             resources[netPoolsIP]["NetPools:Available"][pool] = len(pools[pool])
 
-
+loadNimbusConfig()
 myQuery = MDSResourceQuery()
 
 # This print statement is just a visual way of seeing the work performed inside the driver
 # and is not pivotal or even necessary for the driver to function properly
-print myQuery(SERVER_ADDRESS,XML_ROOT_TAG)
+print myQuery(ConfigMapping[NIMBUS_LOCATION],XML_ROOT_TAG)
 
 sys.exit(0)

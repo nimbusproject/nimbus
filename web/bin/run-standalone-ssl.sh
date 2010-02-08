@@ -79,7 +79,7 @@ echo -e "\nUse CTRL-C to stop the server (you can get it to daemonize later)"
 echo -e "\n*****************************************************************"
 echo -e "*****************************************************************\n"
 
-$PYTHON_EXE $NIMBUS_PYSRC/nimbusweb/portal/manage.py runcpserver "port=$PORT" "workdir=$NIMBUS_PYSRC/nimbusweb/portal/" "ssl_certificate=$CERTPATH" "ssl_private_key=$KEYPATH"
+exec $PYTHON_EXE $NIMBUS_PYSRC/nimbusweb/portal/manage.py runcpserver "port=$PORT" "workdir=$NIMBUS_PYSRC/nimbusweb/portal/" "ssl_certificate=$CERTPATH" "ssl_private_key=$KEYPATH"
 
 
 # Available options:
