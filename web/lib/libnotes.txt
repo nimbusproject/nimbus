@@ -79,7 +79,7 @@ Exact source used is included in tarball.
 To build (and replace the tarball in this directory), run the following
 special, toplevel Nimbus dist command:
 
-    ant -f bin/lib/gt4.0/dist/build.xml web-autocommon
+    ant -f scripts/lib/gt4.0/dist/build.xml web-autocommon
 
 That commands needs the "bin" "autocommon" and "web" directories to coexist
 in the same  top level directory (like they do in git).
@@ -87,6 +87,6 @@ in the same  top level directory (like they do in git).
 Common development command from inside web/ directory if you are working on
 a change in autocommon:
 
-    ant -f ../bin/lib/gt4.0/dist/build.xml web-autocommon && 
+    ant -f ../scripts/lib/gt4.0/dist/build.xml web-autocommon && 
     ./sbin/clean-slate.sh && 
     ./bin/run-standalone-ssl.sh
