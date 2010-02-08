@@ -43,11 +43,6 @@ export NIMWIZ_SCP_BATCH_OPTIONS
 NIMWIZ_NO_NETWORK_CONFIGS="(( not configuring ))"
 export NIMWIZ_NO_NETWORK_CONFIGS
 
-CONTROL_TARBALL_SHORT="nimbus-controls-2.3RC1.tar.gz"
-CONTROL_TARBALL_DIR="nimbus-controls-2.3RC1"
-CONTROL_TARBALL="http://www.nimbusproject.org/downloads/$CONTROL_TARBALL_SHORT"
-export CONTROL_TARBALL_DIR CONTROL_TARBALL_SHORT CONTROL_TARBALL
-
 WORKSPACE_CONTROL_DOC_LINK="http://www.nimbusproject.org/docs/?doc=2.3/admin/quickstart.html#part-III"
 export WORKSPACE_CONTROL_DOC_LINK
 

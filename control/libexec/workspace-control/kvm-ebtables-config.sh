@@ -21,15 +21,16 @@
 # ABOUT #
 #########
 
-# This script adjusts ebtables rules to packets coming from a bridged interface
+# This script adjusts ebtables rules to prevent MAC and IP spoofing.
 # Unlike the 'main' ebtables-config script used with Xen, this will NOT allow
-# you to host multiple VMs on the same host and still get proper spoofing
-# protection.
+# you to stop DHCP packets from workspaces escaping to the site network.
 
-# 1. Is the MAC address incorrect?  Drop the packet.
-# 2. Is this is a DHCP packet?
-# 3. If so, allow it to be bridged.
-# 4. If not a DHCP packet, it must have the correct source IP address,
+# 1. Is the packet coming from a workspace virtual interface?
+# 2. If not, proceed without further processing.
+# 3. If so, is the MAC address incorrect?  Drop the packet.
+# 4. Is this is a DHCP packet?
+# 5. If so, allow it to be bridged.
+# 6. If not a DHCP packet, it must have the correct source IP address,
 #    otherwise the packet is dropped.
 
 
@@ -143,13 +144,13 @@ function delete_vifname_chain() {
   return $?
 }
 
-function add_forward_rule() {
-  $EBTABLES -A INPUT -j $VIFNAME
+function add_input_rule() {
+  $EBTABLES -A INPUT -i $VIFNAME -j $VIFNAME
   return $?
 }
 
-function rem_forward_rule() {
-  $EBTABLES -D INPUT -j $VIFNAME
+function rem_input_rule() {
+  $EBTABLES -D INPUT -i $VIFNAME -j $VIFNAME
   return $?
 }
 
@@ -161,12 +162,12 @@ function rem_forward_rule() {
 if [ "$ADDREM" = "rem" ]; then
 
   SUCCESS="y"
-  rem_forward_rule
+  rem_input_rule
   if [ $? -ne 0 ]; then
-    echo "ERROR: Failed to remove $VIFNAME FORWARD rule"
+    echo "ERROR: Failed to remove $VIFNAME INPUT rule"
     SUCCESS="n"
   else
-    echo "Removed $VIFNAME FORWARD rule"
+    echo "Removed $VIFNAME INPUT rule"
   fi
 
   delete_vifname_chain
@@ -193,12 +194,12 @@ if [ "$ADDREM" = "add" ]; then
     echo "Created $VIFNAME chain"
   fi
 
-  add_forward_rule
+  add_input_rule
   if [ $? -ne 0 ]; then
-    echo "ERROR: Failed to add $VIFNAME FORWARD rule"
+    echo "ERROR: Failed to add $VIFNAME INPUT rule"
     exit 1
   else
-    echo "Added $VIFNAME FORWARD rule"
+    echo "Added $VIFNAME INPUT rule"
     exit 0
   fi
 fi

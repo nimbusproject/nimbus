@@ -30,6 +30,9 @@
 
     <property name="print.relative.confdir"
               value="etc/${base.package.name}/workspace-service" />
+              
+    <property name="print.relative.queryconfdir"
+              value="etc/${base.package.name}/query" />
 
     <property name="dbsetup.dir"
               location="${deploy.dir}/share/${base.package.name}"/>
@@ -178,7 +181,7 @@
         </chmod>
 
         <!--
-        this is broke?
+        Broken?
         <chmod perm="755">
             <fileset dir="${netdbsetup.dir}">
                 <include name="*.sh"/>
@@ -189,8 +192,16 @@
 
     <target name="chmodprivate">
         <chmod file="${workspace.conf.dir}/pilot-authz.conf"
-               perm="400"/>
-        <echo message="Ensured owner-only r permissions: ${print.relative.confdir}/pilot-authz.conf"/>
+               perm="600"/>
+        <echo message="Ensured owner-only rw permissions: ${print.relative.confdir}/pilot-authz.conf"/>
+        
+        <chmod file="${qproperties2.path}"
+               perm="600"/>
+        <echo message="Ensured owner-only rw permissions: ${print.relative.queryconfdir}/query.conf"/>
+        
+        <chmod file="${query.conf.dir}/users.txt"
+               perm="600"/>
+        <echo message="Ensured owner-only rw permissions: ${print.relative.queryconfdir}/users.txt"/>
     </target>
 
     <target name="adjust-jndi">
