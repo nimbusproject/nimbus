@@ -63,7 +63,7 @@ INSTALLED_APPS = (
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
-    #'cpserver',
+    'cpserver',
     'nimbusweb.portal.nimbus',
     'nimbusweb.portal.usercreate',
 )
