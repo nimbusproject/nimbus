@@ -1,31 +1,5 @@
 #!/usr/bin/python
 
-"""* 
- * Copyright 2010 University of Victoria
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
- * either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * AUTHOR - Adam Bishop - ahbishop@uvic.ca
- * 
- * For comments or questions please contact the above e-mail address 
- * or Ian Gable - igable@uvic.ca
- *
- * """
-
-
-
-
 from cStringIO import StringIO
 import xml
 import xml.dom.pulldom
@@ -37,10 +11,11 @@ import libxslt
 import time
 import os
 
-TARGET_XML_FILE = "xmlCapture.xml"#"/tmp/mdsresource.xml"
-DUPLICATE_REM_XSL = "dupRemove.xsl"
-OUTPUT_XML_FILE = "outputXML.xml"
-TIME_WINDOW = 300
+
+# Must specify the full path as Nagios doesn't setup a complete environment
+# when it calls this script
+DUPLICATE_REM_XSL = "/usr/local/nagios/libexec/removeAllDup.xsl"
+TIME_WINDOW = 600
 
 PERFORMANCE_DATA_LOC = "/tmp/service-perfdata"
 TARGET_XML_FILE = "/tmp/mdsresource.xml"
@@ -100,8 +75,8 @@ class NagiosXMLAggregator(PluginObject):
                     tagIndex = line.find("?>") + 2
                     resourceXMLEntry = line[tagIndex:]
                     retXML.write(resourceXMLEntry.strip())
-            retXML.write("</WRAPPER>") 
-            return retXML.getvalue().strip()
+        retXML.write("</WRAPPER>") 
+        return retXML.getvalue().strip()
 
     def outputXMLToFile(self, xmlToOutput):
 
@@ -114,7 +89,7 @@ class NagiosXMLAggregator(PluginObject):
             self.logger.error("IOError thrown trying to output XML to: "+TARGET_XML_FILE+" - "+str(err))
             sys.exit(-1)
 
-    def removeDuplicateIPs(self, xmlToProcess):
+    def removeDuplicateElements(self, xmlToProcess):
 
         try:
             styledoc = libxml2.parseFile(DUPLICATE_REM_XSL)
@@ -142,7 +117,6 @@ class NagiosXMLAggregator(PluginObject):
     def __call__(self):
 
         self.readXML = self.aggregateServiceDataToXML()
-        #print self.readXML
         doc = parseString(self.readXML)
 
         finalXML = StringIO()
@@ -167,14 +141,12 @@ class NagiosXMLAggregator(PluginObject):
         finalXML.write("</WorkerNodes>")
         finalXML.write("</Cluster>")
 
-        return self.removeDuplicateIPs(finalXML.getvalue())
-
+        return self.removeDuplicateElementss(finalXML.getvalue())
 
 if __name__ == '__main__':
     
     xmlAggr = NagiosXMLAggregator()
     xml = xmlAggr()
-    #print xml
     xmlAggr.outputXMLToFile(xml)
 
     sys.exit(0)    
