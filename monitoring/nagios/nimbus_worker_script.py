@@ -33,6 +33,8 @@ from cStringIO import StringIO
 import libvirt
 from optparse import OptionParser
 import socket
+import time
+
 
 # NAGIOS Plug-In API return code values
 
@@ -41,52 +43,6 @@ NAGIOS_RET_WARNING = 1
 NAGIOS_RET_CRITICAL = 2
 NAGIOS_RET_UNKNOWN = 3
 
-
-def pluginExit(messageIdentifier, logString, returnCode):
-    """ This method should be the only exit point for all the plug-ins. This ensures that 
-    Nagios requirements are meant and performance data is properly formatted to work
-    with the rest of the code. Do NOT just call sys.exit in the code (if you want your
-    plug-in to function with the rest of the code!
-    """
-    # ALRIGHT, so the log string is seperated by  my "delimiter" ';'
-    # Thus, I'm going to assume the following log style format:
-
-    # 2009-05-29 13:48:55,638 ; VMMemory ; INFO ; sl52base ; MEMORY ; 524288
-
-    # The pertinent information should be located in the "4th col" and on
-    # The 3rd col lists the "logger lvl", which I'm using to indicate
-    # if it's standard plug-in output or an error
-
-
-    outputString = StringIO()
-    outputString.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
-    
-    # I need to check if ANY 'ERROR' log entries exist. If that's the case
-    # then a different XML string should be formatted and sent out
-
-    # There doesn't seem to be any error handling I can do here... Ugly
-    localIP = (socket.gethostbyaddr( socket.gethostname() ))[2][0]
-    outputString.write("<Worker Node>")    
-    #outputString.write("<Node IP>"+ localIP+ "</Node IP>")
-    #outputString.write(resourceString)
-    lines = logString.splitlines()
-    for line in lines:
-        # If we encounter an 'error' entry in the logger, make sure to alert the NAGIOS admin
-        if (line.find("ERROR") != -1):
-            returnCode = NAGIOS_RET_WARNING
-            continue
-        logStringEntries = line.split(';')
-        
-
-        outputString.write("<"+logStringEntries[3].strip()+">") 
-        outputString.write("<"+messageIdentifier +">"+logStringEntries[5].strip()+"</"+messageIdentifier+">")
-        outputString.write("</"+logStringEntries[3].strip()+">")
-        #outputString.write("</ENTRY>")
-    outputString.write("</Worker Node>")
-
-
-    print messageIdentifier+" | "+ outputString.getvalue()
-    sys.exit(returnCode)
 
 def pluginExitN(messageIdentifier, pluginInfo, returnCode):
 
@@ -103,7 +59,7 @@ def pluginExitN(messageIdentifier, pluginInfo, returnCode):
     outputString.write("<WorkerNode>")
   #  outputString.write("<PhysicalIP>"+localIP+"</PhysicalIP>")
 
-    outputString.write("<"+messageIdentifier+">")
+    outputString.write("<"+messageIdentifier+" id=\""+messageIdentifier+localIP+"\" ts=\""+str(time.time())[:-3]+"\">")
     for key in pluginInfo.keys():
             outputString.write("<"+key.strip()+">")
             if( type(pluginInfo[key]) == type(list())):
@@ -125,19 +81,14 @@ class PluginObject:
     be changed without breaking almost all the code. Don't change the log format!
     """
     def __init__(self, callingClass):
-      #  self.logString = StringIO()
         self.logger = logging.getLogger(callingClass)
         self.logger.setLevel(logging.INFO)
         formatter = logging.Formatter('%(asctime)s ; %(name)s ; %(levelname)s ; %(message)s')
-       # xmlOutputHndlr = logging.StreamHandler(self.logString)
-       # xmlOutputHndlr.setFormatter(formatter)
-       # xmlOutputHndlr.setLevel(logging.INFO)
 
         errorOutputHndlr = logging.StreamHandler(sys.stdout)
         errorOutputHndlr.setFormatter(formatter)
         errorOutputHndlr.setLevel(logging.ERROR)
 
-        #self.logger.addHandler(xmlOutputHndlr)
         self.logger.addHandler(errorOutputHndlr)
 
         self.pluginOutput = {}
@@ -155,7 +106,6 @@ class Virtualized(PluginObject):
         if self.VMConnection == None:
             self.logger.error('Unable to open a Read-Only connection to local Hypervisor')
             sys.exit(NAGIOS_RET_CRITICAL)
-            #pluginExit("Virtualized - Base Class",self.logString.getvalue(), NAGIOS_RET_ERROR)
         
         self.VMDomainsID = self.VMConnection.listDomainsID()
         self.VMs={}
@@ -169,7 +119,6 @@ class Virtualized(PluginObject):
             except:
                 self.logger.error("Failed to lookup a VM from a VMConnection by \'id\'")
                 sys.exit(NAGIOS_RET_CRITICAL)
-                #pluginExit("Virtualized - Base Class",self.logString.getvalue(), NAGIOS_RET_ERROR)
 
 # I thought I'd have to define the __call__ function, but it seems like the 
 # ctr is doing what I need it to for the 'Callback' functionality
@@ -189,7 +138,6 @@ class VMMemory(Virtualized):
             # hence, vm.maxMemory/1024 will convert from 'kB'->'MB'
 #                              vm.name()
             self.pluginOutput["AllocatedMB"] = str(vm.maxMemory()/1024)
-            #self.logger.info(vm.name()+' ; '+self.resourceName+ " ; %d", vm.maxMemory())
 
         pluginExitN(self.resourceName, self.pluginOutput, NAGIOS_RET_OK)
 
@@ -202,7 +150,6 @@ class HostVirt(Virtualized):
         self.resourceName = 'Host-Virtualization'
 
     def __call__(self,option, opt_str, value,parser):
-        #self.logger.info(self.VMConnection.getHostname()+";"+self.resourceName+";"+self.VMConnection.getType())
         self.pluginOutput["Type"] = str(self.VMConnection.getType())
         pluginExitN(self.resourceName, self.pluginOutput, NAGIOS_RET_OK)
 
@@ -253,7 +200,7 @@ class HostCpuFreq(Virtualized):
     def __call__(self,option, opt_str, value, parser):
 
         tempRes = self.VMConnection.getInfo()
-        self.pluginOutput["CPUCoreFequency"] = str(tempRes[3])
+        self.pluginOutput["CPUCoreFrequency"] = str(tempRes[3])
         pluginExitN(self.resourceName, self.pluginOutput, NAGIOS_RET_OK)
 
 class HostCpuArch(Virtualized):
@@ -298,7 +245,7 @@ class HostFreeMem(Virtualized):
     """
     def __init__(self):
         Virtualized.__init__(self)
-        self.resourceName = "HostFreeMemory"
+        self.resourceName = "Host-FreeMemory"
 
     def __call__(self,option,opt_str,value,parser):
         usedMemory = 0
@@ -310,10 +257,8 @@ class HostFreeMem(Virtualized):
         # 'usedMemory' is reported from libvirt's 'vm.maxMemory' in kB, thus usedMemory/1024 = MB, which
         # then matches what's reported from the 'getInfo()' call, which is in MB
         availableMemory =totalMemory -(usedMemory/1024)
-        #self.logger.info(self.VMConnection.getHostname()+';'+self.resourceName+';'+str(availableMem))
-        self.pluginOutput["MegaBytes"] = str(availableMemory)
+        self.pluginOutput["FreeMB"] = str(availableMemory)
         pluginExitN(self.resourceName, self.pluginOutput, NAGIOS_RET_OK)
-
 
 
 class PluginCmdLineOpts(PluginObject):
