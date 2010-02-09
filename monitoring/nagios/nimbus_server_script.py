@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """*
- * Copyright 2010 University of Victoria
+ * Copyright 2009 University of Victoria
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -110,14 +110,15 @@ def pluginExitN(messageIdentifier, pluginInfo, returnCode):
 
     localIP = (socket.gethostbyaddr( socket.gethostname() ))[2][0]
     outputString.write("<HeadNode>")
- #   outputString.write("<PhysicalIP>"+localIP+"</PhysicalIP>")
+    outputString.write("<PhysicalIP>"+localIP+"</PhysicalIP>")
 
-    outputString.write("<"+messageIdentifier+">")
+    #outputString.write("<"+messageIdentifier+">")
+    outputString.write("<"+messageIdentifier+" id=\""+messageIdentifier+localIP+"\">")
     for key in pluginInfo.keys():            
             outputString.write("<"+key.strip()+">")
             if( type(pluginInfo[key]) == type(list())):
                 for val in pluginInfo[key]:
-                    outputString.write("<item>"+val+"</item>")
+                    outputString.write("<entry>"+val+"</entry>")
             elif (type(pluginInfo[key]) == type(dict())):
                 for secKey in pluginInfo[key].keys():
                     outputString.write("<"+secKey+">")
@@ -436,7 +437,12 @@ class HeadNodeVMMPools(PluginObject):
         for key in poolListing.keys():
             for entry in totalNetPools.keys():
             
-                self.pluginOutput[key+"-"+entry] = str(poolListing[key][entry])
+                try:
+                   self.pluginOutput["Pools"][key+"-"+entry] = str(poolListing[key][entry])
+                except KeyError, err:
+                   self.pluginOutput["Pools"] = {}
+                   self.pluginOutput["Pools"][key+"-"+entry] = str(poolListing[key][entry])
+                   #self.logger.error("KeyError attempting to save Pool-"+key+"-"+entry )
 #        print str(self.pluginOutput)
         pluginExitN(self.resourceName, self.pluginOutput,  NAGIOS_RET_OK)
 
