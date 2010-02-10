@@ -25,7 +25,7 @@ def nimbus_user_create(sender, instance, **kwargs):
     Notes:
         - Only attempt to create Nimbus User on Django User creation.
     """
-    if kwargs.get('created'):
+    if kwargs.get('created') and instance.id != 1:
         remote_user_creator = kwargs.get("remote_user_creator")
         if remote_user_creator is None:
             remote_user_creator = nimbus_user_create_remote

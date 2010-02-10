@@ -53,7 +53,8 @@ def method(request, method):
           #No form data needed, correct?
           form = AutoCreateForm(request.POST)
           if form.is_valid():
-              dn = util.autocreate_cert()
+              cn = form.cleaned_data["username"] #username is used as the CN (common name)
+              (dn, cert, key) = util.autocreate_cert(cn)
         else:
             form = AutoCreateForm()
 

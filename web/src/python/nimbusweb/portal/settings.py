@@ -5,6 +5,7 @@ import os
 import sys
 
 here = lambda x: os.path.join(os.path.abspath(os.path.dirname(__file__)), x)
+WEBDIR = here("../../../../") #uh, ok?
 
 # ------------------------------------------------------------------------------
 
