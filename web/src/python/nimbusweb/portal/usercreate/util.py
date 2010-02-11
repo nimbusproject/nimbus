@@ -6,14 +6,13 @@ def create_nimbus_user_stub(dn):
     return nimbus_userid
 create_nimbus_user = create_nimbus_user_stub
 
-def extract_dn_stub(cert, key):
-    new_users_dn = "test_dn"
-    return new_users_dn
-extract_dn = extract_dn_stub
+def extract_dn(cert):
+    ezpz = EzPzCA(settings.NIMBUS_CADIR, settings.WEBDIR)
+    (DN, cert, key) = ezpz.get_cert_dn(cert)
+    return (DN, cert, key)
 
-def autocreate_cert_stub(cn):
-    new_users_dn = "test_dn"
-    return new_users_dn
+
+autocreate_cert_stub = lambda x: ("test_dn", "test_cert", "test_key")
 autocreate_cert = autocreate_cert_stub
 
 def autocreate_cert(cn):

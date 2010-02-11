@@ -30,11 +30,11 @@ def method(request, method):
                 cert = form.cleaned_data["cert"]
                 key = form.cleaned_data["key"]
                 print cert, key, type(cert), type(key)
+                #TODO get string contents out of cert
                 try:
-                    dn = util.extract_dn(cert, key)
+                    dn = util.extract_dn(cert)
                 except:
-                    #TODO: better error:
-                    raise Exception("Failed getting DN from cert and key")
+                    raise Exception("Failed getting DN from cert.") #TODO: better error.
         else:
             form = CertKeyForm()
             
@@ -54,7 +54,10 @@ def method(request, method):
           form = AutoCreateForm(request.POST)
           if form.is_valid():
               cn = form.cleaned_data["username"] #username is used as the CN (common name)
-              (dn, cert, key) = util.autocreate_cert(cn)
+              try:
+                  (dn, cert, key) = util.autocreate_cert(cn)
+              except:
+                  raise Exception("Failed autocreating new cert and key.") #TODO: better error.
         else:
             form = AutoCreateForm()
 
@@ -67,6 +70,7 @@ def method(request, method):
             nimbus_userid = util.create_nimbus_user(dn) #if this fails, new User is deleted.
             #TODO save 'nimbus_userid' to UserProfile here, or does util.create_nimbus_user do it?
             print "=== final data ==> ", username, firstname, lastname, email, nimbus_userid
+            #TODO: use 'nimbus.adminops._newuser(newuserform, request_files)' here:
             unique_new_user_token="abc123"
             return HttpResponseRedirect("/usercreate/success?token="+unique_new_user_token)
         except:
