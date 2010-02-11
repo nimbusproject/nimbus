@@ -40,9 +40,8 @@ class AdminConnection(Connection):
 
         udict = {'dn' : user.dn}
 
-        resp = self.post_json('users/', udict)
-        print 'resp is None --> ', resp, udict
-        return self._user_from_data(resp)
+        u = self.post_json('users/', udict)
+        return self._user_from_data(u)
 
     def get_user(self, user_id):
         """
