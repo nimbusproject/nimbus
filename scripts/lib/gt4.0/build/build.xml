@@ -256,9 +256,6 @@
     </target>
 
     <target name="run-rest-testserver">
-        <antcall target="dist-service-api" />
-        <antcall target="dist-default-services" />
-        <antcall target="dist-GT4.0-messaging" />
         <ant dir="${nimbus.messaging.rest.builddir}" target="testserver" />
     </target>
 
