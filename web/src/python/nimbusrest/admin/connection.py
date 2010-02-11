@@ -53,7 +53,7 @@ class AdminConnection(Connection):
         return self._user_from_data(u)
 
     def _user_from_data(self, data):
-        return User(data['dn'], conn=self, id=data['id']) 
+        return User(data['dn'], conn=self, user_id=data['id']) 
 
     def get_user_access_key(self, user_id):
         """

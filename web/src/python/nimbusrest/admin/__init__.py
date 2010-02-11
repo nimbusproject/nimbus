@@ -21,7 +21,7 @@ class User(object):
     def __init__(self, dn, conn=None, user_id=None):
         self.dn = dn
         self.conn = conn
-        self.user_id = id
+        self.user_id = user_id
 
     def get_access_key(self):
         """
