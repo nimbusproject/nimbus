@@ -29,7 +29,7 @@ import java.util.HashMap;
 import java.util.ArrayList;
 import java.security.NoSuchAlgorithmException;
 
-public class MockUsersService implements UsersService {
+public class FakeUsersService implements UsersService {
 
     HashMap<String,User> users = new HashMap<String, User>();
     HashMap<String,AccessKey> keys = new HashMap<String, AccessKey>();
