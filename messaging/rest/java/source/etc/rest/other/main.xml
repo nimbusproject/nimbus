@@ -64,11 +64,11 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
     </bean>
 
     <bean id="usersResource" class="org.nimbustools.messaging.rest.UsersResource">
-        <property name="usersService" ref="mockUsersService"/>
+        <property name="usersService" ref="fakeUsersService"/>
         <property name="responseUtil" ref="responseUtil"/>
     </bean>
 
-    <bean id="mockUsersService" class="org.nimbustools.messaging.rest.MockUsersService"/>
+    <bean id="fakeUsersService" class="org.nimbustools.messaging.rest.FakeUsersService"/>
 
     <bean id="responseUtil" class="org.nimbustools.messaging.rest.ResponseUtil"/>
     
