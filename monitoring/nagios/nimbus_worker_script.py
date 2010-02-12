@@ -34,7 +34,7 @@ import libvirt
 from optparse import OptionParser
 import socket
 import time
-
+import string
 
 # NAGIOS Plug-In API return code values
 
@@ -43,6 +43,22 @@ NAGIOS_RET_WARNING = 1
 NAGIOS_RET_CRITICAL = 2
 NAGIOS_RET_UNKNOWN = 3
 
+
+def _createXMLWorker(data, currentOutput):
+
+    if (type(data) == type(dict())):
+        for key in data.keys():
+            currentOutput.write("<"+str(key)+">")
+            _createXMLWorker(data[key], currentOutput)
+            currentOutput.write("</"+str(key)+">")
+
+    elif (type(data) == type(list())):
+        for key in range(len(data)):
+            _createXMLWorker(data[key], currentOutput)
+
+    else:
+        currentOutput.write(str(data))
+        return
 
 def pluginExitN(messageIdentifier, pluginInfo, returnCode):
 
@@ -60,14 +76,15 @@ def pluginExitN(messageIdentifier, pluginInfo, returnCode):
   #  outputString.write("<PhysicalIP>"+localIP+"</PhysicalIP>")
 
     outputString.write("<"+messageIdentifier+" id=\""+messageIdentifier+localIP+"\" ts=\""+str(time.time())[:-3]+"\">")
-    for key in pluginInfo.keys():
-            outputString.write("<"+key.strip()+">")
-            if( type(pluginInfo[key]) == type(list())):
-                for val in pluginInfo[key]:
-                    outputString.write("<"+val+"/>")
-            else:
-                outputString.write(pluginInfo[key])
-            outputString.write("</"+key.strip()+">")
+    _createXMLWorker(pluginInfo, outputString)
+    #for key in pluginInfo.keys():
+    #        outputString.write("<"+key.strip()+">")
+    #        if( type(pluginInfo[key]) == type(list())):
+    #            for val in pluginInfo[key]:
+    #                outputString.write("<"+val+"/>")
+    #        else:
+    #            outputString.write(pluginInfo[key])
+    #        outputString.write("</"+key.strip()+">")
     outputString.write("</"+messageIdentifier+">")
     outputString.write("</WorkerNode>")
 
@@ -187,7 +204,7 @@ class HostCpuCores(Virtualized):
         self.pluginOutput["CoreCount"] = str(tempRes[2])
         pluginExitN(self.resourceName, self.pluginOutput, NAGIOS_RET_OK)        
 
-class HostCpuFreq(Virtualized):
+class HostCpuId(Virtualized):
     """ This class determines the CPU frequency of the local nodes processor. This was tested with a uniprocessor
     machine only, so a multi-CPU-socket machine with different core speeds may report differently. I believe that
     only the latest, most cutting edge CPUs from Intel (Nehalem) have this capability....
@@ -195,12 +212,21 @@ class HostCpuFreq(Virtualized):
     
     def __init__(self):
         Virtualized.__init__(self)
-        self.resourceName = 'Host-CPUFreq'
+        self.resourceName = 'Host-CPUID'
 
     def __call__(self,option, opt_str, value, parser):
 
         tempRes = self.VMConnection.getInfo()
-        self.pluginOutput["CPUCoreFrequency"] = str(tempRes[3])
+        descr= ""
+        try:
+            cpuFile = open("/proc/cpuinfo","r")
+            for line in cpuFile.readlines():
+                if(line.find("model name") != -1):
+                    descr= string.join((line.split(':')[1]).split())
+            cpuFile.close()
+        except IOError, err:
+            self.logger.error(str(err))
+        self.pluginOutput["Description"] = str(descr)
         pluginExitN(self.resourceName, self.pluginOutput, NAGIOS_RET_OK)
 
 class HostCpuArch(Virtualized):
@@ -221,7 +247,7 @@ class HostCpuArch(Virtualized):
 
     def __call__(self, option, opt_str, value,parser):
         tempRes = self.VMConnection.getInfo()
-        self.pluginOutput["Type"] = self.ARCH_MAP[tempRes[0]]
+        self.pluginOutput["MicroArchitecture"] = self.ARCH_MAP[tempRes[0]]
         pluginExitN(self.resourceName, self.pluginOutput, NAGIOS_RET_OK)
 
 #class VMOs(Virtualized):
@@ -238,14 +264,14 @@ class HostCpuArch(Virtualized):
 #            self.pluginOutput[vm.name().strip()] = str(vm.OSType())
 #        pluginExitN(self.resourceName, self.pluginOutput, NAGIOS_RET_OK)
         
-class HostFreeMem(Virtualized):
+class HostMemory(Virtualized):
     """ This class determines how much free memory remains on the local node with all current virtual
     machines booted. This lookup is again done through a libvirt call in the 'Virtualized' base
     class. ALso, memory is reported by in kB.
     """
     def __init__(self):
         Virtualized.__init__(self)
-        self.resourceName = "Host-FreeMemory"
+        self.resourceName = "Host-Memory"
 
     def __call__(self,option,opt_str,value,parser):
         usedMemory = 0
@@ -257,6 +283,7 @@ class HostFreeMem(Virtualized):
         # 'usedMemory' is reported from libvirt's 'vm.maxMemory' in kB, thus usedMemory/1024 = MB, which
         # then matches what's reported from the 'getInfo()' call, which is in MB
         availableMemory =totalMemory -(usedMemory/1024)
+        self.pluginOutput["TotalMB"] = str(totalMemory)
         self.pluginOutput["FreeMB"] = str(availableMemory)
         pluginExitN(self.resourceName, self.pluginOutput, NAGIOS_RET_OK)
 
@@ -280,9 +307,9 @@ class PluginCmdLineOpts(PluginObject):
  #       parser.add_option("--VMos", help="Discover the OS running on each VM", action="callback", callback=VMOs())
         parser.add_option("--HostCpuArch",help="Discover the host CPU architecture (x86 or x86_64)", action="callback", callback=HostCpuArch())        
         parser.add_option("--HostVirt", help="Discover the host virtualization technology",action="callback", callback=HostVirt())
-        parser.add_option("--HostCpuFreq",help="Discover the host CPU frequency (in Hz)", action="callback", callback=HostCpuFreq())
+        parser.add_option("--HostCpuID",help="Discover the host CPU Info", action="callback", callback=HostCpuId())
         parser.add_option("--HostCpuCores",help="Discover the number of host CPU cores", action="callback", callback=HostCpuCores())
-        parser.add_option("--HostFreemem",help="Discover the amount of free/unsed memory of host",action="callback",callback=HostFreeMem())
+        parser.add_option("--HostMemory",help="Discover the total and free memory (in MB) of host",action="callback",callback=HostMemory())
 
         self.parser = parser
 
