@@ -28,6 +28,8 @@ public interface GlobalPolicies {
 
     public String[] getVmmVersions();
 
+    public String[] getAllowedHttpHosts();
+
     public String getVmm();
 
     public int getMaximumGroupSize();

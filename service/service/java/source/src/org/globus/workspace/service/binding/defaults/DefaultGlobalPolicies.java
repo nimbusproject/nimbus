@@ -52,6 +52,8 @@ public class DefaultGlobalPolicies implements GlobalPolicies {
     private boolean fake;
     private long fakelag;
 
+    private String[] allowedHttpHosts;
+
 
     // -------------------------------------------------------------------------
     // GET/SET
@@ -95,6 +97,14 @@ public class DefaultGlobalPolicies implements GlobalPolicies {
 
     public void setVmmVersions(String[] vmmVersions) {
         this.vmmVersions = vmmVersions;
+    }
+
+    public String[] getAllowedHttpHosts() {
+        return this.allowedHttpHosts;
+    }
+
+    public void setAllowedHttpHosts(String[] allowedHttpHosts) {
+        this.allowedHttpHosts = allowedHttpHosts;
     }
 
     public String getVmm() {

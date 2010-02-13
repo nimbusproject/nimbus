@@ -143,6 +143,8 @@
                   value="$GLOBAL{termination.offset.seconds}" />
         <property name="defaultRunningTimeSeconds"
                   value="$GLOBAL{default.runtime.seconds}" />
+        <property name="allowedHttpHosts"
+                  value="$GLOBAL{allowed.http.hosts}" />
 
         <!-- Property values coming via common.conf -->
         <property name="fake" value="$COMMON{fake.mode}" />
