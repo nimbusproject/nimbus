@@ -29,5 +29,12 @@ class UserProfile(models.Model):
     query_secret = models.TextField(null=True)
     nimbus_userid = models.TextField(null=True)
     
-if sys.argv.count("test") != 1: #are we running tests? better way?
-    models.signals.post_save.connect(remote.nimbus_user_create, User)
+
+def user_post_save(sender, instance, **kwargs):
+    profile, new = UserProfile.objects.get_or_create(user=instance)
+models.signals.post_save.connect(user_post_save, User)
+
+def user_post_delete(sender, instance, **kwargs):
+    profile = UserProfile.objects.get_or_create(user=instance)
+    profile.delete()
+models.signals.post_delete.connect(user_post_delete, User)
