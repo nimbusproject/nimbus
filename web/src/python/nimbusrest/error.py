@@ -25,7 +25,7 @@ class NimbusClientError(Exception):
 
     def __init__(self, reason):
         self.reason = reason
-        Exception.__init__(reason)
+        Exception.__init__(self, reason)
 
     def __repr__(self):
         return '%s: %s' % (self.__class__.__name__, self.reason)
@@ -49,7 +49,7 @@ class NimbusServerError(Exception):
             if data.has_key('requestId'):
                 self.request_id = data['requestId']
         
-        Exception.__init__(reason)
+        Exception.__init__(self, reason)
 
     def __repr__(self):
         return '%s: %s (Request ID: %s)' % (self.__class__.__name__, 
