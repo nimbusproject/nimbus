@@ -64,3 +64,9 @@ class NotFoundError(NimbusServerError):
     Server couldn't find requested resource
     """
     pass
+
+class ConflictError(NimbusServerError):
+    """
+    Server encountered conflict performing operation (duplicate key, perhaps)
+    """
+    pass

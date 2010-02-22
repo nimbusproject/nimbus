@@ -18,7 +18,7 @@ from urlparse import urljoin
 import httplib2
 import json
 
-from nimbusrest.error import NimbusServerError, NotFoundError
+from nimbusrest.error import NimbusServerError, NotFoundError, ConflictError
 
 class Connection(object):
     """
@@ -112,8 +112,10 @@ class Connection(object):
         """
 
         if response.status == 404:
-            err = NotFoundError(response.status, response.reason, body)
+            err_type = NotFoundError
+        elif response.status == 409:
+            err_type = ConflictError
         else:
-            err = NimbusServerError(response.status, response.reason, body)
-
-        raise err
+            err_type = NimbusServerError
+            
+        raise err_type(response.status, response.reason, body)

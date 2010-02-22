@@ -94,7 +94,8 @@ public class UsersResource implements InitializingBean{
         try {
             user = usersService.addUser(user);
         } catch (DuplicateUserException e) {
-            throw new NimbusWebException("A user with the provided DN already exists",e);
+            throw new NimbusWebException(Response.Status.CONFLICT,
+                    "A user with the provided DN already exists",e);
         }
 
         final UriBuilder ub = uriInfo.getAbsolutePathBuilder().path(getUserMethod);
