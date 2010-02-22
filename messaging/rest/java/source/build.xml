@@ -61,9 +61,9 @@
             <include name="*.jar"/>
         </fileset>
 
-        <!--<fileset dir="${nimbus.messaging.gt4_0.common.dist.dir}">
+        <fileset dir="${nimbus.autocommon.dist.dir}">
             <include name="*.jar"/>
-        </fileset>  -->
+        </fileset>
 
         <fileset dir="${nimbus.service.api.lib.dir}">
               <include name="*.jar"/>
@@ -157,7 +157,7 @@
         <java classname="org.nimbustools.messaging.rest.RestHttp"
                 fork="true">
             <classpath refid="nimbus.messaging.rest.classpath"/>
-            <arg file="etc/rest/other/main.xml"/>
+            <arg file="etc/rest/other/main-fake.xml"/>
             <arg value="4443"/>
             <arg value="${nimbus.messaging.rest.testserver.keystore.dest}"/>
             <arg value="${nimbus.messaging.rest.testserver.keystore.pass}"/>

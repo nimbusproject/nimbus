@@ -20,8 +20,8 @@ import org.nimbustools.messaging.rest.repr.AccessKey;
 import org.nimbustools.auto_common.ezpz_ca.HashUtil;
 import org.springframework.core.io.Resource;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.security.core.codec.Base64;
 import org.mortbay.util.QuotedStringTokenizer;
-import org.globus.util.Base64;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
@@ -118,7 +118,7 @@ public class GridmapUsersService implements UsersService, InitializingBean {
                         "' already exists in gridmap");
             }
 
-            final String gridmapLine = dn +" " + this.localUserName;
+            final String gridmapLine = "\""+ dn +"\" " + this.localUserName;
             appendLineToResource(gridmapResource, gridmapLine);
             if (groupAuthzResource != null) {
                 appendLineToResource(groupAuthzResource, gridmapLine);
@@ -288,6 +288,8 @@ public class GridmapUsersService implements UsersService, InitializingBean {
         if (this.localUserName == null || this.localUserName.trim().length() == 0) {
             this.localUserName = DEFAULT_LOCAL_USERNAME;
         }
+
+        this.initialize();
     }
 
     static String getUserId(String dn) {
