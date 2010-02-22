@@ -24,7 +24,7 @@ def method(request, method):
     if method not in ["cert", "dn", "autocreate"]:
         raise Http404
 
-    dn = None
+    dn, cert, key = None, None, None
     if method == "cert":
         methodinfo = USER_CREATE_METHODS[0][1]
         if request.method == "POST":
@@ -53,10 +53,19 @@ def method(request, method):
           form = AutoCreateForm(request.POST)
           if form.is_valid():
               cn = form.cleaned_data["username"] #username is used as the CN (common name)
+              print "[autocreate] cn => ", cn
               try:
                   (dn, cert, key) = autocreate_cert(cn)
               except:
-                  raise Exception("Failed autocreating new cert and key.") #TODO: better error.
+                  exception_type = sys.exc_type
+                  try:
+                      exceptname = exception_type.__name__ 
+                  except AttributeError:
+                      exceptname = exception_type
+                  name = str(exceptname)
+                  err = str(sys.exc_value)
+                  errmsg = "Problem creating User: '%s: %s'" % (name, err)
+                  raise Exception(errmsg)
         else:
             form = AutoCreateForm()
 
@@ -66,7 +75,7 @@ def method(request, method):
             firstname = form.cleaned_data["firstname"]
             lastname = form.cleaned_data["lastname"]
             email = form.cleaned_data["email"]
-            (error, new_user, token) = create_user(dn, username, email, firstname, lastname)
+            (error, new_user, token) = create_user(dn, cert, key, username, email, firstname, lastname)
             if error:
                 raise Exception(error)
             return HttpResponseRedirect("/usercreate/success?token="+token)
@@ -92,3 +101,7 @@ def success(request):
     basepath = getattr(settings, "NIMBUS_PRINT_PATH", "register/token/")
     url = baseurl+basepath
     return render_to_response('usercreate/success.html', {"url":url, "token":token})
+
+
+
+

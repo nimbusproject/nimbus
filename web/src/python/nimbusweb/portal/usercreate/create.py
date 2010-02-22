@@ -12,7 +12,7 @@ from dateutil.relativedelta import *
 from nimbusrest.admin.connection import AdminConnection
 
 
-def create_user(dn, username, email, firstname, lastname):
+def create_user(dn, cert, key, username, email, firstname, lastname):
     """
     Returns (error_text, new_user, success_token)
     """
@@ -27,9 +27,11 @@ def create_user(dn, username, email, firstname, lastname):
         
     user.dn = dn #XXX hack
     nimbus_user = nimbus_user_create_remote(user)
+    access_key_obj = nimbus_user.generate_access_key()
+    query_id, query_secret =  access_key_obj.key, access_key_obj.secret
     print "[create_user] nimbus_user => ", nimbus_user
     token = _generate_login_key()
-    _insert_user_profile_data(user, token=token)
+    _insert_user_profile_data(user, token=token, cert=cert, key=key, query_id=query_id, query_secret=query_secret)
     return (None, user, token)
 
 
@@ -73,7 +75,7 @@ def _generate_initial_password():
     return password
     
 def _generate_login_key():
-    okchars = string.letters + string.digits + "_+-"
+    okchars = string.letters + string.digits + "_-"
     okchars += okchars
     token = ''.join(Random().sample(okchars, 80)).replace(" ", "_")
     return token
