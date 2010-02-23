@@ -64,14 +64,23 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
     </bean>
 
     <bean id="usersResource" class="org.nimbustools.messaging.rest.UsersResource">
-        <property name="usersService" ref="fakeUsersService"/>
+        <property name="usersService" ref="usersService"/>
         <property name="responseUtil" ref="responseUtil"/>
     </bean>
 
-    <bean id="fakeUsersService" class="org.nimbustools.messaging.rest.FakeUsersService"/>
+    <bean id="usersService" class="org.nimbustools.messaging.rest.GridmapUsersService">
+        <property name="gridmapResource" value="$REST{gridmap.path}" />
+        <property name="groupAuthzResource" value="$REST{groupauthz.path}"/>
+        <property name="queryUsersResource" value="$REST{query.usermap.path}" />
+        <property name="localUserName" value="$REST{gridmap.localuser}" />
+    </bean>
 
     <bean id="responseUtil" class="org.nimbustools.messaging.rest.ResponseUtil"/>
-    
+
+    <!--
+        property sources are concentrated in this file
+    -->
+    <import resource="main.conflocator.xml"/>
 
 </beans>
 

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<project default="dist" basedir="." name="GT4.0 elastic messaging bridge">
+<project default="dist" basedir="." name="Nimbus REST interface">
 
     <description>Nimbus CXF REST Admin Interface</description>
 

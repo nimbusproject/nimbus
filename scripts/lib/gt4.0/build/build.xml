@@ -64,6 +64,7 @@
         <ant dir="${nimbus.messaging.gt4_0-elastic.stubs.builddir}" target="clean" />
 
         <ant dir="${nimbus.messaging.query.service.builddir}" target="clean" />
+        <ant dir="${nimbus.messaging.rest.builddir}" target="clean" />
         <ant dir="${nimbus.ctx-broker.gt4_0.builddir}" target="clean" />
         
 
@@ -252,10 +253,12 @@
         <ant dir="${nimbus.messaging.gt4_0.service.builddir}" target="dist" />
         <ant dir="${nimbus.messaging.gt4_0-elastic.service.builddir}" target="dist" />
         <ant dir="${nimbus.messaging.query.service.builddir}" target="dist" />
+        <ant dir="${nimbus.messaging.rest.builddir}" target="dist" />
 
     </target>
 
     <target name="run-rest-testserver">
+        <ant dir="${nimbus.autocommon.gt4_0.builddir}" target="dist" /> <!-- dep -->
         <ant dir="${nimbus.messaging.rest.builddir}" target="testserver" />
     </target>
 
