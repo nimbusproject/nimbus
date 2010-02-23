@@ -307,6 +307,7 @@ def main(argv=None):
         
         certconf = config_from_key(config, "ssl.cert")
         keyconf = config_from_key(config, "ssl.key")
+        cadir = config_from_key(config, "ca.dir")
         timezone = config_from_key(config, "timezone")
         port = config_from_key(config, "webserver.port")
         printurl = config_from_key(config, "print.url")
@@ -330,7 +331,7 @@ def main(argv=None):
             checkssl.run(basedir, certconf, keyconf, log)
             
         if opts.newconf:
-            newconf.run(basedir, timezone, accountprompt, log, printdebugoutput, insecuremode, printurl, expire_hours)
+            newconf.run(basedir, timezone, accountprompt, log, printdebugoutput, insecuremode, printurl, expire_hours, cadir)
         
         if opts.printport:
             if not port:

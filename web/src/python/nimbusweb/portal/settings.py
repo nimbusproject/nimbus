@@ -5,6 +5,7 @@ import os
 import sys
 
 here = lambda x: os.path.join(os.path.abspath(os.path.dirname(__file__)), x)
+WEBDIR = here("../../../../")
 
 # ------------------------------------------------------------------------------
 
@@ -65,6 +66,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'cpserver',
     'nimbusweb.portal.nimbus',
+    'nimbusweb.portal.usercreate',
 )
 
 AUTH_PROFILE_MODULE = 'nimbus.UserProfile'
