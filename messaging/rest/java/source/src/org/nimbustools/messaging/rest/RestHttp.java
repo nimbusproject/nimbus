@@ -32,10 +32,15 @@ import java.util.HashMap;
 
 public class RestHttp {
 
+    private boolean enabled;
+
     private int port;
     private String springConfig;
     private String keystoreLocation;
     private String keystorePassword;
+    private Server server;
+
+    public RestHttp() {}
 
     public RestHttp(String springConfig, int port,
                     String keystoreLocation, String keystorePassword) {
@@ -46,6 +51,10 @@ public class RestHttp {
     }
 
     public synchronized void startListening() throws Exception {
+
+        if (!enabled) {
+            return;
+        }
 
         if (port <= 0) {
              throw new IllegalStateException("port is invalid");
@@ -63,7 +72,7 @@ public class RestHttp {
         }
 
 
-        Server server = new Server();
+        server = new Server();
 
         SslSocketConnector sslConnector = new SslSocketConnector();
         sslConnector.setPort(port);
@@ -90,9 +99,51 @@ public class RestHttp {
         WebAppContext webappcontext = new WebAppContext();
         webappcontext.setContextPath("/");
         server.start();
-        server.join();
     }
 
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    public String getSpringConfig() {
+        return springConfig;
+    }
+
+    public void setSpringConfig(String springConfig) {
+        this.springConfig = springConfig;
+    }
+
+    public String getKeystoreLocation() {
+        return keystoreLocation;
+    }
+
+    public void setKeystoreLocation(String keystoreLocation) {
+        this.keystoreLocation = keystoreLocation;
+    }
+
+    public String getKeystorePassword() {
+        return keystorePassword;
+    }
+
+    public void setKeystorePassword(String keystorePassword) {
+        this.keystorePassword = keystorePassword;
+    }
+
+    public Server getServer() {
+        return server;
+    }
 
     public static void main(String[] args) {
 
@@ -115,6 +166,7 @@ public class RestHttp {
 
         try {
             http.startListening();
+            http.server.join();
         } catch (Exception e) {
             System.err.println("Error running REST http server:");
             e.printStackTrace();

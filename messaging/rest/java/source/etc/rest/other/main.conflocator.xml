@@ -21,11 +21,8 @@
 
     <bean id="restSettings"
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-
-        <!-- grab some shared settings from the workspace-service common.conf file,
-             will have to adjust for other deployment scenarios -->
         <property name="location" value="file://@REST_CONFDIR@/rest.conf" />
-        <property name="placeholderPrefix" value="REST{" />
+        <property name="placeholderPrefix" value="$REST{" />
     </bean>
 
 </beans>

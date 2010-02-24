@@ -23,7 +23,7 @@ hostcert: var/hostcert.pem
 hostkey: var/hostkey.pem
 CA.dir: var/ca
 
-gridmap: var/gridmap
+gridmap: services/etc/nimbus/nimbus-grid-mapfile
 
 keystore: var/keystore.jks
 keystore.pass: changeit
