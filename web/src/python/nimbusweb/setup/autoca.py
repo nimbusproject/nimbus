@@ -21,6 +21,7 @@ EXE_FIND_CA_PRIVPEM="org.nimbustools.auto_common.ezpz_ca.FindCAPrivFile"
 EXE_GET_HASHED_CERT_NAME="org.nimbustools.auto_common.ezpz_ca.CertFilenameHash"
 EXE_GET_CERT_DN="org.nimbustools.auto_common.ezpz_ca.CertDN"
 EXE_WRITE_SIGNING_POLICY="org.nimbustools.auto_common.ezpz_ca.SigningPolicy"
+EXE_KEYSTORE_FROM_PEM="org.nimbustools.auto_common.ezpz_ca.KeystoreFromPEM"
 
 def createCert(CN, basedir, cadir, certtarget, keytarget, log, 
         allow_overwrite=False):
@@ -94,6 +95,30 @@ def createCert(CN, basedir, cadir, certtarget, keytarget, log,
     shutil.rmtree(tempdir)
 
     return pub_DN
+
+def createKeystore(certpath, keypath, storepath, password, basedir, log):
+    """
+    Generates a Java keystore from PEM-encoded certificate and key
+    """
+
+    if not pathutil.check_path_exists(certpath):
+        msg = "Certificate file does not exist: " + certpath
+        raise IncompatibleEnvironment(msg)
+    
+    if not pathutil.check_path_exists(keypath):
+        msg = "Private key file does not exist: " + keypath
+        raise IncompatibleEnvironment(msg)
+
+    if pathutil.check_path_exists(storepath):
+        msg = "Keystore file exists: " + keypath
+        raise IncompatibleEnvironment(msg)
+
+    args = [certpath, keypath, storepath, password]
+
+    (exitcode, stdout, stderr) = javautil.run(basedir, log, 
+            EXE_KEYSTORE_FROM_PEM, args=args)
+    runutil.generic_bailout("Problem creating keystore", 
+            exitcode, stdout, stderr)
 
 def getCertDN(certpath, basedir, log):
 

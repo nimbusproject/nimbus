@@ -10,7 +10,7 @@ import ConfigParser
 from StringIO import StringIO
 import readline
 
-from nimbusweb.setup import pathutil,javautil,checkssl,gtcontainer
+from nimbusweb.setup import pathutil,javautil,checkssl,gtcontainer,autoca
 from nimbusweb.setup.setuperrors import *
 
 CONFIGSECTION = 'nimbussetup'
@@ -21,10 +21,12 @@ DEFAULTCONFIG = """
 # relative to base directory
 hostcert: var/hostcert.pem
 hostkey: var/hostkey.pem
-
 CA.dir: var/ca
 
 gridmap: var/gridmap
+
+keystore: var/keystore.jks
+keystore.pass: changeit
 
 debug: off
 
@@ -234,6 +236,10 @@ class NimbusSetup(object):
         path = self.get_config('hostkey')
         return self.resolve_path(path)
 
+    def keystore_path(self):
+        path = self.get_config('keystore')
+        return self.resolve_path(path)
+
     def gridmap_path(self):
         path = self.get_config('gridmap')
         return self.resolve_path(path)
@@ -262,6 +268,7 @@ class NimbusSetup(object):
         gtdir = self.gtdir_path()
         hostcert = self.hostcert_path()
         hostkey = self.hostkey_path()
+        keystore = self.keystore_path()
         gridmap = self.gridmap_path()
         
         # some potentially interactive queries
@@ -270,6 +277,12 @@ class NimbusSetup(object):
         #TODO this may require interaction
         checkssl.run(webdir, hostcert, hostkey, log, cadir=cadir, 
                 hostname=hostname)
+
+        if not os.path.exists(keystore):
+            password = self.get_config('keystore.pass')
+            autoca.createKeystore(hostcert, hostkey, keystore, password,
+                    webdir, log)
+
         
         # then adjust the web config to point to these keys
         

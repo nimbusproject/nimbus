@@ -81,7 +81,7 @@ special, toplevel Nimbus dist command:
 
     ant -f scripts/lib/gt4.0/dist/build.xml web-autocommon
 
-That commands needs the "bin" "autocommon" and "web" directories to coexist
+That commands needs the "scripts" "autocommon" and "web" directories to coexist
 in the same  top level directory (like they do in git).
 
 Common development command from inside web/ directory if you are working on
