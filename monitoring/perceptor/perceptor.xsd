@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" ?>
 <!-- 
 
 """*
@@ -24,7 +25,7 @@
  * """
 -->
 
-<?xml version="1.0" encoding="UTF-8" ?>
+
 
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
@@ -33,13 +34,13 @@
 
   <xs:element name="Cloud">
     <xs:complexType>
-      <xs:sequence>
+      <xs:all>
         <xs:element ref="VMM-Pools"  minOccurs="1"/>
         <xs:element ref="IaasDiagnostics" minOccurs="1" />
         <xs:element ref="Service" minOccurs="1" />
         <xs:element ref="WorkerNodes" minOccurs="1"/>
         <xs:element ref="Network-Pools" minOccurs="1"/>
-      </xs:sequence>
+      </xs:all>
     </xs:complexType>
   </xs:element>
 
