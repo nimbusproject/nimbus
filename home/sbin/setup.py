@@ -21,7 +21,7 @@ DEFAULTCONFIG = """
 # relative to base directory
 hostcert: var/hostcert.pem
 hostkey: var/hostkey.pem
-CA.dir: var/ca
+ca.dir: var/ca
 
 gridmap: services/etc/nimbus/nimbus-grid-mapfile
 
@@ -225,7 +225,7 @@ class NimbusSetup(object):
         return self.resolve_path('services/')
 
     def cadir_path(self):
-        path = self.get_config('CA.dir')
+        path = self.get_config('ca.dir')
         return self.resolve_path(path or 'var/ca/')
     
     def hostcert_path(self):
@@ -291,16 +291,13 @@ class NimbusSetup(object):
         if not webconf.read(webconfpath):
             raise IncompatibleEnvironment(
                     "nimbus web config does not exist: %s" % webconfpath)
-        webconf.set('nimbusweb', 'ssl.cert', hostcert)
-        webconf.set('nimbusweb', 'ssl.key', hostkey)
+        relpath = pathutil.relpath
+        webconf.set('nimbusweb', 'ssl.cert', relpath(hostcert, webdir))
+        webconf.set('nimbusweb', 'ssl.key', relpath(hostkey, webdir))
+        webconf.set('nimbusweb', 'ca.dir', relpath(cadir, webdir))
 
         with open(webconfpath, 'wb') as webconffile:
             webconf.write(webconffile)
-
-        if not os.path.exists(gridmap):
-            example_gridmap = self.resolve_path('var/gridmap.example')
-            import shutil
-            shutil.copyfile(example_gridmap, gridmap)
 
         # then setup GT container
         gtcontainer.adjust_hostname(hostname, webdir, gtdir, log)
