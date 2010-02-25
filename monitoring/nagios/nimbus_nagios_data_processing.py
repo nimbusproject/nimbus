@@ -2,7 +2,7 @@
 
 from cStringIO import StringIO
 import xml
-import xml.dom.pulldom
+#import xml.dom.pulldom
 from xml.dom.pulldom import parseString, parse, START_ELEMENT
 import sys
 import logging
@@ -14,7 +14,10 @@ import os
 
 # Must specify the full path as Nagios doesn't setup a complete environment
 # when it calls this script
-DUPLICATE_REM_XSL = "/usr/local/nagios/libexec/removeAllDup.xsl"
+REMOVE_DUP_XSL = "/usr/local/nagios/libexec/removeAllDup.xsl"
+MERGE_NODES_XSL = "/usr/local/nagios/libexec/merge.xsl"
+ATTRIBUTE_STRIP_XSL = "/usr/local/nagios/libexec/attribStripper.xsl"
+
 TIME_WINDOW = 600
 
 PERFORMANCE_DATA_LOC = "/tmp/service-perfdata"
@@ -89,19 +92,19 @@ class NagiosXMLAggregator(PluginObject):
             self.logger.error("IOError thrown trying to output XML to: "+TARGET_XML_FILE+" - "+str(err))
             sys.exit(-1)
 
-    def removeDuplicateElements(self, xmlToProcess):
+    def applyStyleSheet(self, styleSheetName, xmlToProcess):
 
         try:
-            styledoc = libxml2.parseFile(DUPLICATE_REM_XSL)
+            styledoc = libxml2.parseFile(styleSheetName)
         except libxml2.parserError, err:
-            self.logger.error("Unable to parse XSLT: "+DUPLICATE_REM_XSL+" "+str(err))
+            self.logger.error("Unable to parse XSLT: "+styleSheetName+" "+str(err))
             sys.exit(-1)
 
         style = libxslt.parseStylesheetDoc(styledoc)
         try:
             doc = libxml2.parseDoc(xmlToProcess)
         except libxml2.parserError, err:
-            self.logger.error("Unable to parse desired XML in removeDuplcateIPs: "+str(err))
+            self.logger.error("Unable to parse desired XML: "+str(err))
             sys.exit(-1)
 
         result = style.applyStylesheet(doc, None)
@@ -114,6 +117,40 @@ class NagiosXMLAggregator(PluginObject):
         
         return str(retXML.strip())
 
+
+    def validateXML(self, xmlToProcess):
+
+       # theDTD = libxml2.parseDTD(None, "iaas.dtd")
+       # dtdCtx = libxml2.newValidCtxt()
+
+       # doc = libxml2.parseDoc(xmlToProcess)
+       # retVal = doc.validateDtd(dtdCtx, theDTD)
+       # if( retVal != 1):
+       #     self.logger.error("Error validating XML against DTD!")
+       #     sys.exit(-1)
+       # doc.freeDoc()
+       # theDTD.freeDtd()
+       # del theDTD
+       # del dtdCtx
+       # libxml2.cleanupParser()
+
+        ctxtParser = libxml2.schemaNewParserCtxt("iaas.xsd")
+        ctxtSchema = ctxtParser.schemaParse()
+        ctxtValid = ctxtSchema.schemaNewValidCtxt()
+
+        doc = libxml2.parseDoc(xmlToProcess)
+        retVal = doc.schemaValidateDoc(ctxtValid)
+        if( retVal != 0):
+            self.logger.error("Error validating XML Schema!")
+            sys.exit(-1)
+        doc.freeDoc()
+        del ctxtParser
+        del ctxtSchema
+        del ctxtValid
+        libxml2.schemaCleanupTypes()
+        libxml2.cleanupParser() 
+
+
     def __call__(self):
 
         self.readXML = self.aggregateServiceDataToXML()
@@ -121,7 +158,8 @@ class NagiosXMLAggregator(PluginObject):
 
         finalXML = StringIO()
         finalXML.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
-        finalXML.write("<Cluster>")
+        #finalXML.write("<!DOCTYPE Cloud SYSTEM \"iaas.dtd\">")
+        finalXML.write("<Cloud xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"iaas.xsd\">")
         finalXML.write("<HeadNode>")
 
         for event, node in doc:
@@ -134,19 +172,22 @@ class NagiosXMLAggregator(PluginObject):
         finalXML.write("<WorkerNodes>")
         doc = parseString(self.readXML)
         for event, node in doc:
-            if event == xml.dom.pulldom.START_ELEMENT and node.localName =="WorkerNode":
+            if event == xml.dom.pulldom.START_ELEMENT and node.localName =="Node":
                 doc.expandNode(node)
                 tempString = node.toxml()
                 finalXML.write(tempString) 
         finalXML.write("</WorkerNodes>")
-        finalXML.write("</Cluster>")
-
-        return self.removeDuplicateElementss(finalXML.getvalue())
+        finalXML.write("</Cloud>")
+        #print finalXML.getvalue()
+ 
+        return self.applyStyleSheet(ATTRIBUTE_STRIP_XSL,self.applyStyleSheet(MERGE_NODES_XSL,self.applyStyleSheet(REMOVE_DUP_XSL,finalXML.getvalue())))
 
 if __name__ == '__main__':
     
     xmlAggr = NagiosXMLAggregator()
     xml = xmlAggr()
+    print xml
+    xmlAggr.validateXML(xml)
     xmlAggr.outputXMLToFile(xml)
 
     sys.exit(0)    

@@ -92,6 +92,22 @@ def loadNimbusConfig():
         print "Configuration file not found in Nagios Plug-ins directory"
         sys.exit(NAGIOS_RET_CRITICAL)
 
+def _createXMLWorker(data, currentOutput):
+
+    if (type(data) == type(dict())):
+        for key in data.keys():
+            currentOutput.write("<"+str(key)+">")
+            _createXMLWorker(data[key], currentOutput)
+            currentOutput.write("</"+str(key)+">")
+
+    elif (type(data) == type(list())):
+        for key in range(len(data)):
+            _createXMLWorker(data[key], currentOutput)
+
+    else:
+        currentOutput.write(str(data))
+        return
+
 def pluginExitN(messageIdentifier, pluginInfo, returnCode):
 
     # This method should be the only exit point for all the plug-ins. This ensures that 
@@ -99,11 +115,6 @@ def pluginExitN(messageIdentifier, pluginInfo, returnCode):
     # with the rest of the code. Do NOT just call sys.exit in the code (if you want your
     # plug-in to function with the rest of the code!
 
-
-    # ALRIGHT, so the log string is seperated by  my "delimiter" ';'
-    # Thus, I'm going to assume the following log style format:
-
-    # 2009-05-29 13:48:55,638 ; VMMemory ; INFO ; sl52base ; MEMORY ; 524288
 
     outputString = StringIO()
     outputString.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
@@ -114,19 +125,8 @@ def pluginExitN(messageIdentifier, pluginInfo, returnCode):
 
     #outputString.write("<"+messageIdentifier+">")
     outputString.write("<"+messageIdentifier+" id=\""+messageIdentifier+localIP+"\">")
-    for key in pluginInfo.keys():            
-            outputString.write("<"+key.strip()+">")
-            if( type(pluginInfo[key]) == type(list())):
-                for val in pluginInfo[key]:
-                    outputString.write("<entry>"+val+"</entry>")
-            elif (type(pluginInfo[key]) == type(dict())):
-                for secKey in pluginInfo[key].keys():
-                    outputString.write("<"+secKey+">")
-                    outputString.write(str(pluginInfo[key][secKey]))
-                    outputString.write("</"+secKey+">")
-            else:
-                outputString.write(pluginInfo[key])
-            outputString.write("</"+key.strip()+">") 
+    _createXMLWorker(pluginInfo, outputString)
+   
     outputString.write("</"+messageIdentifier+">")
     outputString.write("</HeadNode>")
 
@@ -163,11 +163,14 @@ class PluginCmdLineOpts(PluginObject):
             # Parse command-line options.
             parser = OptionParser()
 
-            parser.add_option("--HNconsistent", action="callback",help="Verify internal Derby database consistency", callback=HeadNodeDBConsistent())
-            parser.add_option("--HNvmmpool", action="callback",help="Publish Nimbus VMM pool information", callback=HeadNodeVMMPools())
+            parser.add_option("--HNConsistent", action="callback",help="Verify internal Derby database consistency", callback=HeadNodeDBConsistent())
+            parser.add_option("--HNVmPool", action="callback",help="Publish Nimbus VMM pool information", callback=HeadNodeVMMPools())
 #            parser.add_option("--HNnetpool", action="callback",help="Publish Nimbus network pool information", callback=HeadNodeNetPools())         
             parser.add_option("--HNpbsmem", action="callback",help="Publish PBS/Torque available memory information", callback=HeadNodePBSMemory())
             parser.add_option("--HNpbssupport", action="callback",help="Publish support for PBS/Torque Pilot Jobs", callback=HeadNodePBSSupport())
+            parser.add_option("--HNServiceInfo", action="callback", help="General Service Information about this Head Node's setup", callback=HeadNodeServiceInfo())
+
+
             self.parser = parser
 
     # This method is also responsible for "picking" what resource to monitor via the appropriate
@@ -180,6 +183,22 @@ class PluginCmdLineOpts(PluginObject):
     def validate(self):
         (options, args) = self.parser.parse_args()
 
+
+class HeadNodeServiceInfo(PluginObject):
+
+    def __init__(self):
+        self.resourceName="Service"
+        PluginObject.__init__(self,self.__class__.__name__)
+
+    def __call__(self, option, opt_str, value, parser):
+
+        self.pluginOutput["HostName"] = str(os.uname()[1])
+        self.pluginOutput["Type"] = "Nimbus"
+        self.pluginOutput["Port"] = str(8443)
+        self.pluginOutput["Path"] = "/wsrf/services/WorkspaceFactoryService"
+        self.pluginOutput["IP"] = str((socket.gethostbyaddr( socket.gethostname() ))[2][0])
+
+        pluginExitN(self.resourceName, self.pluginOutput, NAGIOS_RET_OK)
 
 class HeadNodePBSSupport(PluginObject):
     """ This class parses the Nimbus configuration file that dictates whether Torque/PBS or Nimbus along controls
@@ -205,7 +224,7 @@ class HeadNodePBSSupport(PluginObject):
                 else:
                     pbsSupported = True
             fileHandle.close()    
-            self.pluginOutput["Active"] = str(pbsSupported)
+            self.pluginOutput["PilotJobsActive"] = str(pbsSupported)
             pluginExitN(self.resourceName,self.pluginOutput, NAGIOS_RET_OK)
 
 class HeadNodePBSMemory(PluginObject):
@@ -263,7 +282,7 @@ class HeadNodeDBConsistent(PluginObject):
     lack of a formal definition of 'consistent'
     """
     def __init__(self):
-        self.resourceName = "MetaDataDB"
+        self.resourceName = "IaasDiagnostics"
         PluginObject.__init__(self,self.__class__.__name__)
     
     def __call__(self, option, opt_str, value, parser):
@@ -337,12 +356,15 @@ class HeadNodeDBConsistent(PluginObject):
                     self.logger.error("VM at IP address: "+entry["IP"]+" is alive and shouldn't be!")
                 else:
                     self.logger.error("VM at IP address: "+entry["IP"]+" in DB but unreachable!")    
-                isConsistent = False        
+                isConsistent = False  
+              
         if (isConsistent):
             retCode = NAGIOS_RET_OK
+            idString = "Consistent"
         else:
             retCode = NAGIOS_RET_CRITICAL
-        self.pluginOutput["Consistent"] = str(isConsistent)
+            idString = "Inconsistent"
+        self.pluginOutput["InternalRepresentation"] = idString
         pluginExitN(self.resourceName,self.pluginOutput, retCode)
 
     # The only "tunable" paramter for this function is the number value that comes after the '-c' in the Popen
@@ -403,6 +425,7 @@ class HeadNodeVMMPools(PluginObject):
                     t = entry.split()
                     workerNodes.append(t)
                 fileHandle.close()
+                #self.pluginOutput["Nodes"] = []
                 for entry in workerNodes:
                     # IF there is only 2 entries on this given line, that means
                     # the particular workerNode has no specific network pool 
@@ -414,12 +437,7 @@ class HeadNodeVMMPools(PluginObject):
                     else:
 
                         keyList = entry[2].split(",")
-                    try:
-                        self.pluginOutput["Nodes"].append( (str(entry[1])))
-                    except KeyError:
-                        self.pluginOutput["Nodes"] = []
-                        self.pluginOutput["Nodes"].append ( str(entry[1]))
-                    #self.pluginOutput[str(entry[0]).strip()] = str(entry[1]).strip()
+                    #self.pluginOutput["Nodes"].append({"Node":{"MemorySizeMB": (str(entry[1]))}})
                     for network in keyList:
 
                         if( network == "*"):
@@ -434,16 +452,13 @@ class HeadNodeVMMPools(PluginObject):
             except IOError:
                 self.logger.error("Error opening VMM-pool: "+ConfigMapping[GLOBUS_LOCATION]+NIMBUS_CONF+NIMBUS_PHYS_CONF+ pool)
                 sys.exit(NAGIOS_RET_CRITICAL)
+        self.pluginOutput= []
         for key in poolListing.keys():
             for entry in totalNetPools.keys():
-            
-                try:
-                   self.pluginOutput["Pools"][key+"-"+entry] = str(poolListing[key][entry])
-                except KeyError, err:
-                   self.pluginOutput["Pools"] = {}
-                   self.pluginOutput["Pools"][key+"-"+entry] = str(poolListing[key][entry])
-                   #self.logger.error("KeyError attempting to save Pool-"+key+"-"+entry )
-#        print str(self.pluginOutput)
+
+                tdict = {"Name":key+"-"+entry, "MemorySizeMB": str(poolListing[key][entry])}
+                self.pluginOutput.append({"Pool":tdict}) 
+
         pluginExitN(self.resourceName, self.pluginOutput,  NAGIOS_RET_OK)
 
 #class HeadNodeNetPools(PluginObject):
