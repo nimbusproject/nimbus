@@ -1,7 +1,28 @@
-<!-- MANY MANY thanks to Bob DuCharme for his article at 
-     http://www.xml.com/pub/a/2002/10/02/tr.html [Accessed Jan 28/2010]
-     and simple explanation of how to remove duplicate nodes via this
-     xsl. 
+<!-- 
+
+"""*
+ * Copyright 2009 University of Victoria
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * AUTHOR - Adam Bishop - ahbishop@uvic.ca
+ *       
+ * For comments or questions please contact the above e-mail address 
+ * or Ian Gable - igable@uvic.ca
+ *
+ * """
+
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
      version="1.0">
