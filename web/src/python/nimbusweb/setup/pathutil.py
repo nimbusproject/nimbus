@@ -164,4 +164,29 @@ def write_repl_file(path, outputtext, log):
 
     log.debug("Wrote '%s'." % path)
 
+relpath = None
+try:
+    # os.path.relpath is in 2.6+
+    relpath = getattr(os.path, 'relpath')
+except AttributeError:
+    relpath = _relpath
 
+# from Python 2.6 standard library, slightly modified
+def _relpath(path, start):
+    """Return a relative version of a path"""
+
+    if not path:
+        raise ValueError("no path specified")
+    if not start:
+        raise ValueError("no start specified")
+
+    start_list = os.path.abspath(start).split(os.path.sep)
+    path_list = os.path.abspath(path).split(os.path.sep)
+
+    # Work out how much of the filepath is shared by start and path.
+    i = len(os.path.commonprefix([start_list, path_list]))
+
+    rel_list = [os.path.pardir] * (len(start_list)-i) + path_list[i:]
+    if not rel_list:
+        return curdir
+    return os.path.join(*rel_list)
