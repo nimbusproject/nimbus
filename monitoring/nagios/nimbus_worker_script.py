@@ -47,6 +47,9 @@ NAGIOS_RET_UNKNOWN = 3
 def _createXMLWorker(data, currentOutput):
 
     if (type(data) == type(dict())):
+        if "DNP" in data.keys():
+           currentOutput.write(str(data["DNP"]))
+           return
         for key in data.keys():
             currentOutput.write("<"+str(key)+">")
             _createXMLWorker(data[key], currentOutput)
@@ -72,10 +75,10 @@ def pluginExitN(messageIdentifier, pluginInfo, returnCode):
     outputString.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
 
     localIP = (socket.gethostbyaddr( socket.gethostname() ))[2][0]
-    outputString.write("<WorkerNode>")
+    outputString.write("<Node>")
   #  outputString.write("<PhysicalIP>"+localIP+"</PhysicalIP>")
 
-    outputString.write("<"+messageIdentifier+" id=\""+messageIdentifier+localIP+"\" ts=\""+str(time.time())[:-3]+"\">")
+    outputString.write("<"+messageIdentifier+" id=\""+messageIdentifier+localIP+"\""+" node=\""+localIP +"\">")
     _createXMLWorker(pluginInfo, outputString)
     #for key in pluginInfo.keys():
     #        outputString.write("<"+key.strip()+">")
@@ -86,7 +89,7 @@ def pluginExitN(messageIdentifier, pluginInfo, returnCode):
     #            outputString.write(pluginInfo[key])
     #        outputString.write("</"+key.strip()+">")
     outputString.write("</"+messageIdentifier+">")
-    outputString.write("</WorkerNode>")
+    outputString.write("</Node>")
 
     sys.stdout.write(messageIdentifier+" | "+ outputString.getvalue()+"\n")
     sys.exit(returnCode)
@@ -164,7 +167,7 @@ class HostVirt(Virtualized):
     """
     def __init__(self):
         Virtualized.__init__(self)
-        self.resourceName = 'Host-Virtualization'
+        self.resourceName = 'VirtualizationTech'
 
     def __call__(self,option, opt_str, value,parser):
         self.pluginOutput["Type"] = str(self.VMConnection.getType())
@@ -195,13 +198,12 @@ class HostCpuCores(Virtualized):
     """
     def __init__(self):
         Virtualized.__init__(self)
-        self.resourceName = 'Host-CPUCores'
+        self.resourceName = 'CPUCores'
 
     def __call__(self, option, opt_str, value, parser):
 
         tempRes = self.VMConnection.getInfo()
-
-        self.pluginOutput["CoreCount"] = str(tempRes[2])
+        self.pluginOutput["DNP"] = str(tempRes[2])
         pluginExitN(self.resourceName, self.pluginOutput, NAGIOS_RET_OK)        
 
 class HostCpuId(Virtualized):
@@ -212,7 +214,7 @@ class HostCpuId(Virtualized):
     
     def __init__(self):
         Virtualized.__init__(self)
-        self.resourceName = 'Host-CPUID'
+        self.resourceName = 'CPUID'
 
     def __call__(self,option, opt_str, value, parser):
 
@@ -243,7 +245,7 @@ class HostCpuArch(Virtualized):
 
     def __init__(self):
         Virtualized.__init__(self)
-        self.resourceName = 'Host-CPUArch'
+        self.resourceName = 'CPUArch'
 
     def __call__(self, option, opt_str, value,parser):
         tempRes = self.VMConnection.getInfo()
@@ -271,17 +273,15 @@ class HostMemory(Virtualized):
     """
     def __init__(self):
         Virtualized.__init__(self)
-        self.resourceName = "Host-Memory"
+        self.resourceName = "Memory"
 
     def __call__(self,option,opt_str,value,parser):
         usedMemory = 0
         for vm in self.VMs.values():
-            usedMemory = usedMemory + vm.maxMemory()
-
-        tempRes = self.VMConnection.getInfo()
-        totalMemory = int(tempRes[1])
-        # 'usedMemory' is reported from libvirt's 'vm.maxMemory' in kB, thus usedMemory/1024 = MB, which
-        # then matches what's reported from the 'getInfo()' call, which is in MB
+            usedMemory +=  vm.info()[2]
+         
+        totalMemory = int(self.VMConnection.getInfo()[1])
+        
         availableMemory =totalMemory -(usedMemory/1024)
         self.pluginOutput["TotalMB"] = str(totalMemory)
         self.pluginOutput["FreeMB"] = str(availableMemory)
