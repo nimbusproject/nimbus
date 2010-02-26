@@ -1,29 +1,5 @@
 #!/usr/bin/python
 
-"""*
- * Copyright 2009 University of Victoria
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
- * either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * AUTHOR - Adam Bishop - ahbishop@uvic.ca
- *       
- * For comments or questions please contact the above e-mail address 
- * or Ian Gable - igable@uvic.ca
- *
- * """
-
-
 import ConfigParser
 import sys
 import os
@@ -69,13 +45,13 @@ def loadPerceptorClientConfig(logger):
             ConfigMapping[PERCEPTOR_DB] = cfgFile.get(CONF_FILE_SECTION, PERCEPTOR_DB,0)
             ConfigMapping[SKY_KEY] = cfgFile.get(CONF_FILE_SECTION, SKY_KEY, 0)
         except ConfigParser.NoSectionError:
-            print ( "Unable to locate "+CONF_FILE_SECTION+" section in conf file - Malformed config file?")
+            self.logger.error( "Unable to locate "+CONF_FILE_SECTION+" section in conf file - Malformed config file?")
             sys.exit(RET_CRITICAL)
         except ConfigParser.NoOptionError, nopt:
-            print (nopt.message+" of configuration file")
+            self.logger.error(nopt.message+" of configuration file")
             sys.exit(RET_CRITICAL)
     else:
-        print ("Configuration file not found in Nagios Plug-ins directory")
+        self.logger.error("Configuration file not found in Nagios Plug-ins directory")
         sys.exit(RET_CRITICAL)
 
 class Loggable:
@@ -90,7 +66,7 @@ class Loggable:
         self.logger.setLevel(logging.INFO)
         formatter = logging.Formatter('%(asctime)s ; %(name)s ; %(levelname)s ; %(message)s')
 
-        errorOutputHndlr = logging.StreamHandler(sys.stderr)
+        errorOutputHndlr = logging.FileHandler("perceptor_client.log")
         errorOutputHndlr.setFormatter(formatter)
         errorOutputHndlr.setLevel(logging.ERROR)
 
@@ -107,7 +83,7 @@ class perceptorClient(Loggable):
         try:
            self.db.ping()
         except ConnectionError, err:
-            print str(err)
+#            print str(err)
             self.logger.error("ConnectionError pinging DB - redis-server running on desired port?")
             sys.exit(-1)
 

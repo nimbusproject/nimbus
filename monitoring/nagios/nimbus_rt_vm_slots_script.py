@@ -68,7 +68,7 @@ REALTIME_UPDATE_INTERVAL = "RealTime_Update_Interval"
 
 ConfigMapping = {}
 
-def loadNimbusConfig():
+def loadNimbusConfig(logger):
 
     cfgFile = ConfigParser.ConfigParser()
     if(os.path.exists(CONF_FILE)):
@@ -86,13 +86,13 @@ def loadNimbusConfig():
             ConfigMapping[REALTIME_UPDATE_INTERVAL] = cfgFile.get(CONF_FILE_SECTION, REALTIME_UPDATE_INTERVAL,0)
 
         except ConfigParser.NoSectionError:
-            syslog.syslog("Unable to locate "+CONF_FILE_SECTION+" section in conf file - Malformed config file?")
+            logger.error("Unable to locate "+CONF_FILE_SECTION+" section in conf file - Malformed config file?")
             sys.exit(RET_CRITICAL)
         except ConfigParser.NoOptionError, nopt:
-            syslog.syslog( nopt.message+" of configuration file")
+            logger.error( nopt.message+" of configuration file")
             sys.exit(RET_CRITICAL)
     else:
-        syslog.syslog( "Configuration file not found in Nagios Plug-ins directory")
+        logger.error( "Configuration file not found in Nagios Plug-ins directory")
         sys.exit(RET_CRITICAL)
 
 def _createXMLWorker(data, currentOutput):
@@ -116,7 +116,7 @@ def _createXMLWorker(data, currentOutput):
         return
 
 
-def pluginExitN(messageIdentifier, pluginInfo, returnCode):
+def pluginExitN(logger, messageIdentifier, pluginInfo, returnCode):
 
     # This method should be the only exit point for all the plug-ins. This ensures that 
     # Nagios requirements are meant and performance data is properly formatted to work
@@ -140,7 +140,7 @@ def pluginExitN(messageIdentifier, pluginInfo, returnCode):
         outputFile.write(outputString.getvalue())
         outputFile.close()
     except IOError, err:
-        syslog.syslog("Output to "+ConfigMapping[REALTIME_XML_LOCATION]+" failed - "+str(err))
+        logger.error("Output to "+ConfigMapping[REALTIME_XML_LOCATION]+" failed - "+str(err))
     
     print (outputString.getvalue())   
 
@@ -152,8 +152,17 @@ class PluginObject:
 
     def __init__(self, callingClass):
           
-        syslog.openlog(callingClass,syslog.LOG_USER)    
+        #syslog.openlog(callingClass,syslog.LOG_USER)    
 
+        self.logger = logging.getLogger(callingClass)
+        self.logger.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(asctime)s ; %(name)s ; %(levelname)s ; %(message)s')
+
+        errorOutputHndlr = logging.FileHandler("rtLogging.log")
+        errorOutputHndlr.setFormatter(formatter)
+        errorOutputHndlr.setLevel(logging.ERROR)
+
+        self.logger.addHandler(errorOutputHndlr)
         self.pluginOutput = {}
 
 class HeadNodeVMSlots(PluginObject):
@@ -164,6 +173,7 @@ class HeadNodeVMSlots(PluginObject):
     """
     def __init__(self):
         PluginObject.__init__(self, self.__class__.__name__)
+        loadNimbusConfig(self.logger)
         self.resourceName = "Network-Pools"
 
     def __call__(self): 
@@ -171,7 +181,7 @@ class HeadNodeVMSlots(PluginObject):
         try:
             netPools = os.listdir(ConfigMapping[NIMBUS_LOCATION]+NIMBUS_CONF+NIMBUS_NET_CONF)
         except OSError, ose:
-            syslog.syslog("Error listing the Network Pools directory: "+ str(ose))
+            self.logger.error("Error listing the Network Pools directory: "+ str(ose))
             sys.exit(RET_CRITICAL)
         totalNetPools = []
         for pool in netPools:
@@ -200,7 +210,7 @@ class HeadNodeVMSlots(PluginObject):
                 fileHandle.close()
                 totalNetPools.append(netPoolData)
             except IOError:
-                syslog.syslog("Error opening network-pool: "+ConfigMapping[NIMBUS_LOCATION]+NIMBUS_CONF+NIMBUS_NET_CONF+"/"+pool)
+                self.logger.error("Error opening network-pool: "+ConfigMapping[NIMBUS_LOCATION]+NIMBUS_CONF+NIMBUS_NET_CONF+"/"+pool)
                 sys.exit(RET_CRITICAL)
 
         query = ConfigMapping[IJ_LOCATION]+ " "+SQL_IP_SCRIPT
@@ -229,10 +239,10 @@ class HeadNodeVMSlots(PluginObject):
             self.pluginOutput.append({"Pool":{"Name": str(pool["ID"]), "AvailableIPs": str(available), "TotalIPs":str(count)}})
             
             # self.pluginOutput["AvailableIPs-"+str(pool["ID"])] = str(available) 
-        pluginExitN(self.resourceName,self.pluginOutput, RET_OK)
+        pluginExitN(self.logger, self.resourceName,self.pluginOutput, RET_OK)
 
 if __name__ == '__main__':
-    loadNimbusConfig()
+    #loadNimbusConfig()
 
     activeSlots = HeadNodeVMSlots()
     while True:

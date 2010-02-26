@@ -31,7 +31,7 @@ class PluginObject:
         self.logger.setLevel(logging.INFO)
         formatter = logging.Formatter('%(asctime)s ; %(name)s ; %(levelname)s ; %(message)s')
 
-        errorOutputHndlr = logging.StreamHandler(sys.stdout)
+        errorOutputHndlr = logging.FileHandler("nimbus_nagios_data_processor.log")
         errorOutputHndlr.setFormatter(formatter)
         errorOutputHndlr.setLevel(logging.ERROR)
 
@@ -141,7 +141,7 @@ class NagiosXMLAggregator(PluginObject):
         doc = libxml2.parseDoc(xmlToProcess)
         retVal = doc.schemaValidateDoc(ctxtValid)
         if( retVal != 0):
-            self.logger.error("Error validating XML Schema!")
+            self.logger.error("Error validating against XML Schema - iaas.xsd")
             sys.exit(-1)
         doc.freeDoc()
         del ctxtParser

@@ -37,7 +37,7 @@ import time
 import xml
 import libxml2
 import libxslt
-#from xml.dom.minidom import parseString
+#import syslog
 from xml.dom.pulldom import parseString, START_ELEMENT
 
 
@@ -46,17 +46,18 @@ TARGET_CLUSTERS_LOC = "Clusters_Addr_File"
 TARGET_XML_PATH = "Target_Monitoring_Data_Path"
 TARGET_VM_SLOTS_PATH = "Target_VM_Slots_Path"
 
-AGGREAGATE_RT_XML_XSL = "rtaggr.xsl"
+#AGGREAGATE_RT_XML_XSL = "rtaggr.xsl"
 
 TARGET_REDIS_DB = "Target_Redis_DB_Id"
-CLOUD_KEY = "Cloud_Key"
+SKY_KEY = "Sky_Key"
+UPDATE_INTERVAL = "Update_Interval"
 
 CONF_FILE_LOC = "perceptor.cfg"
 CONF_FILE_SECTION = "Perceptor"
 
 ConfigMapping = {}
 
-def loadConfig(logger):
+def loadConfig():
 
     cfgFile = ConfigParser.ConfigParser()
     if(os.path.exists(CONF_FILE_LOC)):
@@ -65,17 +66,18 @@ def loadConfig(logger):
             ConfigMapping[MONITORING_XML_LOC] = cfgFile.get(CONF_FILE_SECTION,MONITORING_XML_LOC,0)
             ConfigMapping[TARGET_CLUSTERS_LOC] = cfgFile.get(CONF_FILE_SECTION,TARGET_CLUSTERS_LOC,0)
             ConfigMapping[TARGET_REDIS_DB] = cfgFile.get(CONF_FILE_SECTION,TARGET_REDIS_DB,0)
-            ConfigMapping[CLOUD_KEY] = cfgFile.get(CONF_FILE_SECTION, CLOUD_KEY,0)            
+            ConfigMapping[SKY_KEY] = cfgFile.get(CONF_FILE_SECTION, SKY_KEY,0)            
             ConfigMapping[TARGET_XML_PATH] = cfgFile.get(CONF_FILE_SECTION,TARGET_XML_PATH,0)
             ConfigMapping[TARGET_VM_SLOTS_PATH] = cfgFile.get(CONF_FILE_SECTION,TARGET_VM_SLOTS_PATH,0)           
+            ConfigMapping[UPDATE_INTERVAL] = cfgFile.get(CONF_FILE_SECTION, UPDATE_INTERVAL,0)
         except ConfigParser.NoSectionError: 
-            logger.error("Unable to locate "+CONF_FILE_SECTION+" section in "+CONF_FILE_LOC+" - Malformed config file?")
+            syslog.syslog("Unable to locate "+CONF_FILE_SECTION+" section in "+CONF_FILE_LOC+" - Malformed config file?")
             sys.exit(-1)
         except ConfigParser.NoOptionError, nopt:
-            logger.error( nopt.message+" of configuration file")
+            syslog.syslog( nopt.message+" of configuration file")
             sys.exit(-1)
     else:
-        logger.error( "Configuration file not found in this file's directory")
+        syslog.syslog( "Configuration file not found in this file's directory")
         sys.exit(-1)
 
 class Loggable:
@@ -84,13 +86,15 @@ class Loggable:
     """
     def __init__(self, callingClass):
 
+#        syslog.openlog(callingClass, syslog.LOG_USER)
+
         self.logString = StringIO()
 
         self.logger = logging.getLogger(callingClass)
         self.logger.setLevel(logging.INFO)
         formatter = logging.Formatter('%(asctime)s ; %(name)s ; %(levelname)s ; %(message)s')
 
-        errorOutputHndlr = logging.StreamHandler(sys.stderr)
+        errorOutputHndlr = logging.FileHandler("perceptor.log")
         errorOutputHndlr.setFormatter(formatter)
         errorOutputHndlr.setLevel(logging.ERROR)
 
@@ -118,7 +122,7 @@ class PerceptorHTTPRequest(Loggable):
     def _req(self, url):
        
         if (urlparse(url)[0] != 'http'):
-            self.logger.error("Invalid HTTP url passed to 'request' method")
+            syslog.syslog("Invalid HTTP url passed to 'request' method")
             return
 
         httpReq = urllib2.Request(url)
@@ -127,7 +131,7 @@ class PerceptorHTTPRequest(Loggable):
         try:
             httpOpener = urllib2.urlopen(httpReq)
         except urllib2.URLError, err:
-            self.logger.error(url+" "+str(err))
+            syslog.syslog(url+" "+str(err))
             return
         results = {}
         results['rData'] = httpOpener.read()
@@ -147,7 +151,7 @@ class Perceptor(Loggable):
    
     def __init__(self):
         Loggable.__init__(self, self.__class__.__name__)
-        loadConfig(self.logger) 
+        loadConfig() 
         self.perceptDb = Redis(db=ConfigMapping[TARGET_REDIS_DB])
 
         self.clusterXML = None
@@ -219,20 +223,6 @@ class Perceptor(Loggable):
 
     def validateXML(self, xmlToProcess):
 
-       # theDTD = libxml2.parseDTD(None, "iaas.dtd")
-       # dtdCtx = libxml2.newValidCtxt()
-
-       # doc = libxml2.parseDoc(xmlToProcess)
-       # retVal = doc.validateDtd(dtdCtx, theDTD)
-       # if( retVal != 1):
-       #     self.logger.error("Error validating XML against DTD!")
-       #     sys.exit(-1)
-       # doc.freeDoc()
-       # theDTD.freeDtd()
-       # del theDTD
-       # del dtdCtx
-       # libxml2.cleanupParser()
-
         ctxtParser = libxml2.schemaNewParserCtxt("perceptor.xsd")
         ctxtSchema = ctxtParser.schemaParse()
         ctxtValid = ctxtSchema.schemaNewValidCtxt()
@@ -240,7 +230,7 @@ class Perceptor(Loggable):
         doc = libxml2.parseDoc(xmlToProcess)
         retVal = doc.schemaValidateDoc(ctxtValid)
         if( retVal != 0):
-            self.logger.error("Error validating XML Schema!")
+            self.logger.error("Error validating against XML Schema - perceptor.xsd")
             sys.exit(-1)
         doc.freeDoc()
         del ctxtParser
@@ -272,9 +262,8 @@ class Perceptor(Loggable):
 
         self.validateXML(cloudXML.getvalue())
 
-        self.perceptDb.set(ConfigMapping[CLOUD_KEY], cloudXML.getvalue(), preserve=False)
-        print self.perceptDb.get(ConfigMapping[CLOUD_KEY])
-
+        self.perceptDb.set(ConfigMapping[SKY_KEY], cloudXML.getvalue(), preserve=False)
+        print self.perceptDb.get(ConfigMapping[SKY_KEY])
 
     def loadTargetAddresses(self):
 
@@ -302,6 +291,5 @@ if __name__ == "__main__":
          
             loader.persistData(daDict, loader.aggregateRealTimeData(daDict[entry][ConfigMapping[TARGET_XML_PATH]], daDict[entry][ConfigMapping[TARGET_VM_SLOTS_PATH]]))
 
-        #loader.persistData(daDict)
-        time.sleep(5)
+        time.sleep(int(ConfigMapping[UPDATE_INTERVAL]))
 
