@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """*
- * Copyright 2010 University of Victoria
+ * Copyright 2009 University of Victoria
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,9 +42,7 @@ import syslog
 # NAGIOS Plug-In API return code values
 
 RET_OK = 0
-#RET_WARNING = 1
 RET_CRITICAL = -1
-#RET_UNKNOWN = 3
 
 SQL_IP_SCRIPT = "/usr/local/nagios/libexec/nimbus_derby_used_ips.sql"
 SQL_RUNNING_VM_SCRIPT = "/usr/local/nagios/libexec/nimbus_derby_running_vms.sql"
@@ -53,9 +51,6 @@ SQL_RUNNING_VM_SCRIPT = "/usr/local/nagios/libexec/nimbus_derby_running_vms.sql"
 NIMBUS_CONF = "/etc/nimbus/workspace-service"
 NIMBUS_NET_CONF = "/network-pools"
 NIMBUS_PHYS_CONF = "/vmm-pools"
-
-NIMBUS_PBS_CONF = "/pilot.conf"
-NIMBUS_PBS_SUPPORT = "/other/resource-locator-ACTIVE.xml"
 
 CONF_FILE = "/usr/local/nagios/libexec/monitoring_config.cfg"
 CONF_FILE_SECTION = "Nimbus_Monitoring"
@@ -67,6 +62,10 @@ NAGIOS_LOCATION = "Nagios_Location"
 JAVA_LOCATION = "Java_Location"
 IJ_LOCATION = "IJ_Location"
 DERBY_LOCATION = "Derby_Location"
+REALTIME_XML_LOCATION = "RealTime_XML_Output_Location"
+
+REALTIME_UPDATE_INTERVAL = "RealTime_Update_Interval"
+
 ConfigMapping = {}
 
 def loadNimbusConfig():
@@ -83,15 +82,39 @@ def loadNimbusConfig():
             ConfigMapping[IJ_LOCATION] = cfgFile.get(CONF_FILE_SECTION,IJ_LOCATION,0)
             ConfigMapping[GLOBUS_LOCATION] = cfgFile.get(CONF_FILE_SECTION,GLOBUS_LOCATION,0)
             ConfigMapping[DERBY_LOCATION] = cfgFile.get(CONF_FILE_SECTION,DERBY_LOCATION,0)
+            ConfigMapping[REALTIME_XML_LOCATION] = cfgFile.get(CONF_FILE_SECTION, REALTIME_XML_LOCATION,0)
+            ConfigMapping[REALTIME_UPDATE_INTERVAL] = cfgFile.get(CONF_FILE_SECTION, REALTIME_UPDATE_INTERVAL,0)
+
         except ConfigParser.NoSectionError:
-            print "Unable to locate "+CONF_FILE_SECTION+" section in conf file - Malformed config file?"
+            syslog.syslog("Unable to locate "+CONF_FILE_SECTION+" section in conf file - Malformed config file?")
             sys.exit(RET_CRITICAL)
         except ConfigParser.NoOptionError, nopt:
-            print nopt.message+" of configuration file"
+            syslog.syslog( nopt.message+" of configuration file")
             sys.exit(RET_CRITICAL)
     else:
-        print "Configuration file not found in Nagios Plug-ins directory"
+        syslog.syslog( "Configuration file not found in Nagios Plug-ins directory")
         sys.exit(RET_CRITICAL)
+
+def _createXMLWorker(data, currentOutput):
+
+    if (type(data) == type(dict())):
+        if "DNP" in data.keys():
+            currentOutput.write(str(data["DNP"]))
+            return
+
+        for key in data.keys():
+            currentOutput.write("<"+str(key)+">")
+            _createXMLWorker(data[key], currentOutput)
+            currentOutput.write("</"+str(key)+">")
+
+    elif (type(data) == type(list())):
+        for key in range(len(data)):
+            _createXMLWorker(data[key], currentOutput)
+
+    else:
+        currentOutput.write(str(data))
+        return
+
 
 def pluginExitN(messageIdentifier, pluginInfo, returnCode):
 
@@ -101,45 +124,25 @@ def pluginExitN(messageIdentifier, pluginInfo, returnCode):
     # plug-in to function with the rest of the code!
 
 
-    # ALRIGHT, so the log string is seperated by  my "delimiter" ';'
-    # Thus, I'm going to assume the following log style format:
-
-    # 2009-05-29 13:48:55,638 ; VMMemory ; INFO ; sl52base ; MEMORY ; 524288
-
     outputString = StringIO()
     outputString.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
 
     localIP = (socket.gethostbyaddr( socket.gethostname() ))[2][0]
     outputString.write("<RealTime>")
-    outputString.write("<HeadNode>")
-    #outputString.write("<PhysicalIP>"+localIP+"</PhysicalIP>")
 
     outputString.write("<"+messageIdentifier+">")
-    for key in pluginInfo.keys():            
-            outputString.write("<"+key.strip()+">")
-            if( type(pluginInfo[key]) == type(list())):
-                for val in pluginInfo[key]:
-                    outputString.write("<item>"+val+"</item>")
-            elif (type(pluginInfo[key]) == type(dict())):
-                for secKey in pluginInfo[key].keys():
-                    outputString.write("<"+secKey+">")
-                    outputString.write(str(pluginInfo[key][secKey]))
-                    outputString.write("</"+secKey+">")
-            else:
-                outputString.write(pluginInfo[key])
-            outputString.write("</"+key.strip()+">") 
+    _createXMLWorker(pluginInfo, outputString)   
+
     outputString.write("</"+messageIdentifier+">")
-    outputString.write("</HeadNode>")
     outputString.write("</RealTime>")
     try:
-        outputFile = open("/tmp/activeSlots.xml","w")
+        outputFile = open(ConfigMapping[REALTIME_XML_LOCATION],"w")
         outputFile.write(outputString.getvalue())
         outputFile.close()
     except IOError, err:
-        syslog.syslog( "Outputting to activeSlots.xml failed!")
+        syslog.syslog("Output to "+ConfigMapping[REALTIME_XML_LOCATION]+" failed - "+str(err))
     
     print (outputString.getvalue())   
-    #sys.exit(returnCode)
 
 class PluginObject:    
     """The most 'senior' of the base classes. This class sets up appropriate logging mechanisms to 
@@ -150,16 +153,7 @@ class PluginObject:
     def __init__(self, callingClass):
           
         syslog.openlog(callingClass,syslog.LOG_USER)    
-        #self.logger = logging.getLogger(callingClass)
-        #self.logger.setLevel(logging.INFO)
-        #formatter = logging.Formatter('%(asctime)s ; %(name)s ; %(levelname)s ; %(message)s')
 
-        #errorOutputHndlr = logging.StreamHandler(sys.stdout)
-        #errorOutputHndlr.setFormatter(formatter)
-        #errorOutputHndlr.setLevel(logging.ERROR)
-
-        #self.logger.addHandler(errorOutputHndlr)
-        
         self.pluginOutput = {}
 
 class HeadNodeVMSlots(PluginObject):
@@ -170,8 +164,7 @@ class HeadNodeVMSlots(PluginObject):
     """
     def __init__(self):
         PluginObject.__init__(self, self.__class__.__name__)
-        self.resourceName = "Available-VMSlots"
-
+        self.resourceName = "Network-Pools"
 
     def __call__(self): 
  
@@ -219,42 +212,32 @@ class HeadNodeVMSlots(PluginObject):
             myRe = patt.search(line)
             if(myRe):
                 derbyIPs.append(line.strip())
-        #for ip in derbyIPs:
-        #    try:
-        #        self.pluginOutput["AllocatedIPs"].append(str(ip))
-        #    except KeyError:
-        #        self.pluginOutput["AllocatedIPs"] = []
-        #        self.pluginOutput["AllocatedIPs"].append(str(ip))
+        #self.pluginOutput["Pools"] = []
+        self.pluginOutput = []
         for pool in totalNetPools:
             count = len(pool["NETWORK"])
                       
-            self.pluginOutput["TotalIPs-"+str(pool["ID"])] = str(count)
+
             available = count
             for entry in pool["NETWORK"]:
-             #   try:
-             #       self.pluginOutput[pool["ID"]].append(str(entry[1]))
-             #   except KeyError:
-             #       self.pluginOutput[pool["ID"]] = []
-             #       self.pluginOutput[pool["ID"]].append(str(entry[1]))
-                
                 try:
-                    for allocIP in derbyIPs: #self.pluginOutput["AllocatedIPs"]:
+                    for allocIP in derbyIPs: 
                         if (entry[1] == allocIP):
                             available -= 1
                 except KeyError:
                    pass
-            #    self.pluginOutput["AvailableIPs-"+str(pool["ID"])] = str(available) 
+            self.pluginOutput.append({"Pool":{"Name": str(pool["ID"]), "AvailableIPs": str(available), "TotalIPs":str(count)}})
+            
+            # self.pluginOutput["AvailableIPs-"+str(pool["ID"])] = str(available) 
         pluginExitN(self.resourceName,self.pluginOutput, RET_OK)
 
 if __name__ == '__main__':
     loadNimbusConfig()
-    #testObject = PluginCmdLineOpts()
-    #testObject.validate()
 
+    activeSlots = HeadNodeVMSlots()
     while True:
 
-        activeSlots = HeadNodeVMSlots()
-        activeSlots() #None, None, None, None)
-        time.sleep(3)
+        activeSlots() 
+        time.sleep(int(ConfigMapping[REALTIME_UPDATE_INTERVAL]))
     # This sys.exit call should NEVER be reached under normal circumstances, or any....
     sys.exit(RET_CRITICAL)
