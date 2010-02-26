@@ -163,6 +163,7 @@ public class RestHttp {
 
         RestHttp http = new RestHttp(springPath, port,
                 keystorePath, keystorePass);
+        http.setEnabled(true);
 
         try {
             http.startListening();
