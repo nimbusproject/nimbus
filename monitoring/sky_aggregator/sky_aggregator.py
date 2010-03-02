@@ -223,7 +223,7 @@ class SkyAggregator(Loggable):
 
     def validateXML(self, xmlToProcess):
 
-        ctxtParser = libxml2.schemaNewParserCtxt("perceptor.xsd")
+        ctxtParser = libxml2.schemaNewParserCtxt("sky.xsd")
         ctxtSchema = ctxtParser.schemaParse()
         ctxtValid = ctxtSchema.schemaNewValidCtxt()
 
