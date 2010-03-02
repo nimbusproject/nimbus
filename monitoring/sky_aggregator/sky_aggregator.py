@@ -94,16 +94,16 @@ class Loggable:
         self.logger.setLevel(logging.INFO)
         formatter = logging.Formatter('%(asctime)s ; %(name)s ; %(levelname)s ; %(message)s')
 
-        errorOutputHndlr = logging.FileHandler("perceptor.log")
+        errorOutputHndlr = logging.FileHandler("sky_aggregator.log")
         errorOutputHndlr.setFormatter(formatter)
         errorOutputHndlr.setLevel(logging.ERROR)
 
         self.logger.addHandler(errorOutputHndlr)
 
 
-class PerceptorHTTPRequest(Loggable):
+class SkyAggregatorHTTPRequest(Loggable):
 
-    defaultUserAgent = "Perceptor/1.0"
+    defaultUserAgent = "SkyAggregator/1.0"
 
     def __init__(self):
         Loggable.__init__(self,self.__class__.__name__)
@@ -147,7 +147,7 @@ class PerceptorHTTPRequest(Loggable):
 
         return results
 
-class Perceptor(Loggable):
+class SkyAggregator(Loggable):
    
     def __init__(self):
         Loggable.__init__(self, self.__class__.__name__)
@@ -202,7 +202,7 @@ class Perceptor(Loggable):
         addrList = self.loadTargetAddresses()
         tempDict = {}
 
-        dataReq = PerceptorHTTPRequest()
+        dataReq = SkyAggregatorHTTPRequest()
 
         for entry in addrList:
             try:
@@ -284,7 +284,7 @@ class Perceptor(Loggable):
 if __name__ == "__main__":
 
    
-    loader = Perceptor()
+    loader = SkyAggregator()
     while True:
         daDict = loader.queryRemoteClusters()
         for entry in daDict.keys():
