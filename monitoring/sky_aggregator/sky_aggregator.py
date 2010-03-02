@@ -52,8 +52,8 @@ TARGET_REDIS_DB = "Target_Redis_DB_Id"
 SKY_KEY = "Sky_Key"
 UPDATE_INTERVAL = "Update_Interval"
 
-CONF_FILE_LOC = "perceptor.cfg"
-CONF_FILE_SECTION = "Perceptor"
+CONF_FILE_LOC = "sky_aggregator.cfg"
+CONF_FILE_SECTION = "SkyAggregator"
 
 ConfigMapping = {}
 
@@ -230,7 +230,7 @@ class SkyAggregator(Loggable):
         doc = libxml2.parseDoc(xmlToProcess)
         retVal = doc.schemaValidateDoc(ctxtValid)
         if( retVal != 0):
-            self.logger.error("Error validating against XML Schema - perceptor.xsd")
+            self.logger.error("Error validating against XML Schema - sky.xsd")
             sys.exit(-1)
         doc.freeDoc()
         del ctxtParser
