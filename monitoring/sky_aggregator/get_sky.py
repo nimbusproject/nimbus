@@ -35,47 +35,47 @@ import amara
 
 RET_CRITICAL = -1
 
-CONF_FILE = "monitoring_config.cfg"
-CONF_FILE_SECTION = "Nimbus_Monitoring"
-NIMBUS_ADDRESS = "Nimbus_Server_Address"
-NIMBUS_LOCATION = "Nimbus_Install_Location"
-GLOBUS_LOCATION = "Globus_Install_Location"
+CONF_FILE = "get_sky.cfg"
+CONF_FILE_SECTION = "Get_Sky"
+#@NIMBUS_ADDRESS = "Nimbus_Server_Address"
+#NIMBUS_LOCATION = "Nimbus_Install_Location"
+#GLOBUS_LOCATION = "Globus_Install_Location"
 SERVER_TMP_LOCATION = "Server_Tmp_Location"
-NAGIOS_LOCATION = "Nagios_Location"
-JAVA_LOCATION = "Java_Location"
-IJ_LOCATION = "IJ_Location"
-DERBY_LOCATION = "Derby_Location"
-PERCEPTOR_DB = "Perceptor_RedisDB_Num"
+#NAGIOS_LOCATION = "Nagios_Location"
+#JAVA_LOCATION = "Java_Location"
+#IJ_LOCATION = "IJ_Location"
+#DERBY_LOCATION = "Derby_Location"
+SKY_DB = "Sky_RedisDB_Num"
 SKY_KEY = "Sky_Key"
 
 ConfigMapping = {}
 
-def loadPerceptorClientConfig(logger):
+def loadGetSkyClientConfig(logger):
 
 
     cfgFile = ConfigParser.ConfigParser()
     if(os.path.exists(CONF_FILE)):
         cfgFile.read(CONF_FILE)
         try:
-            ConfigMapping[NIMBUS_ADDRESS] = cfgFile.get(CONF_FILE_SECTION,NIMBUS_ADDRESS,0)
-            ConfigMapping[NIMBUS_LOCATION] = cfgFile.get(CONF_FILE_SECTION,NIMBUS_LOCATION,0)
+            #ConfigMapping[NIMBUS_ADDRESS] = cfgFile.get(CONF_FILE_SECTION,NIMBUS_ADDRESS,0)
+            #ConfigMapping[NIMBUS_LOCATION] = cfgFile.get(CONF_FILE_SECTION,NIMBUS_LOCATION,0)
             ConfigMapping[SERVER_TMP_LOCATION] = cfgFile.get(CONF_FILE_SECTION, SERVER_TMP_LOCATION,0)
-            ConfigMapping[NAGIOS_LOCATION] = cfgFile.get(CONF_FILE_SECTION, NAGIOS_LOCATION,0)
-            ConfigMapping[JAVA_LOCATION] = cfgFile.get(CONF_FILE_SECTION, JAVA_LOCATION,0)
-            ConfigMapping[IJ_LOCATION] = cfgFile.get(CONF_FILE_SECTION,IJ_LOCATION,0)
-            ConfigMapping[GLOBUS_LOCATION] = cfgFile.get(CONF_FILE_SECTION,GLOBUS_LOCATION,0)
-            ConfigMapping[DERBY_LOCATION] = cfgFile.get(CONF_FILE_SECTION,DERBY_LOCATION,0)
+            #ConfigMapping[NAGIOS_LOCATION] = cfgFile.get(CONF_FILE_SECTION, NAGIOS_LOCATION,0)
+            #ConfigMapping[JAVA_LOCATION] = cfgFile.get(CONF_FILE_SECTION, JAVA_LOCATION,0)
+            #ConfigMapping[IJ_LOCATION] = cfgFile.get(CONF_FILE_SECTION,IJ_LOCATION,0)
+            #ConfigMapping[GLOBUS_LOCATION] = cfgFile.get(CONF_FILE_SECTION,GLOBUS_LOCATION,0)
+            #ConfigMapping[DERBY_LOCATION] = cfgFile.get(CONF_FILE_SECTION,DERBY_LOCATION,0)
             
-            ConfigMapping[PERCEPTOR_DB] = cfgFile.get(CONF_FILE_SECTION, PERCEPTOR_DB,0)
+            ConfigMapping[SKY_DB] = cfgFile.get(CONF_FILE_SECTION, SKY_DB,0)
             ConfigMapping[SKY_KEY] = cfgFile.get(CONF_FILE_SECTION, SKY_KEY, 0)
         except ConfigParser.NoSectionError:
-            self.logger.error( "Unable to locate "+CONF_FILE_SECTION+" section in conf file - Malformed config file?")
+            logger.error( "Unable to locate "+CONF_FILE_SECTION+" section in conf file - Malformed config file?")
             sys.exit(RET_CRITICAL)
         except ConfigParser.NoOptionError, nopt:
-            self.logger.error(nopt.message+" of configuration file")
+            logger.error(nopt.message+" of configuration file")
             sys.exit(RET_CRITICAL)
     else:
-        self.logger.error("Configuration file not found in Nagios Plug-ins directory")
+        logger.error("Configuration file not found in Nagios Plug-ins directory")
         sys.exit(RET_CRITICAL)
 
 class Loggable:
@@ -90,19 +90,19 @@ class Loggable:
         self.logger.setLevel(logging.INFO)
         formatter = logging.Formatter('%(asctime)s ; %(name)s ; %(levelname)s ; %(message)s')
 
-        errorOutputHndlr = logging.FileHandler("perceptor_client.log")
+        errorOutputHndlr = logging.FileHandler("get_sky.log")
         errorOutputHndlr.setFormatter(formatter)
         errorOutputHndlr.setLevel(logging.ERROR)
 
         self.logger.addHandler(errorOutputHndlr)
 
-class perceptorClient(Loggable):
+class getSkyClient(Loggable):
 
     def __init__(self):
         Loggable.__init__(self,self.__class__.__name__)
-        loadPerceptorClientConfig(self.logger)
+        loadGetSkyClientConfig(self.logger)
 
-        self.db = Redis(db=ConfigMapping[PERCEPTOR_DB])
+        self.db = Redis(db=ConfigMapping[SKY_DB])
 
         try:
            self.db.ping()
@@ -216,7 +216,7 @@ class perceptorClient(Loggable):
 
 if __name__ == '__main__':
 
-    temp = perceptorClient()
+    temp = getSkyClient()
     thing = temp.getCloudSeer()
 
     print thing
