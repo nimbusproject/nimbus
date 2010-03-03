@@ -99,7 +99,7 @@ class getSkyClient(Loggable):
         Loggable.__init__(self,self.__class__.__name__)
         loadGetSkyClientConfig(self.logger)
 
-        self.db = Redis(db=ConfigMapping[SKY_DB])
+        self.db = Redis(db=ConfigMapping[SKY_DB], host=ConfigMapping[REDISDB_SERVER_HOSTNAME], port=int(ConfigMapping[REDISDB_SERVER_PORT]))
 
         try:
            self.db.ping()

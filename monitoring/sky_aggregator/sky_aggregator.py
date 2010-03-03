@@ -51,6 +51,8 @@ TARGET_VM_SLOTS_PATH = "Target_VM_Slots_Path"
 TARGET_REDIS_DB = "Target_Redis_DB_Id"
 SKY_KEY = "Sky_Key"
 UPDATE_INTERVAL = "Update_Interval"
+REDISDB_SERVER_HOSTNAME = "RedisDB_Server_Hostname"
+REDISDB_SERVER_PORT = "RedisDB_Server_Port"
 
 CONF_FILE_LOC = "sky_aggregator.cfg"
 CONF_FILE_SECTION = "SkyAggregator"
@@ -70,6 +72,9 @@ def loadConfig(logger):
             ConfigMapping[TARGET_XML_PATH] = cfgFile.get(CONF_FILE_SECTION,TARGET_XML_PATH,0)
             ConfigMapping[TARGET_VM_SLOTS_PATH] = cfgFile.get(CONF_FILE_SECTION,TARGET_VM_SLOTS_PATH,0)           
             ConfigMapping[UPDATE_INTERVAL] = cfgFile.get(CONF_FILE_SECTION, UPDATE_INTERVAL,0)
+            ConfigMapping[REDISDB_SERVER_HOSTNAME] = cfgFile.get(CONF_FILE_SECTION, REDISDB_SERVER_HOSTNAME,0)
+            ConfigMapping[REDISDB_SERVER_PORT] = cfgFile.get(CONF_FILE_SECTION, REDISDB_SERVER_PORT,0)
+   
         except ConfigParser.NoSectionError: 
             logger.error("Unable to locate "+CONF_FILE_SECTION+" section in "+CONF_FILE_LOC+" - Malformed config file?")
             sys.exit(-1)
@@ -172,7 +177,7 @@ class SkyAggregator(Loggable):
         loadConfig(self.logger) 
         
         #Connect to the RedisDB
-        self.perceptDb = Redis(db=ConfigMapping[TARGET_REDIS_DB])
+        self.perceptDb = Redis(db=ConfigMapping[TARGET_REDIS_DB], host=ConfigMapping[REDISDB_SERVER_HOSTNAME], port=int(ConfigMapping[REDISDB_SERVER_PORT]))
 
         self.clusterXML = None
 
