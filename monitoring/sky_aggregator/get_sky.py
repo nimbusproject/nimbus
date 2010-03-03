@@ -37,14 +37,9 @@ RET_CRITICAL = -1
 
 CONF_FILE = "get_sky.cfg"
 CONF_FILE_SECTION = "Get_Sky"
-#@NIMBUS_ADDRESS = "Nimbus_Server_Address"
-#NIMBUS_LOCATION = "Nimbus_Install_Location"
-#GLOBUS_LOCATION = "Globus_Install_Location"
+REDISDB_SERVER_HOSTNAME = "RedisDB_Server_Hostname"
+REDISDB_SERVER_PORT = "RedisDB_Server_Port"
 SERVER_TMP_LOCATION = "Server_Tmp_Location"
-#NAGIOS_LOCATION = "Nagios_Location"
-#JAVA_LOCATION = "Java_Location"
-#IJ_LOCATION = "IJ_Location"
-#DERBY_LOCATION = "Derby_Location"
 SKY_DB = "Sky_RedisDB_Num"
 SKY_KEY = "Sky_Key"
 
@@ -57,15 +52,9 @@ def loadGetSkyClientConfig(logger):
     if(os.path.exists(CONF_FILE)):
         cfgFile.read(CONF_FILE)
         try:
-            #ConfigMapping[NIMBUS_ADDRESS] = cfgFile.get(CONF_FILE_SECTION,NIMBUS_ADDRESS,0)
-            #ConfigMapping[NIMBUS_LOCATION] = cfgFile.get(CONF_FILE_SECTION,NIMBUS_LOCATION,0)
             ConfigMapping[SERVER_TMP_LOCATION] = cfgFile.get(CONF_FILE_SECTION, SERVER_TMP_LOCATION,0)
-            #ConfigMapping[NAGIOS_LOCATION] = cfgFile.get(CONF_FILE_SECTION, NAGIOS_LOCATION,0)
-            #ConfigMapping[JAVA_LOCATION] = cfgFile.get(CONF_FILE_SECTION, JAVA_LOCATION,0)
-            #ConfigMapping[IJ_LOCATION] = cfgFile.get(CONF_FILE_SECTION,IJ_LOCATION,0)
-            #ConfigMapping[GLOBUS_LOCATION] = cfgFile.get(CONF_FILE_SECTION,GLOBUS_LOCATION,0)
-            #ConfigMapping[DERBY_LOCATION] = cfgFile.get(CONF_FILE_SECTION,DERBY_LOCATION,0)
-            
+            ConfigMapping[REDISDB_SERVER_HOSTNAME] = cfgFile.get(CONF_FILE_SECTION, REDISDB_SERVER_HOSTNAME,0)
+            ConfigMapping[REDISDB_SERVER_PORT] = cfgFile.get(CONF_FILE_SECTION, REDISDB_SERVER_PORT,0)
             ConfigMapping[SKY_DB] = cfgFile.get(CONF_FILE_SECTION, SKY_DB,0)
             ConfigMapping[SKY_KEY] = cfgFile.get(CONF_FILE_SECTION, SKY_KEY, 0)
         except ConfigParser.NoSectionError:
@@ -97,7 +86,15 @@ class Loggable:
         self.logger.addHandler(errorOutputHndlr)
 
 class getSkyClient(Loggable):
-
+    """
+    This class is responsible for querying the RedisDB for the Sky XML and binding it back into 
+     a usable data structure. This data structure format is a nested Dictionary of dictionaries and lists. The 
+     exact format and names for various keys mimics the public XML format. This means that this class is dependant
+     on the public XML format - If the XML changes this class needs to be updated accordingly.
+     This dependancy is unavoidable conceptually, and the use of the Amara utility to provide the binding mechanism
+     requires this knowledge.
+    
+    """
     def __init__(self):
         Loggable.__init__(self,self.__class__.__name__)
         loadGetSkyClientConfig(self.logger)
@@ -107,7 +104,6 @@ class getSkyClient(Loggable):
         try:
            self.db.ping()
         except ConnectionError, err:
-#            print str(err)
             self.logger.error("ConnectionError pinging DB - redis-server running on desired port?")
             sys.exit(-1)
 
@@ -198,7 +194,7 @@ class getSkyClient(Loggable):
 
         return tDict
 
-    def getCloudSeer(self):
+    def getSkyView(self):
 
         sky = []
         boundXML = self._lookupSkyXML()
@@ -217,6 +213,6 @@ class getSkyClient(Loggable):
 if __name__ == '__main__':
 
     temp = getSkyClient()
-    thing = temp.getCloudSeer()
+    thing = temp.getSkyView()
 
     print thing
