@@ -57,7 +57,7 @@ CONF_FILE_SECTION = "SkyAggregator"
 
 ConfigMapping = {}
 
-def loadConfig():
+def loadConfig(logger):
 
     cfgFile = ConfigParser.ConfigParser()
     if(os.path.exists(CONF_FILE_LOC)):
@@ -71,13 +71,13 @@ def loadConfig():
             ConfigMapping[TARGET_VM_SLOTS_PATH] = cfgFile.get(CONF_FILE_SECTION,TARGET_VM_SLOTS_PATH,0)           
             ConfigMapping[UPDATE_INTERVAL] = cfgFile.get(CONF_FILE_SECTION, UPDATE_INTERVAL,0)
         except ConfigParser.NoSectionError: 
-            syslog.syslog("Unable to locate "+CONF_FILE_SECTION+" section in "+CONF_FILE_LOC+" - Malformed config file?")
+            logger.error("Unable to locate "+CONF_FILE_SECTION+" section in "+CONF_FILE_LOC+" - Malformed config file?")
             sys.exit(-1)
         except ConfigParser.NoOptionError, nopt:
-            syslog.syslog( nopt.message+" of configuration file")
+            logger.error( nopt.message+" of configuration file")
             sys.exit(-1)
     else:
-        syslog.syslog( "Configuration file not found in this file's directory")
+        logger.error( "Configuration file not found in this file's directory")
         sys.exit(-1)
 
 class Loggable:
@@ -91,22 +91,32 @@ class Loggable:
         self.logString = StringIO()
 
         self.logger = logging.getLogger(callingClass)
-        self.logger.setLevel(logging.INFO)
+        self.logger.setLevel(logging.ERROR)
         formatter = logging.Formatter('%(asctime)s ; %(name)s ; %(levelname)s ; %(message)s')
 
         errorOutputHndlr = logging.FileHandler("sky_aggregator.log")
         errorOutputHndlr.setFormatter(formatter)
-        errorOutputHndlr.setLevel(logging.ERROR)
+        errorOutputHndlr.setLevel(logging.DEBUG)
 
         self.logger.addHandler(errorOutputHndlr)
 
 
 class SkyAggregatorHTTPRequest(Loggable):
+    """
+    This class provides very basic HTTP GET functionality. It was created as a helper class for Perceptor to use
+    to query remote Clouds. It implements some basic HTTP protocol functionality including gzip support.
 
+    """
+
+    # This can be almost anything, this was chosen arbitrarily. One could masquerade as another browser or
+    # agent, but I don't see the need for this currently
     defaultUserAgent = "SkyAggregator/1.0"
 
     def __init__(self):
         Loggable.__init__(self,self.__class__.__name__)
+
+    # Request the data from the url passed in. This is done with a HTTP GET and the return code is checked to ensure
+    # a 200 (sucess) was received
 
     def request(self, url):
 
@@ -118,7 +128,7 @@ class SkyAggregatorHTTPRequest(Loggable):
         
         return ""
 
-
+    # A helper method that handles the Python urllib2 code and basic HTTP protocol handling
     def _req(self, url):
        
         if (urlparse(url)[0] != 'http'):
@@ -148,16 +158,28 @@ class SkyAggregatorHTTPRequest(Loggable):
         return results
 
 class SkyAggregator(Loggable):
-   
+
+    """
+    This class is responsible for querying remote Cloud sites, retrieving their resource and real time XML,
+    aggregate and validate the retrieved XML and then finally storing the aggregated XML into a RedisDB
+
+    """
+
+    # Since this is the "primary" class, it is designed to be instantiated first and thus will load the 
+    # global ConfigMapping data
     def __init__(self):
         Loggable.__init__(self, self.__class__.__name__)
-        loadConfig() 
+        loadConfig(self.logger) 
+        
+        #Connect to the RedisDB
         self.perceptDb = Redis(db=ConfigMapping[TARGET_REDIS_DB])
 
         self.clusterXML = None
 
+        # Verify the DB is up and running
         try:
            self.perceptDb.ping()
+           self.logger.debug("DB Alive")
         except ConnectionError, err:
             print str(err)
             self.logger.error("ConnectionError pinging DB - redis-server running on desired port?")
@@ -166,8 +188,11 @@ class SkyAggregator(Loggable):
     def aggregateRealTimeData(self, cloudXML, rtXML):
 
         rtStartIndex = rtXML.find("<RealTime>")
-        retXML = StringIO()
-        
+        if(rtStartIndex == -1):
+            self.logger.error("Unable to find <RealTime> tag in aggregateRealTimeData method")
+            return cloudXML 
+        rtStartIndex += len("<RealTime>") 
+        rtEndIndex = rtXML.find("</RealTime>") 
 #        doc = parseString(cloudXML)
 #        for event, node in doc:
 #            if event == xml.dom.pulldom.START_ELEMENT and node.localName == "Cloud":
@@ -176,19 +201,14 @@ class SkyAggregator(Loggable):
             #print node
         insertIndex = cloudXML.find("</Cloud>")
         if(insertIndex == -1):
-            return
-            #insertIndex += len("<Cloud>")
-        #else:
-        #    print "RET DAMMIT"
-        #    return
+            self.logger.error("Unable to find </Cloud> tag in aggregateRealTimeData method")
+            return cloudXML
 
         topSlice = cloudXML[:insertIndex]
         bottomSlice = cloudXML[insertIndex:]
 
+        retXML = StringIO()
         retXML.write(topSlice)
-        
-        rtStartIndex += len("<RealTime>")
-        rtEndIndex = rtXML.find("</RealTime>") 
             
         snippet = rtXML[rtStartIndex:rtEndIndex]
         rtXML = rtXML.replace(rtXML[rtStartIndex:rtEndIndex],"",1)
@@ -197,7 +217,7 @@ class SkyAggregator(Loggable):
 
         return retXML.getvalue()
  
-    def queryRemoteClusters(self):
+    def queryRemoteClouds(self):
 
         addrList = self.loadTargetAddresses()
         tempDict = {}
@@ -205,19 +225,20 @@ class SkyAggregator(Loggable):
         dataReq = SkyAggregatorHTTPRequest()
 
         for entry in addrList:
-            try:
-                if TARGET_XML_PATH in ConfigMapping:
-                    tempDict[entry][ConfigMapping[TARGET_XML_PATH]] = dataReq.request(entry+ConfigMapping[TARGET_XML_PATH])
-            except KeyError:
-                # Note how this is first in the code listing
-                tempDict[entry] = {}
+            #try:
+            tempDict[entry] = {}
+            if TARGET_XML_PATH in ConfigMapping:
                 tempDict[entry][ConfigMapping[TARGET_XML_PATH]] = dataReq.request(entry+ConfigMapping[TARGET_XML_PATH])
-            try:
-                if TARGET_VM_SLOTS_PATH in ConfigMapping:
-                    tempDict[entry][ConfigMapping[TARGET_VM_SLOTS_PATH]] = dataReq.request(entry+ConfigMapping[TARGET_VM_SLOTS_PATH])
-            except KeyError:
-                tempDict[entry] = {}
-                tempDict[entry][ConfigMapping[TARGET_VM_SLOTS_PATH]] = dataReq.request(entry+ConfigMapping[TARGET_VM_SLOTS_PATH])  
+            #except KeyError:
+                # Note how this is first in the code listing
+             #   tempDict[entry] = {}
+             #   tempDict[entry][ConfigMapping[TARGET_XML_PATH]] = dataReq.request(entry+ConfigMapping[TARGET_XML_PATH])
+            #try:
+            if TARGET_VM_SLOTS_PATH in ConfigMapping:
+                tempDict[entry][ConfigMapping[TARGET_VM_SLOTS_PATH]] = dataReq.request(entry+ConfigMapping[TARGET_VM_SLOTS_PATH])
+            #except KeyError:
+              #  tempDict[entry] = {}
+              #  tempDict[entry][ConfigMapping[TARGET_VM_SLOTS_PATH]] = dataReq.request(entry+ConfigMapping[TARGET_VM_SLOTS_PATH])  
             
         return tempDict
 
@@ -232,10 +253,11 @@ class SkyAggregator(Loggable):
         if( retVal != 0):
             self.logger.error("Error validating against XML Schema - sky.xsd")
             sys.exit(-1)
+        
         doc.freeDoc()
-        del ctxtParser
-        del ctxtSchema
         del ctxtValid
+        del ctxtSchema
+        del ctxtParser
         libxml2.schemaCleanupTypes()
         libxml2.cleanupParser()
 
@@ -251,42 +273,44 @@ class SkyAggregator(Loggable):
                tempString = clusterDict[key][subKey]
                tagIndex = tempString.find("?>") + 2
                #print clusterDict[key][tagIndex:]
-               #keyData = urlparse(key) 
+               #keyData = urlparse(key)
+ 
+               # Persist the individual, aggregated cloud XML data into the DB with the path used to find
+               # the XML as the key
                self.perceptDb.set(key+subKey, clusterDict[key][subKey][tagIndex:], preserve=False)
         if(cloud != None): 
             cloudXML.write(cloud[cloud.find("?>")+2:])
         cloudXML.write("</Sky>")
-        #print cloudXML.getvalue()
-        #t = parseString(cloudXML.getvalue())
-        #print t.toprettyxml()
 
+        #Validate the final 'Sky' XML containing all the cloud information against the XML Schema
         self.validateXML(cloudXML.getvalue())
 
+        # Finally, save the valid XML into the database with the well known SKY_KEY
         self.perceptDb.set(ConfigMapping[SKY_KEY], cloudXML.getvalue(), preserve=False)
         print self.perceptDb.get(ConfigMapping[SKY_KEY])
 
     def loadTargetAddresses(self):
 
-        clusterAddresses = []
+        cloudAddresses = []
 
         if(os.path.exists(ConfigMapping[TARGET_CLUSTERS_LOC])):
             try:
                 fileHandle = open(ConfigMapping[TARGET_CLUSTERS_LOC],"r")
 
                 for addr in fileHandle:
-                    clusterAddresses.append(addr.strip())
+                    cloudAddresses.append(addr.strip())
                 fileHandle.close()
             except IOError, err:
                 self.logger.error("IOError processing "+ConfigMapping[TARGET_CLUSTERS_LOC]+" - "+str(err))
 
-        return clusterAddresses
+        return cloudAddresses
 
 if __name__ == "__main__":
 
    
     loader = SkyAggregator()
     while True:
-        daDict = loader.queryRemoteClusters()
+        daDict = loader.queryRemoteClouds()
         for entry in daDict.keys():
          
             loader.persistData(daDict, loader.aggregateRealTimeData(daDict[entry][ConfigMapping[TARGET_XML_PATH]], daDict[entry][ConfigMapping[TARGET_VM_SLOTS_PATH]]))
