@@ -105,7 +105,7 @@ class getSkyClient(Loggable):
            self.db.ping()
         except ConnectionError, err:
             self.logger.error("ConnectionError pinging DB - redis-server running on desired port?")
-            sys.exit(-1)
+            sys.exit(RET_CRITICAL)
 
     def _lookupSkyXML(self):
 

@@ -68,6 +68,10 @@ REALTIME_UPDATE_INTERVAL = "RealTime_Update_Interval"
 
 ConfigMapping = {}
 
+
+# This global method loads all the user configured options from the configuration file and saves them
+# into the ConfigMapping dictionary
+
 def loadNimbusConfig(logger):
 
     cfgFile = ConfigParser.ConfigParser()
@@ -95,9 +99,11 @@ def loadNimbusConfig(logger):
         logger.error( "Configuration file not found in Nagios Plug-ins directory")
         sys.exit(RET_CRITICAL)
 
+# This is a recursive function to write out an XML doc from the pluginOutput data structure
 def _createXMLWorker(data, currentOutput):
 
     if (type(data) == type(dict())):
+        # DNP == Do No Print - that is there's no "wrapping tag", just print the text itself
         if "DNP" in data.keys():
             currentOutput.write(str(data["DNP"]))
             return
@@ -118,11 +124,8 @@ def _createXMLWorker(data, currentOutput):
 
 def pluginExitN(logger, messageIdentifier, pluginInfo, returnCode):
 
-    # This method should be the only exit point for all the plug-ins. This ensures that 
-    # Nagios requirements are meant and performance data is properly formatted to work
-    # with the rest of the code. Do NOT just call sys.exit in the code (if you want your
-    # plug-in to function with the rest of the code!
-
+    # This method should be the only exit point for all the plug-ins. This ensures that all appropriate
+    # data and a proper XML output is generated and printed
 
     outputString = StringIO()
     outputString.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
@@ -145,20 +148,16 @@ def pluginExitN(logger, messageIdentifier, pluginInfo, returnCode):
     print (outputString.getvalue())   
 
 class PluginObject:    
-    """The most 'senior' of the base classes. This class sets up appropriate logging mechanisms to 
-    conform with Nagios' API and plug-in coding rules. The log format is also setup, and cannot
-    be changed without breaking almost all the code. Don't change the log format!
+    """ This base class sets up appropriate logging mechanisms. 
     """
 
     def __init__(self, callingClass):
           
-        #syslog.openlog(callingClass,syslog.LOG_USER)    
-
         self.logger = logging.getLogger(callingClass)
         self.logger.setLevel(logging.INFO)
         formatter = logging.Formatter('%(asctime)s ; %(name)s ; %(levelname)s ; %(message)s')
 
-        errorOutputHndlr = logging.FileHandler("rtLogging.log")
+        errorOutputHndlr = logging.FileHandler("rt_vm_slots.log")
         errorOutputHndlr.setFormatter(formatter)
         errorOutputHndlr.setLevel(logging.ERROR)
 
@@ -167,9 +166,8 @@ class PluginObject:
 
 class HeadNodeVMSlots(PluginObject):
     """ The class parses the Nimbus Network Pools configuration files to determine how many IP address slots are 
-    configured for Nimbus to make use of. This is strictly a reporting feature and does not calculate how
-    many free slots there are. THat functionality is handled by the querying driver program, as there is
-    some non-trivial processing that needs to occur which doesn't fit into this script's architecture
+        configured for Nimbus to make use of. Also calculated is the number of free IP adresses or "VM Slots" based
+        on what VMs are active
     """
     def __init__(self):
         PluginObject.__init__(self, self.__class__.__name__)
@@ -186,6 +184,7 @@ class HeadNodeVMSlots(PluginObject):
         totalNetPools = []
         for pool in netPools:
 
+            # Ignore . and .. entries in the file system
             if(pool.startswith(".")):
                 continue
             netPoolData = {}
@@ -216,33 +215,28 @@ class HeadNodeVMSlots(PluginObject):
         query = ConfigMapping[IJ_LOCATION]+ " "+SQL_IP_SCRIPT
         output,status = (subprocess.Popen([query],stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell=True, env={'DERBY_HOME':ConfigMapping[DERBY_LOCATION],'JAVA_HOME':ConfigMapping[JAVA_LOCATION],'GLOBUS_HOME':ConfigMapping[NIMBUS_LOCATION]})).communicate()
         
+        # Use a regex to find the lines containing IP addresses - this eases parsing greatly
         derbyIPs = []
         patt = re.compile(r"(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})")
         for line in output.split():
             myRe = patt.search(line)
             if(myRe):
                 derbyIPs.append(line.strip())
-        #self.pluginOutput["Pools"] = []
+
+        #reinitialize pluginOutput to an array, not a Dict (default)
         self.pluginOutput = []
         for pool in totalNetPools:
-            count = len(pool["NETWORK"])
                       
-
-            available = count
+            available = len(pool["NETWORK"])
             for entry in pool["NETWORK"]:
-                try:
-                    for allocIP in derbyIPs: 
-                        if (entry[1] == allocIP):
-                            available -= 1
-                except KeyError:
-                   pass
-            self.pluginOutput.append({"Pool":{"Name": str(pool["ID"]), "AvailableIPs": str(available), "TotalIPs":str(count)}})
+                for allocIP in derbyIPs: 
+                    if (entry[1] == allocIP):
+                        available -= 1
+            self.pluginOutput.append({"Pool":{"Name": str(pool["ID"]), "AvailableIPs": str(available), "TotalIPs":str(len(pool["NETWORK"]))}})
             
-            # self.pluginOutput["AvailableIPs-"+str(pool["ID"])] = str(available) 
         pluginExitN(self.logger, self.resourceName,self.pluginOutput, RET_OK)
 
 if __name__ == '__main__':
-    #loadNimbusConfig()
 
     activeSlots = HeadNodeVMSlots()
     while True:
