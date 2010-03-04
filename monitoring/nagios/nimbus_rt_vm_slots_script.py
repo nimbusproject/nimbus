@@ -53,7 +53,7 @@ NIMBUS_NET_CONF = "/network-pools"
 NIMBUS_PHYS_CONF = "/vmm-pools"
 
 CONF_FILE = "/usr/local/nagios/libexec/monitoring_config.cfg"
-CONF_FILE_SECTION = "Nimbus_Monitoring"
+NM_CONF_FILE_SECTION = "Nimbus_Monitoring"
 NIMBUS_ADDRESS = "Nimbus_Server_Address"
 NIMBUS_LOCATION = "Nimbus_Install_Location"
 GLOBUS_LOCATION = "Globus_Install_Location"
@@ -62,8 +62,9 @@ NAGIOS_LOCATION = "Nagios_Location"
 JAVA_LOCATION = "Java_Location"
 IJ_LOCATION = "IJ_Location"
 DERBY_LOCATION = "Derby_Location"
-REALTIME_XML_LOCATION = "RealTime_XML_Output_Location"
 
+CONF_FILE_SECTION= "Real_Time_Monitoring"
+REALTIME_XML_LOCATION = "RealTime_XML_Output_Location"
 REALTIME_UPDATE_INTERVAL = "RealTime_Update_Interval"
 
 ConfigMapping = {}
@@ -78,14 +79,15 @@ def loadNimbusConfig(logger):
     if(os.path.exists(CONF_FILE)):
         cfgFile.read(CONF_FILE)
         try:
-            ConfigMapping[NIMBUS_ADDRESS] = cfgFile.get(CONF_FILE_SECTION,NIMBUS_ADDRESS,0)
-            ConfigMapping[NIMBUS_LOCATION] = cfgFile.get(CONF_FILE_SECTION,NIMBUS_LOCATION,0)
-            ConfigMapping[SERVER_TMP_LOCATION] = cfgFile.get(CONF_FILE_SECTION, SERVER_TMP_LOCATION,0)
-            ConfigMapping[NAGIOS_LOCATION] = cfgFile.get(CONF_FILE_SECTION, NAGIOS_LOCATION,0)
-            ConfigMapping[JAVA_LOCATION] = cfgFile.get(CONF_FILE_SECTION, JAVA_LOCATION,0)
-            ConfigMapping[IJ_LOCATION] = cfgFile.get(CONF_FILE_SECTION,IJ_LOCATION,0)
-            ConfigMapping[GLOBUS_LOCATION] = cfgFile.get(CONF_FILE_SECTION,GLOBUS_LOCATION,0)
-            ConfigMapping[DERBY_LOCATION] = cfgFile.get(CONF_FILE_SECTION,DERBY_LOCATION,0)
+            ConfigMapping[NIMBUS_ADDRESS] = cfgFile.get(NM_CONF_FILE_SECTION,NIMBUS_ADDRESS,0)
+            ConfigMapping[NIMBUS_LOCATION] = cfgFile.get(NM_CONF_FILE_SECTION,NIMBUS_LOCATION,0)
+            ConfigMapping[SERVER_TMP_LOCATION] = cfgFile.get(NM_CONF_FILE_SECTION, SERVER_TMP_LOCATION,0)
+            ConfigMapping[NAGIOS_LOCATION] = cfgFile.get(NM_CONF_FILE_SECTION, NAGIOS_LOCATION,0)
+            ConfigMapping[JAVA_LOCATION] = cfgFile.get(NM_CONF_FILE_SECTION, JAVA_LOCATION,0)
+            ConfigMapping[IJ_LOCATION] = cfgFile.get(NM_CONF_FILE_SECTION,IJ_LOCATION,0)
+            ConfigMapping[GLOBUS_LOCATION] = cfgFile.get(NM_CONF_FILE_SECTION,GLOBUS_LOCATION,0)
+            ConfigMapping[DERBY_LOCATION] = cfgFile.get(NM_CONF_FILE_SECTION,DERBY_LOCATION,0)
+
             ConfigMapping[REALTIME_XML_LOCATION] = cfgFile.get(CONF_FILE_SECTION, REALTIME_XML_LOCATION,0)
             ConfigMapping[REALTIME_UPDATE_INTERVAL] = cfgFile.get(CONF_FILE_SECTION, REALTIME_UPDATE_INTERVAL,0)
 
