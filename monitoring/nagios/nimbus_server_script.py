@@ -66,9 +66,13 @@ NAGIOS_LOCATION = "Nagios_Location"
 JAVA_LOCATION = "Java_Location"
 IJ_LOCATION = "IJ_Location"
 DERBY_LOCATION = "Derby_Location"
+
 ConfigMapping = {}
 
-def loadNimbusConfig():
+
+# This global method loads all the user configured options from the configuration file and saves them
+# into the ConfigMapping dictionary
+def loadNimbusConfig(logger):
 
     cfgFile = ConfigParser.ConfigParser()
     if(os.path.exists(CONF_FILE)):
@@ -83,15 +87,16 @@ def loadNimbusConfig():
             ConfigMapping[GLOBUS_LOCATION] = cfgFile.get(CONF_FILE_SECTION,GLOBUS_LOCATION,0)
             ConfigMapping[DERBY_LOCATION] = cfgFile.get(CONF_FILE_SECTION,DERBY_LOCATION,0)
         except ConfigParser.NoSectionError:
-            print "Unable to locate "+CONF_FILE_SECTION+" section in conf file - Malformed config file?"
+            logger.error ("Unable to locate "+CONF_FILE_SECTION+" section in conf file - Malformed config file?")
             sys.exit(NAGIOS_RET_CRITICAL)
         except ConfigParser.NoOptionError, nopt:
-            print nopt.message+" of configuration file"
+            logger.error( nopt.message+" of configuration file")
             sys.exit(NAGIOS_RET_CRITICAL)
     else:
-        print "Configuration file not found in Nagios Plug-ins directory"
+        logger.error("Configuration file not found in Nagios Plug-ins directory! (/usr/local/nagios/libexec)")
         sys.exit(NAGIOS_RET_CRITICAL)
 
+# This is a recursive function to write out an XML doc from the pluginOutput data structure
 def _createXMLWorker(data, currentOutput):
 
     if (type(data) == type(dict())):
@@ -115,7 +120,6 @@ def pluginExitN(messageIdentifier, pluginInfo, returnCode):
     # with the rest of the code. Do NOT just call sys.exit in the code (if you want your
     # plug-in to function with the rest of the code!
 
-
     outputString = StringIO()
     outputString.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
 
@@ -123,7 +127,6 @@ def pluginExitN(messageIdentifier, pluginInfo, returnCode):
     outputString.write("<HeadNode>")
     outputString.write("<PhysicalIP>"+localIP+"</PhysicalIP>")
 
-    #outputString.write("<"+messageIdentifier+">")
     outputString.write("<"+messageIdentifier+" id=\""+messageIdentifier+localIP+"\">")
     _createXMLWorker(pluginInfo, outputString)
    
@@ -150,6 +153,8 @@ class PluginObject:
         errorOutputHndlr.setLevel(logging.ERROR)
 
         self.logger.addHandler(errorOutputHndlr)
+    
+        loadNimbusConfig(self.logger)
         self.pluginOutput = {}
 
 class PluginCmdLineOpts(PluginObject):
@@ -162,14 +167,11 @@ class PluginCmdLineOpts(PluginObject):
             PluginObject.__init__(self,self.__class__.__name__)
             # Parse command-line options.
             parser = OptionParser()
-
             parser.add_option("--HNConsistent", action="callback",help="Verify internal Derby database consistency", callback=HeadNodeDBConsistent())
-            parser.add_option("--HNVmPool", action="callback",help="Publish Nimbus VMM pool information", callback=HeadNodeVMMPools())
-#            parser.add_option("--HNnetpool", action="callback",help="Publish Nimbus network pool information", callback=HeadNodeNetPools())         
+            parser.add_option("--HNVmmPool", action="callback",help="Publish Nimbus VMM pool information", callback=HeadNodeVMMPools())
             parser.add_option("--HNpbsmem", action="callback",help="Publish PBS/Torque available memory information", callback=HeadNodePBSMemory())
             parser.add_option("--HNpbssupport", action="callback",help="Publish support for PBS/Torque Pilot Jobs", callback=HeadNodePBSSupport())
             parser.add_option("--HNServiceInfo", action="callback", help="General Service Information about this Head Node's setup", callback=HeadNodeServiceInfo())
-
 
             self.parser = parser
 
@@ -182,7 +184,6 @@ class PluginCmdLineOpts(PluginObject):
 
     def validate(self):
         (options, args) = self.parser.parse_args()
-
 
 class HeadNodeServiceInfo(PluginObject):
 
@@ -384,8 +385,9 @@ class HeadNodeDBConsistent(PluginObject):
 
 class HeadNodeVMMPools(PluginObject):
     """ This class parses the Nimbus VMM Pool configuration files to build a representation of how much memory is 
-    available to each defined VMM pool. This is done by parsing the appropriate configuration files in the 
-    Nimbus distribution.
+        available to each defined VMM pool. This is done by parsing the appropriate configuration files in the 
+        Nimbus distribution. Names of pools and memory allocated to each also requires accessing the network-conf
+        data to provide intersections in the data.
     """      
     def __init__(self):
         PluginObject.__init__(self,self.__class__.__name__)
@@ -393,7 +395,6 @@ class HeadNodeVMMPools(PluginObject):
 
     def __call__(self, option, opt_str, value, parser):
        
- 
         try:
             vmmPools = os.listdir(str(ConfigMapping[NIMBUS_LOCATION])+NIMBUS_CONF+NIMBUS_PHYS_CONF)
         except OSError, ose:
@@ -437,9 +438,9 @@ class HeadNodeVMMPools(PluginObject):
                     else:
 
                         keyList = entry[2].split(",")
-                    #self.pluginOutput["Nodes"].append({"Node":{"MemorySizeMB": (str(entry[1]))}})
-                    for network in keyList:
 
+                    for network in keyList:
+                        # * == "ANY" in the VMM Configuration file
                         if( network == "*"):
                             totalNetPools["ANY"] += int(entry[1])
                             continue
@@ -455,98 +456,15 @@ class HeadNodeVMMPools(PluginObject):
         self.pluginOutput= []
         for key in poolListing.keys():
             for entry in totalNetPools.keys():
-
+                # This structure is needed to ensure the outout XML conforms to the public Schema
                 tdict = {"Name":key+"-"+entry, "MemorySizeMB": str(poolListing[key][entry])}
                 self.pluginOutput.append({"Pool":tdict}) 
 
         pluginExitN(self.resourceName, self.pluginOutput,  NAGIOS_RET_OK)
 
-#class HeadNodeNetPools(PluginObject):
-#    """ The class parses the Nimbus Network Pools configuration files to determine how many IP address slots are 
-#    configured for Nimbus to make use of. This is strictly a reporting feature and does not calculate how
-#    many free slots there are. THat functionality is handled by the querying driver program, as there is
-#    some non-trivial processing that needs to occur which doesn't fit into this script's architecture
-#    """
-#    def __init__(self):
-#        PluginObject.__init__(self, self.__class__.__name__)
-#        self.resourceName = "NetPools"
-
-
-#    def __call__(self, option, opt_str, value, parser):
- 
-#        try:
-#            netPools = os.listdir(ConfigMapping[NIMBUS_LOCATION]+NIMBUS_CONF+NIMBUS_NET_CONF)
-#        except OSError, ose:
-#            self.logger.error("Error listing the Network Pools directory: "+ str(ose))
-#            sys.exit(NAGIOS_RET_CRITICAL)
-#        totalNetPools = []
-#        for pool in netPools:
-
-#            if(pool.startswith(".")):
-#                continue
-#            netPoolData = {}
-#            netPoolData["ID"] = pool
-#            try:
-#                fileHandle = open(ConfigMapping[NIMBUS_LOCATION]+NIMBUS_CONF+NIMBUS_NET_CONF+"/"+pool)
-#                VMNetConfig = []
-                
-#                for entry in fileHandle:
-#                    if(entry.startswith("#") or entry.isspace()):
-#                        continue
-#                    t = entry.split()
-                    # This looks for the DNS server entry and skips over it
-                    # The config file stipulates that each line in the file must have
-                    # 5 entries for the net config, so I can use this condition to 
-                    # identify the lone DNS entry line
-#                    if(len(t) < 5):
-#                        continue
-#                    VMNetConfig.append(t)
-#                
-#                netPoolData["NETWORK"] = VMNetConfig                
-#                fileHandle.close()
-#                totalNetPools.append(netPoolData)
-#            except IOError:
-#                self.logger.error("Error opening network-pool: "+ConfigMapping[NIMBUS_LOCATION]+NIMBUS_CONF+NIMBUS_NET_CONF+"/"+pool)
-#                sys.exit(NAGIOS_RET_CRITICAL)
-
-#        query = ConfigMapping[IJ_LOCATION]+ " "+SQL_IP_SCRIPT
-#        output,status = (subprocess.Popen([query],stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell=True, env={'DERBY_HOME':ConfigMapping[DERBY_LOCATION],'JAVA_HOME':ConfigMapping[JAVA_LOCATION],'GLOBUS_HOME':ConfigMapping[NIMBUS_LOCATION]})).communicate()
-        
-#        derbyIPs = []
-#        patt = re.compile(r"(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})")
-#        for line in output.split():
-#            myRe = patt.search(line)
-#            if(myRe):
-#                derbyIPs.append(line.strip())
-#        for ip in derbyIPs:
-#            try:
-#                self.pluginOutput["AllocatedIPs"].append(str(ip))
-#            except KeyError:
-#                self.pluginOutput["AllocatedIPs"] = []
-#                self.pluginOutput["AllocatedIPs"].append(str(ip))
-#        for pool in totalNetPools:
-#            count = len(pool["NETWORK"])
-#                      
-#            self.pluginOutput["TotalIPs-"+str(pool["ID"])] = str(count)
-#            available = count
-#            for entry in pool["NETWORK"]:
-#                try:
-#                    self.pluginOutput[pool["ID"]].append(str(entry[1]))
-#                except KeyError:
-#                    self.pluginOutput[pool["ID"]] = []
-#                    self.pluginOutput[pool["ID"]].append(str(entry[1]))
-                
-#                try:
-#                    for allocIP in self.pluginOutput["AllocatedIPs"]:
-#                        if (entry[1] == allocIP):
-#                            available -= 1
-#                except KeyError:
-#                   pass
-#                self.pluginOutput["AvailableIPs-"+str(pool["ID"])] = str(available) 
-#        pluginExitN(self.resourceName,self.pluginOutput, NAGIOS_RET_OK)
 
 if __name__ == '__main__':
-    loadNimbusConfig()
+
     testObject = PluginCmdLineOpts()
     testObject.validate()
 
