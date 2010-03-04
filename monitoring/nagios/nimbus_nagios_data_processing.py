@@ -2,7 +2,7 @@
 
 from cStringIO import StringIO
 import xml
-#import xml.dom.pulldom
+import ConfigParser
 from xml.dom.pulldom import parseString, parse, START_ELEMENT
 import sys
 import logging
@@ -11,17 +11,54 @@ import libxslt
 import time
 import os
 
+RET_CRITICAL = -1
 
 # Must specify the full path as Nagios doesn't setup a complete environment
 # when it calls this script
 REMOVE_DUP_XSL = "/usr/local/nagios/libexec/removeAllDup.xsl"
 MERGE_NODES_XSL = "/usr/local/nagios/libexec/merge.xsl"
 ATTRIBUTE_STRIP_XSL = "/usr/local/nagios/libexec/attribStripper.xsl"
+XSD = "iaas.xsd"
 
-TIME_WINDOW = 600
+#PERFORMANCE_DATA_LOC = "/tmp/service-perfdata"
+#TARGET_XML_FILE = "/tmp/mdsresource.xml"
 
-PERFORMANCE_DATA_LOC = "/tmp/service-perfdata"
-TARGET_XML_FILE = "/tmp/mdsresource.xml"
+CONF_FILE = "/usr/local/nagios/libexec/monitoring_config.cfg"
+
+NM_CONF_FILE_SECTION = "Nimbus_Monitoring"
+SERVER_TMP_LOCATION = "Server_Tmp_Location"
+NAGIOS_LOCATION = "Nagios_Location"
+
+
+CONF_FILE_SECTION = "Nagios_Data_Processing"
+PERFORMANCE_DATA_LOC = "Nagios_Performance_Data_Loc"
+TARGET_XML_FILE = "Target_XML_File"
+TIME_WINDOW = "Time_Window"
+
+ConfigMapping = {}
+
+def loadConfig(logger):
+
+    cfgFile = ConfigParser.ConfigParser()
+    if(os.path.exists(CONF_FILE)):
+        cfgFile.read(CONF_FILE)
+        try:
+            ConfigMapping[SERVER_TMP_LOCATION] = cfgFile.get(NM_CONF_FILE_SECTION, SERVER_TMP_LOCATION,0)
+            ConfigMapping[NAGIOS_LOCATION] = cfgFile.get(NM_CONF_FILE_SECTION, NAGIOS_LOCATION,0)
+
+            ConfigMapping[PERFORMANCE_DATA_LOC] = cfgFile.get(CONF_FILE_SECTION, PERFORMANCE_DATA_LOC,0)
+            ConfigMapping[TARGET_XML_FILE] = cfgFile.get(CONF_FILE_SECTION, TARGET_XML_FILE,0)
+            ConfigMapping[TIME_WINDOW] = cfgFile.get(CONF_FILE_SECTION, TIME_WINDOW,0)
+        except ConfigParser.NoSectionError:
+            logger.error("Unable to locate "+CONF_FILE_SECTION+" section in conf file - Malformed config file?")
+            sys.exit(RET_CRITICAL)
+        except ConfigParser.NoOptionError, nopt:
+            logger.error( nopt.message+" of configuration file")
+            sys.exit(RET_CRITICAL)
+    else:
+        logger.error("Configuration file not found in Nagios Plug-ins directory")
+        sys.exit(RET_CRITICAL)
+
 
 class PluginObject:
 
@@ -41,20 +78,24 @@ class NagiosXMLAggregator(PluginObject):
     
     def __init__(self):
         PluginObject.__init__(self,self.__class__.__name__)
+        loadConfig(self.logger)
         self.xmlFile = None
         self.readXML = None
 
-
+    # This method runs through the Nagios service-performance-data file and extracts all the pertinent XML snippets from it
+    # A time window is defined to cut down on the number of duplicate entries "extracted". Duplicates can/will be removed
+    # by an XSLT later in the code
     def aggregateServiceDataToXML(self):
 
         retXML = StringIO()
         retXML.write("<WRAPPER>")
-        if  (os.path.exists(PERFORMANCE_DATA_LOC)):
+        if  (os.path.exists(ConfigMapping[PERFORMANCE_DATA_LOC])):
             try:
-                fileHandle = open(PERFORMANCE_DATA_LOC,"r")
+                fileHandle = open(ConfigMapping[PERFORMANCE_DATA_LOC],"r")
               
             except IOError, err:
-                self.logger.error("IOError encountered opening "+PERFORMANCE_DATA_LOC+" for reading")
+                self.logger.error("IOError encountered opening "+ConfigMapping[PERFORMANCE_DATA_LOC]+" for reading")
+                sys.exit(RET_CRITICAL)
 
             for line in fileHandle.readlines():
                 
@@ -63,11 +104,12 @@ class NagiosXMLAggregator(PluginObject):
                 systemTime = int(time.time())
                 
                 delta = abs(serviceTime - systemTime)
-                if(delta > TIME_WINDOW):
+                if(delta > ConfigMapping[TIME_WINDOW]):
                     #print "Outside TIME WINDOW" 
                     continue
                 # Ignore lines that don't contain the xml header that
                 # our client plugins include as part of the transmission
+                # Presumably, only the data this script is interested in will have an XML header
                 xmlHeaderIndex = line.find("<?xml")
                 if (xmlHeaderIndex == -1):
                     continue
@@ -84,21 +126,21 @@ class NagiosXMLAggregator(PluginObject):
     def outputXMLToFile(self, xmlToOutput):
 
         try:
-
-            fileHandle = open(TARGET_XML_FILE,"w")
+            fileHandle = open(ConfigMapping[TARGET_XML_FILE],"w")
             fileHandle.write(xmlToOutput)
             fileHandle.close()
         except IOError, err:
-            self.logger.error("IOError thrown trying to output XML to: "+TARGET_XML_FILE+" - "+str(err))
-            sys.exit(-1)
+            self.logger.error("IOError thrown trying to output XML to: "+ConfigMapping[TARGET_XML_FILE]+" - "+str(err))
+            sys.exit(RET_CRITICAL)
 
+    # This method applies the given stylesheet to the passed in XML and returns the results - simple
     def applyStyleSheet(self, styleSheetName, xmlToProcess):
 
         try:
             styledoc = libxml2.parseFile(styleSheetName)
         except libxml2.parserError, err:
             self.logger.error("Unable to parse XSLT: "+styleSheetName+" "+str(err))
-            sys.exit(-1)
+            sys.exit(RET_CRITICAL)
 
         style = libxslt.parseStylesheetDoc(styledoc)
         try:
@@ -108,7 +150,6 @@ class NagiosXMLAggregator(PluginObject):
             sys.exit(-1)
 
         result = style.applyStylesheet(doc, None)
-        #style.saveResultToFilename(OUTPUT_XML_FILE, result, 0)
         retXML = style.saveResultToString(result)
         
         style.freeStylesheet()
@@ -117,39 +158,23 @@ class NagiosXMLAggregator(PluginObject):
         
         return str(retXML.strip())
 
-
     def validateXML(self, xmlToProcess):
 
-       # theDTD = libxml2.parseDTD(None, "iaas.dtd")
-       # dtdCtx = libxml2.newValidCtxt()
-
-       # doc = libxml2.parseDoc(xmlToProcess)
-       # retVal = doc.validateDtd(dtdCtx, theDTD)
-       # if( retVal != 1):
-       #     self.logger.error("Error validating XML against DTD!")
-       #     sys.exit(-1)
-       # doc.freeDoc()
-       # theDTD.freeDtd()
-       # del theDTD
-       # del dtdCtx
-       # libxml2.cleanupParser()
-
-        ctxtParser = libxml2.schemaNewParserCtxt("iaas.xsd")
+        ctxtParser = libxml2.schemaNewParserCtxt(XSD)
         ctxtSchema = ctxtParser.schemaParse()
         ctxtValid = ctxtSchema.schemaNewValidCtxt()
 
         doc = libxml2.parseDoc(xmlToProcess)
         retVal = doc.schemaValidateDoc(ctxtValid)
         if( retVal != 0):
-            self.logger.error("Error validating against XML Schema - iaas.xsd")
-            sys.exit(-1)
+            self.logger.error("Error validating against XML Schema - "+XSD)
+            sys.exit(RET_CRITICAL)
         doc.freeDoc()
         del ctxtParser
         del ctxtSchema
         del ctxtValid
         libxml2.schemaCleanupTypes()
         libxml2.cleanupParser() 
-
 
     def __call__(self):
 
@@ -158,7 +183,6 @@ class NagiosXMLAggregator(PluginObject):
 
         finalXML = StringIO()
         finalXML.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
-        #finalXML.write("<!DOCTYPE Cloud SYSTEM \"iaas.dtd\">")
         finalXML.write("<Cloud xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"iaas.xsd\">")
         finalXML.write("<HeadNode>")
 
