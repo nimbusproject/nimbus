@@ -164,13 +164,6 @@ def write_repl_file(path, outputtext, log):
 
     log.debug("Wrote '%s'." % path)
 
-relpath = None
-try:
-    # os.path.relpath is in 2.6+
-    relpath = getattr(os.path, 'relpath')
-except AttributeError:
-    relpath = _relpath
-
 # from Python 2.6 standard library, slightly modified
 def _relpath(path, start):
     """Return a relative version of a path"""
@@ -190,3 +183,10 @@ def _relpath(path, start):
     if not rel_list:
         return curdir
     return os.path.join(*rel_list)
+
+relpath = None
+try:
+    # os.path.relpath is in 2.6+
+    relpath = getattr(os.path, 'relpath')
+except AttributeError:
+    relpath = _relpath

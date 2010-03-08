@@ -355,12 +355,15 @@ def main(argv=None):
         if opts.configpath:
             log.debug("saving settings to %s" % opts.configpath)
             try:
-                f = open(opts.configpath, 'wb')
-                config.write(f)
-            except:
-                log.info("Failed to save settings to %s!" % opts.configpath)
+                f = None
+                try:
+                    f = open(opts.configpath, 'wb')
+                    config.write(f)
+                except:
+                    log.info("Failed to save settings to %s!" % opts.configpath)
             finally:
-                f.close()
+                if f:
+                    f.close()
 
     except InvalidInput, e:
         msg = "\nProblem with input: %s" % e.msg
