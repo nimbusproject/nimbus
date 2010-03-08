@@ -296,8 +296,11 @@ class NimbusSetup(object):
         webconf.set('nimbusweb', 'ssl.key', relpath(hostkey, webdir))
         webconf.set('nimbusweb', 'ca.dir', relpath(cadir, webdir))
 
-        with open(webconfpath, 'wb') as webconffile:
+        try:
+            webconffile = open(webconfpath, 'wb')
             webconf.write(webconffile)
+        finally:
+            webconffile.close()
 
         # then setup GT container
         gtcontainer.adjust_hostname(hostname, webdir, gtdir, log)
@@ -352,10 +355,12 @@ def main(argv=None):
         if opts.configpath:
             log.debug("saving settings to %s" % opts.configpath)
             try:
-                with open(opts.configpath, 'wb') as f:
-                    config.write(f)
+                f = open(opts.configpath, 'wb')
+                config.write(f)
             except:
                 log.info("Failed to save settings to %s!" % opts.configpath)
+            finally:
+                f.close()
 
     except InvalidInput, e:
         msg = "\nProblem with input: %s" % e.msg
