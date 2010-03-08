@@ -34,7 +34,7 @@ if [ -e $TMPDIR ]; then
     exit 1
 fi
 
-mkdir $TMPDIR
+mkdir -p $TMPDIR
 if [ $? -ne 0 ]; then
     echo "Could not create temp directory: $TMPDIR"
     exit 1
