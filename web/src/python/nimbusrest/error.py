@@ -19,7 +19,10 @@ Nimbus exception types. Subclassed for specific errors
 try:
     import json
 except ImportError:
-    import simplejson as json
+    try:
+        import simplejson as json
+    except ImportError:
+        import django.utils.simplejson as json
 
 class NimbusClientError(Exception):
     """

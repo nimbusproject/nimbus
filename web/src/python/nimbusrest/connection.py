@@ -19,7 +19,10 @@ import httplib2
 try:
     import json
 except ImportError:
-    import simplejson as json
+    try:
+        import simplejson as json
+    except ImportError:
+        import django.utils.simplejson as json
 
 from nimbusrest.error import NimbusServerError, NotFoundError, ConflictError
 
