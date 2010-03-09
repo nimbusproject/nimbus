@@ -10,10 +10,12 @@ NIMBUS_WEBDIR=`cd $NIMBUS_WEBDIR_REL; pwd`
 MARKERFILE="nimbusweb.empty.marker"
 DJANGO_TARGET="$NIMBUS_WEBDIR/lib/python/django"
 CHERRPY_TARGET="$NIMBUS_WEBDIR/lib/python/cherrypy"
+HTTPLIB2_TARGET="$NIMBUS_WEBDIR/lib/python/httplib2"
 AUTOCOMMON_JAR_TARGET="$NIMBUS_WEBDIR/lib/java"
 
 if [ ! -f "$DJANGO_TARGET/$MARKERFILE" ] &&
    [ ! -f "$CHERRPY_TARGET/$MARKERFILE" ] &&
+   [ ! -f "$HTTPLIB2_TARGET/$MARKERFILE" ] &&
    [ ! -f "$AUTOCOMMON_JAR_TARGET/$MARKERFILE" ]; then
      
     #echo "debug: no marker files found"
@@ -27,6 +29,7 @@ TMPDIR="$NIMBUS_WEBDIR/var/tmplibdir"
 
 DJANGO_ARCHIVE="$NIMBUS_WEBDIR/lib/Django-1.1.1.tar.gz"
 CHERRPY_ARCHIVE="$NIMBUS_WEBDIR/lib/CherryPy-3.1.2.tar.gz"
+HTTPLIB2_ARCHIVE="$NIMBUS_WEBDIR/lib/httplib2-0.6.0.tar.gz"
 AUTOCOMMON_ARCHIVE="$NIMBUS_WEBDIR/lib/nimbus-autocommon.tar.gz"
 
 if [ -e $TMPDIR ]; then
@@ -100,6 +103,38 @@ if [ -f "$CHERRPY_TARGET/$MARKERFILE" ]; then
     rm $CHERRPY_TARGET/$MARKERFILE
     if [ $? -ne 0 ]; then
         echo "Could not remove $CHERRPY_TARGET/$MARKERFILE"
+        exit 1
+    fi
+fi
+
+if [ -f "$HTTPLIB2_TARGET/$MARKERFILE" ]; then
+    
+    if [ ! -f $HTTPLIB2_ARCHIVE ]; then
+        echo "Could not find httplib2 archive: $HTTPLIB2_ARCHIVE"
+        exit 1
+    fi
+    
+    mkdir $TMPDIR/httplib2
+    if [ $? -ne 0 ]; then
+        echo "Could not create temp directory: $TMPDIR/httplib2"
+        exit 1
+    fi
+    
+    tar xzf $HTTPLIB2_ARCHIVE -C $TMPDIR/httplib2 
+    if [ ! -e $TMPDIR/httplib2/httplib2-0.6.0/python2/httplib2 ]; then
+        echo "Could not find the expanded httplib2 lib"
+        exit 1
+    fi
+    
+    mv $TMPDIR/httplib2/httplib2-0.6.0/python2/httplib2/* $HTTPLIB2_TARGET/
+    if [ $? -ne 0 ]; then
+        echo "Could not install the expanded httplib2 lib"
+        exit 1
+    fi
+    
+    rm $HTTPLIB2_TARGET/$MARKERFILE
+    if [ $? -ne 0 ]; then
+        echo "Could not remove $HTTPLIB2_TARGET/$MARKERFILE"
         exit 1
     fi
 fi

@@ -10,6 +10,7 @@ autocontainer/gt/
 web/lib/java/
 web/lib/python/cherrypy/
 web/lib/python/django/
+web/lib/python/httplib2/
 web/src/env.sh
 web/src/python/nimbusweb/portal/generated_secrets.py
 web/src/python/nimbusweb/portal/generated_settings.py

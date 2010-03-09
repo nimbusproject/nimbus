@@ -9,6 +9,7 @@ export PYTHONPATH
 MARKERFILE="nimbusweb.empty.marker"
 DJANGO_TARGET="$NIMBUS_WEBDIR/lib/python/django"
 CHERRPY_TARGET="$NIMBUS_WEBDIR/lib/python/cherrypy"
+HTTPLIB2_TARGET="$NIMBUS_WEBDIR/lib/python/httplib2"
 AUTOCOMMON_JAR_TARGET="$NIMBUS_WEBDIR/lib/java"
 
 # ------------------------------------------------------------------------------
@@ -49,6 +50,7 @@ echo -e "\nCreating a clean slate...\n"
 MARKERFILE="nimbusweb.empty.marker"
 DJANGO_TARGET="$NIMBUS_WEBDIR/lib/python/django"
 CHERRPY_TARGET="$NIMBUS_WEBDIR/lib/python/cherrypy"
+HTTPLIB2_TARGET="$NIMBUS_WEBDIR/lib/python/httplib2"
 AUTOCOMMON_JAR_TARGET="$NIMBUS_WEBDIR/lib/java"
 
 # ------------------------------------------------------------------------------
@@ -88,6 +90,26 @@ fi
 touch $CHERRPY_TARGET/$MARKERFILE
 if [ $? -ne 0 ]; then
     echo "Could not make a clean cherrypy dir, exiting."
+    exit 1
+fi
+
+# ------------------------------------------------------------------------------
+
+echo "Wiping httplib2..."
+rm -rf $HTTPLIB2_TARGET
+if [ $? -ne 0 ]; then
+    echo "Could not remove httplib2, exiting."
+    exit 1
+fi
+
+mkdir $HTTPLIB2_TARGET
+if [ $? -ne 0 ]; then
+    echo "Could not make a clean httplib2 dir, exiting."
+    exit 1
+fi
+touch $HTTPLIB2_TARGET/$MARKERFILE
+if [ $? -ne 0 ]; then
+    echo "Could not make a clean httplib2 dir, exiting."
     exit 1
 fi
 
