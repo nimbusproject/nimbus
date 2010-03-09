@@ -60,6 +60,10 @@ PORT=`$PYTHON_EXE $NIMBUS_PYSRC/nimbusweb/setup/setup.py --printport --conf $NIM
 if [ $? -ne 0 ]; then
     exit 5
 fi
+HOST=`$PYTHON_EXE $NIMBUS_PYSRC/nimbusweb/setup/setup.py --printhost --conf $NIMBUS_WEBCONF --basedir $NIMBUS_WEBDIR`
+if [ $? -ne 0 ]; then
+    exit 5
+fi
 CERTPATH=`$PYTHON_EXE $NIMBUS_PYSRC/nimbusweb/setup/setup.py --printcertpath --conf $NIMBUS_WEBCONF --basedir $NIMBUS_WEBDIR`
 if [ $? -ne 0 ]; then
     exit 5
@@ -79,7 +83,7 @@ echo -e "\nUse CTRL-C to stop the server (you can get it to daemonize later)"
 echo -e "\n*****************************************************************"
 echo -e "*****************************************************************\n"
 
-exec $PYTHON_EXE $NIMBUS_PYSRC/nimbusweb/portal/manage.py runcpserver "port=$PORT" "workdir=$NIMBUS_PYSRC/nimbusweb/portal/" "ssl_certificate=$CERTPATH" "ssl_private_key=$KEYPATH"
+exec $PYTHON_EXE $NIMBUS_PYSRC/nimbusweb/portal/manage.py runcpserver "host=$HOST" "port=$PORT" "workdir=$NIMBUS_PYSRC/nimbusweb/portal/" "ssl_certificate=$CERTPATH" "ssl_private_key=$KEYPATH"
 
 
 # Available options:
