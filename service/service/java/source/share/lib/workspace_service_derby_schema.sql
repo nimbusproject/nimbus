@@ -89,7 +89,8 @@ vmid INT NOT NULL,
 requested_state SMALLINT,
 requested_shutdown SMALLINT,
 min_duration INT,
-ind_physmem INT
+ind_physmem INT,
+ind_physcpu INT
 );
 
 --

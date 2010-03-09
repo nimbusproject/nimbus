@@ -118,6 +118,7 @@ public class VirtualMachinePersistenceUtil
             pstmt2.setInt(4, dep.getMinDuration());
             // can be -1 (but binding will reject that)
             pstmt2.setInt(5, dep.getIndividualPhysicalMemory());
+            pstmt2.setInt(6, dep.getIndividualCPUCount());
         }
 
         final ArrayList inserts = new ArrayList(16);
@@ -307,6 +308,7 @@ public class VirtualMachinePersistenceUtil
         dep.setRequestedShutdown(rs.getInt(2));
         dep.setMinDuration(rs.getInt(3));
         dep.setIndividualPhysicalMemory(rs.getInt(4));
+        dep.setIndividualCPUCount(rs.getInt(5));
         vm.setDeployment(dep);
     }
 
