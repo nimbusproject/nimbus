@@ -534,7 +534,7 @@ def rcScriptMain():
 
     _runCommandOnTarget( command, target )
 
-def _processCmdLineOptions( usageText ):
+def _processCmdLineOptions( usageText, args=None ):
     """
     Parses and processes standard command-line options.
     """
@@ -562,30 +562,30 @@ def _processCmdLineOptions( usageText ):
         help = "print version information and exit"
         )
 
-    ( _options, _args ) = _parser.parse_args()
+    ( _options, _args ) = _parser.parse_args(args=args)
 
     if _options.showVersion:
         print "ProcessManager v%s (invoked via %s)" % \
               ( __version__, sys.argv[0] )
         sys.exit( 0 )
     
-def main():
+def main(argv=sys.argv, usage=USAGE_TEXT):
     """
     The main function of the Process Manager which processes
     command-line arguments and acts on them.
     """
-    
+
     _checkPrivileges()
     
     usageTextDict = {
-        "scriptName" : os.path.split( sys.argv[0] )[1],
+        "scriptName" : os.path.split( argv[0] )[1],
         "targets" : _generateTargetHelpText(),
         "commands" : _generateCommandHelpText(),
         }
 
-    usageText = USAGE_TEXT % usageTextDict
+    usageText = usage % usageTextDict
 
-    _processCmdLineOptions( usageText )
+    _processCmdLineOptions( usageText, args=argv[1:] )
     
     if len( _args ) < 2:
         _parser.print_help()

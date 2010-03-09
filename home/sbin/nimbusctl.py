@@ -6,6 +6,19 @@ import sys
 import ProcessManager
 from ProcessManager import Process
 
+USAGE_TEXT = """\
+
+  nimbusctl [target] command
+
+Omit the target to perform the command for all targets.
+
+Targets:
+%(targets)s\
+
+Commands:
+%(commands)s\
+"""
+
 NIMBUS_HOME = os.getenv("NIMBUS_HOME")
 
 if not NIMBUS_HOME:
@@ -49,4 +62,9 @@ ProcessManager.add( Process(
   postStartDelay=3
   ))
 
-ProcessManager.main()
+argv = sys.argv
+if len(argv) == 2:
+    argv = argv[:]
+    argv.insert('all', 1)
+
+ProcessManager.main(argv=argv, usage=USAGE_TEXT)

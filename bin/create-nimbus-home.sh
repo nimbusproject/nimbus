@@ -21,8 +21,9 @@ if [ ! -d $TMPDIR ]; then
 fi
 
 if [ "X$1" == "X" ]; then
-    echo "\nUsage: $0 destination_dir"
-    echo "\tYou must specify the destination directory.\n"
+    echo ""
+    echo "Usage: $0 destination_dir"
+    echo "    You must specify the destination directory.\n"
     exit 1
 fi
 

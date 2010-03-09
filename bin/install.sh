@@ -6,8 +6,9 @@ NIMBUS_SRC_REL="`dirname $0`/.."
 NIMBUS_SRC=`cd $NIMBUS_SRC_REL; pwd`
 
 if [ "X$1" == "X" ]; then
-    echo "\nUsage: $0 destination_dir"
-    echo "\tYou must specify the destination directory.\n"
+    echo ""
+    echo "Usage: $0 destination_dir"
+    echo "    You must specify the destination directory.\n"
     exit 1
 fi
 
@@ -20,11 +21,11 @@ if [ -d $NIMBUS_HOME ] && [ "$(ls -A $NIMBUS_HOME)" ]; then
         echo "It is not recommended to reinstall Nimbus into an existing install."
         echo ""
         echo "If you are making changes to the services, you can build and install those directly:"
-        echo "\texport GLOBUS_LOCATION=$NIMBUS_HOME/services"
-        echo "\tscripts/all-build-and-install.sh"
+        echo "    export GLOBUS_LOCATION=$NIMBUS_HOME/services"
+        echo "    scripts/all-build-and-install.sh"
         echo ""
         echo "If you know what you are doing and want to reinstall, edit this script:"
-        echo "\t$0"
+        echo "    $0"
         echo "and change FORCE_FRESH_INSTALL to \"no\""
         echo ""
 
@@ -50,15 +51,17 @@ $CONFIG_SCRIPT
 
 if [ $? -ne 0 ]; then
     echo "Nimbus configuration script failed! You may try running it manually:"
-    echo "\t$CONFIG_SCRIPT"
+    echo "    $CONFIG_SCRIPT"
     exit 1
 fi
 
 echo ""
 echo "Nimbus installation succeeded!"
 echo "However, additional configuration may be necessary."
-echo "Refer to the Administrator Guide for details.\n"
+echo "Refer to the Administrator Guide for details."
+echo ""
 echo "You can now start/stop Nimbus services with the nimbusctl command. e.g:"
-echo "\t$NIMBUS_HOME/bin/nimbusctl start\n"
+echo "    $NIMBUS_HOME/bin/nimbusctl start"
+echo ""
 
 exit 0
