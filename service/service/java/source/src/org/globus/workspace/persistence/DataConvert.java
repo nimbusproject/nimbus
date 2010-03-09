@@ -390,6 +390,7 @@ public class DataConvert implements WorkspaceConstants {
         ra.setArchitecture(dep.getCPUArchitecture());
         ra.setCpuPercentage(dep.getCPUPercentage());
         ra.setIndCpuSpeed(dep.getIndividualCPUSpeed());
+        ra.setIndCpuCount(dep.getIndividualCPUCount());
         ra.setMemory(dep.getIndividualPhysicalMemory());
         return ra;
     }

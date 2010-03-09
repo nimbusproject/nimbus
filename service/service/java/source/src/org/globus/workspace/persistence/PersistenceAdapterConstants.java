@@ -102,7 +102,7 @@ public interface PersistenceAdapterConstants {
             "INSERT INTO vm_partitions VALUES(?,?,?,?,?,?,?,?,?)";
 
     public static final String SQL_INSERT_VM_DEPLOYMENT =
-            "INSERT INTO vm_deployment VALUES(?,?,?,?,?)";
+            "INSERT INTO vm_deployment VALUES(?,?,?,?,?,?)";
 
     public static final String SQL_INSERT_VM_CUSTOMIZATION =
             "INSERT INTO vm_customization VALUES(?,?,?,?)";
@@ -133,7 +133,8 @@ public interface PersistenceAdapterConstants {
 
     public static final String SQL_LOAD_VM_DEPLOYMENT =
             "SELECT requested_state, requested_shutdown, min_duration, " +
-                    "ind_physmem FROM vm_deployment WHERE vmid=?";
+                    "ind_physmem, ind_physcpu " +
+                    "FROM vm_deployment WHERE vmid=?";
 
     public static final String SQL_LOAD_VM_CUSTOMIZATION =
             "SELECT sourcepath, destpath, sent " +
