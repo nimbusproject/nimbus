@@ -9,7 +9,7 @@ def nimbus_user_create_remote(user_instance, nimbus_key=None, nimbus_secret=None
     
     `user_instance` is a `Django User` instance.
     """
-    service_uri = getattr(settings, "NIMBUS_SERVICE_URI", None)
+    service_uri = getattr(settings, "NIMBUS_SERVICE_URL", None)
     conn = AdminConnection(service_uri, nimbus_key, nimbus_secret)
     nimbus_user = conn.add_user(user_instance)
     return nimbus_user
