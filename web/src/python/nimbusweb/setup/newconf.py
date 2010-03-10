@@ -54,7 +54,7 @@ def run(basedir, timezone, accountprompt, log, debug, insecuremode, printurl,
     lines.append("NIMBUS_PRINT_URL = '%s'" % printurl)
     lines.append("NIMBUS_TOKEN_EXPIRE_HOURS = %d" % expire_hours)
 
-    lines.append("NIMBUS_SERVICE_URL = '%s'" % rest_uri)
+    lines.append("NIMBUS_SERVICE_URL = '%s'" % rest_url)
     lines.append("NIMBUS_KEY = '%s'" % rest_key)
     lines.append("NIMBUS_SECRET = '%s'" % rest_secret)
         

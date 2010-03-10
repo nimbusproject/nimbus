@@ -108,6 +108,7 @@
         <echo>Building default Nimbus-for-GT4.0 packages:
         </echo>
 
+        <ant dir="${nimbus.autocommon.gt4_0.builddir}" target="dist" /> <!-- dep -->
         <antcall target="dist-service-api" />
         <antcall target="dist-default-services" />
         <antcall target="dist-GT4.0-messaging" />
@@ -119,7 +120,6 @@
         <ant dir="${nimbus.messaging.gt4_0.gar.builddir}" target="dist" />
 
         <!-- Build Wizard GAR: -->
-        <ant dir="${nimbus.autocommon.gt4_0.builddir}" target="dist" /> <!-- dep -->
         <ant dir="${nimbus.wizard.gt4_0.builddir}" target="dist" />
 
         <!-- Build Context Broker GAR -->
