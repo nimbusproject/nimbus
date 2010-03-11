@@ -20,7 +20,9 @@ public interface AccountingEventAdapter extends AccountingAdapter {
 
     public void create(int id,
                        String ownerDN,
-                       long minutesRequested);
+                       long minutesRequested,
+                       int CPUCount,
+                       int memory);
 
     public void destroy(int id,
                         String ownerDN,

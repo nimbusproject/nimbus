@@ -591,9 +591,12 @@ public class DefaultCreation implements Creation {
             final long requestedMinutes =
                     WorkspaceUtil.secondsToMinutes(requestSeconds);
 
+            final int requestedCPUCount = bindings[0].getDeployment().getIndividualCPUCount();
+            final int requestedMemory = bindings[0].getDeployment().getIndividualPhysicalMemory();
+
 
             for (int i = 0; i < ids.length; i++) {
-                this.accounting.create(ids[i], callerID, requestedMinutes);
+                this.accounting.create(ids[i], callerID, requestedMinutes, requestedCPUCount, requestedMemory);
             }
         }
 

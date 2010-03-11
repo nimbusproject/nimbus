@@ -208,14 +208,18 @@ class DBAccountingPersistence implements DBAccountingConstants {
                                  int id,
                                  String ownerDN,
                                  long minutesRequested,
-                                 Calendar creationTime)
+                                 Calendar creationTime,
+                                 int CPUCores,
+                                 int memory)
             throws WorkspaceDatabaseException {
 
         if (this.lager.accounting) {
             logger.trace("add(): uuid = '" + uuid + "', id = " + id + ", " +
                     "ownerDN = '" + ownerDN + "', minutesRequest = " +
                     minutesRequested + ", creationTime = " +
-                    creationTime.getTimeInMillis());
+                    creationTime.getTimeInMillis() + ", cpu cores = " +
+                    CPUCores + ", memory = " + memory
+                    );
         }
 
         Connection c = null;
@@ -231,6 +235,8 @@ class DBAccountingPersistence implements DBAccountingConstants {
             pstmt.setObject(5, new Long(minutesRequested));
             pstmt.setInt(6, 1);
             pstmt.setNull(7, Types.INTEGER);
+            pstmt.setInt(8, CPUCores);
+            pstmt.setInt(9, memory);
             
             int inserted = pstmt.executeUpdate();
             if (this.lager.accounting) {
@@ -287,6 +293,8 @@ class DBAccountingPersistence implements DBAccountingConstants {
             Calendar creationTime;
             long t;
             int requestedDuration;
+            int CPUCores;
+            int memory;
 
             pstmt = c.prepareStatement(SQL_LOAD_DEPLOYMENT);
             pstmt.setInt(1, id);
@@ -303,6 +311,8 @@ class DBAccountingPersistence implements DBAccountingConstants {
                 creationTime = Calendar.getInstance();
                 creationTime.setTimeInMillis(t);
                 requestedDuration = rs.getInt(4);
+                CPUCores = rs.getInt(5);
+                memory = rs.getInt(6);
             }
 
             if (this.lager.accounting) {
@@ -310,6 +320,8 @@ class DBAccountingPersistence implements DBAccountingConstants {
                              ": uuid = " + uuid +
                              ", creation time = " + t +
                              ", requestedDuration = " + requestedDuration +
+                             ", CPU cores = " + CPUCores +
+                             ", memory = " + memory +
                              ", creator DN = " + creatorDN);
             }
 

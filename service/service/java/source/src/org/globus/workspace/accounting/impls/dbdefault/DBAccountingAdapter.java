@@ -211,10 +211,12 @@ public class DBAccountingAdapter implements AccountingEventAdapter,
     // implements AccountingEventAdapter
     // -------------------------------------------------------------------------
 
-    public void create(int id, String ownerDN, long minutesRequested) {
+    public void create(int id, String ownerDN, long minutesRequested, int CPUCount, int memory) {
         if (this.lager.accounting) {
             logger.trace("create(): id = " + id + ", ownerDN = '" +
-                    ownerDN + "', minutesRequested = " + minutesRequested);
+                    ownerDN + "', minutesRequested = " + minutesRequested +
+                    ", CPUCount = " + CPUCount + ", memory = " + memory
+                    );
         }
 
         if (!this.initialized) {
@@ -268,12 +270,13 @@ public class DBAccountingAdapter implements AccountingEventAdapter,
 
             final Calendar now = Calendar.getInstance();
 
-            this.db.add(uuid, id, ownerDN, charge, now);
+            this.db.add(uuid, id, ownerDN, charge, now, CPUCount, memory);
             
             if (this.lager.eventLog) {
                 logger.info(Lager.ev(id) + "accounting: ownerDN = '" +
                     ownerDN + "', minutesRequested = " + minutesRequested +
                     ", minutes reserved = " + charge +
+                    ", CPUCount = " + CPUCount + ", memory = " + memory +
                     ", uuid = '" + uuid + "'");
             }
 
