@@ -75,12 +75,14 @@ def method(request, method):
             firstname = form.cleaned_data["firstname"]
             lastname = form.cleaned_data["lastname"]
             email = form.cleaned_data["email"]
+            new_user = None
             (error, new_user, token) = create_user(dn, cert, key, username, email, firstname, lastname)
             if error:
                 raise Exception(error)
             return HttpResponseRedirect("/usercreate/success?token="+token)
         except:
-            new_user.delete() #roll back newly create User and UserProfile
+            if new_user:
+                new_user.delete() #roll back newly create User and UserProfile
             exception_type = sys.exc_type
             try:
                 exceptname = exception_type.__name__ 

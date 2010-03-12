@@ -20,7 +20,7 @@ def create_user(dn, cert, key, username, email, firstname, lastname):
     try:
         user = User.objects.create_user(username, email, password)
     except IntegrityError:
-        return ("Username is taken already", user, None)
+        return ("Username is taken already", None, None)
     user.first_name = firstname
     user.last_name = lastname
     user.save()

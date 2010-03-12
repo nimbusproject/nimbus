@@ -47,7 +47,9 @@ class NimbusServerError(Exception):
     def __init__(self, status, reason, body=None):
         self.status = status
         self.reason = reason
-        
+       
+        self.msg = None
+        self.request_id = None
         if body:
             data = json.loads(body)
             if data.has_key('message'):
