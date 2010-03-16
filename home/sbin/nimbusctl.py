@@ -65,6 +65,6 @@ ProcessManager.add( Process(
 argv = sys.argv
 if len(argv) == 2:
     argv = argv[:]
-    argv.insert('all', 1)
+    argv.insert(1, 'all')
 
 ProcessManager.main(argv=argv, usage=USAGE_TEXT)
