@@ -238,3 +238,32 @@ p.details {
   color:#8f8f8f;
   font-size:75%;
 }
+
+div#credentials_container {
+  width: 600px;
+}
+
+div.credentials_box {
+    border:1px solid #ccc;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+
+}
+
+div.credentials_box h4 {
+    margin: 0;
+    padding-left: 4px;
+    background: #eee;
+}
+
+div.credentials_box div.lrow {
+    margin-left: 1em;
+}
+
+.copybox{
+    padding:3px 5px 2px 5px;
+    height:18px;
+    border:1px solid #ccc;
+    font-family:Monaco,"Courier New","DejaVu Sans Mono","Bitstream Vera Sans Mono",monospace;
+    color:#333333;
+}
