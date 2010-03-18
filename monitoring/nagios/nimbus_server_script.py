@@ -38,6 +38,8 @@ import re
 import socket
 import time
 import ConfigParser
+from nimbus_nagios_logger import Logger
+
 # NAGIOS Plug-In API return code values
 
 NAGIOS_RET_OK = 0
@@ -144,27 +146,27 @@ class PluginObject:
 
     def __init__(self, callingClass):
     
-        self.logger = logging.getLogger(callingClass)
-        self.logger.setLevel(logging.INFO)
-        formatter = logging.Formatter('%(asctime)s ; %(name)s ; %(levelname)s ; %(message)s')
+        #self.logger = logging.getLogger(callingClass)
+        #self.logger.setLevel(logging.INFO)
+        #formatter = logging.Formatter('%(asctime)s ; %(name)s ; %(levelname)s ; %(message)s')
 
-        errorOutputHndlr = logging.StreamHandler(sys.stdout)
-        errorOutputHndlr.setFormatter(formatter)
-        errorOutputHndlr.setLevel(logging.ERROR)
+        #errorOutputHndlr = logging.StreamHandler(sys.stdout)
+        #errorOutputHndlr.setFormatter(formatter)
+        #errorOutputHndlr.setLevel(logging.ERROR)
 
-        self.logger.addHandler(errorOutputHndlr)
-    
+        #self.logger.addHandler(errorOutputHndlr)
+        self.logger = Logger("callingClass","nimbus_server_script.log")
         loadNimbusConfig(self.logger)
         self.pluginOutput = {}
 
-class PluginCmdLineOpts(PluginObject):
+class PluginCmdLineOpts:#(PluginObject):
     """ This class acts as the "central dispatcher" for determining what resource will be reported back
     to Nagios. Command line parameters act as the switches and determine which of the above classes
     gets instantianted.
     """
 
     def __init__(self):
-            PluginObject.__init__(self,self.__class__.__name__)
+            #PluginObject.__init__(self,self.__class__.__name__)
             # Parse command-line options.
             parser = OptionParser()
             parser.add_option("--HNConsistent", action="callback",help="Verify internal Derby database consistency", callback=HeadNodeDBConsistent())
@@ -190,7 +192,7 @@ class HeadNodeServiceInfo(PluginObject):
     def __init__(self):
         self.resourceName="Service"
         PluginObject.__init__(self,self.__class__.__name__)
-
+        
     def __call__(self, option, opt_str, value, parser):
 
         self.pluginOutput["HostName"] = str(os.uname()[1])

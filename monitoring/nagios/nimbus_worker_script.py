@@ -28,7 +28,8 @@ __VERSION__ = '0.01'
 import sys
 import commands
 import os
-import logging
+#import logging
+from nimbus_nagios_logger import Logger
 from cStringIO import StringIO
 import libvirt
 from optparse import OptionParser
@@ -70,7 +71,6 @@ def pluginExitN(messageIdentifier, pluginInfo, returnCode):
     # with the rest of the code. Do NOT just call sys.exit in the code (if you want your
     # plug-in to function with the rest of the code!
 
-
     outputString = StringIO()
     outputString.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
 
@@ -101,16 +101,16 @@ class PluginObject:
     be changed without breaking almost all the code. Don't change the log format!
     """
     def __init__(self, callingClass):
-        self.logger = logging.getLogger(callingClass)
-        self.logger.setLevel(logging.INFO)
-        formatter = logging.Formatter('%(asctime)s ; %(name)s ; %(levelname)s ; %(message)s')
+        #self.logger = logging.getLogger(callingClass)
+        #self.logger.setLevel(logging.INFO)
+        #formatter = logging.Formatter('%(asctime)s ; %(name)s ; %(levelname)s ; %(message)s')
 
-        errorOutputHndlr = logging.StreamHandler(sys.stdout)
-        errorOutputHndlr.setFormatter(formatter)
-        errorOutputHndlr.setLevel(logging.ERROR)
+        #errorOutputHndlr = logging.StreamHandler(sys.stdout)
+        #errorOutputHndlr.setFormatter(formatter)
+        #errorOutputHndlr.setLevel(logging.ERROR)
 
-        self.logger.addHandler(errorOutputHndlr)
-
+        #self.logger.addHandler(errorOutputHndlr)
+        self.logger = Logger(callingClass, "nimbus_worker_script.log")
         self.pluginOutput = {}
 
 class Virtualized(PluginObject):
