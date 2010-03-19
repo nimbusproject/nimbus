@@ -1900,12 +1900,18 @@ fakepub1 192.168.0.3 192.168.0.1 192.168.0.255 255.255.255.0</pre>
     enable <a href="../clouds/clusters.html">one click clusters</a>.
 </p>
 <p>
-    The new TP2.2 broker (see <a href="#context-broker">above</a>)
-    is installed separately from Nimbus, there is not a
+    The new broker (see <a href="#context-broker">above</a>)
+    is installed by default with Nimbus 2.3, but there is not a
     dependency on any Nimbus service component.  It can run by itself in a
     container.  You can use it for deploying virtual clusters on EC2 for
     example without any other Nimbus service running (the cloud client #11 has
     an "ec2script" option that will allow you to do this).
+</p>
+<p>
+    If you want to install the broker separately from Nimbus, download the 
+    Nimbus source tarball, extract it, and run 
+    <i>bin/broker-build-and-install.sh</i> with an appropriate 
+    <b>$GLOBUS_LOCATION</b> set.
 </p>
 <p>
     To set up a NEW broker that is compatible with post-010 cloud clients,
@@ -1940,12 +1946,6 @@ fakepub1 192.168.0.3 192.168.0.1 192.168.0.255 255.255.255.0</pre>
             short term credentials on the fly for the VMs.  The VMs use this
             to contact the broker: the container needs to be able to verify
             who is calling.
-        </p>
-    </li>
-    <li>
-        <p>
-           Install the broker by setting <b>$GLOBUS_LOCATION</b> and then
-           running the included <i>deploy-broker.sh</i> script.
         </p>
     </li>
     <li>
