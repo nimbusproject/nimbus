@@ -28,8 +28,8 @@ __VERSION__ = '0.01'
 import sys
 import commands
 import os
-#import logging
-from nimbus_nagios_logger import Logger
+import logging
+#from nimbus_nagios_logger import Logger
 from cStringIO import StringIO
 import libvirt
 from optparse import OptionParser
@@ -44,6 +44,42 @@ NAGIOS_RET_WARNING = 1
 NAGIOS_RET_CRITICAL = 2
 NAGIOS_RET_UNKNOWN = 3
 
+#import logging
+#import sys
+
+class Logger:
+    """ A class to encapsulate useful logging features and setup
+
+    """
+    def __init__(self, name, errorLogFile):
+
+        self.logger = logging.getLogger(name)
+
+        self.logger.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(asctime)s : %(name)s : %(levelname)s : %(message)s')
+
+        nagiosObservableHndlr = logging.StreamHandler(sys.stdout)
+        nagiosObservableHndlr.setLevel(logging.INFO)
+        nagiosObservableHndlr.setFormatter(formatter)
+
+   #     fileOutputHndlr = logging.FileHandler(errorLogFile)
+    #    fileOutputHndlr.setFormatter(formatter)
+    #    fileOutputHndlr.setLevel(logging.DEBUG)
+
+     #   self.logger.addHandler(fileOutputHndlr)
+        self.logger.addHandler(nagiosObservableHndlr)
+
+    def warning(self, msg):
+        self.logger.warning(msg)
+
+    def info(self, msg):
+        self.logger.info(msg)
+
+    def error(self, msg):
+        self.logger.error(msg)
+
+    def debug(self, msg):
+        self.logger.debug(msg)
 
 def _createXMLWorker(data, currentOutput):
 
@@ -76,40 +112,17 @@ def pluginExitN(messageIdentifier, pluginInfo, returnCode):
 
     localIP = (socket.gethostbyaddr( socket.gethostname() ))[2][0]
     outputString.write("<Node>")
-  #  outputString.write("<PhysicalIP>"+localIP+"</PhysicalIP>")
 
     outputString.write("<"+messageIdentifier+" id=\""+messageIdentifier+localIP+"\""+" node=\""+localIP +"\">")
     _createXMLWorker(pluginInfo, outputString)
-    #for key in pluginInfo.keys():
-    #        outputString.write("<"+key.strip()+">")
-    #        if( type(pluginInfo[key]) == type(list())):
-    #            for val in pluginInfo[key]:
-    #                outputString.write("<"+val+"/>")
-    #        else:
-    #            outputString.write(pluginInfo[key])
-    #        outputString.write("</"+key.strip()+">")
     outputString.write("</"+messageIdentifier+">")
     outputString.write("</Node>")
 
     sys.stdout.write(messageIdentifier+" | "+ outputString.getvalue()+"\n")
     sys.exit(returnCode)
 
-
 class PluginObject:    
-    """ The most 'senior' of the base classes. This class sets up appropriate logging mechanisms to 
-    conform with Nagios' API and plug-in coding rules. The log format is also setup, and cannot
-    be changed without breaking almost all the code. Don't change the log format!
-    """
     def __init__(self, callingClass):
-        #self.logger = logging.getLogger(callingClass)
-        #self.logger.setLevel(logging.INFO)
-        #formatter = logging.Formatter('%(asctime)s ; %(name)s ; %(levelname)s ; %(message)s')
-
-        #errorOutputHndlr = logging.StreamHandler(sys.stdout)
-        #errorOutputHndlr.setFormatter(formatter)
-        #errorOutputHndlr.setLevel(logging.ERROR)
-
-        #self.logger.addHandler(errorOutputHndlr)
         self.logger = Logger(callingClass, "nimbus_worker_script.log")
         self.pluginOutput = {}
 
