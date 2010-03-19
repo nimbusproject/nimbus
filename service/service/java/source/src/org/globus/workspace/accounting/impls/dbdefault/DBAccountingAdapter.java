@@ -283,7 +283,8 @@ public class DBAccountingAdapter implements AccountingEventAdapter,
             if (this.fileLog != null) {
                 try {
                     this.fileLog.logCreate(uuid, id, ownerDN,
-                                           minutesRequested, charge, now);
+                                           minutesRequested, charge, now,
+                                           CPUCount, memory);
                 } catch (WorkspaceException e) {
                     if (logger.isDebugEnabled()) {
                         logger.error(e.getMessage(), e);

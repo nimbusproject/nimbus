@@ -265,10 +265,12 @@ public class DelayedAccountingFileLogger implements TimerListener {
                                        String ownerDN,
                                        long minutesRequested,
                                        long charge,
-                                       Calendar now) throws WorkspaceException {
+                                       Calendar now,
+                                       int CPUCount,
+                                       int memory) throws WorkspaceException {
 
         try {
-            this.create(uuid, id, ownerDN, minutesRequested, charge, now);
+            this.create(uuid, id, ownerDN, minutesRequested, charge, now, CPUCount, memory);
             this.schedule();
         } catch (Throwable t) {
             logger.error(t.getMessage(), t);
@@ -281,7 +283,9 @@ public class DelayedAccountingFileLogger implements TimerListener {
                         String ownerDN,
                         long minutesRequested,
                         long charge,
-                        Calendar now) {
+                        Calendar now,
+                        int CPUCount,
+                        int memory) {
 
         final StringBuffer buf = new StringBuffer(128);
         buf.append("CREATED: time=\"")
@@ -295,7 +299,11 @@ public class DelayedAccountingFileLogger implements TimerListener {
            .append("\", requestMinutes=")
            .append(minutesRequested)
            .append(", charge=")
-           .append(charge);
+           .append(charge)
+           .append(", CPUCount=")
+           .append(CPUCount)
+           .append(", memory=")
+           .append(memory);
 
         this.unwrittenEvents.add(buf.toString());
     }
