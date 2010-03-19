@@ -124,6 +124,10 @@ It is not interactive."
     PRINTPORT="-t"
     PRINTPORT_HELP="Print configured port # to stdout"
     
+    PRINTHOST_LONG="--printhost"
+    PRINTHOST="-l"
+    PRINTHOST_HELP="Print configured host interface to stdout"
+    
     PRINTCERTPATH_LONG="--printcertpath"
     PRINTCERTPATH="-i"
     PRINTCERTPATH_HELP="Print configured cert path to stdout and exit"
@@ -140,7 +144,8 @@ It is not interactive."
 def validateargs(opts):
     
     actions = [opts.checkssl, opts.forcenewssl, opts.newconf, 
-               opts.printport, opts.printcertpath, opts.printkeypath]
+               opts.printport, opts.printcertpath, opts.printkeypath,
+               opts.printhost]
     
     count = 0
     for action in actions:
@@ -210,6 +215,10 @@ def parsersetup():
     group.add_option(ARGS.PRINTPORT, ARGS.PRINTPORT_LONG,
                      action="store_true", dest="printport", default=False,
                      help=ARGS.PRINTPORT_HELP)
+    
+    group.add_option(ARGS.PRINTHOST, ARGS.PRINTHOST_LONG,
+                     action="store_true", dest="printhost", default=False,
+                     help=ARGS.PRINTHOST_HELP)
     
     group.add_option(ARGS.PRINTCERTPATH, ARGS.PRINTCERTPATH_LONG,
                      action="store_true", dest="printcertpath", default=False,
@@ -307,8 +316,13 @@ def main(argv=None):
         
         certconf = config_from_key(config, "ssl.cert")
         keyconf = config_from_key(config, "ssl.key")
+        cadir = config_from_key(config, "ca.dir")
         timezone = config_from_key(config, "timezone")
         port = config_from_key(config, "webserver.port")
+        host = config_from_key(config, "webserver.host")
+        rest_url = config_from_key(config, "nimbusrest.url")
+        rest_key = config_from_key(config, "nimbusrest.key")
+        rest_secret = config_from_key(config, "nimbusrest.secret")
         printurl = config_from_key(config, "print.url")
         accountprompt = config_from_key(config, "account.prompt")
         expire_hours = config_from_key(config, "token.expire_hours")
@@ -330,7 +344,9 @@ def main(argv=None):
             checkssl.run(basedir, certconf, keyconf, log)
             
         if opts.newconf:
-            newconf.run(basedir, timezone, accountprompt, log, printdebugoutput, insecuremode, printurl, expire_hours)
+            newconf.run(basedir, timezone, accountprompt, log, 
+                    printdebugoutput, insecuremode, printurl, expire_hours, 
+                    cadir, rest_url, rest_key, rest_secret)
         
         if opts.printport:
             if not port:
@@ -340,7 +356,12 @@ def main(argv=None):
             except:
                 raise IncompatibleEnvironment("'webserver.port' configuration is not an integer?")
             print port
-            
+        
+        if opts.printhost:
+            if not host:
+                raise IncompatibleEnvironment("There is no 'webserver.host' configuration")
+            print host
+
         if opts.printcertpath:
             if not certconf:
                 raise IncompatibleEnvironment("There is no 'ssl.cert' configuration")

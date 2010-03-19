@@ -17,14 +17,14 @@
 	<!--[if IE 6]>
 		<link rel="stylesheet" type="text/css" href="/static/ie6.0.3.css" media="screen, projection" />
 	<![endif]-->
+  {% block extrahead %}{% endblock %}
 </head>
 
 <body id="home">
 
-    <header>
-        <a id="logo" href="/nimbus">Home</a>
-    </header>
-    
+    <h1>Nimbus</h1>
+    <a id="logo" href="/nimbus">Home</a>
+
     <hr id="headerborder">
     
     {% if flash_msg %}
@@ -46,7 +46,7 @@
     </footer>
     
     <!-- JS link will go here -->
-    
+    {% block extrafooter %}{% endblock %}
 </body>
 
 </html>

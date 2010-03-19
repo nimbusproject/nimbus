@@ -29,35 +29,83 @@
     
     <h3>Your credentials</h3>
     
-    {% if cert_present or key_present or query_present %}
-    <div class="profile">
-        {% if cert_present %}
-        <div class="lrow">
-            <span class="flabel">Certificate:</span>
-            <span class="finput"><a href="usercert.pem">retrieve</a></span>
-        </div>
-        {% endif %}
-        
-        {% if key_present %}
-        <div class="lrow">
-            <span class="flabel">Key file:</span>
-            <span class="finput"><a href="userkey.pem">retrieve</a> </span>
-        </div>
-        <br>
-        <p>
-            <b>Warning</b>: The key file download only works once!  They key will be deleted when you download it.
-        </p>
-        <p>
-            <b>Warning</b>: The key file will not work without running "chmod 0600" on it after you download.
-        </p>
-        {% endif %}
+    {% if cert_present or key_present or access_present %}
+    <div id="credentials_container">
+        <div class="credentials_box">
+            <h4>X.509 certificate</h4>
+            {% if key_present or cert_present %}
+            <p>
+                X.509 credentials are used with the cloud-client. They have
+                two components: a public certificate and a private key.
+            </p>
 
-        {% if query_present %}
-        <div class="lrow">
-            <span class="flabel">Query ID:</span>
-            <span class="finput">{{ query_id }}</span>
-            <span class="flabel">Secret:</span>
-            <span class="finput">{{ query_secret }}</span>
+            <div class="lrow">
+                <span class="flabel">Certificate</span>
+                {% if cert_present %}
+                <a href="usercert.pem">usercert.pem</a>
+                {% else %}
+                (not available)
+                {% endif %}
+            </div>
+            <div class="lrow">
+                <span class="flabel">Private key</span>
+                {% if key_present %}
+                <a href="userkey.pem">userkey.pem</a>
+                {% else %}
+                (not available)
+                {% endif %}
+            </div>
+
+            <p><strong>
+                For your protection, the private key can only be downloaded once.
+            </strong></p>
+            {% if not key_present %}
+            <p>
+                You do not have a private key available. Most likely, it has already
+                been downloaded. If you did not download it or if you lost it, please
+                contact the administrator immediately.
+            </p>
+            {% else %}
+
+            <p>Instructions</p>
+            <ol>
+                <li>Download these files and place them into
+                    <samp>~/.globus/</samp>, in your home directory. You may need
+                    to create this directory.
+                </li>
+                <li>
+                    Ensure that the private key is not world-readable:
+                    <div><samp>chmod 600 ~/.globus/userkey.pem</samp></div>
+                </li>
+                <li>Follow the
+                    <a href="http://www.nimbusproject.org/docs/?doc=current/clouds/cloudquickstart.html">
+                        cloud client quickstart</a>.</li>
+            </ol>
+            {% endif %}
+
+
+            {% else %}
+            <p>You have no X.509 credentials on file.</p>
+            {% endif %}
+        </div>
+        
+
+        {% if access_present %}
+        <div class="credentials_box">
+            <h4>Access token</h4>
+            <p>
+                Access tokens are used for the Nimbus EC2 Query API interface.
+                For information on using these tokens, check the
+                <a href="http://www.nimbusproject.org/docs/?doc=current/elclients.html#boto">documentation</a>.
+            </p>
+            <div class="lrow" id="accesskey">
+                <span class="flabel">Key</span>
+                <span class="copybox">{{ access_key }}</span>
+            </div>
+            <div class="lrow" id="accesssecret">
+                <span class="flabel">Secret</span>
+                <span class="copybox">{{ access_secret }}</span>
+            </div>
         </div>
         {% endif %}
 

@@ -24,6 +24,9 @@
 
     <property name="query.conf.dir"
               value="${base.conf.dir}/query" />
+    
+    <property name="rest.conf.dir"
+              value="${base.conf.dir}/rest" />
 
     <property name="workspace.persistence.dir"
               value="${deploy.dir}/var/${base.package.name}" />
@@ -84,6 +87,18 @@
 
     <property name="qproperties2.tmp"
               location="${query.conf.dir}/query.conf.tmp"/>
+    
+    <property name="rproperties.path"
+              location="${rest.conf.dir}/other/main.conflocator.xml"/>
+
+    <property name="rproperties.tmp"
+              location="${rest.conf.dir}/other/main.conflocator.xml.tmp"/>
+
+    <property name="rproperties2.path"
+              location="${rest.conf.dir}/rest.conf"/>
+
+    <property name="rproperties2.tmp"
+              location="${rest.conf.dir}/rest.conf.tmp"/>
 
     <filterset id="absPathFilter">
         <filter token="WORKSPACE_CONFDIR"
@@ -92,6 +107,8 @@
                 value="${elastic.conf.dir}"/>
         <filter token="QUERY_CONFDIR"
                 value="${query.conf.dir}"/>
+        <filter token="REST_CONFDIR"
+                value="${rest.conf.dir}"/>
         <filter token="WORKSPACE_PERSISTENCEDIR"
                 value="${workspace.persistence.dir}"/>
         <filter token="DERBY_DIR"
@@ -135,7 +152,8 @@
     <target name="setup"
             depends="adjust-wproperties, adjust-eproperties,
                      adjust-wproperties2, adjust-qproperties,
-                     adjust-qproperties2, adjust-jndi,
+                     adjust-qproperties2, adjust-rproperties,
+                     adjust-rproperties2, adjust-jndi,
                      chmodprivate, chmodexes, setupWorkspacePersistence" />
 
 
@@ -262,6 +280,26 @@
               overwrite="true" />
         <delete file="${qproperties2.tmp}"/>
         <echo message="Adjusted query.conf paths"/>
+    </target>
+    
+    <target name="adjust-rproperties">
+        <copy file="${rproperties.path}" toFile="${rproperties.tmp}">
+            <filterset refid="absPathFilter"/>
+        </copy>
+        <copy file="${rproperties.tmp}" toFile="${rproperties.path}"
+              overwrite="true" />
+        <delete file="${rproperties.tmp}"/>
+        <echo message="Adjusted rest conf-locator paths"/>
+    </target>
+
+    <target name="adjust-rproperties2">
+        <copy file="${rproperties2.path}" toFile="${rproperties2.tmp}">
+            <filterset refid="absPathFilter"/>
+        </copy>
+        <copy file="${rproperties2.tmp}" toFile="${rproperties2.path}"
+              overwrite="true" />
+        <delete file="${rproperties2.tmp}"/>
+        <echo message="Adjusted rest.conf paths"/>
     </target>
 
 </project>

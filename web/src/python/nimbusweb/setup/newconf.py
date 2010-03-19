@@ -3,7 +3,8 @@ from random import Random
 from setuperrors import *
 import string
 
-def run(basedir, timezone, accountprompt, log, debug, insecuremode, printurl, expire_hours):
+def run(basedir, timezone, accountprompt, log, debug, insecuremode, printurl, 
+        expire_hours, cadir, rest_url, rest_key, rest_secret):
     log.debug("Installing new configurations to django and cherrypy")
     
     if not accountprompt:
@@ -34,6 +35,9 @@ def run(basedir, timezone, accountprompt, log, debug, insecuremode, printurl, ex
     
     lines.append("TIME_ZONE = '%s'" % timezone)
     lines.append("NIMBUS_ACCOUNT_PROMPT = '%s'" % accountprompt)
+
+    cadir_path = pathutil.pathjoin(basedir, cadir)
+    lines.append("NIMBUS_CADIR = '%s'" % cadir_path)
     
     if debug:
         lines.append("DEBUG = True")
@@ -49,6 +53,10 @@ def run(basedir, timezone, accountprompt, log, debug, insecuremode, printurl, ex
         
     lines.append("NIMBUS_PRINT_URL = '%s'" % printurl)
     lines.append("NIMBUS_TOKEN_EXPIRE_HOURS = %d" % expire_hours)
+
+    lines.append("NIMBUS_SERVICE_URL = '%s'" % rest_url)
+    lines.append("NIMBUS_KEY = '%s'" % rest_key)
+    lines.append("NIMBUS_SECRET = '%s'" % rest_secret)
         
     generated_text = "\n"
     for line in lines:

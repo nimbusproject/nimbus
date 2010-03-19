@@ -19,14 +19,17 @@ EXE_CREATE_NEW_CERT="org.nimbustools.auto_common.ezpz_ca.GenerateNewCert"
 EXE_FIND_CA_PUBPEM="org.nimbustools.auto_common.ezpz_ca.FindCAPubFile"
 EXE_FIND_CA_PRIVPEM="org.nimbustools.auto_common.ezpz_ca.FindCAPrivFile"
 EXE_GET_HASHED_CERT_NAME="org.nimbustools.auto_common.ezpz_ca.CertFilenameHash"
+EXE_GET_CERT_DN="org.nimbustools.auto_common.ezpz_ca.CertDN"
 EXE_WRITE_SIGNING_POLICY="org.nimbustools.auto_common.ezpz_ca.SigningPolicy"
+EXE_KEYSTORE_FROM_PEM="org.nimbustools.auto_common.ezpz_ca.KeystoreFromPEM"
 
-def createCert(CN, basedir, cadir, certtarget, keytarget, log):
+def createCert(CN, basedir, cadir, certtarget, keytarget, log, 
+        allow_overwrite=False):
     
-    if pathutil.check_path_exists(certtarget):
+    if not allow_overwrite and pathutil.check_path_exists(certtarget):
         msg = "Certificate file present already: " + certtarget
         raise IncompatibleEnvironment(msg)
-    if pathutil.check_path_exists(keytarget):
+    if not allow_overwrite and pathutil.check_path_exists(keytarget):
         msg = "Key file present already: " + keytarget
         raise IncompatibleEnvironment(msg)
     
@@ -44,7 +47,7 @@ def createCert(CN, basedir, cadir, certtarget, keytarget, log):
     (exitcode, stdout, stderr) = javautil.run(basedir, log, EXE_CREATE_NEW_CERT, args=args)
     runutil.generic_bailout("Problem creating certificate.", exitcode, stdout, stderr)
     
-    pub_DN = stdout
+    pub_DN = stdout.strip()
     
     temp_pub_path = pathutil.pathjoin(tempdir, "pub")
     pathutil.ensure_file_exists(temp_pub_path, "temp cert")
@@ -67,13 +70,13 @@ def createCert(CN, basedir, cadir, certtarget, keytarget, log):
     pathutil.ensure_file_exists(temp_priv_path, "temp key")
     log.debug("temp key exists: " + temp_priv_path)
     
-    print "\nCreated certificate: %s" % pub_DN
+    log.info("Created certificate: %s" % pub_DN)
     
     # Those user-supplied targets still don't exist, right? :-)
-    if pathutil.check_path_exists(certtarget):
+    if not allow_overwrite and pathutil.check_path_exists(certtarget):
         msg = "Certificate file present already: " + certtarget
         raise IncompatibleEnvironment(msg)
-    if pathutil.check_path_exists(keytarget):
+    if not allow_overwrite and pathutil.check_path_exists(keytarget):
         msg = "Key file present already: " + keytarget
         raise IncompatibleEnvironment(msg)
     
@@ -90,7 +93,47 @@ def createCert(CN, basedir, cadir, certtarget, keytarget, log):
     log.debug("file made private: %s" % keytarget)
     
     shutil.rmtree(tempdir)
+
+    return pub_DN
+
+def createKeystore(certpath, keypath, storepath, password, basedir, log):
+    """
+    Generates a Java keystore from PEM-encoded certificate and key
+    """
+
+    if not pathutil.check_path_exists(certpath):
+        msg = "Certificate file does not exist: " + certpath
+        raise IncompatibleEnvironment(msg)
     
+    if not pathutil.check_path_exists(keypath):
+        msg = "Private key file does not exist: " + keypath
+        raise IncompatibleEnvironment(msg)
+
+    if pathutil.check_path_exists(storepath):
+        msg = "Keystore file exists: " + keypath
+        raise IncompatibleEnvironment(msg)
+
+    args = [certpath, keypath, storepath, password]
+
+    (exitcode, stdout, stderr) = javautil.run(basedir, log, 
+            EXE_KEYSTORE_FROM_PEM, args=args)
+    runutil.generic_bailout("Problem creating keystore", 
+            exitcode, stdout, stderr)
+
+def getCertDN(certpath, basedir, log):
+
+    if not pathutil.check_path_exists(certpath):
+        msg = "Certificate file does not exist: " + certpath
+        raise IncompatibleEnvironment(msg)
+    
+    args = [certpath]
+    (exitcode, stdout, stderr) = javautil.run(basedir, log, 
+            EXE_GET_CERT_DN, args=args)
+    runutil.generic_bailout("Problem finding cert DN", 
+            exitcode, stdout, stderr)
+
+    return stdout.strip()
+
 def findCAcert(basedir, cadir, log):
     cacertdir = pathutil.pathjoin(cadir, "ca-certs")
     args = [cacertdir]

@@ -151,7 +151,8 @@ def _newuser(newuserform, request_files):
     # were successfully used which does not make sense, they should only be
     # filled in to help the user re-enter content when there is an error.
     return (None, noerror_flash_msg, None)
-    
+
+   
 def ok_token_attempt(ipaddress, maxcount):
     """Return False if this IP has submitted too many tokens"""
     try:

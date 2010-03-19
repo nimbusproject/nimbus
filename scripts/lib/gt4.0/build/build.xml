@@ -1,0 +1,266 @@
+<project basedir="." default="checkjdk" name="Nimbus for GT4.0 build file">
+
+    <description>Nimbus for GT4.0 build file</description>
+
+    <!-- load user nimbus.build.properties file, if it exists -->
+    <property file="${user.home}/nimbus.build.properties"/>
+
+    <!-- load defaults from colocated build.properties file -->
+    <property file="build.properties"/>
+    
+    
+    <!-- *******************************************************************
+         CHECK MINIMUM JDK
+         ******************************************************************* -->
+
+    <target name="checkjdk">
+        <!--
+        <available property="jdk1.4+" classname="java.lang.CharSequence"/>
+        <fail message="Aborting: determined you are not building with >= JDK 1.4"
+              unless="jdk1.4+" />
+        -->
+
+        <!-- wizard requires 1.5 -->
+        <available property="jdk1.5+"
+                   classname="java.lang.Readable"/>
+        <fail message="Aborting: determined you are not building with >= JDK 1.5"
+              unless="jdk1.5+" />
+    </target>
+
+    
+    <!-- *******************************************************************
+         CHECK GLOBUS LOCATION
+         ******************************************************************* -->
+
+    <property environment="env"/>
+    <target name="checkgl" depends="checkjdk">
+        <fail message="GLOBUS_LOCATION environment variable needed for this action"
+              unless="env.GLOBUS_LOCATION" />
+    </target>
+    
+    
+    <!-- *******************************************************************
+         CLEAN ALL
+         ******************************************************************* -->
+
+    <target name="clean-all">
+
+        <ant dir="${nimbus.service.api.builddir}" target="clean" />
+        <ant dir="${nimbus.service.main.builddir}" target="clean" />
+        <ant dir="${nimbus.metadata-server.basedir}" target="clean" />
+
+        <ant dir="${nimbus.messaging.gt4_0.client.builddir}" target="clean" />
+        <ant dir="${nimbus.messaging.gt4_0.gar.builddir}" target="clean" />
+        <ant dir="${nimbus.autocommon.gt4_0.builddir}" target="clean" />
+        <ant dir="${nimbus.wizard.gt4_0.builddir}" target="clean" />
+        <ant dir="${nimbus.messaging.gt4_0.common.builddir}" target="clean" />
+
+        <ant dir="${nimbus.messaging.gt4_0.service.builddir}" target="clean" />
+        <ant dir="${nimbus.messaging.gt4_0.schemas.builddir}" target="clean" />
+        <ant dir="${nimbus.messaging.gt4_0.stubs.builddir}" target="clean" />
+
+        <ant dir="${nimbus.messaging.gt4_0-elastic.service.builddir}" target="clean" />
+        <ant dir="${nimbus.messaging.gt4_0-elastic.schemas.builddir}" target="clean" />
+        <ant dir="${nimbus.messaging.gt4_0-elastic.stubs.builddir}" target="clean" />
+
+        <ant dir="${nimbus.messaging.query.service.builddir}" target="clean" />
+        <ant dir="${nimbus.messaging.rest.builddir}" target="clean" />
+        <ant dir="${nimbus.ctx-broker.gt4_0.builddir}" target="clean" />
+        
+
+    </target>
+
+
+    <!-- *******************************************************************
+         UNINSTALL ALL
+         ******************************************************************* -->
+
+    <target name="undeploy-GT4.0-all" depends="checkgl">
+
+        <ant dir="${nimbus.messaging.gt4_0.schemas.builddir}" target="undeploy" />
+        <ant dir="${nimbus.messaging.gt4_0-elastic.schemas.builddir}" target="undeploy" />
+        <ant dir="${nimbus.messaging.gt4_0.stubs.builddir}" target="undeploy" />
+        <ant dir="${nimbus.messaging.gt4_0-elastic.stubs.builddir}" target="undeploy" />
+        <ant dir="${nimbus.messaging.gt4_0.client.builddir}" target="undeploy" />
+        <ant dir="${nimbus.messaging.gt4_0.gar.builddir}" target="undeploy" />
+        <ant dir="${nimbus.wizard.gt4_0.builddir}" target="undeploy" />
+        <ant dir="${nimbus.ctx-broker.gt4_0.builddir}" target="undeploy" />
+
+
+    </target>
+
+    <target name="delete-GT4.0-service-persistence" depends="checkgl">
+        <ant dir="${nimbus.messaging.gt4_0.gar.builddir}" target="deletePersistence" />
+    </target>
+
+
+    <!-- *******************************************************************
+         BUILD ALL
+         ******************************************************************* -->
+
+    <target name="_build-default-GT4.0-service"
+            if="build.also">
+        <antcall target="build-default-GT4.0-service" />
+    </target>
+    
+    <target name="build-default-GT4.0-service" depends="checkgl">
+
+        <echo>Building default Nimbus-for-GT4.0 packages:
+        </echo>
+
+        <ant dir="${nimbus.autocommon.gt4_0.builddir}" target="dist" /> <!-- dep -->
+        <antcall target="dist-service-api" />
+        <antcall target="dist-default-services" />
+        <antcall target="dist-GT4.0-messaging" />
+
+        <!-- Build WS-client GAR: -->
+        <ant dir="${nimbus.messaging.gt4_0.client.builddir}" target="dist" />
+
+        <!-- Build Nimbus GAR: -->
+        <ant dir="${nimbus.messaging.gt4_0.gar.builddir}" target="dist" />
+
+        <!-- Build Wizard GAR: -->
+        <ant dir="${nimbus.wizard.gt4_0.builddir}" target="dist" />
+
+        <!-- Build Context Broker GAR -->
+        <ant dir="${nimbus.ctx-broker.gt4_0.builddir}" target="dist" />
+
+
+    </target>
+
+
+    <!-- *******************************************************************
+         INSTALL ALL
+         ******************************************************************* -->
+
+    <target name="deploy-default-GT4.0-service"
+            depends="checkgl, _build-default-GT4.0-service">
+
+        <echo>Default installation to GT4.0 container:
+        </echo>
+
+        <ant dir="${nimbus.messaging.gt4_0.schemas.builddir}" target="deploy" />
+        <ant dir="${nimbus.messaging.gt4_0.stubs.builddir}" target="deploy" />
+
+        <ant dir="${nimbus.messaging.gt4_0-elastic.schemas.builddir}" target="deploy" />
+        <ant dir="${nimbus.messaging.gt4_0-elastic.stubs.builddir}" target="deploy" />
+
+        <ant dir="${nimbus.messaging.gt4_0.client.builddir}" target="deploy" />
+        <ant dir="${nimbus.messaging.gt4_0.gar.builddir}" target="deploy" />
+
+        <ant dir="${nimbus.wizard.gt4_0.builddir}" target="deploy" />
+
+        <ant dir="${nimbus.ctx-broker.gt4_0.builddir}" target="deploy" />
+
+
+    </target>
+
+    
+    <!-- *******************************************************************
+         BUILD CLIENTS ONLY
+         ******************************************************************* -->
+
+    <target name="_build-default-GT4.0-clients-only"
+            if="build.also">
+        <antcall target="build-default-GT4.0-clients-only" />
+    </target>
+
+    <target name="build-default-GT4.0-clients-only"
+            depends="checkgl">
+
+        <echo>Building default Nimbus-for-GT4.0 clients:
+        </echo>
+
+        <ant dir="${nimbus.messaging.gt4_0.schemas.builddir}" target="dist" />
+        <ant dir="${nimbus.messaging.gt4_0.stubs.builddir}" target="dist" />
+        <echo message="The RM API is only a compile-time dependency for the client:" />
+        <ant dir="${nimbus.service.api.builddir}" target="dist" />
+        <ant dir="${nimbus.messaging.gt4_0.common.builddir}" target="dist" />
+        <ant dir="${nimbus.messaging.gt4_0.client.builddir}" target="dist" />
+
+    </target>
+
+
+    <!-- *******************************************************************
+         INSTALL CLIENTS ONLY
+         ******************************************************************* -->
+
+    <target name="deploy-default-GT4.0-clients-only"
+            depends="checkgl, _build-default-GT4.0-clients-only">
+
+        <echo>Default clients-only installation to GT4.0 GLOBUS_LOCATION:
+        </echo>
+
+        <ant dir="${nimbus.messaging.gt4_0.schemas.builddir}" target="deploy" />
+        <ant dir="${nimbus.messaging.gt4_0.stubs.builddir}" target="deploy" />
+        <ant dir="${nimbus.messaging.gt4_0.client.builddir}" target="deploy" />
+
+    </target>
+
+    <!-- *******************************************************************
+         BUILD CONTEXT BROKER
+         ******************************************************************* -->
+
+    <target name="_build-broker"
+            if="build.also">
+        <antcall target="build-broker" />
+    </target>
+
+    <target name="build-broker"
+            depends="checkgl">
+
+        <echo>Building Context Broker:
+        </echo>
+
+        <ant dir="${nimbus.ctx-broker.gt4_0.builddir}" target="dist" />
+    </target>
+
+    <!-- *******************************************************************
+         INSTALL CONTEXT BROKER
+         ******************************************************************* -->
+
+    <target name="deploy-broker"
+            depends="checkgl, _build-broker">
+
+        <echo>Default Context Broker installation to GT4.0 GLOBUS_LOCATION:
+        </echo>
+
+        <ant dir="${nimbus.ctx-broker.gt4_0.builddir}" target="deploy" />
+    </target>
+
+    <!-- *******************************************************************
+         "SUBROUTINES"
+         ******************************************************************* -->
+
+    <target name="dist-service-api">
+        <ant dir="${nimbus.service.api.builddir}" target="dist" />
+    </target>
+
+    <target name="dist-default-services">
+        <ant dir="${nimbus.service.main.builddir}" target="dist" />
+        <ant dir="${nimbus.metadata-server.basedir}" target="dist" />
+    </target>
+
+    <target name="dist-GT4.0-messaging" depends="checkgl">
+
+        <ant dir="${nimbus.messaging.gt4_0.schemas.builddir}" target="dist" />
+        <ant dir="${nimbus.messaging.gt4_0-elastic.schemas.builddir}" target="dist" />
+
+        <ant dir="${nimbus.messaging.gt4_0.stubs.builddir}" target="dist" />
+        <ant dir="${nimbus.messaging.gt4_0-elastic.stubs.builddir}" target="dist" />
+
+        <ant dir="${nimbus.messaging.gt4_0.common.builddir}" target="dist" />
+        <ant dir="${nimbus.messaging.gt4_0.service.builddir}" target="dist" />
+        <ant dir="${nimbus.messaging.gt4_0-elastic.service.builddir}" target="dist" />
+        <ant dir="${nimbus.messaging.query.service.builddir}" target="dist" />
+        <ant dir="${nimbus.messaging.rest.builddir}" target="dist" />
+
+    </target>
+
+    <target name="run-rest-testserver">
+        <ant dir="${nimbus.autocommon.gt4_0.builddir}" target="dist" /> <!-- dep -->
+        <ant dir="${nimbus.messaging.rest.builddir}" target="testserver" />
+    </target>
+
+</project>
+    

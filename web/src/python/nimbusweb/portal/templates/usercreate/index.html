@@ -1,0 +1,13 @@
+
+{% extends "base.html" %}
+	{% block title %}Create a new User{% endblock %}
+{% block content %}
+    <h1>Create a new User.</h1>
+    <h3>Please choose one of the following methods:</h3>
+    <ul id="createmethods">
+    {% for path, method, details in createmethods %}
+      <li><a href="{{ path }}"><p class="method">{{ method }}</p><p class="details">{{ details }}</p></a></li>
+    {% endfor %}
+    </ul>
+
+{% endblock %}
