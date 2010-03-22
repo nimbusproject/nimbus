@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- 
+
+"""*
+ * Copyright 2009 University of Victoria
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * AUTHOR - Adam Bishop - ahbishop@uvic.ca
+ *       
+ * For comments or questions please contact the above e-mail address 
+ * or Ian Gable - igable@uvic.ca
+ *
+ * """
+-->
+
+
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+
+  <xs:element name="AvailableIPs" type="xs:nonNegativeInteger"/>
+
+  <xs:element name="Cloud">
+    <xs:complexType>
+      <xs:all>
+        <xs:element ref="VMM-Pools"  minOccurs="1"/>
+        <xs:element ref="IaasDiagnostics" minOccurs="1" />
+        <xs:element ref="Service" minOccurs="1" />
+        <xs:element ref="WorkerNodes" minOccurs="1"/>
+        <xs:element ref="Network-Pools" minOccurs="1"/>
+      </xs:all>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="CPUArch">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="MicroArchitecture" maxOccurs="1"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="CPUCores" type="xs:nonNegativeInteger"/>
+
+  <xs:element name="CPUID">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Description" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Description" type="xs:string"/>
+
+  <xs:element name="FreeMB" type="xs:nonNegativeInteger"/>
+
+  <xs:element name="HostName" type="xs:string"/>
+
+  <xs:element name="IaasDiagnostics">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="InternalRepresentation" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="InternalRepresentation" type="xs:string"/>
+  
+  <xs:simpleType name="IPAddress">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:element name="IP" type="xs:string"/>
+
+  <xs:element name="Memory">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="TotalMB" minOccurs="1" maxOccurs="1"/>
+        <xs:element ref="FreeMB" minOccurs="1" maxOccurs="1"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="MemorySizeMB" type="xs:nonNegativeInteger"/>
+
+  <xs:simpleType name="supportedArchitectures">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="x86"/>
+      <xs:enumeration value="x86_64"/>
+      <xs:enumeration value="i686"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:element name="MicroArchitecture" type="xs:string"/>
+
+  <xs:element name="Name" type="xs:string"/>
+
+  <xs:element name="Node">
+    <xs:complexType>
+      <xs:all>
+        <xs:element ref="CPUArch" minOccurs="1" maxOccurs="1"/>
+        <xs:element ref="CPUCores" minOccurs="1" maxOccurs="1"/>
+        <xs:element ref="CPUID" minOccurs="1" maxOccurs="1"/>
+        <xs:element ref="Memory" minOccurs="1" maxOccurs="1"/>
+        <xs:element ref="VirtualizationTech" minOccurs="1" maxOccurs="1"/>
+      </xs:all>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Path" type="xs:string"/>
+
+  <xs:simpleType name="IPPort">
+    <xs:restriction base="xs:nonNegativeInteger">
+      <xs:minInclusive value="1"/>
+      <xs:maxInclusive value="65535"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:element name="Port" type="IPPort"/>
+
+  <xs:element name="Service">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Path" minOccurs="1" maxOccurs="1"/>
+        <xs:element ref="HostName" minOccurs="1" maxOccurs="1"/>
+        <xs:element ref="Type" minOccurs="1" maxOccurs="1"/>
+        <xs:element ref="Port" minOccurs="1" maxOccurs="1"/>
+        <xs:element ref="IP" minOccurs="1" maxOccurs="1"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Sky">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Cloud" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TotalIPs" type="xs:nonNegativeInteger"/>
+
+  <xs:element name="TotalMB" type="xs:nonNegativeInteger"/>
+
+  <xs:element name="Type" type="xs:string"/>
+
+  <xs:element name="VirtualizationTech">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Type" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Network-Pools">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Pool" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:all>
+              <xs:element ref="Name" minOccurs="1" maxOccurs="1"/>
+              <xs:element ref="TotalIPs" minOccurs="1" maxOccurs="1"/>
+              <xs:element ref="AvailableIPs" minOccurs="1" maxOccurs="1"/>
+            </xs:all>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="VMM-Pools">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Pool" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:all>
+              <xs:element ref="MemorySizeMB" minOccurs="1" maxOccurs="1"/>
+              <xs:element ref="Name" minOccurs="1" maxOccurs="1"/>
+            </xs:all>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="WorkerNodes">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Node" maxOccurs="unbounded" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>
