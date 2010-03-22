@@ -24,7 +24,7 @@
  * """
 
 
-__VERSION__ = '0.01'
+__VERSION__ = '1.0'
 
 import sys
 import commands
@@ -38,7 +38,7 @@ import re
 import socket
 import time
 import ConfigParser
-from nimbus_nagios_logger import Logger
+import logging
 
 # NAGIOS Plug-In API return code values
 
@@ -46,6 +46,9 @@ NAGIOS_RET_OK = 0
 NAGIOS_RET_WARNING = 1
 NAGIOS_RET_CRITICAL = 2
 NAGIOS_RET_UNKNOWN = 3
+
+# These locations need to be absolute so that when the 'ij' utility is opened in a subprocess
+# it can still locate them
 
 SQL_IP_SCRIPT = "/usr/local/nagios/libexec/nimbus_derby_used_ips.sql"
 SQL_RUNNING_VM_SCRIPT = "/usr/local/nagios/libexec/nimbus_derby_running_vms.sql"
@@ -70,6 +73,44 @@ IJ_LOCATION = "IJ_Location"
 DERBY_LOCATION = "Derby_Location"
 
 ConfigMapping = {}
+
+class Logger:
+    """ A class to encapsulate useful logging features and setup
+
+    """
+    def __init__(self, name, errorLogFile=None):
+
+        self.logger = logging.getLogger(name)
+
+        self.logger.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(asctime)s : %(name)s : %(levelname)s : %(message)s')
+
+        nagiosObservableHndlr = logging.StreamHandler(sys.stdout)
+        nagiosObservableHndlr.setLevel(logging.ERROR)
+        nagiosObservableHndlr.setFormatter(formatter)
+        if (errorLogFile != None):
+            pass
+         
+        # Uncommenting this code causes these plug-ins to fail to report in Nagios... 
+
+#        fileOutputHndlr = logging.FileHandler(errorLogFile)
+ #       fileOutputHndlr.setFormatter(formatter)
+  #      fileOutputHndlr.setLevel(logging.ERROR)
+
+   #     self.logger.addHandler(fileOutputHndlr)
+        self.logger.addHandler(nagiosObservableHndlr)
+
+    def warning(self, msg):
+        self.logger.warning(msg)
+
+    def info(self, msg):
+        self.logger.info(msg)
+
+    def error(self, msg):
+        self.logger.error(msg)
+
+    def debug(self, msg):
+        self.logger.debug(msg)
 
 
 # This global method loads all the user configured options from the configuration file and saves them
@@ -98,7 +139,8 @@ def loadNimbusConfig(logger):
         logger.error("Configuration file not found in Nagios Plug-ins directory! (/usr/local/nagios/libexec)")
         sys.exit(NAGIOS_RET_CRITICAL)
 
-# This is a recursive function to write out an XML doc from the pluginOutput data structure
+# This is a recursive function to write out an XML doc from the pluginOutput data structure.
+# This method will create XML from an arbitrary data structure layout 
 def _createXMLWorker(data, currentOutput):
 
     if (type(data) == type(dict())):
@@ -119,8 +161,7 @@ def pluginExitN(messageIdentifier, pluginInfo, returnCode):
 
     # This method should be the only exit point for all the plug-ins. This ensures that 
     # Nagios requirements are meant and performance data is properly formatted to work
-    # with the rest of the code. Do NOT just call sys.exit in the code (if you want your
-    # plug-in to function with the rest of the code!
+    # with the rest of the code. 
 
     outputString = StringIO()
     outputString.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
@@ -140,26 +181,25 @@ def pluginExitN(messageIdentifier, pluginInfo, returnCode):
 
 class PluginObject:    
     """The most 'senior' of the base classes. This class sets up appropriate logging mechanisms to 
-    conform with Nagios' API and plug-in coding rules. The log format is also setup, and cannot
-    be changed without breaking almost all the code. Don't change the log format!
+    conform with Nagios' API and plug-in coding rules. 
     """
 
     def __init__(self, callingClass):
     
-        #self.logger = logging.getLogger(callingClass)
-        #self.logger.setLevel(logging.INFO)
-        #formatter = logging.Formatter('%(asctime)s ; %(name)s ; %(levelname)s ; %(message)s')
+       # self.logger = logging.getLogger(callingClass)
+       # self.logger.setLevel(logging.INFO)
+       # formatter = logging.Formatter('%(asctime)s ; %(name)s ; %(levelname)s ; %(message)s')
 
-        #errorOutputHndlr = logging.StreamHandler(sys.stdout)
-        #errorOutputHndlr.setFormatter(formatter)
-        #errorOutputHndlr.setLevel(logging.ERROR)
+       # errorOutputHndlr = logging.StreamHandler(sys.stdout)
+       # errorOutputHndlr.setFormatter(formatter)
+       # errorOutputHndlr.setLevel(logging.ERROR)
 
-        #self.logger.addHandler(errorOutputHndlr)
-        self.logger = Logger("callingClass","nimbus_server_script.log")
+       # self.logger.addHandler(errorOutputHndlr)
+        self.logger = Logger(callingClass)
         loadNimbusConfig(self.logger)
         self.pluginOutput = {}
 
-class PluginCmdLineOpts:#(PluginObject):
+class PluginCmdLineOpts:
     """ This class acts as the "central dispatcher" for determining what resource will be reported back
     to Nagios. Command line parameters act as the switches and determine which of the above classes
     gets instantianted.
@@ -188,7 +228,9 @@ class PluginCmdLineOpts:#(PluginObject):
         (options, args) = self.parser.parse_args()
 
 class HeadNodeServiceInfo(PluginObject):
-
+    """
+         This plug-in provides basic service information about the middle-ware running on the Head Node
+    """
     def __init__(self):
         self.resourceName="Service"
         PluginObject.__init__(self,self.__class__.__name__)
@@ -282,7 +324,7 @@ class HeadNodeDBConsistent(PluginObject):
     error.
 
     This obviously isn't an ideal way of determining 'consistency', but its the best fit given the 
-    lack of a formal definition of 'consistent'
+    VMs should all have proper networking setup to function properly
     """
     def __init__(self):
         self.resourceName = "IaasDiagnostics"

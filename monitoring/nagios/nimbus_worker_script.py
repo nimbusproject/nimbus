@@ -51,7 +51,7 @@ class Logger:
     """ A class to encapsulate useful logging features and setup
 
     """
-    def __init__(self, name, errorLogFile):
+    def __init__(self, name, errorLogFile=None):
 
         self.logger = logging.getLogger(name)
 
@@ -61,6 +61,10 @@ class Logger:
         nagiosObservableHndlr = logging.StreamHandler(sys.stdout)
         nagiosObservableHndlr.setLevel(logging.INFO)
         nagiosObservableHndlr.setFormatter(formatter)
+        if(errorLogFile != None):
+            pass
+
+        # Nagios plug-ins fail to report properly if this log file is opened...
 
    #     fileOutputHndlr = logging.FileHandler(errorLogFile)
     #    fileOutputHndlr.setFormatter(formatter)
@@ -81,6 +85,8 @@ class Logger:
     def debug(self, msg):
         self.logger.debug(msg)
 
+# A recursive helper method that will iterate through an arbitraryly complex python data strcuture
+# and generate the appropriate XML document mirroring the data structure layout
 def _createXMLWorker(data, currentOutput):
 
     if (type(data) == type(dict())):
@@ -103,9 +109,9 @@ def _createXMLWorker(data, currentOutput):
 def pluginExitN(messageIdentifier, pluginInfo, returnCode):
 
     # This method should be the only exit point for all the plug-ins. This ensures that 
-    # Nagios requirements are meant and performance data is properly formatted to work
-    # with the rest of the code. Do NOT just call sys.exit in the code (if you want your
-    # plug-in to function with the rest of the code!
+    # Nagios requirements are meant and performance XML data is properly formatted to work
+    # with the rest of the Monitoring system. 
+    # Do NOT just call sys.exit in the code 
 
     outputString = StringIO()
     outputString.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
@@ -123,13 +129,13 @@ def pluginExitN(messageIdentifier, pluginInfo, returnCode):
 
 class PluginObject:    
     def __init__(self, callingClass):
-        self.logger = Logger(callingClass, "nimbus_worker_script.log")
+        self.logger = Logger(callingClass)
         self.pluginOutput = {}
 
 class Virtualized(PluginObject):
     """ This class is designed to be a "Abstract Base Class" in C++ terms, meaning it is intended to
-    be derived from to complete functionality. All the libvirt lookups take place here to centralize
-    logic
+        be derived from to complete functionality. All the libvirt lookups take place here to centralize
+        logic and make creating derived plug-ins simple and uniform
     """
     # Lookup the available "domains" from libvirt, and other usefull stuff
     def __init__(self):
@@ -157,8 +163,9 @@ class Virtualized(PluginObject):
 # ctr is doing what I need it to for the 'Callback' functionality
 class VMMemory(Virtualized):
     """ This class will look up the amount of memory/RAM currently allocated to each VM on the 
-    local node. This is done through libvirt calls in the 'Virtualized' base class
-    Used memory is reported back in kB.
+        local node. This is done through libvirt calls in the 'Virtualized' base class
+        
+        Used memory is reported back in MB.
     """
     #This ctr's interface is as such to match the 'callback' interface of the optionParser
     def __init__(self): #,option, opt_str, value, parser):
@@ -176,7 +183,7 @@ class VMMemory(Virtualized):
 
 class HostVirt(Virtualized):
     """ This class will determine what virtualization technology is being used on each Virtual Machine
-    running on the local node. This is done through a libvirt call in the 'Virtualized' base class
+        running on the local node. This is done through a libvirt call in the 'Virtualized' base class
     """
     def __init__(self):
         Virtualized.__init__(self)
@@ -207,7 +214,7 @@ class HostVirt(Virtualized):
 
 class HostCpuCores(Virtualized):
     """ This class will determine the number of CPU cores running on the local node. This is done through a libvirt
-    call done in the 'Virtualized' base class
+        call done in the 'Virtualized' base class
     """
     def __init__(self):
         Virtualized.__init__(self)
@@ -246,9 +253,10 @@ class HostCpuId(Virtualized):
 
 class HostCpuArch(Virtualized):
     """ The class determines what the underlying CPU architecture is, and uses this information to determine
-    whether the machine is running in 32bit or 64bit mode. This code was only tested on 32bit Sempron
-    processors, so I'm relying on the fact that a 64bit machine running a 32bit OS will report either
-    'i386' or 'i686' through libvirt.
+        whether the machine is running in 32bit or 64bit mode. 
+ 
+        Only valid and tested on x86 class hardware, and modern hardware at that. The ARCH_MAP structure should
+        provide the necessary architecture types.
     """
 
     ARCH_MAP = {    "i686"  : "x86",
@@ -280,9 +288,11 @@ class HostCpuArch(Virtualized):
 #        pluginExitN(self.resourceName, self.pluginOutput, NAGIOS_RET_OK)
         
 class HostMemory(Virtualized):
-    """ This class determines how much free memory remains on the local node with all current virtual
-    machines booted. This lookup is again done through a libvirt call in the 'Virtualized' base
-    class. ALso, memory is reported by in kB.
+    """ This class determines how much total memory and free memory remains on the local node with 
+        all current virtual machines booted. This lookup is again done through a libvirt call in 
+        the 'Virtualized' base class. 
+
+        Memory values are reported in MB.
     """
     def __init__(self):
         Virtualized.__init__(self)

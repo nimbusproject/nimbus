@@ -1,5 +1,29 @@
 #!/usr/bin/python
 
+"""*
+ * Copyright 2009 University of Victoria
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * AUTHOR - Adam Bishop - ahbishop@uvic.ca
+ * 
+ * For comments or questions please contact the above e-mail address 
+ * or Ian Gable - igable@uvic.ca
+ *
+ * """
+
+
 from cStringIO import StringIO
 import xml
 import ConfigParser
@@ -10,6 +34,8 @@ import libxml2
 import libxslt
 import time
 import os
+
+__VERSION__ = '1.0'
 
 RET_CRITICAL = -1
 
@@ -136,7 +162,7 @@ class NagiosXMLAggregator:
             doc = libxml2.parseDoc(xmlToProcess)
         except libxml2.parserError, err:
             self.logger.error("Unable to parse desired XML: "+str(err))
-            sys.exit(-1)
+            sys.exit(RET_CRITICAL)
 
         result = style.applyStylesheet(doc, None)
         retXML = style.saveResultToString(result)
