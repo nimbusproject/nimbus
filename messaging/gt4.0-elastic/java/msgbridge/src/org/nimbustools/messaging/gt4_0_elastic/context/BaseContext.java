@@ -16,6 +16,7 @@
 
 package org.nimbustools.messaging.gt4_0_elastic.context;
 
+import org.nimbustools.api.brain.NimbusFileSystemXmlApplicationContext;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.ServiceRM;
@@ -114,7 +115,7 @@ public abstract class BaseContext implements Initializable {
         final String elasticCtxPath = this.fixAbsolute(this.springConf);
 
         // instantiate spring container
-        this.appCtx = new FileSystemXmlApplicationContext(elasticCtxPath);
+        this.appCtx = new NimbusFileSystemXmlApplicationContext(elasticCtxPath);
     }
 
 

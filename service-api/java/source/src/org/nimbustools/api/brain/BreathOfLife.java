@@ -92,6 +92,7 @@ public class BreathOfLife {
      *
      * @param xmlCtxPath path to XML context/configuration file
      * @return locator
+     * @see NimbusFileSystemXmlApplicationContext
      * @see FileSystemXmlApplicationContext
      * @see ModuleLocator
      */
@@ -110,7 +111,7 @@ public class BreathOfLife {
         if (xmlCtxPath == null) {
             ctx = new ClassPathXmlApplicationContext(DEFAULT_CONFIG);
         } else {
-            ctx = new FileSystemXmlApplicationContext(xmlCtxPath);
+            ctx = new NimbusFileSystemXmlApplicationContext(xmlCtxPath);
         }
         
         final ModuleLocator locator =
