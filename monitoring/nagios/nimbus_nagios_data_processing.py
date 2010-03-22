@@ -29,7 +29,8 @@ import xml
 import ConfigParser
 from xml.dom.pulldom import parseString, parse, START_ELEMENT
 import sys
-from nimbus_nagios_logger import Logger
+#from nimbus_nagios_logger import Logger
+import logging
 import libxml2
 import libxslt
 import time
@@ -39,11 +40,13 @@ __VERSION__ = '1.0'
 
 RET_CRITICAL = -1
 
+LARGE_FILE_SIZE = 1024 # kBytes, so 1 MB
+
 # Must specify the full path as Nagios doesn't setup a complete environment
 # when it calls this script
-REMOVE_DUP_XSL = "/usr/local/nagios/libexec/removeAllDup.xsl"
-MERGE_NODES_XSL = "/usr/local/nagios/libexec/merge.xsl"
-ATTRIBUTE_STRIP_XSL = "/usr/local/nagios/libexec/attribStripper.xsl"
+REMOVE_DUP_XSL = "/usr/local/nagios/libexec/nimbus_nagios_rem_dup_nodes.xsl"
+MERGE_NODES_XSL = "/usr/local/nagios/libexec/nimbus_nagios_merge_nodes.xsl"
+ATTRIBUTE_STRIP_XSL = "/usr/local/nagios/libexec/nimbus_nagios_rem_attrib.xsl"
 XSD = "cloud.xsd"
 
 CONF_FILE = "/usr/local/nagios/libexec/monitoring_config.cfg"
@@ -81,6 +84,43 @@ def loadConfig(logger):
         logger.error("Configuration file not found in Nagios Plug-ins directory")
         sys.exit(RET_CRITICAL)
 
+
+class Logger:
+    """ A class to encapsulate useful logging features and setup
+
+    """
+    def __init__(self, name, errorLogFile):
+
+        self.logger = logging.getLogger(name)
+
+        self.logger.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(asctime)s : %(name)s : %(levelname)s : %(message)s')
+
+        nagiosObservableHndlr = logging.StreamHandler(sys.stdout)
+        nagiosObservableHndlr.setLevel(logging.INFO)
+        nagiosObservableHndlr.setFormatter(formatter)
+
+        fileOutputHndlr = logging.FileHandler(errorLogFile)
+        fileOutputHndlr.setFormatter(formatter)
+        fileOutputHndlr.setLevel(logging.DEBUG)
+
+        self.logger.addHandler(fileOutputHndlr)
+        self.logger.addHandler(nagiosObservableHndlr)
+
+    def warning(self, msg):
+        self.logger.warning(msg)
+
+    def info(self, msg):
+        self.logger.info(msg)
+
+    def error(self, msg):
+        self.logger.error(msg)
+
+    def debug(self, msg):
+        self.logger.debug(msg)
+
+
+
 class NagiosXMLAggregator:
     
     def __init__(self):
@@ -99,6 +139,13 @@ class NagiosXMLAggregator:
         # These tags will NOT appear in any XML and are only used internally in this file
         retXML.write("<WRAPPER>")
         if  (os.path.exists(ConfigMapping[PERFORMANCE_DATA_LOC])):
+
+            # getsize returns the size of the file in bytes
+            curFileSize =  os.path.getsize(ConfigMapping[PERFORMANCE_DATA_LOC])/(1024)
+            #print curFileSize
+            if(curFileSize > LARGE_FILE_SIZE):
+                self.logger.warning("The service performance data file: "+ConfigMapping[PERFORMANCE_DATA_LOC]+" has grown larger than "+str(LARGE_FILE_SIZE)+" kB!")
+                self.logger.warning("This will slow down the data processing script considerably")    
             try:
                 fileHandle = open(ConfigMapping[PERFORMANCE_DATA_LOC],"r")
               
