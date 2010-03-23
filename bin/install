@@ -33,12 +33,18 @@ if [ -d $NIMBUS_HOME ] && [ "$(ls -A $NIMBUS_HOME)" ]; then
     fi
 fi
 
-$NIMBUS_SRC/bin/create-nimbus-home.sh $NIMBUS_HOME
+$NIMBUS_SRC/bin/create-nimbus-home $NIMBUS_HOME
 
 if [ $? -ne 0 ]; then
-    echo "Nimbus home creation failed!"
+    echo ""
+    echo "Nimbus home directory creation failed!"
     exit 1
 fi
+
+echo "-----------------------------------------------------------------"
+echo " Configuring installed services"
+echo "-----------------------------------------------------------------"
+echo ""
 
 CONFIG_SCRIPT="$NIMBUS_HOME/bin/nimbus-configure"
 
@@ -56,11 +62,23 @@ if [ $? -ne 0 ]; then
 fi
 
 echo ""
-echo "Nimbus installation succeeded!"
-echo "However, additional configuration may be necessary."
-echo "Refer to the Administrator Guide for details."
+echo "-----------------------------------------------------------------"
+echo " Nimbus installation succeeded!"
+echo "-----------------------------------------------------------------"
 echo ""
-echo "You can now start/stop Nimbus services with the nimbusctl command. e.g:"
+echo "However, additional configuration may be necessary:"
+echo ""
+echo "    To run the auto-configuration program, launch:"
+echo "        $NIMBUS_HOME/services/share/nimbus-autoconfig/autoconfig.sh"
+echo ""
+echo "    To run the cloud configuration admin helper, launch:"
+echo "        $NIMBUS_HOME/services/share/nimbus-autoconfig/cloud-admin.sh"
+echo ""
+
+echo "Refer to the Administrator Guide for details:"
+echo "    http://www.nimbusproject.org/docs/"
+echo ""
+echo "You can start/stop Nimbus services with the nimbusctl command. e.g:"
 echo "    $NIMBUS_HOME/bin/nimbusctl start"
 echo ""
 
