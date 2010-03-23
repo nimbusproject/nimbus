@@ -343,7 +343,7 @@ class Process:
                 else:
                     print "FAILED"
             elif warnCrashed:
-                print "Hmm. Process '%s' seems to have died prematurely." % self.name
+                print "Process '%s' seems to have died prematurely." % self.name
             os.remove( self._pidfile() )
         else:
             print "Process '%s' is not running." % self.name
@@ -556,19 +556,9 @@ def _processCmdLineOptions( usageText, args=None ):
         action = "store_true", dest = "enableStdout", default = False,
         help = "enable output of starting target's stdout to console"
         )
-    _parser.add_option(
-        "-v", "--version",
-        action = "store_true", dest = "showVersion", default = False,
-        help = "print version information and exit"
-        )
 
     ( _options, _args ) = _parser.parse_args(args=args)
 
-    if _options.showVersion:
-        print "ProcessManager v%s (invoked via %s)" % \
-              ( __version__, sys.argv[0] )
-        sys.exit( 0 )
-    
 def main(argv=sys.argv, usage=USAGE_TEXT):
     """
     The main function of the Process Manager which processes
