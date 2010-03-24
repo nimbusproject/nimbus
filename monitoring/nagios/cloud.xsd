@@ -12,6 +12,7 @@
         <xs:element ref="IaasDiagnostics" minOccurs="1" />
         <xs:element ref="Service" minOccurs="1" />
         <xs:element ref="WorkerNodes" minOccurs="1"/>
+        <xs:element ref="CloudName" minOccurs="0"/>
 <!--        <xs:element ref="Network-Pools" minOccurs="1"/>
  -->     </xs:all>
     </xs:complexType>
@@ -34,6 +35,8 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+
+  <xs:element name="CloudName" type="xs:string"/>
 
   <xs:element name="Description" type="xs:string"/>
 
