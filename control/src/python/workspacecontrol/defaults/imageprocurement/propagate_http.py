@@ -3,6 +3,7 @@ import os
 import string
 from urlparse import urlparse
 import urllib
+import urllib2
 from propagate_adapter import PropagationAdapter
 from workspacecontrol.api.exceptions import *
 
@@ -20,7 +21,7 @@ class propadapter(PropagationAdapter):
         url = urlparse(imagestr)
         #urlparse breaks the url into a tuple
         if url[0] != "http" and url[0] != "https":
-            raise InvalidInput("invalid http(s) url, not http:// or https:// " + remote)
+            raise InvalidInput("invalid url, not http:// or https:// " + remote)
 
     def validate_unpropagate_target(self, imagestr):
         raise InvalidInput("HTTP unpropagation is not supported.")
@@ -30,22 +31,19 @@ class propadapter(PropagationAdapter):
         self.c.log.info("HTTP propagation - local target: %s" % local_absolute_target)
 
         try:
-            remote_data = urllib.urlretrieve(remote_source, local_absolute_target)
-        #TODO: catch possible exceptions
-        #except urllib2.HTTPError, e:
-            #errmsg = "HTTP propagation - %s error. Propagation failed" % e.code
-            #self.c.log.error(errmsg)
-            #raise UnexpectedError(errmsg)
-        #except urllib2.URLError, e:
-            #errmsg = "HTTP propagation - %s error. Propagation failed" % e.reason
-            #self.c.log.error(errmsg)
-            #raise UnexpectedError(errmsg)
-        except:
-            errmsg = "HTTP propagation - unknown error. Propagation failed"
+            remote_data = SafeURLopener().retrieve(remote_source, local_absolute_target)
+        except UnexpectedError, e:
+            errmsg = "HTTP propagation - %s" % e
             self.c.log.error(errmsg)
-            raise UnexpectedError(errmsg)
+            raise
 
         self.c.log.info("Transfer complete.")
     
     def unpropagate(self, local_absolute_source, remote_target):
         raise InvalidInput("HTTP unpropagation is not supported.")
+
+
+class SafeURLopener(urllib.FancyURLopener):
+  def http_error_default(self, url, fp, errcode, errmsg, headers):
+    errmsg = "HTTP error " + errmsg
+    raise UnexpectedError(errmsg)
