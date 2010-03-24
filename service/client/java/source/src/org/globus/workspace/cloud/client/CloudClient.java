@@ -147,6 +147,8 @@ public class CloudClient {
                                 PrCodes.CREATE__EXTRALINES,
                                 PrCodes.MD_SSH__FILE_READ,
                                 PrCodes.MD_USERDATA__FILE_READ,
+								PrCodes.LISTENER_TERMINATION__INSTANCE_ID_PRINT,
+								PrCodes.LISTENER_AUTODESTROY,
                                 PrCodes.CREATE__CTXBROKER_CONTACTINF};
         return PrCodes.getAllCodesExcept(optOuts);
     }

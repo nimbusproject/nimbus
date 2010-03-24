@@ -195,6 +195,7 @@ public class PrCodes {
 
     public static final int LISTENER_AUTODESTROY = 5005;
     public static final int LISTENER_AUTODESTROY__ERRORS = 5006;
+	public static final int LISTENER_AUTODESTROY_CLOUD_UNPROPAGATE = 5007;
 
     public static final int LISTENER_LOGISTICSQUERY__ERRORS = 5012;
 

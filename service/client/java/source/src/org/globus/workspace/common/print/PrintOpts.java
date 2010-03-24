@@ -138,7 +138,7 @@ public class PrintOpts {
         return this.printAll;
     }
 
-    boolean printThis(int code) {
+    public boolean printThis(int code) {
         if (this.disableEntirely) {
             return false;
         }
