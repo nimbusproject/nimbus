@@ -3,8 +3,8 @@ This directory is for building the cloud client.
 The scripts and directory layout that makes the cloud client work is all contained in
 "nimbus-cloud-client-src".  However, this is missing the embedded Globus directory.
 
-If you have checked this out of CVS in order to build a releasable cloud client, you will
-need to run this script:
+If you have checked this out of version control in order to build a releasable cloud client, you
+will need to run this script:
 
   bash ./builder/get-wscore.sh
 
@@ -25,20 +25,18 @@ This will do the following:
 
   3) Copy the entire contents of "nimbus-cloud-client-src" into the dist directory.
 
-  4) Remove all "CVS" directories.
+  4) Checksum the wscore tarball that was downloaded and compare it to the expected value.
 
-  5) Checksum the wscore tarball that was downloaded and compare it to the expected value.
-
-  6) Expand that tarball into the dist directory, e.g. "nimbus-cloud-client-011/lib/globus"
+  5) Expand that tarball into the dist directory, e.g. "nimbus-cloud-client-011/lib/globus"
      It expects that this directory does not exist yet.
 
-  7) Set up that directory as GLOBUS_LOCATION for the next step
+  6) Set up that directory as GLOBUS_LOCATION for the next step
 
-  8) Call the "../bin/clients-only-build-and-install.sh" script in the Nimbus source tree.
+  7) Call the "../bin/clients-only-build-and-install.sh" script in the Nimbus source tree.
      Since the embedded Globus directory is set up as GLOBUS_LOCATION, it will install the
      client libraries there.
 
-  9) Tar/gz the dist directory as e.g. "nimbus-cloud-client-011.tar.gz"
+  8) Tar/gz the dist directory as e.g. "nimbus-cloud-client-011.tar.gz"
 
 
 Notes:
@@ -51,6 +49,6 @@ Notes:
     a first step.
 
   - The wscore tarball, cloud client dist directory, and cloud client tarball should never be
-    checked into CVS.
+    checked into version control.
 
   - To update names, wscore tarball URL, expected checksum, etc., see "./builder/environment.sh"

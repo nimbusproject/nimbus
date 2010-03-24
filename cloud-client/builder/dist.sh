@@ -54,9 +54,6 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-# remove all "CVS" directories in dist dir:
-find $CLCLBUILDER_DIST_DIRECTORY -name CVS -type d -print -exec rm -rf {} \; &>/dev/null
-
 mkdir $CLCLBUILDER_DIST_DIRECTORY/history
 if [ $? -ne 0 ]; then
   echo "could not created empty history dir inside dist dir, exiting"
