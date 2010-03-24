@@ -33,7 +33,7 @@ export GLOBUS_LOCATION="$CLCLBUILDER_DIST_DIRECTORY/lib/globus"
 
 # #########################################################
 
-export NIMBUS_CLIENT_INSTALL_SCRIPT="$CLCLBUILDER_BASEDIR/../bin/clients-only-build-and-install.sh"
+export NIMBUS_CLIENT_INSTALL_SCRIPT="$CLCLBUILDER_BASEDIR/../scripts/clients-only-build-and-install.sh"
 
 # #########################################################
 
