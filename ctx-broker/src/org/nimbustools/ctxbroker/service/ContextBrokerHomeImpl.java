@@ -78,10 +78,10 @@ public class ContextBrokerHomeImpl extends ResourceHomeImpl
     private BootstrapFactory bootstrapFactory;
     
     // String hostname --> Integer workspID
-    private final Hashtable hostnameMap = new Hashtable();
+    private final Hashtable<String, Integer> hostnameMap = new Hashtable<String, Integer>();
 
     // String ip-address --> Integer workspID
-    private final Hashtable ipMap = new Hashtable();
+    private final Hashtable<String, Integer> ipMap = new Hashtable<String, Integer>();
 
     // the lowest unused integer ID
     private int nextID = 1;
@@ -519,7 +519,7 @@ public class ContextBrokerHomeImpl extends ResourceHomeImpl
 
     private Integer noPersistenceIPQuery(String rsrc,
                                          String ip) {
-        return (Integer) this.ipMap.get(rsrc+ip);
+        return this.ipMap.get(rsrc+ip);
     }
 
     private void noPersistenceIPAddition(String rsrc,
@@ -530,7 +530,7 @@ public class ContextBrokerHomeImpl extends ResourceHomeImpl
 
     private Integer noPersistenceHostnameQuery(String rsrc,
                                                String hostname) {
-        return (Integer) this.hostnameMap.get(rsrc+hostname);
+        return this.hostnameMap.get(rsrc+hostname);
     }
 
     private void noPersistenceHostnameAddition(String rsrc,
