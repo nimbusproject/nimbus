@@ -302,12 +302,6 @@ Did you build?  Use the build-and-install script.
         <antcall target="_deploy" />
         <echo>Installed: ${nimbus.autoconfig.gt4_0.gar.print-noun}
         </echo>
-        <echo>NOTES: To run the auto-configuration program, launch:</echo>
-        <echo>       ${abs.deploy.dir}/share/${nimbus.autoconfig.gt4_0.gar.package.name}/autoconfig.sh
-        </echo>
-        <echo>       To run the cloud configuration admin helper, launch:</echo>
-        <echo>       ${abs.deploy.dir}/share/${nimbus.autoconfig.gt4_0.gar.package.name}/cloud-admin.sh
-        </echo>
     </target>
 
     <target name="assessDeployed">
