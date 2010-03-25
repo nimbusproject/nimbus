@@ -13,8 +13,7 @@
         <xs:element ref="Service" minOccurs="1" />
         <xs:element ref="WorkerNodes" minOccurs="1"/>
         <xs:element ref="CloudName" minOccurs="0"/>
-<!--        <xs:element ref="Network-Pools" minOccurs="1"/>
- -->     </xs:all>
+      </xs:all>
     </xs:complexType>
   </xs:element>
 
@@ -132,23 +131,6 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-<!--
-  <xs:element name="Network-Pools">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element name="Pool" maxOccurs="unbounded">
-          <xs:complexType>
-            <xs:all>
-              <xs:element ref="Name" minOccurs="1" maxOccurs="1"/>
-              <xs:element ref="TotalIPs" minOccurs="1" maxOccurs="1"/>
-              <xs:element ref="AvailableIPs" minOccurs="1" maxOccurs="1"/>
-            </xs:all>
-          </xs:complexType>
-        </xs:element>
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
--->
   <xs:element name="VMM-Pools">
     <xs:complexType>
       <xs:sequence>
