@@ -245,20 +245,19 @@ public class TaskfulStateChangeListener extends GenericStateChangeListener {
             final String err = "\"" + workspace.getDisplayName() + "\": " +
                     newState.getState() + ", calling destroy for you.";
             if (print.useThis()) {
-
-				// Uncleanly injecting cloud-client message here.
-				// And also uncleanly consulting the 'PrintOpts' internals.  Bravo.
-				if (print.getOpts().printThis(PrCodes.LISTENER_AUTODESTROY_CLOUD_UNPROPAGATE)) {
-					if (newState.getState().equals(State.STATE_TransportReady)) {
-						print.errln(PrCodes.LISTENER_AUTODESTROY_CLOUD_UNPROPAGATE,
-									"The image has successfully been transferred to your " +
-											"repository directory.\n\nFinalizing the " +
-											"deployment now (terminating the resource " +
-											"lease).\n");
-					}
-				} else {
-                	print.errln(PrCodes.LISTENER_AUTODESTROY, err);
-				}
+                // Uncleanly injecting cloud-client message here.
+                // And also uncleanly consulting the 'PrintOpts' internals.  Bravo.
+                if (print.getOpts().printThis(PrCodes.LISTENER_AUTODESTROY_CLOUD_UNPROPAGATE)) {
+                    if (newState.getState().equals(State.STATE_TransportReady)) {
+                        print.errln(PrCodes.LISTENER_AUTODESTROY_CLOUD_UNPROPAGATE,
+                            "The image has successfully been transferred to your " +
+                            "repository directory.\n\nFinalizing the " +
+                            "deployment now (terminating the resource " +
+                            "lease).\n");
+                    }
+                } else {
+                    print.errln(PrCodes.LISTENER_AUTODESTROY, err);
+                }
             } else if (print.useLogging()) {
                 logger.error(err);
             }
