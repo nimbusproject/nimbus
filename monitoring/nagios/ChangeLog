@@ -1,3 +1,59 @@
+2010-03-25  Adam Bishop <ahbishop@uvic.ca>
+
+A complete overhaul of the XML format reported by plug-ins and published
+by the Nagios data processing script. The new scipts no longer publish to
+an MDS (this tool has been deprecated). XML is instead pushed to a web 
+server for querying. 
+
+   * nimbus_nagios_data_processing.py: This script was completely re-written
+   to accommodate the new XML format. This format and the Nimbus plug-in
+   architecture requires several XSLT and DOM Tree manipulations. Also, the
+   XML is now validated against a XSD schema. Logging is now done to an 
+   external file for easier debugging and verification.
+   A configuration file, monitoring_config.cfg, now contains numerous options
+   and settings that can be modified by the end user.
+
+   * nimbus_server_script.py: Network Pools functionality was removed and 
+   moved into a separate script. Also, the output/reporting mechanism for
+   gathered data was changed to be more flexible and more easily support
+   the new XML format. Logging code was updated.
+   A configuration file, monitoring_config.cfg, now contains numerous options
+   and settings that can be modified by the end user. 
+
+   * nimbus_rt_vm_slots_script.py: A new script that is essentially the 
+   Network Pools plug-in that was removed from nimbus_server_script.py. This
+   script is designed to be run OUTSIDE of the Nagios utility, all by itself.
+   It queries the nimbus container to determine the number of available IP
+   addresses at that time. The script includes a loop that will cause it to
+   run every X seconds, where X is configurable in monitoring_config.cfg. 
+   Also, this script publishes to its own XML file, seperate from that created
+   by nimbus_nagios_data_processing.py
+
+   * nimbus_worker_script.py: Some renaming of classes was done to provide
+   a more uniform scheme. Also, the 'VMOS' plug-in was removed for lack of 
+   usage. Added the HostCpuId plug-in to report the CPUID string for the 
+   host system's processor. The output/reporting mechanism for
+   gathered data was changed to be more flexible and more easily support
+   the new XML format. Logging code was updated.
+
+   * cloud.xsd: The new XML format schema that the nimbus_nagios_data_processing
+   script validates against.
+
+   * nimbus_nagios_merge_nodes.xsl: An XSL to merge distinct worker node plug-in
+   XML snippets into a single XML document structure
+
+   * nimbus_nagios_rem_attrib.xsl: An XSL to strip attributes from all plug-in XML
+   data. The attributes contain IP addresses and unique keys used in other XSL 
+   processing, but unnecessary for the final XML format
+   
+   * nimbus_nagios_rem_dup_nodes.xsl: An XSL to remove duplicate plug-in XML snippets
+   from the final XML tree document. Attributes are used to uniquely identify nodes.
+
+   * nimbus_register_mds.py: REMOVED
+
+   * nimbus_query_mds.py: REMOVED
+
+
 2010-01-11  Adam Bishop <ahbishop@uvic.ca>
 
 Bug fixes and documentation/commenting updates absent from initial 

@@ -54,7 +54,6 @@ NIMBUS_PHYS_CONF = "/vmm-pools"
 
 CONF_FILE = "/usr/local/nagios/libexec/monitoring_config.cfg"
 NM_CONF_FILE_SECTION = "Nimbus_Monitoring"
-NIMBUS_ADDRESS = "Nimbus_Server_Address"
 NIMBUS_LOCATION = "Nimbus_Install_Location"
 GLOBUS_LOCATION = "Globus_Install_Location"
 SERVER_TMP_LOCATION = "Server_Tmp_Location"
@@ -62,6 +61,7 @@ NAGIOS_LOCATION = "Nagios_Location"
 JAVA_LOCATION = "Java_Location"
 IJ_LOCATION = "IJ_Location"
 DERBY_LOCATION = "Derby_Location"
+
 
 CONF_FILE_SECTION= "Real_Time_Monitoring"
 REALTIME_XML_LOCATION = "RealTime_XML_Output_Location"
@@ -72,14 +72,12 @@ ConfigMapping = {}
 
 # This global method loads all the user configured options from the configuration file and saves them
 # into the ConfigMapping dictionary
-
 def loadNimbusConfig(logger):
 
     cfgFile = ConfigParser.ConfigParser()
     if(os.path.exists(CONF_FILE)):
         cfgFile.read(CONF_FILE)
         try:
-            ConfigMapping[NIMBUS_ADDRESS] = cfgFile.get(NM_CONF_FILE_SECTION,NIMBUS_ADDRESS,0)
             ConfigMapping[NIMBUS_LOCATION] = cfgFile.get(NM_CONF_FILE_SECTION,NIMBUS_LOCATION,0)
             ConfigMapping[SERVER_TMP_LOCATION] = cfgFile.get(NM_CONF_FILE_SECTION, SERVER_TMP_LOCATION,0)
             ConfigMapping[NAGIOS_LOCATION] = cfgFile.get(NM_CONF_FILE_SECTION, NAGIOS_LOCATION,0)
@@ -87,6 +85,7 @@ def loadNimbusConfig(logger):
             ConfigMapping[IJ_LOCATION] = cfgFile.get(NM_CONF_FILE_SECTION,IJ_LOCATION,0)
             ConfigMapping[GLOBUS_LOCATION] = cfgFile.get(NM_CONF_FILE_SECTION,GLOBUS_LOCATION,0)
             ConfigMapping[DERBY_LOCATION] = cfgFile.get(NM_CONF_FILE_SECTION,DERBY_LOCATION,0)
+
 
             ConfigMapping[REALTIME_XML_LOCATION] = cfgFile.get(CONF_FILE_SECTION, REALTIME_XML_LOCATION,0)
             ConfigMapping[REALTIME_UPDATE_INTERVAL] = cfgFile.get(CONF_FILE_SECTION, REALTIME_UPDATE_INTERVAL,0)
@@ -149,21 +148,49 @@ def pluginExitN(logger, messageIdentifier, pluginInfo, returnCode):
     
     print (outputString.getvalue())   
 
+class Logger:
+    """ A class to encapsulate useful logging features and setup
+
+    """
+    def __init__(self, name, errorLogFile=None):
+
+        self.logger = logging.getLogger(name)
+
+        self.logger.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(asctime)s : %(name)s : %(levelname)s : %(message)s')
+
+        nagiosObservableHndlr = logging.StreamHandler(sys.stdout)
+        nagiosObservableHndlr.setLevel(logging.ERROR)
+        nagiosObservableHndlr.setFormatter(formatter)
+        if (errorLogFile != None):
+ 
+            fileOutputHndlr = logging.FileHandler(errorLogFile)
+            fileOutputHndlr.setFormatter(formatter)
+            fileOutputHndlr.setLevel(logging.ERROR)
+            self.logger.addHandler(fileOutputHndlr)
+
+        self.logger.addHandler(nagiosObservableHndlr)
+
+    def warning(self, msg):
+        self.logger.warning(msg)
+
+    def info(self, msg):
+        self.logger.info(msg)
+
+    def error(self, msg):
+        self.logger.error(msg)
+
+    def debug(self, msg):
+        self.logger.debug(msg)
+
+
 class PluginObject:    
     """ This base class sets up appropriate logging mechanisms. 
     """
 
     def __init__(self, callingClass):
           
-        self.logger = logging.getLogger(callingClass)
-        self.logger.setLevel(logging.INFO)
-        formatter = logging.Formatter('%(asctime)s ; %(name)s ; %(levelname)s ; %(message)s')
-
-        errorOutputHndlr = logging.FileHandler("rt_vm_slots.log")
-        errorOutputHndlr.setFormatter(formatter)
-        errorOutputHndlr.setLevel(logging.ERROR)
-
-        self.logger.addHandler(errorOutputHndlr)
+        self.logger = Logger(callingClass, "nimbus_rt_vm_slots.log")
         self.pluginOutput = {}
 
 class HeadNodeVMSlots(PluginObject):
@@ -235,7 +262,7 @@ class HeadNodeVMSlots(PluginObject):
                     if (entry[1] == allocIP):
                         available -= 1
             self.pluginOutput.append({"Pool":{"Name": str(pool["ID"]), "AvailableIPs": str(available), "TotalIPs":str(len(pool["NETWORK"]))}})
-            
+        self.pluginOutput.append({"TimeStamp":str(time.time()).split(".")[0]})   
         pluginExitN(self.logger, self.resourceName,self.pluginOutput, RET_OK)
 
 if __name__ == '__main__':
