@@ -33,14 +33,14 @@ if [ $? -ne 0 ]; then
     exit 3
 fi
 
-$PYTHON_EXE $NIMBUS_HOME/sbin/setup.py --basedir $NIMBUS_HOME $SETUP_ARGS
+$PYTHON_EXE $NIMBUS_HOME/sbin/nimbusconfigure.py --basedir $NIMBUS_HOME $SETUP_ARGS
 if [ $? -ne 0 ]; then
     echo ""
     echo "Nimbus is not set up properly, exiting."
     exit 2
 fi
 
-#TODO this functionality should be moved into setup.py
+#TODO this functionality should be moved into nimbusconfigure.py
 $NIMBUS_WEBDIR/sbin/new-conf.sh
 if [ $? -ne 0 ]; then
     echo ""
