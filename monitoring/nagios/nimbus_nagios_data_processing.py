@@ -36,34 +36,31 @@ import libxslt
 import time
 import os
 
-import fileinput
 
 __VERSION__ = '1.0'
 
+CONF_FILE = "/usr/local/nagios/libexec/monitoring_config.cfg"
+
 RET_CRITICAL = -1
 
-LARGE_FILE_SIZE = 1024 # kBytes, so 1 MB
+LARGE_FILE_SIZE = 1024
 
 # Must specify the full path as Nagios doesn't setup a complete environment
 # when it calls this script
-REMOVE_DUP_XSL = "/usr/local/nagios/libexec/nimbus_nagios_rem_dup_nodes.xsl"
-MERGE_NODES_XSL = "/usr/local/nagios/libexec/nimbus_nagios_merge_nodes.xsl"
-ATTRIBUTE_STRIP_XSL = "/usr/local/nagios/libexec/nimbus_nagios_rem_attrib.xsl"
+REMOVE_DUP_XSL = "libexec/nimbus_nagios_rem_dup_nodes.xsl"
+MERGE_NODES_XSL = "libexec/nimbus_nagios_merge_nodes.xsl"
+ATTRIBUTE_STRIP_XSL = "libexec/nimbus_nagios_rem_attrib.xsl"
 XSD = "cloud.xsd"
-
-CONF_FILE = "/usr/local/nagios/libexec/monitoring_config.cfg"
 
 NM_CONF_FILE_SECTION = "Nimbus_Monitoring"
 SERVER_TMP_LOCATION = "Server_Tmp_Location"
 NAGIOS_LOCATION = "Nagios_Location"
 
 CONF_FILE_SECTION = "Nagios_Data_Processing"
-SCRIPT_LOCATION = "Script_Location"
 PERFORMANCE_DATA_LOC = "Nagios_Performance_Data_Loc"
 TARGET_XML_FILE = "Target_XML_File"
 TIME_WINDOW = "Time_Window"
 CLOUD_NAME = "Cloud_Name"
-
 
 ConfigMapping = {}
 
@@ -75,7 +72,6 @@ def loadConfig(logger):
         try:
             ConfigMapping[SERVER_TMP_LOCATION] = cfgFile.get(NM_CONF_FILE_SECTION, SERVER_TMP_LOCATION,0)
             ConfigMapping[NAGIOS_LOCATION] = cfgFile.get(NM_CONF_FILE_SECTION, NAGIOS_LOCATION,0)
-            ConfigMapping[SCRIPT_LOCATION] = cfgFile.get(CONF_FILE_SECTION, SCRIPT_LOCATION,0)
             ConfigMapping[PERFORMANCE_DATA_LOC] = cfgFile.get(CONF_FILE_SECTION, PERFORMANCE_DATA_LOC,0)
             ConfigMapping[TARGET_XML_FILE] = cfgFile.get(CONF_FILE_SECTION, TARGET_XML_FILE,0)
             ConfigMapping[TIME_WINDOW] = cfgFile.get(CONF_FILE_SECTION, TIME_WINDOW,0)
@@ -159,7 +155,7 @@ class NagiosXMLAggregator:
             #print curFileSize
             if(curFileSize > LARGE_FILE_SIZE):
                 self.logger.warning("The service performance data file: "+ConfigMapping[PERFORMANCE_DATA_LOC]+" has grown to "+str(curFileSize)+" kB")
-                self.logger.warning("This will slow down the data processing script")    
+                #self.logger.warning("This will slow down the data processing script")    
             try:
                 fileHandle = open(ConfigMapping[PERFORMANCE_DATA_LOC],"r")
               
@@ -173,15 +169,12 @@ class NagiosXMLAggregator:
             # so this can be modified depending on how often the Nagios plug-ins are configured to report. Duplicates
             # should they exist will be handled by XSL transforms later in this code
             for line in fileHandle.readlines():
-                #if(line == ""): break
-#fileinput.input([ConfigMapping[PERFORMANCE_DATA_LOC]]):#fileHandle.readlines():
                 
-                #lineEntries = line.split()
                 serviceTime = int(line.split()[1])
                 systemTime = int(time.time())
                 
                 delta = abs(serviceTime - systemTime)
-                if(delta > ConfigMapping[TIME_WINDOW]):
+                if(delta > int(ConfigMapping[TIME_WINDOW])):
                     #print "Outside TIME WINDOW" 
                     continue
                 # Ignore lines that don't contain the xml header that
@@ -195,10 +188,8 @@ class NagiosXMLAggregator:
                     # To find the 'end' of the xml header and effectively 
                     # strip it off so the XML can be aggregated into 1 source
                     tagIndex = line.find("?>") + 2
-                    #resourceXMLEntry = line[tagIndex:]
-                    retXML.write(line[tagIndex:].strip())#resourceXMLEntry.strip())
+                    retXML.write(line[tagIndex:].strip())
         retXML.write("</WRAPPER>")
-        self.logger.info("Done file processing") 
         return retXML.getvalue().strip()
 
     def outputXMLToFile(self, xmlToOutput):
@@ -238,7 +229,7 @@ class NagiosXMLAggregator:
         del style
         del doc
         del result
-        self.logger.info("Applied stylesheet")  
+        #self.logger.info("Applied stylesheet")  
         return str(retXML.strip())
 
     # XML Validation occurs against the configured XSD file according to the libxml2 examples included with the
@@ -296,13 +287,9 @@ class NagiosXMLAggregator:
         finalXML.write(workerNodeXML.getvalue())
         finalXML.write("</WorkerNodes>")
         finalXML.write("</Cloud>")
-        del doc
-        del headNodeXML
-        del workerNodeXML
 
-        self.logger.info("About to apply style sheets")
         # The various stylesheets are applied "serially" to the final XML to pepare it for publishing 
-        return self.applyStyleSheet(ATTRIBUTE_STRIP_XSL,self.applyStyleSheet(MERGE_NODES_XSL,self.applyStyleSheet(REMOVE_DUP_XSL,finalXML.getvalue())))
+        return self.applyStyleSheet(ConfigMapping[NAGIOS_LOCATION]+ATTRIBUTE_STRIP_XSL,self.applyStyleSheet(ConfigMapping[NAGIOS_LOCATION]+MERGE_NODES_XSL,self.applyStyleSheet(ConfigMapping[NAGIOS_LOCATION]+REMOVE_DUP_XSL,finalXML.getvalue())))
 
 if __name__ == '__main__':
     

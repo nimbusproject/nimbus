@@ -25,6 +25,8 @@
 
 
 __VERSION__ = '1.0'
+# This absolute path to the config file is REQUIRED
+CONF_FILE = "/usr/local/nagios/libexec/monitoring_config.cfg"
 
 import sys
 import commands
@@ -61,9 +63,6 @@ NIMBUS_PHYS_CONF = NIMBUS_CONF+"vmm-pools"
 NIMBUS_PBS_CONF = NIMBUS_CONF+"pilot.conf"
 NIMBUS_PBS_SUPPORT = NIMBUS_CONF+"other/resource-locator-ACTIVE.xml"
 
-# This absolute path to the config file is REQUIRED
-CONF_FILE = "/usr/local/nagios/libexec/monitoring_config.cfg"
-#CONF_FILE = "monitoring_config.cfg"
 CONF_FILE_SECTION = "Nimbus_Monitoring"
 NIMBUS_ADDRESS = "Nimbus_Server_Address"
 NIMBUS_LOCATION = "Nimbus_Install_Location"
