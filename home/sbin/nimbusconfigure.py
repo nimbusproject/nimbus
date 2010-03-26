@@ -115,6 +115,10 @@ class ARGS:
     CANAME = "-C"
     CANAME_HELP = "Unique name to give CA"
     
+    GRIDFTPENV_LONG= "--gridftpenv"
+    GRIDFTPENV = "-g"
+    GRIDFTPENV_HELP = "Path to GridFTP $GLOBUS_LOCATION"
+    
 def validateargs(opts):
     
     seeh = "see help (-h)"
@@ -144,6 +148,10 @@ def parsersetup():
     group.add_option(ARGS.BASEDIR, ARGS.BASEDIR_LONG,
                     dest="basedir", metavar="PATH",
                     help=ARGS.BASEDIR_HELP)
+    
+    group.add_option(ARGS.GRIDFTPENV, ARGS.GRIDFTPENV_LONG,
+                    dest="gridftpenv", metavar="PATH",
+                    help=ARGS.GRIDFTPENV_HELP)
     
     parser.add_option_group(group)
 
@@ -308,6 +316,41 @@ class NimbusSetup(object):
         gtcontainer.adjust_host_cert(hostcert, hostkey, webdir, gtdir, log)
         gtcontainer.adjust_gridmap_file(gridmap, webdir, gtdir, log)
 
+def print_gridftpenv(setup, gridftp_globus_path):
+    lines = get_gridftpenv_sample(setup, gridftp_globus_path)
+    
+    border = "\n-------------------------------------------------------------\n"
+    print border
+    for line in lines:
+        print line
+    print border
+    
+def get_gridftpenv_sample(setup, gridftp_globus_path):
+    out = ["# Sample environment file for launching GridFTP", ""]
+    
+    out.append("# This GLOBUS_LOCATION is where you installed GridFTP, it can differ from where Nimbus is installed")
+    out.append("# (and it should differ, since you should pick the most recent GridFTP)")
+    out.append("export GLOBUS_LOCATION=\"%s\"" % gridftp_globus_path)
+    
+    out.append("")
+    out.append("# These ports need to be opened in your firewall for client callbacks")
+    out.append("export GLOBUS_TCP_PORT_RANGE=\"50000,50200\"")
+    
+    out.append("")
+    out.append("# The rest of these settings are based on the Nimbus install")
+    out.append("export GRIDMAP=\"%s\"" % setup.gridmap_path())
+    out.append("export X509_USER_CERT=\"%s\"" % setup.hostcert_path())
+    out.append("export X509_USER_KEY=\"%s\"" % setup.hostkey_path())
+    out.append("export X509_CERT_DIR=\"%s/trusted-certs\"" % setup.cadir_path())
+    out.append("")
+    out.append("# Sample launch command.")
+    out.append("# Note the hostname, it is important that is right for HTTPS & reverse DNS.")
+    out.append("")
+    out.append("alias gridftp=\"$GLOBUS_LOCATION/sbin/globus-gridftp-server -daemon -p 2811 -d ALL -hostname %s -l /tmp/gridftp.log\"" % setup.hostname())
+    
+    out.append("")
+    return out
+
 def main(argv=None):
     if os.name != 'posix':
         print >>sys.stderr, "Only runs on POSIX systems."
@@ -349,8 +392,12 @@ def main(argv=None):
 
         setup = NimbusSetup(basedir, config)
         setup.validate_environment()
-
-        setup.perform_setup()
+        
+        if opts.gridftpenv:
+            print_gridftpenv(setup, opts.gridftpenv)
+            return 0
+        else:
+            setup.perform_setup()
 
         if opts.configpath:
             log.debug("saving settings to %s" % opts.configpath)
@@ -364,6 +411,9 @@ def main(argv=None):
             finally:
                 if f:
                     f.close()
+                    
+        # using instead of 0 for now, as a special signal to the wrapper program
+        return 42
 
     except InvalidInput, e:
         msg = "\nProblem with input: %s" % e.msg
