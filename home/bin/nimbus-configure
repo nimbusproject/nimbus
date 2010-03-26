@@ -34,10 +34,16 @@ if [ $? -ne 0 ]; then
 fi
 
 $PYTHON_EXE $NIMBUS_HOME/sbin/nimbusconfigure.py --basedir $NIMBUS_HOME $SETUP_ARGS
-if [ $? -ne 0 ]; then
-    echo ""
-    echo "Nimbus is not set up properly, exiting."
-    exit 2
+EXITCODE=$?
+if [ $EXITCODE -ne 42 ]; then
+
+    if [ $EXITCODE -eq 0 ]; then
+        exit 0
+    else
+        echo ""
+        echo "Nimbus is not set up properly, exiting."
+        exit 2
+    fi
 fi
 
 
