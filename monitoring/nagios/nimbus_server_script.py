@@ -50,8 +50,8 @@ NAGIOS_RET_UNKNOWN = 3
 # These locations need to be absolute so that when the 'ij' utility is opened in a subprocess
 # it can still locate them
 
-SQL_IP_SCRIPT = "/usr/local/nagios/libexec/nimbus_derby_used_ips.sql"
-SQL_RUNNING_VM_SCRIPT = "/usr/local/nagios/libexec/nimbus_derby_running_vms.sql"
+SQL_IP_SCRIPT = "/libexec/nimbus_derby_used_ips.sql"
+SQL_RUNNING_VM_SCRIPT = "/libexec/nimbus_derby_running_vms.sql"
 
 #The "NIMBUS_" entries are relative to the ENV_GLOBUS_LOC var
 NIMBUS_CONF = "/etc/nimbus/workspace-service"
@@ -61,7 +61,9 @@ NIMBUS_PHYS_CONF = "/vmm-pools"
 NIMBUS_PBS_CONF = "/pilot.conf"
 NIMBUS_PBS_SUPPORT = "/other/resource-locator-ACTIVE.xml"
 
+# This absolute path to the config file is REQUIRED
 CONF_FILE = "/usr/local/nagios/libexec/monitoring_config.cfg"
+#CONF_FILE = "monitoring_config.cfg"
 CONF_FILE_SECTION = "Nimbus_Monitoring"
 NIMBUS_ADDRESS = "Nimbus_Server_Address"
 NIMBUS_LOCATION = "Nimbus_Install_Location"
@@ -334,7 +336,7 @@ class HeadNodeDBConsistent(PluginObject):
     
         isConsistent = True
 
-        query = ConfigMapping[IJ_LOCATION]+ " "+SQL_IP_SCRIPT
+        query = ConfigMapping[IJ_LOCATION]+ " "+ConfigMapping[NAGIOS_LOCATION]+SQL_IP_SCRIPT
         #print query
         output,status = (subprocess.Popen([query],stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell=True, env={'DERBY_HOME':ConfigMapping[DERBY_LOCATION],'JAVA_HOME':ConfigMapping[JAVA_LOCATION],'GLOBUS_HOME':ConfigMapping[NIMBUS_LOCATION]})).communicate()
 	
@@ -363,7 +365,7 @@ class HeadNodeDBConsistent(PluginObject):
                 isConsistent = False
         # OK, so now are their reachable VMs that should be terminated?
 
-        query = ConfigMapping[IJ_LOCATION] + " " + SQL_RUNNING_VM_SCRIPT
+        query = ConfigMapping[IJ_LOCATION] + " "+ConfigMapping[NAGIOS_LOCATION] + SQL_RUNNING_VM_SCRIPT
         output,status = (subprocess.Popen([query],stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell=True, env={'DERBY_HOME':ConfigMapping[DERBY_LOCATION],'JAVA_HOME':ConfigMapping[JAVA_LOCATION],'GLOBUS_HOME':ConfigMapping[NIMBUS_LOCATION]})).communicate()
 
         if(status != ""):

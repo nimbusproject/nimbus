@@ -44,15 +44,18 @@ import syslog
 RET_OK = 0
 RET_CRITICAL = -1
 
-SQL_IP_SCRIPT = "/usr/local/nagios/libexec/nimbus_derby_used_ips.sql"
-SQL_RUNNING_VM_SCRIPT = "/usr/local/nagios/libexec/nimbus_derby_running_vms.sql"
+
+# This absolute path to the config file is REQUIRED s
+CONF_FILE = "/usr/local/nagios/libexec/monitoring_config.cfg"
+
+SQL_IP_SCRIPT = "/libexec/nimbus_derby_used_ips.sql"
+SQL_RUNNING_VM_SCRIPT = "/libexec/nimbus_derby_running_vms.sql"
 
 #The "NIMBUS_" entries are relative to the ENV_GLOBUS_LOC var
 NIMBUS_CONF = "/etc/nimbus/workspace-service"
 NIMBUS_NET_CONF = "/network-pools"
 NIMBUS_PHYS_CONF = "/vmm-pools"
 
-CONF_FILE = "/usr/local/nagios/libexec/monitoring_config.cfg"
 NM_CONF_FILE_SECTION = "Nimbus_Monitoring"
 NIMBUS_LOCATION = "Nimbus_Install_Location"
 GLOBUS_LOCATION = "Globus_Install_Location"
@@ -61,7 +64,6 @@ NAGIOS_LOCATION = "Nagios_Location"
 JAVA_LOCATION = "Java_Location"
 IJ_LOCATION = "IJ_Location"
 DERBY_LOCATION = "Derby_Location"
-
 
 CONF_FILE_SECTION= "Real_Time_Monitoring"
 REALTIME_XML_LOCATION = "RealTime_XML_Output_Location"
@@ -241,7 +243,7 @@ class HeadNodeVMSlots(PluginObject):
                 self.logger.error("Error opening network-pool: "+ConfigMapping[NIMBUS_LOCATION]+NIMBUS_CONF+NIMBUS_NET_CONF+"/"+pool)
                 sys.exit(RET_CRITICAL)
 
-        query = ConfigMapping[IJ_LOCATION]+ " "+SQL_IP_SCRIPT
+        query = ConfigMapping[IJ_LOCATION]+ " "+ConfigMapping[NAGIOS_LOCATION]+SQL_IP_SCRIPT
         output,status = (subprocess.Popen([query],stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell=True, env={'DERBY_HOME':ConfigMapping[DERBY_LOCATION],'JAVA_HOME':ConfigMapping[JAVA_LOCATION],'GLOBUS_HOME':ConfigMapping[NIMBUS_LOCATION]})).communicate()
         
         # Use a regex to find the lines containing IP addresses - this eases parsing greatly
