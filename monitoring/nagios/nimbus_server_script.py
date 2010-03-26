@@ -50,16 +50,16 @@ NAGIOS_RET_UNKNOWN = 3
 # These locations need to be absolute so that when the 'ij' utility is opened in a subprocess
 # it can still locate them
 
-SQL_IP_SCRIPT = "/libexec/nimbus_derby_used_ips.sql"
-SQL_RUNNING_VM_SCRIPT = "/libexec/nimbus_derby_running_vms.sql"
+SQL_IP_SCRIPT = "libexec/nimbus_derby_used_ips.sql"
+SQL_RUNNING_VM_SCRIPT = "libexec/nimbus_derby_running_vms.sql"
 
 #The "NIMBUS_" entries are relative to the ENV_GLOBUS_LOC var
-NIMBUS_CONF = "/etc/nimbus/workspace-service"
-NIMBUS_NET_CONF = "/network-pools"
-NIMBUS_PHYS_CONF = "/vmm-pools"
+NIMBUS_CONF = "etc/nimbus/workspace-service/"
+NIMBUS_NET_CONF = NIMBUS_CONF+"network-pools"
+NIMBUS_PHYS_CONF = NIMBUS_CONF+"vmm-pools"
 
-NIMBUS_PBS_CONF = "/pilot.conf"
-NIMBUS_PBS_SUPPORT = "/other/resource-locator-ACTIVE.xml"
+NIMBUS_PBS_CONF = NIMBUS_CONF+"pilot.conf"
+NIMBUS_PBS_SUPPORT = NIMBUS_CONF+"other/resource-locator-ACTIVE.xml"
 
 # This absolute path to the config file is REQUIRED
 CONF_FILE = "/usr/local/nagios/libexec/monitoring_config.cfg"
@@ -259,7 +259,7 @@ class HeadNodePBSSupport(PluginObject):
     def __call__(self, option, opt_str, value, parser):
 
         try:
-            fileHandle = open(ConfigMapping[NIMBUS_LOCATION]+NIMBUS_CONF+NIMBUS_PBS_SUPPORT)
+            fileHandle = open(ConfigMapping[NIMBUS_LOCATION]+NIMBUS_PBS_SUPPORT)
         except IOError:
             self.logger.error("IOError opening resource-locator-ACTIVE.xml for processing!")
             sys.exit(NAGIOS_RET_CRITICAL)
@@ -287,7 +287,7 @@ class HeadNodePBSMemory(PluginObject):
     def __call__(self, option, opt_str, value, parser):
 
         try:
-            fileHandle = open(ConfigMapping[NIMBUS_LOCATION]+NIMBUS_CONF+NIMBUS_PBS_CONF)
+            fileHandle = open(ConfigMapping[NIMBUS_LOCATION]+NIMBUS_PBS_CONF)
         except IOError:
             self.logger.error("IOError opening pilot.conf for processing!")
             sys.exit(NAGIOS_RET_CRITICAL)
@@ -442,12 +442,12 @@ class HeadNodeVMMPools(PluginObject):
     def __call__(self, option, opt_str, value, parser):
        
         try:
-            vmmPools = os.listdir(str(ConfigMapping[NIMBUS_LOCATION])+NIMBUS_CONF+NIMBUS_PHYS_CONF)
+            vmmPools = os.listdir(str(ConfigMapping[NIMBUS_LOCATION])+NIMBUS_PHYS_CONF)
         except OSError, ose:
             self.logger.error("Error listing VMMPool directory: "+str(ose))  
             sys.exit(NAGIOS_RET_CRITICAL)
         try:
-            netPools = os.listdir(ConfigMapping[NIMBUS_LOCATION]+NIMBUS_CONF+NIMBUS_NET_CONF)
+            netPools = os.listdir(ConfigMapping[NIMBUS_LOCATION]+NIMBUS_NET_CONF)
         except OSError, ose:
            self.logger.error("Error listing NetPool directory: "+str(ose))
            sys.exit(NAGIOS_RET_CRITICAL)
@@ -464,7 +464,7 @@ class HeadNodeVMMPools(PluginObject):
                     continue
                 totalNetPools.update({npool:0})
             try:
-                fileHandle = open(ConfigMapping[NIMBUS_LOCATION]+NIMBUS_CONF+NIMBUS_PHYS_CONF+"/"+pool)
+                fileHandle = open(ConfigMapping[NIMBUS_LOCATION]+NIMBUS_PHYS_CONF+"/"+pool)
                 workerNodes = []
                 for entry in fileHandle:
                     if(entry.startswith("#") or entry.isspace()):
@@ -497,7 +497,7 @@ class HeadNodeVMMPools(PluginObject):
                             self.logger.error("Erroneous entry in the VMM configuration: "+ network+" - Ignoring")
                 poolListing[pool] = totalNetPools
             except IOError:
-                self.logger.error("Error opening VMM-pool: "+ConfigMapping[GLOBUS_LOCATION]+NIMBUS_CONF+NIMBUS_PHYS_CONF+ pool)
+                self.logger.error("Error opening VMM-pool: "+ConfigMapping[GLOBUS_LOCATION]+NIMBUS_PHYS_CONF+ pool)
                 sys.exit(NAGIOS_RET_CRITICAL)
         self.pluginOutput= []
         for key in poolListing.keys():
