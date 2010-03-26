@@ -14,7 +14,7 @@ if [ ! -d $NIMBUS_WEBDIR ]; then
 fi
 
 NIMBUS_CONF="$NIMBUS_HOME/nimbus-setup.conf"
-SETUP_ARGS="--conf $NIMBUS_CONF"
+SETUP_ARGS="--conf $NIMBUS_CONF $@"
 
 NIMBUS_PYLIB="$NIMBUS_WEBDIR/lib/python"
 NIMBUS_PYSRC="$NIMBUS_WEBDIR/src/python"
