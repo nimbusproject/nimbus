@@ -1,7 +1,7 @@
 Nimbus Monitoring plug-ins for Nagios
 ------------------------------
 Author: Adam Bishop <ahbishop@uvic.ca>
-Date: 2009-08-20
+Date: 2010-03-26
 
 The purpose of these plug ins is to provide information about the status
 and availability of a Nimbus head node and its worker nodes. The work was 
@@ -20,12 +20,12 @@ Notes
 
 Extensive background documentation & usage instructions is available at:
 
-https://wiki.gridx1.ca/twiki/bin/view/Main/NimbusMonitoringStatus
+https://wiki.gridx1.ca/twiki/bin/view/Main/NimbusGSoC2009
 
 There are numerous files included in this project, noted below :
 
 nimbus_worker_script.py 
-    - contains options for monitoring resources on worker nodes
+    - contains options for monitoring resources on Nimbus worker nodes
  
 nimbus_server_script.py 
     - contains options for monitoring resources of the Nimbus head node 
@@ -37,19 +37,38 @@ nimbus_server_script.py
     - a support file used in the execution of nimbus_server_script.py
 
 nimbus_nagios_data_processing.py
-    - used to aggregate and format data to be published by a Nimbus MDS 
-      Execution Aggregator
+    - used to aggregate and format XML data to be published via webserver
 
-nimbus_query_mds.py
-    - used to query an active Nimbus MDS Execution Aggregator for availble 
-      information and transform the data into a Python compatible data structure
+   cloud.xsd
+   - The new XML format schema that the nimbus_nagios_data_processing
+     script validates against.
 
-nimbus_register_mds.py
-    - used to register the new MDS Execution Aggregator with a Nimbus 
-      installation's DefaultIndexService
+   nimbus_nagios_merge_nodes.xsl
+   - An XSL to merge distinct worker node plug-in XML snippets into a single 
+     XML document structure
 
-nimbus_output_mds_resources.sh
-    - contains the Nimbus MDS Execution Aggregator Data Source functionality
+   nimbus_nagios_rem_attrib.xsl
+   - An XSL to strip attributes from all plug-in XML data. The attributes 
+     contain IP addresses and unique keys used in other XSL processing, but 
+     unnecessary for the final XML format
+   
+   nimbus_nagios_rem_dup_nodes.xsl 
+   - An XSL to remove duplicate plug-in XML snippets from the final XML 
+     tree document. Attributes are used to uniquely identify nodes.
+
+nimbus_rt_vm_slots_script.py
+   - This script is essentially the Network Pools plug-in that was removed 
+     from nimbus_server_script.py. This script is designed to be run OUTSIDE 
+     of the Nagios utility, all by itself. It queries the nimbus container 
+     to determine the number of available IP addresses at that time. The 
+     script includes a loop that will cause it to run every X seconds, where 
+     X is configurable in monitoring_config.cfg. Also, this script publishes 
+     to its own XML file, seperate from that created by 
+     nimbus_nagios_data_processing.py
+
+monitoring_config.cfg
+   - A sample monitoring configuration file used by the nimbus scripts. Details
+     on file contents can be found at the above Wiki address
 
 Support 
 -----------
