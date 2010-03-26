@@ -2,7 +2,7 @@
 
 OWNER_IS_RUNNER_ASSUMPTION="yes"
 
-PYTHON_EXE="/usr/bin/env python"
+PYTHON_EXE="/usr/bin/env python -Wignore::DeprecationWarning"
 
 NIMBUS_WEBDIR_REL="`dirname $0`/.."
 NIMBUS_WEBDIR=`cd $NIMBUS_WEBDIR_REL; pwd`

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PYTHON_EXE="/usr/bin/env python"
+PYTHON_EXE="/usr/bin/env python -Wignore::DeprecationWarning"
 
 NIMBUS_HOME_REL="`dirname $0`/.."
 NIMBUS_HOME=`cd $NIMBUS_HOME_REL; pwd`
@@ -39,6 +39,7 @@ if [ $? -ne 0 ]; then
     echo "Nimbus is not set up properly, exiting."
     exit 2
 fi
+
 
 #TODO this functionality should be moved into nimbusconfigure.py
 $NIMBUS_WEBDIR/sbin/new-conf.sh
