@@ -16,9 +16,14 @@
 
 package org.nimbustools.auto_common.ezpz_ca;
 
+import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
+import org.bouncycastle.asn1.x509.AuthorityKeyIdentifier;
+import org.bouncycastle.asn1.x509.CRLNumber;
+import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.globus.gsi.CertUtil;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.jce.X509V3CertificateGenerator;
+import org.bouncycastle.jce.X509V2CRLGenerator;
 import org.bouncycastle.jce.X509Principal;
 import org.bouncycastle.asn1.x509.BasicConstraints;
 import org.bouncycastle.asn1.x509.KeyUsage;
@@ -26,6 +31,7 @@ import org.bouncycastle.asn1.x509.X509Extensions;
 import org.bouncycastle.asn1.x509.X509Name;
 
 import javax.security.auth.x500.X500Principal;
+import java.math.BigInteger;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.SecureRandom;
@@ -36,6 +42,8 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SignatureException;
 import java.security.InvalidKeyException;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
 import java.security.cert.CertificateFactory;
 import java.security.cert.CertificateException;
@@ -56,6 +64,8 @@ public class EzPzCA {
     private final X509Name caX509Name;
     private final String targetString;
     private final CertificateFactory factory;
+    private final X509V2CRLGenerator crlGen;
+
 
     static {
         Security.addProvider(new BouncyCastleProvider());
@@ -99,7 +109,7 @@ public class EzPzCA {
         this.caPrivate = caPrivateKey;
 
         this.caX509Name = new X509Principal(
-                                caX509.getIssuerX500Principal().getEncoded());
+                                this.caX509.getIssuerX500Principal().getEncoded());
 
         this.initializeGenerator();
 
@@ -113,6 +123,10 @@ public class EzPzCA {
                          "and Globus style DN = '" + globusCADN + "'. " +
                          "New DNs will look like this (RFC2253): '" +
                          this.targetString + "'";
+
+        this.crlGen = new X509V2CRLGenerator();
+        this.crlGen.setIssuerDN(this.caX509Name);
+        this.crlGen.setSignatureAlgorithm("SHA1withRSA");
     }
 
 	public static String deriveSigningTargetString(X509Certificate caCert) throws CertificateException {
@@ -186,6 +200,30 @@ public class EzPzCA {
 
 
         return x509Cert;
+    }
+
+    public X509CRL generateCRL()
+            throws SignatureException, InvalidKeyException, NoSuchProviderException,
+                   CertificateEncodingException {
+        
+        this.crlGen.setThisUpdate(new Date());
+        final Calendar expires = Calendar.getInstance();
+        // this is fake, expiration does not matter
+        expires.add(Calendar.MONTH, GenerateNewCert.VALIDITY_MONTHS);
+        this.crlGen.setNextUpdate(expires.getTime());
+
+        // this is how you'd actually add an entry if we wanted one:
+        //this.crlGen.addCRLEntry(BigInteger.ONE, new Date(), CRLReason.PRIVILEGE_WITHDRAWN);
+
+        this.crlGen.addExtension(X509Extensions.AuthorityKeyIdentifier, false,
+                 new AuthorityKeyIdentifier(
+                         new SubjectPublicKeyInfo(
+                                 new AlgorithmIdentifier("RSA"), this.caX509.getEncoded())));
+        
+        this.crlGen.addExtension(X509Extensions.CRLNumber,
+                 false, new CRLNumber(BigInteger.ONE));
+
+        return this.crlGen.generateX509CRL(this.caPrivate, "BC");
     }
 
     private String getTargetDN(String cnString) {

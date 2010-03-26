@@ -34,7 +34,8 @@ public class CertWriter {
     public static final String certFooter = "-----END CERTIFICATE-----";
     public static final String keyHeader = "-----BEGIN RSA PRIVATE KEY-----";
     public static final String keyFooter = "-----END RSA PRIVATE KEY-----";
-    
+    public static final String crlHeader = "-----BEGIN X509 CRL-----";
+    public static final String crlFooter = "-----END X509 CRL-----";
 
     public void writeCert(X509Certificate cert,
                           KeyPair keyPair,
@@ -79,17 +80,23 @@ public class CertWriter {
      * @return string
      */
     public static String certToPEMString(String base64Data) {
-        return toStringImpl(base64Data, false);
+        return toStringImpl(base64Data, false, false);
     }
 
-    private static String toStringImpl(String base64Data, boolean isKey) {
+    public static String crlToPEMString(String base64Data) {
+        return toStringImpl(base64Data, false, true);
+    }
+
+    private static String toStringImpl(String base64Data, boolean isKey, boolean isCRL) {
 
         int length = LINE_LENGTH;
         int offset = 0;
 
         final StringBuffer buf = new StringBuffer(2048);
 
-        if (isKey) {
+        if (isCRL) {
+            buf.append(crlHeader);
+        } else if (isKey) {
             buf.append(keyHeader);
         } else {
             buf.append(certHeader);
@@ -106,7 +113,9 @@ public class CertWriter {
             offset = offset + LINE_LENGTH;
         }
 
-        if (isKey) {
+        if (isCRL) {
+            buf.append(crlFooter);
+        } else if (isKey) {
             buf.append(keyFooter);
         } else {
             buf.append(certFooter);

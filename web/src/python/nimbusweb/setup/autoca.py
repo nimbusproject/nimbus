@@ -15,6 +15,7 @@ EXE_HOSTGUESS="org.nimbustools.auto_common.HostGuess"
 EXE_NEW_HOSTCERTFILE="org.nimbustools.auto_common.confmgr.ReplaceCertFile"
 EXE_NEW_HOSTKEYFILE="org.nimbustools.auto_common.confmgr.ReplaceKeyFile"
 EXE_CREATE_NEW_CA="org.nimbustools.auto_common.ezpz_ca.GenerateNewCA"
+EXE_CREATE_CRL="org.nimbustools.auto_common.ezpz_ca.GenerateCRL"
 EXE_CREATE_NEW_CERT="org.nimbustools.auto_common.ezpz_ca.GenerateNewCert"
 EXE_FIND_CA_PUBPEM="org.nimbustools.auto_common.ezpz_ca.FindCAPubFile"
 EXE_FIND_CA_PRIVPEM="org.nimbustools.auto_common.ezpz_ca.FindCAPrivFile"
@@ -238,6 +239,8 @@ def _createCA(ca_name, basedir, cadir, log):
     pathutil.ensure_file_exists(newpath, "New CA cert (hashed #2)")
     log.debug("file exists: %s" % newpath)
     
+    # Signing policy
+    
     signing1 = pathutil.pathjoin(cacertdir, cacertfilehash + ".signing_policy")
     args = [cacertfile, signing1]
     (exitcode, stdout, stderr) = javautil.run(basedir, log, EXE_WRITE_SIGNING_POLICY, args=args)
@@ -250,3 +253,16 @@ def _createCA(ca_name, basedir, cadir, log):
     pathutil.ensure_file_exists(signing2, "signing_policy file #2")
     log.debug("file exists: %s" % signing2)
         
+    # CRL
+    
+    crl1 = pathutil.pathjoin(cacertdir, cacertfilehash + ".r0")
+    args = [crl1, cacertfile, cakeyfile]
+    (exitcode, stdout, stderr) = javautil.run(basedir, log, EXE_CREATE_CRL, args=args)
+    runutil.generic_bailout("Problem creating revocation file.", exitcode, stdout, stderr)
+    pathutil.ensure_file_exists(crl1, "revocation file #1")
+    log.debug("file exists: %s" % crl1)
+    
+    crl2 = pathutil.pathjoin(trustedcertdir, cacertfilehash + ".r0")
+    shutil.copyfile(crl1, crl2)
+    pathutil.ensure_file_exists(crl2, "revocation file #2")
+    log.debug("file exists: %s" % crl2)
