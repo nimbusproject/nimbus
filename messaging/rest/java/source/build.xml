@@ -53,20 +53,8 @@
             <include name="*.jar"/>
         </fileset>
 
-        <fileset dir="${nimbus.messaging.query.lib.dir}">
-            <include name="*.jar"/>
-        </fileset>
-
-        <fileset dir="${nimbus.messaging.gt4_0.common.lib.dir}">
-            <include name="*.jar"/>
-        </fileset>
-
         <fileset dir="${nimbus.autocommon.dist.dir}">
             <include name="*.jar"/>
-        </fileset>
-
-        <fileset dir="${nimbus.service.api.lib.dir}">
-              <include name="*.jar"/>
         </fileset>
 
         <fileset dir="${nimbus.messaging.rest.dist.dir}">

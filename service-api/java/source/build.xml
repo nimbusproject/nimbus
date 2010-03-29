@@ -41,9 +41,6 @@
          <fileset dir="${nimbus.service.api.lib.dir}">
               <include name="*.jar"/>
          </fileset>
-        <fileset dir="${nimbus.service.api.lib-compile.dir}">
-              <include name="*.jar"/>
-         </fileset>
     </path>
 
     <target name="compile" depends="init">
