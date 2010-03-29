@@ -23,13 +23,12 @@
  *
  * """
 
-__VERSION__ = '0.01'
+__VERSION__ = '1.0'
 
 import sys
 import commands
 import os
 import logging
-#from nimbus_nagios_logger import Logger
 from cStringIO import StringIO
 import libvirt
 from optparse import OptionParser
@@ -44,8 +43,6 @@ NAGIOS_RET_WARNING = 1
 NAGIOS_RET_CRITICAL = 2
 NAGIOS_RET_UNKNOWN = 3
 
-#import logging
-#import sys
 
 class Logger:
     """ A class to encapsulate useful logging features and setup
@@ -90,6 +87,7 @@ class Logger:
 def _createXMLWorker(data, currentOutput):
 
     if (type(data) == type(dict())):
+        # Don't write out a 'DNP' tag
         if "DNP" in data.keys():
            currentOutput.write(str(data["DNP"]))
            return
@@ -128,6 +126,10 @@ def pluginExitN(messageIdentifier, pluginInfo, returnCode):
     sys.exit(returnCode)
 
 class PluginObject:    
+    """
+        A simple base class for setting up logging and initialzing the pluginOutput structure
+
+    """
     def __init__(self, callingClass):
         self.logger = Logger(callingClass)
         self.pluginOutput = {}
@@ -173,11 +175,14 @@ class VMMemory(Virtualized):
         self.resourceName = 'VM-Memory'
 
     def __call__(self, option, opt_str, value, parser):
+        self.pluginOutput = []
         for vm in self.VMs.values():
             # vm.maxMemory reports 'kB' of memory, but we want to report 'MB' to be consistent across all plugins
             # hence, vm.maxMemory/1024 will convert from 'kB'->'MB'
 #                              vm.name()
-            self.pluginOutput["AllocatedMB"] = str(vm.maxMemory()/1024)
+            tdict = {}
+            tdict["VM"] = {"AllocatedMB":str(vm.maxMemory()/1024)}
+            self.pluginOutput.append(tdict)
 
         pluginExitN(self.resourceName, self.pluginOutput, NAGIOS_RET_OK)
 
@@ -223,6 +228,8 @@ class HostCpuCores(Virtualized):
     def __call__(self, option, opt_str, value, parser):
 
         tempRes = self.VMConnection.getInfo()
+        # DNP means Do Not Print and thus the 'DNP' tag will not be included in the plug-ins XML output, only the 
+        # value itself
         self.pluginOutput["DNP"] = str(tempRes[2])
         pluginExitN(self.resourceName, self.pluginOutput, NAGIOS_RET_OK)        
 
@@ -243,7 +250,9 @@ class HostCpuId(Virtualized):
         try:
             cpuFile = open("/proc/cpuinfo","r")
             for line in cpuFile.readlines():
+                # 'model name' is included by the linux environment in /proc/cpuinfo
                 if(line.find("model name") != -1):
+                    # the final split() then join() call is to remove extraneous whitespace
                     descr= string.join((line.split(':')[1]).split())
             cpuFile.close()
         except IOError, err:
@@ -255,7 +264,7 @@ class HostCpuArch(Virtualized):
     """ The class determines what the underlying CPU architecture is, and uses this information to determine
         whether the machine is running in 32bit or 64bit mode. 
  
-        Only valid and tested on x86 class hardware, and modern hardware at that. The ARCH_MAP structure should
+        Only valid and tested on x86 and x86_64 class hardware, and modern hardware at that. The ARCH_MAP structure should
         provide the necessary architecture types.
     """
 
@@ -273,20 +282,6 @@ class HostCpuArch(Virtualized):
         self.pluginOutput["MicroArchitecture"] = self.ARCH_MAP[tempRes[0]]
         pluginExitN(self.resourceName, self.pluginOutput, NAGIOS_RET_OK)
 
-#class VMOs(Virtualized):
-#    """ This class looks up what OS is running on each virtual machine deployed on the local node. An example
-#    is 'linux'. This lookup is done through a libvirt call in the 'Virtualized' base class
-#    """
-#    def __init__(self):
-#        Virtualized.__init__(self)
-#        self.resourceName = "VM-OS"
-
-#    def __call__(self, option, opt_str, value, parser):
-#        for vm in self.VMs.values():
-            #self.logger.info(vm.name()+' ; '+self.resourceName+ " ; "+ vm.OSType())
-#            self.pluginOutput[vm.name().strip()] = str(vm.OSType())
-#        pluginExitN(self.resourceName, self.pluginOutput, NAGIOS_RET_OK)
-        
 class HostMemory(Virtualized):
     """ This class determines how much total memory and free memory remains on the local node with 
         all current virtual machines booted. This lookup is again done through a libvirt call in 
@@ -324,10 +319,8 @@ class PluginCmdLineOpts(PluginObject):
         #The following options are parsed to conform with Nagios Plug-In "standard practices"
         parser.add_option("-V","--version",dest="version", \
             action="store_false", help="Diplay version information",default=True)
-        #parser.add_option("-v","--verbose",dest="verbosity",help="Set verbosity level (0-3)",default=0)
 
         parser.add_option("--VMmem", help="Discover the of memory dedicated to each VM (in MB)", action="callback", callback=VMMemory())
- #       parser.add_option("--VMos", help="Discover the OS running on each VM", action="callback", callback=VMOs())
         parser.add_option("--HostCpuArch",help="Discover the host CPU architecture (x86 or x86_64)", action="callback", callback=HostCpuArch())        
         parser.add_option("--HostVirt", help="Discover the host virtualization technology",action="callback", callback=HostVirt())
         parser.add_option("--HostCpuID",help="Discover the host CPU Info", action="callback", callback=HostCpuId())

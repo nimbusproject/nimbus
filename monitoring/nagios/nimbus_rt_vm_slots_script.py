@@ -24,7 +24,7 @@
  * """
 
 
-__VERSION__ = '0.01'
+__VERSION__ = '1.0'
 
 import sys
 import commands
@@ -160,12 +160,12 @@ class Logger:
 
         self.logger.setLevel(logging.INFO)
         formatter = logging.Formatter('%(asctime)s : %(name)s : %(levelname)s : %(message)s')
-
-        nagiosObservableHndlr = logging.StreamHandler(sys.stdout)
-        nagiosObservableHndlr.setLevel(logging.ERROR)
+        # log to stderr for interactive terminals
+        nagiosObservableHndlr = logging.StreamHandler(sys.stderr)
+        nagiosObservaibleHndlr.setLevel(logging.ERROR)
         nagiosObservableHndlr.setFormatter(formatter)
         if (errorLogFile != None):
- 
+            # Also log to the errorLogFile name 
             fileOutputHndlr = logging.FileHandler(errorLogFile)
             fileOutputHndlr.setFormatter(formatter)
             fileOutputHndlr.setLevel(logging.ERROR)
@@ -187,7 +187,7 @@ class Logger:
 
 
 class PluginObject:    
-    """ This base class sets up appropriate logging mechanisms. 
+    """ This base class sets up appropriate logging mechanisms and provide an initialized pluginOutput structure
     """
 
     def __init__(self, callingClass):
@@ -212,6 +212,7 @@ class HeadNodeVMSlots(PluginObject):
         except OSError, ose:
             self.logger.error("Error listing the Network Pools directory: "+ str(ose))
             sys.exit(RET_CRITICAL)
+
         totalNetPools = []
         for pool in netPools:
 
@@ -260,10 +261,13 @@ class HeadNodeVMSlots(PluginObject):
                       
             available = len(pool["NETWORK"])
             for entry in pool["NETWORK"]:
+                # Look to find a matching IP in those allocated
                 for allocIP in derbyIPs: 
+                    # Match found!
                     if (entry[1] == allocIP):
                         available -= 1
             self.pluginOutput.append({"Pool":{"Name": str(pool["ID"]), "AvailableIPs": str(available), "TotalIPs":str(len(pool["NETWORK"]))}})
+        # Append the current time, modified from xxx.xxx returned from time.time() to xxx, since the values behind the decimal are insignificant
         self.pluginOutput.append({"TimeStamp":str(time.time()).split(".")[0]})   
         pluginExitN(self.logger, self.resourceName,self.pluginOutput, RET_OK)
 
