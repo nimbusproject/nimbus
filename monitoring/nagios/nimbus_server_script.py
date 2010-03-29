@@ -55,7 +55,6 @@ NAGIOS_RET_UNKNOWN = 3
 SQL_IP_SCRIPT = "libexec/nimbus_derby_used_ips.sql"
 SQL_RUNNING_VM_SCRIPT = "libexec/nimbus_derby_running_vms.sql"
 
-#The "NIMBUS_" entries are relative to the ENV_GLOBUS_LOC var
 NIMBUS_CONF = "etc/nimbus/workspace-service/"
 NIMBUS_NET_CONF = NIMBUS_CONF+"network-pools"
 NIMBUS_PHYS_CONF = NIMBUS_CONF+"vmm-pools"
@@ -187,15 +186,6 @@ class PluginObject:
 
     def __init__(self, callingClass):
     
-       # self.logger = logging.getLogger(callingClass)
-       # self.logger.setLevel(logging.INFO)
-       # formatter = logging.Formatter('%(asctime)s ; %(name)s ; %(levelname)s ; %(message)s')
-
-       # errorOutputHndlr = logging.StreamHandler(sys.stdout)
-       # errorOutputHndlr.setFormatter(formatter)
-       # errorOutputHndlr.setLevel(logging.ERROR)
-
-       # self.logger.addHandler(errorOutputHndlr)
         self.logger = Logger(callingClass)
         loadNimbusConfig(self.logger)
         self.pluginOutput = {}
@@ -207,7 +197,6 @@ class PluginCmdLineOpts:
     """
 
     def __init__(self):
-            #PluginObject.__init__(self,self.__class__.__name__)
             # Parse command-line options.
             parser = OptionParser()
             parser.add_option("--HNConsistent", action="callback",help="Verify internal Derby database consistency", callback=HeadNodeDBConsistent())
@@ -388,7 +377,7 @@ class HeadNodeDBConsistent(PluginObject):
                     termTime = (line.split('|')[1])[:-3]
                     # Both 'StartTime' and 'ShutdownTime' have a pesky pipe '|' char preceding the number that needs to be
                     # stripped off
-
+                    # Also, various fancy array slicing is used to cut the various timestamps into a standard form
                     startTime = ((ijOutput[counter+1])[1:len(ijOutput[counter+1])])[:-3]
                     shutdownTime = ((ijOutput[counter+2])[1:len(ijOutput[counter+2])])[:-3]
                 
@@ -458,6 +447,7 @@ class HeadNodeVMMPools(PluginObject):
             if(pool.startswith(".")):
                 continue
             totalNetPools = {"ANY":0}
+            # Initialize the appropriate pool names to 0 MB memory
             for npool in netPools:
                 if(npool.startswith(".")):
                     continue
@@ -466,12 +456,12 @@ class HeadNodeVMMPools(PluginObject):
                 fileHandle = open(ConfigMapping[NIMBUS_LOCATION]+NIMBUS_PHYS_CONF+"/"+pool)
                 workerNodes = []
                 for entry in fileHandle:
+                    # Skip comments and whitespace
                     if(entry.startswith("#") or entry.isspace()):
                         continue
                     t = entry.split()
                     workerNodes.append(t)
                 fileHandle.close()
-                #self.pluginOutput["Nodes"] = []
                 for entry in workerNodes:
                     # IF there is only 2 entries on this given line, that means
                     # the particular workerNode has no specific network pool 
@@ -489,7 +479,7 @@ class HeadNodeVMMPools(PluginObject):
                         if( network == "*"):
                             totalNetPools["ANY"] += int(entry[1])
                             continue
-                        
+                        # Increment the memory count for this network                        
                         if network in (totalNetPools.keys()):
                             totalNetPools[network] += int(entry[1])            
                         else:

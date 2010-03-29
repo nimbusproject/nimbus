@@ -43,6 +43,7 @@ CONF_FILE = "/usr/local/nagios/libexec/monitoring_config.cfg"
 
 RET_CRITICAL = -1
 
+# 1024 kB = 1 MB ; This size was picked arbitrarily
 LARGE_FILE_SIZE = 1024
 
 # Must specify the full path as Nagios doesn't setup a complete environment
@@ -229,7 +230,6 @@ class NagiosXMLAggregator:
         del style
         del doc
         del result
-        #self.logger.info("Applied stylesheet")  
         return str(retXML.strip())
 
     # XML Validation occurs against the configured XSD file according to the libxml2 examples included with the
