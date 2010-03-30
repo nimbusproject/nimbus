@@ -127,10 +127,6 @@
                 <include name="*.jar"/>
                 <include name="*LICENSE*"/>
             </fileset>
-            <fileset dir="${nimbus.messaging.gt4_0-elastic.msgbridge.lib.dir}">
-                <include name="*.jar"/>
-                <include name="*LICENSE*"/>
-            </fileset>
             <fileset dir="${nimbus.messaging.query.dist.dir}">
                 <include name="*.jar"/>
                 <include name="*LICENSE*"/>
@@ -271,49 +267,8 @@ Did you build?  Use the build-and-install script.
     <target name="deploy" depends="disp">
         <echo>Installing: ${nimbus.messaging.gt4_0.gar.print-noun}</echo>
         <antcall target="_deploy" />
-        <antcall target="dbcp" />
-        <antcall target="pool" />
         <echo>Installed: ${nimbus.messaging.gt4_0.gar.print-noun}
         </echo>
-    </target>
-
-    <target name="deploy-without-db-dependencies" depends="dist">
-        <echo>Installing: ${nimbus.messaging.gt4_0.gar.print-noun}</echo>
-        <antcall target="_deploy" />
-        <echo>Installed: ${nimbus.messaging.gt4_0.gar.print-noun}
-        </echo>
-    </target>
-
-    <target name="assess-dbcp">
-        <available property="dbcp-present"
-                   type="file"
-                   file="${abs.deploy.dir}/lib/${nimbus.service.main.lib.optional.dbcp.jar.name}" />
-        <condition property="dbcp-not-present" value="true">
-            <not><isset property="dbcp-present" /></not>
-        </condition>
-    </target>
-
-    <target name="dbcp" depends="assess-dbcp" unless="dbcp-present">
-        <echo message="Did not find '${nimbus.service.main.lib.optional.dbcp.jar.name}' dependency, copying commons-dbcp-1.2.1 to ${abs.deploy.dir}/lib"/>
-        <copy todir="${abs.deploy.dir}/lib"
-              file="${nimbus.service.main.lib.optional.dbcp.jar}">
-        </copy>
-    </target>
-
-    <target name="assess-pool">
-        <available property="pool-present"
-                   type="file"
-                   file="${abs.deploy.dir}/lib/${nimbus.service.main.lib.optional.pool.jar.name}" />
-        <condition property="pool-not-present" value="true">
-            <not><isset property="pool-present" /></not>
-        </condition>
-    </target>
-
-    <target name="pool" depends="assess-pool" unless="pool-present">
-        <echo message="Did not find '${nimbus.service.main.lib.optional.pool.jar.name}' dependency, copying commons-pool-1.2 to ${abs.deploy.dir}/lib"/>
-        <copy todir="${abs.deploy.dir}/lib"
-              file="${nimbus.service.main.lib.optional.pool.jar}">
-        </copy>
     </target>
 
     <target name="assessDeployed">
