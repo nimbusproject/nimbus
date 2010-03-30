@@ -304,8 +304,8 @@ class NimbusSetup(object):
         webconf.set('nimbusweb', 'ssl.key', relpath(hostkey, webdir))
         webconf.set('nimbusweb', 'ca.dir', relpath(cadir, webdir))
 
+        webconffile = open(webconfpath, 'wb')
         try:
-            webconffile = open(webconfpath, 'wb')
             webconf.write(webconffile)
         finally:
             webconffile.close()
