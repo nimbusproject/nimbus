@@ -163,7 +163,7 @@ if [ -f "$AUTOCOMMON_JAR_TARGET/$MARKERFILE" ]; then
         echo "Could not install the expanded autocommon dist-lib"
         exit 1
     fi
-    mv $TMPDIR/autocommon/nimbus-autocommon/lib-compile/*jar $AUTOCOMMON_JAR_TARGET/
+    mv $TMPDIR/autocommon/nimbus-autocommon/*jar $AUTOCOMMON_JAR_TARGET/
     if [ $? -ne 0 ]; then
         echo "Could not install the expanded autocommon lib-lib"
         exit 1
