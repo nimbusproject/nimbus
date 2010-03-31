@@ -48,23 +48,11 @@
 
     <path id="nimbus.metadata-server.classpath">
 
-        <fileset dir="${nimbus.metadata-server.lib-compile.dir}">
-             <include name="*.jar"/>
-        </fileset>
-
-        <fileset dir="${nimbus.metadata-server.lib-compile2.dir}">
+        <fileset dir="${nimbus.metadata-server.lib.dir}">
              <include name="*.jar"/>
         </fileset>
 
         <fileset dir="${nimbus.service.api.dist.dir}">
-              <include name="*.jar"/>
-        </fileset>
-
-        <fileset dir="${nimbus.service.api.lib.dir}">
-              <include name="*.jar"/>
-        </fileset>
-
-        <fileset dir="${nimbus.service.api.lib2.dir}">
               <include name="*.jar"/>
         </fileset>
     </path>

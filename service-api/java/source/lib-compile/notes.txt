@@ -1,7 +1,0 @@
-The package will run without these libraries on the classpath but they are
-needed for compiling (and for running the Main demo).
-
-Class comment from org.nimbustools.api.brain.Logging:
-
-    Hides logging dependencies, squelches the (very few) debug statements if
-    commons logging is not in the classpath.

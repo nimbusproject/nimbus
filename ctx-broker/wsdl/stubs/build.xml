@@ -78,9 +78,9 @@
                      includes="**/*" />
         </copy>
 
-        <available property="stubs.present"
-                   type="dir"
-                   file="${nimbusctx.gt4_0.stubs.build.dest}/${nimbusctx.gt4_0.stubs.java.subdirs}" />
+        <available property="jar.present"
+                   type="file"
+                   file="${nimbusctx.gt4_0.stubs.lib.generated.dir}/${nimbusctx.gt4_0.stubs.jar.name}" />
     </target>
 
 
@@ -88,7 +88,7 @@
          GENERATE STUBS
          ******************************************************************* -->
         
-    <target name="stubs" unless="stubs.present" depends="init">
+    <target name="stubs" unless="jar.present" depends="init">
 
         <!-- merge specific mappings w/ defaults -->
         <property name="mapping.src"
@@ -116,7 +116,7 @@
          ******************************************************************* -->
 
 
-    <target name="compile" depends="stubs">
+    <target name="compile" unless="jar.present" depends="stubs">
         <!-- clean up the duplicate junk that got generated from imports -->
         <!--<delete includeEmptyDirs="true">
             <fileset dir="${stubs.src}">
@@ -144,11 +144,24 @@
          CREATE ARCHIVE FILE
          ******************************************************************* -->
 
-    <target name="jar" depends="compile">
-        <jar destfile="${nimbusctx.gt4_0.stubs.dist.dir}/${nimbusctx.gt4_0.stubs.jar.name}"
-             basedir="${nimbusctx.gt4_0.stubs.build.dest}"/>
+    <target name="copyjar" depends="jar">
+        <copy todir="${nimbusctx.gt4_0.stubs.dist.dir}">
+            <fileset dir="${nimbusctx.gt4_0.stubs.lib.generated.dir}">
+                <include name="${nimbusctx.gt4_0.stubs.jar.name}"/>
+            </fileset>
+        </copy>
     </target>
 
+    <target name="jar" unless="jar.present" depends="compile">
+        <echo>Creating new jar: ${nimbusctx.gt4_0.stubs.print-noun}</echo>
+        <jar destfile="${nimbusctx.gt4_0.stubs.dist.dir}/${nimbusctx.gt4_0.stubs.jar.name}"
+             basedir="${nimbusctx.gt4_0.stubs.build.dest}"/>
+        <copy todir="${nimbusctx.gt4_0.stubs.lib.generated.dir}">
+            <fileset dir="${nimbusctx.gt4_0.stubs.dist.dir}">
+                <include name="${nimbusctx.gt4_0.stubs.jar.name}"/>
+            </fileset>
+        </copy>
+    </target>
 
     <!-- *******************************************************************
          CLEAN
@@ -169,11 +182,10 @@
 
     <target name="dist" depends="disp">
         <echo>Building: ${nimbusctx.gt4_0.stubs.print-noun}</echo>
-        <antcall target="jar" />
+        <antcall target="copyjar" />
         <echo>Built: ${nimbusctx.gt4_0.stubs.print-noun}
         </echo>
     </target>
 
 
 </project>
-    

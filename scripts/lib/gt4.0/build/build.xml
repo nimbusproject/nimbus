@@ -94,6 +94,28 @@
     </target>
 
 
+
+    <!-- *******************************************************************
+         BUILD STUB JARS
+         ******************************************************************* -->
+
+    <!-- Only used when called explicitly. -->
+
+    <target name="build-stubs" depends="checkgl">
+
+        <echo>Building all stub libraries for Nimbus:
+        </echo>
+
+        <delete dir="${nimbus.generated.libs}"/>
+        <mkdir dir="${nimbus.generated.libs}"/>
+        <ant dir="${nimbus.messaging.gt4_0.stubs.builddir}" target="copyjar" />
+        <ant dir="${nimbus.messaging.gt4_0-elastic.stubs.builddir}" target="copyjar" />
+        <ant dir="${nimbus.ctx-broker.gt4_0.builddir}" target="stubscopyjar" />
+
+    </target>
+
+
+
     <!-- *******************************************************************
          BUILD ALL
          ******************************************************************* -->

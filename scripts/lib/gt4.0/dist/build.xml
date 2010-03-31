@@ -210,6 +210,17 @@
             <fileset dir="${nimbus.basedir}/autocommon"/>
         </copy>
 
+        <copy todir="${nimbus.web.autocommon.distbuild.dir}/nimbus-autocommon">
+            <fileset dir="${nimbus.basedir}/lib/services/">
+                <include name="axis.jar"/>
+                <include name="cog-jglobus.jar"/>
+                <include name="commons-logging.jar"/>
+                <include name="jce-jdk13-125.jar"/>
+                <include name="xalan-2.6.jar"/>
+                <include name="xml-apis.jar"/>
+            </fileset>
+        </copy>
+
         <patternset id="autocommon-src-fileset">
             <include name="nimbus-autocommon/**"/>
         </patternset>
@@ -226,7 +237,7 @@
         <gzip src="${nimbus.web.autocommon.distbuild.dir}/nimbus-autocommon.tar"
               destfile="${nimbus.basedir}/web/lib/nimbus-autocommon.tar.gz"/>
 
-        <delete dir="${nimbus.web.autocommon.distbuild.dir}"/>
+        <!-- <delete dir="${nimbus.web.autocommon.distbuild.dir}"/> -->
     </target>
 
     

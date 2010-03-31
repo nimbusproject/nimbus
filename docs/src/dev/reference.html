@@ -78,9 +78,9 @@ _NIMBUS_2_3_DEPRECATED
         build that component.
     </p>
     <p>
-        Though a much better option is to use the _PATH(bin) scripts for building.
-        The build file that the _PATH(bin) scripts call is:
-        _PATH(bin/lib/gt4.0/build/build.xml)
+        Though a much better option is to use the _PATH(scripts) scripts for building.
+        The build file that the _PATH(scripts) scripts call is:
+        _PATH(scripts/lib/gt4.0/build/build.xml)
     </p>
     <p>
         That file will build components with the proper dependencies. On many
@@ -130,7 +130,7 @@ _NIMBUS_2_3_DEPRECATED
     <ol>
         <li>
             <p>
-                _PATH(backend) contains the standalone
+                _PATH(control) contains the standalone
                 <a href="../../faq.html#wcontrol">workspace control</a> program
                 that is installed to the VMM nodes.
             </p>
@@ -353,6 +353,11 @@ _NIMBUS_2_3_DEPRECATED
     un/marshalling of the web services).  So, because you ran
     _PATH(bin/all-clean.sh) already, running _PATH(bin/all-build.sh) now will
     generate stubs with the changes you have added.
+</p>
+
+<p>
+	That creates the new wsdl.  Now you need to create the auto-generated "stub"
+	code Java jars.  Do this by running "scripts/stubs-build.sh" 
 </p>
 
 <p>

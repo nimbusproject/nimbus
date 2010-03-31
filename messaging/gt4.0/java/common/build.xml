@@ -61,10 +61,6 @@
             <include name="*.jar"/>
         </fileset>
 
-        <fileset dir="${nimbus.service.api.lib.dir}">
-              <include name="*.jar"/>
-        </fileset>
-
         <fileset dir="${nimbus.service.api.dist.dir}">
               <include name="*.jar"/>
         </fileset>
