@@ -356,6 +356,11 @@ _NIMBUS_2_3_DEPRECATED
 </p>
 
 <p>
+	That creates the new wsdl.  Now you need to create the auto-generated "stub"
+	code Java jars.  Do this by running "scripts/stubs-build.sh" 
+</p>
+
+<p>
     Unless you added something entirely new, the corresponding messaging layer
     (e.g., _PATH(messaging/gt4.0/java/msgbridge)) will probably not compile
     now.  So the next step is to move up the stack and make it work.
