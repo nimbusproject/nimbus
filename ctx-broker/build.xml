@@ -53,6 +53,9 @@
         <ant dir="${nimbus.ctxbroker.stubs.dir}" target="dist" />
     </target>
 
+    <target name="stubscopyjar" depends="init">
+        <ant dir="${nimbus.ctxbroker.stubs.dir}" target="copyjar" />
+    </target>
 
     <!-- *******************************************************************
          COMPILATION

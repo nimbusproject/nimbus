@@ -124,9 +124,9 @@
                      includes="**/*" />
         </copy>
 
-        <available property="stubs.present"
-                   type="dir"
-                   file="${vws.gt4_0.stubs.build.dest}/${vws.gt4_0.stubs.java.subdirs}" />
+        <available property="jar.present"
+                   type="file"
+                   file="${nimbus.messaging.gt4_0.stubs.lib.generated.dir}/${vws.gt4_0.stubs.jar.name}" />
     </target>
 
 
@@ -134,7 +134,7 @@
          GENERATE STUBS
          ******************************************************************* -->
         
-    <target name="stubs" unless="stubs.present" depends="init">
+    <target name="stubs" unless="jar.present" depends="init">
 
         <!-- merge specific mappings w/ defaults -->
         <property name="mapping.src"
@@ -217,7 +217,7 @@
          ******************************************************************* -->
 
 
-    <target name="compile" depends="stubs">
+    <target name="compile" unless="jar.present" depends="stubs">
         <!-- clean up the duplicate junk that got generated from imports -->
         <!--<delete includeEmptyDirs="true">
             <fileset dir="${stubs.src}">
@@ -245,9 +245,23 @@
          CREATE ARCHIVE FILE
          ******************************************************************* -->
 
-    <target name="jar" depends="compile">
+    <target name="copyjar" depends="jar">
+        <copy todir="${vws.gt4_0.stubs.build.lib.dir}">
+            <fileset dir="${nimbus.messaging.gt4_0.stubs.lib.generated.dir}">
+                <include name="${vws.gt4_0.stubs.jar.name}"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="jar" unless="jar.present" depends="compile">
+        <echo>Creating new jar: ${vws.gt4_0.stubs.print-noun}</echo>
         <jar destfile="${vws.gt4_0.stubs.build.lib.dir}/${vws.gt4_0.stubs.jar.name}"
              basedir="${vws.gt4_0.stubs.build.dest}"/>
+        <copy todir="${nimbus.messaging.gt4_0.stubs.lib.generated.dir}">
+            <fileset dir="${vws.gt4_0.stubs.build.lib.dir}">
+                <include name="${vws.gt4_0.stubs.jar.name}"/>
+            </fileset>
+        </copy>
     </target>
 
 
@@ -267,7 +281,7 @@
          CREATE DISTRIBUTION
          ******************************************************************* -->
 
-    <target name="_dist" depends="jar">
+    <target name="_dist" depends="copyjar">
         <ant antfile="${build.packages}" target="makeGar">
             <reference refid="${garjars.id}"/>
             <reference refid="${garetc.id}"/>
@@ -366,4 +380,3 @@ Did you build?  Use the build-and-install script.
     </target>
 
 </project>
-    
