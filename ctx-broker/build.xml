@@ -75,6 +75,10 @@
         <fileset dir="${nimbus.messaging.query.dist.dir}">
             <include name="*.jar"/>
         </fileset>
+
+        <fileset dir="${nimbus.ctxbroker.lib.dir}">
+            <include name="*.jar"/>
+        </fileset>
     </path>
 
     <target name="compile" depends="stubs">
