@@ -49,8 +49,13 @@ public class QueryUser implements UserDetails {
         this.dn = dn;
 
         //TODO need to use this business
-        this.authorities = Collections.unmodifiableList(
-                new ArrayList<GrantedAuthority>(0));
+        final ArrayList<GrantedAuthority> list = new ArrayList<GrantedAuthority>();
+        list.add(new GrantedAuthority() {
+            public String getAuthority() {
+                return "ROLE_USER";
+            }
+        });
+        this.authorities = Collections.unmodifiableList(list);
     }
 
     public Collection<GrantedAuthority> getAuthorities() {

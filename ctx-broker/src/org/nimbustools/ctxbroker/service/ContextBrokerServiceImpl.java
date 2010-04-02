@@ -41,8 +41,10 @@ import org.nimbustools.ctxbroker.ContextBrokerException;
 import org.globus.wsrf.Constants;
 import org.globus.wsrf.ResourceContext;
 import org.globus.wsrf.security.SecurityManager;
+import org.nimbustools.ctxbroker.rest.RestHttp;
 
 import javax.naming.InitialContext;
+import java.io.File;
 
 public class ContextBrokerServiceImpl implements ContextBrokerService {
 
@@ -71,6 +73,16 @@ public class ContextBrokerServiceImpl implements ContextBrokerService {
 
     public ContextBrokerServiceImpl() throws Exception {
         this.home = discoverHome();
+
+        final String nimbusHome = System.getenv("NIMBUS_HOME");
+        final File keystore = new File(nimbusHome, "var/keystore.jks");
+
+
+        RestHttp http = new RestHttp("classpath:org/nimbustools/ctxbroker/rest/rest.xml", 8888,
+                "file://"+keystore.getAbsolutePath(), "changeit");
+        http.setEnabled(true);
+        http.startListening();
+        
     }
 
     protected static ContextBrokerHome discoverHome() throws Exception {

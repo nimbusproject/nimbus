@@ -9,7 +9,7 @@
              use="literal"
              style="document">
 
-        <parameter name="loadOnStartup" value="false"/>
+        <parameter name="loadOnStartup" value="true"/>
 
         <!-- You should not need to change anything below. -->
 
