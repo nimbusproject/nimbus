@@ -130,7 +130,6 @@ mountpoint=$3
 echo "  - mountpoint: $mountpoint"
 datafile=$4
 datatarget=$5
-offset=$6
 
 if [ "$subcommand" = "config" ]; then
   subcommand="CONFIG"
@@ -165,6 +164,7 @@ elif [ "$subcommand" = "HDONE" ]; then
     echo "hdone subcommand requires 6 and only 6 arguments: hdone <imagefile> <mntpoint> <datafile> <datatarget> <offset>"
     exit 1
   fi
+  offset=$6
   echo "  - datafile: $datafile"
   echo "  - datatarget: $datatarget"
   echo "  - offset: $offset"
