@@ -353,8 +353,13 @@ def get_gridftpenv_sample(setup, gridftp_globus_path):
 
 def main(argv=None):
     if os.name != 'posix':
-        print >>sys.stderr, "Only runs on POSIX systems."
+        print >>sys.stderr, "\nERROR: Only runs on POSIX systems."
         return 3
+
+    if sys.version_info < (2,4):
+        print >>sys.stderr, "\nERROR: Your system must have Python version 2.4 or later. "
+        print >>sys.stderr, 'Detected version: "'+sys.version+'"'
+        return 4
         
     parser = parsersetup()
 
