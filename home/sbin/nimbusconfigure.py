@@ -9,27 +9,24 @@ import traceback
 import ConfigParser
 from StringIO import StringIO
 import readline
-
+import string
+from random import Random
 from nimbusweb.setup import pathutil,javautil,checkssl,gtcontainer,autoca
 from nimbusweb.setup.setuperrors import *
 
 CONFIGSECTION = 'nimbussetup'
 DEFAULTCONFIG = """
-
 [nimbussetup]
 
 # relative to base directory
 hostcert: var/hostcert.pem
 hostkey: var/hostkey.pem
 ca.dir: var/ca
+ca.trustedcerts.dir: var/ca/trusted-certs
 
 gridmap: services/etc/nimbus/nimbus-grid-mapfile
 
 keystore: var/keystore.jks
-keystore.pass: changeit
-
-debug: off
-
 """
 
 def getlog(override=None):
@@ -195,13 +192,22 @@ class NimbusSetup(object):
         self.config = config
         self.interactive = interactive
 
-    def get_config(self, key):
+        self.webdir = self.resolve_path('web/')
+        self.gtdir = self.resolve_path('services/')
+        self.cadir = self.resolve_config_path('ca.dir')
+        self.trustedcertsdir = self.resolve_config_path('ca.trustedcerts.dir')
+        self.hostcert_path = self.resolve_config_path('hostcert')
+        self.hostkey_path = self.resolve_config_path('hostkey')
+        self.keystore_path = self.resolve_config_path('keystore')
+        self.gridmap_path = self.resolve_config_path('gridmap')
+    
+    def __getitem__(self, key):
         try:
             return self.config.get(CONFIGSECTION, key)
         except ConfigParser.NoOptionError:
             return None
 
-    def set_config(self, key, value):
+    def __setitem__(self, key, value):
         return self.config.set(CONFIGSECTION, key, value)
 
     def validate_environment(self):
@@ -209,51 +215,32 @@ class NimbusSetup(object):
             raise IncompatibleEnvironment(
                     "Base directory setting is not absolute")
         pathutil.ensure_dir_exists(self.basedir, "base")
-        pathutil.ensure_dir_exists(self.webdir_path(), "web")
-        pathutil.ensure_dir_exists(self.gtdir_path(), "GT container")
+        pathutil.ensure_dir_exists(self.webdir, "web")
+        pathutil.ensure_dir_exists(self.gtdir, "GT container")
         
         # check that we have some java
-        javautil.check(self.webdir_path(), log)
+        javautil.check(self.webdir, log)
 
     def resolve_path(self, path):
         """
-        Resolves a path relative to base directory. 
-        If absolute, returns as-is. If relative, 
-        joins with self.basedir and returns.
+        Resolves a path relative to base directory. If absolute, returns as-is.
+        If relative, joins with self.basedir and returns.
         """
-        
         if os.path.isabs(path):
             return path
         return os.path.join(self.basedir, path)
 
-    def webdir_path(self):
-        return self.resolve_path('web/')
-
-    def gtdir_path(self):
-        return self.resolve_path('services/')
-
-    def cadir_path(self):
-        path = self.get_config('ca.dir')
-        return self.resolve_path(path or 'var/ca/')
+    def resolve_config_path(self, config):
+        """
+        Resolves a path, like resolve_path(), but from a config key.
+        """
+        path = self[config]
+        if path:
+            return self.resolve_path(path)
+        return None
     
-    def hostcert_path(self):
-        path = self.get_config('hostcert')
-        return self.resolve_path(path)
-
-    def hostkey_path(self):
-        path = self.get_config('hostkey')
-        return self.resolve_path(path)
-
-    def keystore_path(self):
-        path = self.get_config('keystore')
-        return self.resolve_path(path)
-
-    def gridmap_path(self):
-        path = self.get_config('gridmap')
-        return self.resolve_path(path)
-
-    def hostname(self):
-        hostguess = self.get_config('hostname')
+    def ask_hostname(self):
+        hostguess = self['hostname']
         if not hostguess:
             hostguess = socket.getfqdn()
 
@@ -264,45 +251,40 @@ class NimbusSetup(object):
             print "Using hostname: '%s'" % hostguess
             hostname = hostguess
         
-        self.set_config('hostname', hostname)
+        self['hostname'] = hostname
         return hostname
 
     def perform_setup(self):
-
         # first, set up CA and host cert/key
 
-        webdir = self.webdir_path()
-        cadir = self.cadir_path()
-        gtdir = self.gtdir_path()
-        hostcert = self.hostcert_path()
-        hostkey = self.hostkey_path()
-        keystore = self.keystore_path()
-        gridmap = self.gridmap_path()
-        
         # some potentially interactive queries
-        hostname = self.hostname()
+        hostname = self.ask_hostname()
         
         #TODO this may require interaction
-        checkssl.run(webdir, hostcert, hostkey, log, cadir=cadir, 
-                hostname=hostname)
+        checkssl.run(self.webdir, self.hostcert_path, self.hostkey_path, log, 
+                cadir=self.cadir, hostname=hostname)
 
-        if not os.path.exists(keystore):
-            password = self.get_config('keystore.pass')
-            autoca.createKeystore(hostcert, hostkey, keystore, password,
-                    webdir, log)
-
+        if not os.path.exists(self.keystore_path):
+            password = self['keystore.pass']
+            if not password:
+                password = generate_password()
+                self['keystore.pass'] = password
+            autoca.createKeystore(self.hostcert_path, self.hostkey_path, 
+                    self.keystore_path, password, self.webdir, log)
         
         # then adjust the web config to point to these keys
         
-        webconfpath = pathutil.pathjoin(webdir, 'nimbusweb.conf')
+        webconfpath = pathutil.pathjoin(self.webdir, 'nimbusweb.conf')
         webconf = ConfigParser.SafeConfigParser()
         if not webconf.read(webconfpath):
             raise IncompatibleEnvironment(
                     "nimbus web config does not exist: %s" % webconfpath)
         relpath = pathutil.relpath
-        webconf.set('nimbusweb', 'ssl.cert', relpath(hostcert, webdir))
-        webconf.set('nimbusweb', 'ssl.key', relpath(hostkey, webdir))
-        webconf.set('nimbusweb', 'ca.dir', relpath(cadir, webdir))
+        webconf.set('nimbusweb', 'ssl.cert', 
+                relpath(self.hostcert_path, self.webdir))
+        webconf.set('nimbusweb', 'ssl.key', 
+                relpath(self.hostkey_path, self.webdir))
+        webconf.set('nimbusweb', 'ca.dir', relpath(self.cadir, self.webdir))
 
         webconffile = open(webconfpath, 'wb')
         try:
@@ -311,10 +293,12 @@ class NimbusSetup(object):
             webconffile.close()
 
         # then setup GT container
-        gtcontainer.adjust_hostname(hostname, webdir, gtdir, log)
-        gtcontainer.adjust_secdesc_path(webdir, gtdir, log)
-        gtcontainer.adjust_host_cert(hostcert, hostkey, webdir, gtdir, log)
-        gtcontainer.adjust_gridmap_file(gridmap, webdir, gtdir, log)
+        gtcontainer.adjust_hostname(hostname, self.webdir, self.gtdir, log)
+        gtcontainer.adjust_secdesc_path(self.webdir, self.gtdir, log)
+        gtcontainer.adjust_host_cert(self.hostcert_path, self.hostkey_path, 
+                self.webdir, self.gtdir, log)
+        gtcontainer.adjust_gridmap_file(self.gridmap_path, self.webdir, 
+                self.gtdir, log)
 
 def print_gridftpenv(setup, gridftp_globus_path):
     lines = get_gridftpenv_sample(setup, gridftp_globus_path)
@@ -338,18 +322,22 @@ def get_gridftpenv_sample(setup, gridftp_globus_path):
     
     out.append("")
     out.append("# The rest of these settings are based on the Nimbus install")
-    out.append("export GRIDMAP=\"%s\"" % setup.gridmap_path())
-    out.append("export X509_USER_CERT=\"%s\"" % setup.hostcert_path())
-    out.append("export X509_USER_KEY=\"%s\"" % setup.hostkey_path())
-    out.append("export X509_CERT_DIR=\"%s/trusted-certs\"" % setup.cadir_path())
+    out.append("export GRIDMAP=\"%s\"" % setup.gridmap_path)
+    out.append("export X509_USER_CERT=\"%s\"" % setup.hostcert_path)
+    out.append("export X509_USER_KEY=\"%s\"" % setup.hostkey_path)
+    out.append("export X509_CERT_DIR=\"%s\"" % setup.trustedcertsdir)
     out.append("")
     out.append("# Sample launch command.")
     out.append("# Note the hostname, it is important that is right for HTTPS & reverse DNS.")
     out.append("")
-    out.append("alias gridftp=\"$GLOBUS_LOCATION/sbin/globus-gridftp-server -daemon -p 2811 -d ALL -hostname %s -l /tmp/gridftp.log\"" % setup.hostname())
+    out.append("alias gridftp=\"$GLOBUS_LOCATION/sbin/globus-gridftp-server -daemon -p 2811 -d ALL -hostname %s -l /tmp/gridftp.log\"" % setup['hostname'])
     
     out.append("")
     return out
+
+def generate_password(length=25):
+    okchars = string.letters + string.digits + "!@^_&*+-"
+    return ''.join(Random().sample(okchars, length))
 
 def main(argv=None):
     if os.name != 'posix':
@@ -371,26 +359,14 @@ def main(argv=None):
     global log
     log = None
     
-    printdebugoutput = False
-    
     try:
+        configureLogging(opts.debug and logging.DEBUG or logging.INFO)
         
         validateargs(opts)
-        config = getconfig(filepath=opts.configpath)
         
+        config = getconfig(filepath=opts.configpath)
         #Some command line options are folded into the config object
         fold_opts_to_config(opts, config)
-        
-        confdebug = config.get(CONFIGSECTION, "debug")
-        if confdebug == "on":
-            printdebugoutput = True
-        elif opts.debug:
-            printdebugoutput = True
-            
-        if printdebugoutput:
-            configureLogging(logging.DEBUG)
-        else:
-            configureLogging(logging.INFO)
             
         basedir = opts.basedir
         log.debug("base directory: %s" % basedir)
@@ -433,14 +409,13 @@ def main(argv=None):
     except IncompatibleEnvironment, e:
         msg = "\nCannot validate environment: %s" % e.msg
         print >>sys.stderr, msg
-        if printdebugoutput:
+        if opts.debug:
             print >>sys.stderr, "\n---------- stacktrace ----------"
             traceback.print_tb(sys.exc_info()[2])
             print >>sys.stderr, "--------------------------------"
         return 3
 
 if __name__ == "__main__":
-    
     try:
         sys.exit(main())
     except SystemExit:
@@ -459,4 +434,3 @@ if __name__ == "__main__":
         print >>sys.stderr, errmsg
         traceback.print_tb(sys.exc_info()[2])
         sys.exit(97)
-        
