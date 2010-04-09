@@ -62,8 +62,8 @@
         <javac srcdir="${autocommon.src.dir}"
                destdir="${autocommon.build.dir}"
                classpathref="autocommon.deps.classpath"
-               target="1.3"
-               source="1.3"
+               target="1.5"
+               source="1.5"
                debug="on">
 
             <include name="**/*.java"/>
