@@ -27,6 +27,19 @@ ca.trustedcerts.dir: var/ca/trusted-certs
 gridmap: services/etc/nimbus/nimbus-grid-mapfile
 
 keystore: var/keystore.jks
+keystore.pass: changeit
+"""
+
+CA_NAME_QUESTION = """
+Nimbus uses an internal Certificate Authority (CA) for some services. This CA
+is also used to generate host and user certificates if you do not have your own.
+
+This CA will be created in %(ca.dir)s
+
+Please pick a unique, one word CA name or hit ENTER to use a UUID.
+
+For example, if you are installing this on the "Jupiter" cluster, you might use
+"JupiterNimbusCA" as the name.
 """
 
 def getlog(override=None):
@@ -169,21 +182,21 @@ def fold_opts_to_config(opts, config):
     if opts.ca_name:
         config.set(CONFIGSECTION, 'ca.name', opts.ca_name)
 
-def ask_question(question, valuename, default=None):
-
+def get_user_input(valuename, default=None, required=True):
     answer = None
+    question = valuename + (default and ("(%s): " % default) or ": ")
     while not answer:
-        print "\n%s\n" % question
-        if default:
-            print "Press ENTER to use the default (%s)\n"%default
-
         value = raw_input(valuename+": ")
         if value:
             answer = value.strip()
         elif default:
             answer = default
         if not answer:
-            print "Invalid input. You must specify a value. Or hit Ctrl-C to give up."
+            if required:
+                print "Invalid input. You must specify a value. Or hit Ctrl-C to give up."
+            else:
+                return None
+
     return answer
 
 class NimbusSetup(object):
@@ -245,30 +258,58 @@ class NimbusSetup(object):
             hostguess = socket.getfqdn()
 
         if self.interactive:
-            question = "What is the fully qualified hostname of this machine?"
-            hostname = ask_question(question, "Hostname", hostguess)
+            print "\nWhat is the fully qualified hostname of this machine?\n"
+            print "Press ENTER to use the detected value (%s)\n" % hostguess
+            hostname = get_user_input("Hostname", default=hostguess)
         else:
             print "Using hostname: '%s'" % hostguess
             hostname = hostguess
-        
-        self['hostname'] = hostname
         return hostname
+
+    def ask_ca_name(self):
+        ca_name_config = self['ca.name']
+
+        if self.interactive:
+            print CA_NAME_QUESTION % {'ca.dir' : self.cadir}
+            ca_name = get_user_input("CA Name", default=ca_name_config,
+                    required=False)
+            if not ca_name:
+                ca_name = pathutil.uuidgen()
+                print "You did not enter a name, using '%s'" % ca_name
+        else:
+            ca_name = ca_name_config or pathutil.uuidgen()
+            print "Creating CA with name: '%s'" % ca_name
+        return ca_name
 
     def perform_setup(self):
         # first, set up CA and host cert/key
+        ca_name = self["ca.name"]
+        if not os.path.exists(self.cadir):
+            ca_name = self.ask_ca_name()
+            self['ca.name'] = ca_name
+            autoca.createCA(ca_name, self.webdir, self.cadir, log)
+        if not ca_name:
+            raise InvalidConfig("CA name is unknown")
 
-        # some potentially interactive queries
+        ca_cert = os.path.join(self.cadir, 'ca-certs/%s.pem' % ca_name)
+        ca_key = os.path.join(self.cadir, 'ca-certs/private-key-%s.pem' % ca_name)
+        pathutil.ensure_file_exists(ca_cert, "CA certificate")
+        pathutil.ensure_file_exists(ca_key, "CA private key")
+
         hostname = self.ask_hostname()
-        
-        #TODO this may require interaction
+        self['hostname'] = hostname
+
+        #TODO the hostcert/key creation should be extracted from here
+        # right now it just does a bunch of redundant checks first
         checkssl.run(self.webdir, self.hostcert_path, self.hostkey_path, log, 
                 cadir=self.cadir, hostname=hostname)
 
+        #TODO if the keystore exists, we should check it for the right cert/key
         if not os.path.exists(self.keystore_path):
             password = self['keystore.pass']
             if not password:
-                password = generate_password()
-                self['keystore.pass'] = password
+                raise InvalidConfig("Keystore password is unknown")
+
             autoca.createKeystore(self.hostcert_path, self.hostkey_path, 
                     self.keystore_path, password, self.webdir, log)
         
@@ -298,6 +339,10 @@ class NimbusSetup(object):
         gtcontainer.adjust_host_cert(self.hostcert_path, self.hostkey_path, 
                 self.webdir, self.gtdir, log)
         gtcontainer.adjust_gridmap_file(self.gridmap_path, self.webdir, 
+                self.gtdir, log)
+
+        # and context broker
+        gtcontainer.adjust_broker_config(ca_cert, ca_key, self.webdir,
                 self.gtdir, log)
 
 def print_gridftpenv(setup, gridftp_globus_path):

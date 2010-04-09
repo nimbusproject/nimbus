@@ -9,10 +9,12 @@ EXE_GLOBUS_SECDESC = "org.nimbustools.auto_common.confmgr.AddOrReplaceGlobalSecD
 EXE_NEW_GRIDMAPFILE = "org.nimbustools.auto_common.confmgr.ReplaceGridmap"
 EXE_NEW_HOSTCERTFILE = "org.nimbustools.auto_common.confmgr.ReplaceCertFile"
 EXE_NEW_HOSTKEYFILE = "org.nimbustools.auto_common.confmgr.ReplaceKeyFile"
+EXE_SERVICE_RESOURCE = "org.nimbustools.auto_common.confmgr.ServiceResourceAdjust"
 
 # config paths, relative to $GLOBUS_LOCATION
 CONF_SERVERCONFIG = "etc/globus_wsrf_core/server-config.wsdd"
 CONF_SECDESC = "etc/globus_wsrf_core/global_security_descriptor.xml"
+CONF_BROKERCONFIG = "etc/nimbus-context-broker/jndi-config.xml"
 
 def adjust_hostname(hostname, basedir, gtdir, log):
     serverconfig = get_serverconfig_path(gtdir)
@@ -90,6 +92,23 @@ def adjust_host_cert(cert, key, basedir, gtdir, log):
             exitcode, stdout, stderr)
     log.debug("Activated host key file in GT container: %s" % cert)
 
+def adjust_broker_config(cacert, cakey, basedir, gtdir, log):
+    brokerconfig = get_brokerconfig_path(gtdir)
+
+    pathutil.ensure_file_exists(cacert, "CA certificate")
+    pathutil.ensure_file_exists(cakey, "CA private key")
+    pathutil.ensure_file_exists(brokerconfig, "Nimbus Context Broker config")
+
+    args = [brokerconfig, 'NimbusContextBroker', 'ctxBrokerBootstrapFactory',
+            'caCertPath', cacert, 'caKeyPath', cakey]
+    (exitcode, stdout, stderr) = javautil.run(basedir, log, 
+            EXE_SERVICE_RESOURCE, args=args)
+    runutil.generic_bailout("Problem adjusting broker config", 
+            exitcode, stdout, stderr)
+    log.debug("Ensured Context Broker CA config: %s" % brokerconfig)
+
+def get_brokerconfig_path(gtdir):
+    return pathutil.pathjoin(gtdir, CONF_BROKERCONFIG)
     
 def get_serverconfig_path(gtdir):
     return pathutil.pathjoin(gtdir, CONF_SERVERCONFIG)
