@@ -101,6 +101,8 @@
               location="${rest.conf.dir}/rest.conf.tmp"/>
 
     <filterset id="absPathFilter">
+        <filter token="DEPLOY_DIR"
+                value="${deploy.dir}"/>
         <filter token="WORKSPACE_CONFDIR"
                 value="${workspace.conf.dir}"/>
         <filter token="ELASTIC_CONFDIR"
