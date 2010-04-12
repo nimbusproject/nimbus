@@ -12,7 +12,7 @@ import readline
 import string
 import time
 from random import Random
-from nimbusweb.setup import pathutil,javautil,checkssl,gtcontainer,autoca
+from nimbusweb.setup import pathutil,javautil,checkssl,gtcontainer,autoca,derbyutil
 from nimbusweb.setup.setuperrors import *
 
 CONFIGSECTION = 'nimbussetup'
@@ -149,12 +149,23 @@ class ARGS:
     HOSTNAME_HELP = "Fully qualified hostname of machine"
 
     CANAME_LONG= "--caname"
-    CANAME = "-C"
+    CANAME = "-n"
     CANAME_HELP = "Unique name to give CA"
     
+    HOSTKEY_LONG = "--hostkey"
+    HOSTKEY = "-k"
+    HOSTKEY_HELP = "Path to PEM-encoded host private key"
+
+    HOSTCERT_LONG = "--hostcert"
+    HOSTCERT = "-C"
+    HOSTCERT_HELP = "Path to PEM-encoded host certificate"
+
     GRIDFTPENV_LONG= "--gridftpenv"
     GRIDFTPENV = "-g"
     GRIDFTPENV_HELP = "Path to GridFTP $GLOBUS_LOCATION"
+    
+    IMPORTDB_LONG= "--import-db"
+    IMPORTDB_HELP = "Import a Nimbus accounting database from another install"
     
 def validateargs(opts):
     
@@ -167,6 +178,18 @@ def validateargs(opts):
         raise InvalidInput("%s file specified does not exist: '%s'" % 
                 (ARGS.CONFIGPATH_LONG, opts.configpath))
 
+    if opts.hostkey or opts.hostcert:
+        if not (opts.hostkey and opts.hostcert):
+            raise InvalidInput(
+                    "You must specify both %s and %s paths, or neither" % 
+                    (ARGS.HOSTCERT_LONG, ARGS.HOSTKEY_LONG))
+        if not os.path.exists(opts.hostkey):
+            raise InvalidInput("The specified host key does not exist: %s" %
+                    opts.hostkey)
+        if not os.path.exists(opts.hostcert):
+            raise InvalidInput("The specified host cert does not exist: %s" %
+                    opts.hostcert)
+
 def parsersetup():
     """Return configured command-line parser."""
 
@@ -174,8 +197,15 @@ def parsersetup():
     usage = "see help (-h)."
     parser = optparse.OptionParser(version=ver, usage=usage)
 
-    # ----
+    group = optparse.OptionGroup(parser, "Actions", "-------------")
+    group.add_option(ARGS.IMPORTDB_LONG,
+            dest="importdb", metavar="PATH", help=ARGS.IMPORTDB_HELP)
+    parser.add_option_group(group)
 
+    group.add_option(ARGS.GRIDFTPENV, ARGS.GRIDFTPENV_LONG,
+                    dest="gridftpenv", metavar="PATH",
+                    help=ARGS.GRIDFTPENV_HELP)
+    
     group = optparse.OptionGroup(parser,  "Misc options", "-------------")
 
     group.add_option(ARGS.DEBUG, ARGS.DEBUG_LONG,
@@ -190,10 +220,6 @@ def parsersetup():
                     dest="basedir", metavar="PATH",
                     help=ARGS.BASEDIR_HELP)
     
-    group.add_option(ARGS.GRIDFTPENV, ARGS.GRIDFTPENV_LONG,
-                    dest="gridftpenv", metavar="PATH",
-                    help=ARGS.GRIDFTPENV_HELP)
-    
     parser.add_option_group(group)
 
     group = optparse.OptionGroup(parser, "Configuration options", 
@@ -205,6 +231,12 @@ def parsersetup():
     group.add_option(ARGS.CANAME, ARGS.CANAME_LONG,
             dest="ca_name", metavar="NAME", help=ARGS.CANAME_HELP)
 
+    group.add_option(ARGS.HOSTKEY, ARGS.HOSTKEY_LONG,
+            dest="hostkey", metavar="PATH", help=ARGS.HOSTKEY_HELP)
+
+    group.add_option(ARGS.HOSTCERT, ARGS.HOSTCERT_LONG,
+            dest="hostcert", metavar="PATH", help=ARGS.HOSTCERT_HELP)
+    parser.add_option_group(group)
     return parser
 
 def fold_opts_to_config(opts, config):
@@ -212,6 +244,10 @@ def fold_opts_to_config(opts, config):
         config.set(CONFIGSECTION, 'hostname', opts.hostname)
     if opts.ca_name:
         config.set(CONFIGSECTION, 'ca.name', opts.ca_name)
+    if opts.hostkey:
+        config.set(CONFIGSECTION, 'hostkey', opts.hostkey)
+    if opts.hostcert:
+        config.set(CONFIGSECTION, 'hostcert', opts.hostcert)
 
 def get_user_input(valuename, default=None, required=True):
     answer = None
@@ -385,6 +421,24 @@ class NimbusSetup(object):
         if self.config.getboolean(CONFIGSECTION, 'web.enabled'):
             ret = os.system(os.path.join(self.webdir, 'sbin/new-conf.sh'))
 
+def import_db(setup, old_db_path):
+    derbyrun_path = os.path.join(setup.gtdir, 'lib/derbyrun.jar')
+    if not os.path.exists(derbyrun_path):
+        raise IncompatibleEnvironment("derbyrun.jar does not exist: %s" %
+                derbyrun_path)
+    ij_path = "java -jar %s ij" % derbyrun_path
+
+    new_db_path = os.path.join(setup.gtdir, 'var/nimbus/WorkspaceAccountingDB')
+    if not os.path.isdir(new_db_path):
+        raise IncompatibleEnvironment("Could not find current Accounting DB: %s"
+                % new_db_path)
+
+    if not os.path.isdir(old_db_path):
+        raise InvalidInput("Specified DB does not exist or is not a directory")
+
+    if derbyutil.update_db(ij_path, old_db_path, new_db_path) == 1:
+        raise UnexpectedError("Failed to update Accounting DB")
+
 def print_gridftpenv(setup, gridftp_globus_path):
     lines = get_gridftpenv_sample(setup, gridftp_globus_path)
     
@@ -464,6 +518,9 @@ def main(argv=None):
         
         if opts.gridftpenv:
             print_gridftpenv(setup, opts.gridftpenv)
+            return 0
+        elif opts.importdb:
+            import_db(setup, opts.importdb)
             return 0
         else:
             setup.perform_setup()
