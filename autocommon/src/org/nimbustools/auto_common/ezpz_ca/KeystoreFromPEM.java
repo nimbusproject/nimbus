@@ -18,18 +18,18 @@ package org.nimbustools.auto_common.ezpz_ca;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.PEMReader;
 
+import java.security.*;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
-import java.security.KeyStore;
-import java.security.PrivateKey;
-import java.security.Security;
-import java.security.KeyPair;
 import java.io.*;
+import java.util.Arrays;
 
 /**
  * Creates a Java Keystore from PEM encoded cert and private key
  */
 public class KeystoreFromPEM {
+
+    public final static String ENTRY_ALIAS = "";
 
     static {
         Security.addProvider(new BouncyCastleProvider());
@@ -40,7 +40,7 @@ public class KeystoreFromPEM {
 
         KeyStore store = KeyStore.getInstance("JKS", "SUN");
         store.load(null, password.toCharArray());
-        store.setKeyEntry("", key, password.toCharArray(),
+        store.setKeyEntry(ENTRY_ALIAS, key, password.toCharArray(),
                 new Certificate[] {cert});
 
         return store;
@@ -59,6 +59,30 @@ public class KeystoreFromPEM {
         } finally {
             outStream.close();
         }
+    }
+
+    public static boolean checkJavaKeystore(File certFile, File keyFile,
+                                          File keystoreFile, String password) throws Exception {
+        X509Certificate cert = (X509Certificate) readPemObject(certFile);
+        KeyPair keypair = (KeyPair) readPemObject(keyFile);
+        PrivateKey privateKey = keypair.getPrivate();
+        KeyStore store = KeyStore.getInstance("JKS", "SUN");
+        final char[] passwordChars = password.toCharArray();
+
+        InputStream inStream = new FileInputStream(keystoreFile);
+        try {
+            store.load(inStream, passwordChars);
+        } finally {
+            inStream.close();
+        }
+        final Certificate curCert = store.getCertificate(ENTRY_ALIAS);
+        if (curCert == null ||
+                !Arrays.equals(curCert.getEncoded(), cert.getEncoded())) {
+            return false;
+        }
+        final Key curKey = store.getKey(ENTRY_ALIAS, passwordChars);
+        return curKey != null &&
+                Arrays.equals(curKey.getEncoded(), privateKey.getEncoded());
     }
 
     private static Object readPemObject(File file) throws IOException {
@@ -90,8 +114,14 @@ public class KeystoreFromPEM {
             String password = args[3];
 
             if (keystoreFile.exists()) {
-                throw new Exception("keystore file already exists!");
-                //TODO maybe it would be better to add to existing keystore?
+                if (checkJavaKeystore(certFile, keyFile,
+                                keystoreFile, password)) {
+                    System.exit(0);
+                } else {
+                    System.err.println("The keystore exists but does not " +
+                            "contain the correct key and certificate");
+                    System.exit(2);
+                }
             }
             
             createJavaKeystore(certFile, keyFile, keystoreFile, password);
