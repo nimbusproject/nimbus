@@ -30,6 +30,7 @@ gridmap: services/etc/nimbus/nimbus-grid-mapfile
 keystore: var/keystore.jks
 keystore.pass: changeit
 """
+CONFIG_STATE_PATH = 'nimbus-setup.conf'
 
 CA_NAME_QUESTION = """
 Nimbus uses an internal Certificate Authority (CA) for some services. This CA
@@ -121,7 +122,8 @@ def getconfig(filepath=None):
     fh = StringIO(DEFAULTCONFIG)
     config.readfp(fh)
     if filepath:
-        config.read(filepath)
+        for path in config.read(filepath):
+            log.debug("Read config from: '%s'" % path)
     return config
     
 class ARGS:
@@ -157,6 +159,10 @@ def validateargs(opts):
 
     if not opts.basedir:
         raise InvalidInput("%s required, %s." % (ARGS.BASEDIR_LONG, seeh))
+
+    if opts.configpath and not os.path.exists(opts.configpath):
+        raise InvalidInput("%s file specified does not exist: '%s'" % 
+                (ARGS.CONFIGPATH_LONG, opts.configpath))
 
 def parsersetup():
     """Return configured command-line parser."""
@@ -436,13 +442,16 @@ def main(argv=None):
         
         validateargs(opts)
         
-        config = getconfig(filepath=opts.configpath)
+        basedir = opts.basedir
+        log.debug("base directory: %s" % basedir)
+        config_state_path = os.path.join(basedir, CONFIG_STATE_PATH)
+        paths = [config_state_path]
+        if opts.configpath:
+            paths.append(opts.configpath)
+        config = getconfig(filepath=paths)
         #Some command line options are folded into the config object
         fold_opts_to_config(opts, config)
             
-        basedir = opts.basedir
-        log.debug("base directory: %s" % basedir)
-
         setup = NimbusSetup(basedir, config)
         setup.validate_environment()
         
@@ -452,19 +461,18 @@ def main(argv=None):
         else:
             setup.perform_setup()
 
-        if opts.configpath:
-            log.debug("saving settings to %s" % opts.configpath)
+        log.debug("saving settings to %s" % config_state_path)
+        try:
+            f = None
             try:
-                f = None
-                try:
-                    f = open(opts.configpath, 'wb')
-                    f.write(CONFIG_HEADER % {'time' : time.strftime('%c')})
-                    config.write(f)
-                except:
-                    log.info("Failed to save settings to %s!" % opts.configpath)
-            finally:
-                if f:
-                    f.close()
+                f = open(config_state_path, 'wb')
+                f.write(CONFIG_HEADER % {'time' : time.strftime('%c')})
+                config.write(f)
+            except:
+                log.info("Failed to save settings to %s!" % config_state_path)
+        finally:
+            if f:
+                f.close()
                     
         # using instead of 0 for now, as a special signal to the wrapper program
         return 42

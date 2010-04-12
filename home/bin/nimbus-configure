@@ -13,15 +13,11 @@ if [ ! -d $NIMBUS_WEBDIR ]; then
     exit 1
 fi
 
-NIMBUS_CONF="$NIMBUS_HOME/nimbus-setup.conf"
-SETUP_ARGS="--conf $NIMBUS_CONF $@"
-
 NIMBUS_PYLIB="$NIMBUS_WEBDIR/lib/python"
 NIMBUS_PYSRC="$NIMBUS_WEBDIR/src/python"
 
 PYTHONPATH="$NIMBUS_PYSRC:$NIMBUS_PYLIB:$PYTHONPATH"
 export PYTHONPATH
-
 
 # ------------------------------------------------------------------------------
 
@@ -33,7 +29,7 @@ if [ $? -ne 0 ]; then
     exit 3
 fi
 
-$PYTHON_EXE $NIMBUS_HOME/sbin/nimbusconfigure.py --basedir $NIMBUS_HOME $SETUP_ARGS
+$PYTHON_EXE $NIMBUS_HOME/sbin/nimbusconfigure.py --basedir $NIMBUS_HOME $@
 EXITCODE=$?
 if [ $EXITCODE -ne 42 ]; then
 
