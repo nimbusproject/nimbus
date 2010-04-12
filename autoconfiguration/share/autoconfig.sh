@@ -653,7 +653,7 @@ if [ "y" = "$RESPONSE" ]; then
     echo ""
     echo "What is the absolute path to the workspace-control temporary scratch directory on the VMM node?"
     echo ""
-    echo "It's typically at 'BASEDIR/tmp' if workspace-control is at 'BASEDIR/bin/workspace-control'"
+    echo "It's typically at 'BASEDIR/var/workspace-control/tmp' if workspace-control is at 'BASEDIR/bin/workspace-control.sh'"
     
     read response
     if [ "X$response" != "X" ]; then
