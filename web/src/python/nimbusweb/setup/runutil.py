@@ -103,7 +103,7 @@ class SimpleRunThread(Thread):
                 self.exception = e
                 return
                 
-        self.exit = p.wait()
+        self.exit = p.wait() >> 8
         self.stdout = p.fromchild.read()
         self.stderr = p.childerr.read()
         p.fromchild.close()
