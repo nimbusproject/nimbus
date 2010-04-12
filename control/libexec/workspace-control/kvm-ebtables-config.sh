@@ -49,6 +49,14 @@ EBTABLES=ebtables
 #EBTABLES=/sbin/ebtables
 #EBTABLES=/usr/sbin/ebtables
 
+FLOCKFILE=/var/lock/ebtables.config.lock
+FLOCK=/usr/bin/flock
+if [ ! -f $FLOCK ]; then
+  echo "*** can not find flock program, disabling"
+  echo "*** disabling flock might result in a error like \"kernel doesn't support a certain ebtables extension\""
+  FLOCK=/bin/true
+fi
+
 
 #############
 # ARGUMENTS #
@@ -158,6 +166,8 @@ function rem_input_rule() {
 ##########################
 #### SUBCOMMAND IMPLS ####
 ##########################
+(
+$FLOCK -x 200
 
 if [ "$ADDREM" = "rem" ]; then
 
@@ -203,3 +213,5 @@ if [ "$ADDREM" = "add" ]; then
     exit 0
   fi
 fi
+
+) 200>$FLOCKFILE
