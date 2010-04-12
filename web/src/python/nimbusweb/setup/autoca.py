@@ -97,9 +97,12 @@ def createCert(CN, basedir, cadir, certtarget, keytarget, log,
 
     return pub_DN
 
-def createKeystore(certpath, keypath, storepath, password, basedir, log):
+class KeystoreMismatchError(Exception):
+    pass
+
+def ensureKeystore(certpath, keypath, storepath, password, basedir, log):
     """
-    Generates a Java keystore from PEM-encoded certificate and key
+    Creates or validates a Java keystore from PEM-encoded certificate and key
     """
 
     if not pathutil.check_path_exists(certpath):
@@ -111,13 +114,14 @@ def createKeystore(certpath, keypath, storepath, password, basedir, log):
         raise IncompatibleEnvironment(msg)
 
     if pathutil.check_path_exists(storepath):
-        msg = "Keystore file exists: " + keypath
-        raise IncompatibleEnvironment(msg)
+        log.debug("Keystore file exists: %s." % storepath, 
+                "Ensuring that it contains right cert/key")
 
     args = [certpath, keypath, storepath, password]
-
     (exitcode, stdout, stderr) = javautil.run(basedir, log, 
             EXE_KEYSTORE_FROM_PEM, args=args)
+    if exitcode == 2:
+        raise KeystoreMismatchError(stderr)
     runutil.generic_bailout("Problem creating keystore", 
             exitcode, stdout, stderr)
 
