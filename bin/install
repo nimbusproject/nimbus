@@ -58,6 +58,8 @@ $CONFIG_SCRIPT
 if [ $? -ne 0 ]; then
     echo "Nimbus configuration script failed! You may try running it manually:"
     echo "    $CONFIG_SCRIPT"
+    echo "You can also run the script with debugging output:"
+    echo "    $CONFIG_SCRIPT --debug"
     exit 1
 fi
 
