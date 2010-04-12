@@ -41,12 +41,3 @@ if [ $EXITCODE -ne 42 ]; then
         exit 2
     fi
 fi
-
-
-#TODO this functionality should be moved into nimbusconfigure.py
-$NIMBUS_WEBDIR/sbin/new-conf.sh
-if [ $? -ne 0 ]; then
-    echo ""
-    echo "Nimbus web is not set up properly, exiting."
-    exit 2
-fi

@@ -29,6 +29,9 @@ gridmap: services/etc/nimbus/nimbus-grid-mapfile
 
 keystore: var/keystore.jks
 keystore.pass: changeit
+
+services.enabled: True
+web.enabled: False
 """
 CONFIG_STATE_PATH = 'nimbus-setup.conf'
 
@@ -377,6 +380,10 @@ class NimbusSetup(object):
         # and context broker
         gtcontainer.adjust_broker_config(ca_cert, ca_key, self.webdir,
                 self.gtdir, log)
+
+        # run the web newconf script, if enabled
+        if self.config.getboolean(CONFIGSECTION, 'web.enabled'):
+            ret = os.system(os.path.join(self.webdir, 'sbin/new-conf.sh'))
 
 def print_gridftpenv(setup, gridftp_globus_path):
     lines = get_gridftpenv_sample(setup, gridftp_globus_path)
