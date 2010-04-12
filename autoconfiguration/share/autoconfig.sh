@@ -627,7 +627,7 @@ while [ $count -lt 6 ]; do
   echo ""
   echo "We are looking for the directory on the VMM to push customization files from the container node. This defaults to '$CONTROL_TMPDIR'"
   echo ""
-  echo "Did you install workspace-control under some other base directory besides /opt/workspace? y/n: "
+  echo "Did you install workspace-control under some other base directory besides /opt/nimbus? y/n: "
   read response
   if [ "$response" = "y" ]; then
     RESPONSE="y"
