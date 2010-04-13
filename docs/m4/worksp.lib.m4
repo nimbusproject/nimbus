@@ -27,6 +27,7 @@ m4_dnl
 m4_define([[[_NIMBUS_TP2_1_DEPRECATED',<br><h1><font color="red"><b>DEPRECATED</b>: The most recent version is <a href="/vm/TP2.2/index.html">Nimbus TP2.2</a></font></h1><br>)m4_dnl
 m4_define([[[_NIMBUS_TP2_2_DEPRECATED',<!-- TP2.2 is the current version -->)m4_dnl
 m4_define([[[_NIMBUS_2_3_DEPRECATED',<!-- 2.3 is the current version -->)m4_dnl
+m4_define([[[_NIMBUS_2_4_DEPRECATED',<!-- 2.4 is the current release candidate --><br><h2><font color="red"><b>Release candidate</b></font>: Stable version is <a href="/docs/">Nimbus 2.3</a>. 2.4 RC documentation is <a href="/docs/?doc=2.4/index.html">here</a></h2><br>)m4_dnl
 m4_dnl
 m4_define([[[_WORKSP_DA_DEPRECATED',
 <div style="border:2px solid #000000;">
