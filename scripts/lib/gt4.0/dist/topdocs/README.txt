@@ -2,7 +2,16 @@ Nimbus
 
 See the documentation at http://www.nimbusproject.org
 
-Under the "bin" directory:
+To install, run:
+    
+    bin/install /path/to/destination
+
+
+_________________________________________________________________________
+Ant build and deploy scripts:
+_________________________________________________________________________
+
+Under the "scripts" directory:
 
 * all-build-and-install.sh - The main installation script
 * clients-only-build-and-install.sh - Main client-only installation script
