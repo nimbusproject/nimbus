@@ -1,5 +1,5 @@
 m4_include(/mcs/m4/worksp.lib.m4)
-_NIMBUS_HEADER(2.3 Upgrade Guide)
+_NIMBUS_HEADER(2.4 Upgrade Guide)
 _NIMBUS_HEADER2(n,n,y,n,n,n,n)
 _NIMBUS_LEFT2_COLUMN
 _NIMBUS_LEFT2_ADMIN_SIDEBAR(n,n,n,n,y)
@@ -7,48 +7,11 @@ _NIMBUS_LEFT2_COLUMN_END
 _NIMBUS_CENTER2_COLUMN
 _NIMBUS_2_3_DEPRECATED
 
-<h2>Upgrading from Nimbus TP2.2 to 2.3</h2>
+<h2>Upgrading from Nimbus 2.3 to 2.4</h2>
 
 <p>
-    <i>Only the accounting records database can be preserved</i> (copy the
-    entire "var/nimbus/WorkspaceAccountingDB/" directory into a new install).
-    The service database must be deleted and re-installed.  You need to make
-    sure no VMs are currently running in order to do the upgrade.
+	TODO!
 </p>
-<p>
-    You should make a fresh install of everything and work the "etc" directory
-    changes in using 'diff -r'.
-</p>
-<p>
-    <b>Don't worry</b>, it's not bad.  It's likely you did not even make any
-    changes to the affected configuration files (see the list below).  For all
-    the other ones you can copy in your old files.
-</p>
-<ul>
-    <li>
-        <p>
-            <b>New</b> file: etc/nimbus/workspace-service/metadata.conf
-        </p>
-    </li>
-    <li>
-        <p>
-            Changed:
-            etc/nimbus/workspace-service/other/main.conflocator.xml
-        </p>
-    </li>
-    <li>
-        <p>
-            Changed:
-            etc/nimbus/workspace-service/other/main.xml
-        </p>
-    </li>
-    <li>
-        <p>
-            Changed:
-            etc/nimbus/workspace-service/other/resource-locator-pilot.xml
-        </p>
-    </li>
-</ul>
 <br />
 <br />
 <br />
@@ -61,4 +24,3 @@ _NIMBUS_CENTER2_COLUMN_END
 _NIMBUS_FOOTER1
 _NIMBUS_FOOTER2
 _NIMBUS_FOOTER3
-        
