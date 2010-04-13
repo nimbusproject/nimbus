@@ -58,7 +58,7 @@ _NIMBUS_2_3_DEPRECATED
             <a href="#part-I">Part I</a> - Install/verify dependencies
         </p>
         <ul style="list-style: disc">
-            <li>I.A. <a href="#part-Ia">Service container</a></li>
+            <li>I.A. <a href="#part-Ia">Service node</a></li>
             <li>I.B. <a href="#part-Ib">Xen/KVM and libvirt</a></li>
             <li>I.C. <a href="#part-Ic">Misc. libraries for the VMM nodes</a></li>
         </ul>
@@ -109,92 +109,32 @@ _NIMBUS_2_3_DEPRECATED
 <h2>Part I: Install/verify dependencies</h2>
 
 <ul>
-    <li style="list-style: disc">I.A. <a href="#part-Ia">Service container</a></li>
+    <li style="list-style: disc">I.A. <a href="#part-Ia">Service node</a></li>
     <li>I.B. <a href="#part-Ib">Xen/KVM and libvirt</a></li>
     <li>I.C. <a href="#part-Ic">Misc. libraries for the VMM nodes</a></li>
 </ul>
 
-<a name="auto-container"> </a>
+<a name="service-node"> </a>
 <a name="part-Ia"> </a>
-<h3>I.A. Service container _NAMELINK(part-Ia) _NAMELINK(auto-container)</h3>
+<h3>I.A. Service node _NAMELINK(part-Ia) _NAMELINK(service-node)</h3>
 <p>
-    Currently Nimbus is deployed into a Globus 4.0.x Java container which is a
-    system built around the <a href="http://ws.apache.org/axis/">Apache Axis</a>
-    engine.
+    The Nimbus service node installation is now largely self-contained. Starting
+    with version 2.4, Nimbus no longer needs to be deployed into an existing Globus
+    container. The container is automatically embedded into the Nimbus installation.
 </p>
 
 <p>
-    To get you started with this very quickly,
-    we provide something called the <b><i>AutoContainer</i></b> which is a
-    complete Globus Java web services core environment.  It comes with a setup
-    program that configures everything you need to <b>get a secure web services
-    container running from scratch in about a minute</b>.
+    The service node installer has the following dependencies:
 </p>
-<p>
-    This includes creating a new certificate authority, creating a new host
-    certificate, creating a new user certificate(s), and adjusting relevant
-    configuration files. 
-</p>
-
-<p><i>Other (more time consuming) approaches:</i></p>
 <ul>
-    <li>
-        If you are an intermediate Globus user, you may want to check out
-        <a href="reference.html#manual-container">this section</a> of the
-        reference manual for a more manual approach.
-    </li>
-    <li>
-        If you are a veteran Globus user, you will probably already have a Java
-        web services environment set up with security somewhere and can
-        skip this section altogether.
+    <li>Sun Java 1.5 or later. The java command must be on your path</li>
+    <li>Apache Ant</li>
+    <li>Python 2.4 or later</li>
+    <li>If you plan to use the Nimbus web application (disabled by default),
+        you must also have theese Python modules installed:
+        pyOpenSSL and python-sqlite2.
     </li>
 </ul>
-
-<a name="acquire-auto-container"> </a>
-<h4>* Acquire the AutoContainer: _NAMELINK(acquire-auto-container)</h4>
-
-<p>
-    On the <a href="_NIMBUS_WEBSITE/downloads/">downloads</a> page is a recent version of the
-    AutoContainer.
-</p>
-
-<a name="run-auto-container"> </a>
-<h4>* Run the AutoContainer: _NAMELINK(run-auto-container)</h4>
-
-<p>
-    In the following steps, make sure you've expanded the directory to the
-    place you want to leave it (absolute paths will be used for some
-    configurations).
-</p>
-
-_EXAMPLE_CMD_BEGIN
-tar xzf autocontainer-GT4.0.8-v1.0.tar.gz
-_EXAMPLE_CMD_END
-
-_EXAMPLE_CMD_BEGIN
-cd autocontainer
-_EXAMPLE_CMD_END
-
-_EXAMPLE_CMD_BEGIN
-./bin/setup-container.sh
-_EXAMPLE_CMD_END
-
-<p>
-    That's it.  The program will instruct you on any other necessary steps.
-</p>
-<p>
-    You'll end up being directed to run a test command whose output will look
-    something like this if everything is set up:
-</p>
-_EXAMPLE_CMD_BEGIN
-/somewhere/autocontainer/bin/test-container.sh
-_EXAMPLE_CMD_END
-<div class="screen"><pre>
-Got notification with value: 3
-Counter has value: 3
-Got notification with value: 13</pre>
-</div>
-
 
 <!--- ********************************************************************** -->
 <!--- ********************************************************************** -->
@@ -541,66 +481,54 @@ _EXAMPLE_CMD_END
 </p>
 
 _EXAMPLE_CMD_BEGIN
-wget http://www.nimbusproject.org/downloads/nimbus-2.3.tar.gz
+wget http://www.nimbusproject.org/downloads/nimbus-2.4.tar.gz
 _EXAMPLE_CMD_END
 
 _EXAMPLE_CMD_BEGIN
-tar xzf nimbus-2.3.tar.gz
+tar xzf nimbus-2.4.tar.gz
 _EXAMPLE_CMD_END
 
-<a name="set-gl"> </a>
-<h4>* Set the target container: _NAMELINK(set-gl)</h4>
-<p>
-    Now navigate into the new directory and set the "GLOBUS_LOCATION"
-    variable to the target container directory you installed above:
-</p>
-
-_EXAMPLE_CMD_BEGIN
-cd nimbus-2.3
-_EXAMPLE_CMD_END
-
-_EXAMPLE_CMD_BEGIN
-export GLOBUS_LOCATION=/path/to/globus_location
-_EXAMPLE_CMD_END
-
-<p>
-    If you installed the AutoContainer, this would look something like this: 
-</p>
-_EXAMPLE_CMD_BEGIN
-export GLOBUS_LOCATION=/somewhere/autocontainer/gt/ws-core-4.0.8/
-_EXAMPLE_CMD_END
-
-<p>
-    Alternatively you could get that same GLOBUS_LOCATION set in your
-    environment by sourcing this file:
-</p>
-_EXAMPLE_CMD_BEGIN
-source /somewhere/autocontainer/bin/source-me.sh
-_EXAMPLE_CMD_END
-<p>
-    (a quick examination of the <i>source-me.sh</i> script will reveal that
-    there is not much to that)
-</p>
 
 <a name="build-install"> </a>
 <h4>* Build and install: _NAMELINK(build-install)</h4>
 <p>
-    There are several options in the "bin" directory (see the toplevel
-    README file).  Choosing "./bin/all-build-and-install.sh" is all you
-    should need to do.
+    Starting with Nimbus version 2.4, you do not need to run the Ant install
+    scripts directly. You can run a single command to set up the Nimbus
+    installation environment, build and deploy the software, and perform
+    basic configuration. First change into the unpacked archive directory.
 </p>
 
 _EXAMPLE_CMD_BEGIN
-./bin/all-build-and-install.sh
+cd nimbus-2.4
 _EXAMPLE_CMD_END
 
 <p>
-    A log of a successful build can be seen <a href="nimbus-build.txt">here</a>.
+    Then run the install program, specifying a destination path where you
+    would like Nimbus to be installed. If this path exists, it must be an
+    empty directory into which you can read and write. If the path does not
+    exist, you must have write access to the parent directory (so the installer
+    can create a new directory).
+</p>
+
+_EXAMPLE_CMD_BEGIN
+./bin/install /destination/path
+_EXAMPLE_CMD_END
+
+<p>
+    This command will initialize the Nimbus home directory at the specified path.
+    It will install a service container under the "services/" directory. It will
+    then build and install Nimbus from source and deploy it to the container.
+    Finally, it will run the "bin/nimbus-configure" program to help you set up
+    an operational install. Follow the instructions provided by this program.
 </p>
 
 <p>
-    If you look into that output, you can see that several Nimbus components
-    are built and installed by default:
+    Hereafter in this guide, the Nimbus destination path you specified will be
+    referred to as <i>$NIMBUS_HOME</i>.
+</p>
+
+<p>
+    Several Nimbus components are built and installed by default:
 </p>
 
 <ul>
@@ -615,8 +543,18 @@ _EXAMPLE_CMD_END
         compatible with the default clients
     </li>
     <li>
-        EC2 frontend - a remote protocol implementation
-        compatible with EC2 clients
+        EC2 SOAP frontend - a remote protocol implementation
+        compatible with EC2 SOAP clients
+    </li>
+    <li>
+        EC2 Query frontend - a remote protocol implementation
+        compatible with EC2 Query clients (such as boto or typica).
+        This frontend is separate from the standard service
+        container. It listens on its own port.
+    </li>
+    <li>
+        Nimbus Context Broker - a service which is used to assemble
+        virtual clusters on-the-fly.
     </li>
 </ul>
 
@@ -625,16 +563,58 @@ _EXAMPLE_CMD_END
     <a href="../faq.html">FAQ</a>.
 </p>
 <p>
-    You will not be able to run against the EC2 frontend until you have
+    You will not be able to run against the EC2 frontends until you have
     set up the cloud configuration because it relies on users having a
     personal repository directory (out of scope of this document).
 </p>
 
+<p>
+    After the install program finishes, you should have a nearly complete
+    Nimbus installation in the $NIMBUS_HOME directory. Take a look, it
+    contains several important files and directories.
+</p>
+<ul>
+    <li>
+        <b>bin/</b> - contains programs for managing and configuring Nimbus.
+        "bin/nimbus-configure" was run at the end of the install and can be
+        rerun to adjust the same configuration options. "bin/nimbusctl" is used
+        start and stop Nimbus services.
+    </li>
+    <li>
+        <b>services/</b> - GT container into which Nimbus has been deployed.
+        Most of the configuration files live under here, in "etc/nimbus/".
+    </li>
+    <li>
+        <b>var/</b> - has a simple Certificate Authority which is used by the
+        Context Broker and which, in the default install, can also be used for
+        host and user certificates. This directory also contains log files for
+        the running service.
+    </li>
+    <li>
+        <b>web/</b> - the Nimbus web application. By default this is not enabled.
+    </li>
+    <li>
+        <b>nimbus-setup.conf</b> - This file is written by the "bin/nimbus-configure"
+        program. It contains configuration values. If you wish to change one of these
+        values, you can usually edit this file and rerun "bin/nimbus-configure".
+    </li>
+</ul>
 
-
-
-
-
+<p>
+    At this point in the installation process, Nimbus is installed and configured
+    in "fake" mode, in which the services run and accept requests, but no actual
+    VMM nodes are involved. The following network ports are used:
+</p>
+<ul>
+    <li>
+        <b>Service container - port 8443</b> - edit this in
+        "$NIMBUS_HOME/sbin/run-services.sh"
+    </li>
+    <li>
+        <b>EC2 Query frontend - port 8444</b> - edit this in
+        "$NIMBUS_HOME/services/etc/nimbus/query/query.conf"
+    </li>
+</ul>
 
 
 
@@ -662,7 +642,7 @@ _EXAMPLE_CMD_END
 </p>
 
 _EXAMPLE_CMD_BEGIN
-$GLOBUS_LOCATION/share/nimbus-autoconfig/autoconfig.sh
+$NIMBUS_HOME/services/share/nimbus-autoconfig/autoconfig.sh
 _EXAMPLE_CMD_END
 
 <p>
@@ -679,53 +659,36 @@ _EXAMPLE_CMD_END
 <a name="authorization"> </a>
 <h4>* Authorization: _NAMELINK(authorization)</h4>
 <p>
-    In the beginning of the quickstart you may have edited a grid-mapfile to
-    authorize a client to make a secure call to the container?  Or if you
-    are using the <a href="#auto-container">AutoContainer</a>,
-    the container-wide grid-mapfile can be found like so:
+    In the default install, Nimbus uses two files to manage authorization
+    of users on the remote interfaces: users with X.509 credentials are
+    checked against a grid-mapfile and users of the EC2 Query frontend
+    are checked against the query users.txt list (and mapped to an
+    X.509 Distinguished Name).
 </p>
 
-_EXAMPLE_CMD_BEGIN
-grep gridmap $GLOBUS_LOCATION/etc/globus_wsrf_core/global_security_descriptor.xml
-_EXAMPLE_CMD_END
-
+<p>
+    The grid-mapfile is located at "$NIMBUS_HOME/services/etc/nimbus/nimbus-grid-mapfile"
+    by default, but you can have Nimbus use another file by editing the "gridmap" entry
+    of "$NIMBUS_HOME/nimbus-setup.conf" and rerunning the nimbus-configure program.
+</p>
 <p>
     A grid-mapfile is basically an access control list.  It says which remote
-    identities can access the container or a specific service.
+    identities can access the container or a specific service. Note however that
+    you need to ensure that any identity specified in this file is from a "trusted"
+    Certificate Authority. CAs are trusted by placing their certificate in the
+    trusted-certs directory (by default: "$NIMBUS_HOME/var/ca/trusted-certs/").
 </p>
 
 <p>
-    There is a grid-mapfile specific to Nimbus set up by default.
-    You can make Nimbus use the master container grid-mapfile that is
-    configured OR you can keep it as a specific policy for Nimbus only.
-</p>
-<p>
-    To make it the same as the master container policy,
-    edit the following file to point at the
-    pre-existing grid-mapfile:
-</p>
-
-_EXAMPLE_CMD_BEGIN
-nano -w $GLOBUS_LOCATION/etc/nimbus/factory-security-config.xml
-_EXAMPLE_CMD_END
-
-<p>
-    To keep it unique to Nimbus, edit the following grid-mapfile and add identities.
-</p>
-
-_EXAMPLE_CMD_BEGIN
-nano -w $GLOBUS_LOCATION/etc/nimbus/nimbus-grid-mapfile
-_EXAMPLE_CMD_END
-
-<p>
-    If you used the AutoContainer, you can just copy the the grid-mapfile we
-    found above (that grep command) onto this path, replacing the
-    default "nimbus-grid-mapfile"
+    Users of the EC2 Query frontend do not provide X.509 credentials, but instead
+    use symmetric authentication tokens. These tokens are matched against entries
+    in the query users file. By default, this file is located at
+    "$NIMBUS_HOME/services/etc/nimbus/query/users.txt".
 </p>
 
 <p>
-    In the cloud configuration you
-    will see that there is a handy way to make the grid-mapfile just a basic
+    In the cloud configuration you will see that there is a handy way to make the
+    grid-mapfile (and the users.txt file) just a basic
     entry barrier.  The real authorization decision can be made by more fine
     grained policies on a per user basis (for example, limiting certain users to
     certain amounts of total VM time, etc.).
@@ -753,30 +716,38 @@ _EXAMPLE_CMD_END
     test.
 </p>
 
-<a name="new-services"> </a>
-<h4>* New services: _NAMELINK(new-services)</h4>
+<a name="start-nimbus"> </a>
+<h4>* Start Nimbus services _NAMELINK(start-nimbus)</h4>
 
 <p>
-    Starting the container again will result in these new services:
+    You can now start the Nimbus services using the '$NIMBUS_HOME/bin/nimbusctl" command:
 </p>
 
-<div class="screen"><pre>https://10.20.0.1:8443/wsrf/services/ElasticNimbusService
-https://10.20.0.1:8443/wsrf/services/WorkspaceContextBroker
-https://10.20.0.1:8443/wsrf/services/WorkspaceEnsembleService
-https://10.20.0.1:8443/wsrf/services/WorkspaceFactoryService
-https://10.20.0.1:8443/wsrf/services/WorkspaceGroupService
-https://10.20.0.1:8443/wsrf/services/WorkspaceService
-https://10.20.0.1:8443/wsrf/services/WorkspaceStatusService</pre>
-</div>
+_EXAMPLE_CMD_BEGIN
+nimbusctl start
+_EXAMPLE_CMD_END
+
+<p>
+    It may take several seconds for everything to initialize. You should check the output
+    in the logfile to ensure that everything started up okay:
+</p>
+
+_EXAMPLE_CMD_BEGIN
+tail -f $NIMBUS_HOME/var/services.log
+_EXAMPLE_CMD_END
 
 
 <a name="test-client"> </a>
 <h4>* Client: _NAMELINK(test-client)</h4>
 
 <p>
-    In another terminal, set up the environment variables for <i>GLOBUS_LOCATION</i>
+    Set up the environment variables for <i>GLOBUS_LOCATION</i>
     and <i>X509_CERT_DIR</i> (as needed) and run this program:
 </p>
+
+_EXAMPLE_CMD_BEGIN
+export GLOBUS_LOCATION=$NIMBUS_HOME/services/
+_EXAMPLE_CMD_END
 
 _EXAMPLE_CMD_BEGIN
 cd $GLOBUS_LOCATION
@@ -825,7 +796,7 @@ _NAMELINK(deploy-test)
 </p>
 
 _EXAMPLE_CMD_BEGIN
-wget http://www.nimbusproject.org/docs/?doc=2.3/admin/test-create.sh
+wget http://www.nimbusproject.org/docs/?doc=2.4/admin/test-create.sh
 _EXAMPLE_CMD_END
 
 <p>
@@ -851,7 +822,7 @@ _EXAMPLE_CMD_END
 </p>
 
 _EXAMPLE_CMD_BEGIN
-$GLOBUS_LOCATION/bin/workspace -e test.epr --destroy
+./bin/workspace -e test.epr --destroy
 _EXAMPLE_CMD_END     
 
 <p>
@@ -866,7 +837,7 @@ _EXAMPLE_CMD_END
 </p>
 
 _EXAMPLE_CMD_BEGIN
-cat $GLOBUS_LOCATION/var/nimbus/accounting-events.txt
+cat $NIMBUS_HOME/services/var/nimbus/accounting-events.txt
 _EXAMPLE_CMD_END
 
 
@@ -1113,7 +1084,7 @@ nimbus ALL=(root) NOPASSWD: /opt/nimbus/libexec/workspace-control/xen-ebtables-c
     <i>/opt/nimbus/var/workspace-control/images</i> directory because of the
     <i>file://ttylinux-xen</i> line in the xml definition file the
     script points to
-    (<i>$GLOBUS_LOCATION/share/nimbus-clients/sample-workspace.xml</i>).
+    (<i>$NIMBUS_HOME/services/share/nimbus-clients/sample-workspace.xml</i>).
 </p>
 
 
@@ -1144,7 +1115,7 @@ nimbus ALL=(root) NOPASSWD: /opt/nimbus/libexec/workspace-control/xen-ebtables-c
 </p>
 
 _EXAMPLE_CMD_BEGIN
-nano -w $GLOBUS_LOCATION/etc/nimbus/workspace-service/other/common.conf
+nano -w $NIMBUS_HOME/services/etc/nimbus/workspace-service/other/common.conf
 _EXAMPLE_CMD_END
 
 <p>
