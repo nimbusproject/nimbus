@@ -66,7 +66,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'cpserver',
     'nimbusweb.portal.nimbus',
-    'nimbusweb.portal.usercreate',
+    #'nimbusweb.portal.usercreate',
 )
 
 AUTH_PROFILE_MODULE = 'nimbus.UserProfile'
