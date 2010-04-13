@@ -35,6 +35,11 @@ _NIMBUS_CENTER2_COLUMN
             <a href="#ec2">Using the Cloud Client with Amazon EC2</a>
         </p>
     </li>
+	<li>
+        <p>
+            <a href="#beyond">Beyond the Cloud Client</a>
+        </p>
+    </li>
 </ul>
 
 <br />
@@ -326,6 +331,104 @@ _EXAMPLE_CMD_END
     Wait for the "cloud-client.sh" command to finish in the first terminal. It
     finishes when all the nodes have reported to the broker that the context
     agent process is complete and all the services are ready to go.
+</p>
+
+<a name="beyond"> </a>
+<h2>Beyond the Cloud Client _NAMELINK(beyond)</h2>
+
+<p>
+	The cloud client wraps the functionality of a more primitive client called simply
+	"workspace" which can be found in the cloud client distribution itself:
+	<b>$CLOUD_CLIENT_DIRECTORY/lib/workspace.sh</b>
+</p>
+<p>
+	The cloud client:
+</p>
+<ul>
+	<li>
+		Sets reasonable defaults for the workspace client, allowing users to not think about
+		most things they don't need to.  The cloud client reduces the "complexity surface" for
+		anyone using a Nimbus cloud.
+	</li>
+	<li>
+		Generates full configuration strings from shortcuts.  For example, an image name
+		provided to the cloud client is actually converted into a path that represents the
+		real location of your image on the repository node.  Another example is that hours
+		requested are folded into the overall resource allocation request.
+	</li>
+	<li>
+		Coordinates calls to the context broker for any contextualization needs for both single
+		instance launches and virtual cluster launches.  Coordinates the "user-data" that needs
+		to be sent to the IaaS service (either Nimbus or EC2) in launch requests.
+	</li>
+	<li>
+		Can transfer files to/from the repository node using its embedded GridFTP client.
+	</li>
+	<li>
+		Packages almost all needed dependencies and other useful utility programs. 
+	</li>
+</ul>
+
+<p>
+	Because the cloud-client was authored as a "driver" of the <b>lib/workspace.sh</b> program
+	instead of a full rewrite, as you "peel away" the cloud client layer in order to do
+	something complicated, you might have to miss out on some of those things.
+</p>
+<p>
+	If you inspect the debug logs kept in every launch's history directory, you can find a set
+	of files and arguments to use as an example of <b>lib/workspace.sh</b>
+</p>
+<p>
+	In the <b>run-debug-log.txt</b> file for a single-VM launch, find the text
+	<i>"Created workspace description"</i>
+</p>
+<p>
+	A "metadata.xml" file was constructed on the fly, the <b>lib/workspace.sh</b> program is
+	expecting this as an input.  Another crucial input is the "deprequest.xml" file.
+</p>
+<p>
+	Just after that, find a list of arguments.  Once you have the two XML files we discussed,
+	you can send all of these arguments through <b>lib/workspace.sh</b> yourself.  Note that
+	the "--file" argument concerns a file that it will <i>create</i> after a successful launch.
+</p>
+<p>
+	Running "<b>lib/workspace.sh -h</b>" will give you access to an extensive help system.
+	Note that each action command action (e.g. "--deploy") has its own "-h" output.
+</p>
+
+<br>
+<h3>Customization Task</h3>
+<p>
+	Let's do something as an example, let's create a customization task.  The cloud client
+	will by default add a customization task on the fly that causes a file you have
+	(<i>~/.ssh/id_rsa.pub</i>) to end up as a file on the VM (<i>/root/.ssh/authorized_keys</i>)
+</p>
+<p>
+	Customization tasks are included as an "optional parameter" file, here is an example:
+</p>
+<pre>
+&lt;OptionalParameters&gt;
+    &lt;filewrite&gt;
+        &lt;content&gt;write me to the file&lt;/content&gt;
+        &lt;pathOnVM&gt;/tmp/customizedfile&lt;/pathOnVM&gt;
+    &lt;/filewrite&gt;
+&lt;/OptionalParameters&gt;
+&lt;/pre&gt;
+</pre>
+
+<p>
+	Run a <b>lib/workspace.sh</b> based deployment with an extra <i>"-o optional.xml"</i> and
+	you will be launching with this new customization task.  The example file will appear in
+	the VM even though it did not exist in the repository version of the image.  Make sure the
+	directory of the target file exists on the VM or it will trigger an error at deployment time.
+</p>
+
+<br>
+<a name="infinity_and_beyond"> </a>
+<h3>To Infinity and Beyond _NAMELINK(infinity_and_beyond)</h3>
+<p>
+	See the <a href="../interfaces/index.html">raw interfaces</a> guide to learn all about
+	the WSRF interfaces.
 </p>
 
 _NIMBUS_CENTER2_COLUMN_END
