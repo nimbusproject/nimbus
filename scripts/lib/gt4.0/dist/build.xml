@@ -69,7 +69,21 @@
             <fileset dir="${distbuild.dir}/${nimbus.main}/scripts">
                 <include name="*.sh"/>
             </fileset>
-            <fileset dir="${nimbus.basedir}/bin"/>
+            <fileset dir="${nimbus.basedir}/bin">
+                <include name="*"/>
+            </fileset>
+            <fileset dir="${nimbus.basedir}/home/bin">
+                <include name="*"/>
+            </fileset>
+            <fileset dir="${nimbus.basedir}/home/sbin">
+                <include name="*"/>
+            </fileset>
+            <fileset dir="${nimbus.basedir}/web/bin">
+                <include name="*"/>
+            </fileset>
+            <fileset dir="${nimbus.basedir}/web/sbin">
+                <include name="*"/>
+            </fileset>
         </chmod>
         <copy todir="${distbuild.dir}/${nimbus.main}/autocommon">
             <fileset dir="${nimbus.basedir}/autocommon"/>
@@ -107,13 +121,16 @@
         
         <patternset id="service-src-fileset">
             <include name="${nimbus.main}/*.*"/>
-            <include name="${nimbus.main}/bin/**"/>
             <include name="${nimbus.main}/scripts/**"/>
             <exclude name="${nimbus.main}/scripts/*sh" />
+            <include name="${nimbus.main}/bin/**"/>
+            <exclude name="${nimbus.main}/bin/*"/>
             <include name="${nimbus.main}/autocommon/**"/>
             <include name="${nimbus.main}/autoconfiguration/**"/>
             <include name="${nimbus.main}/ctx-broker/**"/>
             <include name="${nimbus.main}/home/**"/>
+            <exclude name="${nimbus.main}/home/bin/*"/>
+            <exclude name="${nimbus.main}/home/sbin/*"/>
             <include name="${nimbus.main}/lib/**"/>
             <include name="${nimbus.main}/messaging/**"/>
             <include name="${nimbus.main}/metadata/**"/>
@@ -121,6 +138,8 @@
             <include name="${nimbus.main}/service/**"/>
             <include name="${nimbus.main}/service-api/**"/>
             <include name="${nimbus.main}/web/**"/>
+            <exclude name="${nimbus.main}/web/bin/*"/>
+            <exclude name="${nimbus.main}/web/sbin/*"/>
         </patternset>
 
         <fixcrlf srcdir="${distbuild.dir}/${nimbus.main}" includes="**/*.java"
@@ -131,6 +150,10 @@
             <tarfileset dir="${distbuild.dir}" mode="755">
                 <include name="${nimbus.main}/scripts/*sh" />
                 <include name="${nimbus.main}/bin/*" />
+                <include name="${nimbus.main}/home/bin/*" />
+                <include name="${nimbus.main}/home/sbin/*" />
+                <include name="${nimbus.main}/web/bin/*" />
+                <include name="${nimbus.main}/web/sbin/*" />
             </tarfileset>
             <tarfileset dir="${distbuild.dir}">
                 <patternset refid="service-src-fileset"/>
