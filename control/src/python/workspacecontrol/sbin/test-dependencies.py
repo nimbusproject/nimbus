@@ -10,14 +10,17 @@ version = sys.version
 print "Python %s" % version.replace("\n", " | ")
 
 curr = sys.version_info
-required = (2,5)
+required = (2,4)
 
 if curr[0] < required[0]:
-    print >>sys.stderr, "\n%sThe Python version looks too low, 2.5 is required." % ERR
+    print >>sys.stderr, "\n%sThe Python version looks too low, 2.4 is required." % ERR
     problem_count += 1
 elif curr[1] < required[1]:
-    print >>sys.stderr, "\n%sThe Python version looks too low, 2.5 is required." % ERR
+    print >>sys.stderr, "\n%sThe Python version looks too low, 2.4 is required." % ERR
     problem_count += 1
+
+if curr == (2,3):
+    print >>sys.stderr, "\n%sPython 2.3 detected: this should work but it is untested and unsupported." % ERR
 
 try:
     import zope.interface

@@ -137,7 +137,7 @@ _NIMBUS_2_4_DEPRECATED
     <li>Apache Ant</li>
     <li>Python 2.4 or later</li>
     <li>If you plan to use the Nimbus web application (disabled by default),
-        you must also have theese Python modules installed:
+        you must also have these Python modules installed:
         pyOpenSSL and python-sqlite2.
     </li>
 </ul>
@@ -175,6 +175,11 @@ _NIMBUS_2_4_DEPRECATED
     in workspace-control's "xen.conf" configuration file).  There is no
     information yet about Nimbus on the new/upcoming Xen 3.3 series.  Nimbus
     has also been tested with QEMU/KVM 0.11.0
+</p>
+
+<p>
+	The VMM nodes require Python 2.4 and libvirt 0.6.3.  Python 2.3 should work but it
+	untested and unsupported.
 </p>
 
 <p>
@@ -929,6 +934,10 @@ _EXAMPLE_CMD_END
 
 _EXAMPLE_ROOTCMD_BEGIN
 find . -type f -exec chmod 664 {} \;
+_EXAMPLE_CMD_END
+
+_EXAMPLE_ROOTCMD_BEGIN
+find bin sbin libexec -iname "*sh" -exec chmod 755 {} \;
 _EXAMPLE_CMD_END
 
 <!--- ********************************************************************** -->
