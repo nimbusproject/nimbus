@@ -124,11 +124,18 @@ _EXAMPLE_CMD_END
 </p>
 <div class="indent">
     <p>
-        If the default client
-        configuration answers your needs you are done with the
-        installation step. In order to decide, take a look at
-        the <i>conf/cloud.properties</i> file.
+        The default client
+        configuration should handle your initial needs.
+	</p>
+	<p>
+		You might want to change things in
+        the <i>conf/cloud.properties</i> file, <b>probably not</b>.
     </p>
+	<p>
+		Most of the time a configuration file tailored to the cloud
+		you want to use should have been made available to you from
+		the administrator or cloud website.
+	</p>
 
     <ul>
         <li>
@@ -140,16 +147,9 @@ _EXAMPLE_CMD_END
         </li>
         <li>
             <p>
-                Most of the time a configuration file tailored to the cloud
-                you want to use should have been made available to you from
-                the administrator or cloud website.
-            </p>
-        </li>
-        <li>
-            <p>
-                You can set up the location of the ssh public key that you
-                want to put on the VM.  This will allow you to log in
-                after launching.
+                You can set up an alternate location of the ssh public key that you
+                want to put on the VM.  This will allow you to log in after launching.
+                The default is what you'd want usually, <i>~/.ssh/id_rsa.pub</i>
             </p>
         </li>
         <li>
