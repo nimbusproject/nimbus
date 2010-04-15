@@ -337,10 +337,10 @@ m4_define([[[_NIMBUS_LEFT2_ADMIN_SIDEBAR',
 <div id="sidebarmenu">
     <ul>
         <li>
-          <a href="index.html" title="Admin Overview" class="$1">Admin Overview</a>
+          <a href="index.html" title="Admin Overview" class="$1">Overview</a>
         </li>
         <li>
-          <a href="quickstart.html" title="Quickstart" class="$2">Quickstart</a>
+          <a href="quickstart.html" title="Quickstart" class="$2">Start</a>
         </li>
         <li>
           <a href="reference.html" title="Reference" class="$3">Reference</a>
@@ -363,10 +363,10 @@ m4_define([[[_NIMBUS_LEFT2_ADMIN2_SIDEBAR',
 <div id="sidebarmenu">
     <ul>
         <li>
-          <a href="../admin/index.html" title="Admin Overview">Admin Overview</a>
+          <a href="../admin/index.html" title="Admin Overview">Overview</a>
         </li>
         <li>
-          <a href="../admin/quickstart.html" title="Quickstart">Quickstart</a>
+          <a href="../admin/quickstart.html" title="Quickstart">Start</a>
         </li>
         <li>
           <a href="../admin/reference.html" title="Reference">Reference</a>
