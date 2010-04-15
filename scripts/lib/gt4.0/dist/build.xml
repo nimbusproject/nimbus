@@ -42,12 +42,19 @@
         <mkdir dir="${dist.dir}"/>
     </target>
 
+    <!-- ==== Utility targets =========================== -->
+
+    <target name="fetch-wscore">
+        <mkdir dir="${wscore.destdir}"/>
+        <get src="${wscore.url}" dest="${wscore.dest}" usetimestamp="true" />
+    </target>
+
     <!-- ==== Source distribution targets =========================== -->
 
     <target name="create-src-dists"
             depends="service-src, control-src" />
 
-    <target name="service-src" depends="init">
+    <target name="service-src" depends="init, fetch-wscore">
 
         <mkdir dir="${distbuild.dir}/${nimbus.main}"/>
 
