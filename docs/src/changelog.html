@@ -15,6 +15,112 @@ _NIMBUS_2_4_DEPRECATED
 <a href="http://github.com/nimbusproject/nimbus/raw/master/cloud-client/nimbus-cloud-client-src/CHANGES.txt">here.</a>
 </p>
 
+<a name="2.4"> </a>
+<h3>2.4 RC1</h3>
+
+<i>Summary</i>
+<ul>
+    <li>
+        <p>
+            
+        </p>
+    </li>
+</ul>
+
+<i>Services</i>
+<ul>
+    <li>
+        <p>
+            We are happy to announce the first version of the new Nimbus installer.
+        </p>
+        <p>
+            It helps make useful initial configurations, eliminates the
+            need for a separate Globus container installation, and sets up an
+            embedded certificate authority.
+        </p>
+        <p>
+            The installer also introduces the important new concept of "NIMBUS_HOME" on the services node.
+        </p>
+        <p>
+            Please read on 
+            <a href="http://wiki.github.com/nimbusproject/nimbus/nimbus-24-installer">here</a>
+            for an overview of the changes and also the directions that we will
+            be taking the installer.
+        </p>
+    </li>
+    <li>
+        <p>
+            The build time was significantly cut, see 
+            <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=6990">this
+            enhancement bug</a> for more information.
+        </p>
+    </li>
+    <li>
+        <p>
+            GridFTP will now work with the Nimbus auto-certificate-authority
+            technology because a revocation file is now added when the CA is created.  See
+            <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=6552">this bug</a> for more information.
+        </p>
+    </li>
+    <li>
+        <p>Assorted bugfixes:</p>
+        <ul>
+            <li><a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=6978">
+                  Bug 6978 -  Web app only listens on localhost
+            </a></li>
+            <li><a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=6996">
+                  Bug 6996 -  autoconfig.sh gives a bad suggestion.
+            </a></li>
+        </ul>
+    </li>
+</ul>
+
+<i>Control Agents</i>
+<ul>
+    <li>
+        <p>Assorted bugfixes:</p>
+        <ul>
+            <li><a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=6968">
+                  Bug 6968 -  mount-alter.sh breaks when sent a partition (rather than disk image) task 
+            </a></li>
+            <li><a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=6962">
+                  Bug 6962 -  ebtables locking
+            </a></li>
+        </ul>
+    </li>
+</ul>
+
+<i>Monitoring</i>
+<ul>
+    <li>
+        <p>
+                    
+        The Nimbus Monitoring &amp; Discovery system has received a substantial overhaul since its first incarnation. The system still utilizes custom Nagios plugins to report worker node and head node resources. However, the Globus 4.x MDS utility is no longer used as the data registry. Instead, the system publishes XML to files to be served up by a web browser. A new utility, <a href="http://github.com/hep-gc/cloud-aggregator">Cloud Aggregator</a> has been developed separately to query these XML sources. 
+        </p>
+        
+        <p>
+        See this <a href="http://github.com/ahbishop/nimbus/blob/master/monitoring/nagios/ChangeLogSummary">extended
+        summary</a> as well as the full monitoring
+        <a href="http://github.com/ahbishop/nimbus/blob/master/monitoring/nagios/ChangeLog">changelog</a>.
+        </p>
+    </li>
+</ul>
+
+<i>Cloud client</i>
+<ul>
+    <li>
+        <p>
+            The current cloud client as of this release is cloud-client-014. This service
+            release should also work with cloud clients 011 through 013.
+        </p>
+        
+        <p>
+            For cloud client changes, see
+            <a href="http://github.com/nimbusproject/nimbus/raw/master/cloud-client/nimbus-cloud-client-src/CHANGES.txt">here.</a>
+    </li>
+</ul>
+
+
 <a name="2.3"> </a>
 <h3>2.3</h3>
 
