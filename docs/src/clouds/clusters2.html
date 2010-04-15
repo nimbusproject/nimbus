@@ -360,6 +360,13 @@ _EXAMPLE_CMD_END
 </p>
 
 <p>
+	It is intended to be run as part of the VM's init system.  <b>It requires the network
+	to work properly</b>.  We have seen that some Linux distributions do not bring up the
+	network before calling rc.local tasks.  In that case it is wise to put a while+sleep
+	loop before launching the context-agent that will check to make sure the network is up.
+</p>
+
+<p>
   The <b>ctx-scripts</b> directory is what you need to look at to make
   the auto-configurations work.
 </p>
@@ -381,7 +388,7 @@ _EXAMPLE_CMD_END
 </pre></div>
 
 <p>
-  That's good.  What this means is that the VM was not booted up as part of
+  That's OK.  What this means is that the VM was not booted up as part of
   a context.  The missing bootstrap file is expected in that case.  Since
   the bootstrap information is needed to contact the broker, it's also 
   expected that the agent cannot report errors to the broker.
