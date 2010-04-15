@@ -398,7 +398,7 @@ m4_define([[[_NIMBUS_LEFT2_CLOUDS1_SIDEBAR',
           <a href="clusters2.html" title="Cluster guide" class="$5">Cluster guide</a>
         </li>
         <li>
-          <a href="multicloud.html" title="Multi-cloud clusters" class="$6">Multi-cloud clusters</a>
+          <a href="multicloud.html" title="Multi-cloud" class="$6">Multi-cloud</a>
         </li>
         <li>
           <a href="appendix.html" title="Appendix" class="$7">Appendix</a>
@@ -424,7 +424,7 @@ m4_define([[[_NIMBUS_LEFT2_CLOUDS2_SIDEBAR',
           <a href="../clouds/clusters2.html" title="Cluster guide">Cluster guide</a>
         </li>
         <li>
-          <a href="../clouds/multicloud.html" title="Multi-cloud clusters">Multi-cloud clusters</a>
+          <a href="../clouds/multicloud.html" title="Multi-cloud">Multi-cloud</a>
         </li>
         <li>
           <a href="../clouds/appendix.html" title="Appendix">Appendix</a>
