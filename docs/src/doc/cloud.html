@@ -605,14 +605,8 @@ HASH: a9bad55</pre>
 </p>
 
 <p>    
-    The umask of each user should be set to 0007 to allow for group read/write
-    permissions on the files.  This allows one control account to be used for
-    propagation: in the workspace-control configuration file, there is a
-    setting to force it to propagate and unpropagate with one specific user.
-    That user needs to be a member of every cloud account's group.  Thus, the
-    control user has access to read and write all files (for
-    propagation and unpropagation tasks) but each remote client may
-    only read and write their personal files.
+    See <a href="http://lists.globus.org/pipermail/workspace-user/2010-March/001181.html">this
+	thread</a> for notes about GridFTP permission schemes.
 </p>
 
 <p>
