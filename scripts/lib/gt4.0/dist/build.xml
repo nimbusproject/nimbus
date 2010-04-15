@@ -113,6 +113,9 @@
         <copy todir="${distbuild.dir}/${nimbus.main}/metadata">
             <fileset dir="${nimbus.basedir}/metadata"/>
         </copy>
+        <copy todir="${distbuild.dir}/${nimbus.main}/monitoring">
+            <fileset dir="${nimbus.basedir}/monitoring"/>
+        </copy>
         <copy todir="${distbuild.dir}/${nimbus.main}/plugins">
             <fileset dir="${nimbus.basedir}/plugins"/>
         </copy>
@@ -140,6 +143,7 @@
             <exclude name="${nimbus.main}/home/sbin/*"/>
             <include name="${nimbus.main}/lib/**"/>
             <include name="${nimbus.main}/messaging/**"/>
+            <include name="${nimbus.main}/monitoring/**"/>
             <include name="${nimbus.main}/metadata/**"/>
             <include name="${nimbus.main}/plugins/**"/>
             <include name="${nimbus.main}/service/**"/>
