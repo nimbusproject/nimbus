@@ -413,16 +413,28 @@ class DefaultImageEditing:
     def _doOneMountCopyTask(self, imagepath, src, dst, mntpath, hdimage):
 
         if hdimage:
-            offsetint = self._guess_offset(imagepath)
-            cmd = "%s %s hdone %s %s %s %s %d" % (self.sudo_path, self.mounttool_path, imagepath, mntpath, src, dst, offsetint)
+            
+            # Some hard disk formats actually mount like partitions, for example
+            # the KVM 'raw' format.  We attempt to do partition like mounting
+            # first and then if that fails, try the full blown fdisk + mount
+            # mechanism.
+            try:
+                cmd = "%s %s one %s %s %s %s" % (self.sudo_path, self.mounttool_path, imagepath, mntpath, src, dst)
+                self._doOneMountCopyInnerTask(src, cmd, warnonly=True)
+            except:
+                offsetint = self._guess_offset(imagepath)
+                cmd = "%s %s hdone %s %s %s %s %d" % (self.sudo_path, self.mounttool_path, imagepath, mntpath, src, dst, offsetint)
+                self._doOneMountCopyInnerTask(src, cmd)
         else:
             cmd = "%s %s one %s %s %s %s" % (self.sudo_path, self.mounttool_path, imagepath, mntpath, src, dst)
+            self._doOneMountCopyInnerTask(src, cmd)
 
+    def _doOneMountCopyInnerTask(src, cmd, warnonly=False):
         if self.c.dryrun:
             self.c.log.debug("command = '%s'" % cmd)
             self.c.log.debug("(dryrun, didn't run that)")
             return
-            
+
         if not os.path.exists(src):
             raise IncompatibleEnvironment("source file in mount+copy task does not exist: %s" % src)
 
@@ -430,7 +442,10 @@ class DefaultImageEditing:
         if ret:
             errmsg = "problem running command: '%s' ::: return code" % cmd
             errmsg += ": %d ::: output:\n%s" % (ret, output)
-            self.c.log.error(errmsg)
+            if warnonly:
+                self.c.log.warn(errmsg)
+            else:
+                self.c.log.error(errmsg)
             raise IncompatibleEnvironment(errmsg)
         else:
             self.c.log.debug("done mount+copy task, altered successfully: %s" % cmd)
