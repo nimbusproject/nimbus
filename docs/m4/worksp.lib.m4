@@ -441,7 +441,7 @@ m4_define([[[_NIMBUS_INTERFACES_WARNING',
     <i>Note</i>: this is only one set of remote interfaces. It is compatible
     with WSRF technology. Nimbus supports multiple remote protocols (even
     simultaneously) like the implementation of the
-    <a href="http://www.nimbusproject.org/docs/?doc=current/faq.html#ec2-frontend">EC2 protocol</a>.
+    <a href="http://www.nimbusproject.org/docs/current/faq.html#ec2-frontend">EC2 protocol</a>.
 </p>
 <br />
 <br />
