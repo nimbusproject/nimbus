@@ -429,7 +429,7 @@ class DefaultImageEditing:
             cmd = "%s %s one %s %s %s %s" % (self.sudo_path, self.mounttool_path, imagepath, mntpath, src, dst)
             self._doOneMountCopyInnerTask(src, cmd)
 
-    def _doOneMountCopyInnerTask(src, cmd, warnonly=False):
+    def _doOneMountCopyInnerTask(self, src, cmd, warnonly=False):
         if self.c.dryrun:
             self.c.log.debug("command = '%s'" % cmd)
             self.c.log.debug("(dryrun, didn't run that)")
