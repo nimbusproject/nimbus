@@ -327,7 +327,7 @@ _EXAMPLE_CMD_END
 </p>
 
 <p>
-    To test the image, run the following:
+    To test the image, run the following <b>as root for now</b> (see below):
 </p>
 
 _EXAMPLE_ROOTCMD_BEGIN
@@ -367,6 +367,18 @@ _EXAMPLE_CMD_END
     <b>Note</b>: make sure you read the section below about <a href="#libvirt-connection">libvirt connection strings</a>.
 </p>
 
+<p>
+    <b>Problem</b>: the way libvirt uses Xen, it is not possible to quickly set up a dedicated account that has administrator access to the hypervisor.  If you adjust the permissions on the unix domain socket Xen can be controlled with, it does not result in the right setup.  To work around this issue there seem to be two OK options:
+</p>
+<ol>
+    <li>
+        <p>Set up the Xend daemon to accept TCP traffic but limit to localhost traffic from a specific account.  This can be accomplished using iptables and the uid-owner rule (limit INPUT traffic to the port from localhost, limit any local OUTPUT to that localhost:port to specific users).</p>
+    </li>
+    <li>
+        <p>Make workspace-control a wrapper program that inserts sudo arguments before invoking the real workspace-control.</p>
+    </li>
+</ol>
+
 <a name="test-kvm"> </a>
 <h4>* Test KVM: _NAMELINK(test-kvm)</h4>
 
@@ -398,6 +410,9 @@ _EXAMPLE_CMD_END
     found on the <a href="http://libvirt.org/uri.html">libvirt site</a>.
     Whatever connection URI you choose to use, it must be configured in
     workspace-control's "libvirt.conf" file.
+</p>
+<p>
+    If you are using Xen, see the special note above.
 </p>
 
 <!--- ********************************************************************** -->
