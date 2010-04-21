@@ -27,7 +27,7 @@ _NIMBUS_2_4_DEPRECATED
     </li>
     <li>
         <p>
-            <a href="#query">Enabling the EC2 Query frontend</a>
+            <a href="#query">Configuring the EC2 Query frontend</a>
         </p>
     </li>
 	<li>
@@ -86,17 +86,7 @@ _NIMBUS_2_4_DEPRECATED
     </li>
     <li>
         <p>
-            <a href="#context-broker">Two context broker implementations</a>
-        </p>
-    </li>
-    <li>
-        <p>
-            <a href="#context-broker-old">Configuring the old context broker</a>
-        </p>
-    </li>
-    <li>
-        <p>
-            <a href="#context-broker-new">Configuring the new context broker</a>
+            <a href="#context-broker-old">Configuring a standalone context broker</a>
         </p>
     </li>
 
@@ -116,7 +106,7 @@ _NIMBUS_2_4_DEPRECATED
 </p>
 
 <p>
-    See the <i>$GLOBUS_LOCATION/etc/nimbus/workspace-service</i> directory.
+    See the <i>$NIMBUS_HOME/services/etc/nimbus/workspace-service</i> directory.
 </p>
 
 <!-- *********************************************************************** -->
@@ -129,7 +119,7 @@ _NIMBUS_2_4_DEPRECATED
 <a name="elastic"> </a>
 <h2>Enabling the EC2 SOAP frontend _NAMELINK(elastic)</h2>
 <p>
-    After installing, see the <i>$GLOBUS_LOCATION/etc/nimbus/elastic</i>
+    After installing, see the <i>$NIMBUS_HOME/services/etc/nimbus/elastic</i>
     directory.  The .conf file here specifies what the EC2 "instance type"
     allocations should translate to and what networks should be requested
     from the underlying workspace service when VM create requests are sent.
@@ -236,28 +226,18 @@ _EXAMPLE_CMD_END
 <br />
 
 <a name="query"> </a>
-<h2>Enabling the EC2 Query frontend _NAMELINK(query)</h2>
+<h2>Configuring the EC2 Query frontend _NAMELINK(query)</h2>
 <p>
 The EC2 Query frontend supports the same operations as the SOAP frontend.
 However, it does not run in the same container. It listens on HTTPS using Jetty.
-By default it is not enabled and must be configured with a Java keystore.
+Starting with Nimbus 2.4, the query frontend is enabled and listens on port 8444.
 </p>
 
 <p>
-After installing, see the <i>$GLOBUS_LOCATION/etc/nimbus/query</i> directory.
-This contains a configuration file <i>query.conf</i> and a sample user mapping
-file <i>users.txt</i>. Before enabling the query frontend, you must provide a 
-Java keystore file. This keystore is used for SSL support. See
-<a href="http://docs.codehaus.org/display/JETTY/How+to+configure+SSL#HowtoconfigureSSL-step1">
-here</a> for instructions on creating a keystore using Java's <i>keytool</i> 
-utility. Once you have a keystore file, edit the <i>query.conf</i> file and
-set appropriate values for <i>keystore.path</i> and <i>keystore.password</i>.
-</p>
-
-<p>
-To enable the Query frontend, edit the <i>query.conf</i> file and choose an open
-port number for the <i>https.port</i> value. Then change <i>https.enabled</i> to
-<b>true</b> and restart the container.
+Configuration for the query frontend lives in the
+    <i>$NIMBUS_HOME/services/etc/nimbus/query</i> directory.
+It contains a configuration file <i>query.conf</i> and a sample user mapping
+file <i>users.txt</i>.
 </p>
 
 <p>
@@ -320,26 +300,17 @@ Generated query credentials for user:
 </h2>
 
 <p>
-    The Nimbus Web component is intended to be installed independently from the main
-    Nimbus service. It is a standalone Django app with robust bootstrapping scripts.
+    Starting with Nimbus 2.4, the Nimbus Web application is bundled with the service
+    distribution but is disabled by default. To enable it, edit the
+    <i>$NIMBUS_HOME/nimbus-setup.conf</i>
+    file and change the value of <i>web.enabled</i> to <b>True</b>. Next you should run
+    <i>nimbus-configure</i> to propagate the change. Now you can use <i>nimbusctl</i>
+    to start/stop the web application.
 </p>
 <p>
-    To get started, grab the Nimbus Web bundle from the
-    <a href="_NIMBUS_WEBSITE/downloads/">downloads page</a> and untar it into your
-    target installation directory. Once in place, run the <i>bin/run-standalone-ssl.sh</i>
-    script to get started. On the first invocation, the script will request some
-    information from you and generate the base configuration.
-</p>
-<p>
-    Once you have been guided through basic configuration and creation of a
-    superuser account, the bootstrap script will print a URL to the console.
-    Paste this URL into your browser and login using the account you just created.
-</p>
-<p>
-    You will likely want to tweak the configuration a bit for your site. For example,
-    if you want to change the port number the service listens on. Take a look at the
-    <i>nimbusweb.conf</i> file. Each option is well documented. Changes to this file
-    require a restart of the service.
+    By default, the web application listens on port 1443. This and other configuration
+    options are location in the <i>$NIMBUS_HOME/web/nimbusweb.conf</i> file. Changes to
+    this file require a restart of the service.
 </p>
 
 <!-- *********************************************************************** -->
@@ -1777,144 +1748,29 @@ fakepub1 192.168.0.3 192.168.0.1 192.168.0.255 255.255.255.0</pre>
 <br />
 
 
-<a name="context-broker"> </a>
-<h2>Two context broker implementations _NAMELINK(context-broker)</h2>
+<a name="context-broker-standalone"> </a>
+<h2>Configuring a standalone context broker _NAMELINK(context-broker)</h2>
 
 <p>
     The <a href="../faq.html#ctxbroker">context broker</a> is used to
-    enable <a href="../clouds/clusters.html">one click clusters</a>.
+    facilitate <a href="../clouds/clusters.html">one click clusters</a>.
 </p>
 <p>
-    Before TP2.2, there was one implementation of the context broker and its
-    protocols that was in use.  When TP2.2 came out, a new, better style of
-    contextualization was introduced.  Cloud client #11 and beyond supports
-    this style.  Cloud client #10 supports the previous kind.
-</p>
-<p>
-    Because there are so many cloud client 10 users and because the context
-    agents running inside all of the previously created virtual clusters would
-    need to be updated as well, Nimbus TP2.2 will support <b>both</b> kinds of
-    contextualization.
-</p>
-<p>
-    Newly created clusters should use the new TP2.2 broker and context agent
-    implementations.  And old clusters and clients can continue on.
-</p>
-<p>
-    You can deploy Nimbus TP2.2 with <i>BOTH</i> context brokers supported,
-    <i>ZERO</i> context brokers supported, or only <i>ONE</i> context broker
-    supported (either one).
-</p>
-
-
-<!-- *********************************************************************** -->
-<!-- *********************************************************************** -->
-<!-- *********************************************************************** -->
-
-<br />
-
-<a name="context-broker-old"> </a>
-<h2>Configuring the OLD context broker _NAMELINK(context-broker-old)</h2>
-
-<p>
-    The <a href="../faq.html#ctxbroker">context broker</a> is used to
-    enable <a href="../clouds/clusters.html">one click clusters</a>.
-</p>
-<p>
-    To set up an OLD broker (see <a href="#context-brokers-two">above</a>)
-    that is compatible with pre-011 cloud clients, follow these steps:
-</p>
-<ol>
-    <li>
-        <p>
-            Unfortunately you need to update a jar in "$GLOBUS_LOCATION/lib"
-            in order to make the old context broker work.  TP2.2 was released
-            with a bug that prevents the old context broker from working with
-            it in a backwards compatible way.
-        </p>
-        <p>
-            See <a href="http://bugzilla.globus.org/bugzilla/show_bug.cgi?id=6633">Bug 6633</a>,
-            there is a jar file you can download and put into the lib directory
-            (or alternatively you can patch the source file yourself).
-        </p>
-    </li>
-    <li>
-        <p>
-            Create a passwordless CA certificate.
-        </p>
-
-        <p>
-            You can do this from an existing CA.  To unencrypt an RSA key, run:
-            <i>openssl rsa -in cakey.pem -out cakey-unencrypted.pem</i>
-        </p>
-        <p>
-            Alternatively, you can create a new throwaway
-            <a href="quickstart.html#auto-container">AutoContainer</a> and
-            use the CA files generated under <i>~/.globus/auto-container-01</i>
-        </p>
-    </li>
-    <li>
-        <p>
-            Make very sure that the CA certificate and key files are read-only
-            and private to the container running account.
-        </p>
-    </li>
-    <li>
-        <p>
-            Remove the comments from the relevant section in
-            <i>$GLOBUS_LOCATION/etc/nimbus/jndi-config.xml</i> in order to
-            enable the broker.  Adjust the paths in the <i>caCertPath</i>
-            and <i>caKeyPath</i> to match the files you created in the
-            previous step.
-        </p>
-    </li>
-    <li>
-        <p>
-            Add the CA certificate to your container's trusted certificates
-            directory.  The context broker (running in the container) creates
-            short term credentials on the fly for the VMs.  The VMs use this
-            to contact the broker: the container needs to be able to verify
-            who is calling.
-        </p>
-    </li>
-    <li>
-        <p>
-            Container restart is required.
-        </p>
-    </li>
-</ol>
-
-
-<!-- *********************************************************************** -->
-<!-- *********************************************************************** -->
-<!-- *********************************************************************** -->
-        
-<br />
-
-
-<a name="context-broker-new"> </a>
-<h2>Configuring the NEW context broker _NAMELINK(context-broker-new)</h2>
-
-<p>
-    The <a href="../faq.html#ctxbroker">context broker</a> is used to
-    enable <a href="../clouds/clusters.html">one click clusters</a>.
-</p>
-<p>
-    The new broker (see <a href="#context-broker">above</a>)
-    is installed by default with Nimbus 2.4, but there is not a
-    dependency on any Nimbus service component.  It can run by itself in a
-    container.  You can use it for deploying virtual clusters on EC2 for
+    The context broker (see <a href="#context-broker">above</a>)
+    is installed and configured automatically starting with Nimbus 2.4, but there
+    is not a dependency on any Nimbus service component.  It can run by itself in a
+    GT container.  You can use it for deploying virtual clusters on EC2 for
     example without any other Nimbus service running (the cloud client #11 has
     an "ec2script" option that will allow you to do this).
 </p>
 <p>
     If you want to install the broker separately from Nimbus, download the 
     Nimbus source tarball, extract it, and run 
-    <i>bin/broker-build-and-install.sh</i> with an appropriate 
+    <i>scripts/broker-build-and-install.sh</i> with an appropriate 
     <b>$GLOBUS_LOCATION</b> set.
 </p>
 <p>
-    To set up a NEW broker that is compatible with post-010 cloud clients,
+    To set up a standalone broker that is compatible with post-010 cloud clients,
     follow these steps:
 </p>
 <ol>
