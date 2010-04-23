@@ -151,8 +151,8 @@ _NIMBUS_2_4_DEPRECATED
         <p>
             Nimbus requires that some dependencies are installed first.  On the
             service node: <b>Java</b> (1.5+) and <b>bash</b>.  On the
-            hypervisor nodes: <b>Python</b> (2.3+), <b>bash</b>,
-            <b>ebtables</b>, <b>DHCPd</b>, and <b>Xen</b>
+            hypervisor nodes: <b>Python</b> (2.4+), <b>bash</b>,
+            <b>ebtables</b>, <b>DHCPd</b>, <b>libvirt</b> and <b>KVM</b> or <b>Xen</b>
             (2 works but 3 is recommended).
         </p>
         <p>
@@ -184,7 +184,7 @@ _NIMBUS_2_4_DEPRECATED
             <li>
                 <p>
                     An <a href="#ec2-frontend">EC2 based</a> remote protocol
-                    implementation (<a href="#ec2-messaging">partial</a>)
+                    implementation of their SOAP and Query APIs (<a href="#ec2-messaging">partial</a>)
                 </p>
             </li>
             <li>
@@ -258,14 +258,16 @@ _NIMBUS_2_4_DEPRECATED
 
         <p>
             Writing new components should be a matter of "dropping" them
-            in.  For example, this summer saw a workspace-control replacement
-            that adds support for KVM virtual machines (this is a Google Summer
-            of Code project whose result will be integrated into Nimbus
-            officially in the fall).  As explained in
+            in.  As explained in
             "<a href="#rm-api">What is the RM API</a>?", the Java side of things
-            is LEGO&#0174; like.  And we are working towards modularizing
+            is particularly LEGO&#0174; like.
+            As of Nimbus 2.3 workspace-control (the VMM component) is modularized with around 10 plugin points.
+            And we are working towards modularizing
             even more and providing better implementations for various
-            components.  Any questions, suggestions, and requirements in this
+            components. 
+        </p>
+        <p>
+            Any questions, suggestions, and requirements in this
             area are appreciated.
         </p>
     </li>
@@ -282,10 +284,8 @@ _NIMBUS_2_4_DEPRECATED
         </p>
 
         <p>
-            The current supported protocols (WSRF and EC2) happen to both be
-            Web Services based and happen to both
-            run in the <a href="http://ws.apache.org/axis/">Apache Axis</a>
-            based GT Java container.  But neither thing is a necessity:
+            The current supported protocols are Web Services based or HTTP based.  They all run in either an <a href="http://ws.apache.org/axis/">Apache Axis</a>
+            based Java container or <a href="http://cxf.apache.org/">Apache CXF</a>.  But there is only a certain level of necessity:
         </p>
 
         <div class="uldonotmoveleft">
@@ -333,14 +333,13 @@ _NIMBUS_2_4_DEPRECATED
         </p>
 
         <p>
-            This is an implementation of the Amazon
+            This is an implementation of two of the Amazon
             <a href="http://aws.amazon.com/ec2">Elastic Compute Cloud</a> (EC2)
-            web services description (WSDL) that allows you to use clients
+            interfaces that allow you to use clients
             developed for the real EC2 system against Nimbus based clouds.
         </p>
 		<p>
-		There is support for both EC2 interfaces: SOAP and Query. The Query
-		API support is present in the 2.4 release.
+		    There is support for both EC2 interfaces: SOAP and Query.
 		</p>	 
         <p>
             See <a href="#ec2-messaging">What EC2 operations are supported</a>?
@@ -359,7 +358,8 @@ _NIMBUS_2_4_DEPRECATED
         <p>
             Nimbus provides a partial protocol implementation of EC2's
             WSDL (namespace <i>http://ec2.amazonaws.com/doc/2009-08-15/</i>,
-            a previous version supported <i>2008-05-05</i>).
+            a previous version supported <i>2008-05-05</i>) and the Query API
+            complement to that WSDL.
             The operations behind these EC2 commandline clients are currently
             provided:
         </p>
@@ -565,14 +565,11 @@ _NIMBUS_2_4_DEPRECATED
             contextualization information (see Context Broker).
         </p>
         <p>
-            Currently, the workspace control tools work with Xen and KVM but
-            only the Xen version is distributed.  A Google Summer of Code
-            student added KVM support which should be fully integrated this
-            fall.
+            Currently, the workspace control tools work with Xen and KVM.
         </p>
         <p>
             Implemented in Python in order to be portable and easy to install.
-            Requires sudo, ebtables, and a DHCP server library.
+            Requires libvirt, sudo, ebtables, and a DHCP server library.
         </p>
     </li>
 
@@ -598,8 +595,7 @@ _NIMBUS_2_4_DEPRECATED
         <p>
             This is a user-oriented system that runs as an "overlay" on top of
             the normal VM-on-demand mechanics.  It's been used on top of Nimbus
-            clouds as well as with EC2 resources via the
-            <a href="#ec2-backend">EC2 backend</a>.
+            clouds as well as with EC2 resources.
         </p>
         <p>
             See the <a href="clouds/clusters2.html">one-click clusters
