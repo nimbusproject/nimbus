@@ -22,7 +22,7 @@ export PYTHONPATH
 
 # ------------------------------------------------------------------------------
 
-if [ "X$OWNER_IS_RUNNER_ASSUMPTION" == "Xyes" ]; then
+if [ "X$OWNER_IS_RUNNER_ASSUMPTION" = "Xyes" ]; then
     # The following script expands the tarballs in lib/
     $NIMBUS_WEBDIR/sbin/install-deps.sh $DEBUG
     if [ $? -ne 0 ]; then

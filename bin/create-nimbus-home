@@ -20,7 +20,7 @@ if [ ! -d $TMPDIR ]; then
     fi
 fi
 
-if [ "X$1" == "X" ]; then
+if [ "X$1" = "X" ]; then
     echo ""
     echo "Usage: $0 destination_dir"
     echo "    You must specify the destination directory.\n"
