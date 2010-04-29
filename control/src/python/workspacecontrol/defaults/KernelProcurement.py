@@ -1,4 +1,5 @@
 import os
+import string
 import sys
 import zope.interface
 
@@ -41,6 +42,7 @@ class DefaultKernelProcurement:
         self.authz_kernels = []
         ak_list = authz_conf.split(",")
         for name in ak_list:
+            name = string.strip(name)
             if os.path.isabs(name):
                 raise InvalidConfig("cannot accept absolute path in kernels->authz_kernels configuration: '%s'" % name)
             authzk = AuthzKernel()
