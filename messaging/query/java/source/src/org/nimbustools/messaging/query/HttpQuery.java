@@ -34,6 +34,7 @@ public class HttpQuery {
 
     private boolean enabled;
     private int port;
+    private int headerBufferBytes;
     private String springConfig;
     private Server server;
     private String keystoreLocation;
@@ -65,6 +66,9 @@ public class HttpQuery {
 
         SslSocketConnector sslConnector = new SslSocketConnector();
         sslConnector.setPort(port);
+        if (this.headerBufferBytes > 0) {
+            sslConnector.setHeaderBufferSize(this.headerBufferBytes);
+        }
         sslConnector.setKeystore(keystoreLocation);
         sslConnector.setKeyPassword(keystorePassword);
         sslConnector.setPassword(keystorePassword);
@@ -104,6 +108,14 @@ public class HttpQuery {
 
     public void setPort(int port) {
         this.port = port;
+    }
+
+    public int getHeaderBufferBytes() {
+        return headerBufferBytes;
+    }
+
+    public void setHeaderBufferBytes(int headerBufferBytes) {
+        this.headerBufferBytes = headerBufferBytes;
     }
 
     public String getSpringConfig() {
