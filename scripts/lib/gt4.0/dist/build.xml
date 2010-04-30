@@ -44,9 +44,14 @@
 
     <!-- ==== Utility targets =========================== -->
 
-    <target name="fetch-wscore">
+    <target name="fetch-wscore" unless="wscore.exists">
         <mkdir dir="${wscore.destdir}"/>
-        <get src="${wscore.url}" dest="${wscore.dest}" usetimestamp="true" />
+        <get src="${wscore.url}" dest="${wscore.dest}" />
+    </target>
+
+    <target name="assure-wscore">
+        <available file="${wscore.dest}" property="wscore.exists"/>
+        <antcall target="fetch-wscore"/>
     </target>
 
     <!-- ==== Source distribution targets =========================== -->
@@ -54,7 +59,7 @@
     <target name="create-src-dists"
             depends="service-src, control-src" />
 
-    <target name="service-src" depends="init, fetch-wscore">
+    <target name="service-src" depends="init, assure-wscore">
 
         <mkdir dir="${distbuild.dir}/${nimbus.main}"/>
 
