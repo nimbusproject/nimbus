@@ -1,8 +1,8 @@
 For cloud-client samples, see the cloud-client home online:
 
-http://www.nimbusproject.org/docs/?doc=current/clouds/cloudquickstart.html
+http://www.nimbusproject.org/docs/current/clouds/cloudquickstart.html
 
 And the one-click clusters page:
 
-http://www.nimbusproject.org/docs/?doc=current/clouds/clusters.html
+http://www.nimbusproject.org/docs/current/clouds/clusters.html
 

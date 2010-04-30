@@ -3,7 +3,7 @@ Workspace Cloud Client
 
 For more information, see: 
 
-   http://www.nimbusproject.org/docs/?doc=current/clouds/cloudquickstart.html
+   http://www.nimbusproject.org/docs/current/clouds/cloudquickstart.html
    
 And:
 
