@@ -6,4 +6,4 @@
 ####  Example 9
 ####  Subscribe to a previously deployed workspace for state notifications
 
-$GLOBUS_LOCATION/bin/workspace --e workspace.epr --subscribe
+$GLOBUS_LOCATION/bin/workspace --e workspace.epr --subscribe --poll-delay 2000

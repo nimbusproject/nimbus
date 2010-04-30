@@ -15,4 +15,5 @@ $GLOBUS_LOCATION/bin/workspace --deploy --file workspace.epr \
   $GLOBUS_LOCATION/share/nimbus-clients/sample-workspace-multiple-partitions.xml \
   --request \
   $GLOBUS_LOCATION/share/nimbus-clients/sample-deployment-request-with-blankspace.xml \
+  --poll-delay 2000 \
   -s https://127.0.0.1:8443/wsrf/services/WorkspaceFactoryService

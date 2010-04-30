@@ -11,5 +11,6 @@ $GLOBUS_LOCATION//bin/workspace --deploy --file workspace.epr \
   --request  $GLOBUS_LOCATION/share/nimbus-clients/sample-deployment-request.xml \
   -s https://127.0.0.1:8443/wsrf/services/WorkspaceFactoryService \
   -o share/nimbus-clients/sample-optional-staging.xml \
+  --poll-delay 2000 \
   -u https://127.0.0.1:8443/wsrf/services/DelegationFactoryService -q 10000 -t
 
