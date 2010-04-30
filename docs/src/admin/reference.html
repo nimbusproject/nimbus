@@ -484,7 +484,7 @@ _EXAMPLE_CMD_END
 
 <p>
     What follows is the instructions for setting up a container as they existed
-    before the auto-configration program came into being (see
+    before the auto-configuration program or the installer came into being (see
     <a href="quickstart.html#part-IIb">here</a> for
     information about the auto-configuration program).
 </p>
@@ -606,8 +606,6 @@ _EXAMPLE_CMD_END
 192.168.0.1
 fakepub1 192.168.0.3 192.168.0.1 192.168.0.255 255.255.255.0</pre>
 </div>
-
-
 
 
 
@@ -1107,9 +1105,8 @@ fakepub1 192.168.0.3 192.168.0.1 192.168.0.255 255.255.255.0</pre>
             <i>openssl rsa -in cakey.pem -out cakey-unencrypted.pem</i>
         </p>
         <p>
-            Alternatively, you can create a new throwaway
-            <a href="quickstart.html#auto-container">AutoContainer</a> and
-            use the CA files generated under <i>~/.globus/auto-container-01</i>
+            Alternatively, you can use the CA created by the Nimbus installer
+            under $NIMBUS_HOME/var/ca
         </p>
     </li>
     <li>
