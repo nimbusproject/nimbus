@@ -291,6 +291,28 @@ General: An error was discovered processing the &lt;wsse:Security&gt; header.
             "bound in this context" at a time.
         </p>
     </li>
+<br /><hr />
+    
+    <li>
+        <a name="libvirt-debian"> </a>
+        <p>
+            Problem: The workspace-control "sbin/test-dependencies.sh" fails
+            to work on Debian.
+            _NAMELINK(libvirt-debian)
+        </p>
+        <p>
+            Debian has an old libvirt version so installing it is often a matter
+            of running "configure --with-python; make; make install"
+        </p>
+        <p>
+            But that still may make the "sbin/test-dependencies.sh" script fail
+            because the "import libvirt" statement will not work at all.  
+        </p>
+        <p>
+            Solution: Add the location of libvirt.so.0 to the LD_LIBRARY_PATH
+            environment variable.
+        </p>
+    </li>
 </ul>
 
 <br />
