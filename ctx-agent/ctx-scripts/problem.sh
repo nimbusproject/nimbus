@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 echo "Problem script running... shutting down."
 touch /tmp/contextualization_problem_script_ran

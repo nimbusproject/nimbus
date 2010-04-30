@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # You can put commands that 'reset' the VM for contextualization
 # here and then call this before launch.sh in your rc.local (like

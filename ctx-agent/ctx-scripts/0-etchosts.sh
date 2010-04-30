@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # This configures the local /etc/hosts file with all members of the context.
 # Don't change or delete this script unless you know what you are doing.
