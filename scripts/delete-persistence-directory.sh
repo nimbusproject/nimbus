@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 NIMBUS_PRINTNAME="delete persistence directory"
 NIMBUS_EXTRAPRINT="     [ ** ] Note there are persistence mgmt scripts @ $GLOBUS_LOCATION/share/nimbus"

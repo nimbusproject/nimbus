@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 NIMBUS_HOME_REL="`dirname $0`/.."
 NIMBUS_HOME=`cd $NIMBUS_HOME_REL; pwd`

@@ -1,4 +1,4 @@
-#!/bin/sh -x
+#!/bin/bash -x
 
 # (you will probably want to change the URLs and edit the sample
 #  files in $GLOBUS_LOCATION/share/nimbus-clients )

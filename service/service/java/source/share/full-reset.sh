@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 BASEDIR_REL="`dirname $0`"
 BASEDIR=`cd $BASEDIR_REL; pwd`

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 NIMBUS_PRINTNAME="build and install clients only"
 NIMBUS_ANT_CMD="deploy-default-GT4.0-clients-only -Dbuild.also=x $*"

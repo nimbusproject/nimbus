@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # This script is included in the binary client tarball to make client GAR
 # file deployment one step.

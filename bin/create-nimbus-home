@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 CONTAINER_URL="http://www-unix.globus.org/ftppub/gt4/4.0/4.0.8/ws-core/bin/ws-core-4.0.8-bin.tar.gz"
 CONTAINER_TARNAME="ws-core-4.0.8-bin.tar.gz"

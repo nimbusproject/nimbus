@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 NIMBUS_PRINTNAME="install Context Broker"
 NIMBUS_ANT_CMD="deploy-broker $*"

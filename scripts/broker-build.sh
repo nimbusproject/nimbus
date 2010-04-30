@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 NIMBUS_PRINTNAME="build Context Broker"
 NIMBUS_ANT_CMD="build-broker $*"

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 NIMBUS_PRINTNAME="uninstall all"
 NIMBUS_ANT_CMD="undeploy-GT4.0-all $*"

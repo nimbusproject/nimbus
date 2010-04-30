@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 NIMBUS_PRINTNAME="build and install all"
 NIMBUS_ANT_CMD="deploy-default-GT4.0-service -Dbuild.also=x $*"

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 NIMBUS_PRINTNAME="Run Nimbus REST test server"
 NIMBUS_ANT_CMD="run-rest-testserver $*"

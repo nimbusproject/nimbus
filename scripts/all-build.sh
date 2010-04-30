@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 NIMBUS_PRINTNAME="build all"
 NIMBUS_ANT_CMD="build-default-GT4.0-service $*"

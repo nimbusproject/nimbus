@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 if [ "X$NIMBUS_PRINTNAME" = "X" ]; then
   echo "no definition for NIMBUS_PRINTNAME"
