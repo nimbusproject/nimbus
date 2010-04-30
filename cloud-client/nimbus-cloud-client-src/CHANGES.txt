@@ -1,3 +1,13 @@
+nimbus-cloud-client-XXX
+-----------------------
+
+[*] Scripts use /bin/bash exclusively now.
+    http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7009
+
+[*] 
+
+
+
 nimbus-cloud-client-014
 -----------------------
 
