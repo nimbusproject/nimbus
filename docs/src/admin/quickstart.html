@@ -742,6 +742,41 @@ _EXAMPLE_CMD_END
     test.
 </p>
 
+<a name="user-cert"> </a>
+<h4>* Set up user certificate _NAMELINK(user-cert)</h4>
+
+<p>
+    Before starting, you should create a X.509 user credential to access the
+    workspace service if you haven't done that yet. We provide a tool to create
+    the user certificate and key from the embedded Nimbus Certificate Authority.
+    Run the following command to start the tool, and follow its instructions:
+</p>
+
+_EXAMPLE_CMD_BEGIN
+$NIMBUS_HOME/bin/nimbus-new-cert
+_EXAMPLE_CMD_END
+
+<p>
+    If everything went well, the new certificate and key should be created in
+    $HOME/.globus, and the DN of the certificate should be displayed in the program output:
+</p>
+
+<div class="screen">
+Success! The DN of the new certificate is:
+
+    "/O=Auto/OU=NimbusCA/CN=Bob"
+</div>
+
+<p>
+    In order to enable access to the workspace Service for some credential,
+    its DN should be added to the nimbus-grid-mapfile, located at 
+    "$NIMBUS_HOME/services/etc/nimbus/nimbus-grid-mapfile".
+    Add a line like this, using the DN from the generated certificate:
+</p>
+<div class="screen">
+"/O=Auto/OU=NimbusCA/CN=Bob" test_account
+</div>
+
 <a name="start-nimbus"> </a>
 <h4>* Start Nimbus services _NAMELINK(start-nimbus)</h4>
 
@@ -755,7 +790,7 @@ _EXAMPLE_CMD_END
 
 <p>
     It may take several seconds for everything to initialize. You should check the output
-    in the logfile to ensure that everything started up okay:
+    in the logfile to ensure that the services started up okay:
 </p>
 
 _EXAMPLE_CMD_BEGIN
@@ -767,12 +802,12 @@ _EXAMPLE_CMD_END
 <h4>* Client: _NAMELINK(test-client)</h4>
 
 <p>
-    Set up the environment variables for <i>GLOBUS_LOCATION</i>
-    and <i>X509_CERT_DIR</i> (as needed) and run this program:
+    Set up needed environment variables by sourcing the
+    generated 'environment.sh' file, then run this program:
 </p>
 
 _EXAMPLE_CMD_BEGIN
-export GLOBUS_LOCATION=$NIMBUS_HOME/services/
+. $NIMBUS_HOME/sbin/environment.sh
 _EXAMPLE_CMD_END
 
 _EXAMPLE_CMD_BEGIN
