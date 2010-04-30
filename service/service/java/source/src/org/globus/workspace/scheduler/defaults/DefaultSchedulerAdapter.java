@@ -863,7 +863,7 @@ public class DefaultSchedulerAdapter implements Scheduler {
     }
 
     protected void markShutdown(int id) throws WorkspaceDatabaseException {
-        
+        this.db.markShutdown(id);
     }
 
     protected int anyLeft() throws WorkspaceDatabaseException {

@@ -120,7 +120,7 @@ public class ResourceSweeper implements Runnable {
         // destroy things
         final Iterator iter = killList.iterator();
         while (iter.hasNext()) {
-            final Callable task = (Callable) iter.next();
+            final Runnable task = (Runnable) iter.next();
             this.executor.submit(task);
         }
 
