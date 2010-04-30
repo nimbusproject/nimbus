@@ -21,6 +21,13 @@ export PYTHONPATH
 
 # ------------------------------------------------------------------------------
 
+# returns 0 if Python 2.4+
+$PYTHON_EXE -c "import sys; sys.exit(sys.version_info < (2,4))"
+if [ $? -ne 0 ]; then
+    echo "ERROR: Your system must have Python version 2.4 or later."
+    exit 1
+fi
+
 # The following script expands the tarballs in lib/
 $NIMBUS_WEBDIR/sbin/install-deps.sh $DEBUG
 if [ $? -ne 0 ]; then
