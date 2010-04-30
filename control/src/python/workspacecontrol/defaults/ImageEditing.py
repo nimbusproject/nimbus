@@ -412,43 +412,72 @@ class DefaultImageEditing:
 
     def _doOneMountCopyTask(self, imagepath, src, dst, mntpath, hdimage):
 
-        if hdimage:
-            
+        warning = None
+        error = None
+        if not hdimage:
+            cmd = "%s %s one %s %s %s %s" % (self.sudo_path, self.mounttool_path, imagepath, mntpath, src, dst)
+            error = self._doOneMountCopyInnerTask(src, cmd)
+        
+        else:
             # Some hard disk formats actually mount like partitions, for example
             # the KVM 'raw' format.  We attempt to do partition like mounting
             # first and then if that fails, try the full blown fdisk + mount
             # mechanism.
-            try:
-                cmd = "%s %s one %s %s %s %s" % (self.sudo_path, self.mounttool_path, imagepath, mntpath, src, dst)
-                self._doOneMountCopyInnerTask(src, cmd, warnonly=True)
-            except:
+            cmd = "%s %s one %s %s %s %s" % (self.sudo_path, self.mounttool_path, imagepath, mntpath, src, dst)
+            warning = self._doOneMountCopyInnerTask(src, cmd)
+            if warning:
                 offsetint = self._guess_offset(imagepath)
                 cmd = "%s %s hdone %s %s %s %s %d" % (self.sudo_path, self.mounttool_path, imagepath, mntpath, src, dst, offsetint)
-                self._doOneMountCopyInnerTask(src, cmd)
-        else:
-            cmd = "%s %s one %s %s %s %s" % (self.sudo_path, self.mounttool_path, imagepath, mntpath, src, dst)
-            self._doOneMountCopyInnerTask(src, cmd)
+                error = self._doOneMountCopyInnerTask(src, cmd)
+            
+        if not error:
+            return # if there is a warning, it is discarded
+        if not warning:
+            self.c.log.error(error.msg)
+            raise error
+        elif warning:
+            combined = """
+===========================================================================
+            
+Tried multiple methods of mounting the image file.
 
-    def _doOneMountCopyInnerTask(self, src, cmd, warnonly=False):
+First, attempted to treat it like partition (no MBR) but that did not work:
+
+===========================================================================
+%s
+===========================================================================
+
+Then, attempted to look for the first partition in the partition table using
+fdisk, but that did not work either:
+
+===========================================================================
+%s
+===========================================================================
+""" % (warning.msg, error.msg)
+            self.c.log.error(combined)
+            raise IncompatibleEnvironment(combined)
+            
+    def _doOneMountCopyInnerTask(self, src, cmd):
         if self.c.dryrun:
             self.c.log.debug("command = '%s'" % cmd)
             self.c.log.debug("(dryrun, didn't run that)")
-            return
+            return None
 
         if not os.path.exists(src):
-            raise IncompatibleEnvironment("source file in mount+copy task does not exist: %s" % src)
+            return IncompatibleEnvironment("source file in mount+copy task does not exist: %s" % src)
 
-        ret,output = getstatusoutput(cmd)
-        if ret:
-            errmsg = "problem running command: '%s' ::: return code" % cmd
-            errmsg += ": %d ::: output:\n%s" % (ret, output)
-            if warnonly:
-                self.c.log.warn(errmsg)
+        try:
+            ret,output = getstatusoutput(cmd)
+            if ret:
+                errmsg = "problem running command: '%s' ::: return code" % cmd
+                errmsg += ": %d ::: output:\n%s" % (ret, output)
+                return IncompatibleEnvironment(errmsg)
             else:
-                self.c.log.error(errmsg)
-            raise IncompatibleEnvironment(errmsg)
-        else:
-            self.c.log.debug("done mount+copy task, altered successfully: %s" % cmd)
+                self.c.log.debug("done mount+copy task, altered successfully: %s" % cmd)
+        except Exception,e:
+            return e
+        
+        return None
 
     def _deldirs(self, mntpath):
         try:
