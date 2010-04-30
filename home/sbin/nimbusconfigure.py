@@ -603,6 +603,7 @@ if __name__ == "__main__":
         raise
     except KeyboardInterrupt:
         print "\n\nReceived keyboard interrupt. Aborting!\n"
+        sys.exit(5)
     except:
         exception_type = sys.exc_type
         try:
