@@ -71,7 +71,7 @@ def createCert(CN, basedir, cadir, certtarget, keytarget, log,
     pathutil.ensure_file_exists(temp_priv_path, "temp key")
     log.debug("temp key exists: " + temp_priv_path)
     
-    log.info("Created certificate: %s" % pub_DN)
+    log.debug("Created certificate: %s" % pub_DN)
     
     # Those user-supplied targets still don't exist, right? :-)
     if not allow_overwrite and pathutil.check_path_exists(certtarget):
