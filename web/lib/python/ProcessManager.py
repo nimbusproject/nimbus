@@ -229,8 +229,10 @@ class Process:
         Public method that prints out what this process' status is
         (running, stopped, etc).
         """
-        
-        print "%-30s%s" % ( self.name, self._getStatus() )
+        status = self._getStatus()
+        print "%-30s%s" % ( self.desc, status )
+        if status != 'running':
+            raise ProcessStatusError()
 
     def _getStatus( self ):
         """
@@ -263,7 +265,7 @@ class Process:
                 print "Process '%s' may have died prematurely." % self.name
 
         # Start the process now.
-        leftColumnText = "Launching %s..." % self.name
+        leftColumnText = "Launching %s..." % self.desc
         print "%-30s" % leftColumnText,
         sys.stdout.flush()
 
@@ -330,7 +332,7 @@ class Process:
         pid = self._readpid()
         if pid != None:
             if _isPidRunning( pid ):
-                leftColumnText = "Stopping %s..." % self.name
+                leftColumnText = "Stopping %s..." % self.desc
                 print "%-30s" % leftColumnText,
                 sys.stdout.flush()
 
@@ -363,6 +365,11 @@ class ProcessStartupError( Exception ):
     
     pass
 
+class ProcessStatusError( Exception ):
+    """
+    Exception raised when a process is not running.
+    """
+    pass
 
 # ----------------------------------------------------------------------------
 # Module Functions
@@ -426,17 +433,17 @@ def _runCommandOnTarget( command, target ):
             method = getattr( process, command )
             try:
                 method()
-            except ProcessStartupError:
+            except (ProcessStartupError, ProcessStatusError):
                 errorOccurred = True
     else:
         method = getattr( _processes[target], command )
         try:
             method()
-        except ProcessStartupError:
+        except (ProcessStartupError, ProcessStatusError):
             errorOccurred = True
 
     if errorOccurred:
-        sys.exit( -1 )
+        sys.exit(1)
 
 def _checkPrivileges():
     """

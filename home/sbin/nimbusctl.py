@@ -63,7 +63,7 @@ if services_enabled:
                 NIMBUS_SERVICES_EXE)
     ProcessManager.add( Process(
       name = "services",
-      desc = "Nimbus IaaS Services",
+      desc = "Nimbus services",
       program = NIMBUS_SERVICES_EXE,
       args = [],
       workingDir = NIMBUS_HOME,
@@ -76,7 +76,7 @@ if web_enabled:
         sys.exit("The web executable does not exist: " + NIMBUS_WEB_EXE)
     ProcessManager.add( Process(
       name = "web",
-      desc = "Nimbus Web Application",
+      desc = "Nimbus web application",
       program = NIMBUS_WEB_EXE,
       args = [],
       workingDir = NIMBUS_HOME,
