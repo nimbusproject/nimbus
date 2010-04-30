@@ -40,11 +40,6 @@ _NIMBUS_2_4_DEPRECATED
             <a href="#nimbusweb-usage">Using the Nimbus Web interface</a>
         </p>
     </li>
-	<li>
-        <p>
-            <a href="#manual-container">Configuring the container manually without the AutoContainer</a>
-        </p>
-    </li>
     <li>
         <p>
             <a href="#certs">Creating Certificates with SimpleAuthority</a>
@@ -385,122 +380,6 @@ Generated query credentials for user:
     </li>
 </ul>
       
-
-<!-- *********************************************************************** -->
-<!-- *********************************************************************** -->
-<!-- *********************************************************************** -->
-
-<br />
-
-<a name="manual-container"> </a>
-<h2>Configuring the container manually without the AutoContainer _NAMELINK(manual-container)</h2>
-
-<p>
-    What follows is the instructions for setting up a container as they existed
-    before the AutoContainer came into being.
-</p>
-
-<p>
-    Because the AutoContainer sets up a <i>password-less</i> certificate
-    authority and certificates, you may be interested in the steps here
-    after you're done initial testing.
-</p>
-
-<hr />
-
-
-<p>
-    For the quickstart you will download
-    a new standalone Java core container to run (about a 15M download).
-</p>
-<p>
-    If you already have a container installed, you can skip the next steps and
-    make sure the <i>GLOBUS_LOCATION</i> environment variable is set to the
-    appropriate directory.  Already know that you have security working too?
-    Then you skip this section altogether.
-</p>
-
-<a name="manual-container-retr"> </a>
-<h4>* Retrieve and unpack: _NAMELINK(manual-container-retr)</h4>
-<p>
-    Navigate to the most recent <i>Java WS Core Binary Installer</i> link,
-    the GT4.0.8 binary is at
-    <a href="http://www.globus.org/toolkit/downloads/4.0.8/#wscore_bin">this
-    page</a>.  Take the survey and download the archive:
-</p>
-
-_EXAMPLE_CMD_BEGIN
-wget http://www-unix.globus.org/ftppub/gt4/4.0/4.0.8/ws-core/bin/ws-core-4.0.8-bin.tar.gz
-_EXAMPLE_CMD_END
-
-_EXAMPLE_CMD_BEGIN
-tar xzf ws-core-4.0.8-bin.tar.gz
-_EXAMPLE_CMD_END
-
-
-<a name="manual-container-env"> </a>
-<h4>* Set environment variable: _NAMELINK(manual-container-env)</h4>
-<p>
-    Now navigate into the new directory and set it as your "GLOBUS_LOCATION"
-    variable:
-</p>
-
-_EXAMPLE_CMD_BEGIN
-cd ws-core-4.0.8
-_EXAMPLE_CMD_END
-
-_EXAMPLE_CMD_BEGIN
-export GLOBUS_LOCATION=`pwd`
-_EXAMPLE_CMD_END
-
-<p>
-    Assuming that you have Java installed on your system, you now have a working
-    container.  Well, there's no use running things in the open, first we need
-    to set up security.  <i>Then</i> you have a real services container :-).
-</p>
-
-<a name="manual-container-certconfig"> </a>
-<h4>* Configure certificates: _NAMELINK(manual-container-certconfig)</h4>
-<p>
-    If you do not already have an X509 certificate for your machine or user
-    account, consult <a href="reference.html#certs">this section</a>
-    to get them.
-</p>
-
-<p>
-    OK, so you have an X509 certificate for your machine now, but you don't have
-    the container configured with it?  We need to configure the container to
-    load a specific certificate that it will host services under -- just like any
-    secure remote services, it needs to have its own identity so that clients
-    can be be configured to trust it.   If you're new to the container, consult
-    <a href="reference.html#cert-pointing">this section</a>.
-</p>
-
-<a name="manual-container-security"> </a>
-<h4>* Test security: _NAMELINK(manual-container-security)</h4>
-
-<p>
-    It's important that the container security and X509 identity mechanisms
-    are all in place before installing Nimbus.  This allows you to isolate
-    any issues and also allows you to apply any general container/Globus
-    documentation to any issues (although feel free to use the Nimbus mailing
-    lists for questions).
-</p>
-
-<p>
-    If you're new to the container, check out
-    <a href="#secure-call-test">this
-    section</a> which will help you out by running
-    through an example of getting the "SecureCounterService" working.
-</p>
-
-<p>
-    If you have configured certificates in the past and are used to proxy
-    certificates etc., you need to make sure the grid-mapfile and certificates
-    all work out such that you can make calls to secured services.  You know the
-    drill: https services, grid-mapfile, user/host certificates.
-</p>
-
 
 <!-- *********************************************************************** -->
 <!-- *********************************************************************** -->
