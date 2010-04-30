@@ -103,6 +103,11 @@ if [ ! -d $CONTAINER_DIR ]; then
         echo "Failed to move container directory to $CONTAINER_DIR"
         exit 1
     fi
+
+    CONTAINER_LOG_PROPS="$CONTAINER_DIR/container-log4j.properties"
+    echo "log4j.category.org.nimbustools=INFO" >> $CONTAINER_LOG_PROPS
+    echo "log4j.category.org.globus.workspace=INFO" >>  $CONTAINER_LOG_PROPS
+
 else
     echo "Service container already exists at $CONTAINER_DIR"
 fi
