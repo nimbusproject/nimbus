@@ -1,0 +1,42 @@
+
+GET Service
+============
+Description
+
+This implementation of the GET operation returns a list of all buckets owned by the authenticated sender of the request.
+
+To authenticate a request, you must use a valid AWS Access Key ID that is registered with Amazon S3. Anonymous requests cannot list buckets, and you cannot list buckets that you did not create.
+Requests
+Syntax
+
+GET / HTTP/1.1
+Host: s3.amazonaws.com
+Date: date
+Authorization: signatureValue
+
+Operations on Buckets
+=====================
+    * DELETE Bucket
+    * GET Bucket (List Objects)
+    * GET Bucket acl
+    * GET Bucket location
+    * GET Bucket logging
+    * GET Bucket Object versions
+    * GET Bucket requestPayment
+    * GET Bucket versioning
+    * PUT Bucket
+    * PUT Bucket acl
+    * PUT Bucket logging
+    * PUT Bucket requestPayment
+    * PUT Bucket versioning
+
+Operations on Objects
+=====================
+    * DELETE Object
+    * GET Object
+    * GET Object acl
+    * GET Object torrent
+    * HEAD Object
+    * POST Object
+    * PUT Object
+    * PUT Object (Copy)

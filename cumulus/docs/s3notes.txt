@@ -1,0 +1,49 @@
+Owner
+=====
+Every bucket and object in Amazon S3 has an owner, the user that created the bucket or object. The owner of a bucket or object cannot be changed. However, if the object is overwritten by another user (deleted and rewritten), the new object will have a new owner.
+[Note]  Note
+
+Even the owner is subject to the ACL. For example, if an owner does not have READ access to an object, the owner cannot read that object. However, the owner of an object always has write access to the access control policy (WRITE_ACP) and can change the ACL to read the object.
+
+Permissions
+===========
+The permission in a grant describes the type of access to be granted to the respective grantee. Following are permissions that are supported by Amazon S3.
+
+Elements
+
+    *
+
+      READ—when applied to a bucket, grants permission to list the bucket.
+
+      When applied to an object, this grants permission to read the object data and/or metadata.
+    *
+
+      WRITE—when applied to a bucket, grants permission to create, overwrite, and delete any object in the bucket.
+
+      This permission is not supported for objects.
+    *
+
+      READ_ACP—grants permission to read the ACL for the applicable bucket or object.
+
+      The owner of a bucket or object always has this permission implicitly.
+    *
+
+      WRITE_ACP—gives permission to overwrite the ACP for the applicable bucket or object.
+
+      The owner of a bucket or object always has this permission implicitly.
+
+      Granting this permission is equivalent to granting FULL_CONTROL because the grant recipient can make any changes to the ACP.
+    *
+
+      FULL_CONTROL—provides READ, WRITE, READ_ACP, and WRITE_ACP permissions.
+
+      It does not convey additional rights and is provided only for convenience.
+
+
+Using ACLs
+==========
+An ACL can contain up to 100 grants. If no ACL is provided when a bucket is created or an object written, a default ACL is created. The default ACL consists of a single grant that gives the owner (i.e., the creator) the FULL_CONTROL permission. If you overwrite an existing object, the ACL for the existing object is overwritten and will default to FULL_CONTROL for the owner if no ACL is specified.
+
+You can change the ACL of a resource without changing the resource itself. However, like Amazon S3 objects, there is no way to modify an existing ACL—you can only overwrite it with a new version. Therefore, to modify an ACL, read the ACL from Amazon S3, modify it locally, and write the entire updated ACL back to Amazon S3.
+
+
