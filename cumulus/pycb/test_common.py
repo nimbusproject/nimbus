@@ -55,12 +55,3 @@ def get_contact():
         print "Must set the envs CUMULUS_TEST_HOST, CUMULUS_TEST_PORT"
         raise
 
-def get_user():
-    try:
-        user = os.environ['CUMULUS_TEST_USER']
-        password = os.environ['CUMULUS_TEST_PASSWORD']
-        return (user, password)
-    except:
-        print "Must set the envs CUMULUS_TEST_USER, CUMULUS_TEST_PASSWORD"
-        raise
-

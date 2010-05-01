@@ -42,7 +42,7 @@ class cbPosixUserObject(object):
         self.display_name = display_name
         self.password = password
 
-    def getPassword(self):
+    def get_password(self):
         return self.password
 
     def hashFile(self, name):
@@ -54,7 +54,7 @@ class cbPosixUserObject(object):
     def isOwner(self, bucketName, objectName=None):
         return self.getOwner(bucketName, objectName)[0] == self.id
 
-    def getOwner(self, bucketName, objectName=None):
+    def get_owner(self, bucketName, objectName=None):
         if objectName == None:
             f = self.getBucketPermFile(bucketName)
         else:
@@ -72,10 +72,10 @@ class cbPosixUserObject(object):
         return data_key
 
 
-    def getID(self):
+    def get_id(self):
         return self.id
 
-    def getDisplayName(self):
+    def get_display_name(self):
         return self.display_name
 
     def getBucketPermFile(self, bucketName):
@@ -139,7 +139,7 @@ class cbPosixUserObject(object):
         auth_file.write('\n')
         auth_file.close()
 
-    def putBucket(self, bucketName, perms="RWrw"):
+    def put_bucket(self, bucketName, perms="RWrw"):
         rc = 'InvalidBucketName'
         rc_msg = "Failed to delete"
         try:
@@ -168,15 +168,16 @@ class cbPosixUserObject(object):
         my_line = self.find_my_perms(f)
         return my_line
 
-    def putObject(self, data_key, bucketName, objectName, perms="RWrw"):
+    def put_object(self, data_obj, bucketName, objectName, perms="RWrw"):
+        data_key = data_obj.get_data_key()
         f = self.getObjectFile(bucketName, objectName)
         self.setowner_perms(f, data_key, perms)
 
-    def deleteObject(self, bucketName, objectName):
+    def delete_object(self, bucketName, objectName):
         f = self.getObjectFile(bucketName, objectName)
         os.unlink(f)
 
-    def deleteBucket(self, bucketName):
+    def delete_bucket(self, bucketName):
         rc = 'InternalError'
         try:
             d = self.getBucketDir(bucketName)
@@ -225,14 +226,14 @@ class cbPosixUserObject(object):
         self.add_perms(f, user_id, perms)
         pycb.log(logging.INFO, "granted: %s to %s" % (perms, user_id))
 
-    def getPerms(self, bucketName, objectName=None):
+    def get_perms(self, bucketName, objectName=None):
         if objectName == None:
             perms = self.getBucketPerms(bucketName)
         else:
             perms = self.getObjectPerms(bucketName, objectName)
         return perms
 
-    def getACL(self, bucketName, objectName=None):
+    def get_acl(self, bucketName, objectName=None):
         (perms, key) = self.getPerms(bucketName, objectName)
         ndx = perms.find("R")
         if ndx < 0:
@@ -264,7 +265,7 @@ class cbPosixUserObject(object):
     def __str__(self):
         return str(self.id+":"+self.display_name)
 
-    def getMyBuckets(self):
+    def get_my_buckets(self):
         d = getPosixBuckerMetaDir()
         dir_list = os.listdir(d)
 
@@ -286,7 +287,7 @@ class cbPosixUserObject(object):
 
         return results
 
-    def listBucket(self, bucketIface, bucketName, args):
+    def list_bucket(self, bucketIface, bucketName, args):
         d = self.getBucketDir(bucketName)
         if not os.path.isdir(d):
             pycb.log(logging.ERROR, "did not find %s" %(d))
@@ -364,7 +365,7 @@ class cbPosixSec(object):
         except Exception, ex:
             pass
 
-    def getUser(self, id):
+    def get_user(self, id):
         usr_ath_filename = getPosixAuthDir() + id
         if os.path.exists(usr_ath_filename) == 0:
             ex = cbException('InvalidAccessKeyId')
@@ -396,5 +397,7 @@ class cbPosixSec(object):
         f.write('\n')
         f.close()
 
+    def get_user_id_by_display(self, display_name):
+        pycb.log(logging.WARNING, "posix security does not implement this call")
 
-
+        return None
