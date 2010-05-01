@@ -72,4 +72,3 @@ class TestTouchCli(unittest.TestCase):
         self.assertEqual(rc, 32, "CLI should return failure %d" % (rc))
         rc = pynimbusauthz.touch.main(["-p", bname, self.user1.get_id(), fname, data])
         self.assertEqual(rc, 33, "CLI should return failure %d" % (rc))
-

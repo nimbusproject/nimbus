@@ -239,14 +239,15 @@ class cbAuthzSec(object):
             pub = User(db_obj, uu=pycb.public_user_id, friendly=pycb.public_user_id, create=True)
             pu = pub.create_alias(pycb.public_user_id, pynimbusauthz.alias_type_s3)
         except:
-            pycb.log(logging.INFO, "error adding user public %s" % (sys.exc_info()[0]), tb = traceback)
+            #pycb.log(logging.INFO, "error adding user public %s" % (sys.exc_info()[0]), tb = traceback)
+            pass
             #traceback.print_exc(file=sys.stdout)
         # add a authenticated user (if not there)
         try:
             authed = User(db_obj, uu=pycb.authenticated_user_id, friendly=pycb.authenticated_user_id, create=True)
             au = authed.create_alias(pycb.authenticated_user_id, pynimbusauthz.alias_type_s3)
         except:
-            pycb.log(logging.INFO, "error adding user authed %s" % (sys.exc_info()[0]), tb=traceback)
+            #pycb.log(logging.INFO, "error adding user authed %s" % (sys.exc_info()[0]), tb=traceback)
             #traceback.print_exc(file=sys.stdout)
             pass
         db_obj.commit()
