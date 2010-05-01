@@ -1,0 +1,39 @@
+Cumulus Quickstart
+==================
+
+1) Install the software:
+
+    % ./install.sh
+
+Optionally you may provide a path where the software will be installed.  If
+no path is provided the source directory is used.
+
+2) Start the server
+
+    % ./bin/cumulus.sh
+
+This will start the cumulus server with the options in ~/.nimbus/cumulus.ini
+
+3) Create a new user
+
+    % ./bin/cumulus-add-user.sh -n -g <email address>
+    Created a new user with:
+    ID:  3ImPzqGl0TVNcq287d6H0 Key: oFWcP3f1KbGhAn9hnD26cFtZyC8kOOYwIVcs7N5R07
+
+Remember the ID and Key.
+
+4) Configure s3cmd
+
+    % cp ~/.s3cfg ~/.s3cfg.backup
+    % cp dot_s3cfg ~/.s3cfg
+
+Now add your key and ID to ~/.s3cfg.  Open the file and search for @@ID@@
+and @@KEY@@.  Replace those strings with the appropriate values.
+
+5) Try some s3cmd operations
+
+    % s3cmd mb s3://TEST
+    % s3cmd put /etc/group s3://TEST/group
+    % s3cmd ls s3://TEST/
+    
+

@@ -1,0 +1,22 @@
+[cb]
+
+installdir = @@INSTALLDIR@@
+port = @@PORT@@
+hostname = @@HOSTNAME@@
+calcMD5=True
+
+
+[backend]
+type=posix
+data_dir=@@INSTALLDIR@@/posixdata
+[security]
+type=@@SEC@@
+security_dir=@@INSTALLDIR@@/posixauth
+authzdb=@@INSTALLDIR@@/etc/authz.db
+
+
+[log]
+level=INFO
+file=@@INSTALLDIR@@/log/cumulus.log
+
+
