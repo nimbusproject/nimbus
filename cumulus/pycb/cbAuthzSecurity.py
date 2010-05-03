@@ -118,11 +118,11 @@ class cbAuthzUser(object):
             self.db_obj.commit()
 
     # returns a list of cbObjects
-    def list_bucket(self, bif, bucketName, args):
+    def list_bucket(self, bucketName, args):
         try:
             bucket = File.get_file(self.db_obj, bucketName, pynimbusauthz.alias_type_s3)
             iter = bucket.get_all_children()
-            new_it = itertools.imap(lambda r: _convert_File_to_cbObject(self, r, bif), iter)
+            new_it = itertools.imap(lambda r: _convert_File_to_cbObject(self, r), iter)
             return list(new_it)
         finally:
             self.db_obj.commit()
@@ -158,10 +158,14 @@ class cbAuthzUser(object):
         fsize = data_obj.get_size()
         try:
             # it is ok for someone to put to an existing object
-            if self.exists(bucketName, objectName):
-                return
+            # we just need to delete the existing one
+            file = self.get_file_obj(bucketName, objectName)
+            if file != None:
+                pycb.config.bucket.delete_object(file.get_data_key())
+                file.delete()
             bf = self.get_file_obj(bucketName)
             f = File.create_file(self.db_obj, objectName, self.user, data_key, pynimbusauthz.alias_type_s3, parent=bf, size=fsize, md5sum=md5sum)
+
         finally:
             self.db_obj.commit()
 
@@ -279,19 +283,18 @@ class cbAuthzSec(object):
 
 
 def _convert_bucket_to_cbObject(user, file):
-    # XXX fake a time for now
-    tm = time.gmtime()
+    tm = file.get_creation_time()
     size = -1 
     key = file.get_name()
     display_name = file.get_name()
     obj = cbObject(tm, size, key, display_name, user)
     return obj
 
-def _convert_File_to_cbObject(user, file, bucketIFace):
+def _convert_File_to_cbObject(user, file):
     data_key = file.get_data_key()
-    size = bucketIFace.get_size(data_key)
-    tm = bucketIFace.get_mod_time(data_key)
-    mds = bucketIFace.get_md5(data_key)
+    size = file.get_size()
+    tm = file.get_creation_time()
+    mds = file.get_md5sum()
     key = file.get_name()
     display_name = file.get_name()
     obj = cbObject(tm, size, key, display_name, user, md5sum=mds)

@@ -156,7 +156,6 @@ class cbPosixData(object):
             pycb.log(logging.WARNING, "error deleting %s %s" % (self.data_key, str(sys.exc_info()[0])))
 
     def set_md5(self, hash):
-        print "set %s" % (hash)
         self.hashValue = hash
 
     # this is part of the work around for twisted

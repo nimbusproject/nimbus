@@ -5,6 +5,8 @@ from pynimbusauthz.db import DB
 import uuid
 from datetime import datetime
 import itertools
+import time
+
 #
 #
 class File(object):
@@ -50,7 +52,11 @@ class File(object):
             self.parent = File.get_file_from_db_id(db_obj, file_id)
         self.md5sum = row[File.cols['md5sum']]
         self.object_size = row[File.cols['object_size']]
-        self.creation_time = row[File.cols['creation_time']]
+        ctm = row[File.cols['creation_time']]
+        ndx = ctm.rfind(".")
+        if ndx > 0:
+            ctm = ctm[:ndx]
+        self.creation_time = time.strptime(ctm, "%Y-%m-%d %H:%M:%S")
 
     def get_owner(self):
         return self.owner
@@ -65,7 +71,7 @@ class File(object):
         return self.object_size
 
     def get_md5sum(self):
-        return self.md5sum
+        return str(self.md5sum)
 
     def get_creation_time(self):
         return self.creation_time
@@ -74,12 +80,11 @@ class File(object):
         return self.id
 
     def get_data_key(self):
-        return self.data_key
+        return str(self.data_key)
 
     def get_object_type(self):
         return self.object_type
 
-    # TODO delete the object and all db references to it
     def delete(self):
         d = "DELETE FROM object_acl WHERE object_id = ?"
         d2 = "DELETE FROM objects WHERE id = ?"
