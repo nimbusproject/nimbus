@@ -9,7 +9,7 @@ class cbObject(object):
     def __init__(self, tm, size, key, display_name, user, md5sum=None, storage_class="STANDARD"):
         self.tm = tm
         self.size = size
-        self.md5sum = md5sum
+        self.md5sum = str(md5sum)
         self.key = key
         self.display_name = display_name
         self.user = user
@@ -24,11 +24,11 @@ class cbObject(object):
         xKeyText = doc.createTextNode(str(self.key))
         xKey.appendChild(xKeyText)
 
-        tm = self.tm
-        last_mod_str = "%04d-%02d-%02dT%02d:%02d:%02d.000Z" % (tm.tm_year, tm.tm_mon, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec)
+        last_mod_str = self.get_date_string()
+
         xLastModified = doc.createElement("LastModified")
         xContent.appendChild(xLastModified)
-        xLMText = doc.createTextNode(str(last_mod_str))
+        xLMText = doc.createTextNode(last_mod_str)
         xLastModified.appendChild(xLMText)
         
         xSize = doc.createElement("Size")
@@ -63,7 +63,7 @@ class cbObject(object):
         return xContent
 
     def get_date_string(self):
-        d_str = "%04d-%02d-%02dT%02d:%02d:%02d.000Z" % (self.tm.tm_year, self.tm.tm_mon, self.tm.tm_wday, self.tm.tm_hour, self.tm.tm_min, self.tm.tm_sec)
+        d_str = "%04d-%02d-%02dT%02d:%02d:%02d.000Z" % (self.tm.tm_year, self.tm.tm_mon, self.tm.tm_mday, self.tm.tm_hour, self.tm.tm_min, self.tm.tm_sec)
         return d_str
 
     def get_key(self):

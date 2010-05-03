@@ -340,7 +340,7 @@ class cbGetBucket(cbRequest):
         self.finish(self.request)
 
     def list_bucket(self):
-        dirL = self.user.list_bucket(self.bucketIface, self.bucketName, self.request.args)
+        dirL = self.user.list_bucket(self.bucketName, self.request.args)
         doc = Document()
 
         # Create the <wml> base element
@@ -368,6 +368,7 @@ class cbGetBucket(cbRequest):
             xList.appendChild(xObj)
 
         x = doc.toxml();
+
         self.send_xml(x)
         self.finish(self.request)
 
@@ -650,10 +651,6 @@ class cbHeadObject(cbGetObject):
         if ndx < 0:
             raise cbException('AccessDenied')
         (sz, tm, md5) = self.user.get_info(self.bucketName, self.objectName)
-        ndx = tm.rfind(".")
-        if ndx > 0:
-            tm = tm[:ndx]
-        tm = time.strptime(tm, "%Y-%m-%d %H:%M:%S")
 
         d_str = "%04d-%02d-%02dT%02d:%02d:%02d.000Z" % (tm.tm_year, tm.tm_mon, tm.tm_wday, tm.tm_hour, tm.tm_min, tm.tm_sec)
 
