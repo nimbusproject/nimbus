@@ -63,8 +63,6 @@ public class GridFTPRepositoryUtil
     {
         this.args = args;
         this.print = pr;
-
-        System.out.println("BUZZTROLL");
     }
 
     public void paramterCheck(
