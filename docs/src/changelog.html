@@ -17,85 +17,7 @@ _NIMBUS_2_4_DEPRECATED
 
 <a name="2.4"> </a>
 
-<h3>2.4 RC2</h3>
-<i>(The RC1/RC2 sections will collapse into a 2.4 changelog when 2.4 is released)</i>
-<ul>
-    <li>
-        <p>
-            A lot of documentation and installation work.  Thankyou to everyone
-            that has helped, this has been a great release candidate period!
-        </p>
-	</li>
-	<li>
-        <p>
-            New script "nimbus-new-cert" for creating a user certificate from
-            the CA that the installer generated.
-        </p>
-	</li>
-	<li>
-	    <p>
-	        New environment file to source after using the installer (created
-	        on the fly by the installer, populated with the right paths):
-	        <i>$NIMBUS_HOME/sbin/environment.sh</i>
-	    </p>
-	</li>
-	<li>
-	    <p>
-	        nimbusctl output is better and it exits with non-zero if process
-	        is stopped/crashed
-	    </p>
-	</li>
-	<li>
-        <p>
-            AutoContainer officially removed.
-        </p>
-	</li>
-	<li>
-	    <p>Service:</p>
-	    <ul>
-	        <li>
-	            <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7006">
-                Enhancement 7006 - Updating servlet API to 2.5</a>
-            </li>
-	        <li>
-	            <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=6833">
-                Bug 6833 - ClassCastException in ResourceSweeper</a>
-            </li>
-            <li>
-	            <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7007">
-                Bug 7007 - destruction/schedule issues</a>
-            </li>
-            <li>
-	            <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7009">
-                Bug 7009 - All scripts should use shebang /bin/bash</a>
-            </li>
-            <li>
-	            <a href="https://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=6992">
-                Bug 6992 - Nimbus EC2 Query API limits HTTP headers to 4k</a>
-            </li>
-        </ul>
-    </li>
-    <li>
-	    <p>Workspace control:</p>
-	    <ul>
-	        <li>
-	            <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7008">
-                Enhancement 7008 -  Allow workspace-control to start more types of images</a>
-            </li>
-	        <li>
-	            <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7005">
-                Bug 7005 - multiple authorized kernels issue</a>
-            </li>
-            <li>
-	            <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7009">
-                Bug 7009 - All scripts should use shebang /bin/bash</a>
-            </li>
-        </ul>
-    </li>
-</ul>
-
-
-<h3>2.4 RC1</h3>
+<h3>2.4</h3>
 
 <i>Services</i>
 <ul>
@@ -133,6 +55,11 @@ _NIMBUS_2_4_DEPRECATED
         </p>
     </li>
     <li>
+        <p>
+            AutoContainer officially removed.
+        </p>
+	</li>
+    <li>
         <p>Assorted bugfixes:</p>
         <ul>
             <li><a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=6978">
@@ -141,6 +68,30 @@ _NIMBUS_2_4_DEPRECATED
             <li><a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=6996">
                   Bug 6996 -  autoconfig.sh gives a bad suggestion.
             </a></li>
+            <li>
+	            <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7006">
+                Enhancement 7006 - Updating servlet API to 2.5</a>
+            </li>
+	        <li>
+	            <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=6833">
+                Bug 6833 - ClassCastException in ResourceSweeper</a>
+            </li>
+            <li>
+	            <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7007">
+                Bug 7007 - destruction/schedule issues</a>
+            </li>
+            <li>
+	            <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7009">
+                Bug 7009 - All scripts should use shebang /bin/bash</a>
+            </li>
+            <li>
+	            <a href="https://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=6992">
+                Bug 6992 - Nimbus EC2 Query API limits HTTP headers to 4k</a>
+            </li>
+            <li>
+	            <a href="https://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=6987">
+                Bug 6987 - Context broker fails on cluster document without &lt;requires&gt; element</a>
+            </li>
         </ul>
     </li>
 </ul>
@@ -156,6 +107,18 @@ _NIMBUS_2_4_DEPRECATED
             <li><a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=6962">
                   Bug 6962 -  ebtables locking
             </a></li>
+            <li>
+	            <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7008">
+                Enhancement 7008 -  Allow workspace-control to start more types of images</a>
+            </li>
+	        <li>
+	            <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7005">
+                Bug 7005 - multiple authorized kernels issue</a>
+            </li>
+            <li>
+	            <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7009">
+                Bug 7009 - All scripts should use shebang /bin/bash</a>
+            </li>
         </ul>
     </li>
 </ul>
