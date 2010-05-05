@@ -32,6 +32,7 @@ import org.nimbustools.messaging.gt4_0.generated.metadata.definition.Definition;
 import org.nimbustools.messaging.gt4_0.generated.metadata.definition.DiskCollection_Type;
 import org.nimbustools.messaging.gt4_0.generated.metadata.definition.BoundDisk_Type;
 
+import org.globus.gsi.GlobusCredential;
 import java.io.File;
 import java.io.PrintStream;
 import java.io.FilenameFilter;
@@ -49,6 +50,10 @@ import java.util.Iterator;
 import java.util.StringTokenizer;
 
 public class CloudClientUtil {
+
+    public static final String credURL =
+            "http://www.globus.org/toolkit/docs/4.0/security/prewsaa/" +
+                    "Pre_WS_AA_Public_Interfaces.html#prewsaa-env-credentials";
 
     public static String sourceURL(String sourcePath) {
         final String sourceAbsolutePath = absPath(sourcePath);
@@ -792,4 +797,42 @@ public class CloudClientUtil {
             return test.isFile();
         }
     }
+
+    public static void checkGSICredential(String action)
+        throws ParameterProblem {
+        String tail = null;
+
+        try {
+            CloudClientUtil.getProxyBeingUsed();
+        } catch (Exception e) {
+
+            String actionTxt = action;
+
+            if (action == null) {
+                actionTxt = "This action";
+            }
+
+            String msg = actionTxt + " requires credential";
+
+            if (tail != null) {
+                msg += tail;
+                msg += "\nSee:\n";
+            } else {
+                msg += ", see:\n";
+            }
+            msg += "  - " + credURL + "\n";
+            msg += "  - README.txt\n";
+            msg += "  - ./bin/grid-proxy-init.sh";
+            throw new ParameterProblem(msg);
+        }
+    }
+
+    public static GlobusCredential getProxyBeingUsed() throws Exception {
+        GlobusCredential proxyUsed = GlobusCredential.getDefaultCredential();
+        if (proxyUsed == null) {
+            throw new Exception("Could not find current credential");
+        }
+        return proxyUsed;
+    }
+
 }

@@ -36,6 +36,8 @@ import org.globus.workspace.cloud.client.security.TrustedCAs;
 import org.globus.workspace.cloud.client.util.CloudClientUtil;
 import org.globus.workspace.cloud.client.util.DeploymentXMLUtil;
 import org.globus.workspace.cloud.client.util.ExecuteUtil;
+import org.globus.workspace.cloud.client.util.GridFTPRepositoryUtil;
+import org.globus.workspace.cloud.client.util.RepositoryInterface;
 import org.globus.workspace.cloud.client.util.FileListing;
 import org.globus.workspace.cloud.client.util.HistoryUtil;
 import org.globus.workspace.cloud.client.util.MetadataXMLUtil;
@@ -71,11 +73,6 @@ public class CloudClient {
     public static final int APPLICATION_EXIT_CODE = 2;
     public static final int UNKNOWN_ERROR_EXIT_CODE = 3;
     
-    public static final String credURL =
-            "http://www.globus.org/toolkit/docs/4.0/security/prewsaa/" +
-                    "Pre_WS_AA_Public_Interfaces.html#prewsaa-env-credentials";
-    
-
     // -------------------------------------------------------------------------
     // INSTANCE VARIABLES
     // -------------------------------------------------------------------------
@@ -90,20 +87,15 @@ public class CloudClient {
     private final Print print;
 
     /* derived */
-    private String remoteUserBaseURLString;
-    private String remoteUserBaseDir;
     private GlobusCredential proxyUsed;
     private String specificEPRpath;
     private String[] trustedCertDirs;
     private String workspaceFactoryURL;
     private EndpointReferenceType statusServiceEPR;
-    private String transferSourceURL;
-    private String transferTargetURL;
-    private String _transferTargetURL; // for printing only
     private String newUnpropTargetURL;
-    private String deleteURL;
     private ClusterMember[] clusterMembers; 
 	private URI kernelURI;
+    private RepositoryInterface repoUtil;
 
     
     // -------------------------------------------------------------------------
@@ -304,6 +296,7 @@ public class CloudClient {
         }
 
         this.args = allArguments;
+        this.repoUtil = new GridFTPRepositoryUtil(this.args, this.print);
 
         try {
             this.parameterCheck();
@@ -464,9 +457,9 @@ public class CloudClient {
 
     void parameterCheck_list() throws ParameterProblem {
 
-        this._checkCredential("Image listing");
+        CloudClientUtil.checkGSICredential("Image listing");
         
-        this._checkGridFTPGeneric(Opts.LIST_OPT_STRING);
+        this.repoUtil.paramterCheck(this.args, Opts.LIST_OPT_STRING);
     }
 
     void parameterCheck_hashPrint() throws ParameterProblem {
@@ -477,7 +470,7 @@ public class CloudClient {
     }
 
     void parameterCheck_securityPrint() throws ParameterProblem {
-        this._checkCredential("Security printing");
+        CloudClientUtil.checkGSICredential("Security printing");
     }
 
     void parameterCheck_servicePrint() throws ParameterProblem {
@@ -493,7 +486,7 @@ public class CloudClient {
         }
 
         final String actionString = "Terminating";
-        this._checkCredential(actionString);
+        CloudClientUtil.checkGSICredential(actionString);
         this._translateHandle(actionString);
         this._checkSpecificEPR(actionString);
     }
@@ -508,7 +501,7 @@ public class CloudClient {
         }
 
         final String actionString = "Checking status";
-        this._checkCredential(actionString);
+        CloudClientUtil.checkGSICredential(actionString);
         this._translateHandle(actionString);
 
         if (this.args.getHistorySubDir() != null ||
@@ -521,7 +514,7 @@ public class CloudClient {
 
     void parameterCheck_assocquery() throws ParameterProblem {
         final String actionString = "Querying networks";
-        this._checkCredential(actionString);
+        CloudClientUtil.checkGSICredential(actionString);
         this._checkServiceURL(actionString);
     }
 
@@ -534,17 +527,17 @@ public class CloudClient {
         }
 
         final String actionString = "Saving";
-        this._checkCredential(actionString);
+        CloudClientUtil.checkGSICredential(actionString);
         this._translateHandle(actionString);
         this._checkSpecificEPR(actionString);
-        this._checkGridFTPGeneric(actionString);
+        this.repoUtil.paramterCheck(this.args, actionString);
 
         final String newname = this.args.getNewname();
         if (newname != null) {
             this.print.debugln(
                     "save called with newname '" + newname + "'");
             try {
-                this.newUnpropTargetURL = getDerivedImageURL(newname);
+                this.newUnpropTargetURL = this.repoUtil.getDerivedImageURL(newname);
             } catch (Exception e) {
                 throw new ParameterProblem("Problem with save's newname '" +
                         newname + "': " + e.getMessage(), e);
@@ -556,11 +549,11 @@ public class CloudClient {
 
     void parameterCheck_targetPrint() throws ParameterProblem {
 
-        this._checkCredential("Target printing",
+        CloudClientUtil.checkGSICredential("Target printing " +
                               " (because target path is partially derived " +
                                       "from your credential).");
         
-        this._checkGridFTPGeneric(Opts.TARGETDIR_OPT_STRING);
+        this.repoUtil.paramterCheck(this.args, Opts.TARGETDIR_OPT_STRING);
 
         final String sourcefile = this.args.getSourcefile();
         final String name = this.args.getName();
@@ -570,23 +563,13 @@ public class CloudClient {
                                        Opts.SOURCEFILE_OPT_STRING + "' or '" +
                                        Opts.NAME_OPT_STRING + "'");
         }
-
-        if (sourcefile != null) {
-            final File f = new File(sourcefile);
-            this._transferTargetURL =
-                    this.remoteUserBaseURLString + f.getName();
-        }
-        if (name != null) {
-            this._transferTargetURL =
-                    this.remoteUserBaseURLString + name;
-        }
     }
 
     void parameterCheck_transfer() throws ParameterProblem {
 
-        this._checkCredential("Transferring");
+        CloudClientUtil.checkGSICredential("Transferring");
 
-        this._checkGridFTPGeneric(Opts.TRANSFER_OPT_STRING);
+        this.repoUtil.paramterCheck(this.args, Opts.TRANSFER_OPT_STRING);
 
         final String sourcefile = this.args.getSourcefile();
         if (sourcefile == null) {
@@ -596,18 +579,13 @@ public class CloudClient {
         }
 
         this._checkSourcefile();
-
-        this.transferSourceURL = CloudClientUtil.sourceURL(sourcefile);
-
-        final File f = new File(sourcefile);
-        this.transferTargetURL = this.remoteUserBaseURLString + f.getName();
     }
 
     void parameterCheck_delete() throws ParameterProblem {
 
-        this._checkCredential("Deleting");
+        CloudClientUtil.checkGSICredential("Deleting");
 
-        this._checkGridFTPGeneric(Opts.DELETE_OPT_STRING);
+        this.repoUtil.paramterCheck(this.args, Opts.DELETE_OPT_STRING);
 
         final String name = this.args.getName();
         if (name == null) {
@@ -615,15 +593,13 @@ public class CloudClient {
                     Opts.NAME_OPT_STRING + "' (the name " +
                     "of the file in your remote personal directory)");
         }
-
-        this.deleteURL = this.remoteUserBaseURLString + name;
     }
 
     void parameterCheck_download() throws ParameterProblem {
 
-        this._checkCredential("Downloading");
+        CloudClientUtil.checkGSICredential("Downloading");
 
-        this._checkGridFTPGeneric(Opts.DOWNLOAD_OPT_STRING);
+        this.repoUtil.paramterCheck(this.args, Opts.DOWNLOAD_OPT_STRING);
 
         final String localfile = this.args.getLocalfile();
         final String name = this.args.getName();
@@ -641,11 +617,6 @@ public class CloudClient {
         }
 
         this._checkLocalfile();
-
-        this.transferSourceURL = this.remoteUserBaseURLString + name;
-
-        // local URL
-        this.transferTargetURL = CloudClientUtil.localTargetURL(localfile);
     }
 
     /* SINGLE RUN/CLUSTER RUN CHECKS: */
@@ -747,7 +718,7 @@ public class CloudClient {
 
     void _parameterCheck_runcommon() throws ParameterProblem {
 
-        this._checkCredential("Running");
+        CloudClientUtil.checkGSICredential("Running");
 
         this._checkServiceURL(Opts.RUN_OPT_STRING);
 
@@ -778,7 +749,7 @@ public class CloudClient {
                     "Running requires propagation scheme configuration");
         }
 
-        this._checkGridFTPGeneric(Opts.RUN_OPT_STRING);
+        this.repoUtil.paramterCheck(this.args, Opts.RUN_OPT_STRING);
 
         final String newname = this.args.getNewname();
         if (newname != null) {
@@ -786,7 +757,7 @@ public class CloudClient {
                     "run called with newname '" + newname + "'");
             try {
                 this.newUnpropTargetURL =
-                        this.getDerivedImageURL(newname);
+                        this.repoUtil.getDerivedImageURL(newname);
 
             } catch (Exception e) {
                 throw new ParameterProblem("Problem with run's newname '" +
@@ -834,23 +805,8 @@ public class CloudClient {
 		}
     }
 
-    private String getDerivedImageURL(String imageName) throws Exception {
-
-        this.print.debugln("Translating image name '" + imageName + "' into " +
-                "metadata URL");
-
-        final String url = CloudClientUtil.deriveImageURL(
-            this.args.getGridftpHostPort(), imageName,
-            this.remoteUserBaseDir,
-            this.args.getPropagationScheme(),
-            this.args.isPropagationKeepPort());
-        this.print.debugln("Derived image URL: '" + url + "'");
-
-        return url;
-    }
-
     void _parameterCheck_initContext() throws ParameterProblem {
-        this._checkCredential("Context init helper (which talks to the " +
+        CloudClientUtil.checkGSICredential("Context init helper (which talks to the " +
                 "context broker)");
 
         if (this.args.getInitCtxDir() == null) {
@@ -860,7 +816,7 @@ public class CloudClient {
 
     void _parameterCheck_runec2cluster() throws ParameterProblem {
 
-        this._checkCredential("EC2 cluster helper (which talks to the " +
+        CloudClientUtil.checkGSICredential("EC2 cluster helper (which talks to the " +
                 "context broker)");
 
         final String brokerURL = this.args.getBrokerURL();
@@ -892,36 +848,6 @@ public class CloudClient {
 
 
     /* SHARED CHECKS: */
-
-    void _checkCredential(String action) throws ParameterProblem {
-        this._checkCredential(action, null);
-    }
-
-    void _checkCredential(String action, String tail) throws ParameterProblem {
-        try {
-            this.getProxyBeingUsed();
-        } catch (Exception e) {
-
-            String actionTxt = action;
-
-            if (action == null) {
-                actionTxt = "This action";
-            }
-
-            String msg = actionTxt + " requires credential";
-
-            if (tail != null) {
-                msg += tail;
-                msg += "\nSee:\n";
-            } else {
-                msg += ", see:\n";
-            }
-            msg += "  - " + credURL + "\n";
-            msg += "  - README.txt\n";
-            msg += "  - ./bin/grid-proxy-init.sh";
-            throw new ParameterProblem(msg);
-        }
-    }
 
     void _checkServiceURL(String action) throws ParameterProblem {
 
@@ -1094,30 +1020,6 @@ public class CloudClient {
         }
     }
 
-    void _checkGridFTPGeneric(String action) throws ParameterProblem {
-        
-        if (this.args.getGridftpHostPort() == null) {
-            throw new ParameterProblem(action + " requires '" +
-                                       Opts.GRIDFTP_OPT_STRING + "'");
-        }
-        if (this.args.getTargetBaseDirectory() == null) {
-            throw new ParameterProblem(action + " requires '" +
-                                       Opts.TARGETDIR_OPT_STRING + "'");
-        }
-
-        final String url;
-        try {
-            url = this.getRemoteUserBaseURLString();
-        } catch (Exception e) {
-            throw new ParameterProblem("Issue deriving target image " +
-                    "repository URL: " + e.getMessage());
-        }
-        if (!CloudClientUtil.validURL(url, this.print.getDebugProxy())) {
-            throw new ParameterProblem("Derived target image " +
-                    "repository URL is not a valid URL: '" + url + "'");
-        }
-    }
-
     void _checkDepReqDefaults(String action) throws ParameterProblem {
         this.__checknull(action, "deployment request file name",
                          this.args.getDeploymentRequest_fileName());
@@ -1149,42 +1051,8 @@ public class CloudClient {
         if (this.proxyUsed != null) {
             return this.proxyUsed;
         }
-        this.proxyUsed = GlobusCredential.getDefaultCredential();
-        if (this.proxyUsed == null) {
-            throw new Exception("Could not find current credential");
-        }
+        this.proxyUsed = CloudClientUtil.getProxyBeingUsed();
         return this.proxyUsed;
-    }
-
-    String getRemoteUserBaseURLString() throws Exception {
-
-        if (this.remoteUserBaseURLString != null) {
-            return this.remoteUserBaseURLString;
-        }
-
-        final String hash = SecurityUtil.hashGlobusCredential(
-                                               this.getProxyBeingUsed(),
-                                               this.print.getDebugProxy());
-        if (hash == null) {
-            throw new Exception("Could not obtain hash of current " +
-                        "credential to generate directory name");
-        }
-
-        this.remoteUserBaseDir =
-                CloudClientUtil.destUserBaseDir(this.args.getTargetBaseDirectory(),
-                                                hash);
-
-        this.remoteUserBaseURLString =
-                CloudClientUtil.destUserBaseURL(this.args.getGridftpHostPort(),
-                                                this.args.getTargetBaseDirectory(),
-                                                hash);
-
-        this.print.debugln("\nDerived user base dir: " +
-                                            this.remoteUserBaseDir);
-        this.print.debugln("\nDerived user base URL: " +
-                                            this.remoteUserBaseURLString);
-
-        return this.remoteUserBaseURLString;
     }
 
     // -------------------------------------------------------------------------
@@ -1310,10 +1178,17 @@ public class CloudClient {
                 final String sectionTitle = "ACTION: TARGET URL PRINT";
                 CommonPrint.printDebugSection(this.print, sectionTitle);
 
-                if (this.transferTargetURL != null) {
-                    this.print.infoln(this.transferTargetURL);
-                } else if (this._transferTargetURL != null) {
-                    this.print.infoln(this._transferTargetURL);
+                String sourcefile = this.args.getSourcefile();
+                String name = this.args.getName();
+
+                if (sourcefile != null) {
+                    final File f = new File(sourcefile);
+                    name = f.getName();
+                }
+
+                if(name != null) {
+                    String pUrl = this.repoUtil.getRemoteUrl(name);
+                    this.print.infoln(pUrl);
                 } else {
                     throw new ExecutionProblem(
                              "print target configured but no target URL?");
@@ -1331,16 +1206,8 @@ public class CloudClient {
             final String sectionTitle = "ACTION: LIST";
             CommonPrint.printDebugSection(this.print, sectionTitle);
 
-            final String url;
-            try {
-                url = this.getRemoteUserBaseURLString();
-            } catch (Exception e) {
-                throw new ExecutionProblem(e.getMessage(), e);
-            }
-
             final FileListing[] files =
-                    this.executeUtil.listFiles(url,
-                                               this.args.getGridftpID(),
+                    this.repoUtil.listFiles(
                                                this.print.getInfoProxy(),
                                                this.print.getErrProxy(),
                                                this.print.getDebugProxy());
@@ -1443,12 +1310,14 @@ public class CloudClient {
             final String sectionTitle = "ACTION: TRANSFER";
             CommonPrint.printDebugSection(this.print, sectionTitle);
 
-            this.executeUtil.sendFile(this.transferSourceURL,
-                                      this.transferTargetURL,
-                                      this.args.getTimeoutMinutes(),
-                                      this.args.getGridftpID(),
-                                      this.print.getInfoProxy(),
-                                      this.print.getDebugProxy());
+            final String sourcefile = this.args.getSourcefile();
+            final File f = new File(sourcefile);
+            this.repoUtil.uploadVM(
+                sourcefile,
+                f.getName(),
+                this.print.getInfoProxy(),
+                this.print.getDebugProxy(),
+                this.executeUtil.getExecer());
 
             CommonPrint.printDebugSectionEnd(this.print, sectionTitle);
         }
@@ -1493,7 +1362,7 @@ public class CloudClient {
 
         final String imageURL;
         try {
-            imageURL = getDerivedImageURL(imageName);
+            imageURL = this.repoUtil.getDerivedImageURL(imageName);
         } catch (Exception e) {
             throw new ExecutionProblem("Problem with image name '" +
                     imageName + "': " + e.getMessage(), e);
@@ -1573,7 +1442,7 @@ public class CloudClient {
 
             final String imageURL;
             try {
-                imageURL = this.getDerivedImageURL(imageName);
+                imageURL = this.repoUtil.getDerivedImageURL(imageName);
             } catch (Exception e) {
                 throw new ExecutionProblem("Problem with image name '" +
                         imageName + "': " + e.getMessage(), e);
@@ -1796,12 +1665,15 @@ public class CloudClient {
             final String sectionTitle = "ACTION: DOWNLOAD";
             CommonPrint.printDebugSection(this.print, sectionTitle);
 
-            this.executeUtil.downloadFile(this.transferSourceURL,
-                                          this.transferTargetURL,
-                                          this.args.getTimeoutMinutes(),
-                                          this.args.getGridftpID(),
-                                          this.print.getInfoProxy(),
-                                          this.print.getDebugProxy());
+            final String localfile = this.args.getLocalfile();
+            final String name = this.args.getName();
+
+            this.repoUtil.downloadVM(
+                localfile,
+                name,
+                this.print.getInfoProxy(),
+                this.print.getDebugProxy(),
+                this.executeUtil.getExecer());
 
             CommonPrint.printDebugSectionEnd(this.print, sectionTitle);
         }
@@ -1812,10 +1684,10 @@ public class CloudClient {
             final String sectionTitle = "ACTION: DELETE";
             CommonPrint.printDebugSection(this.print, sectionTitle);
 
-            this.executeUtil.deleteFile(this.deleteURL,
-                                        this.args.getGridftpID(),
-                                        this.print.getInfoProxy(),
-                                        this.print.getDebugProxy());
+            this.repoUtil.deleteVM(
+                this.args.getName(),
+                this.print.getInfoProxy(),
+                this.print.getDebugProxy());
 
             CommonPrint.printDebugSectionEnd(this.print, sectionTitle);
         }
