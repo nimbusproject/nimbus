@@ -91,7 +91,7 @@ public class AllArgs {
     private String eprGivenFilePath;
     private String factoryHostPort;
     private String factoryID;
-    private String gridftpHostPort;
+    private String xferHostPort;
     private String gridftpID;
     private String handle;
     private String hashPrintDN;
@@ -292,10 +292,10 @@ public class AllArgs {
         }
 
         if (line.hasOption(Opts.GRIDFTP_OPT_STRING)) {
-            this.gridftpHostPort =
+            this.xferHostPort =
                     line.getOptionValue(Opts.GRIDFTP_OPT_STRING);
             this.gotCmdLine(Opts.GRIDFTP_OPT_STRING,
-                            this.gridftpHostPort);
+                            this.xferHostPort);
         }
 
         if (line.hasOption(Opts.GRIDFTP_ID_OPT_STRING)) {
@@ -631,11 +631,11 @@ public class AllArgs {
                          sourceName);
         }
 
-        if (this.gridftpHostPort == null) {
-            this.gridftpHostPort =
+        if (this.xferHostPort == null) {
+            this.xferHostPort =
                     CloudClientUtil.getProp(props, Props.KEY_GRIDFTP_HOSTPORT);
             this.gotProp(Props.KEY_GRIDFTP_HOSTPORT,
-                         this.gridftpHostPort,
+                         this.xferHostPort,
                          sourceName);
         }
 
@@ -938,12 +938,12 @@ public class AllArgs {
         this.factoryID = factoryID;
     }
 
-    public String getGridftpHostPort() {
-        return this.gridftpHostPort;
+    public String getXferHostPort() {
+        return this.xferHostPort;
     }
 
-    public void setGridftpHostPort(String gridftpHostPort) {
-        this.gridftpHostPort = gridftpHostPort;
+    public void setGridftpHostPort(String xferHostPort) {
+        this.xferHostPort = xferHostPort;
     }
 
     public String getGridftpID() {
