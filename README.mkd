@@ -1,26 +1,35 @@
-- - -
+Nimbus
+======
 
-Nimbus - Open Source IaaS Cloud Computing Software
+Open Source IaaS Cloud Computing Software
+______________________________________________________________________
 
-* <p><http://www.nimbusproject.org></p>
-* <p><http://github.com/nimbusproject/nimbus></p>
-* <p>[Build instructions and license](http://github.com/nimbusproject/nimbus/tree/master/bin/lib/gt4.0/dist/topdocs/)
+* http://www.nimbusproject.org
 
-- - -
+* http://github.com/nimbusproject/nimbus
 
-We are changing the repository around in the upcoming months.
+______________________________________________________________________
 
-Please direct all queries to <workspace-dev@globus.org>
+Check the online documentation for full details on installing and configuring:
+http://www.nimbusproject.org/docs/
 
-- - -
+Run this command to build, install, and configure Nimbus to a specified path:
 
-Note that the most recent activity in this repository will usually be in branches.
+    bin/install /path/to/destination
 
-* If you are viewing on GitHub, choose a branch from the dropdown menu called "Branches"
+Advanced users may also want to build and deploy to an existing GT4.0 
+container. Refer to the readme and scripts in the `scripts/` directory 
+for more information.
+
+______________________________________________________________________
+
+Note that the most recent activity in this repository will usually be in 
+branches.
+
+* Check out the branch list on GitHub:
+  http://github.com/nimbusproject/nimbus/branches
 
 * If you are viewing directly via git:
   1. git branch - _view current branches_
   2. git log XYZ - _view commit logs on branch called XYZ_
-
-- - -
 
