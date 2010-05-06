@@ -15,6 +15,7 @@ from propagate_adapter import PropagationAdapter
 # keywords for 'adapters' dict as well as the expected URL schemes
 PROP_ADAPTER_SCP = "scp"
 PROP_ADAPTER_GUC = "gsiftp"
+PROP_ADAPTER_HDFS = "hdfs"
 
 class DefaultImageProcurement:
     """ImageProcurement is the wcmodule responsible for making files accessible
@@ -71,7 +72,17 @@ class DefaultImageProcurement:
                 msg = "GridFTP configuration present (propagation->guc) but cannot load a suitable GridFTP implementation in the code"
                 self.c.log.exception(msg + ": ")
                 raise InvalidConfig(msg)
-            
+        
+        hdfs_path = self.p.get_conf_or_none("propagation", "hdfs")
+        if hdfs_path:
+            try:
+                import propagate_hdfs
+                self.adapters[PROP_ADAPTER_HDFS] = propagate_hdfs.propadapter(self.p, self.c)
+            except:
+                msg = "HDFS configuration present (propagation->hdfs) but cannot load a suitable HDFS implimentation in the code"
+                self.c.log.rexception(msg + ": ")
+                raise InvalidConfig(msg)    
+        
         if len(self.adapters) == 0:
             self.c.log.warn("There are no propagation adapters configured, propagation is disabled")
             return
