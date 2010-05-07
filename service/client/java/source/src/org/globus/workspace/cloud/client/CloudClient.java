@@ -794,11 +794,6 @@ public class CloudClient {
                     "because we are going to derive propagation string " +
                     "for the client");
 
-        if (this.args.getPropagationScheme() == null) {
-            throw new ParameterProblem(
-                    "Running requires propagation scheme configuration");
-        }
-
         this.repoUtil.paramterCheck(this.args, Opts.RUN_OPT_STRING);
 
         final String newname = this.args.getNewname();

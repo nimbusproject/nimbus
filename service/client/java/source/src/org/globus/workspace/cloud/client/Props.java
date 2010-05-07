@@ -70,9 +70,6 @@ public class Props {
             KEY_MEMORY_REQ = "vws.memory.request";
 
     public static final String
-            KEY_PROPAGATION_SCHEME = "vws.propagation.scheme";
-
-    public static final String
             KEY_PROPAGATION_KEEPPORT = "vws.propagation.keepport";
 
     // ----
