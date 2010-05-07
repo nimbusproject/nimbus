@@ -73,7 +73,7 @@ public class CloudDeploymentTest extends FileCleanupTestFixture {
         props.put(Props.KEY_FACTORY_HOSTPORT, "tp-vm1.ci.uchicago.edu:8445");
         props.put(Props.KEY_FACTORY_IDENTITY, "/O=Grid/OU=GlobusTest/OU=" +
             "simple-workspace-ca/CN=host/tp-vm1.ci.uchicago.edu");
-        props.put(Props.KEY_GRIDFTP_HOSTPORT, "tp-vm1.ci.uchicago.edu:2811");
+        props.put(Props.KEY_XFER_HOSTPORT, "tp-vm1.ci.uchicago.edu:2811");
         props.put(Props.KEY_GRIDFTP_IDENTITY, "/O=Grid/OU=GlobusTest/OU=" +
             "simple-workspace-ca/CN=host/tp-vm1.ci.uchicago.edu");
 

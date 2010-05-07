@@ -174,11 +174,22 @@ class File(object):
     create_file = staticmethod(create_file)
 
     # return all of the files children
-    def get_all_children(self):
+    def get_all_children(self, limit=None, match_str=None, clause=None):
+
+        data = []
         s = "SELECT " + File.get_select_str() + """
-        FROM objects WHERE parent_id = ?
+        FROM objects WHERE 
         """
-        data = (self.id,)
+        s = s + " parent_id = ?"
+        data.append(self.id)
+        if match_str != None:
+            s = s + " and name LIKE '" + match_str + "'"
+
+        if clause != None:
+            s = s + clause
+        if limit != None:
+            s = s + " LIMIT %d" % (limit)
+
         c = self.db_obj._run_fetch_iterator(s, data, _convert_alias_row_to_File, None)
         return c
 

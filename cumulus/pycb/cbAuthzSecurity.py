@@ -119,9 +119,27 @@ class cbAuthzUser(object):
 
     # returns a list of cbObjects
     def list_bucket(self, bucketName, args):
+
+        clause = " ORDER BY name"
+        prefix = None
+        if 'prefix' in args:
+            prefix = args['prefix'][0]
+            prefix = "%s%%" % (prefix)
+
+        limit = None
+        if 'max-keys' in args:
+            max_a = args['max-keys']
+            limit = int(max_a[0])
+
+        if 'delimiter' in args:
+            pass
+        if 'key-marker' in args:
+            km = args['key-marker'][0]
+            clause = " and name > '%s'" % (km)
+
         try:
             bucket = File.get_file(self.db_obj, bucketName, pynimbusauthz.alias_type_s3)
-            iter = bucket.get_all_children()
+            iter = bucket.get_all_children(limit=limit, match_str=prefix, clause=clause)
             new_it = itertools.imap(lambda r: _convert_File_to_cbObject(self, r), iter)
             return list(new_it)
         finally:

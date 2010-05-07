@@ -28,6 +28,7 @@ public class FileListing {
     private boolean directory;
     private String date;
     private String time;
+    private String owner;
 
     // -------------------------------------------------------------------------
     // GET/SET
@@ -79,5 +80,13 @@ public class FileListing {
 
     public void setTime(String time) {
         this.time = time;
+    }
+
+    public String getOwner() {
+        return this.owner;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
     }
 }
