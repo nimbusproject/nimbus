@@ -615,19 +615,29 @@ public class GridFTPRepositoryUtil
         PrintStream                     debug)
               throws ExecutionProblem
     {
-
+        throw new ExecutionProblem(
+            "GridFTP does not provide a way to change permissions");
     }
 
     public String getRemoteUrl(
         String                          fname)
+            throws ExecutionProblem
     {
-        return "";
-    }
+        String sourcefile = this.args.getSourcefile();
+        String name = this.args.getName();
+        String rc = null;
 
-    public String getLocalUrl(
-        String                          fname)
-    {
-        return "";
+        if (sourcefile != null)
+        {
+            final File f = new File(sourcefile);
+            rc = this.getRemoteUserBaseURLString() + f.getName();
+        }
+        if (name != null)
+        {
+            rc = this.getRemoteUserBaseURLString() + name;
+        }
+
+        return rc;
     }
 
 }

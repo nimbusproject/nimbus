@@ -188,9 +188,9 @@ class cbRequest(object):
         self.setHeader(self.request, 'x-amz-id-2', amzid2)
         self.setHeader(self.request,'x-amz-request-id', self.requestId)
         self.setHeader(self.request, 'Server', "cumulus")
-        tm = datetime.now()
-        tmstr = tm.strftime("%a, %d %b %Y %H:%M:%S %Z")
-        self.setHeader(self.request, 'Date', tmstr)
+        tm = datetime.utcnow()
+        tmstr = tm.strftime("%a, %d %b %Y %H:%M:%S GMT")
+        self.setHeader(self.request, 'date', tmstr)
 
     def send_xml(self, x):
         xLen = len(x)
@@ -547,6 +547,8 @@ class cbPutObject(cbRequest):
         self.checkMD5 = None
         self.bucketName = bucketName
         self.objectName = objName
+
+        print self.objectName
 
     def work(self):
         dataObj = self.request.content

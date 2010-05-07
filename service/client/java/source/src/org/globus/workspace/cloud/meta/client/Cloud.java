@@ -115,7 +115,7 @@ public class Cloud {
         this.factoryID = getRequiredProp(props,
             Props.KEY_FACTORY_IDENTITY);
         this.gridftpHostPort = getRequiredProp(props,
-            Props.KEY_GRIDFTP_HOSTPORT);
+            Props.KEY_XFER_HOSTPORT);
         this.gridftpID = getRequiredProp(props,
             Props.KEY_GRIDFTP_IDENTITY);
         this.metadata_mountAs = getRequiredProp(props,

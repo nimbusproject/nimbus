@@ -37,6 +37,7 @@ import org.globus.workspace.cloud.client.util.CloudClientUtil;
 import org.globus.workspace.cloud.client.util.DeploymentXMLUtil;
 import org.globus.workspace.cloud.client.util.ExecuteUtil;
 import org.globus.workspace.cloud.client.util.GridFTPRepositoryUtil;
+import org.globus.workspace.cloud.client.util.CumulusRepositoryUtil;
 import org.globus.workspace.cloud.client.util.RepositoryInterface;
 import org.globus.workspace.cloud.client.util.FileListing;
 import org.globus.workspace.cloud.client.util.HistoryUtil;
@@ -296,8 +297,21 @@ public class CloudClient {
         }
 
         this.args = allArguments;
-        this.repoUtil = new GridFTPRepositoryUtil(this.args, this.print);
 
+        String repoType = this.args.getXferType();
+
+        if(repoType == null)
+        {
+            repoType = "gridftp";
+        }
+        if(repoType.equals("cumulus"))
+        {
+            this.repoUtil = new CumulusRepositoryUtil(this.args, this.print);
+        }
+        else
+        {
+            this.repoUtil = new GridFTPRepositoryUtil(this.args, this.print);
+        }
         try {
             this.parameterCheck();
         } catch (Exception e) {

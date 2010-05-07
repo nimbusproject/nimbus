@@ -92,6 +92,11 @@ public class AllArgs {
     private String factoryHostPort;
     private String factoryID;
     private String xferHostPort;
+    private String xferType;
+    private String xferS3ID;
+    private String xferS3Key;
+    private String xferS3BaseKey;
+    private String s3Bucket;
     private String gridftpID;
     private String handle;
     private String hashPrintDN;
@@ -631,11 +636,51 @@ public class AllArgs {
                          sourceName);
         }
 
+        if (this.xferS3ID == null) {
+            this.xferS3ID =
+                    CloudClientUtil.getProp(props, Props.KEY_S3_ID);
+            this.gotProp(Props.KEY_S3_ID,
+                         this.xferS3ID,
+                         sourceName);
+        }
+
+        if (this.xferS3Key == null) {
+            this.xferS3Key =
+                    CloudClientUtil.getProp(props, Props.KEY_S3_KEY);
+            this.gotProp(Props.KEY_S3_KEY,
+                         this.xferS3Key,
+                         sourceName);
+        }
+
+        if (this.xferS3BaseKey == null) {
+            this.xferS3BaseKey =
+                    CloudClientUtil.getProp(props, Props.KEY_S3_BASEKEY);
+            this.gotProp(Props.KEY_S3_BASEKEY,
+                         this.xferS3BaseKey,
+                         sourceName);
+        }
+
+        if (this.s3Bucket == null) {
+            this.s3Bucket =
+                    CloudClientUtil.getProp(props, Props.KEY_S3_BUCKET);
+            this.gotProp(Props.KEY_S3_BUCKET,
+                         this.s3Bucket,
+                         sourceName);
+        }
+
         if (this.xferHostPort == null) {
             this.xferHostPort =
-                    CloudClientUtil.getProp(props, Props.KEY_GRIDFTP_HOSTPORT);
-            this.gotProp(Props.KEY_GRIDFTP_HOSTPORT,
+                    CloudClientUtil.getProp(props, Props.KEY_XFER_HOSTPORT);
+            this.gotProp(Props.KEY_XFER_HOSTPORT,
                          this.xferHostPort,
+                         sourceName);
+        }
+
+        if (this.xferType == null) {
+            this.xferType =
+                    CloudClientUtil.getProp(props, Props.KEY_XFER_TYPE);
+            this.gotProp(Props.KEY_XFER_TYPE,
+                         this.xferType,
                          sourceName);
         }
 
@@ -946,8 +991,48 @@ public class AllArgs {
         this.xferHostPort = xferHostPort;
     }
 
+    public String getXferType() {
+        return this.xferType;
+    }
+
+    public void setXferType(String xferType) {
+        this.xferType = xferType;
+    }
+
+    public String getXferS3ID() {
+        return this.xferS3ID;
+    }
+
+    public void setXferS3ID(String xferS3ID) {
+        this.xferS3ID = xferS3ID;
+    }
+
+    public String getXferS3BaseKey() {
+        return this.xferS3BaseKey;
+    }
+
+    public void setXferS3BaseKey(String xferS3BaseKey) {
+        this.xferS3BaseKey = xferS3BaseKey;
+    }
+
+    public String getXferS3Key() {
+        return this.xferS3Key;
+    }
+
+    public void setXferS3Key(String xferS3Key) {
+        this.xferS3Key = xferS3Key;
+    }
+
     public String getGridftpID() {
         return this.gridftpID;
+    }
+
+    public String getS3Bucket() {
+        return this.s3Bucket;
+    }
+
+    public void setS3Bucket(String s3Bucket) {
+        this.s3Bucket = s3Bucket;
     }
 
     public void setGridftpID(String gridftpID) {

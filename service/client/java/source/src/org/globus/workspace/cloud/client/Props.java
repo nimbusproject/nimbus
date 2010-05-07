@@ -34,7 +34,22 @@ public class Props {
             KEY_FACTORY_HOSTPORT = "vws.factory";
 
     public static final String
-            KEY_GRIDFTP_HOSTPORT = "vws.repository";
+            KEY_XFER_HOSTPORT = "vws.repository";
+
+    public static final String
+            KEY_XFER_TYPE = "vws.repository.type";
+
+    public static final String
+            KEY_S3_ID = "vws.repository.s3id";
+
+    public static final String
+            KEY_S3_KEY = "vws.repository.s3key";
+
+    public static final String
+            KEY_S3_BASEKEY = "vws.repository.s3basekey";
+
+    public static final String
+            KEY_S3_BUCKET = "vws.repository.s3bucket";
 
     public static final String
             KEY_TARGET_BASEDIR = "vws.repository.basedir";

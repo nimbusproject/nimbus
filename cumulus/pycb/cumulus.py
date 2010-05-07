@@ -17,6 +17,7 @@ from pycb.cbRequest import cbHeadObject
 from datetime import date, datetime
 from xml.dom.minidom import Document
 import uuid
+import urllib
 import traceback
 import sys
 import os
@@ -41,6 +42,8 @@ def path_to_bucket_object(path):
         objectName = p_a[1].strip()
         if objectName == "":
             objectName = None
+        else:
+            objectName = urllib.unquote(objectName)
     return (bucketName, objectName)
 
 def createPath(headers, path):

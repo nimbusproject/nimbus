@@ -7,11 +7,8 @@ from pynimbusauthz.cmd_opts import cbOpts
 from cbPosixSecurity import cbPosixSec
 from cbPosixBackend import cbPosixBackend
 from ConfigParser import SafeConfigParser
-try:
-    from pycb.cbAuthzSecurity import cbAuthzUser
-    from pycb.cbAuthzSecurity import cbAuthzSec
-except:
-    pass
+from pycb.cbAuthzSecurity import cbAuthzUser
+from pycb.cbAuthzSecurity import cbAuthzSec
 
 from optparse import OptionParser
 import hmac

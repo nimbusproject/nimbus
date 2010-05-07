@@ -48,9 +48,9 @@ public interface RepositoryInterface
         ExecutorService                 executorService)
             throws ExecutionProblem;
 
-    public String getRemoteUrl(String fname);
-
-    public String getLocalUrl(String fname);
+    public String getRemoteUrl(
+        String                          fname)
+            throws ExecutionProblem;
 
     // -------------------------------------------------------------------------
     // DOWNLOAD FILE
