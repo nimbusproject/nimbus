@@ -597,11 +597,7 @@ public class GridFTPRepositoryUtil
         this.print.debugln("Translating image name '" + imageName + "' into " +
                 "metadata URL");
 
-        final String url = CloudClientUtil.deriveImageURL(
-            this.args.getXferHostPort(), imageName,
-            this.remoteUserBaseDir,
-            this.args.getPropagationScheme(),
-            this.args.isPropagationKeepPort());
+        String url = "gridftp://" + this.args.getXferHostPort() + this.remoteUserBaseDir + "/" + imageName;
         this.print.debugln("Derived image URL: '" + url + "'");
 
         return url;

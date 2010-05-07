@@ -214,14 +214,24 @@ public class CumulusRepositoryUtil
     public String getRemoteUrl(
         String                          fname)
     {
-        return "";
+        try
+        {
+            return this.getDerivedImageURL(fname);
+        }
+        catch(Exception ex)
+        {
+            return null;
+        }
     }
 
     public String getDerivedImageURL(
         String                          imageName)
             throws ExecutionProblem
     {
-        return "";
+        String baseKey = this.args.getXferS3BaseKey();
+        String ID = this.args.getXferS3ID();
+
+        return "cumulus://" + this.args.getXferHostPort() + "/" + this.args.getS3Bucket() + "/" + ID + "/" + imageName;
     }
 
 }
