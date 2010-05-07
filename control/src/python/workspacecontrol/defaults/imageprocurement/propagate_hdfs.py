@@ -66,6 +66,9 @@ class propadapter(PropagationAdapter):
         raise InvalidInput("HDFS unpropagation is not supported at this time.  Check back later.")
     
     def propagate(self, remote_source, local_absolute_target):
+        if not self.hdfs_location:
+            self.validate()
+        
         self.c.log.info("HDFS propagation - remote source: %s" % remote_source)
         self.c.log.info("HDFS propagation - local target: %s" % local_absolute_target)
         
@@ -102,7 +105,7 @@ class propadapter(PropagationAdapter):
         url = urlparse(imagestr)
         ops = [self.hdfs_location, "dfs",
                "-fs", url[1],
-               "-coptToLocal", url[2], local_absolute_target]
+               "-copyToLocal", url[2], local_absolute_target]
         cmd = " ".join(ops)
         return cmd
     
