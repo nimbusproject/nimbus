@@ -597,7 +597,7 @@ public class AllArgs {
         CommonPrint.printDebugSectionEnd(this.print, sectionTitle);
     }
 
-    private void intakeProperties(Properties props,
+    public void intakeProperties(Properties props,
                                   String sourceName) throws ParameterProblem {
 
         this.print.dbg("\nAll properties in " + sourceName + " file:\n");

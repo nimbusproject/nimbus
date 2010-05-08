@@ -299,19 +299,11 @@ public class CloudClient {
         this.args = allArguments;
 
         String repoType = this.args.getXferType();
-
         if(repoType == null)
         {
             repoType = "gridftp";
         }
-        if(repoType.equals("cumulus"))
-        {
-            this.repoUtil = new CumulusRepositoryUtil(this.args, this.print);
-        }
-        else
-        {
-            this.repoUtil = new GridFTPRepositoryUtil(this.args, this.print);
-        }
+        this.repoUtil = CloudClientUtil.getRepoUtil(repoType, this.args, this.print);
         try {
             this.parameterCheck();
         } catch (Exception e) {

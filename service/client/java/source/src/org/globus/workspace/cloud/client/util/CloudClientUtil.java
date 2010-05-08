@@ -49,6 +49,10 @@ import java.util.List;
 import java.util.Iterator;
 import java.util.StringTokenizer;
 
+import org.globus.workspace.cloud.client.Props;
+import org.globus.workspace.cloud.client.AllArgs;
+import org.globus.workspace.common.print.Print;
+
 public class CloudClientUtil {
 
     public static final String credURL =
@@ -724,40 +728,41 @@ public class CloudClientUtil {
         return "";
     }
 
-    public static String deriveImageURL(String hostPort, String imageName,
-                              String remoteUserBaseDir, String scheme,
-                              boolean keepPort) throws ExecutionProblem {
+    public static RepositoryInterface getRepoUtil(
+        String                          repoType,
+        AllArgs                         args,
+        Print                           print)
+    {
+        RepositoryInterface             repoUtil;
+
+        if(repoType == null)
+        {
+            repoType = "gridftp";
+        }
+        if(repoType.equals("cumulus"))
+        {
+            repoUtil = new CumulusRepositoryUtil(args, print);
+        }
+        else
+        {
+            repoUtil = new GridFTPRepositoryUtil(args, print);
+        }
+        return repoUtil;
+    }
+
+    public static String deriveImageURL(String imageName, AllArgs args)
+                              throws ExecutionProblem {
+
+        RepositoryInterface repoUtil;
+
+        String repoType = args.getXferType();
+        repoUtil = CloudClientUtil.getRepoUtil(repoType, args, new Print());
 
         if (imageName == null) {
             throw new IllegalArgumentException("imageName may not be null");
         }
 
-        String imageURL = scheme;
-
-        if (imageURL.indexOf("://") < 0) {
-            imageURL += "://";
-        }
-
-        // a bit messy
-        if (keepPort) {
-
-            imageURL += hostPort;
-
-        } else {
-
-            final String[] parts = hostPort.split(":");
-
-            if (parts.length != 2) {
-                throw new ExecutionProblem(
-                        "gridftp host + port has no port?");
-            }
-
-            imageURL += parts[0];
-        }
-
-        imageURL += remoteUserBaseDir + imageName;
-
-        return imageURL;
+        return repoUtil.getDerivedImageURL(imageName);
     }
 
     public static String expandSshPath(String sshfile) 
