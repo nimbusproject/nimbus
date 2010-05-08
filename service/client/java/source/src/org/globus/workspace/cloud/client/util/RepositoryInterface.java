@@ -25,6 +25,8 @@ import org.globus.workspace.client_core.ExecutionProblem;
 import org.globus.workspace.common.print.Print;
 import org.globus.workspace.client_core.ParameterProblem;
 import edu.emory.mathcs.backport.java.util.concurrent.ExecutorService;
+import org.globus.workspace.cloud.client.Props;
+import java.util.Properties;
 
 
 public interface RepositoryInterface
@@ -96,4 +98,5 @@ public interface RepositoryInterface
     public String getDerivedImageURL(
         String                          imageName)
             throws ExecutionProblem;
+
 }

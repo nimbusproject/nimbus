@@ -48,6 +48,8 @@ import org.globus.workspace.cloud.client.Opts;
 import org.globus.workspace.client_core.ExecutionProblem;
 import org.globus.workspace.common.print.Print;
 import edu.emory.mathcs.backport.java.util.concurrent.ExecutorService;
+import org.globus.workspace.cloud.client.Props;
+import java.util.Properties;
 
 public class GridFTPRepositoryUtil 
     implements RepositoryInterface {
@@ -592,14 +594,11 @@ public class GridFTPRepositoryUtil
     }
 
 
-    public String getDerivedImageURL(String imageName) throws ExecutionProblem {
-
-        this.print.debugln("Translating image name '" + imageName + "' into " +
-                "metadata URL");
-
+    public String getDerivedImageURL(
+        String                          imageName)
+            throws ExecutionProblem 
+    {
         String url = "gridftp://" + this.args.getXferHostPort() + this.remoteUserBaseDir + "/" + imageName;
-        this.print.debugln("Derived image URL: '" + url + "'");
-
         return url;
     }
 

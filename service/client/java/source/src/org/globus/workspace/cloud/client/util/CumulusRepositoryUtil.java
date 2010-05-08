@@ -57,7 +57,8 @@ import org.jets3t.service.model.*;
 import org.jets3t.service.impl.rest.httpclient.RestS3Service;
 import org.jets3t.service.model.S3Object;
 import org.jets3t.service.S3ServiceException;
-
+import org.globus.workspace.cloud.client.Props;
+import java.util.Properties;
 
 public class CumulusRepositoryUtil
     implements RepositoryInterface {
@@ -228,10 +229,10 @@ public class CumulusRepositoryUtil
         String                          imageName)
             throws ExecutionProblem
     {
-        String baseKey = this.args.getXferS3BaseKey();
-        String ID = this.args.getXferS3ID();
+         String baseKey = this.args.getXferS3BaseKey();
+         String ID = this.args.getXferS3ID();
 
-        return "cumulus://" + this.args.getXferHostPort() + "/" + this.args.getS3Bucket() + "/" + ID + "/" + imageName;
+         return "cumulus://" + this.args.getXferHostPort() + "/" + this.args.getS3Bucket() + "/" + ID + "/" + imageName;
     }
 
 }
