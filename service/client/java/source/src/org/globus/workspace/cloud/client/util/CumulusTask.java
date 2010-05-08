@@ -35,6 +35,8 @@ import java.util.Vector;
 import java.util.Date;
 import java.util.ArrayList;
 import java.io.File;
+import java.io.InputStream;
+import java.io.FileOutputStream;
 import java.util.Calendar;
 
 import edu.emory.mathcs.backport.java.util.concurrent.FutureTask;
@@ -151,6 +153,22 @@ public class CumulusTask
             S3Object s3Object = new S3Object(file);
             s3Object.setKey(key);
 
+            PrintStream pr = null;
+            if (info != null) {
+                pr = info;
+            } else if (debug != null) {
+                pr = debug;
+            }
+    
+            if (pr != null) {               
+                pr.println("\nTransferring");
+                pr.println("  - Source: " + file.getName());
+                String destUrlString = "cumulus://" + baseBucketName + "/" + key;
+                pr.println("  - Destination: " + destUrlString);
+                pr.println();               
+            }   
+
+
             s3Service.putObject(baseBucketName, s3Object);
         }
         catch(Exception s3ex)
@@ -168,18 +186,42 @@ public class CumulusTask
     {
         try
         {
+            System.out.println("SSSS");
             String awsAccessKey = this.args.getXferS3ID();
-            S3Service s3Service = this.getService();
-
             String baseBucketName = this.args.getS3Bucket();
             String key = this.makeKey(vmName, null);
+            File file = new File(localfile);
+
+            PrintStream pr = null;
+            if (info != null) {
+                pr = info;
+            } else if (debug != null) {
+                pr = debug;
+            }
+
+            if (pr != null) {
+                String srcUrlString = "cumulus://" + baseBucketName + "/" + key;
+                pr.println("\nTransferring");
+                pr.println("  - Source: " + srcUrlString);
+;
+                pr.println("  - Destination: " + file.getAbsolutePath());
+                pr.println();
+
+            }
+
+            S3Service s3Service = this.getService();
             S3Bucket bucket = s3Service.getBucket(baseBucketName);
 
             S3Object objectComplete = s3Service.getObject(bucket, key);
 
-            File file = new File(localfile);
-            S3Object s3Object = new S3Object(bucket, file);
-            s3Object.setKey(key);
+            byte b [] = new byte[1024*64];
+            InputStream dis = objectComplete.getDataInputStream();
+            FileOutputStream fos = new FileOutputStream(file);
+            while (dis.read(b) != -1)
+            {
+                fos.write(b);    
+            }
+            fos.close();
         }
         catch(Exception s3ex)
         {

@@ -140,7 +140,7 @@ public class CumulusRepositoryUtil
         this.cumulusTask.setInfo(info);
         this.cumulusTask.setDebug(debug);
 
-        this.cumulusTask.setTask(CumulusTask.DELETE_TASK);
+        this.cumulusTask.setTask(CumulusTask.DOWNLOAD_TASK);
         this.performTask(executorService);
     }
 
