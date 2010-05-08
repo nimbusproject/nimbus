@@ -61,7 +61,123 @@ import org.jets3t.service.model.S3Object;
 import org.jets3t.service.S3ServiceException;
 
 import edu.emory.mathcs.backport.java.util.concurrent.Callable;
+import org.jets3t.service.utils.ObjectUtils;
+import org.jets3t.service.io.BytesProgressWatcher;
+import org.jets3t.service.utils.Mimetypes;;
 
+class CloudProgressPrinter
+    extends BytesProgressWatcher
+{
+    private PrintStream                 pr;
+    private int                         colCount = 80;
+
+    public CloudProgressPrinter(
+        PrintStream                     pr,
+        long                            len)
+    {
+        super(len);
+        this.pr = pr;
+    }
+
+    // return a string with the long value properly suffixed 
+    protected String prettyCount(long tb, int maxLen)
+    {
+        int                             ndx = 0;
+        String suffix[] = {" B", "KB", "MB", "GB"};
+
+        if(tb < 0)
+        {
+            return "Unknown";
+        }
+
+        float tbF = (float) tb;
+        while(tbF > 10240.0f && ndx < suffix.length - 1)
+        {
+            ndx++;
+            tbF = tbF / 1024.0f;
+        }
+        tb = (int)tbF;
+
+        String rc =  new Long(tb).toString();
+
+        if(rc.length() > maxLen)
+        {
+            int endNdx = maxLen - 3;
+            rc = rc.substring(0, endNdx) + "...";
+        }
+        else
+        {
+            // some silliness to get to 2 decimals
+            if(rc.length() < maxLen - 2)
+            {
+                tb = (int)(tbF * 100.0f);
+                tbF = (float)tb / 100.0f;
+                rc = new Float(tbF).toString();
+            }
+            int spaceCount = maxLen - rc.length();
+            for(int i = 0; i < spaceCount; i++)
+            {
+                rc = " " + rc;
+            }
+        }
+        rc = rc + suffix[ndx];
+
+        return rc;
+    }
+
+
+    protected String makeBar(long sofar, long total)
+    {
+        String byteString = this.prettyCount(sofar, 6);
+        String                          doneCh = "X";
+        String                          notDoneCh = ".";
+
+        // there are 9 pad characters: <sp>[]<sp>PPP%<sp>
+        int pad = 9;
+        int pgLen = this.colCount - byteString.length() - pad;
+
+        // this will be rounded down, but who cares?
+        int percent = (int)((sofar * 100) / total);
+        int xCount = (percent * pgLen) / 100;
+
+        String bar = byteString + " [";
+        for(int i = 0; i < pgLen; i++)
+        {
+            if(i < xCount)
+            {
+                bar = bar + doneCh;
+            }
+            else
+            {
+                bar = bar + notDoneCh;
+            }
+        }
+        bar = bar + "] " + percent + "% ";
+
+        return bar;
+    }
+
+
+    public void updateBytesTransferred(
+        long                            byteCount)
+    {
+        super.updateBytesTransferred(byteCount);
+
+        long total = getBytesToTransfer();
+           
+        long sent = getBytesTransferred();
+
+        if(this.pr == null)
+        {
+            return;
+        }
+
+        String bar = this.makeBar(sent, total);
+        this.pr.print("\r");
+        this.pr.print(bar);
+        this.pr.flush();
+    }
+}
 
 public class CumulusTask
     implements Callable
@@ -150,8 +266,6 @@ public class CumulusTask
             String key = this.makeKey(vmName, null);
 
             File file = new File(localfile);
-            S3Object s3Object = new S3Object(file);
-            s3Object.setKey(key);
 
             PrintStream pr = null;
             if (info != null) {
@@ -159,16 +273,23 @@ public class CumulusTask
             } else if (debug != null) {
                 pr = debug;
             }
-    
             if (pr != null) {               
                 pr.println("\nTransferring");
                 pr.println("  - Source: " + file.getName());
                 String destUrlString = "cumulus://" + baseBucketName + "/" + key;
                 pr.println("  - Destination: " + destUrlString);
                 pr.println();               
-            }   
+                pr.println("Preparing the file for transfer:");
+            } 
 
-
+            BytesProgressWatcher progressWatcher = 
+                new CloudProgressPrinter(pr, file.length());
+            S3Object s3Object = ObjectUtils.createObjectForUpload(
+                key, file, null, false, progressWatcher);
+            s3Object.setContentType(Mimetypes.MIMETYPE_OCTET_STREAM);
+            if (pr != null) {
+                pr.println("Transfering the file");
+            }
             s3Service.putObject(baseBucketName, s3Object);
         }
         catch(Exception s3ex)
@@ -210,16 +331,19 @@ public class CumulusTask
             }
 
             S3Service s3Service = this.getService();
-            S3Bucket bucket = s3Service.getBucket(baseBucketName);
+            S3Object s3Object = s3Service.getObject(baseBucketName, key);
 
-            S3Object objectComplete = s3Service.getObject(bucket, key);
-
+            BytesProgressWatcher progressWatcher = 
+                new CloudProgressPrinter(pr, s3Object.getContentLength());
             byte b [] = new byte[1024*64];
-            InputStream dis = objectComplete.getDataInputStream();
+            InputStream dis = s3Object.getDataInputStream();
             FileOutputStream fos = new FileOutputStream(file);
-            while (dis.read(b) != -1)
+            int cnt = dis.read(b);
+            while(cnt != -1)
             {
-                fos.write(b);    
+                fos.write(b, 0, cnt); 
+                progressWatcher.updateBytesTransferred((long)cnt);
+                cnt = dis.read(b);
             }
             fos.close();
         }
