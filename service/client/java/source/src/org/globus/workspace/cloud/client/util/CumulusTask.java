@@ -65,6 +65,87 @@ import org.jets3t.service.utils.ObjectUtils;
 import org.jets3t.service.io.BytesProgressWatcher;
 import org.jets3t.service.utils.Mimetypes;;
 
+class CumulusInputStream
+    extends InputStream
+{
+    private InputStream                 is;
+    private PrintStream                 pr;
+    private CloudProgressPrinter        progress;
+
+    public CumulusInputStream(
+        long                            len,
+        PrintStream                     pr,
+        InputStream                     is)
+    {
+        super();
+        this.is = is;
+        this.pr = pr;
+
+        progress = new CloudProgressPrinter(this.pr, len);
+    }
+ 
+    public int available()
+        throws java.io.IOException
+    {
+        return this.is.available();
+    }
+    
+    public void   close()
+        throws java.io.IOException
+    {
+        this.is.close();
+    }
+ 
+    public void   mark(int readlimit)
+    {
+        this.is.mark(readlimit);
+    }
+
+    public boolean    markSupported()
+    {
+        return this.is.markSupported();
+    }
+
+    public int   read()
+        throws java.io.IOException
+    {
+        int len;
+        len = this.is.read();
+        progress.updateBytesTransferred((long)len);
+        return len;
+    }
+ 
+    public int    read(byte[] b)
+        throws java.io.IOException
+    {
+        int len;
+        len = this.is.read(b);
+        progress.updateBytesTransferred((long)len);
+        return len;
+    }
+
+    public int    read(byte[] b, int off, int len)
+        throws java.io.IOException
+    {
+        int lenrc;
+        lenrc = this.is.read(b, off, len);
+        return lenrc;
+    }
+
+    public void   reset()
+        throws java.io.IOException
+    {
+        this.is.reset();
+    }
+ 
+    public long   skip(long n)
+        throws java.io.IOException
+    {
+        return this.is.skip(n);
+    }
+}
+
+
 class CloudProgressPrinter
     extends BytesProgressWatcher
 {
@@ -290,7 +371,13 @@ public class CumulusTask
             if (pr != null) {
                 pr.println("Transfering the file");
             }
+            CumulusInputStream cis = new CumulusInputStream(
+                file.length(), pr, s3Object.getDataInputStream());
+            s3Object.setDataInputStream(cis);
             s3Service.putObject(baseBucketName, s3Object);
+            if (pr != null) {
+                pr.println("\ndone");
+            }
         }
         catch(Exception s3ex)
         {
