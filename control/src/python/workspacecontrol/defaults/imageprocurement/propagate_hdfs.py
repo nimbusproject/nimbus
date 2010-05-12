@@ -2,7 +2,7 @@ from commands import getstatusoutput
 import os
 import string
 from time import time
-from urlparse import urlparse
+#from urlparse import urlparse
 from propagate_adapter import PropagationAdapter
 from workspacecontrol.api.exceptions import *
 
@@ -13,40 +13,33 @@ class propadapter(PropagationAdapter):
         
     def __init__(self, params, common):
         PropagationAdapter.__init__(self, params, common)
-        self.hdfs_location = None
-        
+        self.hadoop = None
+        self.parsed_url = None
         
     def validate(self):
         self.c.log.debug("Validating hdfs propagation adapter")
-        if not os.environ.has_key('HADOOP_HOME'):
-            errmsg = "HDFS validation error - The $HADOOP_HOME enviroment variable is not set."
-            self.c.log.error(errmsg)
-            raise UnexpectedError(errmsg)
         
-        # Generate absolute path to hadoop executable
-        hadoop_home = os.path.expandvars("$HAHOOP_HOME")
-        self.hdfs_location = os.path.join(hadoop_home, 'bin/hadoop')
+        self.hadoop = self.p.get_conf_or_none("propagation", "hdfs")
+        if not self.hdfs:
+            raise InvalidConfig("no path to hadoop")
         
-        if not os.path.exists(self.hdfs_location):
-            self.hdfs_location = None
-            errmsg = "HDFS validation error - The path: %s does not exist" % self.hdfs_location
-            self.c.log.error(errmsg)
-            raise UnexpectedError(errmsg)
-        if not os.path.isfile(self.hdfs_location):
-            self.hdfs_location = None
-            errmsg = "HDFS validation error - The path: %s is not a file" % self.hdfs_location
-            self.c.log.error(errmsg)
-            raise UnexpectedError(errmsg)
+        # Expand any enviroment variables first
+        self.hadoop = os.path.expandvars(self.hadoop)
+        if os.path.isabs(self.hadoop):
+            if not os.access(self.hadoop, os.F_OK):
+                raise InvalidConfig("HDFS is configured with an absolute path, but it does not seem to exist: '%s'" % self.hadoop)
+                
+            if not os.access(self.hadoop, os.X_OK):
+                raise InvalidConfig("HDFS is configured with an absolute path, but it does not seem executable: '%s'" % self.hadoop)
+
+        self.c.log.debug("HDFS configured: %s" % self.hadoop)
         
     def validate_propagate_source(self, imagestr):
         # Validate uri format
-        url = urlparse(imagestr)
-        if url[0] != 'hdfs':
+        if imagestr[:7] != 'hdfs://':
             raise InvalidInput("Invalid hdfs url, must be of the form hdfs://")
         
         # Validate file exists on filesystem
-        if not self.hdfs_location:
-            self.validate()
         cmd = self.__generate_hdfs_test_cmd(imagestr)
         try:
             status,output = getstatusoutput(cmd)
@@ -60,15 +53,11 @@ class propadapter(PropagationAdapter):
             errmsg = "HDFS validation - file does not exist on hdfs."
             self.c.log.error(errmsg)
             raise InvalidInput(errmsg)
-        
-    
+ 
     def validate_unpropagate_target(self, imagestr):
         raise InvalidInput("HDFS unpropagation is not supported at this time.  Check back later.")
     
-    def propagate(self, remote_source, local_absolute_target):
-        if not self.hdfs_location:
-            self.validate()
-        
+    def propagate(self, remote_source, local_absolute_target):        
         self.c.log.info("HDFS propagation - remote source: %s" % remote_source)
         self.c.log.info("HDFS propagation - local target: %s" % local_absolute_target)
         
@@ -90,8 +79,7 @@ class propadapter(PropagationAdapter):
         else:
             transfer_time += time()
             self.c.log.info("Transfer complete:  %fs" % round(transfer_time))
-        
-    
+
     def unpropagate(self, local_absolute_source, remote_target):
         raise InvalidInput("HDFS unpropagation is not supported at this time.  Check back later.")
     
@@ -99,25 +87,40 @@ class propadapter(PropagationAdapter):
     
     def __generate_hdfs_pull_cmd(self, remote_target, local_absolute_target):
         # Generate command in the form of:
-        # /path/to/hadoop/bin/hadoop dfs -fs <files system uri> -copyToLocal <src> <localdst>
-        
-        # <scheme>://<netloc>/<path>;<params>?<query>#<fragment>
-        url = urlparse(imagestr)
-        ops = [self.hdfs_location, "dfs",
-               "-fs", url[1],
-               "-copyToLocal", url[2], local_absolute_target]
+        # /path/to/hadoop/bin/hadoop fs -fs <files system uri> -copyToLocal <src> <localdst>
+        if not self.parsed_url:
+            self.parsed_url = self.__parse_url(remote_target)
+            
+        ops = [self.hadoop, "fs",
+               "-fs", self.parsed_url[0]+'hdfs://'+self.parsed_url[1],
+               "-copyToLocal", self.parsed_url[2], local_absolute_target]
         cmd = " ".join(ops)
         return cmd
     
     def __generate_hdfs_test_cmd(self, imagestr):
         # Generate command in the form of:
         # /path/to/hadoop/bin/hadoop dfs -fs <file system uri> -test -e <path>
-        
-        # <scheme>://<netloc>/<path>;<params>?<query>#<fragment>
-        url = urlparse(imagestr)
-        ops = [self.hdfs_location, "dfs",
-               "-fs", url[1],
-               "-test", "-e", url[2]]
+        if not self.parsed_url:
+            self.parsed_url = self.__parse_url(remote_target)
+            
+        ops = [self.hadoop, "fs",
+               "-fs", self.parsed_url[0]+'hdfs://'+self.parsed_url[1],
+               "-test", "-e", self.parsed_url[2]]
         cmd = " ".join(ops)
-        return cmd       
+        return cmd
+    
+    def __parse_url(self, url):
+        # Since Python2.4 urlparse library doesn't recognize the hdfs scheme,
+        # we need to parse the url by hand.  oh, fun times!!
+        # fyi, urlparse does recognize it in later Python versions.
+        url = url.split('://')
+        if len(url) != 2:
+            raise InvalidInput("url not of the form <scheme>://<netloc>/<path>")
+        scheme = url[0]
+        netloc, sep, path = url[1].partition('/')
+        # Add leading / back in since it was used to partition netloc from path
+        path = '/'+path
+        return (scheme, netloc, path)
+        
+        
 
