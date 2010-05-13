@@ -1,0 +1,15 @@
+<component name="libraryTable">
+  <library name="ctxbroker-libs">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/services/jce-jdk13-125.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/cog-jglobus.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/commons-logging.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/wsrf_core.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/axis.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/generated/nimbus-ctx-stubs-gt4.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/addressing-1.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/cloud-client/cloud-client.iml" filepath="$PROJECT_DIR$/.idea/modules/cloud-client/cloud-client.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/protocol-common/common.iml" filepath="$PROJECT_DIR$/.idea/modules/protocol-common/common.iml" group="protocols" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ctx/contextualization.iml" filepath="$PROJECT_DIR$/.idea/modules/ctx/contextualization.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/docs/docs.iml" filepath="$PROJECT_DIR$/.idea/modules/docs/docs.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/query/ec2query.iml" filepath="$PROJECT_DIR$/.idea/modules/query/ec2query.iml" group="protocols" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ec2soap/ec2soap.iml" filepath="$PROJECT_DIR$/.idea/modules/ec2soap/ec2soap.iml" group="protocols" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/installer/installer.iml" filepath="$PROJECT_DIR$/.idea/modules/installer/installer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/rest/rest.iml" filepath="$PROJECT_DIR$/.idea/modules/rest/rest.iml" group="protocols" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/rm-api/rm-api.iml" filepath="$PROJECT_DIR$/.idea/modules/rm-api/rm-api.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/wrksp-svc/workspace-service.iml" filepath="$PROJECT_DIR$/.idea/modules/wrksp-svc/workspace-service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/wsrf/wsrf.iml" filepath="$PROJECT_DIR$/.idea/modules/wsrf/wsrf.iml" group="protocols" />
+    </modules>
+  </component>
+</project>
+

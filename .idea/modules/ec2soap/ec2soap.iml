@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="FacetManager">
+    <facet type="Spring" name="Spring">
+      <configuration />
+    </facet>
+  </component>
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$/../../messaging/gt4.0-elastic/java/msgbridge">
+      <sourceFolder url="file://$MODULE_DIR$/../../messaging/gt4.0-elastic/java/msgbridge/src" isTestSource="false" />
+    </content>
+    <content url="file://$MODULE_DIR$/../../messaging/gt4.0-elastic/java/stubs" />
+    <content url="file://$MODULE_DIR$/../../messaging/gt4.0-elastic/schema" />
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="common" />
+  </component>
+</module>
+
