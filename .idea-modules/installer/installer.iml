@@ -16,6 +16,8 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="installer-libs" level="project" />
+    <orderEntry type="module" module-name="workspace-service" />
+    <orderEntry type="module" module-name="rm-api" />
   </component>
 </module>
 

@@ -10,6 +10,9 @@
       <root url="jar://$PROJECT_DIR$/lib/services/wsrf_core.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/services/axis.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/services/addressing-1.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/jaxrpc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/jce-jdk13-125.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/cog-jglobus.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

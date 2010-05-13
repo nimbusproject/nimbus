@@ -14,6 +14,9 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="cxf-libs" level="project" />
+    <orderEntry type="module" module-name="common" />
+    <orderEntry type="module" module-name="ec2soap" />
+    <orderEntry type="library" name="test-libs" level="project" />
   </component>
 </module>
 
