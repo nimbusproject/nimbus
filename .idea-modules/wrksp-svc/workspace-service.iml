@@ -2,7 +2,15 @@
 <module type="JAVA_MODULE" version="4">
   <component name="FacetManager">
     <facet type="Spring" name="Spring">
-      <configuration />
+      <configuration>
+        <fileset id="fileset1" name="workspace-service-springfiles" removed="false">
+          <file>file://$MODULE_DIR$/../../service/service/java/source/etc/workspace-service/other/authz-callout-groupauthz.xml</file>
+          <file>file://$MODULE_DIR$/../../service/service/java/source/etc/workspace-service/other/main.conflocator.xml</file>
+          <file>file://$MODULE_DIR$/../../service/service/java/source/etc/workspace-service/other/main.repr.xml</file>
+          <file>file://$MODULE_DIR$/../../service/service/java/source/etc/workspace-service/other/main.xml</file>
+          <file>file://$MODULE_DIR$/../../service/service/java/source/etc/workspace-service/other/resource-locator-default.xml</file>
+        </fileset>
+      </configuration>
     </facet>
   </component>
   <component name="NewModuleRootManager" inherit-compiler-output="true">

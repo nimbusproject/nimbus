@@ -3,6 +3,11 @@
   <component name="DependencyValidationManager">
     <option name="SKIP_IMPORT_STATEMENTS" value="false" />
   </component>
+  <component name="FacetAutodetectingManager">
+    <autodetection-disabled>
+      <facet-type id="android" />
+    </autodetection-disabled>
+  </component>
   <component name="IdProvider" IDEtalkID="31C23B711CCADF411B803EE1B405EEB0" />
   <component name="JavadocGenerationManager">
     <option name="OUTPUT_DIRECTORY" />
