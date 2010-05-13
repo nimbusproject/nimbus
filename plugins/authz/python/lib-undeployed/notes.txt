@@ -1,9 +1,0 @@
-These jars are so that we do not need to deploy the VOMS and GridShib
-plugins just to build and deploy the Python authorization callout.
-
-If the classloader can not find the appropriate classes (i.e., if
-those plugins are not deployed to the container), it just does not
-support sending VOMS or SAML attributes to the Python script but
-does not consider this an error.
-
-The GridShib project also releases software under an Apache v2 license.
