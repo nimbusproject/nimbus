@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="test-libs">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/test/junit-4.8.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/test/testng-5.12.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

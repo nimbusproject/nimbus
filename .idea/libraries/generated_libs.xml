@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="generated-libs">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/generated/nimbus-messaging-stubs-gt4.0-elastic.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/generated/nimbus-ctx-stubs-gt4.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/generated/nimbus-messaging-stubs-gt4.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

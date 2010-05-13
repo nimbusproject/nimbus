@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="installer-libs">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/services/cog-jglobus.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/axis.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/xml-apis.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/jce-jdk13-125.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/xalan-2.6.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

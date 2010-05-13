@@ -1,0 +1,23 @@
+<component name="libraryTable">
+  <library name="wsrf-libs">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/services/wsrf_core.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/cog-jglobus.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/axis.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/wsrf_core_stubs.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/xalan-2.6.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/cog-axis.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/generated/nimbus-messaging-stubs-gt4.0-elastic.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/bootstrap.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/wss4j.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/xmlsec.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/generated/nimbus-ctx-stubs-gt4.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/generated/nimbus-messaging-stubs-gt4.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/xml-apis.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/servlet.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/addressing-1.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

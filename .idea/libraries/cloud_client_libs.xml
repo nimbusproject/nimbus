@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="cloud-client-libs">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/clients/globus_delegation_service.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/clients/globus_delegation_client.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/clients/globus_delegation_stubs.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/commons-cli-2.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

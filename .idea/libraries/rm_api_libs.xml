@@ -1,0 +1,20 @@
+<component name="libraryTable">
+  <library name="rm-api-libs">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/services/commons-logging.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/log4j-1.2.15.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/cglib-nodep-2.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/org.springframework.core-3.0.0.RELEASE.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/org.springframework.context.support-3.0.0.RELEASE.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/org.springframework.context-3.0.0.RELEASE.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/org.springframework.beans-3.0.0.RELEASE.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/org.springframework.asm-3.0.0.RELEASE.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/org.springframework.expression-3.0.0.RELEASE.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/org.springframework.web-3.0.0.RELEASE.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/org.springframework.transaction-3.0.0.RELEASE.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/org.springframework.aop-3.0.0.RELEASE.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
