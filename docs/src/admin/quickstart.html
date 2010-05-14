@@ -861,6 +861,13 @@ wget http://www.nimbusproject.org/docs/2.4/admin/test-create.sh
 _EXAMPLE_CMD_END
 
 <p>
+    This script references a sample deployment file located at:
+    "$NIMBUS_HOME/services/share/nimbus-clients/sample-workspace.xml".
+    You may need to edit this file to specify an image that exists
+    in your VMM's "/opt/nimbus/var/workspace-control/images/" directory.
+</p>
+
+<p>
     Run it:
 </p>
 
@@ -944,6 +951,9 @@ _EXAMPLE_CMD_END
 
 <p>
     Download the "Control Agents" tar file from the download page, and untar it.
+    This archive contains both workspace-control and the workspace pilot. For this
+    configuration we are using workspace-control, so copy it to the destination
+    directory.
 </p>
 
 <p>

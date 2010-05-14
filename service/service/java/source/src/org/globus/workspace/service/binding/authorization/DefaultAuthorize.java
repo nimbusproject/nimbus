@@ -251,16 +251,12 @@ public class DefaultAuthorize implements Authorize {
         final int requestedSecs = dep.getMinDuration();
         if (requestedSecs == VirtualMachineDeployment.NOTSET) {
             dep.setMinDuration(defaultSecs);
-        } else {
-            if (requestedSecs > maxSecs) {
+        } else if (requestedSecs > maxSecs) {
                 // client visible message:
                 throw new ResourceRequestDeniedException(
                         "request duration (" + requestedSecs + " seconds)" +
                                 " exceeds the maximum allowed (" + maxSecs +
                                 " seconds)");
-            } else {
-                dep.setMinDuration(requestedSecs);
-            }
         }
     }
 

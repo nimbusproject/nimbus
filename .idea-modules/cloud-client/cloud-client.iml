@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$/../../cloud-client" />
+    <content url="file://$MODULE_DIR$/../../service/client/java/source">
+      <sourceFolder url="file://$MODULE_DIR$/../../service/client/java/source/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/../../service/client/java/source/tests" isTestSource="true" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="common" />
+    <orderEntry type="library" name="cloud-client-libs" level="project" />
+    <orderEntry type="library" name="wsrf-libs" level="project" />
+    <orderEntry type="library" name="test-libs" level="project" />
+  </component>
+</module>
+

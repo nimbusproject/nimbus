@@ -611,22 +611,8 @@ HASH: a9bad55</pre>
 
 <p>
     Say that the base directory on the repository node is "/cloud", you will
-    need to create a directory for each DN based on the hash.  For easy tracking
-    purposes, the recommendation for the unix account and group is to use the
-    hash for each.
-</p>
-
-<p>
-    Recognizing that this burdens the administrator, we are planning on adding
-    SAML based authorization support.  In this configuration, the
-    cloud client will (transparent to the human user) get a SAML assertion
-    from the workspace service and present it to the GridFTP server for access.
-    The SAML authorization statement restricts that client's rights to only
-    reading and writing their personal files.
-    This allows for a lot less administrative overhead when adding cloud users.
-    Currently we are waiting on
-    <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=4895">this
-    GridFTP work</a> to be completed.
+    need to create a directory for each DN based on the hash.  It is recommended that you use
+	the cloud-admin program for this (see next section).
 </p>
 
 

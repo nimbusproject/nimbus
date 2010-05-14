@@ -8,12 +8,6 @@ You should use a real Certificate Authority. This script is provided to help
 you get up and running on Nimbus, with test credentials.
 """
 
-USAGE_EPILOG = """
-If you do not specify a name, you will be prompted for one.
-If you do not specify a destination directory, the new certificate and key
-files will be placed in the ~/.globus/ directory.
-"""
-
 import os
 import sys
 import traceback
@@ -27,11 +21,12 @@ from nimbusweb.setup.setuperrors import *
 
 def get_opt_parser():
     """Prepares an option parser and returns it."""
-    parser = optparse.OptionParser(description=__doc__, epilog=USAGE_EPILOG)
+
+    parser = optparse.OptionParser(description=__doc__)
     parser.add_option("--common-name", "--cn", "-c", dest="cn",
             help="Name for new certificate", metavar="NAME")
     parser.add_option("--dir", "-d", dest="dir",
-            help="Destination directory for new cert and key", metavar="DIR")
+            help="Destination directory (defaults to ~/.globus)", metavar="DIR")
     return parser
 
 def get_nimbus_home():

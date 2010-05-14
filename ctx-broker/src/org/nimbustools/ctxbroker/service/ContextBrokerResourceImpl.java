@@ -30,7 +30,6 @@ import org.nimbustools.ctxbroker.BrokerConstants;
 import org.nimbustools.ctxbroker.ContextBrokerException;
 import org.nimbustools.ctxbroker.generated.gt4_0.types.Node_Type;
 import org.nimbustools.ctxbroker.generated.gt4_0.types.ContextualizationContext;
-import org.nimbustools.ctxbroker.generated.gt4_0.types.MatchedRole_Type;
 import org.nimbustools.ctxbroker.generated.gt4_0.description.*;
 import org.nimbustools.ctxbroker.blackboard.*;
 import org.globus.security.gridmap.GridMap;
@@ -40,7 +39,6 @@ import org.apache.commons.logging.LogFactory;
 import java.util.Calendar;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Enumeration;
 
 public class ContextBrokerResourceImpl implements ContextBrokerResource {
 
@@ -395,46 +393,47 @@ public class ContextBrokerResourceImpl implements ContextBrokerResource {
                    "contextualization resource.  workspaceID #" + workspaceID);
         }
 
-        boolean allIdentitiesRequired;
-        final Requires_TypeIdentity[] givenID = requires.getIdentity();
-        if (givenID == null || givenID.length == 0) {
+        boolean allIdentitiesRequired = false;
 
+        if(requires != null){
+            final Requires_TypeIdentity[] givenID = requires.getIdentity();
+
+            if(givenID != null && givenID.length > 0){
+                // next two exceptions are for forwards compatibility where it
+                // may be possible to specify specific identities required
+                // (without going through role finding which will always place
+                // identities in the filled requires document for a role,
+                // regardless if all identities are required or not).
+
+                if (givenID.length > 1) {
+                    throw new ContextBrokerException("Given requires " +
+                            "section has multiple identity elements? Currently " +
+                            "only supporting zero or one empty identity element " +
+                            "in requires section (which signals all identities " +
+                            "are desired).  Will not contextualize #" +
+                            workspaceID + ".");
+                }
+
+                if (givenID[0].getHostname() != null ||
+                        givenID[0].getIp() != null ||
+                        givenID[0].getPubkey() != null) {
+
+                    throw new ContextBrokerException("Given requires " +
+                            "section has an identity element with information " +
+                            "in it? Currently only supporting zero or one " +
+                            "*empty* identity element in requires section " +
+                            "(which signals all identities are desired).  Will " +
+                            "not contextualize #" + workspaceID + ".");
+                }
+
+                allIdentitiesRequired = true;
+            }
+        }
+
+        if(!allIdentitiesRequired){
             logger.trace("#" + workspaceID + " does not require all " +
                     "identities, no identity element in given requires " +
-                    "section");
-
-            allIdentitiesRequired = false;
-
-        } else {
-
-            // next two exceptions are for forwards compatibility where it
-            // may be possible to specify specific identities required
-            // (without going through role finding which will always place
-            // identities in the filled requires document for a role,
-            // regardless if all identities are required or not).
-
-            if (givenID.length > 1) {
-                throw new ContextBrokerException("Given requires " +
-                        "section has multiple identity elements? Currently " +
-                        "only supporting zero or one empty identity element " +
-                        "in requires section (which signals all identities " +
-                        "are desired).  Will not contextualize #" +
-                        workspaceID + ".");
-            }
-
-            if (givenID[0].getHostname() != null ||
-                givenID[0].getIp() != null ||
-                givenID[0].getPubkey() != null) {
-
-                throw new ContextBrokerException("Given requires " +
-                        "section has an identity element with information " +
-                        "in it? Currently only supporting zero or one " +
-                        "*empty* identity element in requires section " +
-                        "(which signals all identities are desired).  Will " +
-                        "not contextualize #" + workspaceID + ".");
-            }
-
-            allIdentitiesRequired = true;
+            "section");
         }
 
         this.getBlackboard().addWorkspace(
@@ -450,75 +449,87 @@ public class ContextBrokerResourceImpl implements ContextBrokerResource {
     private ProvidedRoleDescription[] getProvidedRoleDescriptions(Integer workspaceID,
                                                                   Provides_Type provides) {
 
-        Provides_TypeRole[] roles = provides.getRole();
-        if (roles == null || roles.length == 0) {
+        if(provides != null){
+            Provides_TypeRole[] roles = provides.getRole();
+
+            if (roles != null && roles.length > 0){
+                ProvidedRoleDescription[] roleDescs = new ProvidedRoleDescription[roles.length];
+
+                for (int i = 0; i < roles.length; i++) {
+                    Provides_TypeRole role = roles[i];
+                    roleDescs[i] = new ProvidedRoleDescription(role.get_value(), role.get_interface());
+                }
+
+                return roleDescs;
+            }
+        }
+
+        //If there are no provided roles specified
+
+        if (logger.isTraceEnabled()) {
             logger.trace("Provides section for #" + workspaceID + " has " +
                     "identities but has no role-provides elements.  " +
                     "Allowing, perhaps this is only to get identity " +
                     "into contextualization context's all-identity " +
-                    "list.");
-            return null;
+            "list.");
         }
 
-        ProvidedRoleDescription[] roleDescs =
-                new ProvidedRoleDescription[roles.length];
-        
-        for (int i = 0; i < roles.length; i++) {
-            Provides_TypeRole role = roles[i];
-            roleDescs[i] = new ProvidedRoleDescription(
-                            role.get_value(),
-                            role.get_interface());
-        }
-        return roleDescs;
+        return null;
     }
 
     private RequiredRole[] getRequiredRoles(Integer workspaceID, Requires_Type requires)
             throws ContextBrokerException {
-        final RequiredRole[] roles;
-        final Requires_TypeRole[] requiredRoles = requires.getRole();
-        if (requiredRoles != null && requiredRoles.length > 0) {
-            roles = new RequiredRole[requiredRoles.length];
 
-            for (int i = 0; i < requiredRoles.length; i++) {
-                Requires_TypeRole requiredRole = requiredRoles[i];
-                roles[i] = getRequiredRole(requiredRole);
-            }
+        if(requires != null){
+            final RequiredRole[] roles;
+            final Requires_TypeRole[] requiredRoles = requires.getRole();
+            if (requiredRoles != null && requiredRoles.length > 0) {
+                roles = new RequiredRole[requiredRoles.length];
 
-        } else {
-            roles = null;
-            if (logger.isTraceEnabled()) {
-                logger.trace("Requires section for #" + workspaceID + " has " +
-                        "no role-required elements." +
-                        "  Allowing, perhaps the only thing required by " +
-                        "this node is the contextualization context's " +
-                        "all-identity list and/or just data elements.");
+                for (int i = 0; i < requiredRoles.length; i++) {
+                    Requires_TypeRole requiredRole = requiredRoles[i];
+                    roles[i] = getRequiredRole(requiredRole);
+                }
+                return roles;
             }
         }
-        return roles;
+
+        //If there are no required roles specified
+
+        if (logger.isTraceEnabled()) {
+            logger.trace("Requires section for #" + workspaceID + " has " +
+                    "no role-required elements." +
+                    "  Allowing, perhaps the only thing required by " +
+                    "this node is the contextualization context's " +
+            "all-identity list and/or just data elements.");
+        }
+
+        return null;
     }
 
     private DataPair[] getDataPairs(Requires_Type requires)
             throws ContextBrokerException {
 
-        final DataPair[] dataPairs;
-        final Requires_TypeData[] datas = requires.getData();
-        if (datas != null) {
-            dataPairs = new DataPair[datas.length];
-            for (int i = 0; i < datas.length; i++) {
-                Requires_TypeData data = datas[i];
-                final String dataName = data.getName();
+        if(requires != null){
+            final DataPair[] dataPairs;
+            final Requires_TypeData[] datas = requires.getData();
+            if (datas != null) {
+                dataPairs = new DataPair[datas.length];
+                for (int i = 0; i < datas.length; i++) {
+                    Requires_TypeData data = datas[i];
+                    final String dataName = data.getName();
 
-                if (dataName == null || dataName.trim().length() == 0) {
-                    // does not happen when object is created via XML (which is usual)
-                    throw new ContextBrokerException("Empty data element name (?)");
+                    if (dataName == null || dataName.trim().length() == 0) {
+                        // does not happen when object is created via XML (which is usual)
+                        throw new ContextBrokerException("Empty data element name (?)");
+                    }
+                    dataPairs[i] = new DataPair(dataName, data.get_value());
                 }
-                dataPairs[i] = new DataPair(dataName, data.get_value());
+                return dataPairs;
             }
-
-        } else {
-            dataPairs = null;
         }
-        return dataPairs;
+
+        return null;
     }
 
     private RequiredRole getRequiredRole(Requires_TypeRole typeRole) throws ContextBrokerException {

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+$GLOBUS_LOCATION/bin/grid-proxy-init
+
 $GLOBUS_LOCATION/bin/workspace \
     -z none \
     --poll-delay 200 \

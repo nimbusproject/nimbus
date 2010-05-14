@@ -1,0 +1,21 @@
+<component name="libraryTable">
+  <library name="workspace-service-libs">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/services/commonj.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/commons-pool.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/commons-dbcp.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/commons-logging.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/servlet.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/derbyclient.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/jetty-6.1.21.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/derbytools.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/derby.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/backport-util-concurrent-3.1-jdk1.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/ehcache-1.5.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/jetty-util-6.1.21.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/jug-2.0.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

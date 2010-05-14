@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$/../../autocommon">
+      <sourceFolder url="file://$MODULE_DIR$/../../autocommon/src" isTestSource="false" />
+    </content>
+    <content url="file://$MODULE_DIR$/../../autoconfiguration">
+      <sourceFolder url="file://$MODULE_DIR$/../../autoconfiguration/src" isTestSource="false" />
+    </content>
+    <content url="file://$MODULE_DIR$/../../bin" />
+    <content url="file://$MODULE_DIR$/../../home" />
+    <content url="file://$MODULE_DIR$/../../messaging/gt4.0/java/gar-builder" />
+    <content url="file://$MODULE_DIR$/../../scripts" />
+    <content url="file://$MODULE_DIR$/../../web" />
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="installer-libs" level="project" />
+    <orderEntry type="module" module-name="workspace-service" />
+    <orderEntry type="module" module-name="rm-api" />
+  </component>
+</module>
+

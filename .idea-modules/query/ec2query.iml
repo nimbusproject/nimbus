@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="FacetManager">
+    <facet type="Spring" name="Spring">
+      <configuration>
+        <fileset id="fileset1" name="ec2query-springfiles" removed="false">
+          <file>file://$MODULE_DIR$/../../messaging/query/java/source/etc/query/other/main.conflocator.xml</file>
+          <file>file://$MODULE_DIR$/../../messaging/query/java/source/etc/query/other/main.xml</file>
+        </fileset>
+      </configuration>
+    </facet>
+  </component>
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$/../../messaging/query/java/source">
+      <sourceFolder url="file://$MODULE_DIR$/../../messaging/query/java/source/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/../../messaging/query/java/source/tests" isTestSource="true" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="cxf-libs" level="project" />
+    <orderEntry type="module" module-name="common" />
+    <orderEntry type="module" module-name="ec2soap" />
+    <orderEntry type="library" name="test-libs" level="project" />
+  </component>
+</module>
+
