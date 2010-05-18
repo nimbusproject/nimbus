@@ -17,6 +17,7 @@
 package org.globus.workspace.groupauthz;
 
 import org.globus.workspace.service.binding.authorization.CreationAuthorizationCallout;
+import org.globus.workspace.service.binding.authorization.Decision;
 import org.globus.workspace.service.binding.authorization.PostTaskAuthorization;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.nimbustools.api.services.rm.AuthorizationException;
@@ -341,7 +342,7 @@ public class GroupAuthz implements CreationAuthorizationCallout,
         return group.identityRights(dn);
     }
 
-    public Integer isRootPartitionUnpropTargetPermitted(URI target,
+    public String isRootPartitionUnpropTargetPermittedAndChange(URI target,
                                                         String caller)
             throws AuthorizationException {
 
@@ -352,9 +353,14 @@ public class GroupAuthz implements CreationAuthorizationCallout,
             final GroupRights rights = getRights(caller, this.groups[i]);
             // only first inclusion of DN is considered
             if (rights != null) {
-                return DecisionLogic.checkNewAltTargetURI(rights,
+                Integer rc = DecisionLogic.checkNewAltTargetURI(rights,
                                                           target,
                                                           caller);
+                if(rc != Decision.PERMIT)
+                {
+                    throw new AuthorizationException("No message");                    
+                }
+                return null;
             }
         }
 

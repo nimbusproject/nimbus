@@ -331,6 +331,24 @@ public class CumulusTask
         return key.substring(ndx+1);
     }
 
+    private void makeBucket(
+        S3Service                       s3Service,
+        PrintStream                     pr,
+        String                          bucketName)
+    {
+        try
+        {
+            s3Service.createBucket(bucketName);
+        }
+        catch (Exception ex)
+        {
+            if(pr != null)
+            {
+                pr.println(ex.toString());
+            }
+        }
+    }
+
     public void uploadVM(
         String                          localfile,
         String                          vmName,
@@ -344,9 +362,6 @@ public class CumulusTask
             S3Service s3Service = this.getService();
 
             String baseBucketName = this.args.getS3Bucket();
-            String key = this.makeKey(vmName, null);
-
-            File file = new File(localfile);
 
             PrintStream pr = null;
             if (info != null) {
@@ -354,6 +369,11 @@ public class CumulusTask
             } else if (debug != null) {
                 pr = debug;
             }
+            this.makeBucket(s3Service, pr, baseBucketName);
+            String key = this.makeKey(vmName, null);
+
+            File file = new File(localfile);
+
             if (pr != null) {               
                 pr.println("\nTransferring");
                 pr.println("  - Source: " + file.getName());

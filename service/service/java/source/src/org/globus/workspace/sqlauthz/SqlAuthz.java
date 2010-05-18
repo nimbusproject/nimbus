@@ -166,7 +166,7 @@ public class SqlAuthz
         return Decision.PERMIT;
     }
 
-    public Integer isRootPartitionUnpropTargetPermitted(URI target,
+    public String isRootPartitionUnpropTargetPermittedAndChange(URI target,
                                                         String caller)
             throws AuthorizationException
     {
@@ -176,12 +176,12 @@ public class SqlAuthz
         {
             String newName = this.checkUrlAndTranslate(target.toString(), caller, false);
             logger.debug("BuzzTroll UnProp newName = " + newName);
+            return newName;
         }
         catch (WorkspaceDatabaseException wdex)
         {
             throw new AuthorizationException("error with database object " + wdex.toString());
-        }
-        return Decision.PERMIT;
+        }      
     }
 
     public void setRepoScheme(String repoScheme)
