@@ -561,7 +561,7 @@ public abstract class InstanceResourceImpl implements InstanceResource {
             return; // *** EARLY RETURN ***
         }
 
-        final URI target = tasks.getBaseFileUnpropagationTarget();
+        URI target = tasks.getBaseFileUnpropagationTarget();
         if (target == null) {
             return; // *** EARLY RETURN ***
         }
@@ -581,17 +581,31 @@ public abstract class InstanceResourceImpl implements InstanceResource {
             final String dnToAuthorize = this.creatorID;
 
             final Integer decision;
+            String newTargetName;
             try {
-                decision = ((PostTaskAuthorization)this.authzCallout).
-                    isRootPartitionUnpropTargetPermitted(target, dnToAuthorize);
+                newTargetName = ((PostTaskAuthorization)this.authzCallout).
+                    isRootPartitionUnpropTargetPermittedAndChange(target, dnToAuthorize);
             } catch (AuthorizationException e) {
                 throw new ManageException(e.getMessage(), e);
             }
 
-            if (!Decision.PERMIT.equals(decision)) {
-                throw new ManageException(
-                        "request denied, no message for client");
+            if(newTargetName != null)
+            {
+                try
+                {
+                    target = new URI(newTargetName);
+                }
+                catch(Exception ex)
+                {
+                    throw new ManageException("When the UnProp URI was returned from the authz module there was a problem converting its name to a URI " + ex.toString());
+                }
             }
+
+            // removed.  if no exception is thrown then it is permitted
+            //if (!Decision.PERMIT.equals(decision)) {
+            //    throw new ManageException(
+            //            "request denied, no message for client");
+            //}
         }
 
         final String trueTarget;
