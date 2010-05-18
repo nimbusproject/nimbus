@@ -1,6 +1,6 @@
 package org.globus.workspace.spotinstances;
 
-public class SIRequest {
+public class SIRequest implements Comparable<SIRequest>{
  
     private Double maxBid;
     private Integer quantity; 
@@ -24,6 +24,11 @@ public class SIRequest {
     
     public void setQuantity(Integer quantity) {
         this.quantity = quantity;
+    }
+
+    @Override
+    public int compareTo(SIRequest o) {
+        return getMaxBid().compareTo(o.getMaxBid());
     }
     
     

@@ -6,29 +6,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeSet;
 
-public class MaximizeProfitPricingModel implements PricingModel {
+public class MaximizeProfitPricingModel extends AbstractPricingModel {
 
-    protected static final double BASE_PRICE = 1.0;
-    
-    protected static final double DISCOUNT_PERCENTAGE = 0.5;
-    
-    public static final Double MINIMUM_PRICE = DISCOUNT_PERCENTAGE*BASE_PRICE;
-
-    private static final Double NEGATIVE_INFINITY = -1.0;
     
     @Override
-    public Double getNextPrice(Integer totalReservedResources, Collection<SIRequest> requests, Double currentPrice) {
-        
-        if(requests.isEmpty()){
-            return MINIMUM_PRICE;
-        }
-        
+    public Double getNextPriceImpl(Integer totalReservedResources, Collection<SIRequest> requests, Double currentPrice) {
+                
         TreeSet<Double> priceCandidates = getPriceCandidates(requests);
-        
-        if(totalReservedResources < 1){
-            Double highestPrice = priceCandidates.last();
-            return highestPrice+1;
-        }
         
         Double highestProfitPrice = NEGATIVE_INFINITY;
         Double highestProfit = NEGATIVE_INFINITY;
@@ -49,19 +33,6 @@ public class MaximizeProfitPricingModel implements PricingModel {
         return highestProfitPrice;
     }
 
-    private TreeSet<Double> getPriceCandidates(Collection<SIRequest> requests) {
-        
-        TreeSet<Double> priceCandidates = new TreeSet<Double>();
-        
-        for (SIRequest siRequest : requests) {
-            Double requestBid = siRequest.getMaxBid();
-            if(requestBid >= MINIMUM_PRICE){
-                priceCandidates.add(requestBid);
-            }
-        }
-        
-        return priceCandidates;
-    }
 
     private static Double getProfit(Double priceCandidate, Integer availableResources, Collection<SIRequest> allRequests){
         

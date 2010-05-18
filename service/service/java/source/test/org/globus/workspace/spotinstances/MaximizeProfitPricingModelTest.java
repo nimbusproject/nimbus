@@ -1,7 +1,8 @@
 package org.globus.workspace.spotinstances;
 
-import static org.junit.Assert.*;
-import static org.globus.workspace.spotinstances.MaximizeProfitPricingModel.*;
+import static org.globus.workspace.spotinstances.AbstractPricingModel.MINIMUM_PRICE;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.LinkedList;
 
@@ -17,78 +18,103 @@ public class MaximizeProfitPricingModelTest {
         
         LinkedList<SIRequest> requests = new LinkedList<SIRequest>();
         
-        assertEquals(MINIMUM_PRICE, pricingModel.getNextPrice(0, requests, null));
-        assertEquals(MINIMUM_PRICE, pricingModel.getNextPrice(5, requests, null));
-        assertEquals(MINIMUM_PRICE, pricingModel.getNextPrice(2500, requests, null));
+        Double nextPrice = pricingModel.getNextPrice(0, requests, null);
+        assertEquals(MINIMUM_PRICE, nextPrice);
+        assertTrue(PricingModelTestUtils.checkPricingModelConstraints(nextPrice, 0, requests));
+        
+        
+        nextPrice = pricingModel.getNextPrice(5, requests, null);
+        assertEquals(MINIMUM_PRICE, nextPrice);
+        assertTrue(PricingModelTestUtils.checkPricingModelConstraints(nextPrice, 5, requests));
+        
+        nextPrice = pricingModel.getNextPrice(2500, requests, null);
+        assertEquals(MINIMUM_PRICE, nextPrice);
+        assertTrue(PricingModelTestUtils.checkPricingModelConstraints(nextPrice, 2500, requests));
     }
     
     @Test
     public void testGetNextPriceNoOffer() {
-       
+        
         //case 1
         LinkedList<SIRequest> requests = new LinkedList<SIRequest>();
-        requests.add(new SIRequest(MINIMUM_PRICE*2, 1));
+        requests.add(new SIRequest(2.0, 1));
      
-        assertEquals(new Double(MINIMUM_PRICE*2+1), pricingModel.getNextPrice(0, requests, null));
+        Double nextPrice = pricingModel.getNextPrice(0, requests, null);
+        assertEquals(new Double(2.0+1), nextPrice);
+        assertTrue(PricingModelTestUtils.checkPricingModelConstraints(nextPrice, 0, requests));
         
         //case 2
         requests = new LinkedList<SIRequest>();
-        requests.add(new SIRequest(MINIMUM_PRICE*4, 1));
-        requests.add(new SIRequest(MINIMUM_PRICE*2, 4));  
-        requests.add(new SIRequest(MINIMUM_PRICE*3.5, 4));        
+        requests.add(new SIRequest(4.0, 1));
+        requests.add(new SIRequest(2.0, 4));  
+        requests.add(new SIRequest(3.5, 4));     
         
-        assertEquals(new Double(MINIMUM_PRICE*4+1), pricingModel.getNextPrice(0, requests, null));
+        nextPrice = pricingModel.getNextPrice(0, requests, null);
+        assertEquals(new Double(4.0+1), nextPrice);
+        assertTrue(PricingModelTestUtils.checkPricingModelConstraints(nextPrice, 0, requests));
     }    
     
     @Test
     public void testGetNextPriceCase1() {
 
         LinkedList<SIRequest> requests = new LinkedList<SIRequest>();
-        requests.add(new SIRequest(MINIMUM_PRICE*2, 3));
+        requests.add(new SIRequest(2.0, 3));
         
-        assertEquals(new Double(MINIMUM_PRICE*2), pricingModel.getNextPrice(5, requests, null));
+        Double nextPrice = pricingModel.getNextPrice(5, requests, null);
+        assertEquals(new Double(2.0), nextPrice);
+        assertTrue(PricingModelTestUtils.checkPricingModelConstraints(nextPrice, 5, requests));
+        
     }  
     
     @Test
     public void testGetNextPriceCase2() {
 
         LinkedList<SIRequest> requests = new LinkedList<SIRequest>();
-        requests.add(new SIRequest(MINIMUM_PRICE*2, 10));
+        requests.add(new SIRequest(2.0, 10));
         
-        assertEquals(new Double(MINIMUM_PRICE*2), pricingModel.getNextPrice(5, requests, null));
+        Double nextPrice = pricingModel.getNextPrice(5, requests, null);
+        assertEquals(new Double(2.0), nextPrice);
+        assertTrue(PricingModelTestUtils.checkPricingModelConstraints(nextPrice, 5, requests));
     }
     
     @Test
     public void testGetNextPriceCase3() {
 
         LinkedList<SIRequest> requests = new LinkedList<SIRequest>();
-        requests.add(new SIRequest(MINIMUM_PRICE*2, 10));
-        requests.add(new SIRequest(MINIMUM_PRICE*1, 5));
+        requests.add(new SIRequest(2.0, 10));
+        requests.add(new SIRequest(1.0, 5));
         
         
-        assertEquals(new Double(MINIMUM_PRICE*2), pricingModel.getNextPrice(5, requests, null));
+        Double nextPrice = pricingModel.getNextPrice(5, requests, null);
+        assertEquals(new Double(2.0), nextPrice);
+        assertTrue(PricingModelTestUtils.checkPricingModelConstraints(nextPrice, 5, requests));
+
     } 
     
     @Test
     public void testGetNextPriceCase4() {
 
         LinkedList<SIRequest> requests = new LinkedList<SIRequest>();
-        requests.add(new SIRequest(MINIMUM_PRICE*2, 5));
-        requests.add(new SIRequest(MINIMUM_PRICE*1, 5));
-        requests.add(new SIRequest(MINIMUM_PRICE*1.6, 5));
+        requests.add(new SIRequest(2.0, 5));
+        requests.add(new SIRequest(1.0, 5));
+        requests.add(new SIRequest(1.6, 5));
         
-        assertEquals(new Double(MINIMUM_PRICE*1.6), pricingModel.getNextPrice(15, requests, null));
+        Double nextPrice = pricingModel.getNextPrice(15, requests, null);
+        assertEquals(new Double(1.6), nextPrice);
+        assertTrue(PricingModelTestUtils.checkPricingModelConstraints(nextPrice, 15, requests));
     }   
     
     @Test
     public void testGetNextPriceCase5() {
 
         LinkedList<SIRequest> requests = new LinkedList<SIRequest>();
-        requests.add(new SIRequest(MINIMUM_PRICE*2, 5));
-        requests.add(new SIRequest(MINIMUM_PRICE*1, 5));
-        requests.add(new SIRequest(MINIMUM_PRICE*1.4, 5));
+        requests.add(new SIRequest(2.0, 5));
+        requests.add(new SIRequest(1.0, 5));
+        requests.add(new SIRequest(1.4, 5));
         
-        assertEquals(new Double(MINIMUM_PRICE*1), pricingModel.getNextPrice(15, requests, null));
+        Double nextPrice = pricingModel.getNextPrice(15, requests, null);
+        assertEquals(new Double(1.0), nextPrice);
+        assertTrue(PricingModelTestUtils.checkPricingModelConstraints(nextPrice, 15, requests));        
     }    
     
     /*
@@ -102,13 +128,15 @@ public class MaximizeProfitPricingModelTest {
     public void testGetNextPriceCase6() {
 
         LinkedList<SIRequest> requests = new LinkedList<SIRequest>();
-        requests.add(new SIRequest(MINIMUM_PRICE*100, 1));
-        requests.add(new SIRequest(MINIMUM_PRICE*1, 25));
-        requests.add(new SIRequest(MINIMUM_PRICE*2, 25));
-        requests.add(new SIRequest(MINIMUM_PRICE*3, 25));
-        requests.add(new SIRequest(MINIMUM_PRICE*4, 25));
+        requests.add(new SIRequest(200.0, 1));
+        requests.add(new SIRequest(1.0, 25));
+        requests.add(new SIRequest(2.0, 25));
+        requests.add(new SIRequest(3.0, 25));
+        requests.add(new SIRequest(4.0, 25));
         
-        assertEquals(new Double(MINIMUM_PRICE*100), pricingModel.getNextPrice(200, requests, null));
+        Double nextPrice = pricingModel.getNextPrice(200, requests, null);
+        assertEquals(new Double(200.0), nextPrice);
+        assertTrue(PricingModelTestUtils.checkPricingModelConstraints(nextPrice, 200, requests));        
     }    
 
 }
