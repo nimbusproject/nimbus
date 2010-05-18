@@ -2,7 +2,7 @@
 
 PYTHON_EXE="/usr/bin/env python"
 
-FORCE_FRESH_INSTALL="yes"
+FORCE_FRESH_INSTALL="no"
 
 NIMBUS_SRC_REL="`dirname $0`/.."
 NIMBUS_SRC=`cd $NIMBUS_SRC_REL; pwd`

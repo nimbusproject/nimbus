@@ -295,6 +295,8 @@ public class GroupAuthz implements CreationAuthorizationCallout,
             throws AuthorizationException,
                    ResourceRequestDeniedException {
 
+        logger.debug("BuzzTroll isPermitted() " + callerDN + " " + subject + " ");
+
         if (elapsedMins == null || reservedMins == null) {
             throw new AuthorizationException(
                     "This authorization module requires " +
@@ -343,6 +345,7 @@ public class GroupAuthz implements CreationAuthorizationCallout,
                                                         String caller)
             throws AuthorizationException {
 
+        logger.debug("BuzzTroll isRootPartitionUnpropTargetPermitted() " + caller + " " + target.toString());
         // there may be null values in this.groups, see getRights method
         for (int i = 0; i < this.groups.length; i++) {
 
