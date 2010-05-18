@@ -13,19 +13,19 @@ alias_type_ssh = "ssh"
 alias_type_unix = "unix"
 
 alias_types = {}
-alias_types[alias_type_s3] = 0
-alias_types[alias_type_x509] = 1
-alias_types[alias_type_ssh] = 2
-alias_types[alias_type_unix] = 3
+alias_types[alias_type_s3] = 1
+alias_types[alias_type_x509] = 2
+alias_types[alias_type_ssh] = 3
+alias_types[alias_type_unix] = 4
 
 object_type_s3 = 's3'
 object_type_gridftp = 'gridftp'
 object_type_hdfs = 'hdfs'
 
 object_types = {}
-object_types[object_type_s3] = 0
-object_types[object_type_gridftp] = 1
-object_types[object_type_hdfs] = 2
+object_types[object_type_s3] = 1
+object_types[object_type_gridftp] = 2
+object_types[object_type_hdfs] = 3
 
 Version = "0.1"
 
