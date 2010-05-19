@@ -211,13 +211,13 @@ public class TranslateRAImpl implements TranslateRA {
             throws CannotTranslateException {
 
         if (wsra == null) {
-            //throw new IllegalArgumentException("wsra may not be null");
+            // -1 is the default value of CPU count in DefaultResourceAllocation.java
             return -1;
         }
 
         final RangeValue_Type cores =  wsra.getIndividualCPUCount();
         if (cores == null) {
-            //throw new CannotTranslateException("no multi core CPU request");
+            // -1 is the default value of CPU count in DefaultResourceAllocation.java
             return -1;
         }
 
