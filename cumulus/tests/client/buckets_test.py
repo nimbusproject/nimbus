@@ -4,7 +4,6 @@ import os
 import sys
 import nose.tools
 import boto
-from boto.s3.connection import S3Connection
 from boto.s3.connection import OrdinaryCallingFormat
 from boto.s3.connection import VHostCallingFormat
 from boto.s3.connection import SubdomainCallingFormat
@@ -33,7 +32,7 @@ class TestBucketsWithBoto(unittest.TestCase):
         pycb.test_common.clean_user(self.id)
 
     def clean_all(self):
-        conn = self.cb_get_conn()
+        conn = pycb.test_common.cb_get_conn(self.host, self.port, self.id, self.pw)
         nbs = conn.get_all_buckets()
         for b in nbs:
             rs = b.list()
@@ -47,12 +46,6 @@ class TestBucketsWithBoto(unittest.TestCase):
         for i in range(len):
             newpasswd = newpasswd + random.choice(chars)
         return newpasswd
-
-    def cb_get_conn(self):
-        cf = OrdinaryCallingFormat()
-        self.type = type
-        conn = S3Connection(self.id, self.pw, host=self.host, port=self.port, is_secure=False, calling_format=cf)
-        return conn
 
     def bucket_exists(self, conn, name):
         buckets = conn.get_all_buckets()
@@ -83,11 +76,11 @@ class TestBucketsWithBoto(unittest.TestCase):
         return (bucketname, bucket)
 
     def test_list_simple(self): 
-        conn = self.cb_get_conn()
+        conn = pycb.test_common.cb_get_conn(self.host, self.port, self.id, self.pw)
         buckets = conn.get_all_buckets()
 
     def test_list_many(self):
-        conn = self.cb_get_conn()
+        conn = pycb.test_common.cb_get_conn(self.host, self.port, self.id, self.pw)
         (bucketname,bucket) = self.create_bucket(conn)
 
         key_list = []
@@ -112,7 +105,7 @@ class TestBucketsWithBoto(unittest.TestCase):
         buckets = conn.get_all_buckets()
 
     def test_simple_bucket(self):
-        conn = self.cb_get_conn()
+        conn = pycb.test_common.cb_get_conn(self.host, self.port, self.id, self.pw)
         (bucketname,bucket) = self.create_bucket(conn)
         # verify the bucket exists
         rc = self.bucket_exists(conn, bucketname)
@@ -122,7 +115,7 @@ class TestBucketsWithBoto(unittest.TestCase):
         self.assertFalse(rc, bucketname)
 
     def test_get_noexist_bucket(self):
-        conn = self.cb_get_conn()
+        conn = pycb.test_common.cb_get_conn(self.host, self.port, self.id, self.pw)
         bn = self.cb_random_bucketname(10)
         try:
             bucket = conn.get_bucket(dn)
@@ -132,7 +125,7 @@ class TestBucketsWithBoto(unittest.TestCase):
         self.assertTrue(passed, "should not be a bucket")
 
     def test_get_noexist_file(self):
-        conn = self.cb_get_conn()
+        conn = pycb.test_common.cb_get_conn(self.host, self.port, self.id, self.pw)
         (bucketname,bucket) = self.create_bucket(conn)
 
         passed = True
@@ -149,7 +142,7 @@ class TestBucketsWithBoto(unittest.TestCase):
         bucket.delete()
 
     def test_delete_full_bucket(self):
-        conn = self.cb_get_conn()
+        conn = pycb.test_common.cb_get_conn(self.host, self.port, self.id, self.pw)
         (bucketname,bucket) = self.create_bucket(conn)
 
         key = self.cb_random_bucketname(10)
@@ -169,7 +162,7 @@ class TestBucketsWithBoto(unittest.TestCase):
         bucket.delete()
 
     def test_delete_bucket_twice(self):
-        conn = self.cb_get_conn()
+        conn = pycb.test_common.cb_get_conn(self.host, self.port, self.id, self.pw)
         (bucketname,bucket) = self.create_bucket(conn)
         bucket.delete()
 
@@ -182,7 +175,7 @@ class TestBucketsWithBoto(unittest.TestCase):
         self.assertTrue(passed, "failed! bucket should already be gone")
 
     def test_create_same_bucket(self):
-        conn = self.cb_get_conn()
+        conn = pycb.test_common.cb_get_conn(self.host, self.port, self.id, self.pw)
         (bucketname,bucket) = self.create_bucket(conn)
         passed = True
         try:
@@ -194,7 +187,7 @@ class TestBucketsWithBoto(unittest.TestCase):
         bucket.delete()
 
     def test_many_bucket(self):
-        conn = self.cb_get_conn()
+        conn = pycb.test_common.cb_get_conn(self.host, self.port, self.id, self.pw)
         nbs = conn.get_all_buckets()
         for b in nbs:
             b.delete()
@@ -210,7 +203,7 @@ class TestBucketsWithBoto(unittest.TestCase):
             self.assertTrue(str(b) in buckets)
 
     def test_key_up_down(self):
-        conn = self.cb_get_conn()
+        conn = pycb.test_common.cb_get_conn(self.host, self.port, self.id, self.pw)
         (bucketname,bucket) = self.create_bucket(conn)
         key = self.cb_random_bucketname(10)
         k = boto.s3.key.Key(bucket)
@@ -219,7 +212,7 @@ class TestBucketsWithBoto(unittest.TestCase):
         (osf, filename) = tempfile.mkstemp()
         os.close(osf)
 
-        conn = self.cb_get_conn()
+        conn = pycb.test_common.cb_get_conn(self.host, self.port, self.id, self.pw)
         bucket = conn.get_bucket(bucketname)
         k = bucket.get_key(key)
         k.get_contents_to_filename(filename)
@@ -228,7 +221,7 @@ class TestBucketsWithBoto(unittest.TestCase):
         self.assertTrue(rc)
 
     def test_key_up(self):
-        conn = self.cb_get_conn()
+        conn = pycb.test_common.cb_get_conn(self.host, self.port, self.id, self.pw)
         (bucketname,bucket) = self.create_bucket(conn)
         key = self.cb_random_bucketname(10)
         k = boto.s3.key.Key(bucket)
@@ -237,7 +230,7 @@ class TestBucketsWithBoto(unittest.TestCase):
         k.delete()
 
     def test_delete_no_key_up(self):
-        conn = self.cb_get_conn()
+        conn = pycb.test_common.cb_get_conn(self.host, self.port, self.id, self.pw)
         (bucketname,bucket) = self.create_bucket(conn)
         key = self.cb_random_bucketname(10)
         k = boto.s3.key.Key(bucket)

@@ -190,7 +190,8 @@ The search path for cumulus.ini is:
         self.opts = []
         opt = cbOpts("port", "p", "use the give port number", None, range=(0, 65536))
         self.opts.append(opt)
-
+        opt = cbOpts("https", "s", "Enable https", False, flag=True)
+        self.opts.append(opt)
 
         u = """ [options]"""
     

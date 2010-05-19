@@ -4,7 +4,6 @@ import os
 import sys
 import nose.tools
 import boto
-from boto.s3.connection import S3Connection
 from boto.s3.connection import OrdinaryCallingFormat
 from boto.s3.connection import VHostCallingFormat
 from boto.s3.connection import SubdomainCallingFormat
@@ -33,7 +32,7 @@ class TestBucketsWithBoto(unittest.TestCase):
         pycb.test_common.clean_user(self.id)
 
     def clean_all(self):
-        conn = self.cb_get_conn("posix")
+        conn = pycb.test_common.cb_get_conn(self.host, self.port, self.id, self.pw)
         nbs = conn.get_all_buckets()
         for b in nbs:
             rs = b.list()
@@ -48,12 +47,6 @@ class TestBucketsWithBoto(unittest.TestCase):
         for i in range(len):
             newpasswd = newpasswd + random.choice(chars)
         return newpasswd
-
-    def cb_get_conn(self, type):
-        cf = OrdinaryCallingFormat()
-        self.type = type
-        conn = S3Connection(self.id, self.pw, host=self.host, port=self.port, is_secure=False, calling_format=cf)
-        return conn
 
     def bucket_exists(self, conn, name):
         buckets = conn.get_all_buckets()
@@ -84,11 +77,11 @@ class TestBucketsWithBoto(unittest.TestCase):
         return (bucketname, bucket)
 
     def test_list_simple(self): 
-        conn = self.cb_get_conn("posix")
+        conn = pycb.test_common.cb_get_conn(self.host, self.port, self.id, self.pw)
         buckets = conn.get_all_buckets()
 
     def test_list_many(self):
-        conn = self.cb_get_conn("posix")
+        conn = pycb.test_common.cb_get_conn(self.host, self.port, self.id, self.pw)
         (bucketname,bucket) = self.create_bucket(conn)
 
         key_list = []
@@ -113,7 +106,7 @@ class TestBucketsWithBoto(unittest.TestCase):
         buckets = conn.get_all_buckets()
 
     def test_simple_bucket(self):
-        conn = self.cb_get_conn("posix")
+        conn = pycb.test_common.cb_get_conn(self.host, self.port, self.id, self.pw)
         (bucketname,bucket) = self.create_bucket(conn)
         # verify the bucket exists
         rc = self.bucket_exists(conn, bucketname)

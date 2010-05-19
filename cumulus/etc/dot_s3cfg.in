@@ -32,5 +32,5 @@ secret_key = @@KEY@@
 send_chunk = 4096
 simpledb_host = sdb.amazonaws.com
 skip_existing = False
-use_https = False
+use_https = @@SEC@@
 verbosity = WARNING

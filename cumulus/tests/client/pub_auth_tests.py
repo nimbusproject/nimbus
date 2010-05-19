@@ -4,7 +4,6 @@ import os
 import sys
 import nose.tools
 import boto
-from boto.s3.connection import S3Connection
 from boto.s3.connection import OrdinaryCallingFormat
 from boto.s3.connection import VHostCallingFormat
 from boto.s3.connection import SubdomainCallingFormat
@@ -36,7 +35,7 @@ class TestPubAuthWithBoto(unittest.TestCase):
         return (id, pw)
 
     def clean_all(self, id, pw):
-        conn = self.cb_get_conn(id, pw)
+        conn = pycb.test_common.cb_get_conn(self.host, self.port, id, pw)
         nbs = conn.get_all_buckets()
         for b in nbs:
             rs = b.list()
@@ -57,19 +56,13 @@ class TestPubAuthWithBoto(unittest.TestCase):
             newpasswd = newpasswd + random.choice(chars)
         return newpasswd
 
-    def cb_get_conn(self, id, pw):
-        cf = OrdinaryCallingFormat()
-        self.type = type
-        conn = S3Connection(id, pw, host=self.host, port=self.port, is_secure=False, calling_format=cf)
-        return conn
-
     def bucket_perm_read(self, type):
         (id, pw) = self.make_user()
-        conn = self.cb_get_conn(id, pw)
+        conn = pycb.test_common.cb_get_conn(self.host, self.port, id, pw)
         bucketname = self.cb_random_bucketname(20)
         bucket = conn.create_bucket(bucketname, policy=type)
         (id, pw) = self.make_user()
-        conn = self.cb_get_conn(id, pw)
+        conn = pycb.test_common.cb_get_conn(self.host, self.port, id, pw)
         bucket = conn.get_bucket(bucketname)
 
     def test_bucket_perm_authed(self):
@@ -91,12 +84,12 @@ class TestPubAuthWithBoto(unittest.TestCase):
 
     def bucket_perm_read_after(self, type):
         (id, pw) = self.make_user()
-        conn = self.cb_get_conn(id, pw)
+        conn = pycb.test_common.cb_get_conn(self.host, self.port, id, pw)
         bucketname = self.cb_random_bucketname(20)
         bucket = conn.create_bucket(bucketname)
         bucket.set_acl(type)
         (id, pw) = self.make_user()
-        conn = self.cb_get_conn(id, pw)
+        conn = pycb.test_common.cb_get_conn(self.host, self.port, id, pw)
         bucket = conn.get_bucket(bucketname)
 
     def test_bucket_perm_authed_after(self):
@@ -118,7 +111,7 @@ class TestPubAuthWithBoto(unittest.TestCase):
 
     def object_perm_read(self, type):
         (id, pw) = self.make_user()
-        conn = self.cb_get_conn(id, pw)
+        conn = pycb.test_common.cb_get_conn(self.host, self.port, id, pw)
         bucketname = self.cb_random_bucketname(20)
         bucket = conn.create_bucket(bucketname, policy='public-read')
         key = self.cb_random_bucketname(20)
@@ -127,7 +120,7 @@ class TestPubAuthWithBoto(unittest.TestCase):
         k.set_contents_from_filename("/etc/group", policy=type)
 
         (id, pw) = self.make_user()
-        conn = self.cb_get_conn(id, pw)
+        conn = pycb.test_common.cb_get_conn(self.host, self.port, id, pw)
         bucket2 = conn.get_bucket(bucketname)
         k = bucket2.get_key(key)
         k.get_contents_to_filename("/dev/null")
@@ -152,7 +145,7 @@ class TestPubAuthWithBoto(unittest.TestCase):
 
     def object_perm_read_after(self, type):
         (id, pw) = self.make_user()
-        conn = self.cb_get_conn(id, pw)
+        conn = pycb.test_common.cb_get_conn(self.host, self.port, id, pw)
         bucketname = self.cb_random_bucketname(20)
         bucket = conn.create_bucket(bucketname, policy='public-read')
         key = self.cb_random_bucketname(20)
@@ -162,7 +155,7 @@ class TestPubAuthWithBoto(unittest.TestCase):
         bucket.set_acl(type, key)
 
         (id, pw) = self.make_user()
-        conn = self.cb_get_conn(id, pw)
+        conn = pycb.test_common.cb_get_conn(self.host, self.port, id, pw)
         bucket2 = conn.get_bucket(bucketname)
         k = bucket2.get_key(key)
         k.get_contents_to_filename("/dev/null")
@@ -187,11 +180,11 @@ class TestPubAuthWithBoto(unittest.TestCase):
 
     def test_bucket_read_write(self):
         (id, pw) = self.make_user()
-        conn = self.cb_get_conn(id, pw)
+        conn = pycb.test_common.cb_get_conn(self.host, self.port, id, pw)
         bucketname = self.cb_random_bucketname(20)
         bucket = conn.create_bucket(bucketname, policy='public-read-write')
         (id, pw) = self.make_user()
-        conn = self.cb_get_conn(id, pw)
+        conn = pycb.test_common.cb_get_conn(self.host, self.port, id, pw)
         bucket = conn.get_bucket(bucketname)
         key = self.cb_random_bucketname(20)
         k = boto.s3.key.Key(bucket)
@@ -202,12 +195,12 @@ class TestPubAuthWithBoto(unittest.TestCase):
 
     def test_bucket_owner_read(self):
         (id, pw) = self.make_user()
-        conn = self.cb_get_conn(id, pw)
+        conn = pycb.test_common.cb_get_conn(self.host, self.port, id, pw)
         bucketname = self.cb_random_bucketname(20)
         bucket = conn.create_bucket(bucketname, policy='public-read-write')
 
         (id, pw) = self.make_user()
-        conn2 = self.cb_get_conn(id, pw)
+        conn2 = pycb.test_common.cb_get_conn(self.host, self.port, id, pw)
         bucket2 = conn2.get_bucket(bucketname)
         key = self.cb_random_bucketname(20)
         k = boto.s3.key.Key(bucket2)
@@ -231,12 +224,12 @@ class TestPubAuthWithBoto(unittest.TestCase):
 
     def test_bucket_owner_write(self):
         (id, pw) = self.make_user()
-        conn = self.cb_get_conn(id, pw)
+        conn = pycb.test_common.cb_get_conn(self.host, self.port, id, pw)
         bucketname = self.cb_random_bucketname(20)
         bucket = conn.create_bucket(bucketname, policy='public-read-write')
 
         (id, pw) = self.make_user()
-        conn2 = self.cb_get_conn(id, pw)
+        conn2 = pycb.test_common.cb_get_conn(self.host, self.port, id, pw)
         bucket2 = conn2.get_bucket(bucketname)
         key = self.cb_random_bucketname(20)
         k = boto.s3.key.Key(bucket2)
