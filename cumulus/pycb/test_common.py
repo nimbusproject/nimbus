@@ -3,6 +3,8 @@ import string
 import random
 import pycb
 from pycb.cumulus import *
+from boto.s3.connection import OrdinaryCallingFormat
+from boto.s3.connection import S3Connection
 
 user_count = 0
 
@@ -26,6 +28,18 @@ def random_string(len):
     for i in range(len):
         newpasswd = newpasswd + random.choice(chars)
     return newpasswd
+
+def cb_get_conn(host, port, id, pw):
+    sec = False
+    try:
+        https = os.environ['CUMULUS_TEST_HTTPS']
+        if https != None:
+            sec = True
+    except:
+        pass
+    cf = OrdinaryCallingFormat()
+    conn = S3Connection(id, pw, host=host, port=port, is_secure=sec, calling_format=cf)
+    return conn
 
 
 def make_user():

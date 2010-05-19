@@ -4,7 +4,6 @@ import os
 import sys
 import nose.tools
 import boto
-from boto.s3.connection import S3Connection
 from boto.s3.connection import OrdinaryCallingFormat
 from boto.s3.connection import VHostCallingFormat
 from boto.s3.connection import SubdomainCallingFormat
@@ -37,7 +36,7 @@ class TestBucketsWithBoto(unittest.TestCase):
 
     def clean_all(self, id, pw):
         print "clean %s : %s" % (id, pw)
-        conn5 = self.cb_get_conn(id, pw)
+        conn5 = pycb.test_common.cb_get_conn(self.host, self.port, id, pw)
         print "hi 1"
         nbs = conn5.get_all_buckets()
         print "hi 2"
@@ -59,12 +58,6 @@ class TestBucketsWithBoto(unittest.TestCase):
         for i in range(len):
             newpasswd = newpasswd + random.choice(chars)
         return newpasswd
-
-    def cb_get_conn(self, id, pw):
-        cf = OrdinaryCallingFormat()
-        self.type = type
-        conn = S3Connection(id, pw, host=self.host, port=self.port, is_secure=False, calling_format=cf)
-        return conn
 
     def create_bucket(self, conn):
         done = False
@@ -90,7 +83,7 @@ class TestBucketsWithBoto(unittest.TestCase):
     def test_bucket_perm_simple(self):
         (id, pw) = self.make_user()
         (id2, pw2) = self.make_user()
-        conn = self.cb_get_conn(id, pw)
+        conn = pycb.test_common.cb_get_conn(self.host, self.port, id, pw)
         nbs = conn.get_all_buckets()
-        conn2 = self.cb_get_conn(id, pw)
+        conn2 = pycb.test_common.cb_get_conn(self.host, self.port, id, pw)
         nbs2 = conn.get_all_buckets()
