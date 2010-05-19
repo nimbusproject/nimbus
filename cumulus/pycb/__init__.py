@@ -177,8 +177,8 @@ The search path for cumulus.ini is:
                 pass
 
             try:
-                self.https_key = s.getboolean("https", "key")
-                self.https_cert = s.getboolean("https", "cert")
+                self.https_key = s.get("https", "key")
+                self.https_cert = s.get("https", "cert")
                 self.use_https = s.getboolean("https", "enabled")
             except:
                 pass
