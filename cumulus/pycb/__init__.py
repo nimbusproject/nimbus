@@ -89,7 +89,6 @@ The search path for cumulus.ini is:
         handler.setFormatter(formatter)
         logger.addHandler(handler)
 
-
     def default_settings(self):
         self.auth_error = ""
         self.hostname = socket.gethostname()
@@ -100,6 +99,9 @@ The search path for cumulus.ini is:
         self.log_level = logging.INFO
         self.log_filename = None
         self.location = "CumulusLand"
+        self.https_key = None
+        self.https_cert = None
+        self.use_https = False
 
     def get_contact(self):
         return (self.hostname, self.port)
@@ -171,6 +173,13 @@ The search path for cumulus.ini is:
                 pass
             try:
                 self.log_filename = s.get("log", "file")
+            except:
+                pass
+
+            try:
+                self.https_key = s.getboolean("https", "key")
+                self.https_cert = s.getboolean("https", "cert")
+                self.use_https = s.getboolean("https", "enabled")
             except:
                 pass
 
