@@ -98,7 +98,7 @@ if cumulus_enabled:
       desc = "Cumulus services",
       program = CUMULUS_SERVICE_EXE,
       args = [],
-      workingDir = NIMBUS_HOME,
+      workingDir = CUMULUS_HOME,
       postStartDelay=5
       ))
 
