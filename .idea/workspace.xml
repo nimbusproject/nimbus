@@ -2,17 +2,16 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" readonly="true" id="b30a1c75-983d-4a98-96dc-74ac6b73b911" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/common.conf" afterPath="$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/common.conf" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/home/bin/nimbusctl" afterPath="$PROJECT_DIR$/home/bin/nimbusctl" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/create-nimbus-home" afterPath="$PROJECT_DIR$/bin/create-nimbus-home" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/service/impls/InstanceResourceImpl.java" afterPath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/service/impls/InstanceResourceImpl.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/service/binding/authorization/PostTaskAuthorization.java" afterPath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/service/binding/authorization/PostTaskAuthorization.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/common.conf" afterPath="$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/common.conf" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/service/client/java/source/src/org/globus/workspace/cloud/client/util/CumulusTask.java" afterPath="$PROJECT_DIR$/service/client/java/source/src/org/globus/workspace/cloud/client/util/CumulusTask.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/groupauthz/GroupAuthz.java" afterPath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/groupauthz/GroupAuthz.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/messaging/gt4.0/java/gar-builder/etc/post-deploy.xml" afterPath="$PROJECT_DIR$/messaging/gt4.0/java/gar-builder/etc/post-deploy.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/home/bin/nimbusctl" afterPath="$PROJECT_DIR$/home/bin/nimbusctl" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/create-nimbus-home" afterPath="$PROJECT_DIR$/bin/create-nimbus-home" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/service/impls/InstanceResourceImpl.java" afterPath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/service/impls/InstanceResourceImpl.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/SqlAuthz.java" afterPath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/SqlAuthz.java" />
     </list>
     <ignored path="$USER_HOME_GRIFFON$/" />
