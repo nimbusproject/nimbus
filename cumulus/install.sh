@@ -40,7 +40,7 @@ if [ "X$?" != "X0" ]; then
     echo "Could not import sqlite3 in python"
 fi
 x=`which sqlite3`
-if [ "X$?" != "X0" ]; then
+if [ $? -ne 0 ]; then
     authz_deps="1"
     echo "Could not find the program sqlite3"
 fi
