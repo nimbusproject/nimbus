@@ -5,7 +5,6 @@
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/service/binding/authorization/PostTaskAuthorization.java" afterPath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/service/binding/authorization/PostTaskAuthorization.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/common.conf" afterPath="$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/common.conf" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/service/client/java/source/src/org/globus/workspace/cloud/client/util/CumulusTask.java" afterPath="$PROJECT_DIR$/service/client/java/source/src/org/globus/workspace/cloud/client/util/CumulusTask.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/groupauthz/GroupAuthz.java" afterPath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/groupauthz/GroupAuthz.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/home/bin/nimbusctl" afterPath="$PROJECT_DIR$/home/bin/nimbusctl" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" />

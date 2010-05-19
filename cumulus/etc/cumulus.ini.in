@@ -19,4 +19,8 @@ authzdb=@@INSTALLDIR@@/etc/authz.db
 level=INFO
 file=@@INSTALLDIR@@/log/cumulus.log
 
+[https]
+enabled=False
+#key=
+#cert=
 

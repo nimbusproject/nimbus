@@ -255,6 +255,7 @@ class CumulusRunner(object):
 
         # figure out if we need http of https 
         if pycb.config.use_https:
+            pycb.log(logging.INFO, "using https")
             sslContext = ssl.DefaultOpenSSLContextFactory(
               pycb.config.https_key,
               pycb.config.https_cert)
@@ -262,6 +263,7 @@ class CumulusRunner(object):
               self.site,
               sslContext)
         else:
+            pycb.log(logging.INFO, "using http")
             self.iconnector = reactor.listenTCP(self.cb.get_port(), self.site)
 
     def getListener(self):
