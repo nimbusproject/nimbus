@@ -2,15 +2,17 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" readonly="true" id="b30a1c75-983d-4a98-96dc-74ac6b73b911" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/service/binding/authorization/PostTaskAuthorization.java" afterPath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/service/binding/authorization/PostTaskAuthorization.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/install" afterPath="$PROJECT_DIR$/bin/install" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/common.conf" afterPath="$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/common.conf" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/home/bin/nimbusctl" afterPath="$PROJECT_DIR$/home/bin/nimbusctl" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/create-nimbus-home" afterPath="$PROJECT_DIR$/bin/create-nimbus-home" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/service/impls/InstanceResourceImpl.java" afterPath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/service/impls/InstanceResourceImpl.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/service/binding/authorization/PostTaskAuthorization.java" afterPath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/service/binding/authorization/PostTaskAuthorization.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/service/client/java/source/src/org/globus/workspace/cloud/client/util/CumulusTask.java" afterPath="$PROJECT_DIR$/service/client/java/source/src/org/globus/workspace/cloud/client/util/CumulusTask.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/groupauthz/GroupAuthz.java" afterPath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/groupauthz/GroupAuthz.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/messaging/gt4.0/java/gar-builder/etc/post-deploy.xml" afterPath="$PROJECT_DIR$/messaging/gt4.0/java/gar-builder/etc/post-deploy.xml" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/service/impls/InstanceResourceImpl.java" afterPath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/service/impls/InstanceResourceImpl.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/SqlAuthz.java" afterPath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/SqlAuthz.java" />
     </list>
     <ignored path="$USER_HOME_GRIFFON$/" />
@@ -116,10 +118,19 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="authz-callout-sql.xml" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="authz-callout-sql.xml" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/authz-callout-sql.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="41" column="0" selection-start="1527" selection-end="1527" vertical-scroll-proportion="0.7678917">
+            <state line="41" column="0" selection-start="1527" selection-end="1527" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="common.conf" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/common.conf">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="64" column="27" selection-start="1879" selection-end="1879" vertical-scroll-proportion="0.83558995">
               <folding />
             </state>
           </provider>
@@ -154,6 +165,7 @@
         <option value="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/SqlAuthz.java" />
         <option value="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/service/impls/InstanceResourceImpl.java" />
         <option value="$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/authz-callout-sql.xml" />
+        <option value="$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/common.conf" />
       </list>
     </option>
   </component>
@@ -256,6 +268,32 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="workspace-service" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="nimbus" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="workspace-service" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="source" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="etc" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="workspace-service" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="other" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -529,11 +567,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="jar:///usr/local/jdk1.6.0_18/src.zip!/java/sql/PreparedStatement.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="36" column="128" selection-start="1387" selection-end="1387" vertical-scroll-proportion="0.22111802" />
-      </provider>
-    </entry>
     <entry file="jar:///usr/local/jdk1.6.0_18/src.zip!/java/lang/String.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="91" column="19" selection-start="3608" selection-end="3608" vertical-scroll-proportion="0.0" />
@@ -630,12 +663,19 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/authz-callout-sql.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="41" column="0" selection-start="1527" selection-end="1527" vertical-scroll-proportion="0.7678917">
+        <state line="41" column="0" selection-start="1527" selection-end="1527" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
       <provider editor-type-id="com.intellij.spring.perspectives.SpringBeansStructureEditorProvider">
         <state />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/common.conf">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="64" column="27" selection-start="1879" selection-end="1879" vertical-scroll-proportion="0.83558995">
+          <folding />
+        </state>
       </provider>
     </entry>
   </component>

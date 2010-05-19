@@ -16,6 +16,13 @@ else
     cd $installdir
     # just in case they enter the same dir as the source distro
     installdir=`pwd`
+    echo "Installing cumulus to $installdir"
+    cp -r $source_dir/* $installdir
+    if [ "X$?" != "X0" ]; then
+        echo "Copy to $installdir failed"
+        echo "verify that you can write to that directory"
+    fi
+    cd $source_dir
 fi
 
 python -c "from twisted.web import server, resource" 2> /dev/null
@@ -39,27 +46,22 @@ if [ "X$?" != "X0" ]; then
 fi
 
 if [ "X$authz_deps" != "X0" ]; then
-    echo "WARNING: Did not find sqlite3 thus we cannot use pynimbusauthz"
-    echo "         using basic file security instead"
-    echo "         this is ok for testing and small install"
+    echo "ERROR: Did not find sqlite3 thus we cannot use pynimbusauthz"
+    echo "       using basic file security instead"
+    echo "       this is ok for testing and small install"
+
+    exit 1
+fi
+
+sec_type="authz"
+
+dbf="$installdir/etc/authz.db"
+if [ -f "$dbf" ]; then
+    echo "WARNING: db already exists"
 else
-    sec_type="authz"
-
-    dbf="$installdir/etc/authz.db"
-    if [ -f "$dbf" ]; then
-        echo "WARNING: db already exists"
-    else
-        sqlite3 -batch ${dbf} < $installdir/etc/acl.sql
-    fi
+    sqlite3 -batch ${dbf} < $installdir/etc/acl.sql
 fi
 
-if [ "$installdir" != "$source_dir" ]; then
-    cp -r $source_dir $installdir
-    if [ "X$?" != "X0" ]; then
-        echo "Copy to $installdir failed"
-        echo "verify that you can write to that directory"
-    fi
-fi
 
 host=`hostname -f`
 me=`id -u`
@@ -80,9 +82,17 @@ else
 fi
 
 sed -e "s^@@INSTALLDIR@@^$installdir^g" $installdir/etc/env.sh.in > $installdir/env.sh
+if [ $? -ne 0 ]; then
+    exit 1
+fi
 sed -e "s^@@INSTALLDIR@@^$installdir^g" -e "s^@@HOSTNAME@@^$host^g" -e "s^@@PORT@@^$port^g" -e "s^@@SEC@@^$sec_type^g" $installdir/etc/cumulus.ini.in > $outf
-
+if [ $? -ne 0 ]; then
+    exit 1
+fi
 sed -e "s^@@HOST_PORT@@^$host:$port^g" $installdir/etc/dot_s3cfg.in > $installdir/dot_s3cfg
+if [ $? -ne 0 ]; then
+    exit 1
+fi
 
 echo "Make further customizations by editing $outf"
 

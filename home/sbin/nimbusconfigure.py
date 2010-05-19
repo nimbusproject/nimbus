@@ -32,6 +32,7 @@ keystore.pass: changeit
 
 services.enabled: True
 web.enabled: False
+cumulus.enabled: True
 """
 CONFIG_STATE_PATH = 'nimbus-setup.conf'
 

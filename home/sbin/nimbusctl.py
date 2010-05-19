@@ -42,8 +42,9 @@ if not config.read(CONFIG_PATH):
     sys.exit(_NO_CONFIG_ERROR)
 web_enabled = config.getboolean('nimbussetup', 'web.enabled')
 services_enabled = config.getboolean('nimbussetup', 'services.enabled')
+cumulus_enabled = config.getboolean('nimbussetup', 'services.enabled')
 
-if not (web_enabled or services_enabled):
+if not (web_enabled or services_enabled or cumulus_enabled):
     sys.exit("Neither Nimbus services nor Nimbus web are enabled. "+
             "See the '%s' config file to adjust this setting." % CONFIG_PATH)
 
@@ -82,6 +83,21 @@ if web_enabled:
       workingDir = NIMBUS_HOME,
       postStartDelay=3
       ))
+
+if cumulus_enabled:
+    CUMULUS_SERVICE_EXE = os.path.join(NIMBUS_HOME, "cumulus/bin/cumulus.sh")
+    if not os.path.exists(CUMULUS_SERVICES_EXE):
+        sys.exit("The services executable does not exist: " + 
+                CUMULUS_SERVICES_EXE)
+    ProcessManager.add( Process(
+      name = "cumulus",
+      desc = "Nimbus services",
+      program = CUMULUS_SERVICES_EXE,
+      args = [],
+      workingDir = NIMBUS_HOME,
+      postStartDelay=5
+      ))
+
 
 argv = sys.argv
 if len(argv) == 2:

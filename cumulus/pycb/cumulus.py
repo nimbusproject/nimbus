@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 from twisted.web import server, resource, http
-from twisted.internet import reactor
+from twisted.internet import reactor, ssl
 from cbPosixBackend import cbPosixBackend
 from ConfigParser import SafeConfigParser
 import hashlib
@@ -252,7 +252,17 @@ class CumulusRunner(object):
         self.done = False
         self.cb = CBService()
         self.site = CumulusSite(self.cb)
-        self.iconnector = reactor.listenTCP(self.cb.get_port(), self.site)
+
+        # figure out if we need http of https 
+        if pycb.config.use_https:
+            sslContext = ssl.DefaultOpenSSLContextFactory(
+              pycb.config.https_key,
+              pycb.config.https_cert)
+            self.iconnector = reactor.listenSSL(self.cb.get_port(),
+              self.site,
+              sslContext)
+        else:
+            self.iconnector = reactor.listenTCP(self.cb.get_port(), self.site)
 
     def getListener(self):
         return self.iconnector.getHost()
