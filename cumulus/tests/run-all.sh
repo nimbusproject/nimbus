@@ -9,7 +9,9 @@ mv ~/.s3cfg ~/.s3cfg.cumulus.test
 cumulus_host=`hostname -f`
 cumulus_port=8888
 
-source env.sh
+export CUMULUS_TEST_HOST=$cumulus_host
+export CUMULUS_TEST_PORT=$cumulus_port
+
 
 $CUMULUS_HOME/bin/cumulus.sh -p $cumulus_port &
 cumulus_pid=$!

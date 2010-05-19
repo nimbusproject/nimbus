@@ -548,8 +548,6 @@ class cbPutObject(cbRequest):
         self.bucketName = bucketName
         self.objectName = objName
 
-        print self.objectName
-
     def work(self):
         dataObj = self.request.content
         exists = self.user.exists(self.bucketName, self.objectName)
