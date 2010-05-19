@@ -84,15 +84,19 @@ if web_enabled:
       postStartDelay=3
       ))
 
+CUMULUS_HOME = os.getenv("CUMULUS_HOME")
+if CUMULUS_HOME == None:
+    CUMULUS_HOME = NIMBUS_HOME + "/cumulus"
+
 if cumulus_enabled:
     CUMULUS_SERVICE_EXE = os.path.join(NIMBUS_HOME, "cumulus/bin/cumulus.sh")
-    if not os.path.exists(CUMULUS_SERVICES_EXE):
+    if not os.path.exists(CUMULUS_SERVICE_EXE):
         sys.exit("The services executable does not exist: " + 
-                CUMULUS_SERVICES_EXE)
+                CUMULUS_SERVICE_EXE)
     ProcessManager.add( Process(
       name = "cumulus",
-      desc = "Nimbus services",
-      program = CUMULUS_SERVICES_EXE,
+      desc = "Cumulus services",
+      program = CUMULUS_SERVICE_EXE,
       args = [],
       workingDir = NIMBUS_HOME,
       postStartDelay=5
