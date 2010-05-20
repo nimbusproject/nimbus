@@ -23,11 +23,13 @@
     <content url="file://$MODULE_DIR$/../../pilot" />
     <content url="file://$MODULE_DIR$/../../service/service/java/source">
       <sourceFolder url="file://$MODULE_DIR$/../../service/service/java/source/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/../../service/service/java/source/tests" isTestSource="true" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="workspace-service-libs" level="project" />
     <orderEntry type="module" module-name="rm-api" />
+    <orderEntry type="library" name="test-libs" level="project" />
   </component>
 </module>
 

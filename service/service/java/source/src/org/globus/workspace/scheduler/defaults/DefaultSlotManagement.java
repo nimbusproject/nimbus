@@ -61,6 +61,7 @@ public class DefaultSlotManagement implements SlotManagement {
     private WorkspaceHome home;
 
     private String vmmpoolDirectory;
+    private boolean greedy;
 
 
     // -------------------------------------------------------------------------
@@ -102,6 +103,22 @@ public class DefaultSlotManagement implements SlotManagement {
         this.vmmpoolDirectory = vmmpoolDirectory;
     }
 
+    public void setSelectionStrategy(String selectionStrategy) {
+
+        // leave room for more options in the future
+        final String RROBIN = "round-robin";
+        final String GREEDY = "greedy";
+        
+        if (RROBIN.equalsIgnoreCase(selectionStrategy)) {
+            this.greedy = false;
+        } else if (GREEDY.equalsIgnoreCase(selectionStrategy)) {
+            this.greedy = true;
+        } else {
+            throw new IllegalArgumentException(
+                    "Unknown VMM selection strategy: '" + selectionStrategy + "'.  This " +
+                            "scheduler only accepts: '" + RROBIN + "' and '" + GREEDY + '\'');
+        }
+    }
     
     // -------------------------------------------------------------------------
     // implements SlotManagement
@@ -289,12 +306,12 @@ public class DefaultSlotManagement implements SlotManagement {
 
             // no distinction between resource pools yet, use "any" (null)
             try {
-                nodes[i] = ResourcepoolUtil.getResourcepoolEntry(null,
-                                                                 memory,
+                nodes[i] = ResourcepoolUtil.getResourcepoolEntry(memory,
                                                                  assocs,
                                                                  this.db,
                                                                  this.lager,
-                                                                 vmids[i]);
+                                                                 vmids[i],
+                                                                 greedy);
                 if (nodes[i] == null) {
                     throw new ProgrammingError(
                                     "returned node should not be null");
