@@ -324,8 +324,8 @@ public class Util {
         if (oldassocEntries == null || oldassocEntries.isEmpty()) {
             return assoc;
         }
-        
-        if (!assoc.getDns().equals(oldassoc.getDns())) {
+
+        if (assoc.getDns() != null && !assoc.getDns().equals(oldassoc.getDns())) {
             logger.info("Network '" + assocName + "': DNS changed from " +
                         oldassoc.getDns() + " to " + assoc.getDns());
         }
