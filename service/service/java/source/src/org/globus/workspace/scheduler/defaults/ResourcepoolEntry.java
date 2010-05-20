@@ -59,6 +59,25 @@ public class ResourcepoolEntry {
         this.memCurrent += add;
     }
 
+    public int percentEmpty() {
+        if (this.memCurrent == 0) {
+            return 0;
+        }
+        if (this.memCurrent == this.memMax) {
+            return 100;
+        }
+        if (this.memCurrent > this.memMax) {
+            throw new IllegalStateException("current memory is higher than max memory");
+        }
+
+        final double div = ((double)this.memCurrent / (double)this.memMax);
+        final double percentage = div * 100.0;
+        if (percentage < 1.0 && percentage > 0.0) {
+            return 1;
+        }
+        return (int) percentage;
+    }
+
     public String getSupportedAssociations() {
         return this.supportedAssociations;
     }

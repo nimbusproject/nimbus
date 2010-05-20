@@ -31,8 +31,16 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.FileNotFoundException;
+import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Random;
 
 /**
  * TODO: move from static and passing in arguments etc.
@@ -44,25 +52,44 @@ class ResourcepoolUtil {
 
     private static final String COMMENT_CHAR = "#";
 
+    private static final Random randomGen = new SecureRandom();
+
+    private static final Comparator<ResourcepoolEntry> PERCENT_AVAILABLE =
+                                 new Comparator<ResourcepoolEntry>() {
+                                     
+        public int compare(ResourcepoolEntry re1, ResourcepoolEntry re2) {
+            final int re1mem = re1.percentEmpty();
+            final int re2mem = re2.percentEmpty();
+            if (re1mem == re2mem) {
+                return 0;
+            } else if (re1mem < re2mem) {
+                return -1;
+            } else {
+                return 1;
+            }
+        }
+    };
+
+
     /**
      * Note: Locking is assumed to be implemented above.
      *
-     * @param name can be resource pool name or null which means "any"
      * @param mem needed memory
      * @param neededAssociations array of needed associations, can be null
      * @param db db
      * @param lager logging switches
      * @param vmid for logging
+     * @param greedy true if VMs should stack up on VMMs first, false if round robin
      * @return node name can not be null
      * @throws ResourceRequestDeniedException exc
      * @throws WorkspaceDatabaseException exc
      */
-    static String getResourcepoolEntry(String name,
-                                       int mem,
+    static String getResourcepoolEntry(int mem,
                                        String[] neededAssociations,
                                        final PersistenceAdapter db,
                                        Lager lager,
-                                       int vmid)
+                                       int vmid,
+                                       boolean greedy)
                throws ResourceRequestDeniedException,
                       WorkspaceDatabaseException {
         
@@ -74,272 +101,260 @@ class ResourcepoolUtil {
         }
 
         final boolean eventLog = lager.eventLog;
-        final boolean traceLog = lager.traceLog;
+        final boolean trace = lager.traceLog;
 
         final Hashtable resourcepools = db.currentResourcepools();
 
         ResourcepoolEntry entry;
 
-        if (name == null) {
-
-            // null means "any"
-
-            final Enumeration e = resourcepools.keys();
-            while (e.hasMoreElements()) {
-                final String aPoolName = (String)e.nextElement();
-
-                // Try to find an empty slot first, then go back and look for
-                // a slice.  Slower this way (but a little less horrible).
-                entry = nextApplicableEmptyResourcepoolEntry(aPoolName,
-                                                             resourcepools,
-                                                             mem,
-                                                             neededAssociations,
-                                                             traceLog);
-
-                if (entry == null) {
-                    entry = nextApplicableResourcepoolEntry(aPoolName,
-                                                            resourcepools,
-                                                            mem,
-                                                            neededAssociations,
-                                                            traceLog);
-                }
-
-                if (entry != null) {
-                    entry.addMemCurrent(-mem);
-                    db.replaceResourcepoolEntry(aPoolName, entry);
-
-                    if (eventLog) {
-                        logger.info(Lager.ev(vmid) + "'" + aPoolName +
-                              "' resource pool entry '" + entry.getHostname() +
-                              "': " + mem + " MB reserved, " +
-                              entry.getMemCurrent() + " MB left");
-                    }
-
-                    return entry.getHostname();
-                }
-            }
-
-            String err = "No resource pool has an applicable entry";
-            logger.error(err);
-            throw new ResourceRequestDeniedException(err);
-
-        } else {
-
-            // Try to find an empty slot first, then go back and look for
-            // a slice.  Slower this way (but a little less horrible).
-            entry = nextApplicableEmptyResourcepoolEntry(name,
-                                                         resourcepools,
-                                                         mem,
-                                                         neededAssociations,
-                                                         traceLog);
-
-            if (entry == null) {
-                entry = nextApplicableResourcepoolEntry(name,
-                                                        resourcepools,
-                                                        mem,
-                                                        neededAssociations,
-                                                        traceLog);
-            }
+        final Enumeration e = resourcepools.keys();
+        while (e.hasMoreElements()) {
             
+            final String name = (String)e.nextElement();
+            final Resourcepool pool = (Resourcepool) resourcepools.get(name);
+
+            entry = nextEntry(name, pool, mem, neededAssociations, greedy, trace);
+
             if (entry != null) {
                 entry.addMemCurrent(-mem);
                 db.replaceResourcepoolEntry(name, entry);
-                
-                if (eventLog) {
-                    logger.info(Lager.ev(-1) + "'" + name + "' resource " +
-                    "pool entry '" + entry.getHostname() + "': " + mem +
-                    " MB reserved, " + entry.getMemCurrent() + " MB left");
-                }
-                
-                return entry.getHostname();
 
-            } else {
-                
-                String err = "resourcepool '" + name
-                                    + "' has no applicable entry";
-                logger.error(err);
-                throw new ResourceRequestDeniedException(err);
+                if (eventLog) {
+                    logger.info(Lager.ev(vmid) + "'" + name +
+                          "' resource pool entry '" + entry.getHostname() +
+                          "': " + mem + " MB reserved, " +
+                          entry.getMemCurrent() + " MB left");
+                }
+
+                return entry.getHostname();
             }
         }
+
+        String err = "No resource pool has an applicable entry";
+        logger.error(err);
+        throw new ResourceRequestDeniedException(err);
     }
 
-    private static ResourcepoolEntry nextApplicableResourcepoolEntry(
-                                                String name,
-                                                Hashtable resourcepools,
-                                                int mem,
-                                                String[] neededAssociations,
-                                                boolean traceLog)
+    private static ResourcepoolEntry nextEntry(String name,
+                                               Resourcepool resourcepool,
+                                               int mem,
+                                               String[] neededAssociations,
+                                               boolean greedy,
+                                               boolean trace)
 
             throws ResourceRequestDeniedException {
-
-        return nextApplicableResourcepoolEntryImpl(name,
-                                                   resourcepools,
-                                                   mem,
-                                                   neededAssociations,
-                                                   false,
-                                                   traceLog);
-    }
-
-    private static ResourcepoolEntry nextApplicableEmptyResourcepoolEntry(
-                                                String name,
-                                                Hashtable resourcepools,
-                                                int mem,
-                                                String[] neededAssociations,
-                                                boolean traceLog)
-
-            throws ResourceRequestDeniedException {
-
-        return nextApplicableResourcepoolEntryImpl(name,
-                                                   resourcepools,
-                                                   mem,
-                                                   neededAssociations,
-                                                   true,
-                                                   traceLog);
-    }
-
-    private static ResourcepoolEntry nextApplicableResourcepoolEntryImpl(
-                                                String name, 
-                                                Hashtable resourcepools,
-                                                int mem,
-                                                String[] neededAssociations,
-                                                boolean emptyOnly,
-                                                boolean traceLog)
-
-            throws ResourceRequestDeniedException {
-
-        final Resourcepool resourcepool =
-                                (Resourcepool)resourcepools.get(name);
-
-        if (resourcepool == null) {
-            String err = "'" + name + "' is not a valid resourcepool name (?)";
-            logger.error(err);
-            throw new ResourceRequestDeniedException(err);
-        }
 
         if (resourcepool.getEntries() == null) {
-            logger.debug("no entries in resourcepool");
+            logger.debug("no entries in resourcepool '" + name + '\'');
             return null;
         }
 
-        if (traceLog) {
+        if (trace) {
 
-            StringBuffer buf =
-                    new StringBuffer("Looking for resource.  Name = ");
+            final StringBuilder buf =
+                    new StringBuilder("Looking for resource.  Name = ");
 
             buf.append(name)
                .append(", mem = ")
-               .append(mem)
-               .append(", emptyOnly = ")
-               .append(emptyOnly)
-               .append(", needed networks: ");
-            
+               .append(mem);
+
+            if (greedy) {
+                buf.append(", greedy selection strategy");
+            } else {
+                buf.append(", round robin selection strategy");
+            }
+
+            buf.append(", needed networks: ");
             if (neededAssociations == null) {
                 buf.append("null");
             } else {
-                for (int i = 0; i < neededAssociations.length; i++) {
-                    buf.append(neededAssociations[i])
-                       .append(" ");
+                for (String neededAssociation : neededAssociations) {
+                    buf.append(neededAssociation).append(' ');
                 }
             }
 
             logger.trace(buf.toString());
         }
 
+        final List<ResourcepoolEntry> okNodes = memFilter(resourcepool, mem);
+
+        if (okNodes.isEmpty()) {
+            return null; // nothing found because there is no space
+        }
+
+        netFilter(okNodes, neededAssociations, trace);
+
+        if (okNodes.isEmpty()) {
+            return null; // nothing found because of no network
+        }
+
+        Collections.sort(okNodes, PERCENT_AVAILABLE);
+
+        if (trace) {
+            for (ResourcepoolEntry okNode : okNodes) {
+                logger.trace("available host: " + okNode.getHostname() +
+                                ", mem: " + okNode.getMemCurrent() +
+                                ", percent available: " + okNode.percentEmpty());
+            }
+        }
+
+        if (greedy) {
+            return randomLeastSpace(okNodes, trace);
+        } else {
+            return randomMostSpace(okNodes, trace);
+        }
+    }
+
+    /**
+     * Look at all the available nodes, pick the node with the least amount of available space
+     * on it.  If there are multiple nodes with the same percentage available, choose a random
+     * one. 
+     * @param okNodes list of nodes sorted in ascending percentage memory available order
+     * @return ResourcepoolEntry randomly selected from all nodes with least available space
+     */
+    private static ResourcepoolEntry randomLeastSpace(List<ResourcepoolEntry> okNodes,
+                                                      boolean trace) {
+        final List<Integer> candidateIndexes = new ArrayList<Integer>();
+        final int percentEmpty = okNodes.get(0).percentEmpty();
+        for (int i = 0; i < okNodes.size(); i++) {
+            final ResourcepoolEntry okNode = okNodes.get(i);
+            if (okNode.percentEmpty() > percentEmpty) {
+                break;
+            } else {
+                candidateIndexes.add(Integer.valueOf(i));
+            }
+        }
+
+        // pick a random node from the list of equally utilized ones
+        return randomSelect(candidateIndexes, okNodes, trace);
+    }
+
+    /**
+     * Look at all the available nodes, pick the node with the most amount of available space
+     * on it.  If there are multiple nodes with the same percentage available, choose a random
+     * one. 
+     * @param okNodes list of nodes sorted in ascending percentage memory available order
+     * @return ResourcepoolEntry randomly selected from all nodes with highest available space
+     */
+    private static ResourcepoolEntry randomMostSpace(List<ResourcepoolEntry> okNodes,
+                                                     boolean trace) {
+
+        // choosing highest percent that is empty
+        Collections.reverse(okNodes);
+
+        final List<Integer> candidateIndexes = new ArrayList<Integer>();
+        final int percentEmpty = okNodes.get(0).percentEmpty();
+        for (int i = 0; i < okNodes.size(); i++) {
+            final ResourcepoolEntry okNode = okNodes.get(i);
+            if (okNode.percentEmpty() < percentEmpty) {
+                break;
+            } else {
+                candidateIndexes.add(Integer.valueOf(i));
+            }
+        }
+
+        // pick a random node from the list of equally utilized ones
+        return randomSelect(candidateIndexes, okNodes, trace);
+    }
+
+    private static ResourcepoolEntry randomSelect(Collection<Integer> indexes,
+                                                  List<ResourcepoolEntry> okNodes,
+                                                  boolean trace) {
+
+        if (trace) {
+            final StringBuilder buf = new StringBuilder("Final node choices:\n");
+            for (Integer index : indexes) {
+                buf.append("  Candidate #").append(index.toString()).append(": ")
+                        .append(okNodes.get(index.intValue()).getHostname()).append('\n');
+            }
+            logger.trace(buf.toString());
+        }
+
+        final int numIndexes = indexes.size();
+        final int idx = randomGen.nextInt(numIndexes);
+        return okNodes.get(idx);
+    }
+
+    private static List<ResourcepoolEntry> memFilter(Resourcepool resourcepool, int mem) {
+
+        final List<ResourcepoolEntry> okNodes =
+                new ArrayList<ResourcepoolEntry>(resourcepool.getEntries().size());
+
         final Enumeration e = resourcepool.getEntries().elements();
-        ResourcepoolEntry entry;
-
-        // for scaling, actual RM impl should use straight SQL of course
-
         while (e.hasMoreElements()) {
-            entry = (ResourcepoolEntry)e.nextElement();
+            final ResourcepoolEntry entry = (ResourcepoolEntry)e.nextElement();
+            if (entry.getMemCurrent() >= mem) {
+                okNodes.add(entry);
+            }
+        }
+        
+        return okNodes;
+    }
 
-            if (emptyOnly && entry.getMemCurrent() != entry.getMemMax()) {
+    /*
+     * remove any candidates that don't support the right networks
+     */
+    private static void netFilter(List<ResourcepoolEntry> okNodes,
+                                  String[] neededAssociations,
+                                  boolean trace) {
+
+        if (neededAssociations == null
+                        || neededAssociations.length == 0) {
+            return;
+        }
+
+        final Iterator iter = okNodes.iterator();
+        while (iter.hasNext()) {
+            
+            final ResourcepoolEntry entry = (ResourcepoolEntry)iter.next();
+            final String assocsStr = entry.getSupportedAssociations();
+
+            if (assocsStr == null) {
+                logger.warn("resource pool entry has no configured " +
+                            "networks? entry '" + entry.getHostname() + '\'');
+                iter.remove();
                 continue;
             }
 
-            if (entry.getMemCurrent() >= mem) {
-
-                if (neededAssociations == null
-                        || neededAssociations.length == 0) {
-
-                    // VM doesn't need a NIC
-                    return entry;
+            if (assocsStr.equals("*")) {
+                // Entry supports all associations, if this causes a failure hooking up
+                // networking it's an administrator misconfiguration
+                if (trace) {
+                    logger.trace("'" + entry.getHostname() + "' supports all networks");
                 }
+                continue;
+            }
 
-                String assocsStr = entry.getSupportedAssociations();
-                if (assocsStr == null) {
+            final String[] assocs = assocsStr.split(",");
 
-                    // VM requires at least one association, continue looking
-                    // at other entries
-                    logger.warn("resource pool entry has no configured " +
-                                "networks? entry '" + entry.getHostname() +
-                                "' from pool '" + name + "'");
-                    continue;
-                }
+            boolean allFound = true;
 
+            for (String neededAssociation : neededAssociations) {
 
-                if (traceLog) {
-                    logger.trace("found resource pool entry with enough " +
-                            "memory ('" +  entry.getHostname() +
-                            "'), checking networks it supports");
-                }
+                boolean found = false;
 
-                if (assocsStr.equals("*")) {
-                    // (Perpetuating the non-relational method)
-
-                    // Entry supports all associations, if this causes
-                    // a failure hooking up networking it's an
-                    // administrator misconfiguration
-
-                    if (traceLog) {
-                        logger.trace("'" + entry.getHostname() +
-                            "' supports all networks, so choosing it");
-                    }
-
-                    return entry;
-                }
-
-                final String[] assocs = assocsStr.split(",");
-
-                boolean allFound = true;
-
-                for (int i = 0; i < neededAssociations.length; i++) {
-
-                    boolean found = false;
-
-                    for (int j = 0; j < assocs.length; j++) {
-                        if (assocs[j].equals(neededAssociations[i])) {
-
-                            if (traceLog) {
-                                logger.trace("'" + entry.getHostname() +
-                                             "' supports needed assoc '" +
-                                             neededAssociations[i] + "'");
-                            }
-
-                            found = true;
-                            break;
-                        }
-                    }
-
-                    if (!found) {
-                        if (traceLog) {
-                            logger.trace("not all networks were " +
-                                         "found in pool entry '" +
-                                         entry.getHostname() + "'");
-                        }
-
-                        allFound = false;
+                for (String assoc : assocs) {
+                    if (assoc.equals(neededAssociation)) {
+                        found = true;
                         break;
                     }
                 }
 
-                if (allFound) {
-                    return entry;
+                if (!found) {
+                    if (trace) {
+                        logger.trace("not all networks were found in pool entry '" +
+                                entry.getHostname() + "'");
+                    }
+
+                    allFound = false;
+                    break;
                 }
             }
-        }
 
-        return null; // nothing found
+            if (!allFound) {
+                iter.remove();
+            }
+        }
     }
 
 
