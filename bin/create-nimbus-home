@@ -107,6 +107,8 @@ if [ ! -d $CONTAINER_DIR ]; then
     CONTAINER_LOG_PROPS="$CONTAINER_DIR/container-log4j.properties"
     echo "" >> $CONTAINER_LOG_PROPS
     echo "# Change the following lines from \"INFO\" to \"DEBUG\" to enable Nimbus debugging" >> $CONTAINER_LOG_PROPS
+    echo "# Also see: services/etc/nimbus/workspace-service/logging.conf" >> $CONTAINER_LOG_PROPS
+    echo "# Logging changes require a container restart." >> $CONTAINER_LOG_PROPS
     echo "log4j.category.org.nimbustools=INFO" >> $CONTAINER_LOG_PROPS
     echo "log4j.category.org.globus.workspace=INFO" >>  $CONTAINER_LOG_PROPS
 
