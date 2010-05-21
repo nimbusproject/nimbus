@@ -56,7 +56,6 @@ def main(argv=sys.argv[1:]):
             for ua in usa:
                 users.append(ua.get_canonical_user())
         else:
-            print "hi %s" % (u_pattern)
             users = User.find_user(db_obj, u_pattern)
 
         if users == None:

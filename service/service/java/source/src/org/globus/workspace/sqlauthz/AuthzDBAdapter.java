@@ -22,7 +22,7 @@ import java.sql.SQLException;
 public class AuthzDBAdapter
 {
     private static final String FIND_PARENT_OBJECT_BY_NAME = "Select id from objects where name = ? and parent_id is NULL and object_type = ?";
-    private static final String FIND_OBJECT_BY_NAME = "Select id from objects where name = ? and parent_id = ?";
+    private static final String FIND_OBJECT_BY_NAME = "Select id from objects where name = ? and parent_id = ? and object_type = ?";
     private static final String FIND_USER_BY_ALIAS = "Select user_id from user_alias where alias_name = ? and alias_type = ?";
     private static final String CHECK_PERMISSIONS = "Select access_type_id from object_acl where object_id = ? and user_id = ?";
     private static final String GET_DATA_KEY = "select data_key from objects where id = ?";
@@ -62,49 +62,28 @@ public class AuthzDBAdapter
           return getCanonicalUserIdFromAlias(name, ALIAS_TYPE_DN);
     }
 
-    public int getParentObject(
-        String                          objectName)
-            throws WorkspaceDatabaseException
+    private int getParentObject(
+        Connection                      c,
+        String                          objectName,
+        int                             objectType)
+            throws WorkspaceDatabaseException, SQLException
     {
-        Connection c = null;
         PreparedStatement pstmt = null;
 
-        try
+        pstmt = c.prepareStatement(FIND_PARENT_OBJECT_BY_NAME);
+        pstmt.setString(1, objectName);
+        pstmt.setInt(2, objectType);
+        ResultSet rs = pstmt.executeQuery();
+
+        if(!rs.next())
         {
-            c = getConnection();
-            pstmt = c.prepareStatement(FIND_PARENT_OBJECT_BY_NAME);
-            pstmt.setString(1, objectName);
-            ResultSet rs = pstmt.executeQuery();
-            if(!rs.next())
-            {
-                throw new WorkspaceDatabaseException("now such parent file found  " + objectName);
-            }
-            int objectId = rs.getInt(1);
-            return objectId;
-        }
-        catch(SQLException e)
-        {
-            logger.error("",e);
-            throw new WorkspaceDatabaseException(e);
-        }
-        finally
-        {
-            try
-            {
-                if (pstmt != null)
-                {
-                    pstmt.close();
-                }
-                if (c != null)
-                {
-                    returnConnection(c);
-                }
-            }
-            catch (SQLException sql)
-            {
-                logger.error("SQLException in finally cleanup", sql);
-            }
-        }
+            logger.debug("pstmt " + pstmt.toString());
+            pstmt.close();
+            throw new WorkspaceDatabaseException("no such parent file found " + objectName + " " + objectType);
+        }        
+        int objectId = rs.getInt(1);
+        pstmt.close();
+        return objectId;    
     }
 
     public String getDataKey(
@@ -122,7 +101,7 @@ public class AuthzDBAdapter
             ResultSet rs = pstmt.executeQuery();
             if(!rs.next())
             {
-                throw new WorkspaceDatabaseException("now such file id found  " + objectId);
+                throw new WorkspaceDatabaseException("no such file id found  " + objectId);
             }
             String dataKey = rs.getString(1);
             return dataKey;
@@ -158,33 +137,35 @@ public class AuthzDBAdapter
         int                             objectType)
             throws WorkspaceDatabaseException
     {
-        if(parentName == null)
-        {
-            return getParentObject(fileName);
-        }
 
         Connection c = null;
         PreparedStatement pstmt = null;
 
-        int parentId = getParentObject(parentName);
         try
         {
             c = getConnection();
+            if(parentName == null)
+            {
+               logger.debug("There is no parent object so this must be a parent " + fileName);
+               return getParentObject(c, fileName, objectType);
+            }
+            int parentId = getParentObject(c, parentName, objectType);
+
             pstmt = c.prepareStatement(FIND_OBJECT_BY_NAME);
             pstmt.setString(1, fileName);
-            pstmt.setInt(1, parentId);
-            pstmt.setInt(1, objectType);
+            pstmt.setInt(2, parentId);
+            pstmt.setInt(3, objectType);
             ResultSet rs = pstmt.executeQuery();
             if(!rs.next())
             {
-                throw new WorkspaceDatabaseException("now such file found  " + fileName);
+                throw new WorkspaceDatabaseException("no such file found  " + fileName);
             }
             int objectId = rs.getInt(1);
             return objectId;
         }
         catch(SQLException e)
         {
-            logger.error("",e);
+            logger.error("an error occured looking up the file ", e);
             throw new WorkspaceDatabaseException(e);
         }
         finally
@@ -221,7 +202,7 @@ public class AuthzDBAdapter
             c = getConnection();
             pstmt = c.prepareStatement(CHECK_PERMISSIONS);
             pstmt.setInt(1, objectId);
-            pstmt.setString(1, userId);
+            pstmt.setString(2, userId);
             ResultSet rs = pstmt.executeQuery();
 
             String perms = "";

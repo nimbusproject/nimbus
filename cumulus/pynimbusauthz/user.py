@@ -165,7 +165,6 @@ class User(object):
         else:
             s = "select id from users_canonical where id like '%%%s%%'" % (pattern)
             data = []
-        print s
         c = db_obj._run_fetch_iterator(s, data, _convert_user_row_to_User)
         return c
     find_user = staticmethod(find_user)

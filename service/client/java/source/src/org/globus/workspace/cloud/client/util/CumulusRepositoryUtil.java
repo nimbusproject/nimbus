@@ -229,10 +229,10 @@ public class CumulusRepositoryUtil
         String                          imageName)
             throws ExecutionProblem
     {
-         String baseKey = this.args.getXferS3BaseKey();
-         String ID = this.args.getXferS3ID();
+        String baseKey = this.args.getXferS3BaseKey();
+        String ID = this.args.getXferS3ID();
 
-         return "cumulus://" + this.args.getXferHostPort() + "/" + this.args.getS3Bucket() + "/" + ID + "/" + imageName;
+        return "cumulus://" + this.args.getXferHostPort() + "/" + this.args.getS3Bucket() + "/" + baseKey + "/" + ID + "/" + imageName;
     }
 
 }

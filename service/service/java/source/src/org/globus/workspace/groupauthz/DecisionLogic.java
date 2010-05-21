@@ -33,6 +33,9 @@ public class DecisionLogic {
 
     private static final Log logger = LogFactory.getLog(Group.class.getName());
 
+    public  DecisionLogic()
+    {
+    }
     /**
      * @param dn may not be null
      * @param rights may not be null
@@ -44,7 +47,7 @@ public class DecisionLogic {
      * @throws AuthorizationException processing problem
      * @throws ResourceRequestDeniedException error w/ explanation to client
      */
-    public static Integer decide(String dn,
+    public Integer decide(String dn,
                                  GroupRights rights,
                                  VirtualMachine[] bindings,
                                  Long elapsedMins,
@@ -268,7 +271,7 @@ public class DecisionLogic {
                 throw new AuthorizationException(msg);
             }
 
-            checkImages(parts, rights, buf, dnhash);
+            checkImages(parts, rights, buf, dn, dnhash);
         }
 
         buf.append("\n");
@@ -276,9 +279,10 @@ public class DecisionLogic {
         return Decision.PERMIT;
     }
 
-    private static void checkImages(VirtualMachinePartition[] parts,
+    protected void checkImages(VirtualMachinePartition[] parts,
                                     GroupRights rights,
                                     StringBuffer buf,
+                                    String dn,
                                     String dnhash)
 
             throws AuthorizationException,
@@ -347,7 +351,7 @@ public class DecisionLogic {
         }
     }
 
-    private static void checkNodeBasedir(String path,
+    protected void checkNodeBasedir(String path,
                                          StringBuffer buf,
                                          URI imgURI,
                                          URI altTargetURI)
@@ -382,7 +386,7 @@ public class DecisionLogic {
         }
     }
 
-    private static void checkNodeHostname(String hostname,
+    protected void checkNodeHostname(String hostname,
                                           StringBuffer buf,
                                           URI imgURI,
                                           URI altTargetURI)
@@ -418,7 +422,7 @@ public class DecisionLogic {
         }
     }
 
-    public static Integer checkNewAltTargetURI(GroupRights rights,
+    public Integer checkNewAltTargetURI(GroupRights rights,
                                                URI altTargetURI,
                                                String dn)
             throws AuthorizationException {
@@ -499,7 +503,7 @@ public class DecisionLogic {
         return Decision.PERMIT;
     }
 
-    static String normalize(String input, StringBuffer buf)
+    protected String normalize(String input, StringBuffer buf)
             throws ResourceRequestDeniedException {
 
         if (input == null) {
@@ -552,7 +556,7 @@ public class DecisionLogic {
         return newbuf.toString();
     }
 
-    static void testNormalize() throws Exception {
+    void testNormalize() throws Exception {
 
         final String[] inputs =
                 {"///abc/def/g", "/abc/def//g", "/abc/def///", "  ", null, "/asd\n"};
@@ -578,9 +582,5 @@ public class DecisionLogic {
             throw new Exception("'" + allShouldFail[i] + "' did not fail");
         }
 
-    }
-
-    public static void main(String[] args) throws Exception {
-        testNormalize();
     }
 }
