@@ -22,7 +22,7 @@ import java.net.URI;
 
 public interface PostTaskAuthorization {
 
-    public String isRootPartitionUnpropTargetPermittedAndChange(URI target,
+    public Integer isRootPartitionUnpropTargetPermitted(URI target,
                                                         String callerDN)
             throws AuthorizationException;
 }

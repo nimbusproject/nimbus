@@ -583,29 +583,16 @@ public abstract class InstanceResourceImpl implements InstanceResource {
             final Integer decision;
             String newTargetName;
             try {
-                newTargetName = ((PostTaskAuthorization)this.authzCallout).
-                    isRootPartitionUnpropTargetPermittedAndChange(target, dnToAuthorize);
+                decision = ((PostTaskAuthorization)this.authzCallout).
+                    isRootPartitionUnpropTargetPermitted(target, dnToAuthorize);
             } catch (AuthorizationException e) {
                 throw new ManageException(e.getMessage(), e);
             }
 
-            if(newTargetName != null)
-            {
-                try
-                {
-                    target = new URI(newTargetName);
-                }
-                catch(Exception ex)
-                {
-                    throw new ManageException("When the UnProp URI was returned from the authz module there was a problem converting its name to a URI " + ex.toString());
-                }
+            if (!Decision.PERMIT.equals(decision)) {
+                throw new ManageException(
+                        "request denied, no message for client");
             }
-
-            // removed.  if no exception is thrown then it is permitted
-            //if (!Decision.PERMIT.equals(decision)) {
-            //    throw new ManageException(
-            //            "request denied, no message for client");
-            //}
         }
 
         final String trueTarget;
