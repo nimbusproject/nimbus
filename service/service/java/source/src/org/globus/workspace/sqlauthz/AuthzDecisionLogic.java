@@ -117,7 +117,12 @@ public class AuthzDecisionLogic extends DecisionLogic
 
         logger.debug("User requesting the " + scheme + " " + hostname + " " + objectName);
         int schemeType = -1;
-        // convert url to type
+        // Here would be a good place to hindge on scheme.  We could make a plugin interface
+        // that allowed namespace conversion based on scheme and hostname:port.  Hostname is
+        // also needed because it is possible to want to do something different for cumulus://hostA/file
+        // than cumulus://hostB/file... for that matter we may also want to hindge on file path so we probably
+        // need an interface to do regex matching.  all of that is a bit over engineered for now it will
+        // be just cumulus and file
         if(scheme.equals("cumulus"))
         {
             schemeType = AuthzDBAdapter.OBJECT_TYPE_S3;
@@ -129,6 +134,10 @@ public class AuthzDecisionLogic extends DecisionLogic
             }
             logger.debug("Finding the fileID for " + results[0] + " " + results[1]);
             fileId = authDB.getFileID(results[0], results[1], schemeType);
+        }
+        else if (scheme.equals("file"))
+        {
+            return url;
         }
         else
         {

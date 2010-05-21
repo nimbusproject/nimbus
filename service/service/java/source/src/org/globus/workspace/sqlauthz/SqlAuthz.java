@@ -35,8 +35,6 @@ import java.net.URI;
 import java.util.Vector;
 
 public class SqlAuthz extends GroupAuthz
-    implements CreationAuthorizationCallout,
-        PostTaskAuthorization 
 {
     private static final Log logger =
             LogFactory.getLog(SqlAuthz.class.getName());
@@ -48,14 +46,12 @@ public class SqlAuthz extends GroupAuthz
 
     public SqlAuthz(DataSource dataSource)
     {
-        logger.debug("BuzzTroll SQLAUTHZ CONSTRUCTOR");
         this.dataSource = dataSource;
         this.authDB = new AuthzDBAdapter(this.dataSource);                
     }
     
     public void validate() throws Exception
     {
-        logger.debug("BuzzTroll Initializing sql authorization");
         super.initializeCallout();
         this.theDecider = new AuthzDecisionLogic(this.authDB, this);
     }
