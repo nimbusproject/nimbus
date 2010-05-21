@@ -344,7 +344,7 @@ public class GroupAuthz implements CreationAuthorizationCallout,
         return group.identityRights(dn);
     }
 
-    public String isRootPartitionUnpropTargetPermittedAndChange(URI target,
+    public Integer isRootPartitionUnpropTargetPermitted(URI target,
                                                         String caller)
             throws AuthorizationException {
 
@@ -355,14 +355,9 @@ public class GroupAuthz implements CreationAuthorizationCallout,
             final GroupRights rights = getRights(caller, this.groups[i]);
             // only first inclusion of DN is considered
             if (rights != null) {
-                Integer rc = theDecider.checkNewAltTargetURI(rights,
+                return  theDecider.checkNewAltTargetURI(rights,
                                                           target,
-                                                          caller);
-                if(rc != Decision.PERMIT)
-                {
-                    throw new AuthorizationException("No message");                    
-                }
-                return null;
+                                                          caller);                
             }
         }
 

@@ -153,8 +153,8 @@ public class AuthzDecisionLogic extends DecisionLogic
         }
 
         String repoFile = authDB.getDataKey(fileId);
-        String repoScheme = sqlA.getRepoScheme(String repoScheme)
-        String repoHost = sqlA.getReopHost()
+        String repoScheme = sqlA.getRepoScheme();
+        String repoHost = sqlA.getReopHost();
         String repoDir = sqlA.getRepoDir();
         String rc = repoScheme + repoHost + repoDir + "/" + repoFile;
 
