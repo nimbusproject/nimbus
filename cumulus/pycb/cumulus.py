@@ -161,7 +161,7 @@ class CBService(resource.Resource):
             traceback.print_exc(file=sys.stdout)
             gdEx = cbException('InternalError')
             eMsg = gdEx.sendErrorResponse(request, requestId)
-            pycb.log(logging.ERROR, eMsg)
+            pycb.log(logging.ERROR, eMsg, traceback)
 
     def allowed_event(self, request, user, requestId, path):
         pycb.log(logging.INFO, "Access granted to ID=%s requestId=%s uri=%s" % (user.get_id(), requestId, request.uri))

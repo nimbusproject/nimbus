@@ -12,13 +12,15 @@ cumulus_port=8888
 export CUMULUS_TEST_HOST=$cumulus_host
 export CUMULUS_TEST_PORT=$cumulus_port
 
+https_opt=" --https "
 sec="True"
 if [ "X${CUMULUS_TEST_HTTPS}" == "X" ]; then
     sec="False"
+    https_opt=""
 fi
 
 
-$CUMULUS_HOME/bin/cumulus.sh -p $cumulus_port &
+$CUMULUS_HOME/bin/cumulus.sh -p $cumulus_port $https_opt &
 cumulus_pid=$!
 echo $cumulus_pid
 trap "pkill cumulus; mv ~/.s3cfg.cumulus.test ~/.s3cfg; $CUMULUS_HOME/bin/cumulus-add-user.sh -r tests3cmd1@nimbus.test" EXIT

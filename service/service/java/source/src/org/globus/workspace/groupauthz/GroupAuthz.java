@@ -80,6 +80,8 @@ public class GroupAuthz implements CreationAuthorizationCallout,
     private String def14;
     private String def15;
 
+    protected DecisionLogic theDecider = new DecisionLogic();
+
     public void setGroup01(String group01) {
         this.group01 = group01;
     }
@@ -318,7 +320,7 @@ public class GroupAuthz implements CreationAuthorizationCallout,
 
             // only first inclusion of DN is considered
             if (rights != null) {
-                return DecisionLogic.decide(callerDN,
+                return theDecider.decide(callerDN,
                                             rights,
                                             bindings,
                                             elapsedMins,
@@ -353,7 +355,7 @@ public class GroupAuthz implements CreationAuthorizationCallout,
             final GroupRights rights = getRights(caller, this.groups[i]);
             // only first inclusion of DN is considered
             if (rights != null) {
-                Integer rc = DecisionLogic.checkNewAltTargetURI(rights,
+                Integer rc = theDecider.checkNewAltTargetURI(rights,
                                                           target,
                                                           caller);
                 if(rc != Decision.PERMIT)

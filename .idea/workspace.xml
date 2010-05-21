@@ -1,9 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" readonly="true" id="b30a1c75-983d-4a98-96dc-74ac6b73b911" name="Default" comment="" />
-    <ignored path="$USER_HOME_GRIFFON$/" />
+    <list default="true" id="b30a1c75-983d-4a98-96dc-74ac6b73b911" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/autoconfiguration/share/lib/common-env.sh" afterPath="$PROJECT_DIR$/autoconfiguration/share/lib/common-env.sh" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/service/client/java/source/src/org/globus/workspace/cloud/client/util/CumulusRepositoryUtil.java" afterPath="$PROJECT_DIR$/service/client/java/source/src/org/globus/workspace/cloud/client/util/CumulusRepositoryUtil.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/groupauthz/DecisionLogic.java" afterPath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/groupauthz/DecisionLogic.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/groupauthz/GroupAuthz.java" afterPath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/groupauthz/GroupAuthz.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/messaging/gt4.0/java/gar-builder/etc/post-deploy.xml" afterPath="$PROJECT_DIR$/messaging/gt4.0/java/gar-builder/etc/post-deploy.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/AuthzDBAdapter.java" afterPath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/AuthzDBAdapter.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/SqlAuthz.java" afterPath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/SqlAuthz.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/autoconfiguration/share/cloud-admin.sh" afterPath="$PROJECT_DIR$/autoconfiguration/share/cloud-admin.sh" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/AuthzDecisionLogic.java" />
+    </list>
     <ignored path="$USER_HOME_GRAILS$/" />
+    <ignored path="$USER_HOME_GRIFFON$/" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -63,7 +74,7 @@
       <file leaf-file-name="SqlAuthz.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/SqlAuthz.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+            <state line="82" column="51" selection-start="2529" selection-end="2914" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -72,25 +83,34 @@
       <file leaf-file-name="GroupAuthz.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/groupauthz/GroupAuthz.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="344" column="0" selection-start="10401" selection-end="10401" vertical-scroll-proportion="0.0">
+            <state line="290" column="56" selection-start="8445" selection-end="8445" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="InstanceResourceImpl.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/service/impls/InstanceResourceImpl.java">
+      <file leaf-file-name="DecisionLogic.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/groupauthz/DecisionLogic.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="594" column="98" selection-start="19024" selection-end="19024" vertical-scroll-proportion="0.0">
+            <state line="266" column="42" selection-start="10426" selection-end="10426" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="PostTaskAuthorization.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/service/binding/authorization/PostTaskAuthorization.java">
+      <file leaf-file-name="AuthzDecisionLogic.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/AuthzDecisionLogic.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="22" column="0" selection-start="757" selection-end="757" vertical-scroll-proportion="0.0">
+            <state line="160" column="18" selection-start="5938" selection-end="5938" vertical-scroll-proportion="0.8005319">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="VirtualMachinePartition.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/service/binding/vm/VirtualMachinePartition.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="81" column="44" selection-start="2120" selection-end="2132" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -99,34 +119,43 @@
       <file leaf-file-name="AuthzDBAdapter.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/AuthzDBAdapter.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="296" column="52" selection-start="8464" selection-end="8464" vertical-scroll-proportion="0.0">
+            <state line="239" column="44" selection-start="7199" selection-end="7199" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="authz-callout-sql.xml" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="CreationAuthorizationCallout.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/service/binding/authorization/CreationAuthorizationCallout.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="24" column="17" selection-start="923" selection-end="923" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="PostTaskAuthorization.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/service/binding/authorization/PostTaskAuthorization.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="22" column="17" selection-start="774" selection-end="774" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="authz-callout-sql.xml" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/authz-callout-sql.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="43" column="0" selection-start="1537" selection-end="1537" vertical-scroll-proportion="0.80124223">
+            <state line="19" column="40" selection-start="722" selection-end="722" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="common.conf" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/common.conf">
+      <file leaf-file-name="authz-callout-groupauthz.xml" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/authz-callout-groupauthz.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="44" column="59" selection-start="1449" selection-end="1449" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="main.xml" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/main.xml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="434" column="58" selection-start="17587" selection-end="17620" vertical-scroll-proportion="0.0">
+            <state line="94" column="97" selection-start="666" selection-end="3874" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -146,13 +175,15 @@
         <option value="$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/main.xml" />
         <option value="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/accounting/impls/dbdefault/DBAccountingPersistence.java" />
         <option value="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/SqlAuthzUser.java" />
-        <option value="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/AuthzDBAdapter.java" />
         <option value="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/service/binding/authorization/PostTaskAuthorization.java" />
-        <option value="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/groupauthz/GroupAuthz.java" />
-        <option value="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/SqlAuthz.java" />
         <option value="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/service/impls/InstanceResourceImpl.java" />
-        <option value="$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/authz-callout-sql.xml" />
         <option value="$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/common.conf" />
+        <option value="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/groupauthz/GroupAuthz.java" />
+        <option value="$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/authz-callout-sql.xml" />
+        <option value="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/AuthzDBAdapter.java" />
+        <option value="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/groupauthz/DecisionLogic.java" />
+        <option value="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/SqlAuthz.java" />
+        <option value="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/AuthzDecisionLogic.java" />
       </list>
     </option>
   </component>
@@ -191,6 +222,41 @@
       <sortByType />
     </navigator>
     <panes>
+      <pane id="PackagesPane">
+        <subPane>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="nimbus" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="nimbus" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="cloud-client" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="nimbus" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="cloud-client" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="org.globus.workspace" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
+      </pane>
+      <pane id="Favorites" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -249,11 +315,15 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="etc" />
+              <option name="myItemId" value="src" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="workspace-service" />
+              <option name="myItemId" value="workspace" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="sqlauthz" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -278,10 +348,6 @@
               <option name="myItemId" value="workspace-service" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="other" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
           </PATH>
           <PATH>
             <PATH_ELEMENT>
@@ -295,42 +361,7 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="Favorites" />
       <pane id="Scope" />
-      <pane id="PackagesPane">
-        <subPane>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="nimbus" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="nimbus" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="cloud-client" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="nimbus" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="cloud-client" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="org.globus.workspace" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
-            </PATH_ELEMENT>
-          </PATH>
-        </subPane>
-      </pane>
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -494,7 +525,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="8" y="28" width="1400" height="998" extended-state="1" />
+    <frame x="0" y="27" width="1400" height="998" extended-state="1" />
     <editor active="true" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -506,7 +537,6 @@
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="true" content_ui="tabs" />
-      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32936803" sideWeight="0.0" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -515,6 +545,7 @@
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3298122" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3298122" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
     </layout>
@@ -554,44 +585,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="jar:///usr/local/jdk1.6.0_18/src.zip!/java/lang/String.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="91" column="19" selection-start="3608" selection-end="3608" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/authz-callout-groupauthz.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="18" column="47" selection-start="502" selection-end="663" vertical-scroll-proportion="0.0" />
-      </provider>
-      <provider editor-type-id="com.intellij.spring.perspectives.SpringBeansStructureEditorProvider">
-        <state />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/accounting/impls/dbdefault/DBAccountingAdapter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="133" column="86" selection-start="4781" selection-end="4781" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/accounting/impls/dbdefault/DBAccountingPersistence.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="199" column="25" selection-start="5523" selection-end="5775" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/accounting/impls/dbdefault/DBAccountingConstants.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="55" column="33" selection-start="2130" selection-end="2130" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/DefaultPathConfigs.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="71" column="12" selection-start="2344" selection-end="2344" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/groupauthz/DecisionLogic.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="387" column="26" selection-start="15161" selection-end="15161" vertical-scroll-proportion="0.11552795" />
-      </provider>
-    </entry>
     <entry file="jar:///usr/local/jdk1.6.0_18/src.zip!/java/lang/Integer.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="36" column="19" selection-start="1154" selection-end="1154" vertical-scroll-proportion="0.33252427" />
@@ -602,53 +595,120 @@
         <state line="594" column="98" selection-start="19024" selection-end="19024" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/service/binding/authorization/PostTaskAuthorization.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="22" column="0" selection-start="757" selection-end="757" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/AuthzDBAdapter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="296" column="52" selection-start="8464" selection-end="8464" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/main.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="434" column="58" selection-start="17587" selection-end="17620" vertical-scroll-proportion="0.0" />
-      </provider>
       <provider editor-type-id="com.intellij.spring.perspectives.SpringBeansStructureEditorProvider">
         <state />
       </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/groupauthz/GroupAuthz.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="344" column="0" selection-start="10401" selection-end="10401" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/SqlAuthz.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
+        <state line="434" column="58" selection-start="17587" selection-end="17620" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/common.conf">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="44" column="59" selection-start="1449" selection-end="1449" vertical-scroll-proportion="0.0">
+        <state line="44" column="59" selection-start="1449" selection-end="1449" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/groupauthz/GroupRights.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="120" column="87" selection-start="4663" selection-end="4663" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/groupauthz/Group.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="191" column="46" selection-start="5764" selection-end="5764" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/SqlAuthz.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="82" column="51" selection-start="2529" selection-end="2914" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/groupauthz/GroupAuthz.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="290" column="56" selection-start="8445" selection-end="8445" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/groupauthz/DecisionLogic.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="266" column="42" selection-start="10426" selection-end="10426" vertical-scroll-proportion="0.0">
           <folding />
         </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/service/binding/vm/VirtualMachinePartition.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="81" column="44" selection-start="2120" selection-end="2132" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/AuthzDBAdapter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="239" column="44" selection-start="7199" selection-end="7199" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/service/binding/authorization/CreationAuthorizationCallout.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="24" column="17" selection-start="923" selection-end="923" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/service/binding/authorization/PostTaskAuthorization.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="22" column="17" selection-start="774" selection-end="774" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/authz-callout-sql.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="43" column="0" selection-start="1537" selection-end="1537" vertical-scroll-proportion="0.80124223">
-          <folding />
-        </state>
-      </provider>
       <provider editor-type-id="com.intellij.spring.perspectives.SpringBeansStructureEditorProvider">
         <state />
       </provider>
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="19" column="40" selection-start="722" selection-end="722" vertical-scroll-proportion="0.0" />
+      </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/authz-callout-groupauthz.xml">
+      <provider editor-type-id="com.intellij.spring.perspectives.SpringBeansStructureEditorProvider">
+        <state />
+      </provider>
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="94" column="97" selection-start="666" selection-end="3874" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/AuthzDecisionLogic.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="160" column="18" selection-start="5938" selection-end="5938" vertical-scroll-proportion="0.8005319">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+  </component>
+  <component name="masterDetails">
+    <states>
+      <state key="ArtifactsStructureConfigurable.UI">
+        <UIState>
+          <splitter-proportions>
+            <SplitterProportionsDataImpl />
+          </splitter-proportions>
+          <settings />
+        </UIState>
+      </state>
+      <state key="Copyright.UI">
+        <UIState>
+          <splitter-proportions>
+            <SplitterProportionsDataImpl />
+          </splitter-proportions>
+        </UIState>
+      </state>
+      <state key="ScopeChooserConfigurable.UI">
+        <UIState>
+          <splitter-proportions>
+            <SplitterProportionsDataImpl />
+          </splitter-proportions>
+          <settings />
+        </UIState>
+      </state>
+    </states>
   </component>
 </project>
 
