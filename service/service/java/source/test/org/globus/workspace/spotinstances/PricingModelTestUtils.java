@@ -27,7 +27,7 @@ public class PricingModelTestUtils {
         for (SIRequest siRequest : orderedRequests.descendingSet()) {
             if(availableResources > 0){
                 if(siRequest.getMaxBid() >= nextPrice){
-                    availableResources -= siRequest.getQuantity();
+                    availableResources -= siRequest.getNeededInstances();
                 } else {
                     //There are no more eligible bids (fine)
                     break;

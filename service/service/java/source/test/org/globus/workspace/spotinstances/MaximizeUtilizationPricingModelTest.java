@@ -39,7 +39,7 @@ public class MaximizeUtilizationPricingModelTest {
         
         //case 1
         LinkedList<SIRequest> requests = new LinkedList<SIRequest>();
-        requests.add(new SIRequest(2.0, 1));
+        requests.add(new SIRequest("a", 2.0, 1));
      
         Double nextPrice = pricingModel.getNextPrice(0, requests, null);
         assertEquals(new Double(2.0+1), nextPrice);
@@ -47,9 +47,9 @@ public class MaximizeUtilizationPricingModelTest {
         
         //case 2
         requests = new LinkedList<SIRequest>();
-        requests.add(new SIRequest(4.0, 1));
-        requests.add(new SIRequest(2.0, 4));  
-        requests.add(new SIRequest(3.5, 4));     
+        requests.add(new SIRequest("a", 4.0, 1));
+        requests.add(new SIRequest("b", 2.0, 4));  
+        requests.add(new SIRequest("c", 3.5, 4));     
         
         nextPrice = pricingModel.getNextPrice(0, requests, null);
         assertEquals(new Double(4.0+1), nextPrice);
@@ -63,7 +63,7 @@ public class MaximizeUtilizationPricingModelTest {
 
         
         LinkedList<SIRequest> requests = new LinkedList<SIRequest>();
-        requests.add(new SIRequest(2.0, 3));
+        requests.add(new SIRequest("a", 2.0, 3));
         
         Double nextPrice = pricingModel.getNextPrice(5, requests, null);
         assertEquals(new Double(MINIMUM_PRICE), nextPrice);
@@ -77,7 +77,7 @@ public class MaximizeUtilizationPricingModelTest {
 
         
         LinkedList<SIRequest> requests = new LinkedList<SIRequest>();
-        requests.add(new SIRequest(2.0, 3));
+        requests.add(new SIRequest("a", 2.0, 3));
         
         Double nextPrice = pricingModel.getNextPrice(5, requests, null);
         assertEquals(new Double(2.0), nextPrice);
@@ -91,7 +91,7 @@ public class MaximizeUtilizationPricingModelTest {
 
         
         LinkedList<SIRequest> requests = new LinkedList<SIRequest>();
-        requests.add(new SIRequest(2.0, 10));
+        requests.add(new SIRequest("a", 2.0, 10));
         
         Double nextPrice = pricingModel.getNextPrice(5, requests, null);
         assertEquals(new Double(2.0), nextPrice);
@@ -105,7 +105,7 @@ public class MaximizeUtilizationPricingModelTest {
 
         
         LinkedList<SIRequest> requests = new LinkedList<SIRequest>();
-        requests.add(new SIRequest(2.0, 10));
+        requests.add(new SIRequest("a", 2.0, 10));
         
         Double nextPrice = pricingModel.getNextPrice(5, requests, null);
         assertEquals(new Double(2.0), nextPrice);
@@ -119,8 +119,8 @@ public class MaximizeUtilizationPricingModelTest {
 
         
         LinkedList<SIRequest> requests = new LinkedList<SIRequest>();
-        requests.add(new SIRequest(2.0, 10));
-        requests.add(new SIRequest(1.0, 5));        
+        requests.add(new SIRequest("a", 2.0, 10));
+        requests.add(new SIRequest("b", 1.0, 5));        
         
         Double nextPrice = pricingModel.getNextPrice(5, requests, null);
         assertEquals(new Double(2.0), nextPrice);
@@ -134,8 +134,8 @@ public class MaximizeUtilizationPricingModelTest {
 
         
         LinkedList<SIRequest> requests = new LinkedList<SIRequest>();
-        requests.add(new SIRequest(2.0, 10));
-        requests.add(new SIRequest(1.0, 5));        
+        requests.add(new SIRequest("a", 2.0, 10));
+        requests.add(new SIRequest("b", 1.0, 5));        
         
         Double nextPrice = pricingModel.getNextPrice(5, requests, null);
         assertEquals(new Double(2.0), nextPrice);
@@ -148,9 +148,9 @@ public class MaximizeUtilizationPricingModelTest {
         MaximizeUtilizationPricingModel pricingModel = new MaximizeUtilizationPricingModel(true);
         
         LinkedList<SIRequest> requests = new LinkedList<SIRequest>();
-        requests.add(new SIRequest(2.0, 5));
-        requests.add(new SIRequest(1.0, 5));
-        requests.add(new SIRequest(1.6, 5));
+        requests.add(new SIRequest("a", 2.0, 5));
+        requests.add(new SIRequest("b", 1.0, 5));
+        requests.add(new SIRequest("c", 1.6, 5));
         
         Double nextPrice = pricingModel.getNextPrice(15, requests, null);
         assertEquals(new Double(1.0), nextPrice);
@@ -163,9 +163,9 @@ public class MaximizeUtilizationPricingModelTest {
         MaximizeUtilizationPricingModel pricingModel = new MaximizeUtilizationPricingModel(false);
         
         LinkedList<SIRequest> requests = new LinkedList<SIRequest>();
-        requests.add(new SIRequest(2.0, 5));
-        requests.add(new SIRequest(1.0, 5));
-        requests.add(new SIRequest(1.6, 5));
+        requests.add(new SIRequest("a", 2.0, 5));
+        requests.add(new SIRequest("b", 1.0, 5));
+        requests.add(new SIRequest("c", 1.6, 5));
         
         Double nextPrice = pricingModel.getNextPrice(15, requests, null);
         assertEquals(new Double(1.0), nextPrice);
@@ -178,9 +178,9 @@ public class MaximizeUtilizationPricingModelTest {
         MaximizeUtilizationPricingModel pricingModel = new MaximizeUtilizationPricingModel(true);
         
         LinkedList<SIRequest> requests = new LinkedList<SIRequest>();
-        requests.add(new SIRequest(2.0, 5));
-        requests.add(new SIRequest(1.0, 5));
-        requests.add(new SIRequest(1.4, 5));
+        requests.add(new SIRequest("a", 2.0, 5));
+        requests.add(new SIRequest("b", 1.0, 5));
+        requests.add(new SIRequest("c", 1.4, 5));
         
         Double nextPrice = pricingModel.getNextPrice(15, requests, null);
         assertEquals(new Double(1.0), nextPrice);
@@ -193,9 +193,9 @@ public class MaximizeUtilizationPricingModelTest {
         MaximizeUtilizationPricingModel pricingModel = new MaximizeUtilizationPricingModel(false);
         
         LinkedList<SIRequest> requests = new LinkedList<SIRequest>();
-        requests.add(new SIRequest(2.0, 5));
-        requests.add(new SIRequest(1.0, 5));
-        requests.add(new SIRequest(1.4, 5));
+        requests.add(new SIRequest("a", 2.0, 5));
+        requests.add(new SIRequest("b", 1.0, 5));
+        requests.add(new SIRequest("c", 1.4, 5));
         
         Double nextPrice = pricingModel.getNextPrice(15, requests, null);
         assertEquals(new Double(1.0), nextPrice);
@@ -208,11 +208,11 @@ public class MaximizeUtilizationPricingModelTest {
         MaximizeUtilizationPricingModel pricingModel = new MaximizeUtilizationPricingModel(true);
         
         LinkedList<SIRequest> requests = new LinkedList<SIRequest>();
-        requests.add(new SIRequest(200.0, 1));
-        requests.add(new SIRequest(1.0, 25));
-        requests.add(new SIRequest(2.0, 25));
-        requests.add(new SIRequest(3.0, 25));
-        requests.add(new SIRequest(4.0, 25));
+        requests.add(new SIRequest("a", 200.0, 1));
+        requests.add(new SIRequest("b", 1.0, 25));
+        requests.add(new SIRequest("c", 2.0, 25));
+        requests.add(new SIRequest("d", 3.0, 25));
+        requests.add(new SIRequest("e", 4.0, 25));
         
         Double nextPrice = pricingModel.getNextPrice(200, requests, null);
         assertEquals(new Double(MINIMUM_PRICE), nextPrice);
@@ -225,11 +225,11 @@ public class MaximizeUtilizationPricingModelTest {
         MaximizeUtilizationPricingModel pricingModel = new MaximizeUtilizationPricingModel(false);
         
         LinkedList<SIRequest> requests = new LinkedList<SIRequest>();
-        requests.add(new SIRequest(200.0, 1));
-        requests.add(new SIRequest(1.0, 25));
-        requests.add(new SIRequest(2.0, 25));
-        requests.add(new SIRequest(3.0, 25));
-        requests.add(new SIRequest(4.0, 25));
+        requests.add(new SIRequest("a", 200.0, 1));
+        requests.add(new SIRequest("b", 1.0, 25));
+        requests.add(new SIRequest("c", 2.0, 25));
+        requests.add(new SIRequest("d", 3.0, 25));
+        requests.add(new SIRequest("e", 4.0, 25));
         
         Double nextPrice = pricingModel.getNextPrice(200, requests, null);
         assertEquals(new Double(1.0), nextPrice);

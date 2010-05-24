@@ -1,9 +1,7 @@
 package org.globus.workspace.spotinstances;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.TreeSet;
 
 public class MaximizeProfitPricingModel extends AbstractPricingModel {
@@ -36,8 +34,8 @@ public class MaximizeProfitPricingModel extends AbstractPricingModel {
 
     private static Double getProfit(Double priceCandidate, Integer availableResources, Collection<SIRequest> allRequests){
         
-        Collection<SIRequest> priorityOffers = getOffersAbovePrice(priceCandidate, allRequests);
-        Collection<SIRequest> limitOffers = getOffersEqualPrice(priceCandidate, allRequests);
+        Collection<SIRequest> priorityOffers = SIRequestUtils.getRequestsAbovePrice(priceCandidate, allRequests);
+        Collection<SIRequest> limitOffers = SIRequestUtils.getRequestsEqualPrice(priceCandidate, allRequests);
         
         Collection<SIRequest> eligibleOffers = union(priorityOffers, limitOffers);
         
@@ -55,7 +53,7 @@ public class MaximizeProfitPricingModel extends AbstractPricingModel {
         Double totalProfit = 0.0;
         
         for (SIRequest siRequest : eligibleOffers) {
-            totalProfit += siRequest.getQuantity()*priceCandidate;
+            totalProfit += siRequest.getNeededInstances()*priceCandidate;
         }
         
         return totalProfit;
@@ -76,41 +74,10 @@ public class MaximizeProfitPricingModel extends AbstractPricingModel {
         Double demand = 0.0;
         
         for (SIRequest siRequest : bids) {
-            demand += siRequest.getQuantity();
+            demand += siRequest.getNeededInstances();
         }
         
         return demand/offeredResources;
-    }
-    
-    
-    
-    private static Collection<SIRequest> getOffersEqualPrice(
-            Double priceCandidate, Collection<SIRequest> allRequests) {
-        
-        List<SIRequest> offersEqualPrice = new ArrayList<SIRequest>();
-        
-        for (SIRequest siRequest : allRequests) {
-            if(siRequest.getMaxBid() == priceCandidate){
-                offersEqualPrice.add(siRequest);
-            }
-        }
-        
-        return offersEqualPrice;
-    }
-
-    private static Collection<SIRequest> getOffersAbovePrice(Double priceCandidate,
-            Collection<SIRequest> allRequests) {
-
-        List<SIRequest> offersAbovePrice = new ArrayList<SIRequest>();
-        
-        for (SIRequest siRequest : allRequests) {
-            if(siRequest.getMaxBid() > priceCandidate){
-                offersAbovePrice.add(siRequest);
-            }
-        }
-        
-        return offersAbovePrice;        
-        
     }
 
 }

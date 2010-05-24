@@ -28,7 +28,7 @@ public class MaximizeUtilizationPricingModel extends AbstractPricingModel {
             Double maxBid = siRequest.getMaxBid();
             if(maxBid >= MINIMUM_PRICE){
                 nextPrice = siRequest.getMaxBid();
-                availableResources -= siRequest.getQuantity();
+                availableResources -= siRequest.getNeededInstances();
                 if(availableResources <= 0){
                     break;
                 }
