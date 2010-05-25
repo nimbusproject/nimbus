@@ -19,11 +19,7 @@ package org.globus.workspace.xen;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.globus.workspace.Lager;
-import org.globus.workspace.ReturnException;
-import org.globus.workspace.WorkspaceConstants;
-import org.globus.workspace.WorkspaceException;
-import org.globus.workspace.WorkspaceUtil;
+import org.globus.workspace.*;
 import org.globus.workspace.cmdutils.SSHUtil;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.globus.workspace.service.binding.vm.VirtualMachineDeployment;
@@ -70,6 +66,8 @@ public class XenUtil implements WorkspaceConstants {
 
     /* The path on the compute or local node to workspace_control */
     private static String worksp;
+
+
 
     public static void setWorksp(String path) {
         if (worksp != null) {
@@ -118,7 +116,8 @@ public class XenUtil implements WorkspaceConstants {
     }
 
     public static ArrayList constructPropagateCommand(VirtualMachine vm,
-                                                      String notificationInfo)
+                                                      String notificationInfo,
+                                                      NamespaceTranslator nsTrans)
             throws WorkspaceException {
 
         if (vm == null) {
@@ -148,11 +147,15 @@ public class XenUtil implements WorkspaceConstants {
             cmd.add("--images");
             for (int i = 0; i < partitions.length; i++) {
                 if (partitions[i].isRootdisk()) {
-                    cmd.add(partitions[i].getImage());
+                    String img = partitions[i].getImage();
+                    if(nsTrans != null) {
+                        img = nsTrans.translateExternaltoInternal(img);
+                    }
+                    cmd.add(img);
                     break;
                 }
             }
-        }
+        }                                                                                                              
 
         if (notificationInfo != null) {
             cmd.add("--notify");
@@ -163,7 +166,8 @@ public class XenUtil implements WorkspaceConstants {
     }
 
     public static ArrayList constructUnpropagateCommand(VirtualMachine vm,
-                                                       String notificationInfo)
+                                                       String notificationInfo,
+                                                       NamespaceTranslator nsTrans)
             throws WorkspaceException {
 
         if (vm == null) {
@@ -200,7 +204,11 @@ public class XenUtil implements WorkspaceConstants {
             cmd.add("--images");
             for (int i = 0; i < partitions.length; i++) {
                 if (partitions[i].isRootdisk()) {
-                    cmd.add(partitions[i].getImage());
+                    String img = partitions[i].getImage();
+                    if(nsTrans != null) {
+                        img = nsTrans.translateExternaltoInternal(img);
+                    }
+                    cmd.add(img);
                     altTargets = partitions[i].getAlternateUnpropTarget();
                     break;
                 }
@@ -209,6 +217,10 @@ public class XenUtil implements WorkspaceConstants {
 
         if (altTargets != null) {
             cmd.add("--unproptargets");
+            String img = altTargets;
+            if(nsTrans != null) {
+                img = nsTrans.translateExternaltoInternal(altTargets);
+            }
             cmd.add(altTargets);
         }
 
@@ -224,11 +236,37 @@ public class XenUtil implements WorkspaceConstants {
                                                    boolean startpaused)
             throws WorkspaceException {
 
-        return constructCreateCommand(vw, startpaused, null);
+        return constructCreateCommand(vw, startpaused, null, null);
+    }
+
+    public static ArrayList constructCreateCommand(VirtualMachine vw,
+                                                   boolean startpaused,
+                                                   NamespaceTranslator nsTrans)
+            throws WorkspaceException {
+
+        return constructCreateCommand(vw, startpaused, nsTrans, null);
+    }
+
+    private static String convertToAlreadyPropigated(String name,
+                                                     NamespaceTranslator nsTrans)
+            throws WorkspaceException {
+
+        String img = name;
+        if(nsTrans != null) {
+            img = nsTrans.translateExternaltoInternal(img);
+        }
+        int ndx = img.lastIndexOf('/');
+
+        if(ndx > 0)
+        {
+            img = img.substring(ndx);
+        }
+        return "file://" + img;
     }
 
     public static ArrayList constructCreateCommand(VirtualMachine vm,
                                                    boolean startpaused,
+                                                   NamespaceTranslator nsTrans,
                                                    String notificationInfo)
             throws WorkspaceException {
 
@@ -323,7 +361,8 @@ public class XenUtil implements WorkspaceConstants {
         // todo: generalize when propagating more than just rootdisk
         if (rootdisk != null) {
             
-            final String rootImageURI = rootdisk.getImage();
+            String rootImageURI = rootdisk.getImage();
+            convertToAlreadyPropigated(rootImageURI, nsTrans);
 
             // We know that if Propagate was required and notificationInfo
             // is null that this is a create command following a successful

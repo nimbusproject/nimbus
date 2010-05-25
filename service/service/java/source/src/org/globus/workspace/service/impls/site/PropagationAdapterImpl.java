@@ -18,11 +18,7 @@ package org.globus.workspace.service.impls.site;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.globus.workspace.Counter;
-import org.globus.workspace.CounterCallback;
-import org.globus.workspace.Lager;
-import org.globus.workspace.WorkspaceException;
-import org.globus.workspace.WorkspaceUtil;
+import org.globus.workspace.*;
 import org.globus.workspace.persistence.WorkspaceDatabaseException;
 import org.globus.workspace.persistence.PersistenceAdapter;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
@@ -72,6 +68,8 @@ public class PropagationAdapterImpl implements PropagationAdapter,
     private boolean enabled;
     private long watcherDelay = 2000;
 
+    protected NamespaceTranslator nsTrans = null;
+
 
     // -------------------------------------------------------------------------
     // CONSTRUCTOR
@@ -82,8 +80,10 @@ public class PropagationAdapterImpl implements PropagationAdapter,
                                   ResourceMessage resourceMessageImpl,
                                   TimerManager timerManagerImpl,
                                   GlobalPolicies globalPolicies,
-                                  Lager lagerImpl) {
+                                  Lager lagerImpl,
+                                  NamespaceTranslator nsTrans) {
 
+        this.nsTrans = nsTrans;
         if (persistenceAdapter == null) {
             throw new IllegalArgumentException("persistenceAdapter may not be null");
         }
@@ -250,8 +250,7 @@ public class PropagationAdapterImpl implements PropagationAdapter,
         this.globals.setUnpropagateEnabled(true);
 
         logger.debug("validated/initialized");
-    }
-
+    }    
     
     // -------------------------------------------------------------------------
     // implements PropagationAdapter
@@ -259,7 +258,7 @@ public class PropagationAdapterImpl implements PropagationAdapter,
 
     public ArrayList constructPropagateCommand(VirtualMachine vm) {
         try {
-            return XenUtil.constructPropagateCommand(vm, this.notify);
+            return XenUtil.constructPropagateCommand(vm, this.notify, this.nsTrans);
         } catch (WorkspaceException e) {
             return null;
         }
@@ -267,7 +266,7 @@ public class PropagationAdapterImpl implements PropagationAdapter,
 
     public ArrayList constructPropagateToStartCommand(VirtualMachine vm) {
         try {
-            return XenUtil.constructCreateCommand(vm, false, this.notify);
+            return XenUtil.constructCreateCommand(vm, false, this.nsTrans, this.notify);
         } catch (WorkspaceException e) {
             return null;
         }
@@ -275,7 +274,7 @@ public class PropagationAdapterImpl implements PropagationAdapter,
 
     public ArrayList constructPropagateToPauseCommand(VirtualMachine vm) {
         try {
-            return XenUtil.constructCreateCommand(vm, true, this.notify);
+            return XenUtil.constructCreateCommand(vm, true, this.nsTrans, this.notify);
         } catch (WorkspaceException e) {
             return null;
         }
@@ -283,7 +282,7 @@ public class PropagationAdapterImpl implements PropagationAdapter,
 
     public ArrayList constructUnpropagateCommand(VirtualMachine vm) {
         try {
-            return XenUtil.constructUnpropagateCommand(vm, this.notify);
+            return XenUtil.constructUnpropagateCommand(vm, this.notify, this.nsTrans);
         } catch (WorkspaceException e) {
             return null;
         }

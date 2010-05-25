@@ -26,6 +26,7 @@ public class AuthzDBAdapter
     private static final String FIND_USER_BY_ALIAS = "Select user_id from user_alias where alias_name = ? and alias_type = ?";
     private static final String CHECK_PERMISSIONS = "Select access_type_id from object_acl where object_id = ? and user_id = ?";
     private static final String GET_DATA_KEY = "select data_key from objects where id = ?";
+    private static final String CREATE_NEW_FILE = "insert into objects (name, owner_id, data_key, object_type, parent_id, creation_time) values(?, ?, ?, ?, ?, ?)";
 
     public static final int ALIAS_TYPE_S3 = 1;
     public static final int ALIAS_TYPE_DN = 2;
@@ -131,9 +132,60 @@ public class AuthzDBAdapter
         }
     }
 
-    public int getFileID(
-        String                          parentName,
+    public void newFile(
         String                          fileName,
+        int                             parentId,
+        String                          canonicalUser,
+        String                          dataKey,
+        int                             objectType)
+            throws WorkspaceDatabaseException
+    {
+        Connection c = null;
+        PreparedStatement pstmt = null;
+
+        try
+        {
+            c = getConnection();
+            pstmt = c.prepareStatement(CREATE_NEW_FILE);
+            pstmt.setString(1, fileName);
+            pstmt.setString(2, canonicalUser);
+            pstmt.setString(3, dataKey);
+            pstmt.setInt(4, objectType);
+            pstmt.setInt(5, parentId);
+            int rc = pstmt.executeUpdate();
+            if(rc != 1)
+            {
+                throw new WorkspaceDatabaseException("did not insert the row properly");
+            }
+        }
+        catch(SQLException e)
+        {
+            logger.error("an error occured looking up the file ", e);
+            throw new WorkspaceDatabaseException(e);
+        }
+        finally
+        {
+            try
+            {
+                if (pstmt != null)
+                {
+                    pstmt.close();
+                }
+                if (c != null)
+                {
+                    returnConnection(c);
+                }
+            }
+            catch (SQLException sql)
+            {
+                logger.error("SQLException in finally cleanup", sql);
+            }
+        }
+    }
+
+    public int getFileID(
+        String                          fileName,
+        int                             parentId,
         int                             objectType)
             throws WorkspaceDatabaseException
     {
@@ -144,13 +196,11 @@ public class AuthzDBAdapter
         try
         {
             c = getConnection();
-            if(parentName == null)
+            if(parentId < 0)
             {
                logger.debug("There is no parent object so this must be a parent " + fileName);
                return getParentObject(c, fileName, objectType);
             }
-            int parentId = getParentObject(c, parentName, objectType);
-
             pstmt = c.prepareStatement(FIND_OBJECT_BY_NAME);
             pstmt.setString(1, fileName);
             pstmt.setInt(2, parentId);
@@ -158,7 +208,7 @@ public class AuthzDBAdapter
             ResultSet rs = pstmt.executeQuery();
             if(!rs.next())
             {
-                throw new WorkspaceDatabaseException("no such file found  " + fileName);
+                return -1;
             }
             int objectId = rs.getInt(1);
             return objectId;
