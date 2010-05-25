@@ -2,6 +2,8 @@ package org.globus.workspace.sqlauthz;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.globus.workspace.NamespaceTranslator;
+import org.globus.workspace.WorkspaceException;
 import org.globus.workspace.groupauthz.DecisionLogic;
 import org.globus.workspace.groupauthz.GroupRights;
 import org.globus.workspace.persistence.WorkspaceDatabaseException;
@@ -9,6 +11,7 @@ import org.globus.workspace.service.binding.vm.VirtualMachinePartition;
 import org.nimbustools.api.services.rm.AuthorizationException;
 import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
 
+import javax.sql.DataSource;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -21,19 +24,147 @@ import java.net.URISyntaxException;
  * org.globus.workspace.sqlauthz
  */
 public class AuthzDecisionLogic extends DecisionLogic
+    implements NamespaceTranslator
 {
     private static final Log logger =
             LogFactory.getLog(AuthzDecisionLogic.class.getName());
     protected AuthzDBAdapter            authDB;
-    protected SqlAuthz                  sqlA;
+    private String                      repoScheme = null;
+    private String                      repoHost = null;
+    private String                      repoDir = null;
 
     public  AuthzDecisionLogic(
-        AuthzDBAdapter                  dbAdapter,
-        SqlAuthz                        sqlA)
+        DataSource ds)
     {
-        this.authDB = dbAdapter;
-        this.sqlA = sqlA;
-        logger.debug("BuzzTroll AuthzDecider");
+        this.authDB = new AuthzDBAdapter(ds);
+    }
+
+    public String translateExternaltoInternal(
+        String                          publicUrl)        
+            throws WorkspaceException
+    {
+        String rc = null;
+        try
+        {
+            String [] urlParts = parseUrl(publicUrl);
+
+            String scheme = urlParts[0];
+            String hostport = urlParts[1];
+            String objectname = urlParts[2];
+
+            // hinge on scheme, perhaps set up fancy interface plugin decision later
+            if(scheme.equals("cumulus"))
+            {
+                rc = this.translateCumulus(hostport, objectname);
+            }
+            else if(scheme.equals("file"))
+            {
+                rc = publicUrl;
+            }
+        }
+        catch(Exception ex)
+        {
+            throw new WorkspaceException("error translating cumulus name", ex);
+        }
+
+        if(rc == null)
+        {
+            throw new WorkspaceException("external image scheme " + publicUrl + " is not supported");
+        }
+        return rc;
+    }
+
+    protected String translateCumulus(
+        String                          hostport,
+        String                          objectName)
+            throws AuthorizationException
+    {
+        try
+        {
+            int [] fileIds = this.cumulusGetFileID(hostport, objectName);
+
+            if(fileIds[1] < 0)
+            {
+                throw new AuthorizationException("The file is not found and thus cannot be translated " + objectName);
+            }
+
+            String dataKey = this.authDB.getDataKey(fileIds[1]);
+            String rc = this.getRepoScheme() + "://" + this.getRepoHost() + "/" + dataKey;
+
+            logger.debug("converted " + objectName + " to " + rc);
+
+            return rc;
+        }
+        catch(WorkspaceDatabaseException wsdbex)
+        {
+            logger.error("iternal db problem", wsdbex);
+            throw new AuthorizationException("Internal problem with the data base " + wsdbex.toString()); 
+        }
+    }
+
+    private String [] parseUrl(
+        String                          url)
+            throws AuthorizationException
+    {
+        String [] results = url.split("://", 2);
+        if(results == null || results.length != 2)
+        {
+            throw new  AuthorizationException("Poorly formed repository url, no scheme " + url);
+        }
+        String scheme = results[0];
+        String remaining = results[1];
+
+        results = remaining.split("/", 2);
+        if(results == null || results.length != 2)
+        {
+            throw new  AuthorizationException("Poorly formed repository url, no host separator " + url);
+        }
+        String hostname = results[0];
+        String objectName = results[1];
+
+        results = new String[3];
+        results[0] = scheme;
+        results[1] = hostname;
+        results[2] = objectName;
+
+        return results;
+    }
+
+    private int [] cumulusGetFileID(
+        String                          hostport,
+        String                          objectName)
+            throws AuthorizationException
+    {
+        String bucketName;
+        String keyName;
+
+        String [] results = objectName.split("/", 2);
+        if(results == null || results.length != 2)
+        {
+            throw new  AuthorizationException("Poorly formed bucket/key " + objectName);
+        }
+        bucketName = results[0];
+        keyName = results[1];
+
+        try
+        {
+            int parentId = authDB.getFileID(bucketName, -1, AuthzDBAdapter.OBJECT_TYPE_S3);
+            if (parentId < 0)
+            {
+                throw new AuthorizationException("No such bucket " + bucketName);
+            }
+            int fileId = authDB.getFileID(keyName, parentId, AuthzDBAdapter.OBJECT_TYPE_S3);
+            int [] rc = new int[2];
+            rc[0] = parentId;
+            rc[1] = fileId;
+            
+            return rc;
+        }
+        catch(WorkspaceDatabaseException wsdbex)
+        {
+            logger.error("trouble looking up the cumulus information ", wsdbex);
+            throw new AuthorizationException("Trouble with the database " + wsdbex.toString());
+        }
     }
 
     protected void checkImages(
@@ -57,22 +188,26 @@ public class AuthzDecisionLogic extends DecisionLogic
             }
 
             String incomingImageName = parts[i].getImage();
-            String unPropImageName = parts[i].getAlternateUnpropTarget();
+            String unPropImageName = null;
+            if(parts[i].isPropRequired())
+            {
+                unPropImageName = parts[i].getAlternateUnpropTarget();
+                if(unPropImageName == null)
+                {
+                    unPropImageName = incomingImageName;
+                }
+            }
 
-            logger.debug("BuzzTroll image " + incomingImageName + " requested");
-            logger.debug("BuzzTroll unprop image " + unPropImageName + " requested");
+            logger.debug("Image " + incomingImageName + " requested");
+            logger.debug("Unprop image " + unPropImageName + " requested");
             try
             {
-                String newImageName = checkUrlAndTranslate(incomingImageName, dn, false);
-
-                logger.debug("BuzzTroll setting new image name " + newImageName);
-                parts[i].setImage(newImageName);
+                // just authorize the image
+                checkUrl(incomingImageName, dn, false);
 
                 if(unPropImageName != null)
-                {
-                    newImageName = checkUrlAndTranslate(unPropImageName, dn, true);
-                    logger.debug("BuzzTroll setting new unprop name " + newImageName);
-                    parts[i].setAlternateUnpropTarget(newImageName);
+                {                    
+                    checkUrl(unPropImageName, dn, true);
                 }
             }
             catch (Exception e)
@@ -87,35 +222,18 @@ public class AuthzDecisionLogic extends DecisionLogic
         }
     }
 
-    private String checkUrlAndTranslate(
+    private boolean checkUrl(
         String                          url,
         String                          userId,
         boolean                         write)
             throws AuthorizationException, WorkspaceDatabaseException
     {
-        String scheme;
-        String hostname;
-        String objectName;
-        String remaining;
         int    fileId;
+        String [] urlParts = this.parseUrl(url);
+        String scheme = urlParts[0];
+        String hostport = urlParts[1];
+        String objectName = urlParts[2];
 
-        String [] results = url.split("://", 2);
-        if(results == null || results.length != 2)
-        {
-            throw new  AuthorizationException("Poorly formed repository url, no scheme " + url + " " + results.length);
-        }
-        scheme = results[0];
-        remaining = results[1];
-
-        results = remaining.split("/", 2);
-        if(results == null || results.length != 2)
-        {
-            throw new  AuthorizationException("Poorly formed repository url, no host separator " + url);
-        }
-        hostname = results[0];
-        objectName = results[1];
-
-        logger.debug("User requesting the " + scheme + " " + hostname + " " + objectName);
         int schemeType = -1;
         // Here would be a good place to hindge on scheme.  We could make a plugin interface
         // that allowed namespace conversion based on scheme and hostname:port.  Hostname is
@@ -126,48 +244,91 @@ public class AuthzDecisionLogic extends DecisionLogic
         if(scheme.equals("cumulus"))
         {
             schemeType = AuthzDBAdapter.OBJECT_TYPE_S3;
-            // get the parent object id and filename
-            results = objectName.split("/", 2);
-            if(results == null || results.length != 2)
+            try
             {
-                throw new AuthorizationException("Invalid bucket/key " + objectName);
+                String canUser = authDB.getCanonicalUserIdFromDn(userId);
+                int [] fileIds = this.cumulusGetFileID(hostport, objectName);
+                String [] results = objectName.split("/", 2);
+                String bucketName = results[0];
+                String keyName = results[1];
+
+                if(fileIds[0] < 0)
+                {
+                    throw new AuthorizationException("The bucket name " + bucketName + " was not found.");
+                }
+                String perms = "";
+                if(fileIds[1] < 0 && write)
+                {
+                    String dataKey = this.getRepoDir() + "/" + objectName.replace("/", "__");
+                    logger.debug("Adding new datakey " + dataKey);
+                    authDB.newFile(keyName, fileIds[0], canUser, dataKey, schemeType);
+                    fileIds = this.cumulusGetFileID(hostport, objectName);
+                }
+                perms = authDB.getPermissions(fileIds[1], canUser);
+                if(fileIds[1] < 0)
+                {
+                    throw new AuthorizationException("the object " + objectName + " was not found.");
+                }
+                
+                int ndx = perms.indexOf('r');
+                if(ndx < 0)
+                {
+                    throw new AuthorizationException("user " + userId + " canonical ID " + canUser + " does not have read access to " + url);
+                }
+                if(write)
+                {
+                    ndx = perms.indexOf('w');
+                    if(ndx < 0)
+                    {
+                        throw new AuthorizationException("user " + userId + " does not have write access to " + url);
+                    }
+                }
             }
-            logger.debug("Finding the fileID for " + results[0] + " " + results[1]);
-            fileId = authDB.getFileID(results[0], results[1], schemeType);
+            catch(WorkspaceDatabaseException wsdbex)
+            {
+                logger.error("iternal db problem", wsdbex);
+                throw new AuthorizationException("Internal problem with the data base " + wsdbex.toString());
+            }
         }
         else if (scheme.equals("file"))
         {
-            return url;
+            return true;
         }
         else
         {
             throw new AuthorizationException("scheme of: " + scheme + " is not supported.");
         }
-
-        String canUser = authDB.getCanonicalUserIdFromDn(userId);
-        String perms = authDB.getPermissions(fileId, canUser);
-
-        int ndx = perms.indexOf('r');
-        if(ndx < 0)
-        {
-            throw new AuthorizationException("user " + userId + " canonical ID " + canUser + " does not have read access to " + url);
-        }
-        if(write)
-        {
-            ndx = perms.indexOf('w');
-            if(ndx < 0)
-            {
-                throw new AuthorizationException("user " + userId + " does not have write access to " + url);
-            }
-        }
-
-        String repoFile = authDB.getDataKey(fileId);
-        String repoScheme = sqlA.getRepoScheme();
-        String repoHost = sqlA.getReopHost();
-        String repoDir = sqlA.getRepoDir();
-        String rc = repoScheme + repoHost + repoDir + "/" + repoFile;
-
-        return rc;        
+        return true;
     }
 
+    public void setRepoScheme(String repoScheme)
+    {
+        this.repoScheme = repoScheme;
+    }
+
+    public String getRepoScheme()
+    {
+        return this.repoScheme;
+    }
+
+    public void setRepoHost(String repoHost)
+    {
+        this.repoHost = repoHost;
+    }
+
+    public String getRepoHost()
+    {
+        return this.repoHost;
+    }
+
+    public void setRepoDir(String repoDir)
+    {
+        this.repoDir = repoDir;
+    }
+
+    public String getRepoDir()
+    {
+        return this.repoDir;
+    }
+    
 }

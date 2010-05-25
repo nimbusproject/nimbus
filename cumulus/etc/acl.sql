@@ -119,7 +119,7 @@ create table objects(
     parent_id INTEGER REFERENCES objects(id) DEFAULT NULL,
 
     md5sum CHAR(32),
-    object_size INTEGER,
+    object_size INTEGER DEFAULT 0,
     creation_time DATETIME,
     UNIQUE(object_type, name, parent_id)
 );

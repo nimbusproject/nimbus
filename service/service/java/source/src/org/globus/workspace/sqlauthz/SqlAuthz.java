@@ -38,51 +38,17 @@ public class SqlAuthz extends GroupAuthz
 {
     private static final Log logger =
             LogFactory.getLog(SqlAuthz.class.getName());
-    private AuthzDBAdapter                  authDB = null;
-    private DataSource                      dataSource = null;
-    private String                          repoScheme = null;
-    private String                          repoHost = null;
-    private String                          repoDir = null;
+    private AuthzDecisionLogic                  authD = null;
 
-    public SqlAuthz(DataSource dataSource)
+    public SqlAuthz(AuthzDecisionLogic authd)
     {
-        this.dataSource = dataSource;
-        this.authDB = new AuthzDBAdapter(this.dataSource);                
+        this.authD = authd;
     }
     
     public void validate() throws Exception
     {
         super.initializeCallout();
-        this.theDecider = new AuthzDecisionLogic(this.authDB, this);
+        this.theDecider = this.authD;
     }
     
-    public void setRepoScheme(String repoScheme)
-    {
-        this.repoScheme = repoScheme;
-    }
-
-    public String getRepoScheme()
-    {
-        return this.repoScheme;
-    }
-
-    public void setRepoHost(String repoHost)
-    {
-        this.repoHost = repoHost;
-    }
-
-    public String getReopHost()
-    {
-        return this.repoHost;
-    }
-
-    public void setRepoDir(String repoDir)
-    {
-        this.repoDir = repoDir;
-    }
-
-    public String getRepoDir()
-    {
-        return this.repoDir;
-    }
 }

@@ -16,13 +16,15 @@
 
 package org.globus.workspace.service.binding.authorization;
 
+import org.globus.workspace.NamespaceTranslator;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.nimbustools.api.services.rm.AuthorizationException;
 import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
 
 import javax.security.auth.Subject;
 
-public class DisabledCallout implements CreationAuthorizationCallout {
+public class DisabledCallout implements CreationAuthorizationCallout
+{
 
     public boolean isEnabled() {
         return false;
