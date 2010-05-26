@@ -20,7 +20,7 @@ class propadapter(PropagationAdapter):
         self.c.log.debug("Validating hdfs propagation adapter")
         
         self.hadoop = self.p.get_conf_or_none("propagation", "hdfs")
-        if not self.hdfs:
+        if not self.hadoop:
             raise InvalidConfig("no path to hadoop")
         
         # Expand any enviroment variables first
@@ -92,7 +92,7 @@ class propadapter(PropagationAdapter):
             self.parsed_url = self.__parse_url(remote_target)
             
         ops = [self.hadoop, "fs",
-               "-fs", self.parsed_url[0]+'hdfs://'+self.parsed_url[1],
+               "-fs", self.parsed_url[0]+'://'+self.parsed_url[1],
                "-copyToLocal", self.parsed_url[2], local_absolute_target]
         cmd = " ".join(ops)
         return cmd
@@ -101,10 +101,10 @@ class propadapter(PropagationAdapter):
         # Generate command in the form of:
         # /path/to/hadoop/bin/hadoop dfs -fs <file system uri> -test -e <path>
         if not self.parsed_url:
-            self.parsed_url = self.__parse_url(remote_target)
+            self.parsed_url = self.__parse_url(imagestr)
             
         ops = [self.hadoop, "fs",
-               "-fs", self.parsed_url[0]+'hdfs://'+self.parsed_url[1],
+               "-fs", self.parsed_url[0]+'://'+self.parsed_url[1],
                "-test", "-e", self.parsed_url[2]]
         cmd = " ".join(ops)
         return cmd
@@ -117,7 +117,7 @@ class propadapter(PropagationAdapter):
         if len(url) != 2:
             raise InvalidInput("url not of the form <scheme>://<netloc>/<path>")
         scheme = url[0]
-        netloc, sep, path = url[1].partition('/')
+        netloc, path = url[1].split('/', 1)
         # Add leading / back in since it was used to partition netloc from path
         path = '/'+path
         return (scheme, netloc, path)
