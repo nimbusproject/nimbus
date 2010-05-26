@@ -197,8 +197,6 @@ class User(object):
         s = "SELECT SUM(object_size) FROM objects where owner_id = ? and object_type = ?"
         ot = pynimbusauthz.object_types[object_type]
         data = [self.uuid, ot]
-        print s
-        print data
         row = self.db_obj._run_fetch_one(s, data)
         if row == None or len(row) == 0 or row[0] == None:
             return 0
