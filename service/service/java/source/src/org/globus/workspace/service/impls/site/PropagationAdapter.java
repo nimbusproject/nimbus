@@ -16,7 +16,6 @@
 
 package org.globus.workspace.service.impls.site;
 
-import org.globus.workspace.NamespaceTranslator;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
 
 import java.util.ArrayList;

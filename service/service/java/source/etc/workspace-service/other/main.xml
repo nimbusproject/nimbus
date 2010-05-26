@@ -321,7 +321,9 @@
         <constructor-arg ref="nimbus-rm.loglevels" />
         <constructor-arg ref="nimbus-rm.persistence.DataConvert" />
         <constructor-arg ref="other.cacheManager" />
+        
         <property name="scheduler" ref="nimbus-rm.scheduler.Scheduler" />
+        <property name="repoAdaptor" ref="nimbus-rm.service.binding.RepoAdaptor" />
 
     </bean>
 
@@ -459,8 +461,6 @@
         <constructor-arg ref="other.timerManager" />
         <constructor-arg ref="nimbus-rm.service.binding.GlobalPolicies" />
         <constructor-arg ref="nimbus-rm.loglevels" />
-        <constructor-arg ref="nimbus-rm.service.binding.NamespaceTranslator" />
-
     </bean>
 
     

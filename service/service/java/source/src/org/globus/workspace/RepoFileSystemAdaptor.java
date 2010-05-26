@@ -10,10 +10,14 @@ import org.nimbustools.api.services.rm.AuthorizationException;
  * <p/>
  * org.globus.workspace
  */
-public interface NamespaceTranslator
+public interface RepoFileSystemAdaptor
 {
     public String translateExternaltoInternal(
         String                          publicName)
             throws WorkspaceException;
+
+    public void unpropagationFinished(
+        String                          publicName)
+        throws WorkspaceException;
 
 }

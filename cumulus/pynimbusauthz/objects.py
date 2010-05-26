@@ -53,10 +53,13 @@ class File(object):
         self.md5sum = row[File.cols['md5sum']]
         self.object_size = row[File.cols['object_size']]
         ctm = row[File.cols['creation_time']]
-        ndx = ctm.rfind(".")
-        if ndx > 0:
-            ctm = ctm[:ndx]
-        self.creation_time = time.strptime(ctm, "%Y-%m-%d %H:%M:%S")
+        if ctm != None:
+            ndx = ctm.rfind(".")
+            if ndx > 0:
+                ctm = ctm[:ndx]
+            self.creation_time = time.strptime(ctm, "%Y-%m-%d %H:%M:%S")
+        else:
+            self.creation_time = None
 
     def get_owner(self):
         return self.owner

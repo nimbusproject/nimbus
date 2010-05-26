@@ -66,7 +66,7 @@ public class XenUtil implements WorkspaceConstants {
 
     /* The path on the compute or local node to workspace_control */
     private static String worksp;
-
+    private static RepoFileSystemAdaptor nsTrans;
 
 
     public static void setWorksp(String path) {
@@ -74,6 +74,17 @@ public class XenUtil implements WorkspaceConstants {
             return;
         }
         worksp = path;
+    }
+
+    public static void setRepoAdaptor(RepoFileSystemAdaptor nsT) {
+        if (nsTrans != null) {
+            return;
+        }
+        nsTrans = nsT;
+    }
+
+    public static RepoFileSystemAdaptor getNsTrans() {
+        return nsTrans;
     }
 
     public static ArrayList constructRemoveCommand(VirtualMachine vw,
@@ -116,8 +127,7 @@ public class XenUtil implements WorkspaceConstants {
     }
 
     public static ArrayList constructPropagateCommand(VirtualMachine vm,
-                                                      String notificationInfo,
-                                                      NamespaceTranslator nsTrans)
+                                                      String notificationInfo)
             throws WorkspaceException {
 
         if (vm == null) {
@@ -166,8 +176,7 @@ public class XenUtil implements WorkspaceConstants {
     }
 
     public static ArrayList constructUnpropagateCommand(VirtualMachine vm,
-                                                       String notificationInfo,
-                                                       NamespaceTranslator nsTrans)
+                                                       String notificationInfo)
             throws WorkspaceException {
 
         if (vm == null) {
@@ -236,19 +245,11 @@ public class XenUtil implements WorkspaceConstants {
                                                    boolean startpaused)
             throws WorkspaceException {
 
-        return constructCreateCommand(vw, startpaused, null, null);
+        return constructCreateCommand(vw, startpaused, null);
     }
 
-    public static ArrayList constructCreateCommand(VirtualMachine vw,
-                                                   boolean startpaused,
-                                                   NamespaceTranslator nsTrans)
-            throws WorkspaceException {
 
-        return constructCreateCommand(vw, startpaused, nsTrans, null);
-    }
-
-    private static String convertToAlreadyPropigated(String name,
-                                                     NamespaceTranslator nsTrans)
+    private static String convertToAlreadyPropigated(String name)
             throws WorkspaceException {
 
         String img = name;
@@ -266,7 +267,6 @@ public class XenUtil implements WorkspaceConstants {
 
     public static ArrayList constructCreateCommand(VirtualMachine vm,
                                                    boolean startpaused,
-                                                   NamespaceTranslator nsTrans,
                                                    String notificationInfo)
             throws WorkspaceException {
 
@@ -357,7 +357,7 @@ public class XenUtil implements WorkspaceConstants {
         if (rootdisk != null) {
             
             String rootImageURI = rootdisk.getImage();
-            convertToAlreadyPropigated(rootImageURI, nsTrans);
+            convertToAlreadyPropigated(rootImageURI);
 
             // We know that if Propagate was required and notificationInfo
             // is null that this is a create command following a successful

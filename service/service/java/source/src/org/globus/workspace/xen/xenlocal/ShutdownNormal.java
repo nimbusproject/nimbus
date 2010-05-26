@@ -39,4 +39,9 @@ public class ShutdownNormal extends XenTask {
                     "context, can not " + this.name);
         }
     }
+
+     protected Exception postExecute(Exception e, boolean fake) {
+        e = super.postExecute(e, fake);
+        return e;
+    }
 }
