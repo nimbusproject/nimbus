@@ -55,8 +55,7 @@ public class ShutdownNormal extends XenTask {
             
             RepoFileSystemAdaptor nsTrans = XenUtil.getNsTrans();
 
-            VirtualMachinePartition[] parts = vm.getPartitions();
-
+            VirtualMachinePartition[] parts = vm.getPartitions();            
 
             for(int i = 0; i < parts.length; i++) {
                 if (parts[i].isRootdisk()) {
@@ -65,6 +64,7 @@ public class ShutdownNormal extends XenTask {
                     {
                         img = parts[i].getAlternateUnpropTarget();
                     }
+                    
                     if(nsTrans != null) {
                         nsTrans.unpropagationFinished(img);                        
                     }
