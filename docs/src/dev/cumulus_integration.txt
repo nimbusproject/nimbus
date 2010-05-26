@@ -1,0 +1,216 @@
+Cumulus Integration
+===================
+
+This document contains information on the changes to the Nimbus service 
+and the cloud-client program that were needed in order to integrate 
+Cumulus system.  The goal is to give Nimbus developers insight into how 
+the system works.  The intended audience is not Nimbus users but Nimbus 
+developers.
+
+Cumulus
+=======
+
+Cumulus is an S3 REST API look-a-like.  It was written to be protocol 
+compliant and semantically equivalent with the REST API documented here:
+
+http://docs.amazonwebservices.com/AmazonS3/latest/API/APIRest.html
+
+Absent features
+---------------
+
+The following features of S3 are absent in cumulus:
+
+- Versioning
+- Location
+- Logging
+- Object POST
+- Object COPY
+- torrent
+
+Dependencies
+------------
+
+Cumulus was implemented in python on top of the twisted.web framework. 
+The internally created library pynimbusauthz is used for handling the 
+ACL features of S3.  At the moment pynimbusauthz uses sqlite, but it 
+should be trivially ported to any other database.
+
+- python 2.5 or greater
+- twisted.web
+- boto 
+- sqlite3
+
+Due to known bugs and security complications, internal modifications to 
+twisted.web had to be made.  More information about these modifications 
+can be found here:
+
+http://www.mail-archive.com/twisted-web@twistedmatrix.com/msg02396.html
+http://twistedmatrix.com/trac/ticket/288
+
+Security Plug In
+----------------
+
+Cumulus has a plug in interface for security implementations.  Two plug 
+ins were created, one using text files and another using pynimbusauthz 
+(and thus using sqlite).  The text file plug in is already out of date.  
+It could be brought up to date easily but at this point we expect the 
+only security plugin to ever be used will be the pynimbusauthz one.  
+This paragraph is only here just in the off chance that some developer 
+from the future has a need for a new security interface.  If you are 
+that future developer, rest assured, there is a decent abstraction to 
+ACL and security management in cumulus.
+
+Backend Plug In
+---------------
+
+Currently there is only one backend plugin written, but we expect others 
+in the future.  The backend plugin is responsible for handling the 
+actual storage of data.  The rest of cumulus handles marshalling the 
+REST API wire protocol, authenticating users, managing bucket/object 
+namespaces and mapping, etc.  The backend plug in is specifically 
+responsible for being a source and sink of data.  The interface for the 
+backend plugin can be seen in the file cbBackendInterface.py.  There are 
+two objects in the file, a DataObject and a BucketInterface.  The Bucket 
+interface is primarily a factory for DataObjects, but it also handles 
+tasks like getting DataObject sizes and modification times, and deleting 
+DataObject.  The DataObject is a file-like object.  The optional 
+file-like methods are doc-ed out in the interface file.
+
+The reference implementation for the backend plugin is called 
+cbPosixBackend.py.  This plugin simply uses a filesystem as a DataStore. 
+Other plug-ins that we expect to create in the near future are Cassandra 
+and HDFS.
+
+cloud-client
+============
+
+The cloud client has been re-organized such that it now has Repository 
+modules.  The interface to these modules is defined in the file 
+RepositoryInterface.java.  The code needed to do the legacy GridFTP 
+protocol was pulled out and put into the file 
+GridFTPRepositoryUtil.java. The remainder of the code was re-factored so 
+that calls were made into that file at the appropriate time.
+
+[ note: One area to note here is the use of getDerivedImageURL().  This 
+method is called into by 
+org/globus/workspace/cloud/meta/client/Cloud.java and in such a way that 
+configuration options need to be inflated awkwardly (see line 205). ]
+
+A Cumulus repository interface was also created.  The interface provides 
+equivalent semantics to the previous GridFTP based implementation. When 
+a user lists VMs, they see only their VMs as read/write and they see 
+site common VMs as read only.  No other VMs are listed.  Cumulus itself 
+does have rich file sharing capabilities, but these features are not yet 
+exposed to the cloud client user.
+
+Currently the Cumulus repository interface picks up the following 
+information form the conf/cloud.properties file.
+
+- vws.repository.s3id
+    The users S3 ID.  This ID must be associated with the users x509 cert 
+    in the authz database.
+
+- vws.repository.s3key
+    The users S3 secret key.
+
+- vws.repository.s3bucket
+    The site specific bucket name where all VM images (that will show 
+    up in a listing) are kept.
+
+- vws.repository.s3basekey
+    A prefix for the VM image name.  This is just an organizational 
+    tool for the site admin.
+
+When cloud client transfers an image into the system with the cumulus 
+repo utility (which is now the default), it forms the following url:
+
+    cumulus://<vws.repository.s3bucket>/<vws.repository.s3basekey><vws.repository.s3id>/<NAME>
+
+When the user does a listing, only images with the following form are 
+listed:
+
+    cumulus://<vws.repository.s3bucket>/<vws.repository.s3basekey>
+
+And from there only those with the specific user id or the string 
+'Common' will be listed.  Similar urls are formed when the user --run(s) 
+a VM.
+
+It should be noted that this is just cloud client convention to provide 
+the user of the cloud client with a convenient experience.  There is 
+nothing in the Nimbus service that prevents a user from uploading a VM 
+to any cumulus location and then specifying that location as run point.
+
+Dependencies
+-----------
+
+- jets3t-0.7.3.jar
+- commons-httpclient-3.1.jar
+- commons-codec-1.3.jar
+
+Nimbus service
+==============
+
+The main change to the nimbus service involved adding the concept of a 
+namespace translator.  The user supplies Nimbus with a external cumulus 
+(and in the future potentially other) URL.  This is the location of the 
+VM according to the users external namespace.  When the service receives 
+this URL it can translate it into an internal location more suitable for 
+propagation.
+
+The cumulus authorization database is directly tied to the Nimbus 
+service. The service has intimate knowledge of it, and it is allowed to 
+manipulate it directly without going through the cumulus REST interface.  
+This comes with some inherent dangers, ie: the service MUST manipulate 
+it properly. Any incorrect behavior could cause internal and undefined 
+failures in cumulus.  While this design choice is risky it allows for 
+much needed optimizations.  As a result of this choice, cumulus can be 
+released without Nimbus, but Nimbus cannot be released without cumulus, 
+and further, the only version of cumulus that can be allowed to operate 
+with a given nimbus installation is the version of cumulus with which 
+Nimbus was packages.
+
+Example event sequence
+----------------------
+
+In the initial implementation the following sequence of events occurs. 
+The user uploads the VM image 'vmimage' to 
+cumulus://hostname.com/Repo/vmimage, and they request that the service 
+run it.  The service then *directly* examines the cumulus database to 
+see of the user has rights to that image.  If they do not an error is 
+thrown.  However, if they do have rights the actual physical location of 
+the file is looked up in the database and converted to an internal 
+namespace suitable for propagation.  This internal name is sent to the 
+workspace-control program.  An example internal name is 
+scp://<repository host>/<file location>
+
+To handle the namespace translation and various other tasks needed to 
+deal with the cumulus integration the RepoFileSystemAdaptor interface 
+was created.
+
+
+Installation/Deployment
+=======================
+
+Cumulus is installed in via the ./bin/install script.  It is installed 
+prior to the nimbus service.  Once it is installed the cumulus 
+environment is sourced and the rest of Nimbus is installed.  There are a 
+few crucial variables that are set in the 
+./services/etc/nimbus/workspace-service/other/common.conf.  The 
+variables are:
+
+- cumulus.home.dir
+    The cumulus install directory.  Typically $NIMBUS_HOME/cumulus
+
+- cumulus.authz.db
+    The cumulus authz database.  By default it is an sqlite database and 
+    is located at $NIMBUS_HOME/cumulus/etc/authz.db
+
+- cumulus.repo.dir
+    The location of the cumulus posix backend file repository.  By default
+    this is $NIMBUS_HOME/cumulus/posixdata.  Quite often users will want
+    to change this to a more favorable location.  Likely one with more
+    disk space or faster disks.
+    
+If Nimbus is installed via ./scripts/all-build-and-install.sh these 
+variables will have to be manually set.
+

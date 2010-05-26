@@ -183,6 +183,22 @@ class User(object):
         return c
     find_alias = staticmethod(find_alias)
 
+    def get_quota(self, object_type=object_type_s3):
+        s="SELECT limit from object_quota where user_id = ? and object_type = ?"
+        data = [self.uuid, object_type]
+        row = self.db_obj._run_fetch_one(s, data)
+        if row == None or len(row) == 0:
+            return None
+        return row[0]
+
+    def get_quota_usage(self, object_type=object_type_s3):
+        s = "SELECT SUM(object_size) FROM objects where owner_id = ? and object_type = ?"
+        data = [self.uuid, object_type]
+        row = self.db_obj._run_fetch_one(s, data)
+        if row == None or len(row) == 0:
+            return None
+        return row[0]
+
     def get_user(db_obj, user_id):
         s = "select id from users_canonical where id = ?"
         data = (user_id,)
