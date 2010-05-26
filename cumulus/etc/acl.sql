@@ -141,7 +141,7 @@ create table object_quota(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id char(36) REFERENCES users_canonical(id) NOT NULL,
     object_type INTEGER REFERENCES object_types(id) NOT NULL,
-    limit INTEGER NOT NULL,
+    quota INTEGER NOT NULL,
     UNIQUE(user_id, object_type)
 );
 

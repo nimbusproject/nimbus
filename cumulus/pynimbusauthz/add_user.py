@@ -90,7 +90,7 @@ def main(argv=sys.argv[1:]):
             pynimbusauthz.print_msg(opts, 1, "Removing user %s" % (user.get_id()))
             if opts.force:
                 pynimbusauthz.print_msg(opts, 1, "Removing all references")
-                user.detroy_brutaly()
+                user.destroy_brutally()
             else:
                 user.destroy() 
         db_obj.commit()

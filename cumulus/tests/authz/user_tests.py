@@ -31,7 +31,7 @@ class TestUser(unittest.TestCase):
     def test_destroy_user(self):
         user1 = User(self.db)
         uu = user1.get_id()
-        user1.detroy_brutaly()
+        user1.destroy_brutally()
 
         try:
             user1 = User(self.db, uu)

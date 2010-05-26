@@ -6,6 +6,8 @@ import uuid
 
 # a simple wrapper around readonly
 class User(object):
+    UNLIMITED = -1
+
     def __init__(self, db_obj, uu=None, friendly=None, create=False):
         if uu == None or create:
             if uu != None:
@@ -48,7 +50,7 @@ class User(object):
 
     # remove everything associated with a user
     # including files if the are completely orphaned
-    def detroy_brutaly(self):
+    def destroy_brutally(self):
         s = "DELETE FROM user_alias where user_id = ?"
         data = (self.uuid,)
         self.db_obj._run_no_fetch(s, data)
@@ -183,21 +185,37 @@ class User(object):
         return c
     find_alias = staticmethod(find_alias)
 
-    def get_quota(self, object_type=object_type_s3):
-        s="SELECT limit from object_quota where user_id = ? and object_type = ?"
+    def get_quota(self, object_type=pynimbusauthz.object_type_s3):
+        s="SELECT quota from object_quota where user_id = ? and object_type = ?"
         data = [self.uuid, object_type]
         row = self.db_obj._run_fetch_one(s, data)
         if row == None or len(row) == 0:
-            return None
+            return User.UNLIMITED
         return row[0]
 
-    def get_quota_usage(self, object_type=object_type_s3):
+    def get_quota_usage(self, object_type=pynimbusauthz.object_type_s3):
         s = "SELECT SUM(object_size) FROM objects where owner_id = ? and object_type = ?"
+        ot = pynimbusauthz.object_types[object_type]
+        data = [self.uuid, ot]
+        print s
+        print data
+        row = self.db_obj._run_fetch_one(s, data)
+        if row == None or len(row) == 0 or row[0] == None:
+            return 0
+        return row[0]
+
+    def set_quota(self, quota, object_type=pynimbusauthz.object_type_s3):
+        s = "SELECT quota from object_quota where user_id = ? and object_type = ?"
         data = [self.uuid, object_type]
         row = self.db_obj._run_fetch_one(s, data)
         if row == None or len(row) == 0:
-            return None
-        return row[0]
+            s = "INSERT into object_quota(user_id, object_type, quota) values(?, ?, ?)"
+            data = [self.uuid, object_type, quota]
+        else:
+            s = "UPDATE object_quota SET quota = ? WHERE user_id = ? and object_type = ?"
+            data = [quota, self.uuid, object_type]
+        self.db_obj._run_no_fetch(s, data)
+
 
     def get_user(db_obj, user_id):
         s = "select id from users_canonical where id = ?"
