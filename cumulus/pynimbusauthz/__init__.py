@@ -93,3 +93,13 @@ def parse_args(p, all_opts, argv):
 
     return (options, args)
 
+def pretty_number(number):
+    lbls = ["", "K", "M", "G", "T"]
+    remains = float(number)
+    for i in range(0, len(lbls)):
+        if remains < 1024.0:
+            break
+        remains = remains / 1024.0
+    rc = "%10.2f %s" % (remains, lbls[i])
+    return rc.strip()
+    

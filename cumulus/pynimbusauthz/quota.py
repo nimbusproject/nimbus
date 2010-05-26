@@ -23,7 +23,7 @@ Manage cumulus authz user accounts
     all_opts.append(opt)
 
 
-    opt = cbOpts("report", "r", "Display current usage for the user", True, flag=True)
+    opt = cbOpts("report", "r", "Display current usage for the user", False, flag=True)
     all_opts.append(opt)
     opt = cbOpts("quota", "x", "The limit (an integer of UNLIMITED)", None)
     all_opts.append(opt)
@@ -58,16 +58,21 @@ def main(argv=sys.argv[1:]):
 
             if q != User.UNLIMITED:
                 r = q - u
-                pynimbusauthz.print_msg(opts, 0, "Quota %s" % (q))
-                pynimbusauthz.print_msg(opts, 0, "Usage %s" % (u))
-                pynimbusauthz.print_msg(opts, 0, "Remaining %s" % (r))
+
+                rstr = pynimbusauthz.pretty_number(r)
+                qstr = pynimbusauthz.pretty_number(q)
+                ustr = pynimbusauthz.pretty_number(u)
+
+                pynimbusauthz.print_msg(opts, 0, "%-10s %s" % ("Quota", qstr))
+                pynimbusauthz.print_msg(opts, 0, "%-10s %s" % ("Usage", ustr))
+                pynimbusauthz.print_msg(opts, 0, "%-10s %s" % ("Remaining", rstr))
                 if r < 0:
                     pynimbusauthz.print_msg(opts, 0, "OVER LIMIT!")
                 elif r == 0:
                     pynimbusauthz.print_msg(opts, 0, "At Limit")
                 else:
                     p = (float(r) / float(q) )* 100.0
-                    pynimbusauthz.print_msg(opts, 0, "%5.1f%% Used" % (p))
+                    pynimbusauthz.print_msg(opts, 0, "%-10s %5.1f%%" % ("Available", p))
             else:
                 pynimbusauthz.print_msg(opts, 0, "Quota UNLIMITED")
 
