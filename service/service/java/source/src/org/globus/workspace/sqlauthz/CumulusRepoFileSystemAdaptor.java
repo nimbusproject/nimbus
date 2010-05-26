@@ -1,10 +1,7 @@
 package org.globus.workspace.sqlauthz;
 
-import org.globus.workspace.NamespaceTranslator;
-import org.globus.workspace.NamespaceTranslator;
+import org.globus.workspace.RepoFileSystemAdaptor;
 import org.globus.workspace.WorkspaceException;
-import org.globus.workspace.sqlauthz.AuthzDecisionLogic;
-import org.globus.workspace.sqlauthz.SqlAuthz;
 
 /**
  * Created by John Bresnahan
@@ -14,11 +11,11 @@ import org.globus.workspace.sqlauthz.SqlAuthz;
  * <p/>
  * org.globus.workspace
  */
-public class CumulusNamespaceTranslator implements NamespaceTranslator
+public class CumulusRepoFileSystemAdaptor implements RepoFileSystemAdaptor
 {
     protected AuthzDecisionLogic dl;
 
-    public CumulusNamespaceTranslator(
+    public CumulusRepoFileSystemAdaptor(
         AuthzDecisionLogic dl)
     {
         this.dl = dl;
@@ -29,6 +26,13 @@ public class CumulusNamespaceTranslator implements NamespaceTranslator
             throws WorkspaceException
     {
         return dl.translateExternaltoInternal(publicName);
+    }
+
+    public void unpropagationFinished(
+        String                          publicName)
+            throws WorkspaceException
+    {
+        dl.unpropagationFinished(publicName);
     }
 }
 

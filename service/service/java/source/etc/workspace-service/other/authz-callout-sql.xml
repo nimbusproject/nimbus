@@ -39,8 +39,8 @@
         <property name="repoScheme" value="scp://" />
      </bean>
 
-    <bean id="nimbus-rm.service.binding.NamespaceTranslator"
-         class="org.globus.workspace.sqlauthz.CumulusNamespaceTranslator">
+    <bean id="nimbus-rm.service.binding.RepoAdaptor"
+         class="org.globus.workspace.sqlauthz.CumulusRepoFileSystemAdaptor">
 
         <constructor-arg ref="nimbus-rm.service.binding.Decider" />
     </bean>      

@@ -11,8 +11,8 @@
     enabled authorization callout.
 
     -->
-    <bean id="nimbus-rm.service.binding.NamespaceTranslator"
-         class="org.globus.workspace.DefaultNamespaceTranslatorImpl">
+    <bean id="nimbus-rm.service.binding.RepoAdaptor"
+         class="org.globus.workspace.DefaultRepoFileSystemAdaptorImpl">
      </bean>
     
     <bean id="nimbus-rm.service.binding.AuthorizationCallout"

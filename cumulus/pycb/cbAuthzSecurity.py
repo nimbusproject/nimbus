@@ -169,7 +169,6 @@ class cbAuthzUser(object):
         finally:
             self.db_obj.commit()
 
-    # add a new user to the bucket owned by the current user
     def put_object(self, data_obj, bucketName, objectName):
         data_key = data_obj.get_data_key()
         md5sum = data_obj.get_md5()
@@ -315,6 +314,7 @@ def _convert_File_to_cbObject(user, file):
     mds = file.get_md5sum()
     key = file.get_name()
     display_name = file.get_name()
+    # should file meta info come from here or backend?
     obj = cbObject(tm, size, key, display_name, user, md5sum=mds)
     return obj
 

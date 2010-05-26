@@ -2,7 +2,7 @@ package org.globus.workspace.sqlauthz;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.globus.workspace.NamespaceTranslator;
+import org.globus.workspace.RepoFileSystemAdaptor;
 import org.globus.workspace.WorkspaceException;
 import org.globus.workspace.groupauthz.DecisionLogic;
 import org.globus.workspace.groupauthz.GroupRights;
@@ -12,8 +12,7 @@ import org.nimbustools.api.services.rm.AuthorizationException;
 import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
 
 import javax.sql.DataSource;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.io.File;
 
 /**
  * Created by John Bresnahan
@@ -24,7 +23,7 @@ import java.net.URISyntaxException;
  * org.globus.workspace.sqlauthz
  */
 public class AuthzDecisionLogic extends DecisionLogic
-    implements NamespaceTranslator
+    implements RepoFileSystemAdaptor
 {
     private static final Log logger =
             LogFactory.getLog(AuthzDecisionLogic.class.getName());
@@ -32,7 +31,6 @@ public class AuthzDecisionLogic extends DecisionLogic
     private String                      repoScheme = null;
     private String                      repoHost = null;
     private String                      repoDir = null;
-
     public  AuthzDecisionLogic(
         DataSource ds)
     {
@@ -40,7 +38,7 @@ public class AuthzDecisionLogic extends DecisionLogic
     }
 
     public String translateExternaltoInternal(
-        String                          publicUrl)        
+        String                          publicUrl)
             throws WorkspaceException
     {
         String rc = null;
@@ -261,8 +259,7 @@ public class AuthzDecisionLogic extends DecisionLogic
                 {
                     String dataKey = this.getRepoDir() + "/" + objectName.replace("/", "__");
                     logger.debug("Adding new datakey " + dataKey);
-                    authDB.newFile(keyName, fileIds[0], canUser, dataKey, schemeType);
-                    fileIds = this.cumulusGetFileID(hostport, objectName);
+                    fileIds[1] = authDB.newFile(keyName, fileIds[0], canUser, dataKey, schemeType);
                 }
                 perms = authDB.getPermissions(fileIds[1], canUser);
                 if(fileIds[1] < 0)
@@ -330,5 +327,43 @@ public class AuthzDecisionLogic extends DecisionLogic
     {
         return this.repoDir;
     }
-    
+
+    public void unpropagationFinished(
+        String                          publicName)
+        throws WorkspaceException
+    {
+        try
+        {
+            String [] urlParts = this.parseUrl(publicName);
+            String scheme = urlParts[0];
+            String hostport = urlParts[1];
+            String objectName = urlParts[2];
+
+            int schemeType = -1;
+            if(scheme.equals("cumulus"))
+            {
+                schemeType = AuthzDBAdapter.OBJECT_TYPE_S3;
+                int [] fileIds = this.cumulusGetFileID(hostport, objectName);
+                String datakey = authDB.getDataKey(fileIds[1]);
+
+                // need to calculate the md5sum and set the size
+                // for now lets just set the size
+                File f = new File(datakey);
+                long size = f.length();
+                authDB.setFileSize(fileIds[1], size);                
+            }
+            else
+            {
+                return;
+            }
+        }
+        catch(AuthorizationException authex)
+        {
+            throw new WorkspaceException("Authorization exception occured ", authex);
+        }
+        catch(WorkspaceDatabaseException wsdbex)
+        {
+            throw new WorkspaceException("Workspace database exception occured ", wsdbex);
+        }
+    }
 }

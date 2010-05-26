@@ -8,12 +8,19 @@ package org.globus.workspace;
  * <p/>
  * org.globus.workspace
  */
-public class DefaultNamespaceTranslatorImpl implements NamespaceTranslator
+public class DefaultRepoFileSystemAdaptorImpl implements RepoFileSystemAdaptor
 {
-     public String translateExternaltoInternal(
+    public String translateExternaltoInternal(
         String                          publicName)
             throws WorkspaceException
-     {
+    {
          return publicName;
-     }
+    }
+
+    public void unpropagationFinished(
+        String                          publicName)
+            throws WorkspaceException
+    {
+
+    }
 }

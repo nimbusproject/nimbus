@@ -1,25 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="BookmarkManager">
-    <bookmark url="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/AuthzDecisionLogic.java" line="198" mnemonic="0" />
+    <bookmark url="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/AuthzDecisionLogic.java" line="196" mnemonic="0" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b30a1c75-983d-4a98-96dc-74ac6b73b911" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/authz-callout-sql.xml" afterPath="$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/authz-callout-sql.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/DefaultNamespaceTranslatorImpl.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/xen/xenssh/ShutdownNormal.java" afterPath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/xen/xenssh/ShutdownNormal.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/AuthzDecisionLogic.java" afterPath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/AuthzDecisionLogic.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/authz-callout-python.xml" afterPath="$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/authz-callout-python.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/service/binding/authorization/DisabledCallout.java" afterPath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/service/binding/authorization/DisabledCallout.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/NamespaceTranslator.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/authz-callout-groupauthz.xml" afterPath="$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/authz-callout-groupauthz.xml" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/CumulusNamespaceTranslator.java" afterPath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/CumulusRepoFileSystemAdaptor.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/authz-callout-ACTIVE.xml" afterPath="$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/authz-callout-ACTIVE.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/xen/XenUtil.java" afterPath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/xen/XenUtil.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/main.xml" afterPath="$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/main.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/xen/XenUtil.java" afterPath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/xen/XenUtil.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/NamespaceTranslator.java" afterPath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/RepoFileSystemAdaptor.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/service/impls/WorkspaceHomeImpl.java" afterPath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/service/impls/WorkspaceHomeImpl.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/service/impls/site/PropagationAdapterImpl.java" afterPath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/service/impls/site/PropagationAdapterImpl.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/authz-callout-disabled.xml" afterPath="$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/authz-callout-disabled.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/AuthzDBAdapter.java" afterPath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/AuthzDBAdapter.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/SqlAuthz.java" afterPath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/SqlAuthz.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/CumulusNamespaceTranslator.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/service/impls/site/PropagationAdapter.java" afterPath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/service/impls/site/PropagationAdapter.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/xen/xenlocal/ShutdownNormal.java" afterPath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/xen/xenlocal/ShutdownNormal.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/DefaultNamespaceTranslatorImpl.java" afterPath="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/DefaultRepoFileSystemAdaptorImpl.java" />
     </list>
     <ignored path="$USER_HOME_GRAILS$/" />
     <ignored path="$USER_HOME_GRIFFON$/" />
@@ -40,6 +44,32 @@
   <component name="DebuggerManager">
     <line_breakpoints>
       <breakpoint url="file://$PROJECT_DIR$/service/service/java/source/tests/org/globus/workspace/scheduler/defaults/ResourcepoolEntryTest.java" line="31" class="org.globus.workspace.scheduler.defaults.ResourcepoolEntryTest" package="org.globus.workspace.scheduler.defaults">
+        <option name="ENABLED" value="false" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="false" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
+      <breakpoint url="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/AuthzDecisionLogic.java" line="230" class="org.globus.workspace.sqlauthz.AuthzDecisionLogic" package="org.globus.workspace.sqlauthz">
+        <option name="ENABLED" value="false" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="false" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
+      <breakpoint url="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/AuthzDecisionLogic.java" line="135" class="org.globus.workspace.sqlauthz.AuthzDecisionLogic" package="org.globus.workspace.sqlauthz">
         <option name="ENABLED" value="true" />
         <option name="LOG_ENABLED" value="false" />
         <option name="LOG_EXPRESSION_ENABLED" value="false" />
@@ -52,7 +82,7 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/AuthzDecisionLogic.java" line="45" class="org.globus.workspace.sqlauthz.AuthzDecisionLogic" package="org.globus.workspace.sqlauthz">
+      <breakpoint url="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/xen/xenssh/Propagate.java" line="63" class="org.globus.workspace.xen.xenssh.Propagate" package="org.globus.workspace.xen.xenssh">
         <option name="ENABLED" value="true" />
         <option name="LOG_ENABLED" value="false" />
         <option name="LOG_EXPRESSION_ENABLED" value="false" />
@@ -65,7 +95,7 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/AuthzDecisionLogic.java" line="236" class="org.globus.workspace.sqlauthz.AuthzDecisionLogic" package="org.globus.workspace.sqlauthz">
+      <breakpoint url="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/xen/xenlocal/Propagate.java" line="64" class="org.globus.workspace.xen.xenlocal.Propagate" package="org.globus.workspace.xen.xenlocal">
         <option name="ENABLED" value="true" />
         <option name="LOG_ENABLED" value="false" />
         <option name="LOG_EXPRESSION_ENABLED" value="false" />
@@ -78,7 +108,7 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/xen/XenUtil.java" line="172" class="org.globus.workspace.xen.XenUtil" package="org.globus.workspace.xen">
+      <breakpoint url="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/xen/xenlocal/ShutdownNormal.java" line="43" class="org.globus.workspace.xen.xenlocal.ShutdownNormal" package="org.globus.workspace.xen.xenlocal">
         <option name="ENABLED" value="true" />
         <option name="LOG_ENABLED" value="false" />
         <option name="LOG_EXPRESSION_ENABLED" value="false" />
@@ -91,7 +121,33 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/xen/XenUtil.java" line="122" class="org.globus.workspace.xen.XenUtil" package="org.globus.workspace.xen">
+      <breakpoint url="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/xen/XenUtil.java" line="82" class="org.globus.workspace.xen.XenUtil" package="org.globus.workspace.xen">
+        <option name="ENABLED" value="true" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="false" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
+      <breakpoint url="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/AuthzDecisionLogic.java" line="344" class="org.globus.workspace.sqlauthz.AuthzDecisionLogic" package="org.globus.workspace.sqlauthz">
+        <option name="ENABLED" value="true" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="false" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
+      <breakpoint url="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/AuthzDBAdapter.java" line="351" class="org.globus.workspace.sqlauthz.AuthzDBAdapter" package="org.globus.workspace.sqlauthz">
         <option name="ENABLED" value="true" />
         <option name="LOG_ENABLED" value="false" />
         <option name="LOG_EXPRESSION_ENABLED" value="false" />
@@ -138,7 +194,24 @@
       </breakpoint>
     </breakpoint_any>
     <breakpoint_rules />
-    <ui_properties />
+    <ui_properties>
+      <property name="line_breakpoints_groupByMethods" value="false" />
+      <property name="line_breakpoints_viewId" value="TABLE" />
+      <property name="exception_breakpoints_flattenPackages" value="true" />
+      <property name="method_breakpoints_flattenPackages" value="true" />
+      <property name="field_breakpoints_flattenPackages" value="true" />
+      <property name="exception_breakpoints_groupByMethods" value="false" />
+      <property name="line_breakpoints_groupByClasses" value="true" />
+      <property name="method_breakpoints_viewId" value="TABLE" />
+      <property name="field_breakpoints_groupByMethods" value="false" />
+      <property name="line_breakpoints_flattenPackages" value="true" />
+      <property name="field_breakpoints_groupByClasses" value="true" />
+      <property name="method_breakpoints_groupByClasses" value="true" />
+      <property name="exception_breakpoints_viewId" value="TABLE" />
+      <property name="exception_breakpoints_groupByClasses" value="true" />
+      <property name="field_breakpoints_viewId" value="TABLE" />
+      <property name="method_breakpoints_groupByMethods" value="false" />
+    </ui_properties>
   </component>
   <component name="FavoritesManager">
     <favorites_list name="nimbus" />
@@ -146,28 +219,88 @@
   <component name="FileColors" enabled="true" enabledForTabs="true" />
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="AuthzDecisionLogic.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="authz-callout-ACTIVE.xml" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/authz-callout-ACTIVE.xml">
+          <provider editor-type-id="com.intellij.spring.perspectives.SpringBeansStructureEditorProvider">
+            <state />
+          </provider>
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="15" column="30" selection-start="453" selection-end="587" vertical-scroll-proportion="-10.714286">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="authz-callout-sql.xml" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/authz-callout-sql.xml">
+          <provider editor-type-id="com.intellij.spring.perspectives.SpringBeansStructureEditorProvider">
+            <state />
+          </provider>
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="48" column="68" selection-start="1837" selection-end="1837" vertical-scroll-proportion="-13.428572">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="authz-callout-groupauthz.xml" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/authz-callout-groupauthz.xml">
+          <provider editor-type-id="com.intellij.spring.perspectives.SpringBeansStructureEditorProvider">
+            <state />
+          </provider>
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="19" column="4" selection-start="641" selection-end="641" vertical-scroll-proportion="-13.571428">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="authz-callout-python.xml" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/authz-callout-python.xml">
+          <provider editor-type-id="com.intellij.spring.perspectives.SpringBeansStructureEditorProvider">
+            <state />
+          </provider>
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="19" column="4" selection-start="643" selection-end="643" vertical-scroll-proportion="-13.571428">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="authz-callout-disabled.xml" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/authz-callout-disabled.xml">
+          <provider editor-type-id="com.intellij.spring.perspectives.SpringBeansStructureEditorProvider">
+            <state />
+          </provider>
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="15" column="12" selection-start="588" selection-end="588" vertical-scroll-proportion="-10.714286">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ShutdownNormal.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/xen/xenssh/ShutdownNormal.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="65" column="66" selection-start="2392" selection-end="2392" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="CumulusRepoFileSystemAdaptor.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/CumulusRepoFileSystemAdaptor.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="34" column="0" selection-start="836" selection-end="836" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="AuthzDecisionLogic.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/AuthzDecisionLogic.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="45" column="0" selection-start="1509" selection-end="1509" vertical-scroll-proportion="0.3325359">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="AuthzDBAdapter.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/AuthzDBAdapter.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="36" column="45" selection-start="1531" selection-end="1531" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="CumulusNamespaceTranslator.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/CumulusNamespaceTranslator.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="30" column="0" selection-start="780" selection-end="780" vertical-scroll-proportion="0.0">
+            <state line="357" column="43" selection-start="12254" selection-end="12254" vertical-scroll-proportion="0.0">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -178,62 +311,19 @@
       <file leaf-file-name="XenUtil.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/xen/XenUtil.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="122" column="0" selection-start="4066" selection-end="4066" vertical-scroll-proportion="-5.56">
+            <state line="33" column="13" selection-start="1193" selection-end="1193" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Pause.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/xen/xenlocal/Pause.java">
+      <file leaf-file-name="AuthzDBAdapter.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/AuthzDBAdapter.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="25" column="16" selection-start="893" selection-end="893" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Start.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/xen/xenlocal/Start.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="34" column="83" selection-start="1256" selection-end="1256" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Unpause.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/xen/xenlocal/Unpause.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="25" column="13" selection-start="890" selection-end="890" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="PropagationAdapterImpl.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/service/impls/site/PropagationAdapterImpl.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="267" column="0" selection-start="9851" selection-end="9851" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Propagate.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/xen/xenssh/Propagate.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="44" column="0" selection-start="1688" selection-end="1688" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="XenTask.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/xen/XenTask.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="30" column="22" selection-start="1239" selection-end="1239" vertical-scroll-proportion="0.0">
-              <folding />
+            <state line="359" column="0" selection-start="11031" selection-end="11031" vertical-scroll-proportion="0.33333334">
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -248,22 +338,22 @@
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
-        <option value="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/groupauthz/GroupAuthz.java" />
-        <option value="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/AuthzDBAdapter.java" />
-        <option value="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/xen/xenlocal/Propagate.java" />
-        <option value="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/NamespaceTranslator.java" />
         <option value="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/service/impls/site/PropagationAdapterImpl.java" />
-        <option value="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/service/impls/site/PropagationAdapter.java" />
-        <option value="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/service/binding/authorization/DisabledCallout.java" />
-        <option value="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/DefaultNamespaceTranslatorImpl.java" />
-        <option value="$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/authz-callout-ACTIVE.xml" />
-        <option value="$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/authz-callout-disabled.xml" />
-        <option value="$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/main.xml" />
-        <option value="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/SqlAuthz.java" />
-        <option value="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/CumulusNamespaceTranslator.java" />
-        <option value="$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/authz-callout-sql.xml" />
+        <option value="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/NamespaceTranslator.java" />
+        <option value="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/RepoFileSystemAdaptor.java" />
+        <option value="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/DefaultRepoFileSystemAdaptorImpl.java" />
         <option value="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/AuthzDecisionLogic.java" />
+        <option value="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/CumulusRepoFileSystemAdaptor.java" />
+        <option value="$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/main.xml" />
+        <option value="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/service/impls/WorkspaceHomeImpl.java" />
         <option value="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/xen/XenUtil.java" />
+        <option value="$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/authz-callout-ACTIVE.xml" />
+        <option value="$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/authz-callout-sql.xml" />
+        <option value="$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/authz-callout-groupauthz.xml" />
+        <option value="$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/authz-callout-python.xml" />
+        <option value="$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/authz-callout-disabled.xml" />
+        <option value="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/AuthzDBAdapter.java" />
+        <option value="$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/xen/xenssh/ShutdownNormal.java" />
       </list>
     </option>
   </component>
@@ -302,6 +392,65 @@
       <sortByType />
     </navigator>
     <panes>
+      <pane id="Scope" />
+      <pane id="PackagesPane">
+        <subPane>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="nimbus" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="workspace-service" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="nimbus" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="workspace-service" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="org.globus.workspace" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="nimbus" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="nimbus" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="cloud-client" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="nimbus" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="cloud-client" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="org.globus.workspace" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
+      </pane>
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -420,7 +569,111 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
+              <option name="myItemId" value="xenssh" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="nimbus" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="workspace-service" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="source" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="workspace" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="xen" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
               <option name="myItemId" value="xenlocal" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="nimbus" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="workspace-service" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="source" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="workspace" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="sqlauthz" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="nimbus" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="workspace-service" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="source" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="etc" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="workspace-service" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="nimbus" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="workspace-service" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="source" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="etc" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="workspace-service" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="other" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -436,66 +689,7 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="PackagesPane">
-        <subPane>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="nimbus" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="workspace-service" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="nimbus" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="workspace-service" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="org.globus.workspace" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="nimbus" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="nimbus" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="cloud-client" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="nimbus" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="cloud-client" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="org.globus.workspace" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
-            </PATH_ELEMENT>
-          </PATH>
-        </subPane>
-      </pane>
       <pane id="Favorites" />
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -696,8 +890,8 @@
       <method />
     </configuration>
     <list size="2">
-      <item index="0" class="java.lang.String" itemvalue="Remote.GlobusPoop" />
-      <item index="1" class="java.lang.String" itemvalue="TestNG.ResourcepoolEntryTest" />
+      <item index="0" class="java.lang.String" itemvalue="TestNG.ResourcepoolEntryTest" />
+      <item index="1" class="java.lang.String" itemvalue="Remote.GlobusPoop" />
     </list>
     <configuration name="&lt;template&gt;" type="WebApp" default="true" selected="false">
       <Host>localhost</Host>
@@ -731,25 +925,25 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="26" width="1400" height="998" extended-state="1" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3298122" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.39906102" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3298122" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="IDEtalk Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="IDEtalk" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32936803" sideWeight="0.2382629" order="1" side_tool="true" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32936803" sideWeight="0.46713614" order="1" side_tool="true" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32936803" sideWeight="0.34624413" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.333829" sideWeight="0.6619718" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3298122" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3298122" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3298122" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
@@ -790,129 +984,139 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/SqlAuthz.java">
+    <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/service/binding/vm/VirtualMachine.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="46" column="6" selection-start="1836" selection-end="1836" vertical-scroll-proportion="0.0">
+        <state line="101" column="36" selection-start="2870" selection-end="2895" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/authz-callout-ACTIVE.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="16" column="12" selection-start="598" selection-end="598" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-      <provider editor-type-id="com.intellij.spring.perspectives.SpringBeansStructureEditorProvider">
-        <state />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/authz-callout-disabled.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="13" column="59" selection-start="464" selection-end="509" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-      <provider editor-type-id="com.intellij.spring.perspectives.SpringBeansStructureEditorProvider">
-        <state />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/main.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="464" column="75" selection-start="18682" selection-end="18682" vertical-scroll-proportion="113.90476">
-          <folding />
-        </state>
-      </provider>
-      <provider editor-type-id="com.intellij.spring.perspectives.SpringBeansStructureEditorProvider">
-        <state />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/groupauthz/DecisionLogic.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="35" column="12" selection-start="1376" selection-end="1376" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/authz-callout-sql.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="16" column="73" selection-start="590" selection-end="590" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-      <provider editor-type-id="com.intellij.spring.perspectives.SpringBeansStructureEditorProvider">
-        <state />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/AuthzDBAdapter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="36" column="45" selection-start="1531" selection-end="1531" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/xen/xenssh/Propagate.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="44" column="0" selection-start="1688" selection-end="1688" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/xen/xenlocal/Unpause.java">
+    <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/xen/xenlocal/ShutdownNormal.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="25" column="13" selection-start="890" selection-end="890" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/service/impls/site/PropagationAdapterImpl.java">
+    <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/RepoFileSystemAdaptor.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="267" column="0" selection-start="9851" selection-end="9851" vertical-scroll-proportion="0.0">
+        <state line="12" column="33" selection-start="257" selection-end="257" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/xen/XenTask.java">
+    <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/service/impls/WorkspaceHomeImpl.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="30" column="22" selection-start="1239" selection-end="1239" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/xen/xenlocal/Pause.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="25" column="16" selection-start="893" selection-end="893" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/xen/xenlocal/Start.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="34" column="83" selection-start="1256" selection-end="1256" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/CumulusNamespaceTranslator.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="30" column="0" selection-start="780" selection-end="780" vertical-scroll-proportion="0.0">
+        <state line="156" column="21" selection-start="5918" selection-end="5918" vertical-scroll-proportion="-6.64">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/main.xml">
+      <provider editor-type-id="com.intellij.spring.perspectives.SpringBeansStructureEditorProvider">
+        <state />
+      </provider>
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="325" column="79" selection-start="13570" selection-end="13607" vertical-scroll-proportion="-18.571428">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/DefaultRepoFileSystemAdaptorImpl.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="10" column="0" selection-start="161" selection-end="161" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/authz-callout-sql.xml">
+      <provider editor-type-id="com.intellij.spring.perspectives.SpringBeansStructureEditorProvider">
+        <state />
+      </provider>
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="48" column="68" selection-start="1837" selection-end="1837" vertical-scroll-proportion="-13.428572">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/authz-callout-ACTIVE.xml">
+      <provider editor-type-id="com.intellij.spring.perspectives.SpringBeansStructureEditorProvider">
+        <state />
+      </provider>
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="15" column="30" selection-start="453" selection-end="587" vertical-scroll-proportion="-10.714286">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/authz-callout-groupauthz.xml">
+      <provider editor-type-id="com.intellij.spring.perspectives.SpringBeansStructureEditorProvider">
+        <state />
+      </provider>
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="19" column="4" selection-start="641" selection-end="641" vertical-scroll-proportion="-13.571428">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/authz-callout-python.xml">
+      <provider editor-type-id="com.intellij.spring.perspectives.SpringBeansStructureEditorProvider">
+        <state />
+      </provider>
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="19" column="4" selection-start="643" selection-end="643" vertical-scroll-proportion="-13.571428">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/service/service/java/source/etc/workspace-service/other/authz-callout-disabled.xml">
+      <provider editor-type-id="com.intellij.spring.perspectives.SpringBeansStructureEditorProvider">
+        <state />
+      </provider>
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="15" column="12" selection-start="588" selection-end="588" vertical-scroll-proportion="-10.714286">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/CumulusRepoFileSystemAdaptor.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="34" column="0" selection-start="836" selection-end="836" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/xen/XenUtil.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="122" column="0" selection-start="4066" selection-end="4066" vertical-scroll-proportion="-5.56">
+        <state line="33" column="13" selection-start="1193" selection-end="1193" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/xen/xenssh/ShutdownNormal.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="65" column="66" selection-start="2392" selection-end="2392" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/AuthzDecisionLogic.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="45" column="0" selection-start="1509" selection-end="1509" vertical-scroll-proportion="0.3325359">
-          <folding />
+        <state line="357" column="43" selection-start="12254" selection-end="12254" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/service/service/java/source/src/org/globus/workspace/sqlauthz/AuthzDBAdapter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="359" column="0" selection-start="11031" selection-end="11031" vertical-scroll-proportion="0.33333334">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

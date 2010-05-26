@@ -68,9 +68,6 @@ public class PropagationAdapterImpl implements PropagationAdapter,
     private boolean enabled;
     private long watcherDelay = 2000;
 
-    protected NamespaceTranslator nsTrans = null;
-
-
     // -------------------------------------------------------------------------
     // CONSTRUCTOR
     // -------------------------------------------------------------------------
@@ -80,10 +77,8 @@ public class PropagationAdapterImpl implements PropagationAdapter,
                                   ResourceMessage resourceMessageImpl,
                                   TimerManager timerManagerImpl,
                                   GlobalPolicies globalPolicies,
-                                  Lager lagerImpl,
-                                  NamespaceTranslator nsTrans) {
+                                  Lager lagerImpl) {
 
-        this.nsTrans = nsTrans;
         if (persistenceAdapter == null) {
             throw new IllegalArgumentException("persistenceAdapter may not be null");
         }
@@ -258,7 +253,7 @@ public class PropagationAdapterImpl implements PropagationAdapter,
 
     public ArrayList constructPropagateCommand(VirtualMachine vm) {
         try {
-            return XenUtil.constructPropagateCommand(vm, this.notify, this.nsTrans);
+            return XenUtil.constructPropagateCommand(vm, this.notify);
         } catch (WorkspaceException e) {
             return null;
         }
@@ -266,7 +261,7 @@ public class PropagationAdapterImpl implements PropagationAdapter,
 
     public ArrayList constructPropagateToStartCommand(VirtualMachine vm) {
         try {
-            return XenUtil.constructCreateCommand(vm, false, this.nsTrans, this.notify);
+            return XenUtil.constructCreateCommand(vm, false, this.notify);
         } catch (WorkspaceException e) {
             return null;
         }
@@ -274,7 +269,7 @@ public class PropagationAdapterImpl implements PropagationAdapter,
 
     public ArrayList constructPropagateToPauseCommand(VirtualMachine vm) {
         try {
-            return XenUtil.constructCreateCommand(vm, true, this.nsTrans, this.notify);
+            return XenUtil.constructCreateCommand(vm, true, this.notify);
         } catch (WorkspaceException e) {
             return null;
         }
@@ -282,7 +277,7 @@ public class PropagationAdapterImpl implements PropagationAdapter,
 
     public ArrayList constructUnpropagateCommand(VirtualMachine vm) {
         try {
-            return XenUtil.constructUnpropagateCommand(vm, this.notify, this.nsTrans);
+            return XenUtil.constructUnpropagateCommand(vm, this.notify);
         } catch (WorkspaceException e) {
             return null;
         }
