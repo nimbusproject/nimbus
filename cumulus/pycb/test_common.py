@@ -55,6 +55,11 @@ def make_user():
 
     return (id, pw)
 
+def set_user_quota(id, quota):
+    auth = pycb.config.auth
+    u = auth.get_user(id)
+    u.set_quota(quota)
+
 def clean_user(id):
     auth = pycb.config.auth
     u = auth.get_user(id)

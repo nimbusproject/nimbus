@@ -18,6 +18,7 @@ import tempfile
 from twisted.protocols.basic import FileSender
 from twisted.python.log import err
 import twisted.web.http
+from pynimbusauthz.user import User
 
 
 #
@@ -579,6 +580,8 @@ class cbPutObject(cbRequest):
             ndx = bperms.find("w")
             if ndx < 0:
                 raise cbException('AccessDenied')
+
+            file_size = 0
             if exists:
                 (perms, data_key) = self.user.get_perms(self.bucketName, self.objectName)
                 ndx = perms.find("w")
@@ -590,6 +593,16 @@ class cbPutObject(cbRequest):
                 ndx = perms.find("w")
                 if ndx < 0:
                     raise cbException('AccessDenied')
+                (file_size, ctm, md5) = self.user.get_info(self.bucketName, self.objectName)
+
+            # gotta decide quota, if existed should get credit for the
+            # existing size
+            remaining_quota = self.user.get_remaining_quota()
+            if remaining_quota != User.UNLIMITED:
+                new_file_len = int(self.request.getHeader('content-length'))
+                if remaining_quota + file_size < new_file_len:
+                    pycb.log(logging.INFO, "user %s did not pass quota.  file size %d quota %d" % (self.user, new_file_len, remaining_quota))
+                    raise cbException('AccountProblem')
 
             obj = self.request.content
             self.recvObject(self.request, obj)
