@@ -41,6 +41,11 @@ public class GroupRights {
     public static final String PROPKEY_MAX_WORKSPACE_NUMBER =
             "vws.group.authz.maxWorkspaceNumber";
 
+    // this controls 'maximum number of CPUs per request', 0 is unlimited
+    private long maxCPUs;
+    public static final String PROPKEY_MAX_CPUS =
+            "vws.group.authz.maxCPUs";
+
     // this controls 'number of VMs in group', 0 is unlimited
     // this is different than 'number of VMs running at once'
     private long maxWorkspacesInGroup;
@@ -95,6 +100,11 @@ public class GroupRights {
                     getZeroOrPositiveLong(props,
                                           PROPKEY_MAX_WORKSPACES_IN_GROUP,
                                           source);
+        // can be null
+        this.maxCPUs =
+                    getZeroOrPositiveLongAllowNull(props,
+                                                   PROPKEY_MAX_CPUS,
+                                                   source);
 
         // can be null
         this.groupName =  props.getProperty(PROPKEY_GROUP_NAME);
@@ -156,12 +166,32 @@ public class GroupRights {
         return val.longValue();
     }
 
+    // Some values can be null, and should return a zero for that case
+    private static long getZeroOrPositiveLongAllowNull(Properties props,
+                                                       String key,
+                                                       String source) throws Exception {
+
+        final String prop = props.getProperty(key);
+        final Long val;
+        if (null == prop) {
+            val = Long.valueOf(0);
+        }
+        else {
+            val = getZeroOrPositiveLong(props, key, source);
+        }
+        return val.longValue();
+    }
+
     public long getMaxReservedMinutes() {
         return this.maxReservedMinutes;
     }
 
     public long getMaxElapsedReservedMinutes() {
         return this.maxElapsedReservedMinutes;
+    }
+
+    public long getMaxCPUs() {
+        return this.maxCPUs;
     }
 
     public long getMaxWorkspaceNumber() {
@@ -205,6 +235,7 @@ public class GroupRights {
                 ", imageNodeHostname='" + this.imageNodeHostname + '\'' +
                 ", imageBaseDirectory='" + this.imageBaseDirectory + '\'' +
                 ", dirHashMode=" + this.dirHashMode +
+                ", maxCPUs=" + this.maxCPUs +
                 '}';
     }
 }

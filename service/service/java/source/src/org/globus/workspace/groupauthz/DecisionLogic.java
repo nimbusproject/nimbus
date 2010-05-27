@@ -151,6 +151,39 @@ public class DecisionLogic {
            .append("\n");
 
         // zero or below means no check should be made
+        if (rights.getMaxCPUs() > 0) {
+            final long maxCPUs = rights.getMaxCPUs();
+            for (int i = 0; i < bindings.length; i++) {
+
+                final VirtualMachineDeployment dep = bindings[i].getDeployment();
+                if (dep == null) {
+                    final String msg = "ERROR: No deployment information in " +
+                            "binding, can't make decision.";
+                    buf.append(msg);
+                    logger.error(buf.toString());
+                    throw new AuthorizationException(msg);
+                }
+                final long currentCPUs = dep.getIndividualCPUCount();
+                if (currentCPUs > maxCPUs) {
+
+                    buf.append("\nDenied: Requested CPU count (")
+                       .append(currentCPUs)
+                       .append(") + is greater or equal to maximum CPU count (")
+                       .append(maxCPUs)
+                       .append(").\n");
+
+                    logger.warn(buf.toString());
+
+                    throw new ResourceRequestDeniedException(
+                                "You requested too many CPUs (" +
+                                        currentCPUs + "), the " +
+                                        "maximum is " +
+                                        maxCPUs + " CPUs.");
+                    }
+            }
+        }
+
+        // zero or below means no check should be made
         if (rights.getMaxReservedMinutes() > 0) {
             final long max = rights.getMaxReservedMinutes();
             final long current = reservedMins.longValue();
