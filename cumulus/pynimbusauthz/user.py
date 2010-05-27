@@ -6,7 +6,7 @@ import uuid
 
 # a simple wrapper around readonly
 class User(object):
-    UNLIMITED = -1
+    UNLIMITED = None
 
     def __init__(self, db_obj, uu=None, friendly=None, create=False):
         if uu == None or create:

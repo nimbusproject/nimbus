@@ -74,6 +74,10 @@ class cbAuthzUser(object):
         uf = UserFile(file, self.user)
         return uf
 
+    def set_quota(self, max):
+        self.user.set_quota(max)
+        self.db_obj.commit()
+
     # return the permission string of the given object
     def get_perms(self, bucketName, objectName=None):
         global authed_user
@@ -161,6 +165,13 @@ class cbAuthzUser(object):
         finally:
             self.db_obj.commit()
 
+    def get_remaining_quota(self):
+        quota = self.user.get_quota()
+        if quota == User.UNLIMITED:
+            return User.UNLIMITED
+
+        u = self.user.get_quota_usage()
+        return quota - u
 
     # add a new bucket owned by this user
     def put_bucket(self, bucketName):

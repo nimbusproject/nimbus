@@ -44,8 +44,8 @@ create table users_canonical(
     friendly_name varchar(64) UNIQUE
 );
 
-insert into users_canonical(id, friendly_name) values ('CumulusPublicUser', 'CumulusPublicUser');
-insert into users_canonical(id, friendly_name) values ('CumulusAuthenticatedUser', 'CumulusAuthenticatedUser');
+-- insert into users_canonical(id, friendly_name) values ('CumulusPublicUser', 'CumulusPublicUser');
+-- insert into users_canonical(id, friendly_name) values ('CumulusAuthenticatedUser', 'CumulusAuthenticatedUser');
 -- user_alias_types
 -- ================
 -- vairous types of user identifications mechanisms:
