@@ -174,6 +174,9 @@ public class AuthzDecisionLogic extends DecisionLogic
             throws AuthorizationException,
                    ResourceRequestDeniedException
     {
+        boolean different_target = false;
+        String unPropImageName = null;
+
         logger.debug("BuzzTrol checkImages entered'");                
 
         for (int i = 0; i < parts.length; i++)
@@ -186,7 +189,7 @@ public class AuthzDecisionLogic extends DecisionLogic
             }
 
             String incomingImageName = parts[i].getImage();
-            String unPropImageName = null;
+            
             if(parts[i].isPropRequired())
             {
                 unPropImageName = parts[i].getAlternateUnpropTarget();
@@ -194,21 +197,29 @@ public class AuthzDecisionLogic extends DecisionLogic
                 {
                     unPropImageName = incomingImageName;
                 }
-            }
+                else
+                {
+                    different_target = true;
+                }
+            }            
 
             logger.debug("Image " + incomingImageName + " requested");
             logger.debug("Unprop image " + unPropImageName + " requested");
             try
             {
+                boolean check_write;
+                check_write = incomingImageName.equals(unPropImageName);
+                
                 // just authorize the image
-                checkUrl(incomingImageName, dn, false);
+                long size = checkUrl(incomingImageName, dn, check_write, 0);
 
-                if(unPropImageName != null)
+                // if the names were different and we are unpropagating we need to check write on the new file
+                if(unPropImageName != null && !check_write)
                 {                    
-                    checkUrl(unPropImageName, dn, true);
+                    checkUrl(unPropImageName, dn, true, size);
                 }
             }
-            catch (Exception e)
+            catch (WorkspaceDatabaseException e)
             {
                 final String msg = "ERROR: Partition in " +
                     "binding is not a valid URI? Can't make decision. " +
@@ -220,10 +231,11 @@ public class AuthzDecisionLogic extends DecisionLogic
         }
     }
 
-    private boolean checkUrl(
+    private long checkUrl(
         String                          url,
         String                          userId,
-        boolean                         write)
+        boolean                         write,
+        long                            expectedSize)
             throws AuthorizationException, WorkspaceDatabaseException
     {
         int    fileId;
@@ -249,6 +261,7 @@ public class AuthzDecisionLogic extends DecisionLogic
                 String [] results = objectName.split("/", 2);
                 String bucketName = results[0];
                 String keyName = results[1];
+                boolean checkSpace = false;
 
                 if(fileIds[0] < 0)
                 {
@@ -272,6 +285,7 @@ public class AuthzDecisionLogic extends DecisionLogic
                 {
                     throw new AuthorizationException("user " + userId + " canonical ID " + canUser + " does not have read access to " + url);
                 }
+                long size = authDB.getFileSize(fileIds[1]);
                 if(write)
                 {
                     ndx = perms.indexOf('w');
@@ -279,7 +293,23 @@ public class AuthzDecisionLogic extends DecisionLogic
                     {
                         throw new AuthorizationException("user " + userId + " does not have write access to " + url);
                     }
+
+                    // expected size is only zero when replacing the original file.  in this case we assume it will
+                    // fit
+                    if(expectedSize != 0)
+                    {
+                        // deduct the size of the file that already exists from the expected size.  it
+                        // is ok if it goes negative
+                        long canFitSize = expectedSize - size;
+                        boolean quota = authDB.canStore(canFitSize, canUser, schemeType);
+                        if(!quota)
+                        {
+                            throw new AuthorizationException("You do not have enough storage space for the new image.  Please free up some storage and try again");
+                        }
+                    }
                 }
+
+                return size;
             }
             catch(WorkspaceDatabaseException wsdbex)
             {
@@ -289,13 +319,12 @@ public class AuthzDecisionLogic extends DecisionLogic
         }
         else if (scheme.equals("file"))
         {
-            return true;
+            return 0;
         }
         else
         {
             throw new AuthorizationException("scheme of: " + scheme + " is not supported.");
         }
-        return true;
     }
 
     public void setRepoScheme(String repoScheme)
@@ -350,7 +379,7 @@ public class AuthzDecisionLogic extends DecisionLogic
                 // for now lets just set the size
                 File f = new File(datakey);
                 long size = f.length();
-                authDB.setFileSize(fileIds[1], size);                
+                authDB.setFileSize(fileIds[1], size);
             }
             else
             {

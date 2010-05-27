@@ -26,6 +26,9 @@ public class AuthzDBAdapter
     private static final String CREATE_NEW_FILE = "insert into objects (name, owner_id, data_key, object_type, parent_id, creation_time) values(?, ?, ?, ?, ?, datetime('now'))";
     private static final String SET_NEW_FILE_PERMS = "insert into object_acl (user_id, object_id, access_type_id) values(?, ?, ?)";
     private static final String UPDATE_FILE_INFO = "update objects set object_size=? where id = ?";
+    private static final String GET_USER_USAGE = "SELECT SUM(object_size) FROM objects where owner_id = ? and object_type = ?";
+    private static final String GET_USER_QUOTA = "SELECT quota from object_quota where user_id = ? and object_type = ?";
+    private static final String GET_FILE_SIZE = "SELECT object_size FROM objects WHERE id = ?";
 
     public static final int ALIAS_TYPE_S3 = 1;
     public static final int ALIAS_TYPE_DN = 2;
@@ -60,6 +63,118 @@ public class AuthzDBAdapter
             throws   WorkspaceDatabaseException
     {
           return getCanonicalUserIdFromAlias(name, ALIAS_TYPE_DN);
+    }
+
+    public long getFileSize(
+        int                             fileId)
+            throws   WorkspaceDatabaseException
+    {
+        Connection c = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try
+        {
+            c = getConnection();
+            pstmt = c.prepareStatement(GET_FILE_SIZE);
+            pstmt.setInt(1, fileId);
+            rs = pstmt.executeQuery();
+            if(!rs.next())
+            {
+                throw new WorkspaceDatabaseException("no such file id found  " + fileId);
+            }
+            long size = rs.getLong(1);
+            return size;
+        }
+        catch(SQLException e)
+        {
+            logger.error("",e);
+            throw new WorkspaceDatabaseException(e);
+        }
+        finally
+        {
+            try
+            {
+                if (pstmt != null)
+                {
+                    pstmt.close();
+                }
+                if (c != null)
+                {
+                    returnConnection(c);
+                }
+            }
+            catch (SQLException sql)
+            {
+                logger.error("SQLException in finally cleanup", sql);
+            }
+        }        
+    }
+
+    public boolean canStore(
+        long                            fileSize,
+        String                          canUser,
+        int                             objectType)
+            throws   WorkspaceDatabaseException
+    {
+        Connection c = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try
+        {
+            c = getConnection();
+            pstmt = c.prepareStatement(GET_USER_QUOTA);
+            pstmt.setString(1, canUser);
+            pstmt.setInt(2, objectType);
+            rs = pstmt.executeQuery();
+            if(!rs.next())
+            {
+                // no quota set so assume unlimited
+                return true;
+            }
+            long quota = rs.getLong(1);
+
+            pstmt = c.prepareStatement(GET_USER_USAGE);
+            pstmt.setString(1, canUser);
+            pstmt.setInt(2, objectType);
+            rs = pstmt.executeQuery();
+            long totalUsage = 0;
+            if(rs.next())
+            {
+                totalUsage = rs.getLong(1);
+            }
+
+            if(totalUsage + fileSize > quota)
+            {
+                return false;
+            }
+            return true;            
+        }
+        catch(SQLException e)
+        {
+            logger.error("",e);
+            throw new WorkspaceDatabaseException(e);
+        }
+        finally
+        {
+            try
+            {
+                if (pstmt != null)
+                {
+                    pstmt.close();
+                }
+                if (c != null)
+                {
+                    returnConnection(c);
+                }
+            }
+            catch (SQLException sql)
+            {
+                logger.error("SQLException in finally cleanup", sql);
+            }
+        }
+
     }
 
     private int getParentObject(
