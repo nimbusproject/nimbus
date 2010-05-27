@@ -186,8 +186,9 @@ class User(object):
     find_alias = staticmethod(find_alias)
 
     def get_quota(self, object_type=pynimbusauthz.object_type_s3):
+        ot = pynimbusauthz.object_types[object_type]
         s="SELECT quota from object_quota where user_id = ? and object_type = ?"
-        data = [self.uuid, object_type]
+        data = [self.uuid, ot]
         row = self.db_obj._run_fetch_one(s, data)
         if row == None or len(row) == 0:
             return User.UNLIMITED
@@ -203,15 +204,16 @@ class User(object):
         return row[0]
 
     def set_quota(self, quota, object_type=pynimbusauthz.object_type_s3):
+        ot = pynimbusauthz.object_types[object_type]
         s = "SELECT quota from object_quota where user_id = ? and object_type = ?"
-        data = [self.uuid, object_type]
+        data = [self.uuid, ot]
         row = self.db_obj._run_fetch_one(s, data)
         if row == None or len(row) == 0:
             s = "INSERT into object_quota(user_id, object_type, quota) values(?, ?, ?)"
-            data = [self.uuid, object_type, quota]
+            data = [self.uuid, ot, quota]
         else:
             s = "UPDATE object_quota SET quota = ? WHERE user_id = ? and object_type = ?"
-            data = [quota, self.uuid, object_type]
+            data = [quota, self.uuid, ot]
         self.db_obj._run_no_fetch(s, data)
 
 
