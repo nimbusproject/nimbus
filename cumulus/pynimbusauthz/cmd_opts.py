@@ -92,8 +92,12 @@ class cbOpts(object):
 
     def add_opt(self, parser):
         if self.flag != None:
+            if self.default:
+                a = "store_false"
+            else:
+                a = "store_true"
             parser.add_option(self.short, self.long, dest=self.dest, default=self.default,
-                action="store_true",
+                action=a,
                 help=self.get_description())
             return
 

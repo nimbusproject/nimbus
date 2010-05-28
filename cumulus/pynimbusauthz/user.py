@@ -315,6 +315,15 @@ class UserAlias(object):
         return c
     find_alias_by_friendly = staticmethod(find_alias_by_friendly)
 
+    def find_all_alias_by_friendly(db_obj, fn, type=pynimbusauthz.alias_type_s3):
+        at = pynimbusauthz.alias_types[type]
+        s = "select "+ UserAlias.get_select_str()+" from user_alias where friendly_name LIKE '%s' and alias_type = ?" % (fn)
+        data = (at,)
+        c = db_obj._run_fetch_iterator(s, data, _convert_alias_row_to_UserAlias)
+        return c
+    find_all_alias_by_friendly = staticmethod(find_all_alias_by_friendly)
+
+
     def __str__(self):
         return str(self.alias_name) + ":" + str(self.alias_type)
 

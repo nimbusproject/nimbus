@@ -66,11 +66,13 @@ function help() {
   echo ""
   echo "$OPT_ALL_DNS                    Prints all active DNs"
   echo ""
-  echo "$OPT_AUTHZ_ON          Enables the groupauthz plugin"
-  echo ""
+# leave this option in for now in case we want to look back at pre-gridftp ways
+# but leave it out of the help message
+#  echo "$OPT_AUTHZ_ON          Enables the groupauthz plugin"
+#  echo ""
   echo "$OPT_CUMULUS_AUTHZ_ON        Enables the groupauthz plugin with the cumulus database"
   echo ""
-  echo "$OPT_AUTHZ_OFF         Disables the groupauthz plugin"
+  echo "$OPT_AUTHZ_OFF         Disables the cumulus groupauthz plugin"
   echo ""
   echo "-h, --help                   This help output"
   echo ""
@@ -339,7 +341,10 @@ function check_decision_file() {
   
   echo ""
   echo "----------"
-  
+ 
+  return
+ 
+  # below is for the legacy gridftp repository management
   QUESTION="When you add users on a regular basis, do you want this script to also create the appropriate directories at the cloud repository?"
   
   get_y_n "$QUESTION"

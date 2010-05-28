@@ -379,6 +379,21 @@ public class AuthzDecisionLogic extends DecisionLogic
                 // for now lets just set the size
                 File f = new File(datakey);
                 long size = f.length();
+                long expectedSize = authDB.getFileSize(fileIds[1]);
+                long sizeDiff = size - expectedSize;
+
+                // if the size of the file grew from what it was expected to be we must make sure the quota
+                // is not busted
+                if(sizeDiff > 0)
+                {
+                    String canUser = authDB.getFileOwner(fileIds[1]);
+                    boolean hasRoom = authDB.canStore(sizeDiff, canUser, schemeType);
+                    if(!hasRoom)
+                    {
+                        logger.error("FOR TIMF callout happens here");
+                    }
+                }
+
                 authDB.setFileSize(fileIds[1], size);
             }
             else

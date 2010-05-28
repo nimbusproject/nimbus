@@ -45,6 +45,9 @@ class cbAuthzUser(object):
         self.alias = a_list[0]
         self.user = self.alias.get_canonical_user()
 
+    def get_canonical_id(self):
+        return self.user.get_id()
+
     def get_password(self):
         return self.alias.get_data()
 
@@ -77,6 +80,11 @@ class cbAuthzUser(object):
     def set_quota(self, max):
         self.user.set_quota(max)
         self.db_obj.commit()
+
+    def get_quota(self):
+        q = self.user.get_quota()
+        self.db_obj.commit()
+        return q
 
     # return the permission string of the given object
     def get_perms(self, bucketName, objectName=None):
@@ -308,7 +316,14 @@ class cbAuthzSec(object):
         alias = a_list[0]
         return alias.get_name()
 
+    def find_user_id_by_display(self, pattern):
+        db_obj = DB(con_str=self.con_str)
+        a_it = UserAlias.find_all_alias_by_friendly(db_obj, pattern)
+        new_it = map(lambda r: r.get_name(), a_it)
+        return new_it
 
+def _convert_test_it(a):
+    return a.get_name()
 
 def _convert_bucket_to_cbObject(user, file):
     tm = file.get_creation_time()
@@ -326,6 +341,6 @@ def _convert_File_to_cbObject(user, file):
     key = file.get_name()
     display_name = file.get_name()
     # should file meta info come from here or backend?
-    obj = cbObject(tm, size, key, display_name, user, md5sum=mds)
+    bj = cbObject(tm, size, key, display_name, user, md5sum=mds)
     return obj
 
