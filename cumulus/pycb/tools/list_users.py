@@ -10,7 +10,7 @@ import pycb
 import pynimbusauthz
 import shutil
 import pycb.cbPosixSecurity
-from pycb.tools import cbToolsException
+from pycb.tools.cbToolsException import cbToolsException
 from pynimbusauthz.cmd_opts import cbOpts
 
 g_report_options = ["friendly", "ID", "password", "quota", "canonical_id"]
