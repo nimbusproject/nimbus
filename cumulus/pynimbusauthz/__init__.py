@@ -42,6 +42,8 @@ def get_default_options(u):
 
     all_opts = []
 
+    opt = cbOpts("batch", "b", "Set to batch mode for machine parsing", False, flag=True)
+    all_opts.append(opt)
     opt = cbOpts("quiet", "q", "Display no output", False, flag=True)
     all_opts.append(opt)
     opt = cbOpts("verbose", "V", "Display much output", 1, count=True)
@@ -54,10 +56,14 @@ def get_default_options(u):
     return (parser, all_opts)
 
 def print_msg(opts, level, msg):
-    if opts.quiet:
+    if opts.batch and level != 0:
         return
-    if level > opts.verbose:
-        return
+
+    if not opts.batch or level != 0:
+        if opts.quiet:
+            return
+        if level > opts.verbose:
+            return
     opts.out_file.write(msg)
     opts.out_file.write('\n')
     opts.out_file.flush()

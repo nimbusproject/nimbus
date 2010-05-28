@@ -29,6 +29,7 @@ public class AuthzDBAdapter
     private static final String GET_USER_USAGE = "SELECT SUM(object_size) FROM objects where owner_id = ? and object_type = ?";
     private static final String GET_USER_QUOTA = "SELECT quota from object_quota where user_id = ? and object_type = ?";
     private static final String GET_FILE_SIZE = "SELECT object_size FROM objects WHERE id = ?";
+    private static final String GET_FILE_OWNER = "SELECT owner_id FROM objects WHERE id = ?";
 
     public static final int ALIAS_TYPE_S3 = 1;
     public static final int ALIAS_TYPE_DN = 2;
@@ -109,6 +110,52 @@ public class AuthzDBAdapter
                 logger.error("SQLException in finally cleanup", sql);
             }
         }        
+    }
+
+    public String getFileOwner(
+        int                             fileId)
+            throws   WorkspaceDatabaseException
+    {
+        Connection c = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try
+        {
+            c = getConnection();
+            pstmt = c.prepareStatement(GET_FILE_OWNER);
+            pstmt.setInt(1, fileId);
+            rs = pstmt.executeQuery();
+            if(!rs.next())
+            {
+                throw new WorkspaceDatabaseException("no such file id found  " + fileId);
+            }
+            String owner = rs.getString(1);
+            return owner;
+        }
+        catch(SQLException e)
+        {
+            logger.error("",e);
+            throw new WorkspaceDatabaseException(e);
+        }
+        finally
+        {
+            try
+            {
+                if (pstmt != null)
+                {
+                    pstmt.close();
+                }
+                if (c != null)
+                {
+                    returnConnection(c);
+                }
+            }
+            catch (SQLException sql)
+            {
+                logger.error("SQLException in finally cleanup", sql);
+            }
+        }
     }
 
     public boolean canStore(

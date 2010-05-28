@@ -3,7 +3,7 @@ Cumulus Quickstart
 
 1) Install the software:
 
-    % ./install.sh
+    % ./install.sh <path to installation location>
 
 Optionally you may provide a path where the software will be installed.  If
 no path is provided the source directory is used.
