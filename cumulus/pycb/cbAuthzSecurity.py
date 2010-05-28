@@ -341,6 +341,6 @@ def _convert_File_to_cbObject(user, file):
     key = file.get_name()
     display_name = file.get_name()
     # should file meta info come from here or backend?
-    bj = cbObject(tm, size, key, display_name, user, md5sum=mds)
+    obj = cbObject(tm, size, key, display_name, user, md5sum=mds)
     return obj
 

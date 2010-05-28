@@ -23,14 +23,17 @@ fi
 $CUMULUS_HOME/bin/cumulus.sh -p $cumulus_port $https_opt &
 cumulus_pid=$!
 echo $cumulus_pid
-trap "pkill cumulus; mv ~/.s3cfg.cumulus.test ~/.s3cfg; $CUMULUS_HOME/bin/cumulus-add-user.sh -r tests3cmd1@nimbus.test" EXIT
+trap "pkill cumulus; mv ~/.s3cfg.cumulus.test ~/.s3cfg; $CUMULUS_HOME/bin/cumulus-remove-user.sh tests3cmd1@nimbus.test" EXIT
 sleep 2
 log_file=`mktemp`
 echo "Logging output to $log_file" 
-$CUMULUS_HOME/bin/cumulus-add-user.sh -g -n tests3cmd1@nimbus.test | tee $log_file
-grep ID $log_file
-id=`grep ID $log_file | awk '{ print $2 }'`
-pw=`grep ID $log_file | awk '{ print $4 }'`
+x=`$CUMULUS_HOME/bin/cumulus-add-user.sh -b  -r ID,password tests3cmd1@nimbus.test`
+echo $x
+id=`echo $x | awk -F , '{ print $1 }'`
+pw=`echo $x | awk -F, '{ print $2 }'`
+
+echo $id
+echo $pw
 
 sed -e "s/@@SEC@@/$sec/g" -e "s^@@HOST_PORT@@^$cumulus_host:$cumulus_port^g" -e "s^@@ID@@^$id^" -e "s^@@KEY@@^$pw^" $CUMULUS_HOME/etc/dot_s3cfg.in > ~/.s3cfg
 

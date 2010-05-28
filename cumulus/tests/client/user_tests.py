@@ -16,6 +16,7 @@ import unittest
 import tempfile
 import filecmp
 import pycb.tools.add_user
+import pycb.tools.remove_user
 #
 class TestAddUsers(unittest.TestCase):
 
@@ -26,7 +27,7 @@ class TestAddUsers(unittest.TestCase):
         pass
 
     def test_new_user(self):
-        rc = pycb.tools.add_user.main(["-g", "-n", "test@nosetests.nimbus.org"])
+        rc = pycb.tools.add_user.main(["test@nosetests.nimbus.org"])
         self.assertEqual(rc, 0, "rc = %d" % (rc))
-        rc = pycb.tools.add_user.main(["-r", "test@nosetests.nimbus.org"])
+        rc = pycb.tools.remove_user.main(["test@nosetests.nimbus.org"])
         self.assertEqual(rc, 0, "rc = %d" % (rc))
