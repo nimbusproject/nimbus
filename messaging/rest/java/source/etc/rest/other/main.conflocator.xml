@@ -21,7 +21,7 @@
 
     <bean id="restSettings"
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-        <property name="location" value="file://@REST_CONFDIR@/rest.conf" />
+        <property name="location" value="$NIMBUS_HOME/services/etc/nimbus/rest/rest.conf" />
         <property name="placeholderPrefix" value="$REST{" />
     </bean>
 

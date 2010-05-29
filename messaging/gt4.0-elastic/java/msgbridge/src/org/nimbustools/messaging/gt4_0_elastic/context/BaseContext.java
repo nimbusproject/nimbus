@@ -18,7 +18,6 @@ package org.nimbustools.messaging.gt4_0_elastic.context;
 
 import org.nimbustools.api.brain.NimbusFileSystemXmlApplicationContext;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.ServiceRM;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.ServiceGeneral;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.ServiceSecurity;

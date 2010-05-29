@@ -18,6 +18,7 @@ package org.globus.workspace.persistence;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.core.io.Resource;
 
 /**
  * If "derby.system.home" is not registered as a System property, this class
@@ -39,7 +40,7 @@ public class DerbyLoad implements DBLoader {
     // INSTANCE VARIABLES
     // -------------------------------------------------------------------------
 
-    private String derbySystemHome;
+    private Resource derbySystemHome;
     private boolean loaded;
 
     
@@ -47,7 +48,7 @@ public class DerbyLoad implements DBLoader {
     // CONFIG SET
     // -------------------------------------------------------------------------
     
-    public void setDerbySystemHome(String derbySystemHome) {
+    public void setDerbySystemHome(Resource derbySystemHome) {
         this.derbySystemHome = derbySystemHome;
     }
 
@@ -68,7 +69,8 @@ public class DerbyLoad implements DBLoader {
         // don't overwrite if defined elsewhere
         if (System.getProperty(DERBY_HOME_PROP_KEY) == null) {
             if (this.derbySystemHome != null) {
-                System.setProperty(DERBY_HOME_PROP_KEY, this.derbySystemHome);
+                System.setProperty(DERBY_HOME_PROP_KEY,
+                                   this.derbySystemHome.getFile().getAbsolutePath());
             }
         }
 

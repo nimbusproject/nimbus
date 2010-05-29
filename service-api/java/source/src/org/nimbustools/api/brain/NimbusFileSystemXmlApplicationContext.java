@@ -92,12 +92,17 @@ public class NimbusFileSystemXmlApplicationContext extends FileSystemXmlApplicat
     }
 
     @Override
-      protected Resource getResourceByPath(String path) {
+    protected Resource getResourceByPath(String path) {
         if (path == null) {
             throw new IllegalArgumentException("path may not be null");
         }
 
-        logger.debug("Got path "+path);
+        final String givenPath = path;
+
+        final String possibleScheme = "file:";
+        if (path.startsWith(possibleScheme)) {
+            path = path.substring(possibleScheme.length());
+        }
 
         if (path.startsWith(PATH_PREFIX)) {
 
@@ -106,7 +111,12 @@ public class NimbusFileSystemXmlApplicationContext extends FileSystemXmlApplicat
             }
 
             final String relPath = path.substring(PATH_PREFIX.length());
-            return new FileSystemResource(this.nimbusHome.getAbsolutePath() + relPath);
+            final String newPath = this.nimbusHome.getAbsolutePath() + relPath;
+            
+            logger.debug("Resource path changed from '" + givenPath +
+                    "' into '" + newPath + '\'');
+            
+            return new FileSystemResource(newPath);
         }
         return super.getResourceByPath(path);
     }

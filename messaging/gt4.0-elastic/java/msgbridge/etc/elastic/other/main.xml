@@ -203,9 +203,9 @@
         <property name="enabled" value="$QUERY{query.enabled}"/>
         <property name="port" value="$QUERY{https.port}" />
         <property name="headerBufferBytes" value="$QUERY{query.header.size}"/>
-        <property name="keystoreLocation" value="$QUERY{keystore.path}"/>
+        <property name="keystoreResource" value="$QUERY{keystore.path}"/>
         <property name="keystorePassword" value="$QUERY{keystore.password}"/>
-        <property name="springConfig" value="$QUERY{query.spring.path}"/>
+        <property name="springConfigResource" value="$QUERY{query.spring.path}"/>
     </bean>
 
     <!-- TODO this should happen somewhere else... -->
@@ -214,9 +214,9 @@
           init-method="startListening">
         <property name="enabled" value="$REST{rest.enabled}" />
         <property name="port" value="$REST{rest.port}" />
-        <property name="keystoreLocation" value="$REST{keystore.path}"/>
+        <property name="keystoreResource" value="$REST{keystore.path}"/>
         <property name="keystorePassword" value="$REST{keystore.password}"/>
-        <property name="springConfig" value="$REST{rest.spring.path}"/>
+        <property name="springConfigResource" value="$REST{rest.spring.path}"/>
     </bean>
 
 

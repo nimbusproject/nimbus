@@ -29,9 +29,11 @@ import org.globus.workspace.persistence.DBLoader;
 import org.safehaus.uuid.UUIDGenerator;
 
 import javax.sql.DataSource;
+import java.io.IOException;
 import java.util.Calendar;
 
 import commonj.timers.TimerManager;
+import org.springframework.core.io.Resource;
 
 public class DBAccountingAdapter implements AccountingEventAdapter,
                                             AccountingReaderAdapter {
@@ -105,12 +107,13 @@ public class DBAccountingAdapter implements AccountingEventAdapter,
     // INITIALIZATION
     // -------------------------------------------------------------------------
 
-    public void setCurrentReservationsPath(String currentReservationsPath) {
-        this.currentReservationsPath = currentReservationsPath;
+    public void setCurrentReservationsResource(Resource currentReservationsResource)
+            throws IOException {
+        this.currentReservationsPath = currentReservationsResource.getFile().getAbsolutePath();
     }
 
-    public void setEventsPath(String eventsPath) {
-        this.eventsPath = eventsPath;
+    public void setEventsResource(Resource eventsResource) throws IOException {
+        this.eventsPath = eventsResource.getFile().getAbsolutePath();
     }
 
     public void setWriteDelayMilliseconds(int writeDelayMilliseconds) {

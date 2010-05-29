@@ -16,7 +16,7 @@
             <resourceParams>
                 <parameter>
                     <name>masterConf</name>
-                    <value>@WORKSPACE_CONFDIR@/other/main.xml</value>
+                    <value>etc/nimbus/workspace-service/other/main.xml</value>
                 </parameter>
                 <parameter>
                     <name>factory</name>
@@ -31,7 +31,7 @@
             <resourceParams>
                 <parameter>
                     <name>elasticConf</name>
-                    <value>@ELASTIC_CONFDIR@/other/main.xml</value>
+                    <value>etc/nimbus/elastic/other/main.xml</value>
                 </parameter>
                 <parameter>
                     <name>factory</name>

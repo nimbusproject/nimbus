@@ -41,10 +41,12 @@ import org.globus.workspace.service.impls.site.PilotPoll;
 import org.globus.workspace.service.impls.site.SlotPollCallback;
 import org.globus.workspace.xen.XenUtil;
 import org.safehaus.uuid.UUIDGenerator;
+import org.springframework.core.io.Resource;
 
 import javax.sql.DataSource;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -178,8 +180,8 @@ public class PilotSlotManagement implements SlotManagement,
         this.contactPort = contactPort;
     }
 
-    public void setAccountsPath(String accountsPath) {
-        this.accountsPath = accountsPath;
+    public void setAccountsResource(Resource accountsResource) throws IOException {
+        this.accountsPath = accountsResource.getFile().getAbsolutePath();
     }
 
     public void setSshNotificationInfo(String info) {
@@ -188,8 +190,8 @@ public class PilotSlotManagement implements SlotManagement,
         }
     }
 
-    public void setPollScript(String pollScript) {
-        this.pollScript = pollScript;
+    public void setPollScriptResource(Resource pollScriptResource) throws IOException {
+        this.pollScript = pollScriptResource.getFile().getAbsolutePath();
     }
 
     // default is 200ms
@@ -251,8 +253,8 @@ public class PilotSlotManagement implements SlotManagement,
         }
     }
 
-    public void setLogdirPath(String logdirPath) {
-        this.logdirPath = logdirPath;
+    public void setLogdirResource(Resource logdirResource) throws IOException {
+        this.logdirPath = logdirResource.getFile().getAbsolutePath();
     }
 
     // -------------------------------------------------------------------------

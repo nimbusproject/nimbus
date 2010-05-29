@@ -15,6 +15,7 @@
  */
 package org.nimbustools.messaging.query.security;
 
+import org.springframework.core.io.Resource;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataRetrievalFailureException;
@@ -22,7 +23,12 @@ import org.mortbay.util.QuotedStringTokenizer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.NoSuchElementException;
@@ -49,15 +55,15 @@ public class FileUserDetailsService implements QueryUserDetailsService {
     final private Map<String, QueryUser> mapByDN;
 
 
-    public FileUserDetailsService(String fileName) throws IOException {
-        if (fileName == null) {
-            throw new IllegalArgumentException("fileName may not be null");
+    public FileUserDetailsService(Resource fileResource) throws IOException {
+        if (fileResource == null) {
+            throw new IllegalArgumentException("fileResource may not be null");
         }
 
         mapByID = new HashMap<String, QueryUser>();
         mapByDN = new HashMap<String, QueryUser>();
 
-        load(new File(fileName));
+        load(fileResource.getFile());
     }
 
     public QueryUser loadUserByUsername(String username)

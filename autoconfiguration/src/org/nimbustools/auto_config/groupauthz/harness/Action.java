@@ -17,8 +17,8 @@
 package org.nimbustools.auto_config.groupauthz.harness;
 
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
 import org.globus.workspace.groupauthz.GroupAuthz;
+import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 public class Action {
 
@@ -41,6 +41,7 @@ public class Action {
         this.args = args;
         this.debug = debug;
 
+        // NOT using NimbusFileSystemXmlApplicationContext, absolute path expected from cmdline
         final ApplicationContext ctx =
                 new FileSystemXmlApplicationContext(this.confPath);
 

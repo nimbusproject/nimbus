@@ -23,13 +23,16 @@ import org.nimbustools.api.services.rm.AuthorizationException;
 import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.context.ResourceLoaderAware;
+import org.springframework.core.io.ResourceLoader;
 
 import javax.security.auth.Subject;
 import java.io.File;
 import java.net.URI;
 
 public class GroupAuthz implements CreationAuthorizationCallout,
-                                   PostTaskAuthorization {
+                                   PostTaskAuthorization,
+                                   ResourceLoaderAware {
 
     public boolean isEnabled() {
         return true;
@@ -43,6 +46,8 @@ public class GroupAuthz implements CreationAuthorizationCallout,
                       "unexpected, please contact administrator.";
 
     private final Group[] groups = new Group[15];
+
+    private ResourceLoader loader;
 
     // set via config, these are paths to files that list DNs
     private String group01;
@@ -248,8 +253,8 @@ public class GroupAuthz implements CreationAuthorizationCallout,
 
         final String numString = "Authorization Group #" + num;
 
-        final File policyPath = new File(path);
-        final File memberPath = new File(defpath);
+        final File policyPath = this.loader.getResource(path).getFile();
+        final File memberPath = this.loader.getResource(defpath).getFile();
 
         if (!policyPath.exists() && !memberPath.exists()) {
             logger.debug(numString + " is not configured.");
@@ -369,5 +374,13 @@ public class GroupAuthz implements CreationAuthorizationCallout,
     public Group[] getGroups() {
         return this.groups;
     }
+
+
+    // -------------------------------------------------------------------------
+    // implements ResourceLoaderAware
+    // -------------------------------------------------------------------------
     
+    public void setResourceLoader(ResourceLoader resourceLoader) {
+        this.loader = resourceLoader;
+    }
 }

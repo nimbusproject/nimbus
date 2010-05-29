@@ -34,6 +34,7 @@ import org.globus.workspace.xen.XenUtil;
 import java.util.ArrayList;
 
 import commonj.timers.TimerManager;
+import org.springframework.core.io.Resource;
 
 public class PropagationAdapterImpl implements PropagationAdapter,
                                                CounterCallback,
@@ -67,7 +68,7 @@ public class PropagationAdapterImpl implements PropagationAdapter,
 
     // set via config mechanism (spring):
     private String notificationInfo;
-    private String pollScript;
+    private Resource pollScript;
     private boolean enabled;
     private long watcherDelay = 2000;
 
@@ -122,8 +123,8 @@ public class PropagationAdapterImpl implements PropagationAdapter,
         this.notificationInfo = notifInfo;
     }
 
-    public void setPollScript(String pollScriptPath) {
-        this.pollScript = pollScriptPath;
+    public void setPollScript(Resource pollScript) {
+        this.pollScript = pollScript;
     }
 
     public void setEnabled(String isEnabled) {
@@ -174,6 +175,7 @@ public class PropagationAdapterImpl implements PropagationAdapter,
 
         final boolean fake = this.globals.isFake();
 
+        final String pollScriptPath;
         if (this.pollScript == null) {
             // If fake mode is on, allow pollScript to be absent. We rely
             // on knowing fake is set before propagation is initialized
@@ -181,6 +183,9 @@ public class PropagationAdapterImpl implements PropagationAdapter,
                 throw new Exception("pollScript setting is missing from" +
                         " propagation configuration");
             }
+            pollScriptPath = "/bin/true";
+        } else {
+            pollScriptPath = this.pollScript.getFile().getAbsolutePath();
         }
 
         if (this.notificationInfo == null) {
@@ -191,7 +196,8 @@ public class PropagationAdapterImpl implements PropagationAdapter,
         // todo: could do with parsing notificationInfo for validity.
         // for now, we just pass it through to the backend
 
-        final String[] cmd = {this.pollScript};
+
+        final String[] cmd = {pollScriptPath};
         try {
             WorkspaceUtil.runCommand(cmd,
                                      this.lager.eventLog,

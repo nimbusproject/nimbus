@@ -24,9 +24,11 @@ import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.FilterHolder;
 import org.mortbay.jetty.servlet.ServletHolder;
 import org.mortbay.jetty.webapp.WebAppContext;
+import org.springframework.core.io.Resource;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.filter.DelegatingFilterProxy;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -118,20 +120,12 @@ public class HttpQuery {
         this.headerBufferBytes = headerBufferBytes;
     }
 
-    public String getSpringConfig() {
-        return springConfig;
+    public void setSpringConfigResource(Resource springConfigResource) throws IOException {
+        this.springConfig = springConfigResource.getFile().getAbsolutePath();
     }
 
-    public void setSpringConfig(String springConfig) {
-        this.springConfig = springConfig;
-    }
-
-    public String getKeystoreLocation() {
-        return this.keystoreLocation;
-    }
-
-    public void setKeystoreLocation(String keystoreLocation) {
-        this.keystoreLocation  = keystoreLocation;
+    public void setKeystoreResource(Resource keystoreResource) throws IOException {
+        this.keystoreLocation = keystoreResource.getFile().getAbsolutePath();
     }
 
     public String getKeystorePassword() {
