@@ -116,10 +116,6 @@ Southern California. All Rights Reserved.
     <property environment="env"/>
 
     <property file="build.properties"/>
-    <property file="${user.home}/build.properties"/>
-
-    <property file="docs.dest" value="./"/>
-    <property file="wsrf.properties"/>
     <property name="gar.dest" value="${basedir}/tmp/gar"/>
 
     <property name="gar.name" value="${gar.id}.gar"/>  
@@ -169,17 +165,45 @@ Southern California. All Rights Reserved.
         <antcall target="copyBin">
                 <reference refid="${garbin.id}"/>
         </antcall>
+        <antcall target="copyServerDeployWSDD" />
+        <antcall target="copyClientDeployWSDD" />
+        <antcall target="copyJndiConfig" />
+
+        <jar destfile="${gar.name}" basedir="${gar.dest}"/>
+        <delete dir="${gar.dest}"/>
+    </target>
+
+    <target name="testServerDeployWSDD">
+        <condition property="ignore.sdWSDD">
+            <isset property="forget.server-deploy.wsdd"/>
+        </condition>
+    </target>
+    <target name="copyServerDeployWSDD" depends="testServerDeployWSDD" unless="ignore.sdWSDD">
         <copy file="${garserverdeployment.file}"
             tofile="${gar.dest}/server-deploy.wsdd"
             failonerror="false"/>
+    </target>
+
+    <target name="testClientDeployWSDD">
+        <condition property="ignore.cdWSDD">
+            <isset property="forget.client-deploy.wsdd"/>
+        </condition>
+    </target>
+    <target name="copyClientDeployWSDD" depends="testClientDeployWSDD" unless="ignore.cdWSDD">
         <copy file="${garclientdeployment.file}"
             tofile="${gar.dest}/client-deploy.wsdd"
             failonerror="false"/>
+    </target>
+
+    <target name="testJndiConfig">
+        <condition property="ignore.jndiconfig">
+            <isset property="forget.jndi-config-deploy.xml"/>
+        </condition>
+    </target>
+    <target name="copyJndiConfig" depends="testJndiConfig" unless="ignore.jndiconfig">
         <copy file="${garjndiconfigdeployment.file}"
             tofile="${gar.dest}/jndi-config-deploy.xml"
             failonerror="false"/>
-        <jar destfile="${gar.name}" basedir="${gar.dest}"/>
-        <delete dir="${gar.dest}"/>
     </target>
 
     <target name="testShare">
