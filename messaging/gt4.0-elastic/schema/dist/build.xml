@@ -14,8 +14,7 @@
     <property name="gar.name"
               value="${vws.gt4_0-elastic.schemas.dist.dir}/${vws.gt4_0-elastic.schemas.package.name}.gar"/>
 
-    <property name="build.packages" location=
-        "${deploy.dir}/share/globus_wsrf_common/build-packages.xml"/>
+    <property name="build.packages" location="${vws.gt4_0-elastic.schemas.build.packages.xml}"/>
 
     <!--
     <property name="noSchema" value="true"/>
@@ -72,6 +71,9 @@
         <echo message="**** Module: ${basedir}" />
         <echo>Building: ${vws.gt4_0-elastic.schemas.print-noun}</echo>
         <ant antfile="${build.packages}" target="makeGar">
+            <property name="forget.server-deploy.wsdd" value="x" />
+            <property name="forget.client-deploy.wsdd" value="x" />
+            <property name="forget.jndi-config-deploy.xml" value="x" />
             <reference refid="${garjars.id}"/>
             <reference refid="${garetc.id}"/>
             <reference refid="${garshare.id}"/>

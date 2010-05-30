@@ -28,7 +28,7 @@
     <property name="abs.deploy.dir"
               location="${env.GLOBUS_LOCATION}"/>
     <property name="build.packages"
-              location="${abs.deploy.dir}/share/globus_wsrf_common/build-packages.xml"/>
+              location="${nimbus.messaging.gt4_0.gar.build.packages.xml}"/>
 
 
     <!-- *******************************************************************
@@ -192,6 +192,7 @@
 
         <ant antfile="${build.packages}" target="makeGar">
 
+            <property name="forget.client-deploy.wsdd" value="x" />
             <reference refid="${garjars.id}"/>
             <reference refid="${garetc.id}"/>
             <reference refid="${garshare.id}"/>

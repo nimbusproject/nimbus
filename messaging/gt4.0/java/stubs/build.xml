@@ -18,8 +18,7 @@
               location="${env.GLOBUS_LOCATION}"/>
     <property name="gt4_0.lib.dir"
               location="${abs.deploy.dir}/lib"/>
-    <property name="build.packages"
-              location="${abs.deploy.dir}/share/globus_wsrf_common/build-packages.xml"/>
+    <property name="build.packages" location="${vws.gt4_0.stubs.build.packages.xml}"/>
     <property name="build.stubs"
               location="${abs.deploy.dir}/share/globus_wsrf_tools/build-stubs.xml"/>
 
@@ -284,6 +283,9 @@
 
     <target name="_dist" depends="copyjar">
         <ant antfile="${build.packages}" target="makeGar">
+            <property name="forget.server-deploy.wsdd" value="x" />
+            <property name="forget.client-deploy.wsdd" value="x" />
+            <property name="forget.jndi-config-deploy.xml" value="x" />
             <reference refid="${garjars.id}"/>
             <reference refid="${garetc.id}"/>
             <reference refid="${garshare.id}"/>
