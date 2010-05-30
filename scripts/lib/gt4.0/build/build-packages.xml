@@ -1,0 +1,566 @@
+<?xml version="1.0"?>
+<!-- 
+  Portions of this file Copyright 1999-2005 University of Chicago
+  Portions of this file Copyright 1999-2005 The University of Southern California.
+  
+  This file or a portion of this file is licensed under the
+  terms of the Globus Toolkit Public License, found at
+  http://www.globus.org/toolkit/download/license.html.
+  If you redistribute this file, with or without
+  modifications, you must include this notice in the file.
+-->
+
+<!-- ===================================================================
+
+   Build file for Web Services Resource Framework (WSRF) Packaging
+
+Notes:
+   This is a build file for use with the Jakarta Ant build tool.
+
+Prerequisites:
+
+   jakarta-ant from http://jakarta.apache.org
+
+
+Build Instructions:
+   To build, run
+
+     java org.apache.tools.ant.Main <target>
+
+   on the directory where this file is located with the target you want.
+
+Most useful targets:
+
+ - makeGar  -> creates a Grid archive that can be deployed in a Grid service 
+container
+ - deployGar  -> deploys Gar in Standalone Grid service container
+ - undeployGar  -> undeploys Gar from Standalone Grid service container
+
+Copyright:
+Copyright (c) 1999-2005 University of Chicago and The University of 
+Southern California. All Rights Reserved.
+
+==================================================================== -->
+
+<project default="makeGar" basedir=".">
+
+    <!-- Give user a chance to override without editing this file
+    (and without typing -D each time it compiles it) -->
+
+    <description>
+        This build script may be used to create, deploy and undeploy
+        GAR (Globus ARchive) files.
+
+        The targets in this script honor the following parameters:
+
+        makeGar:
+        
+           - garjars.id    A optional reference to a fileset
+                           containing jar files 
+           - garschema.id  A optional reference to a fileset
+                           containing wsdl and schema files
+           - garetc.id     A optional reference to a fileset
+                           containing files to be placed under
+                           etc. Note that if this directory contains a
+                           ant build file with the name
+                           post-deploy.xml containing a target named
+                           setup then this target will be executed as
+                           the last step in deploying a gar. 
+           - garshare.id   A optional reference to a fileset
+                           containing files to be placed under share
+           - gardocs.id    A optional reference to a fileset
+                           containing files to be placed under docs
+           - garbin.id     A optional reference to a filset containing
+                           executables 
+           - garserverdeployment.file     A optional property
+                           containing the name of a server side wsdd
+                           file. Defaults to deploy-server.wsdd
+           - garclientdeployment.file     A optional property
+                           containing the name of a client side wsdd
+                           file. Defaults to deploy-client.wsdd
+           - garjndiconfigdeployment.file A optional property
+                           containing the name of a JNDI configuration
+                           file. Defaults to deploy-jndi-config.xml
+           - gar.dest      A optional temporary directory used for
+                           building the gar. Defaults to ${basedir}/tmp/gar
+           - gar.name      The name of the gar, e.g. globus_java_wsrf_common.gar
+        
+        deployGar:
+
+           - deploy.dir    The directory to deploy to. Defaults to
+                           $GLOBUS_LOCATION if set and the current
+                           directory if not set.
+           - profile       A optional name of a configuration profile
+                           to use. In essence installing with a non
+                           default configuration profile allows one to
+                           install the same gar using multiple
+                           configurations.
+           - gar.name      The name of the gar to install.
+           - noSchema      A optional parameter indicating whether
+                           schema files included in the gar should be
+                           installed or not.
+           - createBackup  A optional parameter indicating whether
+                           to make a backup of all the existing configuration files
+                           in $GLOBUS_LOCATION/etc/${gar.id} directory.
+
+        undeployGar:
+
+           - deploy.dir    The directory from which to
+                           undeploy. Defaults to $GLOBUS_LOCATION if
+                           set and the current directory if not set.
+           - gar.id        The id of the gar to undeploy,
+                           e.g. globus_java_wsrf_common
+        
+    </description>
+
+    <property environment="env"/>
+
+    <property file="build.properties"/>
+    <property file="${user.home}/build.properties"/>
+
+    <property file="docs.dest" value="./"/>
+    <property file="wsrf.properties"/>
+    <property name="gar.dest" value="${basedir}/tmp/gar"/>
+
+    <property name="gar.name" value="${gar.id}.gar"/>  
+    <property name="garserverdeployment.file" 
+        value="deploy-server.wsdd"/>  
+    <property name="garclientdeployment.file"
+        value="deploy-client.wsdd"/>  
+    <property name="garjndiconfigdeployment.file" 
+        value="deploy-jndi-config.xml"/>  
+
+    <property name="env.GLOBUS_LOCATION" value="."/>
+    <property name="deploy.dir" location="${env.GLOBUS_LOCATION}"/>
+    <property name="abs.deploy.dir" location="${deploy.dir}"/>
+
+    <property name="config.dir" value="etc"/>
+
+    <path id="classpath">
+        <fileset dir=".">
+            <include name="lib/*.jar"/>
+        </fileset>
+        <fileset dir="${abs.deploy.dir}/lib">
+            <include name="*.jar"/>
+        </fileset>
+        <pathelement path="${java.class.path}"/>
+    </path>
+
+
+    <!-- ================================================================ -->
+    <!-- Target used to build a GAR                                       -->
+    <!-- ================================================================ -->
+    <target name="makeGar" description="Build a GAR file">
+        <antcall target="copyJars">
+                <reference refid="${garjars.id}"/>
+        </antcall>
+        <antcall target="copySchema">
+                <reference refid="${garschema.id}"/>
+        </antcall>
+        <antcall target="copyEtc">
+                <reference refid="${garetc.id}"/>
+        </antcall>
+        <antcall target="copyShare">
+                <reference refid="${garshare.id}"/>
+        </antcall>
+        <antcall target="copyDocs">
+                <reference refid="${gardocs.id}"/>
+        </antcall>
+        <antcall target="copyBin">
+                <reference refid="${garbin.id}"/>
+        </antcall>
+        <copy file="${garserverdeployment.file}"
+            tofile="${gar.dest}/server-deploy.wsdd"
+            failonerror="false"/>
+        <copy file="${garclientdeployment.file}"
+            tofile="${gar.dest}/client-deploy.wsdd"
+            failonerror="false"/>
+        <copy file="${garjndiconfigdeployment.file}"
+            tofile="${gar.dest}/jndi-config-deploy.xml"
+            failonerror="false"/>
+        <jar destfile="${gar.name}" basedir="${gar.dest}"/>
+        <delete dir="${gar.dest}"/>
+    </target>
+
+    <target name="testShare">
+        <condition property="share.available">
+            <isset property="garshare.id"/>
+        </condition>
+    </target>
+    <target name="copyShare" depends="testShare" if="share.available">
+        <copy todir="${gar.dest}/share">
+            <fileset refid="${garshare.id}"/>
+        </copy>
+    </target>
+
+    <target name="testEtc">
+        <condition property="etc.available">
+            <isset property="garetc.id"/>
+        </condition>
+    </target>
+    <target name="copyEtc" depends="testEtc" if="etc.available">
+        <copy todir="${gar.dest}/etc">
+            <fileset refid="${garetc.id}"/>
+        </copy>
+    </target>
+
+    <target name="testDocs">
+        <condition property="docs.available">
+            <isset property="gardocs.id"/>
+        </condition>
+    </target>
+    <target name="copyDocs" depends="testDocs" if="docs.available">
+        <copy todir="${gar.dest}/docs">
+            <fileset refid="${gardocs.id}"/>
+        </copy>
+    </target>
+
+    <target name="testBin">
+        <condition property="bin.available">
+            <isset property="garbin.id"/>
+        </condition>
+    </target>
+    <target name="copyBin" depends="testBin" if="bin.available">
+        <copy todir="${gar.dest}/bin">
+            <fileset refid="${garbin.id}"/>
+        </copy>
+    </target>
+
+    <target name="testPostDeployAvailable" depends="setGarID">
+        <property name="postDeploy.file" 
+            value="${gar.dest}/etc/post-deploy.xml"/>
+        <available property="postDeploy.available" type="file"
+            file="${postDeploy.file}"/>
+    </target>
+    
+    <target name="postDeploy" depends="testPostDeployAvailable"
+            if="postDeploy.available">
+        <ant antfile="${postDeploy.file}" target="setup"/>
+        <delete file="${postDeploy.file}" failonerror="false"/>
+    </target>
+
+    <target name="testJars">
+        <condition property="jars.available">
+            <isset property="garjars.id"/>
+        </condition>
+    </target>
+    <target name="copyJars" depends="testJars" if="jars.available">
+        <copy todir="${gar.dest}/lib">
+            <fileset refid="${garjars.id}"/>
+        </copy>
+    </target>
+
+    <target name="testSchema">
+        <condition property="schema.available">
+            <isset property="garschema.id"/>
+        </condition>
+    </target>
+    <target name="copySchema" depends="testSchema" if="schema.available">
+        <copy todir="${gar.dest}/schema">
+            <fileset refid="${garschema.id}"/>
+        </copy>
+    </target>
+
+    <!-- 
+     User callable task
+     Input: 'gar.name' - gar file location
+            'profile'  - name of the cfg profile
+            'noSchema' - if true, schema files in the gar will not be deployed
+    -->
+    <target name="deployGar" description="Deploy a GAR file.">
+        <condition property="profile.name" value="${profile}-">
+           <isset property="profile"/>
+        </condition>
+        <condition property="profile.name" value="">
+          <not>
+           <isset property="profile"/>
+          </not>
+        </condition>
+        <condition property="profile.desc" value="${profile}">
+           <isset property="profile"/>
+        </condition>
+        <condition property="profile.desc" value="&lt;default&gt;">
+          <not>
+           <isset property="profile"/>
+          </not>
+        </condition>
+        <echo message="Deploying gar with profile: ${profile.desc}"/>
+        <antcall target="deployGarFiles"/>
+        <antcall target="deployServer"/>
+        <antcall target="deployClient"/>
+        <antcall target="deployJNDIConfig"/>
+        <antcall target="generateUndeploy"/>
+        <antcall target="postDeploy"/>
+        <delete dir="${gar.dest}"/>
+    </target>
+
+    <target name="setGarID">
+        <basename property="gar.id" file="${gar.name}" suffix=".gar"/>
+    </target>
+
+    <target name="testServerDeployAvailable">
+        <available property="serverDeploy.available" type="file"
+            file="${gar.dest}/server-deploy.wsdd"/>
+    </target>
+    <target name="deployServer" 
+            depends="testServerDeployAvailable, setGarID"
+            if="serverDeploy.available">
+        <echo message="deploying server config..."/>
+        <mkdir dir="${abs.deploy.dir}/${config.dir}/${gar.id}"/>
+        <chmod dir="${abs.deploy.dir}/${config.dir}/${gar.id}" perm="755"/>
+        <copy file="${gar.dest}/server-deploy.wsdd"
+              tofile="${abs.deploy.dir}/${config.dir}/${gar.id}/${profile.name}server-config.wsdd"
+              overwrite="true">
+           <filterset>
+             <filter token="gar.id" value="${gar.id}"/>
+             <filter token="config.dir" value="etc/${gar.id}"/>
+           </filterset>
+        </copy>
+        <chmod file="${abs.deploy.dir}/${config.dir}/${gar.id}/${profile.name}server-config.wsdd" perm="600"/>
+    </target>
+
+    <target name="testJNDIConfigDeployAvailable">
+        <available property="jndiConfigDeploy.available" type="file"
+            file="${gar.dest}/jndi-config-deploy.xml"/>
+    </target>
+    <target name="deployJNDIConfig" 
+            depends="testJNDIConfigDeployAvailable, setGarID"
+            if="jndiConfigDeploy.available">
+        <echo message="deploying JNDI config..."/>
+        <mkdir dir="${abs.deploy.dir}/${config.dir}/${gar.id}"/>
+        <chmod dir="${abs.deploy.dir}/${config.dir}/${gar.id}" perm="755"/>
+        <copy file="${gar.dest}/jndi-config-deploy.xml"
+              tofile="${abs.deploy.dir}/${config.dir}/${gar.id}/${profile.name}jndi-config.xml"
+              overwrite="true">
+           <filterset>
+             <filter token="gar.id" value="${gar.id}"/>
+             <filter token="config.dir" value="etc/${gar.id}"/>
+           </filterset>
+        </copy>
+        <chmod file="${abs.deploy.dir}/${config.dir}/${gar.id}/${profile.name}jndi-config.xml" perm="600"/>
+    </target>
+
+    <!-- 
+     User callable task
+     Input: 'gar.id' - gar id to remove - all cfg profiles are removed.
+    -->
+    <target name="undeployGar" description="Undeploy a GAR file.">
+        <fail message="Must specify gar id to undeploy" unless="gar.id"/>
+        <ant dir="${abs.deploy.dir}/etc/globus_packages/${gar.id}"
+            inheritAll="false" antfile="undeploy.xml">
+            <property name="deploy.dir" location="${abs.deploy.dir}"/>
+        </ant>
+        <delete file="${abs.deploy.dir}/etc/globus_packages/${gar.id}/undeploy.xml"/>
+        <delete dir="${abs.deploy.dir}/etc/globus_packages/${gar.id}"/>
+    </target>
+
+    <target name="testClientDeployAvailable">
+        <available property="clientDeploy.available" type="file" 
+            file="${gar.dest}/client-deploy.wsdd"/>
+    </target>
+    <target name="deployClient" depends="testClientDeployAvailable" 
+            if="clientDeploy.available">
+        <echo message="deploying client config..."/>
+        <java classname="org.apache.axis.utils.Admin" 
+              classpathref="classpath" 
+              dir="${abs.deploy.dir}"
+              fork="true" 
+              failonerror="true">
+            <arg value="client"/>
+            <arg value="${gar.dest}/client-deploy.wsdd"/>
+        </java>
+        <fixcrlf srcdir="${abs.deploy.dir}" eol="lf" 
+                 includes="client-config.wsdd"/>
+    </target>
+
+    <target name="deployGarFiles" depends="setGarID">
+        <mkdir dir="${gar.dest}"/>
+        <chmod file="${gar.dest}" perm="700"/>
+        <mkdir dir="${gar.dest}/schema"/>
+        <mkdir dir="${gar.dest}/etc"/>
+        <mkdir dir="${gar.dest}/bin"/>
+        <mkdir dir="${gar.dest}/docs"/>
+        <mkdir dir="${gar.dest}/share"/>
+        <mkdir dir="${gar.dest}/lib"/>
+
+        <unjar src="${gar.name}" dest="${gar.dest}"/>
+
+        <copy todir="${abs.deploy.dir}/docs/${gar.id}" 
+              overwrite="true"
+              includeEmptyDirs="false">
+            <fileset dir="${gar.dest}/docs"/>
+        </copy>
+
+        <antcall target="setDefaultPermissions" inheritAll="false">
+            <param name="target.dir" value="${abs.deploy.dir}/docs/${gar.id}"/>
+            <param name="source.dir" value="${gar.dest}/docs"/>
+        </antcall>
+
+        <copy todir="${abs.deploy.dir}/share/${gar.id}" 
+              overwrite="true" 
+              includeEmptyDirs="false">
+            <fileset dir="${gar.dest}/share"/>
+        </copy>
+
+        <antcall target="setDefaultPermissions" inheritAll="false">
+            <param name="target.dir" value="${abs.deploy.dir}/share/${gar.id}"/>
+            <param name="source.dir" value="${gar.dest}/share"/>
+        </antcall>
+
+        <antcall target="deploySchema"/>
+
+        <antcall target="makeEtcBackup"/>
+
+        <copy todir="${abs.deploy.dir}/etc/${gar.id}" 
+              overwrite="true"
+              includeEmptyDirs="false">
+            <fileset dir="${gar.dest}/etc">
+              <exclude name="post-deploy.xml"/>
+            </fileset>
+        </copy>
+
+        <antcall target="setDefaultPermissions" inheritAll="false">
+            <param name="target.dir" value="${abs.deploy.dir}/etc/${gar.id}"/>
+            <param name="source.dir" value="${gar.dest}/etc"/>
+        </antcall>
+
+        <copy todir="${abs.deploy.dir}/bin"
+              overwrite="true">
+            <fileset dir="${gar.dest}/bin"/>
+        </copy>
+
+        <antcall target="setExecutablePermissions" inheritAll="false">
+            <param name="target.dir" value="${abs.deploy.dir}/bin"/>
+            <param name="source.dir" value="${gar.dest}/bin"/>
+        </antcall>
+
+        <copy todir="${abs.deploy.dir}/lib"
+              overwrite="true">
+            <fileset dir="${gar.dest}/lib">
+                <include name="**/*.jar"/>
+            </fileset>
+        </copy>
+
+        <antcall target="setDefaultPermissions" inheritAll="false">
+            <param name="target.dir" value="${abs.deploy.dir}/lib"/>
+            <param name="source.dir" value="${gar.dest}/lib"/>
+        </antcall>
+
+        <copy todir="${abs.deploy.dir}/share/licenses"
+              overwrite="true">
+            <fileset dir="${gar.dest}/lib">
+                <include name="**/*LICENSE*"/>
+            </fileset>
+        </copy>
+
+        <antcall target="setDefaultPermissions" inheritAll="false">
+            <param name="target.dir" value="${abs.deploy.dir}/share/licenses"/>
+            <param name="source.dir" value="${gar.dest}/lib"/>
+        </antcall>
+    </target>
+   
+    <target name="deploySchema" unless="noSchema">
+        <copy todir="${abs.deploy.dir}/share/schema"
+              overwrite="true">
+            <fileset dir="${gar.dest}/schema"/>
+        </copy>
+        
+        <antcall target="setDefaultPermissions" inheritAll="false">
+            <param name="target.dir" value="${abs.deploy.dir}/share/schema"/>
+            <param name="source.dir" value="${gar.dest}/schema"/>
+        </antcall>
+    </target>
+
+    <target name="makeEtcBackup" if="createBackup">
+        <tstamp>
+            <format property="bak.timestamp"  pattern="yyMMddHHmmss"/>
+        </tstamp>
+ 
+        <copy todir="${abs.deploy.dir}/etc/${gar.id}/backup.${bak.timestamp}" 
+              overwrite="true"
+              failonerror="false"
+              includeEmptyDirs="false">
+            <fileset dir="${abs.deploy.dir}/etc/${gar.id}">
+              <exclude name="backup.*/**"/>
+            </fileset>
+        </copy>
+
+       <chmod perm="700" dir="${abs.deploy.dir}" type="dir"
+              includes="etc/${gar.id}/backup.${bak.timestamp}"/>
+
+    </target>
+
+    <target name="addDocs">
+        <!-- work around for bug in ant 1.5 with jar update -->
+        <touch file="${gar.name}" millis="0"/>
+        <copy todir="${gar.dest}/docs/">
+            <fileset dir="${docs.dir}"/>
+        </copy>
+        <jar destfile="${gar.name}" update="true" basedir="${gar.dest}"/>
+        <delete dir="${gar.dest}"/>
+    </target>
+    <target name="addEtc">
+        <!-- work around for bug in ant 1.5 with jar update -->
+        <touch file="${gar.name}" millis="0"/>
+        <copy todir="${gar.dest}/etc/">
+            <fileset dir="${etc.dir}"/>
+        </copy>
+        <jar destfile="${gar.name}" update="true" basedir="${gar.dest}"/>
+        <delete dir="${gar.dest}"/>
+    </target>
+    <target name="addBin">
+        <!-- work around for bug in ant 1.5 with jar update -->
+        <touch file="${gar.name}" millis="0"/>
+        <copy todir="${gar.dest}/bin/">
+            <fileset dir="${bin.dir}"/>
+        </copy>
+        <jar destfile="${gar.name}" update="true" basedir="${gar.dest}"/>
+        <delete dir="${gar.dest}"/>
+    </target>
+
+    <target name="getDocs">
+        <unjar src="${gar.name}" dest="${docs.dest}">
+            <patternset>
+                <include name="docs/*"/>
+            </patternset>
+        </unjar>
+    </target>
+
+    <target name="generateUndeploy">
+        <java classname="org.globus.tools.gar.GenerateUndeploy"
+            classpathref="classpath"
+            fork="true"
+            failonerror="true">
+            <arg value="${gar.name}"/>
+            <arg value="${abs.deploy.dir}"/>      
+        </java>
+    </target>
+
+    <target name="targetDirExists">
+        <available file="${target.dir}" property="target.dir.exists"/>
+    </target>
+
+    <target name="setDefaultPermissions" depends="targetDirExists" if="target.dir.exists">
+        <chmod perm="644" type="file">
+            <fileset dir="${target.dir}">
+                <present targetdir="${source.dir}"/>
+            </fileset>
+        </chmod>
+
+        <chmod perm="755" type="dir">
+            <fileset file="${target.dir}"/>
+            <fileset dir="${target.dir}">
+                <present targetdir="${source.dir}"/>
+            </fileset>
+        </chmod>
+    </target>
+
+    <target name="setExecutablePermissions" depends="targetDirExists" if="target.dir.exists">
+        <chmod perm="755">
+            <fileset file="${target.dir}"/>
+            <fileset dir="${target.dir}">
+                <present targetdir="${source.dir}"/>
+            </fileset>
+        </chmod>
+    </target>
+</project>
