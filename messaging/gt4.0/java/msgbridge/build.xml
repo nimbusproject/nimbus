@@ -75,6 +75,7 @@
         <javac srcdir="${nimbus.messaging.gt4_0.src.dir}"
                destdir="${nimbus.messaging.gt4_0.build.dest}"
                classpathref="nimbus.messaging.gt4_0.classpath"
+               includeantruntime="false"
                debug="on">
 
             <include name="**/*.java"/>

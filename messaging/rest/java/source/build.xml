@@ -68,6 +68,7 @@
         <javac srcdir="${nimbus.messaging.rest.src.dir}"
                destdir="${nimbus.messaging.rest.build.dest}"
                classpathref="nimbus.messaging.rest.classpath"
+               includeantruntime="false"
                debug="on">
 
             <include name="**/*.java"/>

@@ -62,6 +62,7 @@
         <javac srcdir="${nimbus.metadata-server.src.dir}"
                destdir="${nimbus.metadata-server.build.dest}"
                classpathref="nimbus.metadata-server.classpath"
+               includeantruntime="false"
                debug="on">
 
             <include name="**/*.java"/>

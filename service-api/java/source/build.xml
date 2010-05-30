@@ -47,6 +47,7 @@
 
         <javac srcdir="${nimbus.service.api.src.dir}"
                destdir="${nimbus.service.api.build.dest}"
+               includeantruntime="false"
                debug="on"
                classpathref="nimbus.service.api.classpath">
 

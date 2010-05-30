@@ -173,6 +173,7 @@
 
         <javac srcdir="${vws.gt4_0-elastic.stubs.build.src.dir}"
                destdir="${vws.gt4_0-elastic.stubs.build.dest}"
+               includeantruntime="false"
                debug="on">
 
             <include name="**/*.java"/>

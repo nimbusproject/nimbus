@@ -62,6 +62,7 @@
         <javac srcdir="${autocommon.src.dir}"
                destdir="${autocommon.build.dir}"
                classpathref="autocommon.deps.classpath"
+               includeantruntime="false"
                target="1.5"
                source="1.5"
                debug="on">

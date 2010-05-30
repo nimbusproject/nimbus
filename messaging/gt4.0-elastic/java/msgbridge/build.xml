@@ -76,6 +76,7 @@
         <javac srcdir="${nimbus.messaging.gt4_0-elastic.src.dir}"
                destdir="${nimbus.messaging.gt4_0-elastic.build.dest}"
                classpathref="nimbus.messaging.gt4_0-elastic.classpath"
+               includeantruntime="false"
                debug="on">
 
             <include name="**/*.java"/>

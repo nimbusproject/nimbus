@@ -173,6 +173,7 @@
         <javac srcdir="${nimbus.client.gt4_0.src.dir}"
                destdir="${nimbus.client.gt4_0.build.dest}"
                classpathref="nimbus.client.gt4_0.classpath"
+               includeantruntime="false"
                debug="on">
 
             <include name="**/*.java"/>

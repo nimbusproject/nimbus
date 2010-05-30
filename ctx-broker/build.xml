@@ -79,6 +79,7 @@
                destdir="${nimbus.ctxbroker.build.dest}"
                classpathref="nimbus.ctxbroker.classpath"
                classpath="${nimbus.ctxbroker.stubs.dist}/*jar"
+               includeantruntime="false"
                debug="on">
 
             <include name="**/*.java"/>

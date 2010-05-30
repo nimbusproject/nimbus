@@ -60,6 +60,7 @@
         <javac srcdir="${nimbus.service.main.src.dir}"
                destdir="${nimbus.service.main.build.dest}"
                classpathref="nimbus.service.main.classpath"
+               includeantruntime="false"
                debug="on">
 
             <include name="**/*.java"/>
