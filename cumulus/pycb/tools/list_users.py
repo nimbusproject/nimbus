@@ -21,7 +21,9 @@ class printer_obj(object):
 
 def setup_options(argv):
 
-    u = """[options] [<display name pattern>]"""
+    u = """[options] [<display name pattern>]
+Get a listing of cumulus users.
+"""
     (parser, all_opts) = pynimbusauthz.get_default_options(u)
 
     opt = cbOpts("report", "r", "Report the selected columns from the following: " + pycb.tools.report_options_to_string(g_report_options), pycb.tools.report_options_to_string(g_report_options))
@@ -39,7 +41,7 @@ def main(argv=sys.argv[1:]):
 
     (opts, args) = setup_options(argv)
     if len(args) == 0:
-        raise cbToolsException('CMDLINE', ["You must provide a display name"])
+        raise cbToolsException('CMDLINE', ("You must provide a display name"))
 
     search_name = args[0].replace("*", "%%")
 

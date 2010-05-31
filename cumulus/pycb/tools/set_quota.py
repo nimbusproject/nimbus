@@ -12,16 +12,14 @@ import shutil
 import pycb.cbPosixSecurity
 from pycb.tools.cbToolsException import cbToolsException
 from pynimbusauthz.cmd_opts import cbOpts
+from pynimbusauthz.user import User
 
 def setup_options(argv):
 
-    u = """[options] <display name>
-Remove a user from the system.
+    u = """[options] <display name> <formated integer quota | UNLIMITED> 
+Sets a quota for the given cumulus user
 """
     (parser, all_opts) = pynimbusauthz.get_default_options(u)
-
-    opt = cbOpts("all", "a", "Destroy all associated user data as well (including files that they own)", False, flag=True)
-    all_opts.append(opt)
 
     (o, args) = pynimbusauthz.parse_args(parser, all_opts, argv)
 
@@ -32,10 +30,21 @@ def main(argv=sys.argv[1:]):
     auth = pycb.config.auth
 
     (opts, args) = setup_options(argv)
-    if len(args) == 0:
-        raise cbToolsException('CMDLINE', ["You must provide a display name"])
+    if len(args) != 2:
+        raise cbToolsException('CMDLINE', ("You must provide a display name and a quota.  See --help"))
 
     display_name = args[0]
+    qstr = args[1]
+
+    if qstr == "UNLIMITED":
+        q = User.UNLIMITED
+    else:
+        try:
+            q = int(qstr)
+        except:
+            raise cbToolsException('CMDLINE', ("The quota must be an integer > 0 or the string UNLIMITED"))
+        if q < 1:
+            raise cbToolsException('CMDLINE', ("The quota must be an integer > 0 or the string UNLIMITED"))
 
     try:
         user_id = auth.get_user_id_by_display(display_name)
@@ -43,7 +52,10 @@ def main(argv=sys.argv[1:]):
     except Exception, ex:
         raise cbToolsException('UNKNOWN_USER', (display_name), ex)
 
-    u.remove_user()
+    if u == None:
+        raise cbToolsException('UNKNOWN_USER', (display_name))
+
+    u.set_quota(q)
 
     return 0
 

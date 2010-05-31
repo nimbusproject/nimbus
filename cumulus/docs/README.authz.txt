@@ -1,6 +1,10 @@
 Cumulus Authz
 =============
 
+This document describes the ACL data base used inside of cumulus and the 
+command line tools that exist to manipulate it.  Most administrators will
+not need this level of detail but it is provided for those that do.
+
 Description
 -----------
 

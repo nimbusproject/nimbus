@@ -17,7 +17,9 @@ g_report_options = ["ID", "password", "quota", "canonical_id"]
 
 def setup_options(argv):
 
-    u = """[options] <display name>"""
+    u = """[options] <display name>
+Create a new cumulus users
+    """
     (parser, all_opts) = pynimbusauthz.get_default_options(u)
 
     opt = cbOpts("password", "p", "Set the secret key associated with this cumulus account.  If not specified one will be generated.", None)
@@ -49,7 +51,7 @@ def main(argv=sys.argv[1:]):
 
     (opts, args) = setup_options(argv)
     if len(args) == 0:
-        raise cbToolsException('CMDLINE', ["You must provide a display name"])
+        raise cbToolsException('CMDLINE', ("You must provide a display name"))
 
     display_name = args[0]
 
