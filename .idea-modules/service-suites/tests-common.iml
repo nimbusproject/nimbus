@@ -9,9 +9,8 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="rm-api" exported="" />
     <orderEntry type="module" module-name="workspace-service" exported="" />
-    <orderEntry type="library" name="test-libs" level="project" />
-    <orderEntry type="library" name="workspace-service-libs" level="project" />
-    <orderEntry type="library" name="rm-api-libs" level="project" />
+    <orderEntry type="library" exported="" name="test-libs" level="project" />
+    <orderEntry type="library" exported="" name="workspace-service-libs" level="project" />
   </component>
 </module>
 

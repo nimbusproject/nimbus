@@ -18,3 +18,5 @@ web/var/
 control/var/workspace-control/logs/wclog*
 derby.log
 bin/tmp/
+workspace.persistence.conf
+
