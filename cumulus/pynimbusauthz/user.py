@@ -205,16 +205,21 @@ class User(object):
 
     def set_quota(self, quota, object_type=pynimbusauthz.object_type_s3):
         ot = pynimbusauthz.object_types[object_type]
-        s = "SELECT quota from object_quota where user_id = ? and object_type = ?"
-        data = [self.uuid, ot]
-        row = self.db_obj._run_fetch_one(s, data)
-        if row == None or len(row) == 0:
-            s = "INSERT into object_quota(user_id, object_type, quota) values(?, ?, ?)"
-            data = [self.uuid, ot, quota]
+        if quota == User.UNLIMITED:
+            d = "DELETE FROM object_quota where user_id = ? and object_type = ?"
+            data = [self.uuid, ot]
+            self.db_obj._run_no_fetch(d, data)
         else:
-            s = "UPDATE object_quota SET quota = ? WHERE user_id = ? and object_type = ?"
-            data = [quota, self.uuid, ot]
-        self.db_obj._run_no_fetch(s, data)
+            s = "SELECT quota from object_quota where user_id = ? and object_type = ?"
+            data = [self.uuid, ot]
+            row = self.db_obj._run_fetch_one(s, data)
+            if row == None or len(row) == 0:
+                s = "INSERT into object_quota(user_id, object_type, quota) values(?, ?, ?)"
+                data = [self.uuid, ot, quota]
+            else:
+                s = "UPDATE object_quota SET quota = ? WHERE user_id = ? and object_type = ?"
+                data = [quota, self.uuid, ot]
+            self.db_obj._run_no_fetch(s, data)
 
 
     def get_user(db_obj, user_id):

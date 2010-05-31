@@ -12,7 +12,7 @@ class cbToolsException(Exception):
 
     errors['UNKNOWN_USER'] = "The user %s is unknown"
     rcs['UNKNOWN_USER'] = 1
-    errors['CMDLINE'] = "poorly formed command line"
+    errors['CMDLINE'] = "poorly formed command line : %s"
     rcs['CMDLINE'] = 2
 
     def __init__(self, code, fmt_set, ex=None):
