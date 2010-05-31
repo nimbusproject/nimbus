@@ -80,7 +80,7 @@ class DefaultImageProcurement:
                 self.adapters[PROP_ADAPTER_HDFS] = propagate_hdfs.propadapter(self.p, self.c)
             except:
                 msg = "HDFS configuration present (propagation->hdfs) but cannot load a suitable HDFS implimentation in the code"
-                self.c.log.rexception(msg + ": ")
+                self.c.log.exception(msg + ": ")
                 raise InvalidConfig(msg)    
         
         if len(self.adapters) == 0:
