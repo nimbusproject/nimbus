@@ -1,3 +1,4 @@
+import pynimbusauthz 
 
 def report_options_to_string(opts, delim=","):
     rc = ""
@@ -20,6 +21,6 @@ def print_report(report_obj, cols, opts):
             out_line = out_line + delim + v
             delim = d
         else:
-            print "%-15s : %s" % (c, v)
+            pynimbusauthz.print_msg(opts, 0,  "%-15s : %s" % (c, v))
 
-    print out_line
+    pynimbusauthz.print_msg(opts, 0,  out_line)

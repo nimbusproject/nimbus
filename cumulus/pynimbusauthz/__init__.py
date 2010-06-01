@@ -85,7 +85,6 @@ def parse_args(p, all_opts, argv):
         o.add_opt(p)
     (options, args) = p.parse_args(args=argv)
 
-    print "setting out stream %s" % (str(options.outstream))
     if options.outstream == None:
         options.out_file = sys.stdout
     else:
