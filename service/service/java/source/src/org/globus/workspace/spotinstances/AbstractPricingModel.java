@@ -4,21 +4,12 @@ import java.util.Collection;
 import java.util.TreeSet;
 
 public abstract class AbstractPricingModel implements PricingModel{
-
-    protected static final double BASE_PRICE = 1.0;
-    
-    protected static final double DISCOUNT_PERCENTAGE = 0.5;
-    
-    public static final Double MINIMUM_PRICE = DISCOUNT_PERCENTAGE*BASE_PRICE;
-
-    protected static final Double NEGATIVE_INFINITY = -1.0;
-    
     
     @Override
     public Double getNextPrice(Integer totalReservedResources, Collection<SIRequest> requests, Double currentPrice) {
         
         if(requests.isEmpty()){
-            return MINIMUM_PRICE;
+            return PricingModelConstants.MINIMUM_PRICE;
         }
         
         TreeSet<Double> priceCandidates = getPriceCandidates(requests);
@@ -42,7 +33,7 @@ public abstract class AbstractPricingModel implements PricingModel{
         
         for (SIRequest siRequest : requests) {
             Double requestBid = siRequest.getMaxBid();
-            if(requestBid >= MINIMUM_PRICE){
+            if(requestBid >= PricingModelConstants.MINIMUM_PRICE){
                 priceCandidates.add(requestBid);
             }
         }

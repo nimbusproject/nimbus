@@ -15,7 +15,7 @@ public class PricingModelTestUtils {
     }
 
     private static boolean checkMinimumPriceCOnstant(Double nextPrice) {
-        return nextPrice >= AbstractPricingModel.MINIMUM_PRICE;
+        return nextPrice >= PricingModelConstants.MINIMUM_PRICE;
     }
 
     private static boolean checkSpotInstancesConstraint(Double nextPrice,

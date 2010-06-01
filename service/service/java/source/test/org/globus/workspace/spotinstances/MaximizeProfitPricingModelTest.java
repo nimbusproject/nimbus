@@ -1,6 +1,5 @@
 package org.globus.workspace.spotinstances;
 
-import static org.globus.workspace.spotinstances.AbstractPricingModel.MINIMUM_PRICE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -19,16 +18,16 @@ public class MaximizeProfitPricingModelTest {
         LinkedList<SIRequest> requests = new LinkedList<SIRequest>();
         
         Double nextPrice = pricingModel.getNextPrice(0, requests, null);
-        assertEquals(MINIMUM_PRICE, nextPrice);
+        assertEquals(PricingModelConstants.MINIMUM_PRICE, nextPrice);
         assertTrue(PricingModelTestUtils.checkPricingModelConstraints(nextPrice, 0, requests));
         
         
         nextPrice = pricingModel.getNextPrice(5, requests, null);
-        assertEquals(MINIMUM_PRICE, nextPrice);
+        assertEquals(PricingModelConstants.MINIMUM_PRICE, nextPrice);
         assertTrue(PricingModelTestUtils.checkPricingModelConstraints(nextPrice, 5, requests));
         
         nextPrice = pricingModel.getNextPrice(2500, requests, null);
-        assertEquals(MINIMUM_PRICE, nextPrice);
+        assertEquals(PricingModelConstants.MINIMUM_PRICE, nextPrice);
         assertTrue(PricingModelTestUtils.checkPricingModelConstraints(nextPrice, 2500, requests));
     }
     

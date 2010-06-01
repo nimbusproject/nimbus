@@ -18,16 +18,16 @@ public class MaximizeUtilizationPricingModelTest {
         LinkedList<SIRequest> requests = new LinkedList<SIRequest>();
         
         Double nextPrice = pricingModel.getNextPrice(0, requests, null);
-        assertEquals(MINIMUM_PRICE, nextPrice);
+        assertEquals(PricingModelConstants.MINIMUM_PRICE, nextPrice);
         assertTrue(PricingModelTestUtils.checkPricingModelConstraints(nextPrice, 0, requests));
         
         
         nextPrice = pricingModel.getNextPrice(5, requests, null);
-        assertEquals(MINIMUM_PRICE, nextPrice);
+        assertEquals(PricingModelConstants.MINIMUM_PRICE, nextPrice);
         assertTrue(PricingModelTestUtils.checkPricingModelConstraints(nextPrice, 5, requests));
         
         nextPrice = pricingModel.getNextPrice(2500, requests, null);
-        assertEquals(MINIMUM_PRICE, nextPrice);
+        assertEquals(PricingModelConstants.MINIMUM_PRICE, nextPrice);
         assertTrue(PricingModelTestUtils.checkPricingModelConstraints(nextPrice, 2500, requests));
     }
     
@@ -66,7 +66,7 @@ public class MaximizeUtilizationPricingModelTest {
         requests.add(new SIRequest("a", 2.0, 3));
         
         Double nextPrice = pricingModel.getNextPrice(5, requests, null);
-        assertEquals(new Double(MINIMUM_PRICE), nextPrice);
+        assertEquals(new Double(PricingModelConstants.MINIMUM_PRICE), nextPrice);
         assertTrue(PricingModelTestUtils.checkPricingModelConstraints(nextPrice, 5, requests));
     }
     
@@ -215,7 +215,7 @@ public class MaximizeUtilizationPricingModelTest {
         requests.add(new SIRequest("e", 4.0, 25));
         
         Double nextPrice = pricingModel.getNextPrice(200, requests, null);
-        assertEquals(new Double(MINIMUM_PRICE), nextPrice);
+        assertEquals(new Double(PricingModelConstants.MINIMUM_PRICE), nextPrice);
         assertTrue(PricingModelTestUtils.checkPricingModelConstraints(nextPrice, 200, requests));        
     }  
     

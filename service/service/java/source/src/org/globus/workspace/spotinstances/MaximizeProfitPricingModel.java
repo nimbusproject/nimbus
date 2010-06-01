@@ -12,8 +12,8 @@ public class MaximizeProfitPricingModel extends AbstractPricingModel {
                 
         TreeSet<Double> priceCandidates = getPriceCandidates(requests);
         
-        Double highestProfitPrice = NEGATIVE_INFINITY;
-        Double highestProfit = NEGATIVE_INFINITY;
+        Double highestProfitPrice = PricingModelConstants.NEGATIVE_INFINITY;
+        Double highestProfit = PricingModelConstants.NEGATIVE_INFINITY;
         
         for (Double priceCandidate : priceCandidates) {
             Double profit = getProfit(priceCandidate, totalReservedResources, requests);
@@ -23,7 +23,7 @@ public class MaximizeProfitPricingModel extends AbstractPricingModel {
             }
         }
         
-        if(highestProfitPrice == NEGATIVE_INFINITY){
+        if(highestProfitPrice == PricingModelConstants.NEGATIVE_INFINITY){
             Double highestPrice = priceCandidates.last();
             return highestPrice+1;
         }
@@ -42,7 +42,7 @@ public class MaximizeProfitPricingModel extends AbstractPricingModel {
         Double priorityUtilization = getUtilization(priorityOffers, availableResources);
         
         if(!priorityOffers.isEmpty() && priorityUtilization >= 1.0){
-            return NEGATIVE_INFINITY;
+            return PricingModelConstants.NEGATIVE_INFINITY;
         }
         
         return getProfitFromEligibleOffers(eligibleOffers, priceCandidate);

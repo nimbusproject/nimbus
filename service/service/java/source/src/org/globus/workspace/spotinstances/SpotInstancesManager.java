@@ -19,7 +19,7 @@ public class SpotInstancesManager {
     public SpotInstancesManager(){
         this.totalReservedResources = 0;
         this.allRequests = new HashMap<String, SIRequest>();
-        this.currentPrice = AbstractPricingModel.MINIMUM_PRICE;
+        this.currentPrice = PricingModelConstants.MINIMUM_PRICE;
         this.pricingModel = new MaximizeUtilizationPricingModel();
     }
 

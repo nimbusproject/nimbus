@@ -21,12 +21,12 @@ public class MaximizeUtilizationPricingModel extends AbstractPricingModel {
        
         TreeSet<SIRequest> orderedRequests = new TreeSet<SIRequest>(requests);
         
-        Double nextPrice = MINIMUM_PRICE;
+        Double nextPrice = PricingModelConstants.MINIMUM_PRICE;
         Integer availableResources = totalReservedResources;
         
         for (SIRequest siRequest : orderedRequests.descendingSet()) {
             Double maxBid = siRequest.getMaxBid();
-            if(maxBid >= MINIMUM_PRICE){
+            if(maxBid >= PricingModelConstants.MINIMUM_PRICE){
                 nextPrice = siRequest.getMaxBid();
                 availableResources -= siRequest.getNeededInstances();
                 if(availableResources <= 0){
@@ -36,7 +36,7 @@ public class MaximizeUtilizationPricingModel extends AbstractPricingModel {
         }
         
         if(availableResources > 0 && this.setMinPrice){
-            nextPrice = MINIMUM_PRICE;
+            nextPrice = PricingModelConstants.MINIMUM_PRICE;
         }
         
         return nextPrice;
