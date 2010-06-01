@@ -17,6 +17,7 @@
 package org.globus.workspace.testing.suites.basic;
 
 import org.globus.workspace.testing.NimbusTestBase;
+import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.CreateResult;
 import org.nimbustools.api.repr.vm.VM;
 import org.nimbustools.api.services.rm.Manager;
@@ -25,8 +26,8 @@ import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
 import static org.testng.AssertJUnit.assertEquals;
-
-import java.io.File;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
 
 public class BasicSuite extends NimbusTestBase {
 
@@ -53,7 +54,7 @@ public class BasicSuite extends NimbusTestBase {
      */
     @Override
     protected String getNimbusHome() throws Exception {
-        return this.determineSuitesPath() + File.separator + "basic/home";
+        return this.determineSuitesPath() + "/basic/home";
     }
 
 
@@ -84,14 +85,19 @@ public class BasicSuite extends NimbusTestBase {
         logger.debug("leaseOne");
         final Manager rm = this.locator.getManager();
 
+        final Caller caller = this.populator().getCaller();
         final CreateResult result =
                 rm.create(this.populator().getCreateRequest("suite:basic:leaseOne"),
-                          this.populator().getCaller());
+                          caller);
 
         final VM[] vms = result.getVMs();
         assertEquals(1, vms.length);
-        for (VM vm : vms) {
-            logger.info("Leased vm '" + vm.getID() + '\'');
-        }
+        assertNotNull(vms[0]);
+        logger.info("Leased vm '" + vms[0].getID() + '\'');
+
+        assertTrue(rm.exists(vms[0].getID(), Manager.INSTANCE));
+
+        Thread.sleep(1000L);
+        rm.trash(vms[0].getID(), Manager.INSTANCE, caller);
     }
 }
