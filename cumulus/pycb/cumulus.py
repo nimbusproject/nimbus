@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 from twisted.web import server, resource, http
 from twisted.internet import reactor, ssl
