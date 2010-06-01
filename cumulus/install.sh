@@ -5,9 +5,11 @@ if ([ "X$1" == "X--help" ] || [ "X$1" == "X-h" ]); then
     exit 0
 fi
 
+start_dir=`pwd`
 source_dir=`dirname $0`
 cd $source_dir
 source_dir=`pwd`
+cd $start_dir
 if [ "X$1" == "X" ]; then
     installdir=$source_dir
 else
