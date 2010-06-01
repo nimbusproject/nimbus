@@ -32,6 +32,7 @@ class TestAddUsers(unittest.TestCase):
         f = open(fname)
         l = f.readline()
         while l:
+            print "#### " + l
             x = l.find(needle)
             if x >= 0:
                 found = True
@@ -55,10 +56,10 @@ class TestAddUsers(unittest.TestCase):
         (tmpFD, outFileName) = tempfile.mkstemp("cumulustests")
         os.close(tmpFD)
 
-        rc = pycb.tools.list_users.main(["-O", outFileName, display_name])
+        rc = pycb.tools.list_users.main(["-O", outFileName, '*'])
         self.assertEqual(rc, 0, "rc = %d" % (rc))
         rc = self.find_in_file(outFileName, display_name)
-        self.assertTrue(rc, "display name not found in list")
+        self.assertTrue(rc, "display name not found in list %s" % (display_name))
 
         rc = pycb.tools.remove_user.main([display_name])
         self.assertEqual(rc, 0, "rc = %d" % (rc))
