@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ "X$1" == "X--help" ]; then
+if ([ "X$1" == "X--help" ] || [ "X$1" == "X-h" ]); then
     echo "install.sh [<installation directory>]"
     exit 0
 fi
@@ -21,6 +21,7 @@ else
     if [ "X$?" != "X0" ]; then
         echo "Copy to $installdir failed"
         echo "verify that you can write to that directory"
+        exit 1
     fi
     cd $source_dir
 fi
