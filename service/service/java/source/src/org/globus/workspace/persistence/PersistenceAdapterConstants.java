@@ -154,7 +154,7 @@ public interface PersistenceAdapterConstants {
             "SELECT * FROM association_entries WHERE association=?";
 
     public static final String SQL_UPDATE_RESOURCE_POOL_ENTRY =
-            "UPDATE resourcepool_entries SET available_memory=? " +
+            "UPDATE resourcepool_entries SET available_memory=?, preemptable_memory=? " +
             "WHERE resourcepool=? AND hostname=?";
 
     public static final String SQL_DELETE_ALL_RESOURCE_POOLS =
@@ -182,6 +182,9 @@ public interface PersistenceAdapterConstants {
     public static final String SQL_SELECT_AVAILABLE_ENTRIES =
         "SELECT * FROM resourcepool_entries WHERE available_memory >= ? ORDER BY (available_memory/maximum_memory) ASC";    
 
+    public static final String SQL_SELECT_AVAILABLE_ENTRIES =
+        "SELECT * FROM resourcepool_entries WHERE available_memory >= ? ORDER BY (available_memory/maximum_memory) ASC";
+    
     public static final String[] PREPARED_STATEMENTS = {
                                     SQL_SELECT_RESOURCES,
                                     SQL_SELECT_ALL_ASSOCIATIONS,

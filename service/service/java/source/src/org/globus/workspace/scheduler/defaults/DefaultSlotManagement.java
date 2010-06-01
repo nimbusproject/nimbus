@@ -132,7 +132,7 @@ public class DefaultSlotManagement implements SlotManagement {
      * @return Reservation res
      * @throws ResourceRequestDeniedException exc
      */
-    public synchronized Reservation reserveSpace(NodeRequest req)
+    public synchronized Reservation reserveSpace(NodeRequest req, boolean preemptable)
 
             throws ResourceRequestDeniedException {
 
@@ -144,7 +144,7 @@ public class DefaultSlotManagement implements SlotManagement {
 
         final String[] hostnames =
                 this.reserveSpace(vmids, req.getMemory(),
-                                  req.getNeededAssociations());
+                                  req.getNeededAssociations(), preemptable);
 
         return new Reservation(vmids, hostnames);
     }
@@ -184,7 +184,7 @@ public class DefaultSlotManagement implements SlotManagement {
                 final String[] hostnames =
                         this.reserveSpace(ids,
                                           request.getMemory(),
-                                          request.getNeededAssociations());
+                                          request.getNeededAssociations(), false);
 
                 final Integer duration = new Integer(request.getDuration());
 
@@ -259,6 +259,7 @@ public class DefaultSlotManagement implements SlotManagement {
      *        assignment array will include duplicates.
      * @param memory megabytes needed
      * @param assocs array of needed associations, can be null
+     * @param preemptable indicates if the space can be pre-empted by higher priority reservations
      * @return Names of resources.  Must match length of vmids input and caller
      *         assumes the ordering in the assignemnt array maps to the input
      *         vmids array.
@@ -267,7 +268,7 @@ public class DefaultSlotManagement implements SlotManagement {
      */
     private String[] reserveSpace(final int[] vmids,
                                   final int memory,
-                                  final String[] assocs)
+                                  final String[] assocs, boolean preemptable)
                   throws ResourceRequestDeniedException {
 
 
@@ -313,7 +314,8 @@ public class DefaultSlotManagement implements SlotManagement {
                                                                  this.db,
                                                                  this.lager,
                                                                  vmids[i],
-                                                                 greedy);
+                                                                 greedy,
+                                                                 preemptable);
                 if (nodes[i] == null) {
                     throw new ProgrammingError(
                                     "returned node should not be null");

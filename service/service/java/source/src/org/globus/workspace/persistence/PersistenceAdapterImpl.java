@@ -1978,6 +1978,7 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
                                                       hostname,
                                                       rs2.getInt(4),
                                                       rs2.getInt(5),
+                                                      rs2.getInt(6),
                                                       assocs);
                     entries.put(hostname, entry);
                 }
@@ -2330,6 +2331,7 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
                             hostname,
                             rs.getInt(4),
                             rs.getInt(5),
+                            rs.getInt(6),
                             assocs);
                 entries.add(entry);
 

@@ -22,14 +22,15 @@ public class ResourcepoolEntry {
     private String hostname;
     private int memMax = -1; // in MBytes
     private int memCurrent = -1; // in MBytes
+    private int memPreemptable = -1; // in MBytes    
     private String supportedAssociations;
 
     public ResourcepoolEntry(String resourcePool, String hostname, int memMax,
-                             int memCurrent, String sa) {
-        this.resourcePool = resourcePool;
+                             int memCurrent, int memPreemptable, String sa) {
         this.hostname = hostname;
         this.memMax = memMax;
         this.memCurrent = memCurrent;
+        this.memPreemptable = memPreemptable;
         this.supportedAssociations = sa;
     }
 
@@ -49,6 +50,14 @@ public class ResourcepoolEntry {
         this.memMax = memMax;
     }
 
+    public void setMemPreemptable(int memPreemptable) {
+        this.memPreemptable = memPreemptable;
+    }
+
+    public int getMemPreemptable() {
+        return memPreemptable;
+    }    
+    
     public int getMemCurrent() {
         return this.memCurrent;
     }
@@ -60,6 +69,10 @@ public class ResourcepoolEntry {
     public void addMemCurrent(int add) {
         this.memCurrent += add;
     }
+    
+    public void addMemPreemptable(int add) {
+        this.memPreemptable += add;
+    }    
 
     public int percentEmpty() {
         if (this.memCurrent == 0) {
@@ -92,6 +105,7 @@ public class ResourcepoolEntry {
         return "ResourcepoolEntry{" +
                 "hostname='" + this.hostname + '\'' +
                 ", memMax=" + this.memMax +
+                ", memPreemptable=" + this.getMemPreemptable() +
                 ", memCurrent=" + this.memCurrent +
                 ", supportedNetworks='" + this.supportedAssociations +
                 ", percentEmpty= " + this.percentEmpty() + '\'' +

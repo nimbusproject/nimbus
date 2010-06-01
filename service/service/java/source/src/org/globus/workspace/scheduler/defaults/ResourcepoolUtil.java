@@ -340,6 +340,7 @@ class ResourcepoolUtil {
      * @param lager logging switches
      * @param vmid for logging
      * @param greedy true if VMs should stack up on VMMs first, false if round robin
+     * @param preemptable indicates if the space can be pre-empted by higher priority reservations
      * @return node name can not be null
      * @throws ResourceRequestDeniedException exc
      * @throws WorkspaceDatabaseException exc
@@ -349,7 +350,8 @@ class ResourcepoolUtil {
             final PersistenceAdapter db,
             Lager lager,
             int vmid,
-            boolean greedy)
+            boolean greedy,
+            boolean preemptable)
     throws ResourceRequestDeniedException,
     WorkspaceDatabaseException {
 
@@ -383,6 +385,9 @@ class ResourcepoolUtil {
         }
 
         entry.addMemCurrent(-mem);
+        if(preemptable){
+            entry.addMemPreemptable(mem);
+        }
         db.replaceResourcepoolEntry(entry);
 
         if (eventLog) {
@@ -900,6 +905,6 @@ class ResourcepoolUtil {
             return null;
         }
 
-        return new ResourcepoolEntry(resourcePool, hostname, mem, mem, sa);
+        return new ResourcepoolEntry(resourcePool, hostname, mem, mem, 0, sa);
     }
 }

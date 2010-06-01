@@ -281,7 +281,7 @@ public class DefaultSchedulerAdapter implements Scheduler {
         final String invalidResponse = "Implementation problem: slot " +
                 "manager returned invalid response";
 
-        final Reservation res = this.slotManager.reserveSpace(req);
+        final Reservation res = this.slotManager.reserveSpace(req, false);
 
         if (res == null) {
             throw new ResourceRequestDeniedException(

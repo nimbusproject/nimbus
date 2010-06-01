@@ -95,8 +95,9 @@ public class ResourcepoolPersistenceUtil
                 c.prepareStatement(SQL_UPDATE_RESOURCE_POOL_ENTRY);
 
         pstmt.setInt(1, entry.getMemCurrent());
-        pstmt.setString(2, name);
-        pstmt.setString(3, entry.getHostname());
+        pstmt.setInt(2, entry.getMemPreemptable());
+        pstmt.setString(3, name);
+        pstmt.setString(4, entry.getHostname());
 
         return pstmt;
     }
