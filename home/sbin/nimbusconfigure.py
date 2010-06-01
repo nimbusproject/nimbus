@@ -425,8 +425,13 @@ class NimbusSetup(object):
         pathutil.ensure_file_exists(ca_cert, "CA certificate")
         pathutil.ensure_file_exists(ca_key, "CA private key")
 
-        hostname = self.ask_hostname()
-        self['hostname'] = hostname
+        if self['hostname']:
+            hostname = self['hostname']
+            log.debug('Using configured hostname: "%s". Run with %s to change.',
+                    hostname, ARGS.HOSTNAME_LONG)
+        else:
+            hostname = self.ask_hostname()
+            self['hostname'] = hostname
 
         #TODO the hostcert/key creation should be extracted from here
         # right now it just does a bunch of redundant checks first
