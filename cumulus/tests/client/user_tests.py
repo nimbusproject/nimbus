@@ -18,6 +18,7 @@ import filecmp
 import pycb.tools.add_user
 import pycb.tools.list_users
 import pycb.tools.remove_user
+import pycb.tools.set_quota
 #
 class TestAddUsers(unittest.TestCase):
 
@@ -79,8 +80,35 @@ class TestAddUsers(unittest.TestCase):
         rc = self.find_in_file(outFileName, display_name)
         self.assertTrue(rc, "display name not found in list")
 
+        rc = pycb.tools.list_users.main(["-O", outFileName, "-b", "-r", "quota,friendly,quota", display_name])
+        self.assertEqual(rc, 0, "rc = %d" % (rc))
+
+        n = "None,%s,None" % (display_name)
+        rc = self.find_in_file(outFileName, display_name)
+        self.assertTrue(rc, "display name not found in list")
         rc = pycb.tools.remove_user.main([display_name])
         self.assertEqual(rc, 0, "rc = %d" % (rc))
 
+    def test_quota(self):
+        display_name = str(uuid.uuid1())
+        rc = pycb.tools.add_user.main([display_name])
+        self.assertEqual(rc, 0, "rc = %d" % (rc))
+
+        (tmpFD, outFileName) = tempfile.mkstemp("cumulustests")
+        os.close(tmpFD)
+
+        q = "1000"
+        rc = pycb.tools.set_quota.main([display_name, q])
+        self.assertEqual(rc, 0, "rc = %d" % (rc))
+
+        rc = pycb.tools.list_users.main(["-O", outFileName, "-b", "-r", "friendly,quota", display_name])
+        self.assertEqual(rc, 0, "rc = %d" % (rc))
+
+        n = "%s,%s" % (display_name, q)
+        rc = self.find_in_file(outFileName, display_name)
+        self.assertTrue(rc, "display name not found in list")
+
+        rc = pycb.tools.remove_user.main([display_name])
+        self.assertEqual(rc, 0, "rc = %d" % (rc))
 
 
