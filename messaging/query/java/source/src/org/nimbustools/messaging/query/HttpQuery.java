@@ -24,6 +24,7 @@ import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.FilterHolder;
 import org.mortbay.jetty.servlet.ServletHolder;
 import org.mortbay.jetty.webapp.WebAppContext;
+import org.nimbustools.api.brain.NimbusXmlWebApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.filter.DelegatingFilterProxy;
@@ -81,6 +82,7 @@ public class HttpQuery {
         Context context = new Context(server, "/",  Context.NO_SESSIONS);
         Map<String, String> initParams = new HashMap<String,String>();
         initParams.put("contextConfigLocation", springConfig);
+        initParams.put("contextClass", NimbusXmlWebApplicationContext.class.getCanonicalName());
         context.setInitParams(initParams);
         context.addEventListener(new ContextLoaderListener());
         FilterHolder filterHolder = new FilterHolder(new DelegatingFilterProxy());
@@ -121,7 +123,7 @@ public class HttpQuery {
     }
 
     public void setSpringConfigResource(Resource springConfigResource) throws IOException {
-        this.springConfig = springConfigResource.getFile().getAbsolutePath();
+        this.springConfig = "file://" + springConfigResource.getFile().getAbsolutePath();
     }
 
     public void setKeystoreResource(Resource keystoreResource) throws IOException {
