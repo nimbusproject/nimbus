@@ -25,20 +25,26 @@ public class NimbusHomePathResolver {
     private static final Log logger =
             LogFactory.getLog(NimbusHomePathResolver.class.getName());
 
-    private static String NIMBUS_HOME_ENV_NAME = "NIMBUS_HOME";
+    public static String NIMBUS_HOME_ENV_NAME = "NIMBUS_HOME";
     private static String PATH_PREFIX = "$"+NIMBUS_HOME_ENV_NAME;
 
     private File nimbusHome;
 
     private void initializeNimbusHome() {
-        final String nimbusHomePath = System.getenv(NIMBUS_HOME_ENV_NAME);
+        String nimbusHomePath = System.getProperty(NIMBUS_HOME_ENV_NAME);
 
         if (nimbusHomePath == null || nimbusHomePath.trim().length() == 0) {
-            throw new RuntimeException("The " + NIMBUS_HOME_ENV_NAME +
-                    " environment variable is not set or is empty. " +
-                    "It should be set to the root Nimbus installation " +
-                    "directory by the Nimbus bootstrap scripts."
-            );
+
+            nimbusHomePath = System.getenv(NIMBUS_HOME_ENV_NAME);
+
+            if (nimbusHomePath == null || nimbusHomePath.trim().length() == 0) {
+
+                throw new RuntimeException("The " + NIMBUS_HOME_ENV_NAME +
+                        " environment variable is not set or is empty. " +
+                        "It should be set to the root Nimbus installation " +
+                        "directory by the Nimbus bootstrap scripts."
+                );
+            }
         }
 
         this.nimbusHome = new File(nimbusHomePath);
