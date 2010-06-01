@@ -89,10 +89,11 @@ class ResourcepoolUtil {
                                        final PersistenceAdapter db,
                                        Lager lager,
                                        int vmid,
-                                       boolean greedy)
+                                       boolean greedy,
+                                       boolean preemptable)
                throws ResourceRequestDeniedException,
                       WorkspaceDatabaseException {
-        
+
         if (db == null) {
             throw new IllegalArgumentException("null persistence adapter");
         }
@@ -109,7 +110,7 @@ class ResourcepoolUtil {
 
         final Enumeration e = resourcepools.keys();
         while (e.hasMoreElements()) {
-            
+
             final String name = (String)e.nextElement();
             final Resourcepool pool = (Resourcepool) resourcepools.get(name);
 
@@ -117,13 +118,16 @@ class ResourcepoolUtil {
 
             if (entry != null) {
                 entry.addMemCurrent(-mem);
-                db.replaceResourcepoolEntry(entry);
+                if(preemptable){
+                    entry.addMemPreemptable(mem);
+                }
+                db.replaceResourcepoolEntry(name, entry);
 
                 if (eventLog) {
                     logger.info(Lager.ev(vmid) + "'" + name +
-                          "' resource pool entry '" + entry.getHostname() +
-                          "': " + mem + " MB reserved, " +
-                          entry.getMemCurrent() + " MB left");
+                            "' resource pool entry '" + entry.getHostname() +
+                            "': " + mem + " MB reserved, " +
+                            entry.getMemCurrent() + " MB left");
                 }
 
                 return entry.getHostname();
