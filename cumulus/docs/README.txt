@@ -104,8 +104,8 @@ know the entire name.  The admin needs to get the S3 ID and password
 for that user.  For that job cumulus-list-users.sh would be used in the
 following way:
 
-    % ./bin/cumulus-list-users.sh b\*
-    friendly        : buzztroll@gmail.com
+    % ./bin/cumulus-list-users.sh n\*
+    friendly        : nimbusadmin@nimbusproject.org
     ID              : eqe0YoRAs2GT1sDvPZKAU
     password        : S9Ii7QqcCQxDecrezMn6o5frSFvXhThYWmCE4S7nAf
     quota           : None
