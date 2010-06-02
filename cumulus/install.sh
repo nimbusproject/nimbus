@@ -5,26 +5,35 @@ if ([ "X$1" == "X--help" ] || [ "X$1" == "X-h" ]); then
     exit 0
 fi
 
+
 start_dir=`pwd`
 source_dir=`dirname $0`
 cd $source_dir
 source_dir=`pwd`
+cp_files=""
+for i in *
+do
+    cp_files="$cp_files $source_dir/$i"
+done
 cd $start_dir
 if [ "X$1" == "X" ]; then
     installdir=$source_dir
 else
     installdir=$1
     mkdir $installdir 2> /dev/null
+    if [ "X$?" != "X0" ]; then
+        echo "WARNING: Install directory already exists"
+    fi
     cd $installdir
     # just in case they enter the same dir as the source distro
     installdir=`pwd`
     echo "Installing cumulus to $installdir"
-    cp -r $source_dir/* $installdir
-    if [ "X$?" != "X0" ]; then
-        echo "Copy to $installdir failed"
-        echo "verify that you can write to that directory"
-        exit 1
-    fi
+        cp -r $cp_files $installdir
+        if [ "X$?" != "X0" ]; then
+            echo "Copy to $installdir failed"
+            echo "verify that you can write to that directory"
+            exit 1
+        fi
     cd $source_dir
 fi
 
@@ -95,6 +104,16 @@ fi
 sed -e "s^@@HOST_PORT@@^$host:$port^g" $installdir/etc/dot_s3cfg.in > $installdir/dot_s3cfg
 if [ $? -ne 0 ]; then
     exit 1
+fi
+
+sed -e "s^@@INSTALLDIR@@^$installdir^g" -e "s^@@HTTPS@@^True^g" $installdir/etc/cumulus_test.ini.in > $installdir/tests/cumulus_https.ini
+if [ $? -ne 0 ]; then
+    echo "problem setting up test suite configuration files"
+fi
+
+sed -e "s^@@INSTALLDIR@@^$installdir^g" -e "s^@@HTTPS@@^False^g" $installdir/etc/cumulus_test.ini.in > $installdir/tests/cumulus.ini
+if [ $? -ne 0 ]; then
+    echo "problem setting up test suite configuration files"
 fi
 
 echo "Make further customizations by editing $outf"

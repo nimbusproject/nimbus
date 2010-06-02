@@ -46,7 +46,7 @@ def add_user_generate_pw(len):
         newpasswd = newpasswd + random.choice(chars)
     return newpasswd
 
-def main(argv=sys.argv[1:]):
+def main_trap(argv=sys.argv[1:]):
 
     auth = pycb.config.auth
 
@@ -84,16 +84,20 @@ def main(argv=sys.argv[1:]):
 
     return 0
 
-if __name__ == "__main__":
+def main(argv=sys.argv[1:]):
     try:
-        rc = main()
+        rc = main_trap(argv)
     except cbToolsException, tex:
         print tex
         rc = tex.get_rc()
     except SystemExit:
-        rc = 127
+        rc = 0
     except:
         traceback.print_exc(file=sys.stdout)
         print 'An unknown error occurred'
         rc = 128
+    return rc
+
+if __name__ == "__main__":
+    rc = main()
     sys.exit(rc)

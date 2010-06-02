@@ -28,13 +28,13 @@ Remove a user from the system.
 
     return (o, args)
 
-def main(argv=sys.argv[1:]):
+def main_trap(argv=sys.argv[1:]):
 
     auth = pycb.config.auth
 
     (opts, args) = setup_options(argv)
     if len(args) == 0:
-        raise cbToolsException('CMDLINE', ["You must provide a display name"])
+        raise cbToolsException('CMDLINE', ("You must provide a display name"))
 
     display_name = args[0]
 
@@ -48,17 +48,22 @@ def main(argv=sys.argv[1:]):
 
     return 0
 
-if __name__ == "__main__":
+def main(argv=sys.argv[1:]):
     try:
-        rc = main()
+        rc = main_trap(argv)
     except cbToolsException, tex:
         print tex
         rc = tex.get_rc()
+    except SystemExit:
+        rc = 0
     except:
         traceback.print_exc(file=sys.stdout)
         print 'An unknown error occurred'
         rc = 128
+    return rc
 
+if __name__ == "__main__":
+    rc = main()
     sys.exit(rc)
 
     
