@@ -167,7 +167,6 @@ class CBService(resource.Resource):
         pycb.log(logging.INFO, "Access granted to ID=%s requestId=%s uri=%s" % (user.get_id(), requestId, request.uri))
         cbR = self.request_object_factory(request, user, path, requestId)
 
-        request.notifyFinish().addErrback(self.error_connection_dropped, cbR)
         cbR.work()
 
     # http events.  all do the same thing
@@ -187,9 +186,6 @@ class CBService(resource.Resource):
     def render_DELETE(self, request):
         self.process_event(request)
         return server.NOT_DONE_YET
-
-    def error_connection_dropped(self, cbR):
-        print "Error dropped connection"
 
 class CumulusHTTPChannel(http.HTTPChannel):
 
@@ -244,6 +240,8 @@ class CumulusHTTPChannel(http.HTTPChannel):
             req.content.close()
             # give twisted our own file like object
             req.content = pycb.config.bucket.put_object(bucketName, objectName)
+            req.content.set_delete_on_close(True)
+
 
 
 class CumulusSite(server.Site):

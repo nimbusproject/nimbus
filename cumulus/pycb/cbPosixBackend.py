@@ -110,7 +110,7 @@ class cbPosixData(object):
         self.data_key = data_key
         self.blockSize = 1024*512
         self.hashValue = None
-        self.delete_on_close = True
+        self.delete_on_close = False
         self.md5er = hashlib.md5()
 
         if not openIt:
@@ -164,9 +164,6 @@ class cbPosixData(object):
 
     # implement file-like methods
     def close(self):
-
-        print "closing the file"
-
         hashValue = self.get_md5()
         if hashValue != None:
             try:
@@ -178,10 +175,10 @@ class cbPosixData(object):
 
         try:
             self.file.close()
-        except:
+        except Exception, ex:
             pycb.log(logging.WARNING, "error closing data object %s %s" % (self.fname, sys.exc_info()[0]), tb=traceback)
         if self.delete_on_close:
-            print "deleting the file on close"
+            pycb.log(logging.INFO, "deleting the file on close %s" % (self.fname))
             self.delete()
 
 

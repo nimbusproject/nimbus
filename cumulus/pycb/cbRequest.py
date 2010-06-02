@@ -622,8 +622,8 @@ class cbPutObject(cbRequest):
             # it will now be safe to deal with dropped connections
             # without having large files left around
             dataObj.set_delete_on_close(False)
-            dataObj.close()
-
+            # dataObj.close() do no need to close for now.  twisted will
+            # do this for us
             self.user.put_object(dataObj, self.bucketName, self.objectName)
             self.grant_public_permissions(self.bucketName, self.objectName)
 
