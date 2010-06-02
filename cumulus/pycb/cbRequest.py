@@ -563,7 +563,6 @@ class cbPutObject(cbRequest):
             rc = self.grant_public_permissions(self.bucketName, self.objectName)
             if not rc:
                 xml = self.request.content.read()
-                dataObj.set_delete_on_close(True)
                 grants = parse_acl_request(xml)
                 for g in grants:
                     pycb.log(logging.INFO, "granting %s to %s" % (g[2], g[0]))
@@ -619,7 +618,12 @@ class cbPutObject(cbRequest):
 
             self.setHeader(self.request, 'ETag', '"%s"' % (eTag))
 
+            # now that we have the file set delete on close to false
+            # it will now be safe to deal with dropped connections
+            # without having large files left around
+            dataObj.set_delete_on_close(False)
             dataObj.close()
+
             self.user.put_object(dataObj, self.bucketName, self.objectName)
             self.grant_public_permissions(self.bucketName, self.objectName)
 

@@ -14,6 +14,8 @@ class cbToolsException(Exception):
     rcs['UNKNOWN_USER'] = 1
     errors['CMDLINE'] = "poorly formed command line : %s"
     rcs['CMDLINE'] = 2
+    errors['USEREXISTS'] = "The user %s already exists."
+    rcs['USEREXISTS'] = 3
 
     def __init__(self, code, fmt_set, ex=None):
         self.code = code 
