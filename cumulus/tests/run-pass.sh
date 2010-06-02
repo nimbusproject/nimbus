@@ -6,8 +6,8 @@ cd -
 
 mv ~/.s3cfg ~/.s3cfg.cumulus.test
 
-cumulus_host=`hostname -f`
-cumulus_port=8888
+cumulus_host=localhost
+cumulus_port=9898
 
 export CUMULUS_TEST_HOST=$cumulus_host
 export CUMULUS_TEST_PORT=$cumulus_port
@@ -23,7 +23,7 @@ fi
 $CUMULUS_HOME/bin/cumulus.sh -p $cumulus_port $https_opt &
 cumulus_pid=$!
 echo $cumulus_pid
-trap "pkill cumulus; mv ~/.s3cfg.cumulus.test ~/.s3cfg; $CUMULUS_HOME/bin/cumulus-remove-user.sh tests3cmd1@nimbus.test" EXIT
+trap "kill $cumulus_pid; mv ~/.s3cfg.cumulus.test ~/.s3cfg; $CUMULUS_HOME/bin/cumulus-remove-user.sh tests3cmd1@nimbus.test" EXIT
 sleep 2
 log_file=`mktemp`
 echo "Logging output to $log_file" 

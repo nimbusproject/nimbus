@@ -21,6 +21,6 @@ file=@@INSTALLDIR@@/log/cumulus.log
 
 [https]
 enabled=False
-#key=
-#cert=
+#key=@@KEYFILE@@
+#cert=@@CERT_FILE
 

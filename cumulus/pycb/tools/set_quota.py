@@ -26,7 +26,7 @@ Sets a quota for the given cumulus user
 
     return (o, args)
 
-def main(argv=sys.argv[1:]):
+def main_trap(argv=sys.argv[1:]):
 
     auth = pycb.config.auth
 
@@ -44,6 +44,8 @@ def main(argv=sys.argv[1:]):
             q = int(qstr)
         except:
             raise cbToolsException('CMDLINE', ("The quota must be an integer > 0 or the string UNLIMITED"))
+
+        print q
         if q < 1:
             raise cbToolsException('CMDLINE', ("The quota must be an integer > 0 or the string UNLIMITED"))
 
@@ -60,17 +62,22 @@ def main(argv=sys.argv[1:]):
 
     return 0
 
-if __name__ == "__main__":
+def main(argv=sys.argv[1:]):
     try:
-        rc = main()
+        rc = main_trap(argv)
     except cbToolsException, tex:
         print tex
         rc = tex.get_rc()
+    except SystemExit:
+        rc = 0
     except:
         traceback.print_exc(file=sys.stdout)
         print 'An unknown error occurred'
         rc = 128
+    return rc
 
+if __name__ == "__main__":
+    rc = main()
     sys.exit(rc)
 
     
