@@ -63,17 +63,20 @@ def main_trap(argv=sys.argv[1:]):
         if opts.canonical_id == None:
             opts.canonical_id = add_user_generate_pw(21)
 
-        auth.create_user(display_name, opts.canonical_id, opts.password, opts)
+        try:
+            auth.create_user(display_name, opts.canonical_id, opts.password, opts)
+        except Exception, ex:
+            raise cbToolsException('USEREXISTS', (display_name), ex)
 
     try:
         user_id = auth.get_user_id_by_display(display_name)
     except Exception, ex:
-        raise cbToolsException('UNKNOWN_USER', [display_name], ex)
+        raise cbToolsException('UNKNOWN_USER', (display_name), ex)
 
     try:
         u = auth.get_user(user_id)
     except:
-        raise cbToolsException('UNKNOWN_USER', [user_id], ex)
+        raise cbToolsException('UNKNOWN_USER', (user_id), ex)
 
     opts.ID = user_id
     opts.canonical_id = u.get_canonical_id()

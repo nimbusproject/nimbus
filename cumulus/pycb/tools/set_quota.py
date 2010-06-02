@@ -45,7 +45,6 @@ def main_trap(argv=sys.argv[1:]):
         except:
             raise cbToolsException('CMDLINE', ("The quota must be an integer > 0 or the string UNLIMITED"))
 
-        print q
         if q < 1:
             raise cbToolsException('CMDLINE', ("The quota must be an integer > 0 or the string UNLIMITED"))
 

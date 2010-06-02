@@ -166,6 +166,8 @@ class CBService(resource.Resource):
     def allowed_event(self, request, user, requestId, path):
         pycb.log(logging.INFO, "Access granted to ID=%s requestId=%s uri=%s" % (user.get_id(), requestId, request.uri))
         cbR = self.request_object_factory(request, user, path, requestId)
+
+        request.notifyFinish().addErrback(self.error_connection_dropped, cbR)
         cbR.work()
 
     # http events.  all do the same thing
@@ -186,6 +188,8 @@ class CBService(resource.Resource):
         self.process_event(request)
         return server.NOT_DONE_YET
 
+    def error_connection_dropped(self, cbR):
+        print "Error dropped connection"
 
 class CumulusHTTPChannel(http.HTTPChannel):
 
