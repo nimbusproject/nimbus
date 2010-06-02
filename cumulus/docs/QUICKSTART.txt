@@ -41,4 +41,16 @@ and @@KEY@@.  Replace those strings with the appropriate values.
     % s3cmd put /etc/group s3://TEST/group
     % s3cmd ls s3://TEST/
     
+7) Run the tests
+
+    % cd tests
+    % ./run-all.sh
+
+This will produce a lot of output.  When it is complete the last line should
+indicate it was successful by displaying:
+
+Success :  tests passed
+
+If anything else is seen last it indicates that tests failed.
+
 
