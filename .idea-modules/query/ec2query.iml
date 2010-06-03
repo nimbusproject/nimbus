@@ -22,6 +22,8 @@
     <orderEntry type="module" module-name="common" />
     <orderEntry type="module" module-name="ec2soap" />
     <orderEntry type="library" name="test-libs" level="project" />
+    <orderEntry type="module" module-name="workspace-service" />
+    <orderEntry type="library" name="workspace-service-libs" level="project" />
   </component>
 </module>
 
