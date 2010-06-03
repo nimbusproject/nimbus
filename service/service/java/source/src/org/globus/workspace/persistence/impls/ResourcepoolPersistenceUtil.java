@@ -76,6 +76,9 @@ public class ResourcepoolPersistenceUtil
 
                 buf.append(", ").
                     append(entry.getMemCurrent());
+                
+                buf.append(", ").
+                    append(entry.getMemPreemptable());                
 
                 buf.append(")");
                 inserts.add(buf.toString());

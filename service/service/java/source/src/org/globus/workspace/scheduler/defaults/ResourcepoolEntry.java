@@ -27,6 +27,7 @@ public class ResourcepoolEntry {
 
     public ResourcepoolEntry(String resourcePool, String hostname, int memMax,
                              int memCurrent, int memPreemptable, String sa) {
+        this.resourcePool = resourcePool;
         this.hostname = hostname;
         this.memMax = memMax;
         this.memCurrent = memCurrent;
@@ -111,7 +112,7 @@ public class ResourcepoolEntry {
                 ", percentEmpty= " + this.percentEmpty() + '\'' +
                 '}';
     }
-
+    
     public void setResourcePool(String resourcePool) {
         this.resourcePool = resourcePool;
     }

@@ -121,7 +121,7 @@ class ResourcepoolUtil {
                 if(preemptable){
                     entry.addMemPreemptable(mem);
                 }
-                db.replaceResourcepoolEntry(name, entry);
+                db.replaceResourcepoolEntry(entry);
 
                 if (eventLog) {
                     logger.info(Lager.ev(vmid) + "'" + name +

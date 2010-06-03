@@ -26,23 +26,23 @@ public class ResourcepoolEntryTest {
 
     @Test
     public void testPercentEmpty() {
-        ResourcepoolEntry re = new ResourcepoolEntry("aResourcePool", "ahostname", 4096, 2048, "*");
+        ResourcepoolEntry re = new ResourcepoolEntry("aResourcePool", "ahostname", 4096, 2048, 0, "*");
         assertEquals(re.percentEmpty(), 50);
-        re = new ResourcepoolEntry("aResourcePool", "ahostname", 4096, 1024, "*");
+        re = new ResourcepoolEntry("aResourcePool", "ahostname", 4096, 1024, 0, "*");
         assertEquals(re.percentEmpty(), 25);
-        re = new ResourcepoolEntry("aResourcePool", "ahostname", 4096, 0, "*");
+        re = new ResourcepoolEntry("aResourcePool", "ahostname", 4096, 0, 0, "*");
         assertEquals(re.percentEmpty(), 0);
-        re = new ResourcepoolEntry("aResourcePool", "ahostname", 4096, 1, "*");
+        re = new ResourcepoolEntry("aResourcePool", "ahostname", 4096, 1, 0, "*");
         if (re.percentEmpty() == 0) {
             fail();
         }
-        re = new ResourcepoolEntry("aResourcePool", "ahostname", 4096, 4096, "*");
+        re = new ResourcepoolEntry("aResourcePool", "ahostname", 4096, 4096, 0,  "*");
         assertEquals(re.percentEmpty(), 100);
     }
 
     @Test(expectedExceptions=IllegalStateException.class)
     public void testPercentEmptyIllegal() {
-        ResourcepoolEntry re = new ResourcepoolEntry("aResourcePool", "ahostname", 4096, 4097, "*");
+        ResourcepoolEntry re = new ResourcepoolEntry("aResourcePool", "ahostname", 4096, 4097, 0, "*");
         re.percentEmpty();
     }
 }
