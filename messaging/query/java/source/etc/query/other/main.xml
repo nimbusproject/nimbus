@@ -49,11 +49,27 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
         <property name="userDetailsService" ref="userDetailsService"/>
     </bean>
 
+    <bean id="other.AuthzDataSource"
+         class="org.apache.commons.dbcp.BasicDataSource">
+       <property name="driverClassName" value="org.sqlite.JDBC" />
+       <property name="maxActive" value="10" />
+       <property name="maxIdle" value="4" />
+       <property name="maxWait" value="2000" />
+       <property name="poolPreparedStatements" value="true" />
 
-    <bean id="userDetailsService" class="org.nimbustools.messaging.query.security.FileUserDetailsService">
-        <constructor-arg value="$QUERY{query.usermap.path}"/>
+       <property name="url"
+                 value="jdbc:sqlite://$COMMON{cumulus.authz.db}" />
+       <property name="username" value="nimbus"/>
+       <property name="password" value="nimbus"/>
+   </bean>
+
+    <bean id="authzDBAdapter" class="org.globus.workspace.sqlauthz.AuthzDBAdapter">
+        <constructor-arg ref="other.AuthzDataSource"/>
     </bean>
 
+    <bean id="userDetailsService" class="org.nimbustools.messaging.query.security.NimbusAuthzUserDetailsService">
+        <property name="authzDBAdapter" ref="authzDBAdapter" />
+    </bean>
 
     <bean id="elasticQuery" class="org.nimbustools.messaging.query.ElasticQuery">
         <property name="versions">
