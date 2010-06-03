@@ -117,7 +117,7 @@ class ResourcepoolUtil {
 
             if (entry != null) {
                 entry.addMemCurrent(-mem);
-                db.replaceResourcepoolEntry(name, entry);
+                db.replaceResourcepoolEntry(entry);
 
                 if (eventLog) {
                     logger.info(Lager.ev(vmid) + "'" + name +
@@ -150,30 +150,7 @@ class ResourcepoolUtil {
         }
 
         if (trace) {
-
-            final StringBuilder buf =
-                    new StringBuilder("Looking for resource.  Name = ");
-
-            buf.append(name)
-               .append(", mem = ")
-               .append(mem);
-
-            if (greedy) {
-                buf.append(", greedy selection strategy");
-            } else {
-                buf.append(", round robin selection strategy");
-            }
-
-            buf.append(", needed networks: ");
-            if (neededAssociations == null) {
-                buf.append("null");
-            } else {
-                for (String neededAssociation : neededAssociations) {
-                    buf.append(neededAssociation).append(' ');
-                }
-            }
-
-            logger.trace(buf.toString());
+            traceLookingForResource(mem, neededAssociations, greedy);
         }
 
         final List<ResourcepoolEntry> okNodes = memFilter(resourcepool, mem);
@@ -191,11 +168,7 @@ class ResourcepoolUtil {
         Collections.sort(okNodes, PERCENT_AVAILABLE);
 
         if (trace) {
-            for (ResourcepoolEntry okNode : okNodes) {
-                logger.trace("available host: " + okNode.getHostname() +
-                                ", mem: " + okNode.getMemCurrent() +
-                                ", percent available: " + okNode.percentEmpty());
-            }
+            traceAvailableEntries(okNodes);
         }
 
         if (greedy) {
@@ -357,6 +330,127 @@ class ResourcepoolUtil {
         }
     }
 
+    
+    /**
+     * Note: Locking is assumed to be implemented above.
+     *
+     * @param mem needed memory
+     * @param neededAssociations array of needed associations, can be null
+     * @param db db
+     * @param lager logging switches
+     * @param vmid for logging
+     * @param greedy true if VMs should stack up on VMMs first, false if round robin
+     * @param preemptable indicates if the space can be pre-empted by higher priority reservations
+     * @return node name can not be null
+     * @throws ResourceRequestDeniedException exc
+     * @throws WorkspaceDatabaseException exc
+     */
+    static String getResourcePoolEntryImproved(int mem,
+            String[] neededAssociations,
+            final PersistenceAdapter db,
+            Lager lager,
+            int vmid,
+            boolean greedy)
+    throws ResourceRequestDeniedException,
+    WorkspaceDatabaseException {
+
+        if (db == null) {
+            throw new IllegalArgumentException("null persistence adapter");
+        }
+        if (lager == null) {
+            throw new IllegalArgumentException("lager may not be null");
+        }
+
+        final boolean eventLog = lager.eventLog;
+        final boolean trace = lager.traceLog;
+
+        if (trace) {
+            traceLookingForResource(mem, neededAssociations, greedy);
+        }        
+
+        //availableEntries is never empty
+        final List<ResourcepoolEntry> availableEntries = getAvailableEntries(mem, neededAssociations, db, trace);        
+        
+        if (trace) {
+            traceAvailableEntries(availableEntries);
+        }
+
+        ResourcepoolEntry entry;
+        if (greedy) {
+            entry = randomLeastSpace(availableEntries, trace);
+        } else {
+            entry = randomMostSpace(availableEntries, trace);
+        }
+
+        entry.addMemCurrent(-mem);
+        db.replaceResourcepoolEntry(entry);
+
+        if (eventLog) {
+            logger.info(Lager.ev(vmid) + "'" + entry.getResourcePool() +
+                    "' resource pool entry '" + entry.getHostname() +
+                    "': " + mem + " MB reserved, " +
+                    entry.getMemCurrent() + " MB left");
+        }
+
+        return entry.getHostname();            
+
+    }
+
+    private static List<ResourcepoolEntry> getAvailableEntries(int mem,
+            String[] neededAssociations, final PersistenceAdapter db,
+            final boolean trace) throws WorkspaceDatabaseException,
+            ResourceRequestDeniedException {
+        
+        final List<ResourcepoolEntry> availableEntries = db.getAvailableEntriesSortedByFreeMemoryPercentage(mem);
+
+        if(availableEntries.isEmpty()){
+            String err = "No resource pool with available memory for this request.";
+            logger.error(err);
+            throw new ResourceRequestDeniedException(err);
+        }
+
+        netFilter(availableEntries, neededAssociations, trace);
+
+        if(availableEntries.isEmpty()){
+            String err = "No resource pool with requested network associations.";
+            logger.error(err);
+            throw new ResourceRequestDeniedException(err);
+        }
+        
+        return availableEntries;
+    }
+
+    private static void traceAvailableEntries(final List<ResourcepoolEntry> availableEntries) {
+        for (ResourcepoolEntry okNode : availableEntries) {
+            logger.trace("available host: " + okNode.getHostname() +
+                    ", mem: " + okNode.getMemCurrent() +
+                    ", percent available: " + okNode.percentEmpty());
+        }
+    }
+
+    private static void traceLookingForResource(int mem, String[] neededAssociations,  boolean greedy) {
+        final StringBuilder buf =
+            new StringBuilder("Looking for resource. Mem = ");
+
+        buf.append(mem);
+
+        if (greedy) {
+            buf.append(", greedy selection strategy");
+        } else {
+            buf.append(", round robin selection strategy");
+        }
+
+        buf.append(", needed networks: ");
+        if (neededAssociations == null) {
+            buf.append("null");
+        } else {
+            for (String neededAssociation : neededAssociations) {
+                buf.append(neededAssociation).append(' ');
+            }
+        }
+
+        logger.trace(buf.toString());
+    }    
 
     /**
      * NOTE: a node may not be in more than one resource pool, will
@@ -431,7 +525,7 @@ class ResourcepoolUtil {
                     entry.setMemCurrent(entry.getMemMax());
                 }
 
-                db.replaceResourcepoolEntry(poolname, entry);
+                db.replaceResourcepoolEntry(entry);
 
                 returned = true;
 
@@ -490,6 +584,7 @@ class ResourcepoolUtil {
             }
 
             final File resourcepoolFile = new File(path);
+            String resourcePoolFileName = resourcepoolFile.getName();
 
             if (!resourcepoolFile.isFile()) {
                 logger.warn("not a file: '" + path + "'");
@@ -497,9 +592,10 @@ class ResourcepoolUtil {
             }
 
             Resourcepool oldpool = null;
+            
             if (previous != null) {
                 oldpool = (Resourcepool)
-                            previous.get(resourcepoolFile.getName());
+                            previous.get(resourcePoolFileName);
 
                 // skip reading if file modification time isn't newer than last
                 // container boot
@@ -507,10 +603,10 @@ class ResourcepoolUtil {
                     if (oldpool.getFileTime() ==
                                     resourcepoolFile.lastModified()) {
                         logger.debug("file modification time for pool '"
-                                + resourcepoolFile.getName()
+                                + resourcePoolFileName
                                 + "' is not newer, using old configuration");
 
-                        newPoolSet.put(resourcepoolFile.getName(),
+                        newPoolSet.put(resourcePoolFileName,
                                        oldpool);
                         continue;
                     }
@@ -533,7 +629,7 @@ class ResourcepoolUtil {
                     line = line.trim();
                     if (line.length() > 0) {
                         ResourcepoolEntry entry =
-                                getPoolEntry(line, oldpool);
+                                getPoolEntry(resourcePoolFileName, line, oldpool);
                         if (entry != null) {
                             entries.put(entry.getHostname(), entry);
                         }
@@ -559,11 +655,11 @@ class ResourcepoolUtil {
 
             resourcepool.setEntries(entries);
             resourcepool.setFileTime(resourcepoolFile.lastModified());
-            newPoolSet.put(resourcepoolFile.getName(), resourcepool);
+            newPoolSet.put(resourcePoolFileName, resourcepool);
 
             if (traceLog) {
                 logger.debug("read in resourcepool " +
-                              resourcepoolFile.getName() + ": " +
+                              resourcePoolFileName + ": " +
                               resourcepool);
             }
         }
@@ -662,10 +758,11 @@ class ResourcepoolUtil {
         }
     }
 
-    private static ResourcepoolEntry getPoolEntry(String line,
+    private static ResourcepoolEntry getPoolEntry(String resourcePool,
+                                                  String line,
                                                   Resourcepool oldpool) {
 
-        final ResourcepoolEntry entry = parseResourcepool(line);
+        final ResourcepoolEntry entry = parseResourcepool(resourcePool, line);
         if (entry == null) {
             return null;
         }
@@ -734,7 +831,7 @@ class ResourcepoolUtil {
         return entry;
     }
 
-    private static ResourcepoolEntry parseResourcepool(String line) {
+    private static ResourcepoolEntry parseResourcepool(String resourcePool, String line) {
 
         if (line == null) {
             return null;
@@ -799,6 +896,6 @@ class ResourcepoolUtil {
             return null;
         }
 
-        return new ResourcepoolEntry(hostname, mem, mem, sa);
+        return new ResourcepoolEntry(resourcePool, hostname, mem, mem, sa);
     }
 }

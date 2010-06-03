@@ -165,13 +165,17 @@ resourcepool VARCHAR(128) NOT NULL PRIMARY KEY,
 file_time BIGINT NOT NULL
 );
 
+-- using REAL for memory attributs to allow
+-- real division operations in ORDER BY statements
+
 CREATE TABLE resourcepool_entries
 (
 resourcepool VARCHAR(128) NOT NULL,
 hostname VARCHAR(128) NOT NULL,
 associations VARCHAR(512) NOT NULL,
-maximum_memory INT,
-available_memory INT
+maximum_memory REAL,
+available_memory REAL,
+PRIMARY KEY(resourcepool, hostname)
 );
 
 --

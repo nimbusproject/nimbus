@@ -16,16 +16,17 @@
 
 package org.globus.workspace.persistence;
 
-import org.globus.workspace.network.AssociationEntry;
-import org.globus.workspace.scheduler.defaults.ResourcepoolEntry;
-import org.globus.workspace.service.InstanceResource;
-import org.globus.workspace.service.GroupResource;
-import org.globus.workspace.service.CoschedResource;
-import org.globus.workspace.service.binding.vm.CustomizationNeed;
-import org.nimbustools.api.services.rm.DoesNotExistException;
-
 import java.util.Calendar;
 import java.util.Hashtable;
+import java.util.List;
+
+import org.globus.workspace.network.AssociationEntry;
+import org.globus.workspace.scheduler.defaults.ResourcepoolEntry;
+import org.globus.workspace.service.CoschedResource;
+import org.globus.workspace.service.GroupResource;
+import org.globus.workspace.service.InstanceResource;
+import org.globus.workspace.service.binding.vm.CustomizationNeed;
+import org.nimbustools.api.services.rm.DoesNotExistException;
 
 /**
  * TODO: each module implementation needs to encapsulate its own persistence,
@@ -153,8 +154,7 @@ public interface PersistenceAdapter {
 
             throws WorkspaceDatabaseException;
 
-    public void replaceResourcepoolEntry(String name,
-                                         ResourcepoolEntry entry)
+    public void replaceResourcepoolEntry(ResourcepoolEntry entry)
 
             throws WorkspaceDatabaseException;
 
@@ -189,5 +189,11 @@ public interface PersistenceAdapter {
     public void updateCursorPosition(long currentPosition)
 
             throws WorkspaceDatabaseException;
+    
+    //SQL processing
+    
+    public List<ResourcepoolEntry> getAvailableEntriesSortedByFreeMemoryPercentage(int requestedMem) 
+    
+            throws WorkspaceDatabaseException;    
 
 }

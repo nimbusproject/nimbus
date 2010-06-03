@@ -177,6 +177,9 @@ public interface PersistenceAdapterConstants {
 
     public static final String SQL_SELECT_ALL_VMS_BY_OWNER =
             "SELECT id FROM resources WHERE creator_dn=?";
+    
+    public static final String SQL_SELECT_AVAILABLE_ENTRIES =
+        "SELECT * FROM resourcepool_entries WHERE available_memory >= ? ORDER BY (available_memory/maximum_memory) ASC";    
 
     public static final String[] PREPARED_STATEMENTS = {
                                     SQL_SELECT_RESOURCES,
@@ -221,5 +224,6 @@ public interface PersistenceAdapterConstants {
                                     SQL_JOIN_SELECT_RESOURCE_POOL_MEMORY,
                                     SQL_SELECT_ALL_VMS_IN_GROUP,
                                     SQL_SELECT_ALL_VMS_IN_ENSEMBLE,
-                                    SQL_SELECT_ALL_VMS_BY_OWNER};
+                                    SQL_SELECT_ALL_VMS_BY_OWNER,
+                                    SQL_SELECT_AVAILABLE_ENTRIES};
 }

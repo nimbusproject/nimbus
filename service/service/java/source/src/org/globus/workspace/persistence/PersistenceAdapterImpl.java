@@ -16,28 +16,6 @@
 
 package org.globus.workspace.persistence;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.nimbustools.api.services.rm.DoesNotExistException;
-import org.nimbustools.api.services.rm.ManageException;
-import org.globus.workspace.Lager;
-import org.globus.workspace.WorkspaceConstants;
-import org.globus.workspace.network.Association;
-import org.globus.workspace.network.AssociationEntry;
-import org.globus.workspace.persistence.impls.AssociationPersistenceUtil;
-import org.globus.workspace.persistence.impls.ResourcepoolPersistenceUtil;
-import org.globus.workspace.persistence.impls.VMPersistence;
-import org.globus.workspace.persistence.impls.VirtualMachinePersistenceUtil;
-import org.globus.workspace.scheduler.defaults.Resourcepool;
-import org.globus.workspace.scheduler.defaults.ResourcepoolEntry;
-import org.globus.workspace.service.InstanceResource;
-import org.globus.workspace.service.CoschedResource;
-import org.globus.workspace.service.GroupResource;
-import org.globus.workspace.service.binding.vm.CustomizationNeed;
-import org.globus.workspace.service.binding.vm.VirtualMachine;
-import org.globus.workspace.service.binding.vm.VirtualMachinePartition;
-
-import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.Blob;
 import java.sql.Connection;
@@ -49,6 +27,30 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Hashtable;
+import java.util.List;
+
+import javax.sql.DataSource;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.globus.workspace.Lager;
+import org.globus.workspace.WorkspaceConstants;
+import org.globus.workspace.network.Association;
+import org.globus.workspace.network.AssociationEntry;
+import org.globus.workspace.persistence.impls.AssociationPersistenceUtil;
+import org.globus.workspace.persistence.impls.ResourcepoolPersistenceUtil;
+import org.globus.workspace.persistence.impls.VMPersistence;
+import org.globus.workspace.persistence.impls.VirtualMachinePersistenceUtil;
+import org.globus.workspace.scheduler.defaults.Resourcepool;
+import org.globus.workspace.scheduler.defaults.ResourcepoolEntry;
+import org.globus.workspace.service.CoschedResource;
+import org.globus.workspace.service.GroupResource;
+import org.globus.workspace.service.InstanceResource;
+import org.globus.workspace.service.binding.vm.CustomizationNeed;
+import org.globus.workspace.service.binding.vm.VirtualMachine;
+import org.globus.workspace.service.binding.vm.VirtualMachinePartition;
+import org.nimbustools.api.services.rm.DoesNotExistException;
+import org.nimbustools.api.services.rm.ManageException;
 
 public class PersistenceAdapterImpl implements WorkspaceConstants,
                                                PersistenceAdapterConstants,
@@ -1879,7 +1881,7 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
      * @param name name
      * @param entry pool entry
      */
-    public void replaceResourcepoolEntry(String name, ResourcepoolEntry entry)
+    public void replaceResourcepoolEntry(ResourcepoolEntry entry)
             throws WorkspaceDatabaseException {
 
         if (this.dbTrace) {
@@ -1891,12 +1893,13 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
         try {
             c = getConnection();
             pstmt = ResourcepoolPersistenceUtil.
-                                        updateAvailableMemory(name, entry, c);
+                                        updateAvailableMemory(entry.getResourcePool(), entry, c);
             final int updated = pstmt.executeUpdate();
-            if (updated == 0) {
+            if(updated == 1){
+                this.resourcepools = null; //clean cache
+            } else {
                 throw new WorkspaceDatabaseException("expected row update");
             }
-
         } catch(SQLException e) {
             logger.error("",e);
             throw new WorkspaceDatabaseException(e);
@@ -1972,7 +1975,8 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
                         continue;
                     }
                     ResourcepoolEntry entry =
-                                new ResourcepoolEntry(hostname,
+                                new ResourcepoolEntry(name,
+                                                      hostname,
                                                       rs2.getInt(4),
                                                       rs2.getInt(5),
                                                       assocs);
@@ -1990,10 +1994,11 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
 
             } while (rs.next());
 
-            rs = null;
-            rs2 = null;
-            pstmt = null;
-            pstmt2 = null;
+            //            rs = null;
+            //            rs2 = null;
+            //            pstmt = null;
+            //            pstmt2 = null;
+            // is that needed? (in finally they're closed)
 
             this.resourcepools = pools;
 
@@ -2285,5 +2290,72 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
             }
         }
     }
+    
+    @Override
+    public List<ResourcepoolEntry> getAvailableEntriesSortedByFreeMemoryPercentage(int requestedMem) throws WorkspaceDatabaseException{
+
+        Connection c = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        ArrayList<ResourcepoolEntry> entries = new ArrayList<ResourcepoolEntry>();
+
+        try {
+            c = getConnection();
+            pstmt = c.prepareStatement(SQL_SELECT_AVAILABLE_ENTRIES);
+            pstmt.setInt(1, requestedMem);
+            rs = pstmt.executeQuery();
+
+            if (rs == null || !rs.next()) {
+                if (lager.traceLog) {
+                    logger.debug("no available resource pool entries");
+                }
+            } else do {
+                // rs was next'd above already
+                String name = rs.getString(1);
+                String hostname = rs.getString(2);
+                String assocs = rs.getString(3);
+
+                if (hostname == null) {
+                    logger.error("hostname cannot be null for resource pool entry");
+                    continue;
+                }
+
+                if (assocs == null) {
+                    logger.error("assocs cannot be null for resource pool entry");
+                    continue;
+                }
+
+                ResourcepoolEntry entry =
+                    new ResourcepoolEntry(name,
+                            hostname,
+                            rs.getInt(4),
+                            rs.getInt(5),
+                            assocs);
+                entries.add(entry);
+
+            } while (rs.next());
+
+            return entries;
+
+        } catch(SQLException e) {
+            logger.error("",e);
+            throw new WorkspaceDatabaseException(e);
+        } finally {
+            try {
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+                if (rs != null) {
+                    rs.close();
+                }
+                if (c != null) {
+                    returnConnection(c);
+                }
+            } catch (SQLException sql) {
+                logger.error("SQLException in finally cleanup", sql);
+            }
+        }                
+    }    
 
 }

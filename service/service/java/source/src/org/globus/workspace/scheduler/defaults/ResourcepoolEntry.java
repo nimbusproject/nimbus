@@ -18,13 +18,15 @@ package org.globus.workspace.scheduler.defaults;
 
 public class ResourcepoolEntry {
 
+    private String resourcePool;
     private String hostname;
     private int memMax = -1; // in MBytes
     private int memCurrent = -1; // in MBytes
     private String supportedAssociations;
 
-    public ResourcepoolEntry(String hostname, int memMax,
+    public ResourcepoolEntry(String resourcePool, String hostname, int memMax,
                              int memCurrent, String sa) {
+        this.resourcePool = resourcePool;
         this.hostname = hostname;
         this.memMax = memMax;
         this.memCurrent = memCurrent;
@@ -91,8 +93,17 @@ public class ResourcepoolEntry {
                 "hostname='" + this.hostname + '\'' +
                 ", memMax=" + this.memMax +
                 ", memCurrent=" + this.memCurrent +
-                ", supportedNetworks='" + this.supportedAssociations + '\'' +
+                ", supportedNetworks='" + this.supportedAssociations +
+                ", percentEmpty= " + this.percentEmpty() + '\'' +
                 '}';
+    }
+
+    public void setResourcePool(String resourcePool) {
+        this.resourcePool = resourcePool;
+    }
+
+    public String getResourcePool() {
+        return resourcePool;
     }
 
 }

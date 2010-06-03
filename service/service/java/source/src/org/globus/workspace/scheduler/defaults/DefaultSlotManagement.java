@@ -304,9 +304,8 @@ public class DefaultSlotManagement implements SlotManagement {
 
         for (int i = 0; i < vmids.length; i++) {
 
-            // no distinction between resource pools yet, use "any" (null)
             try {
-                nodes[i] = ResourcepoolUtil.getResourcepoolEntry(memory,
+                nodes[i] = ResourcepoolUtil.getResourcePoolEntryImproved(memory,
                                                                  assocs,
                                                                  this.db,
                                                                  this.lager,
