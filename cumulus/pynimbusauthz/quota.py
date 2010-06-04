@@ -80,7 +80,7 @@ def main(argv=sys.argv[1:]):
             
 
         db_obj.commit()
-    except AuthzException as ae:
+    except AuthzException, ae:
         print ae
         return ae.get_rc()
     return 0

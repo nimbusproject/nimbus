@@ -48,7 +48,7 @@ def main(argv=sys.argv[1:]):
                 raise AuthzException('FILE_EXISTS', "parent %s not found" % (opts.parent))
         File.create_file(db_obj, object_name, user, data, opts.type, parent=parent)
 
-    except AuthzException as ae:
+    except AuthzException, ae:
         print ae
         return ae.get_rc()
     return 0

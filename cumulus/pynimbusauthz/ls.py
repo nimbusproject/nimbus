@@ -64,7 +64,7 @@ def main(argv=sys.argv[1:]):
             for f in files:
                 print_file(opts, f)
 
-    except AuthzException as ae:
+    except AuthzException, ae:
         print ae
         return ae.get_rc()
     return 0

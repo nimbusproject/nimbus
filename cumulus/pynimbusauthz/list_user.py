@@ -66,7 +66,7 @@ def main(argv=sys.argv[1:]):
         for u in users:
             list_user(opts, u)
 
-    except AuthzException as ae:
+    except AuthzException, ae:
         print ae
         return ae.get_rc()
     return 0

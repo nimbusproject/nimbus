@@ -62,7 +62,7 @@ def main(argv=sys.argv[1:]):
         pynimbusauthz.print_msg(opts, 0, "changed %s to %s for %s" % (str(file1), requested_perms, str(user)))
         db_obj.commit()
 
-    except AuthzException as ae:
+    except AuthzException, ae:
         print ae
         return ae.get_rc()
     return 0

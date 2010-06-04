@@ -87,7 +87,7 @@ def main(argv=sys.argv[1:]):
                 uf = UserFile(uf.get_file(), u)
                 stat_print_uf(opts, uf, " ", " ")
 
-    except AuthzException as ae:
+    except AuthzException, ae:
         print ae
         return ae.get_rc()
     return 0
