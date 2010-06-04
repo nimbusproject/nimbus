@@ -1,13 +1,12 @@
 cumulus : An Amazon s3 look-alike
 =================================
 
-Cumulus is an open source implementation of the Amazon S3 REST API.  It is 
-packaged with the Nimbus (the defacto open source cloud computing software
-for science) however it can be used without nimbus as well.  Cumulus
-allows you to server files to users via a known and adopted REST API.
-You clients will be able to access your data storaging service with the 
-amzon S3 clients they already use.
-
+Cumulus is an open source implementation of the Amazon S3 REST API.  It 
+is packaged with the Nimbus (open source cloud computing software for 
+science) however it can be used without nimbus as well.  Cumulus allows 
+you to server files to users via a known and adopted REST API. You 
+clients will be able to access your data storaging service with the 
+Amazon S3 clients they already use.
 
 Installation
 ============

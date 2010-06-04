@@ -10,7 +10,7 @@ calcMD5=True
 type=posix
 data_dir=@@INSTALLDIR@@/posixdata
 [security]
-type=@@SEC@@
+type=authz
 security_dir=@@INSTALLDIR@@/posixauth
 authzdb=@@INSTALLDIR@@/etc/authz.db
 
