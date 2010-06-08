@@ -7,6 +7,8 @@ import org.globus.workspace.persistence.WorkspaceDatabaseException;
 
 import javax.sql.DataSource;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by John Bresnahan
@@ -30,6 +32,7 @@ public class AuthzDBAdapter
     private static final String GET_USER_QUOTA = "SELECT quota from object_quota where user_id = ? and object_type = ?";
     private static final String GET_FILE_SIZE = "SELECT object_size FROM objects WHERE id = ?";
     private static final String GET_FILE_OWNER = "SELECT owner_id FROM objects WHERE id = ?";
+    private static final String GET_USER_ALIAS = "SELECT alias_name, friendly_name, alias_type, alias_type_data from user_alias WHERE user_id = ?";
 
     public static final int ALIAS_TYPE_S3 = 1;
     public static final int ALIAS_TYPE_DN = 2;
@@ -64,6 +67,56 @@ public class AuthzDBAdapter
             throws   WorkspaceDatabaseException
     {
           return getCanonicalUserIdFromAlias(name, ALIAS_TYPE_DN);
+    }
+
+    public List<UserAlias> getUserAliases(String userId)
+        throws WorkspaceDatabaseException
+    {
+        Connection c = null;
+        PreparedStatement pstmt = null;
+
+        try
+        {
+            c = getConnection();
+            pstmt = c.prepareStatement(GET_USER_ALIAS);
+            pstmt.setString(1, userId);
+            logger.debug("getting user alias " + pstmt.toString());
+            ResultSet rs = pstmt.executeQuery();
+
+            final List<UserAlias> aliases = new ArrayList<UserAlias>();
+
+            while(rs.next())
+            {
+                aliases.add(new UserAlias(userId, rs.getString("alias_name"),
+                        rs.getString("friendly_name"), rs.getInt("alias_type"),
+                        rs.getString("alias_type_data")));
+            }
+            return aliases;
+        }
+        catch(SQLException e)
+        {
+            logger.error("",e);
+            throw new WorkspaceDatabaseException(e);
+        }
+        finally
+        {
+            try
+            {
+                if (pstmt != null)
+                {
+                    pstmt.close();
+                }
+                if (c != null)
+                {
+                    returnConnection(c);
+                }
+            }
+            catch (SQLException sql)
+            {
+                logger.error("SQLException in finally cleanup", sql);
+            }
+        }
+
     }
 
     public long getFileSize(
