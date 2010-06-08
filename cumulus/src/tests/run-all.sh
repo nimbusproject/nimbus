@@ -7,14 +7,14 @@ cd -
 echo "Running without security"
 echo "=========================="
 
-export CUMULUS_SETTINGS_FILE=${CUMULUS_HOME}/tests/cumulus.ini
+export CUMULUS_SETTINGS_FILE=${CUMULUS_HOME}/etc/cumulus_tests.ini
 ./run-pass.sh
 if [ $? -ne 0 ]; then
     echo "Insecure tests failed"
     exit 1
 fi
 
-export CUMULUS_SETTINGS_FILE=${CUMULUS_HOME}/tests/cumulus_https.ini
+export CUMULUS_SETTINGS_FILE=${CUMULUS_HOME}/etc/cumulus_tests_https.ini
 export CUMULUS_TEST_HTTPS="True"
 echo "Running with security"
 echo "=========================="
