@@ -340,7 +340,6 @@ class ResourcepoolUtil {
      * @param lager logging switches
      * @param vmid for logging
      * @param greedy true if VMs should stack up on VMMs first, false if round robin
-     * @param preemptable indicates if the space can be pre-empted by higher priority reservations
      * @return node name can not be null
      * @throws ResourceRequestDeniedException exc
      * @throws WorkspaceDatabaseException exc
@@ -369,7 +368,8 @@ class ResourcepoolUtil {
         }        
 
         //availableEntries is never empty
-        final List<ResourcepoolEntry> availableEntries = getAvailableEntries(mem, neededAssociations, db, trace);        
+        final List<ResourcepoolEntry> availableEntries =
+                getAvailableEntries(mem, neededAssociations, db, trace);
         
         if (trace) {
             traceAvailableEntries(availableEntries);
@@ -401,10 +401,11 @@ class ResourcepoolUtil {
             final boolean trace) throws WorkspaceDatabaseException,
             ResourceRequestDeniedException {
         
-        final List<ResourcepoolEntry> availableEntries = db.getAvailableEntriesSortedByFreeMemoryPercentage(mem);
+        final List<ResourcepoolEntry> availableEntries =
+                db.getAvailableEntriesSortedByFreeMemoryPercentage(mem);
 
         if(availableEntries.isEmpty()){
-            String err = "No resource pool with available memory for this request.";
+            String err = "No resource is available for this request (based on memory).";
             logger.error(err);
             throw new ResourceRequestDeniedException(err);
         }
@@ -412,7 +413,7 @@ class ResourcepoolUtil {
         netFilter(availableEntries, neededAssociations, trace);
 
         if(availableEntries.isEmpty()){
-            String err = "No resource pool with requested network associations.";
+            String err = "No resource can support the requested network(s).";
             logger.error(err);
             throw new ResourceRequestDeniedException(err);
         }
@@ -428,7 +429,10 @@ class ResourcepoolUtil {
         }
     }
 
-    private static void traceLookingForResource(int mem, String[] neededAssociations,  boolean greedy) {
+    private static void traceLookingForResource(int mem,
+                                                String[] neededAssociations,
+                                                boolean greedy) {
+        
         final StringBuilder buf =
             new StringBuilder("Looking for resource. Mem = ");
 
