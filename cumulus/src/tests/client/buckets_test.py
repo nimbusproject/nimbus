@@ -90,7 +90,7 @@ class TestBucketsWithBoto(unittest.TestCase):
             k.key = key
             try:
                 k.set_contents_from_filename("/etc/group")
-            except S3DataError as s3e:
+            except S3DataError, s3e:
                 traceback.print_exc(file=sys.stdout)
 
                 print s3e

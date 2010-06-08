@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 s3cmd=`which s3cmd`
 
