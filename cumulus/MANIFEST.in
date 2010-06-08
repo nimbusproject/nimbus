@@ -1,0 +1,7 @@
+include install.sh
+include docs/QUICKSTART.txt  
+include docs/README.authz.txt  
+include docs/README.txt
+include virtualenv.py
+recursive-include tests *
+recursive-include etc *
