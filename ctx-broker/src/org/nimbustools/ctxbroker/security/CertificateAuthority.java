@@ -47,6 +47,7 @@ import java.util.Calendar;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ByteArrayInputStream;
+import java.math.BigInteger;
 
 public class CertificateAuthority {
 
@@ -198,7 +199,7 @@ public class CertificateAuthority {
     private void initializeGenerator() {
         this.certGen.reset();
 
-        this.certGen.setSerialNumber(this.caX509.getSerialNumber());
+        this.certGen.setSerialNumber(this.caX509.getSerialNumber().add(BigInteger.ONE));
         this.certGen.setSignatureAlgorithm(this.caX509.getSigAlgName());
         this.certGen.setIssuerDN(this.caX509Name);
 
