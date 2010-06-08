@@ -27,7 +27,9 @@ trap "kill $cumulus_pid; mv ~/.s3cfg.cumulus.test ~/.s3cfg; $CUMULUS_HOME/bin/cu
 sleep 2
 log_file=`mktemp`
 echo "Logging output to $log_file" 
-x=`$CUMULUS_HOME/bin/cumulus-add-user -b  -r ID,password tests3cmd1@nimbus.test`
+$CUMULUS_HOME/bin/cumulus-add-user tests3cmd1@nimbus.test
+x=`$CUMULUS_HOME/bin/cumulus-list-users -b -r ID,password tests3cmd1@nimbus.test`
+
 echo $x
 id=`echo $x | awk -F , '{ print $1 }'`
 pw=`echo $x | awk -F, '{ print $2 }'`
