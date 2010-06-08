@@ -2291,7 +2291,6 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
         }
     }
     
-    @Override
     public List<ResourcepoolEntry> getAvailableEntriesSortedByFreeMemoryPercentage(int requestedMem) throws WorkspaceDatabaseException{
 
         Connection c = null;
