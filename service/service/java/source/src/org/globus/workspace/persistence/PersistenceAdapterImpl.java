@@ -1878,7 +1878,6 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
 
     /**
      * For now, only available_memory is replaceable.
-     * @param name name
      * @param entry pool entry
      */
     public void replaceResourcepoolEntry(ResourcepoolEntry entry)
@@ -1994,11 +1993,12 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
 
             } while (rs.next());
 
-            //            rs = null;
-            //            rs2 = null;
-            //            pstmt = null;
-            //            pstmt2 = null;
-            // is that needed? (in finally they're closed)
+            // We do not want finally to clean these up, but need the finally protection
+            // because of the while loop.  Once out of the while loop, these _are_ closed
+            // so make them null so they are not re-closed which causes
+            // "SQLException: Already closed"
+            rs2 = null;
+            pstmt2 = null;
 
             this.resourcepools = pools;
 
