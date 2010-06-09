@@ -112,13 +112,5 @@ public class ResourcepoolEntry {
                 ", percentEmpty= " + this.percentEmpty() + '\'' +
                 '}';
     }
-    
-    public void setResourcePool(String resourcePool) {
-        this.resourcePool = resourcePool;
-    }
-
-    public String getResourcePool() {
-        return resourcePool;
-    }
 
 }

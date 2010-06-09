@@ -181,9 +181,6 @@ public interface PersistenceAdapterConstants {
     
     public static final String SQL_SELECT_AVAILABLE_ENTRIES =
         "SELECT * FROM resourcepool_entries WHERE available_memory >= ? ORDER BY (available_memory/maximum_memory) ASC";    
-
-    public static final String SQL_SELECT_AVAILABLE_ENTRIES =
-        "SELECT * FROM resourcepool_entries WHERE available_memory >= ? ORDER BY (available_memory/maximum_memory) ASC";
     
     public static final String SQL_SELECT_TOTAL_MEMORY =
         "SELECT SUM(?) FROM resourcepool_entries";

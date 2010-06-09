@@ -2408,7 +2408,6 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
     }
 
 
-    @Override
     public Integer getTotalAvailableMemory() throws WorkspaceDatabaseException {
         if (this.dbTrace) {
             logger.trace("getTotalAvailableMemory()");
@@ -2424,7 +2423,6 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
     }
 
 
-    @Override
     public Integer getTotalMaxMemory() throws WorkspaceDatabaseException {
         if (this.dbTrace) {
             logger.trace("getTotalMaxMemory()");
@@ -2440,7 +2438,6 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
     }
 
 
-    @Override
     public Integer getTotalPreemptableMemory() throws WorkspaceDatabaseException {
         if (this.dbTrace) {
             logger.trace("getTotalPreemptableMemory()");
