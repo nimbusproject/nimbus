@@ -16,36 +16,45 @@
 
 package org.globus.workspace.persistence;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Calendar;
+import java.util.Hashtable;
+
 import org.globus.workspace.WorkspaceConstants;
 import org.globus.workspace.accounting.ElapsedAndReservedMinutes;
+import org.globus.workspace.service.InstanceResource;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.globus.workspace.service.binding.vm.VirtualMachineDeployment;
 import org.globus.workspace.service.binding.vm.VirtualMachinePartition;
-import org.globus.workspace.service.InstanceResource;
+import org.globus.workspace.spotinstances.SIRequest;
+import org.globus.workspace.spotinstances.SIRequestStatus;
 import org.globus.workspace.xen.XenUtil;
-
-import org.nimbustools.api.repr.vm.NIC;
-import org.nimbustools.api.repr.vm.ResourceAllocation;
-import org.nimbustools.api.repr.vm.Schedule;
-import org.nimbustools.api.repr.vm.State;
-import org.nimbustools.api.repr.vm.VM;
-import org.nimbustools.api.repr.vm.VMFile;
-import org.nimbustools.api.repr.ReprFactory;
-import org.nimbustools.api.repr.CannotTranslateException;
-import org.nimbustools.api.repr.Usage;
-import org.nimbustools.api.repr.Caller;
+import org.nimbustools.api._repr._Caller;
+import org.nimbustools.api._repr._RequestSIResult;
+import org.nimbustools.api._repr._Usage;
+import org.nimbustools.api._repr.si._SIRequestState;
 import org.nimbustools.api._repr.vm._NIC;
 import org.nimbustools.api._repr.vm._ResourceAllocation;
 import org.nimbustools.api._repr.vm._Schedule;
 import org.nimbustools.api._repr.vm._State;
 import org.nimbustools.api._repr.vm._VM;
 import org.nimbustools.api._repr.vm._VMFile;
-import org.nimbustools.api._repr._Usage;
-import org.nimbustools.api._repr._Caller;
-
-import java.util.Hashtable;
-import java.net.URI;
-import java.net.URISyntaxException;
+import org.nimbustools.api.defaults.repr.DefaultSIResult;
+import org.nimbustools.api.defaults.repr.si.DefaultSIRequestState;
+import org.nimbustools.api.repr.Caller;
+import org.nimbustools.api.repr.CannotTranslateException;
+import org.nimbustools.api.repr.ReprFactory;
+import org.nimbustools.api.repr.RequestSI;
+import org.nimbustools.api.repr.RequestSIResult;
+import org.nimbustools.api.repr.Usage;
+import org.nimbustools.api.repr.si.SIRequestState;
+import org.nimbustools.api.repr.vm.NIC;
+import org.nimbustools.api.repr.vm.ResourceAllocation;
+import org.nimbustools.api.repr.vm.Schedule;
+import org.nimbustools.api.repr.vm.State;
+import org.nimbustools.api.repr.vm.VM;
+import org.nimbustools.api.repr.vm.VMFile;
 
 /**
  * Most translation should be able to go away as we use the new RM API's
@@ -207,17 +216,70 @@ public class DataConvert implements WorkspaceConstants {
         vm.setNics(this.getNICs(resource.getVM()));
         vm.setMdUserData(resource.getVM().getMdUserData());
         vm.setVMFiles(this.getStorage(resource.getVM()));
-        vm.setResourceAllocation(this.getRA(resource));
+        vm.setResourceAllocation(this.getRA(resource.getVM()));
         vm.setSchedule(this.getSchedule(resource));
         vm.setState(this.getState(resource));
         vm.setCreator(this.getCreator(resource));
+        
+        if(resource.getVM().isPreemptable()){
+            vm.setType(WorkspaceConstants.TYPE_SPOT);
+        } else {
+            vm.setType(WorkspaceConstants.TYPE_NORMAL);
+        }
+        
         return vm;
     }
+    
+    public RequestSIResult getRequestSIResult(SIRequest siRequest, String sshKeyName) throws CannotTranslateException {
+
+        VirtualMachine[] bindings = siRequest.getBindings();
+        
+        if (bindings == null || bindings.length == 0) {
+            throw new CannotTranslateException("no resource?");
+        }        
+        
+        final _RequestSIResult result = new DefaultSIResult();
+
+        result.setCreationTime(Calendar.getInstance());
+        result.setCreator(siRequest.getCaller());
+        result.setGroupID(siRequest.getGroupID());
+        result.setMdUserData(bindings[0].getMdUserData());
+        result.setPersistent(siRequest.isPersistent());
+        result.setRequestID(siRequest.getId());
+        result.setSpotPrice(siRequest.getMaxBid());
+        result.setVMFiles(this.getStorage(bindings[0]));
+        result.setResourceAllocation(this.getRA(bindings[0]));
+        result.setSshKeyName(sshKeyName);
+        
+        _SIRequestState state = new DefaultSIRequestState();
+        state.setState(this.getSIRequestState(siRequest.getStatus()));
+        result.setState(state);
+                
+        return result;
+    }    
     
     
     // -------------------------------------------------------------------------
     // STATE RELATED
     // -------------------------------------------------------------------------
+
+    private String getSIRequestState(SIRequestStatus status) {
+        switch(status){
+        case ACTIVE:
+            return SIRequestState.STATE_Active;
+        case CANCELLED:
+            return SIRequestState.STATE_Cancelled;
+        case CLOSED:
+            return SIRequestState.STATE_Closed;
+        case FAILED:
+            return SIRequestState.STATE_Failed;
+        case OPEN:
+            return SIRequestState.STATE_Open;
+        }
+        
+        return null;
+    }
+
 
     /**
      * @param state internal state position
@@ -366,15 +428,10 @@ public class DataConvert implements WorkspaceConstants {
     // -------------------------------------------------------------------------
 
     // need for this will go away as we migrate
-    public ResourceAllocation getRA(InstanceResource resource)
+    public ResourceAllocation getRA(VirtualMachine vm)
 
             throws CannotTranslateException {
-
-        if (resource == null) {
-            throw new CannotTranslateException("no resource?");
-        }
         
-        final VirtualMachine vm = resource.getVM();
         if (vm == null) {
             throw new CannotTranslateException("null VirtualMachine?");
         }
@@ -387,6 +444,7 @@ public class DataConvert implements WorkspaceConstants {
             return ra; // *** EARLY RETURN ***
         }
 
+        ra.setPreemptable(vm.isPreemptable());
         ra.setArchitecture(dep.getCPUArchitecture());
         ra.setCpuPercentage(dep.getCPUPercentage());
         ra.setIndCpuSpeed(dep.getIndividualCPUSpeed());

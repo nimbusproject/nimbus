@@ -20,6 +20,8 @@ import org.nimbustools.api.repr.CreateResult;
 import org.nimbustools.api.repr.CreateRequest;
 import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.Advertised;
+import org.nimbustools.api.repr.RequestSI;
+import org.nimbustools.api.repr.RequestSIResult;
 import org.nimbustools.api.services.rm.CoSchedulingException;
 import org.nimbustools.api.services.rm.CreationException;
 import org.nimbustools.api.services.rm.MetadataException;
@@ -30,6 +32,13 @@ public interface Creation {
 
     public CreateResult create(CreateRequest req, Caller caller)
            throws CoSchedulingException,
+                  CreationException,
+                  MetadataException,
+                  ResourceRequestDeniedException,
+                  SchedulingException;
+    
+    public RequestSIResult requestSpotInstances(RequestSI req, Caller caller)
+                  throws CoSchedulingException,
                   CreationException,
                   MetadataException,
                   ResourceRequestDeniedException,

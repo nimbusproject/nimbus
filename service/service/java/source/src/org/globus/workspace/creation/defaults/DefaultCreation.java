@@ -40,20 +40,27 @@ import org.globus.workspace.service.WorkspaceHome;
 import org.globus.workspace.service.WorkspaceGroupHome;
 import org.globus.workspace.service.WorkspaceCoschedHome;
 import org.globus.workspace.service.binding.Authorize;
+import org.globus.workspace.service.binding.BindNetwork;
 import org.globus.workspace.service.binding.BindingAdapter;
 import org.globus.workspace.service.binding.GlobalPolicies;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.globus.workspace.service.binding.vm.VirtualMachineDeployment;
 import org.globus.workspace.service.binding.vm.CustomizationNeed;
+import org.globus.workspace.spotinstances.SIRequest;
+import org.globus.workspace.spotinstances.SpotInstancesManager;
 
 import org.nimbustools.api._repr._CreateResult;
 import org.nimbustools.api._repr._Advertised;
+import org.nimbustools.api._repr._RequestSIResult;
+import org.nimbustools.api.defaults.repr.DefaultSIResult;
 import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.CreateRequest;
 import org.nimbustools.api.repr.CreateResult;
+import org.nimbustools.api.repr.RequestSI;
 import org.nimbustools.api.repr.ReprFactory;
 import org.nimbustools.api.repr.CannotTranslateException;
 import org.nimbustools.api.repr.Advertised;
+import org.nimbustools.api.repr.RequestSIResult;
 import org.nimbustools.api.repr.ctx.Context;
 import org.nimbustools.api.repr.vm.VM;
 import org.nimbustools.api.repr.vm.ResourceAllocation;
@@ -112,8 +119,11 @@ public class DefaultCreation implements Creation {
     protected final TimerManager timerManager;
     protected final Lager lager;
     protected final DateFormat localFormat = DateFormat.getDateTimeInstance();
+    protected final BindNetwork bindNetwork;
 
     protected AccountingEventAdapter accounting;
+    
+    protected final SpotInstancesManager siManager;
 
 
     // -------------------------------------------------------------------------
@@ -134,7 +144,8 @@ public class DefaultCreation implements Creation {
                            PersistenceAdapter persistenceAdapter,
                            DataConvert dataConvertImpl,
                            TimerManager timerManagerImpl,
-                           Lager lagerImpl) {
+                           Lager lagerImpl,
+                           BindNetwork bindNetworkImpl) {
 
         if (lockManagerImpl == null) {
             throw new IllegalArgumentException("lockManager may not be null");
@@ -210,6 +221,13 @@ public class DefaultCreation implements Creation {
             throw new IllegalArgumentException("lagerImpl may not be null");
         }
         this.lager = lagerImpl;
+        
+        if (bindNetworkImpl == null) {
+            throw new IllegalArgumentException("bindNetworkImpl may not be null");
+        }
+        this.bindNetwork = bindNetworkImpl;     
+        
+        this.siManager = new SpotInstancesManager(persistence, lager);
     }
 
 
@@ -256,6 +274,58 @@ public class DefaultCreation implements Creation {
 
         return adv;
     }
+    
+    @Override
+    public RequestSIResult requestSpotInstances(RequestSI req, Caller caller) throws CreationException, MetadataException, ResourceRequestDeniedException, SchedulingException {
+
+        
+        if (caller == null) {
+            throw new CreationException("no caller");
+        }
+
+        if (this.lager.eventLog) {
+            logger.info(Lager.ev(-1) + "Create request for " + this.getType(req) +
+                                    " from '" + caller.getIdentity() + "'");
+        }
+
+        this.legals.checkCreateRequest(req);
+        
+        final VirtualMachine[] bound = this.binding.processRequest(req);
+        if (bound == null || bound.length == 0) {
+            throw new CreationException("no binding result but no binding " +
+                    "error: illegal binding implementation");
+        }        
+
+        final String creatorID = caller.getIdentity();
+        if (creatorID == null || creatorID.trim().length() == 0) {
+            throw new CreationException("Cannot determine identity");
+        }       
+        
+        final String siID = generateID();
+        final String groupID = this.getGroupID(caller.getIdentity(), bound.length);                
+        
+        SIRequest siRequest = new SIRequest(siID, req.getSpotPrice(), req.isPersistent(), caller, groupID, bound, req.getContext(), req.getRequestedNics());
+        
+        siManager.addRequest(siRequest);
+        
+        RequestSIResult requestSIResult;
+        try {
+            requestSIResult = dataConvert.getRequestSIResult(siRequest, req.getSshKeyName());
+        } catch (CannotTranslateException e) {
+            throw new CreationException("Could not translate request from internal representation to RM API representation.");
+        }
+        
+        return requestSIResult;
+    }    
+
+    /**
+     * TODO: Temporary random generation, update to use more advanced method.
+     * @return
+     */
+    private String generateID() {
+        return "" + Math.random()*10000000;
+    }
+
 
     public CreateResult create(CreateRequest req, Caller caller)
 
@@ -275,8 +345,22 @@ public class DefaultCreation implements Creation {
         }
 
         this.legals.checkCreateRequest(req);
-
-        return this.create1(req, caller);
+        
+        final VirtualMachine[] bound = this.binding.processRequest(req);
+        if (bound == null || bound.length == 0) {
+            throw new CreationException("no binding result but no binding " +
+                    "error: illegal binding implementation");
+        }         
+        
+        final String creatorID = caller.getIdentity();
+        if (creatorID == null || creatorID.trim().length() == 0) {
+            throw new CreationException("Cannot determine identity");
+        }        
+        
+        final String coschedID = this.getCoschedID(req, creatorID);  
+        final String groupID = this.getGroupID(caller.getIdentity(), bound.length);        
+        
+        return this.create1(bound, req.getRequestedNics(), caller, req.getContext(), groupID, coschedID, false);
     }
 
     protected String getType(CreateRequest req) {
@@ -308,7 +392,13 @@ public class DefaultCreation implements Creation {
     // CREATE I
     // -------------------------------------------------------------------------
 
-    protected CreateResult create1(CreateRequest req, Caller caller)
+    protected CreateResult create1(VirtualMachine[] bindings,
+                                   NIC[] nics,
+                                   Caller caller,
+                                   Context context,
+                                   String groupId,
+                                   String coschedID,
+                                   boolean spotInstances)
 
             throws CoSchedulingException,
                    CreationException,
@@ -316,41 +406,28 @@ public class DefaultCreation implements Creation {
                    ResourceRequestDeniedException,
                    SchedulingException {
 
-        final VirtualMachine[] bound = this.binding.processRequest(req);
-        if (bound == null || bound.length == 0) {
-            throw new CreationException("no binding result but no binding " +
-                    "error: illegal binding implementation");
-        }
+        this.bindNetwork.consume(bindings, nics);
 
-        final String creatorID = caller.getIdentity();
-        if (creatorID == null || creatorID.trim().length() == 0) {
-            throw new CreationException("Cannot determine identity");
-        }
-
-        final Context context = req.getContext();
-        final String groupID = this.getGroupID(creatorID, bound.length);
-        final String coschedID = this.getCoschedID(req, creatorID);
-
-        // From this point forward an error requires backOutAllocations
+        // From this point forward an error requires backOutIPAllocations
         try {
-            return this.create2(bound, caller, context, groupID, coschedID);
+            return this.create2(bindings, caller, context, groupId, coschedID, spotInstances);
         } catch (CoSchedulingException e) {
-            this.backoutBound(bound);
+            this.backoutBound(bindings);
             throw e;
         } catch (CreationException e) {
-            this.backoutBound(bound);
+            this.backoutBound(bindings);
             throw e;
         } catch (MetadataException e) {
-            this.backoutBound(bound);
+            this.backoutBound(bindings);
             throw e;
         } catch (ResourceRequestDeniedException e) {
-            this.backoutBound(bound);
+            this.backoutBound(bindings);
             throw e;
         } catch (SchedulingException e) {
-            this.backoutBound(bound);
+            this.backoutBound(bindings);
             throw e;                    
         } catch (Throwable t) {
-            this.backoutBound(bound);
+            this.backoutBound(bindings);
             throw new CreationException("Unknown problem occured: " +
                     "'" + ErrorUtil.excString(t) + "'", t);
         }
@@ -396,7 +473,8 @@ public class DefaultCreation implements Creation {
 
     protected void backoutBound(VirtualMachine[] bound) {
         try {
-            this.binding.backOutAllocations(bound);
+            this.bindNetwork.backOutIPAllocations(bound);
+            //this.binding.backOutAllocations(bound);
         } catch (Throwable t) {
             final String err =
                     "Error during bindings backout: " + t.getMessage();
@@ -414,7 +492,8 @@ public class DefaultCreation implements Creation {
                                    Caller caller,
                                    Context context,
                                    String groupID,
-                                   String coschedID)
+                                   String coschedID,
+                                   boolean spotInstances)
 
             throws AuthorizationException,
                    CoSchedulingException,
@@ -434,7 +513,8 @@ public class DefaultCreation implements Creation {
         // TODO: Would like to be able to get defaults (especially for running
         //       time request) on a per-group basis when using the group authz
         //       plugin.
-        if (!caller.isSuperUser()) {
+        //TODO: adjust policies for spot instances
+        if (!spotInstances &&!caller.isSuperUser()) {
             this.authorize.authz(bindings,
                                  caller.getIdentity(),
                                  caller.getSubject());
@@ -476,7 +556,8 @@ public class DefaultCreation implements Creation {
                            caller.getIdentity(),
                            context,
                            groupID,
-                           coschedID);
+                           coschedID,
+                           spotInstances);
 
         } catch (CoSchedulingException e) {
             this.backoutScheduling(ids, groupID);
@@ -526,7 +607,7 @@ public class DefaultCreation implements Creation {
         }
 
         return this.scheduler.schedule(memory, duration, assocs, numNodes,
-                                       groupid, coschedid);
+                                       groupid, coschedid, vm.isPreemptable());
     }
 
 
@@ -558,7 +639,8 @@ public class DefaultCreation implements Creation {
                                    String callerID,
                                    Context context,
                                    String groupID,
-                                   String coschedID)
+                                   String coschedID,
+                                   boolean spotInstances)
             
             throws AuthorizationException,
                    CoSchedulingException,
@@ -578,7 +660,8 @@ public class DefaultCreation implements Creation {
 
         // accounting:
         // give check then act problem as small a window as possible
-        if (this.accounting != null) {
+        //TODO: adjust accounting for spot instances
+        if (!spotInstances && this.accounting != null) {
 
             final long requestSeconds;
             if (res.isConcrete()) {
