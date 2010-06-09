@@ -59,9 +59,6 @@ _NIMBUS_2_4_DEPRECATED
         <a href="#ctxagent">What is the Context Agent</a>?
     </li>
     <li>
-        <a href="#ec2-backend">What is the EC2 backend</a>?
-    </li>
-    <li>
         <a href="#defcloudkit">What is the cloudkit</a>?
     </li>
     <li>
@@ -616,62 +613,6 @@ _NIMBUS_2_4_DEPRECATED
         </p>
     </li>
 
-    <li>
-        <p>
-            <a name="ec2-backend"> </a>
-            <b>What is the EC2 backend? _NAMELINK(ec2-backend)</b>
-        </p>
-
-        <p>
-            This is a workspace service backend that serves as a portal to
-            the Amazon <a href="http://aws.amazon.com/ec2">Elastic Compute
-            Cloud</a> (EC2).
-        </p>
-
-        <p>
-            It allows clients to boot virtual machines in the Amazon
-            cloud using grid protocols and their X509 credentials, first
-            passing through the service's authorization and accounting layers.
-        </p>
-
-        <p>
-            The EC2 gateway provides:
-        </p>
-
-        <div class="uldonotmoveleft">
-            <ul>
-                <li>
-                    The ability to run any public Amazon Machine Image (AMI)
-                    image on Amazon as well
-                    as whatever AMIs the workspace service's credentials have
-                    access to privately.
-                </li>
-                <li>Asynchronous WSN notifications about status (EC2 does not,
-                    it relies on polling)</li>
-                <li>Adjustment of the root account's SSH pubkey authorized_keys
-                    ("personalization") on the VM</li>
-                <li>Running time enforcement</li>
-                <li>It makes the public IP address of the VM known to you via
-                    resource property when the address becomes available (on
-                    EC2 this is known only after it begins to run).</li>
-                <li>Detailed accounting that the authorization layer can use
-                    to make decisions based on a client's current aggregate
-                    and reserved usage.
-                </li>
-            </ul>
-        </div>
-
-        <p>
-            This code is not in a current release, but it is currently
-            <a href="deployments/index.html#teraport-ec2">deployed</a>.
-        </p>
-
-        <p>
-            EC2 currently provides
-            <a href="http://www.amazon.com/b?ie=UTF8&node=370375011">five allocation types</a>.
-        </p>
-    </li>
-    
     <li>
         <p>
             <a name="defcloudkit"> </a>
