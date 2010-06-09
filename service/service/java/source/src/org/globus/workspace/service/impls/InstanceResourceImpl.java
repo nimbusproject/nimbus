@@ -778,16 +778,16 @@ public abstract class InstanceResourceImpl implements InstanceResource {
                 }
                 this.accounting.destroy(this.id,
                                         this.getCreatorID(),
-                                        0);
+                                        0L);
             } else {
                 final long runningTimeMS =
                         Calendar.getInstance().getTimeInMillis() -
                                    this.startTime.getTimeInMillis();
 
                 // convert milliseconds to minutes, take ceiling
-                long runningTime = runningTimeMS / 60000;
-                if (runningTimeMS % 60000 > 0) {
-                    runningTime += 1;
+                long runningTime = runningTimeMS / 60000L;
+                if (runningTimeMS % 60000L > 0L) {
+                    runningTime += 1L;
                 }
 
                 this.accounting.destroy(this.id,
