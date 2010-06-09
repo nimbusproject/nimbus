@@ -31,6 +31,7 @@ keystore: var/keystore.jks
 keystore.pass: changeit
 
 services.enabled: True
+services.wait: 10
 web.enabled: False
 """
 CONFIG_STATE_PATH = 'nimbus-setup.conf'

@@ -47,6 +47,11 @@ if not (web_enabled or services_enabled):
     sys.exit("Neither Nimbus services nor Nimbus web are enabled. "+
             "See the '%s' config file to adjust this setting." % CONFIG_PATH)
 
+try:
+    services_wait = config.getint('nimbussetup', 'services.wait')
+except ConfigParser.NoOptionError:
+    services_wait = 10
+
 NIMBUS_RUN_DIR = os.path.join(NIMBUS_HOME, 'var/run/')
 if not os.path.isdir(NIMBUS_RUN_DIR):
     try:
@@ -67,7 +72,7 @@ if services_enabled:
       program = NIMBUS_SERVICES_EXE,
       args = [],
       workingDir = NIMBUS_HOME,
-      postStartDelay=5
+      postStartDelay=services_wait
       ))
 
 if web_enabled:
