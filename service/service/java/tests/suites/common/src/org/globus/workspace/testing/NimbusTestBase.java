@@ -24,7 +24,7 @@ import org.globus.workspace.WorkspaceUtil;
 import org.globus.workspace.testing.utils.ReprPopulator;
 import org.nimbustools.api.brain.BreathOfLife;
 import org.nimbustools.api.brain.ModuleLocator;
-import org.nimbustools.api.brain.NimbusFileSystemXmlApplicationContext;
+import org.nimbustools.api.brain.NimbusHomePathResolver;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -94,7 +94,7 @@ public abstract class NimbusTestBase {
         final String nimbusHome = this.getNimbusHome();
         logger.info("NIMBUS_HOME: " + nimbusHome);
         
-        System.setProperty(NimbusFileSystemXmlApplicationContext.NIMBUS_HOME_ENV_NAME,
+        System.setProperty(NimbusHomePathResolver.NIMBUS_HOME_ENV_NAME,
                            nimbusHome);
 
         final File vardir = new File(nimbusHome, "services/var");
@@ -141,8 +141,7 @@ public abstract class NimbusTestBase {
                         this.getClass().getSimpleName() + LOG_SEP);
 
 
-        final String nh = System.getProperty(
-                NimbusFileSystemXmlApplicationContext.NIMBUS_HOME_ENV_NAME);
+        final String nh = System.getProperty(NimbusHomePathResolver.NIMBUS_HOME_ENV_NAME);
         if (nh == null) {
             throw new Exception("Could not tear down, no NIMBUS_HOME is set");
         }
