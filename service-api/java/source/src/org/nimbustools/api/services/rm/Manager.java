@@ -16,16 +16,18 @@
 
 package org.nimbustools.api.services.rm;
 
+import java.util.Calendar;
+
 import org.nimbustools.api.NimbusModule;
 import org.nimbustools.api.repr.Advertised;
 import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.CreateRequest;
 import org.nimbustools.api.repr.CreateResult;
+import org.nimbustools.api.repr.RequestSI;
+import org.nimbustools.api.repr.RequestSIResult;
 import org.nimbustools.api.repr.ShutdownTasks;
 import org.nimbustools.api.repr.Usage;
 import org.nimbustools.api.repr.vm.VM;
-
-import java.util.Calendar;
 
 /**
  * <p><img src="http://www.nimbusproject.org/images/sh.png" alt="[Start here] " /> 
@@ -96,6 +98,14 @@ public interface Manager extends NimbusModule {
                   MetadataException,
                   ResourceRequestDeniedException,
                   SchedulingException;
+    
+    public RequestSIResult requestSpotInstances(RequestSI req, Caller caller)
+           throws AuthorizationException,
+                  CoSchedulingException,
+                  CreationException,
+                  MetadataException,
+                  ResourceRequestDeniedException,
+                  SchedulingException;  
 
     public void setDestructionTime(String id, int type, Calendar time)
             throws DoesNotExistException, ManageException;

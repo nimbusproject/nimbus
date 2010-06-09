@@ -22,9 +22,12 @@ import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.CreateRequest;
 import org.nimbustools.api.repr.CreateResult;
 import org.nimbustools.api.repr.ReprFactory;
+import org.nimbustools.api.repr.RequestSI;
+import org.nimbustools.api.repr.RequestSIResult;
 import org.nimbustools.api.repr.ShutdownTasks;
 import org.nimbustools.api.repr.Usage;
 import org.nimbustools.api.repr.vm.VM;
+import org.nimbustools.api.services.rm.AuthorizationException;
 import org.nimbustools.api.services.rm.BasicLegality;
 import org.nimbustools.api.services.rm.CoSchedulingException;
 import org.nimbustools.api.services.rm.CreationException;
@@ -123,6 +126,15 @@ public class DefaultManager implements Manager {
         return null;
     }
 
+    @Override
+    public RequestSIResult requestSpotInstances(RequestSI req, Caller caller) {
+
+        Logging.debug("Manager.requestSpotInstances() -- caller '" + caller + "', " +
+                "request:" + req);
+        
+        return null;
+    }    
+    
     public void setDestructionTime(String id, int type, Calendar time)
             throws DoesNotExistException, ManageException {
         Logging.debug("Manager.setDestructionTime() -- id '" + id +
@@ -269,4 +281,5 @@ public class DefaultManager implements Manager {
         Logging.debug("Manager.registerDestructionListener() -- id '" + id +
                 "', type '" + type + "', listener '" + listener + "'");
     }
+
 }

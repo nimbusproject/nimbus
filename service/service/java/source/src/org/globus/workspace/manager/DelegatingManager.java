@@ -37,9 +37,12 @@ import org.nimbustools.api.repr.CannotTranslateException;
 import org.nimbustools.api.repr.CreateRequest;
 import org.nimbustools.api.repr.CreateResult;
 import org.nimbustools.api.repr.ReprFactory;
+import org.nimbustools.api.repr.RequestSI;
+import org.nimbustools.api.repr.RequestSIResult;
 import org.nimbustools.api.repr.ShutdownTasks;
 import org.nimbustools.api.repr.Usage;
 import org.nimbustools.api.repr.vm.VM;
+import org.nimbustools.api.services.rm.AuthorizationException;
 import org.nimbustools.api.services.rm.CoSchedulingException;
 import org.nimbustools.api.services.rm.CreationException;
 import org.nimbustools.api.services.rm.DestructionCallback;
@@ -208,6 +211,14 @@ public class DelegatingManager implements Manager {
         
         return this.creation.create(req, caller);
     }
+   
+    public RequestSIResult requestSpotInstances(RequestSI req, Caller caller)
+           throws AuthorizationException, CoSchedulingException,
+                  CreationException, MetadataException,
+                  ResourceRequestDeniedException, SchedulingException {
+        
+        return this.creation.requestSpotInstances(req, caller);
+    }    
 
     public void setDestructionTime(String id, int type, Calendar time)
             throws DoesNotExistException, ManageException {
@@ -727,4 +738,5 @@ public class DelegatingManager implements Manager {
             throw new ManageException(e.getMessage(), e);
         }
     }
+
 }
