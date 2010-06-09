@@ -37,6 +37,12 @@ _NIMBUS_2_4_DEPRECATED
     <li>
         <a href="#ec2-messaging">What EC2 operations are supported</a>?
     </li>
+	<li>
+        <a href="#metadata-server">What is the metadata server</a>?
+    </li>
+    <li>
+        <a href="#metadata-fields">What metadata server operations are supported</a>?
+    </li>
     <li>
         <a href="#cloud-client">What is the cloud client</a>?
     </li>
@@ -431,6 +437,109 @@ _NIMBUS_2_4_DEPRECATED
             </ul>
         </div>
     </li>
+
+	<li>
+        <p>
+            <a name="metadata-server"> </a>
+            <b>What is the metadata server? _NAMELINK(metadata-server)</b>
+        </p>
+
+        <p>
+            The metadata server responds to HTTP queries from VMs, using the same path names
+			as the <a href="http://docs.amazonwebservices.com/AWSEC2/latest/DeveloperGuide/index.html?AESDG-chapter-instancedata.html">EC2 metadata server</a>
+		</p>
+		<p>
+			The URL for this is obtained by looking at '<i>/var/nimbus-metadata-server-url</i>'
+			on the VM, which is an optional customization task injected by the Nimbus service
+			on your behalf (we are considering trying to simulate Amazon's hardcoded IP address
+			"169.254.169.254" on any subnet, feedback on this idea is appreciated).
+		</p>
+		<p>
+			Like on EC2, its responses are based on the source IP address from the TCP packet,
+			giving the information specific to each VM instance.  This also means there is an
+			assumption that the immediately local network is non-spoofable.  Administrators,
+			you should also put in place a firewall rule that restricts this port to the VMs
+			only, just in case.
+		</p>
+		<p>
+			The metadata server is disabled by default, consult your administrator (or try
+			a query from inside your VM).
+		</p>
+		<p>
+			Administrators, see "services/etc/nimbus/workspace-service/metadata.conf" for
+			the details.
+        </p>
+    </li>
+
+	<li>
+        <p>
+            <a name="metadata-fields"> </a>
+            <b>What metadata server fields are supported? _NAMELINK(metadata-fields)</b>
+        </p>
+
+        <p>
+            (See <a href="#metadata-server">What is the metadata server</a>?)
+        </p>
+        <p>
+            Nimbus provides a partial implementation of EC2's version of the metadata server
+			(<a href="http://docs.amazonwebservices.com/AWSEC2/latest/DeveloperGuide/index.html?instancedata-data-categories.html">their full field listing</a>).
+            These fields are currently supported:
+        </p>
+
+        <div class="uldonotmoveleft">
+            <ul>
+                <li>
+                    <p>
+                    	<i>user-data</i> - "opaque" information injected by the client at
+						launch time
+                    </p>
+                </li>
+				<li>
+                    <p>
+                    	<i>meta-data/ami-id</i> - the ami-id assigned to this image.  This
+						is simulated by the EC2 protocols in Nimbus, the "definitive" piece
+						of information for a launch is really the filename in the repository,
+						there is not AMI registry like on EC2.
+                    </p>
+                </li>
+				<li>
+                    <p>
+                    	<i>meta-data/ami-launch-index</i> - if this VM instance was launched
+						as part of a group (cluster), it might have a launch index other than
+						zero.  This differentiates it from other homogenous nodes in the launch.
+					</p>
+				</li>
+				<li>
+                    <p>
+                    	<i>meta-data/local-hostname</i> - the 'private' hostname of this VM [1]
+					</p>
+				</li>
+				<li>
+                    <p>
+                    	<i>meta-data/local-ipv4</i> - the 'private' IP of this VM [1]
+					</p>
+				</li>
+				<li>
+                    <p>
+                    	<i>meta-data/public-ipv4</i> - the 'public' hostname of this VM [1]
+					</p>
+				</li>
+				<li>
+                    <p>
+                    	<i>meta-data/public-ipv4</i> - the 'public' IP of this VM [1]
+					</p>
+				</li>
+            </ul>
+
+			<p>
+				[1] - What 'public' and 'private' mean in this context is up to an
+				administrator configuration.  The VM also may or may not have two NICs
+				on it, the values of these fields might be equal or not.
+			</p>
+
+        </div>
+    </li>
+
 
     <li>
         <p>
