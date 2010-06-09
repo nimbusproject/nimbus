@@ -1,5 +1,10 @@
 package org.globus.workspace.spotinstances;
 
+import org.globus.workspace.service.binding.vm.VirtualMachine;
+import org.nimbustools.api.repr.Caller;
+import org.nimbustools.api.repr.ctx.Context;
+import org.nimbustools.api.repr.vm.NIC;
+
 public class SIRequest implements Comparable<SIRequest>{
  
     private String id;
@@ -9,6 +14,12 @@ public class SIRequest implements Comparable<SIRequest>{
     private Integer fulfilledInstances;
     private boolean persistent;
     private SIRequestStatus status;
+    
+    private Caller caller;
+    private VirtualMachine[] bindings;
+    private Context context;
+    private NIC[] requestedNics;
+    private String groupID;
 
     public SIRequest(String id, Double highestPrice, Integer requestedInstances) {
         this(id, highestPrice, requestedInstances, false);
@@ -23,7 +34,23 @@ public class SIRequest implements Comparable<SIRequest>{
         this.fulfilledInstances = 0;
         this.status = SIRequestStatus.OPEN;
     }  
-    
+
+    public SIRequest(String id, Double spotPrice, boolean persistent,
+            Caller caller, String groupID, VirtualMachine[] bindings, Context context,
+            NIC[] requestedNics) {
+        this.requestedInstances = bindings.length;
+        this.allocatedInstances = 0;
+        this.fulfilledInstances = 0;
+        this.status = SIRequestStatus.OPEN;        
+        this.id = id;
+        this.maxBid = spotPrice;
+        this.persistent = persistent;
+        this.bindings = bindings;
+        this.context = context;
+        this.requestedNics = requestedNics;
+        this.groupID = groupID;
+    }
+
     public Double getMaxBid() {
         return maxBid;
     }
@@ -87,15 +114,39 @@ public class SIRequest implements Comparable<SIRequest>{
             fulfilledInstances += quantity;
         }  
     }
-    
-    public boolean isAlive(){
-        return this.status.equals(SIRequestStatus.OPEN) || this.status.equals(SIRequestStatus.ACTIVE);
-    }
-    
 
     @Override
     public int compareTo(SIRequest o) {
         return getMaxBid().compareTo(o.getMaxBid());
+    }
+
+    public Caller getCaller() {
+        return caller;
+    }
+
+    public VirtualMachine[] getBindings() {
+        return bindings;
+    }
+
+    public Context getContext() {
+        return context;
+    }
+
+    public NIC[] getRequestedNics() {
+        return requestedNics;
+    }
+
+    public String getGroupID() {
+        return groupID;
     }    
+
+    @Override
+    public String toString() {
+        return "SIRequest [id " + id + ", status= " + status + ", requestedInstances="
+                + requestedInstances + ", allocatedInstances=" + allocatedInstances
+                + ", maxBid=" + maxBid + ", persistent=" + persistent 
+                + ", caller=" + caller + "]";
+    }
+    
     
 }

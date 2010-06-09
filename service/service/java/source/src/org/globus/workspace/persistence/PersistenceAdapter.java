@@ -194,6 +194,20 @@ public interface PersistenceAdapter {
     
     public List<ResourcepoolEntry> getAvailableEntriesSortedByFreeMemoryPercentage(int requestedMem) 
     
+            throws WorkspaceDatabaseException;
+    
+    //Spot Instances
+    
+    public Integer getTotalMaxMemory()
+    
+            throws WorkspaceDatabaseException;
+    
+    public Integer getTotalAvailableMemory()
+    
+            throws WorkspaceDatabaseException;
+    
+    public Integer getTotalPreemptableMemory()
+    
             throws WorkspaceDatabaseException;    
 
 }

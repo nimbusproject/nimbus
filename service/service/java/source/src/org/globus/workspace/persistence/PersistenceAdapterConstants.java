@@ -96,7 +96,7 @@ public interface PersistenceAdapterConstants {
             "INSERT INTO groupresources VALUES(?,?)";
 
     public static final String SQL_INSERT_VM =
-            "INSERT INTO vms VALUES(?,?,?,?,?,?,?,?,?,?,?)";
+            "INSERT INTO vms VALUES(?,?,?,?,?,?,?,?,?,?,?,?)";
 
     public static final String SQL_INSERT_VM_PARTITION =
             "INSERT INTO vm_partitions VALUES(?,?,?,?,?,?,?,?,?)";
@@ -123,7 +123,7 @@ public interface PersistenceAdapterConstants {
     public static final String SQL_LOAD_VM =
             "SELECT name, node, prop_required, unprop_required, network, " +
                     "kernel_parameters, vmm, vmm_version, assocs_needed, " +
-                    "md_user_data " +
+                    "md_user_data, preemptable " +
                     "FROM vms WHERE id=?";
     
     public static final String SQL_LOAD_VM_PARTITIONS =
@@ -185,6 +185,9 @@ public interface PersistenceAdapterConstants {
     public static final String SQL_SELECT_AVAILABLE_ENTRIES =
         "SELECT * FROM resourcepool_entries WHERE available_memory >= ? ORDER BY (available_memory/maximum_memory) ASC";
     
+    public static final String SQL_SELECT_TOTAL_MEMORY =
+        "SELECT SUM(?) FROM resourcepool_entries";
+    
     public static final String[] PREPARED_STATEMENTS = {
                                     SQL_SELECT_RESOURCES,
                                     SQL_SELECT_ALL_ASSOCIATIONS,
@@ -229,5 +232,6 @@ public interface PersistenceAdapterConstants {
                                     SQL_SELECT_ALL_VMS_IN_GROUP,
                                     SQL_SELECT_ALL_VMS_IN_ENSEMBLE,
                                     SQL_SELECT_ALL_VMS_BY_OWNER,
-                                    SQL_SELECT_AVAILABLE_ENTRIES};
+                                    SQL_SELECT_AVAILABLE_ENTRIES,
+                                    SQL_SELECT_TOTAL_MEMORY};
 }

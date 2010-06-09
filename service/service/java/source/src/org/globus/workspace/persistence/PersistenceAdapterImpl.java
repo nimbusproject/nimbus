@@ -2357,6 +2357,102 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
                 logger.error("SQLException in finally cleanup", sql);
             }
         }                
+    }
+
+
+    private synchronized Integer getTotalMemory(String mem_type) throws WorkspaceDatabaseException {
+
+        Connection c = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            c = getConnection();
+
+            pstmt = c.prepareStatement(SQL_SELECT_TOTAL_MEMORY);
+            pstmt.setString(1, mem_type);
+
+            if (rs == null) {
+                if (this.dbTrace) {
+                    logger.trace("getTotalMemory(): null result so " +
+                                 "total is 0 MB");
+                }
+                return 0;
+            }
+
+            Integer total = 0;
+
+            if(rs.next()){
+                total = rs.getInt(1);
+            } 
+            
+            return total;
+            
+        } catch(SQLException e) {
+            logger.error("",e);
+            throw new WorkspaceDatabaseException(e);
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+                if (c != null) {
+                    returnConnection(c);
+                }
+            } catch (SQLException sql) {
+                logger.error("SQLException in finally cleanup", sql);
+            }
+        }
+    }
+
+
+    @Override
+    public Integer getTotalAvailableMemory() throws WorkspaceDatabaseException {
+        if (this.dbTrace) {
+            logger.trace("getTotalAvailableMemory()");
+        }
+        
+        Integer total = getTotalMemory("available_memory");
+        
+        if (this.dbTrace) {
+            logger.trace("getTotalAvailableMemory(): total available memory = " + total);
+        }
+
+        return total;
+    }
+
+
+    @Override
+    public Integer getTotalMaxMemory() throws WorkspaceDatabaseException {
+        if (this.dbTrace) {
+            logger.trace("getTotalMaxMemory()");
+        }
+        
+        Integer total = getTotalMemory("maximum_memory");
+        
+        if (this.dbTrace) {
+            logger.trace("getTotalMaxMemory(): total max memory = " + total);
+        }
+
+        return total;
+    }
+
+
+    @Override
+    public Integer getTotalPreemptableMemory() throws WorkspaceDatabaseException {
+        if (this.dbTrace) {
+            logger.trace("getTotalPreemptableMemory()");
+        }
+        
+        Integer total = getTotalMemory("preemptable_memory");
+        
+        if (this.dbTrace) {
+            logger.trace("getTotalPreemptableMemory(): total pre-emptable memory = " + total);
+        }
+
+        return total;
     }    
 
 }
