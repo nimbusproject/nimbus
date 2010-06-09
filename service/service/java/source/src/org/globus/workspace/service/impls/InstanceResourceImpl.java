@@ -770,15 +770,30 @@ public abstract class InstanceResourceImpl implements InstanceResource {
                         "no stop event generated");
             }
         } else {
+
+            final String network;
+            final String resource;
+            if (this.vm != null) {
+                network = this.vm.getNetwork();
+                resource = this.vm.getNode();
+            } else {
+                network = null;
+                resource = null;
+            }
+
             if (this.startTime == null) {
                 if (lager.accounting) {
                     logger.debug("no start time available (will happen with " +
                         "best effort scheduler with destruction coming " +
                         "before any resource assignment");
                 }
+
                 this.accounting.destroy(this.id,
                                         this.getCreatorID(),
-                                        0L);
+                                        0L,
+                                        network,
+                                        resource,
+                                        this.name);
             } else {
                 final long runningTimeMS =
                         Calendar.getInstance().getTimeInMillis() -
@@ -792,7 +807,10 @@ public abstract class InstanceResourceImpl implements InstanceResource {
 
                 this.accounting.destroy(this.id,
                                         this.getCreatorID(),
-                                        runningTime);
+                                        runningTime,
+                                        network,
+                                        resource,
+                                        this.name);
             }
         }
 

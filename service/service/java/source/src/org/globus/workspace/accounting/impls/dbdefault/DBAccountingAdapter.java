@@ -212,9 +212,30 @@ public class DBAccountingAdapter implements AccountingEventAdapter,
     // -------------------------------------------------------------------------
 
     public void create(int id, String ownerDN, long minutesRequested) {
+        this.create(id, ownerDN, minutesRequested, null, null, null);
+    }
+
+    public void create(int id, String ownerDN, long minutesRequested,
+                       String network, String resource, String clientLaunchName) {
+
+        String moreToLog = "";
+
+        if (resource != null) {
+            moreToLog += ", vmm='" + resource.trim() + '\'';
+        }
+
+        if (clientLaunchName != null) {
+            moreToLog += ", clientLaunchName='" + clientLaunchName.trim() + '\'';
+        }
+
+
+        if (network != null) {
+            moreToLog += ", network='" + network.trim() + '\'';
+        }
+        
         if (this.lager.accounting) {
             logger.trace("create(): id = " + id + ", ownerDN = '" +
-                    ownerDN + "', minutesRequested = " + minutesRequested);
+                    ownerDN + "', minutesRequested = " + minutesRequested + moreToLog);
         }
 
         if (!this.initialized) {
@@ -274,13 +295,13 @@ public class DBAccountingAdapter implements AccountingEventAdapter,
                 logger.info(Lager.ev(id) + "accounting: ownerDN = '" +
                     ownerDN + "', minutesRequested = " + minutesRequested +
                     ", minutes reserved = " + charge +
-                    ", uuid = '" + uuid + "'");
+                    ", uuid = '" + uuid + "'" + moreToLog);
             }
 
             if (this.fileLog != null) {
                 try {
                     this.fileLog.logCreate(uuid, id, ownerDN,
-                                           minutesRequested, charge, now);
+                                           minutesRequested, charge, now, moreToLog);
                 } catch (WorkspaceException e) {
                     if (logger.isDebugEnabled()) {
                         logger.error(e.getMessage(), e);
@@ -298,9 +319,30 @@ public class DBAccountingAdapter implements AccountingEventAdapter,
     }
 
     public void destroy(int id, String ownerDN, long minutesElapsed) {
+        this.destroy(id, ownerDN, minutesElapsed, null, null, null);
+    }
+
+    public void destroy(int id, String ownerDN, long minutesElapsed,
+                        String network, String resource, String clientLaunchName) {
+
+        String moreToLog = "";
+        
+        if (resource != null) {
+            moreToLog += ", vmm='" + resource.trim() + '\'';
+        }
+
+        if (clientLaunchName != null) {
+            moreToLog += ", clientLaunchName='" + clientLaunchName.trim() + '\'';
+        }
+
+
+        if (network != null) {
+            moreToLog += ", network='" + network.trim() + '\'';
+        }
+
         if (this.lager.accounting) {
             logger.trace("destroy(): id = " + id + ", ownerDN = '" +
-                    ownerDN + "', minutesElapsed = " + minutesElapsed);
+                    ownerDN + "', minutesElapsed = " + minutesElapsed + moreToLog);
         }
 
         if (!this.initialized) {
@@ -319,13 +361,13 @@ public class DBAccountingAdapter implements AccountingEventAdapter,
                 logger.info(Lager.ev(id) + "accounting: ownerDN = '" +
                     ownerDN + "', minutesElapsed = " + charge +
                     ", real usage = " + minutesElapsed +
-                    ", uuid = '" + uuid + "'");
+                    ", uuid = '" + uuid + "'"  + moreToLog);
             }
 
             if (this.fileLog != null) {
                 final Calendar now = Calendar.getInstance();
                 try {
-                    this.fileLog.logRemove(uuid, id, ownerDN, charge, now);
+                    this.fileLog.logRemove(uuid, id, ownerDN, charge, now, moreToLog);
                 } catch (WorkspaceException e) {
                     if (logger.isDebugEnabled()) {
                         logger.error(e.getMessage(), e);

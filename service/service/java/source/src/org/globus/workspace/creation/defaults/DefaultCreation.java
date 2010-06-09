@@ -593,7 +593,20 @@ public class DefaultCreation implements Creation {
 
 
             for (int i = 0; i < ids.length; i++) {
-                this.accounting.create(ids[i], callerID, requestedMinutes);
+
+                final String resource;
+                if (res.isConcrete()) {
+                    final IdHostnameTuple tup = res.getIdHostnamePair(i);
+                    resource = tup.hostname;
+                } else {
+                    resource = null;
+                }
+
+                final String network = bindings[i].getNetwork();
+                final String name = bindings[i].getName();
+                
+                this.accounting.create(ids[i], callerID, requestedMinutes,
+                                       network, resource, name);
             }
         }
 

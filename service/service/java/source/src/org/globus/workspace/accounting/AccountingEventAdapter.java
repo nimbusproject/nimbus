@@ -22,9 +22,23 @@ public interface AccountingEventAdapter extends AccountingAdapter {
                        String ownerDN,
                        long minutesRequested);
 
+    public void create(int id,
+                       String ownerDN,
+                       long minutesRequested,
+                       String network,
+                       String resource,
+                       String clientLaunchName);
+
     public void destroy(int id,
                         String ownerDN,
                         long minutesElapsed);
+
+    public void destroy(int id,
+                        String ownerDN,
+                        long minutesElapsed,
+                        String network,
+                        String resource,
+                        String clientLaunchName);
 
     // Any portion used costs this many minutes (ceiling).
     // If this is for example set to 60, then 1 minute will cost 60 minutes,
