@@ -30,7 +30,7 @@ public class DefaultResourceAllocation implements _ResourceAllocation {
     private int cpuPercentage = -1;
     private int memory;
     private int nodeNumber;
-
+    private boolean preemptable;
 
     // -------------------------------------------------------------------------
     // implements org.nimbustools.api.repr.vm.ResourceAllocation
@@ -61,6 +61,9 @@ public class DefaultResourceAllocation implements _ResourceAllocation {
         return this.nodeNumber;
     }
     
+    public boolean isPreemptable() {
+        return preemptable;
+    }    
 
     // -------------------------------------------------------------------------
     // implements org.nimbustools.api.repr.vm.ResourceAllocation
@@ -89,7 +92,10 @@ public class DefaultResourceAllocation implements _ResourceAllocation {
     public void setNodeNumber(int nodeNumber) {
         this.nodeNumber = nodeNumber;
     }
-
+    
+    public void setPreemptable(boolean preemptable) {
+        this.preemptable = preemptable;
+    }    
 
     // -------------------------------------------------------------------------
     // DEBUG STRING

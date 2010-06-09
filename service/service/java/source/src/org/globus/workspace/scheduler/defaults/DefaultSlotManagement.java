@@ -224,7 +224,7 @@ public class DefaultSlotManagement implements SlotManagement {
                                                this.db,
                                                this.lager.eventLog,
                                                this.lager.traceLog,
-                                               -1);
+                                               -1, false);
             } catch (Exception ee) {
                     logger.error(ee.getMessage());
                 }
@@ -356,7 +356,7 @@ public class DefaultSlotManagement implements SlotManagement {
                 ResourcepoolUtil.retireMem(nodes[i], memory, this.db,
                                            this.lager.eventLog,
                                            this.lager.traceLog,
-                                           vmids[i]);
+                                           vmids[i], preemptable);
             } catch (Throwable t) {
                 if (logger.isDebugEnabled()) {
                     logger.error(
@@ -434,15 +434,17 @@ public class DefaultSlotManagement implements SlotManagement {
         if (vmdep == null) {
             throw new ProgrammingError("deployment is null");
         }
+        
+        boolean preemptable = vm.isPreemptable();
 
         final int mem = vmdep.getIndividualPhysicalMemory();
 
         logger.debug("releaseSpace() retiring mem = " + mem +
-                    ", node = '" + node + "' from " + Lager.id(vmid));
+                    ", node = '" + node + "' from " + Lager.id(vmid) + ". Preemptable: " + preemptable);
 
         ResourcepoolUtil.retireMem(node, mem, this.db,
                                    this.lager.eventLog, this.lager.traceLog,
-                                   vmid);
+                                   vmid, preemptable);
     }
 
     public void setScheduler(Scheduler adapter) {

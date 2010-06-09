@@ -114,7 +114,7 @@ public class ResourcepoolUtilProfiling extends NimbusDatabaseTestCase {
             String hostname = ResourcepoolUtil.getResourcepoolEntry(requestedMem, new String[0], adapter, lagerImpl, 1, true, false);
             end = System.nanoTime();
             //System.out.println("norm: " + hostname);
-            ResourcepoolUtil.retireMem(hostname, requestedMem, adapter, lagerImpl.eventLog, lagerImpl.traceLog, 1);
+            ResourcepoolUtil.retireMem(hostname, requestedMem, adapter, lagerImpl.eventLog, lagerImpl.traceLog, 1, false);
             times.add(end-init);
         }
 
@@ -137,7 +137,7 @@ public class ResourcepoolUtilProfiling extends NimbusDatabaseTestCase {
             String hostname = ResourcepoolUtil.getResourcePoolEntryImproved(requestedMem, new String[0], adapter, lagerImpl, 1, true, false);
             end = System.nanoTime();
             //System.out.println("impr: " + hostname);
-            ResourcepoolUtil.retireMem(hostname, requestedMem, adapter, lagerImpl.eventLog, lagerImpl.traceLog, 1);
+            ResourcepoolUtil.retireMem(hostname, requestedMem, adapter, lagerImpl.eventLog, lagerImpl.traceLog, 1, false);
             timings.add(end-init);
         }
 

@@ -489,7 +489,8 @@ class ResourcepoolUtil {
                           PersistenceAdapter db,
                           boolean eventLog,
                           boolean traceLog,
-                          int vmid)
+                          int vmid,
+                          boolean preemptable)
 
             throws ManageException {
 
@@ -529,6 +530,9 @@ class ResourcepoolUtil {
                                 (ResourcepoolEntry)entries.get(hostname);
 
                 entry.addMemCurrent(mem);
+                if(preemptable){
+                    entry.addMemPreemptable(-mem);                    
+                }
 
                 // If the node's memory capacity was changed during this VM's
                 // deployment, there can be a situation when this addition

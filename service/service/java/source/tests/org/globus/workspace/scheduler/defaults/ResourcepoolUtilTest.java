@@ -77,10 +77,10 @@ public class ResourcepoolUtilTest extends NimbusDatabaseTestCase {
     @Test
     public void compareMethodsGreedy() throws Exception{
         String hostNorm = ResourcepoolUtil.getResourcepoolEntry(200, new String[0], adapter, lagerImpl, 1, true, false);
-        ResourcepoolUtil.retireMem(hostNorm, 200, adapter, lagerImpl.eventLog, lagerImpl.traceLog, 1);
+        ResourcepoolUtil.retireMem(hostNorm, 200, adapter, lagerImpl.eventLog, lagerImpl.traceLog, 1, false);
         
         String hostImpr = ResourcepoolUtil.getResourcepoolEntry(200, new String[0], adapter, lagerImpl, 1, true, false);
-        ResourcepoolUtil.retireMem(hostImpr, 200, adapter, lagerImpl.eventLog, lagerImpl.traceLog, 1);
+        ResourcepoolUtil.retireMem(hostImpr, 200, adapter, lagerImpl.eventLog, lagerImpl.traceLog, 1, false);
         
         assertEquals(hostNorm, hostImpr);
         assertEquals("hostH", hostNorm);
@@ -94,10 +94,10 @@ public class ResourcepoolUtilTest extends NimbusDatabaseTestCase {
     @Test
     public void compareMethodsRoundRobin() throws Exception{
         String hostNorm = ResourcepoolUtil.getResourcepoolEntry(200, new String[0], adapter, lagerImpl, 1, false, false);
-        ResourcepoolUtil.retireMem(hostNorm, 200, adapter, lagerImpl.eventLog, lagerImpl.traceLog, 1);
+        ResourcepoolUtil.retireMem(hostNorm, 200, adapter, lagerImpl.eventLog, lagerImpl.traceLog, 1, false);
         
         String hostImpr = ResourcepoolUtil.getResourcePoolEntryImproved(200, new String[0], adapter, lagerImpl, 1, false, false);
-        ResourcepoolUtil.retireMem(hostImpr, 200, adapter, lagerImpl.eventLog, lagerImpl.traceLog, 1);
+        ResourcepoolUtil.retireMem(hostImpr, 200, adapter, lagerImpl.eventLog, lagerImpl.traceLog, 1, false);
         
         assertEquals(hostNorm, hostImpr);
         assertEquals("hostA", hostNorm);
@@ -115,10 +115,10 @@ public class ResourcepoolUtilTest extends NimbusDatabaseTestCase {
         neededAssociations[0] = "netA";
         
         String hostNorm = ResourcepoolUtil.getResourcepoolEntry(100, neededAssociations, adapter, lagerImpl, 1, true, false);
-        ResourcepoolUtil.retireMem(hostNorm, 100, adapter, lagerImpl.eventLog, lagerImpl.traceLog, 1);
+        ResourcepoolUtil.retireMem(hostNorm, 100, adapter, lagerImpl.eventLog, lagerImpl.traceLog, 1, false);
         
         String hostImpr = ResourcepoolUtil.getResourcePoolEntryImproved(100, neededAssociations, adapter, lagerImpl, 1, true, false);
-        ResourcepoolUtil.retireMem(hostImpr, 100, adapter, lagerImpl.eventLog, lagerImpl.traceLog, 1);
+        ResourcepoolUtil.retireMem(hostImpr, 100, adapter, lagerImpl.eventLog, lagerImpl.traceLog, 1, false);
         
         assertEquals(hostNorm, hostImpr);
         assertEquals("hostD", hostNorm);
@@ -135,10 +135,10 @@ public class ResourcepoolUtilTest extends NimbusDatabaseTestCase {
         neededAssociations[0] = "netA";        
         
         String hostNorm = ResourcepoolUtil.getResourcepoolEntry(200, neededAssociations, adapter, lagerImpl, 1, false, false);
-        ResourcepoolUtil.retireMem(hostNorm, 200, adapter, lagerImpl.eventLog, lagerImpl.traceLog, 1);
+        ResourcepoolUtil.retireMem(hostNorm, 200, adapter, lagerImpl.eventLog, lagerImpl.traceLog, 1, false);
         
         String hostImpr = ResourcepoolUtil.getResourcePoolEntryImproved(200, neededAssociations, adapter, lagerImpl, 1, false, false);
-        ResourcepoolUtil.retireMem(hostImpr, 200, adapter, lagerImpl.eventLog, lagerImpl.traceLog, 1);
+        ResourcepoolUtil.retireMem(hostImpr, 200, adapter, lagerImpl.eventLog, lagerImpl.traceLog, 1, false);
 
         assertEquals(hostNorm, hostImpr);
         assertEquals("hostC", hostNorm);
@@ -156,10 +156,10 @@ public class ResourcepoolUtilTest extends NimbusDatabaseTestCase {
         neededAssociations[0] = "netB";
         
         String hostNorm = ResourcepoolUtil.getResourcepoolEntry(100, neededAssociations, adapter, lagerImpl, 1, true, false);
-        ResourcepoolUtil.retireMem(hostNorm, 100, adapter, lagerImpl.eventLog, lagerImpl.traceLog, 1);
+        ResourcepoolUtil.retireMem(hostNorm, 100, adapter, lagerImpl.eventLog, lagerImpl.traceLog, 1, false);
         
         String hostImpr = ResourcepoolUtil.getResourcePoolEntryImproved(100, neededAssociations, adapter, lagerImpl, 1, true, false);
-        ResourcepoolUtil.retireMem(hostImpr, 100, adapter, lagerImpl.eventLog, lagerImpl.traceLog, 1);
+        ResourcepoolUtil.retireMem(hostImpr, 100, adapter, lagerImpl.eventLog, lagerImpl.traceLog, 1, false);
         
         assertTrue(hostNorm.equals("hostB") || hostNorm.equals("hostD"));
         assertTrue(hostImpr.equals("hostB") || hostImpr.equals("hostD"));
@@ -177,10 +177,10 @@ public class ResourcepoolUtilTest extends NimbusDatabaseTestCase {
         neededAssociations[0] = "netB";        
         
         String hostNorm = ResourcepoolUtil.getResourcepoolEntry(200, neededAssociations, adapter, lagerImpl, 1, false, false);
-        ResourcepoolUtil.retireMem(hostNorm, 100, adapter, lagerImpl.eventLog, lagerImpl.traceLog, 1);
+        ResourcepoolUtil.retireMem(hostNorm, 100, adapter, lagerImpl.eventLog, lagerImpl.traceLog, 1, false);
         
         String hostImpr = ResourcepoolUtil.getResourcePoolEntryImproved(200, neededAssociations, adapter, lagerImpl, 1, false, false);
-        ResourcepoolUtil.retireMem(hostImpr, 100, adapter, lagerImpl.eventLog, lagerImpl.traceLog, 1);
+        ResourcepoolUtil.retireMem(hostImpr, 100, adapter, lagerImpl.eventLog, lagerImpl.traceLog, 1, false);
         
         assertTrue(hostNorm.equals("hostC") || hostNorm.equals("hostG"));
         assertTrue(hostImpr.equals("hostC") || hostImpr.equals("hostG"));

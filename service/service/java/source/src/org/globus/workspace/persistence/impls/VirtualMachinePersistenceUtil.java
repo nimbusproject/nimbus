@@ -104,6 +104,8 @@ public class VirtualMachinePersistenceUtil
         } else {
             pstmt.setNull(11, Types.VARCHAR);
         }
+        
+        pstmt.setBoolean(12, vm.isPreemptable());  
 
         PreparedStatement pstmt2 = null;
 
@@ -297,6 +299,7 @@ public class VirtualMachinePersistenceUtil
         vm.setVmmVersion(rs.getString(8));
         vm.setAssociationsNeeded(rs.getString(9));
         vm.setMdUserData(rs.getString(10));
+        vm.setPreemptable(rs.getBoolean(11));
         return vm;
     }
 

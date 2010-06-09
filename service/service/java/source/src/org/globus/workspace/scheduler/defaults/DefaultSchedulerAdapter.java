@@ -218,7 +218,8 @@ public class DefaultSchedulerAdapter implements Scheduler {
                                 String[] neededAssociations,
                                 int numNodes,
                                 String groupid,
-                                String coschedid)
+                                String coschedid,
+                                boolean preemptable)
 
             throws SchedulingException,
                    ResourceRequestDeniedException {
@@ -256,7 +257,7 @@ public class DefaultSchedulerAdapter implements Scheduler {
         try {
 
             if (coschedid == null) {
-                return this.scheduleImpl(req);
+                return this.scheduleImpl(req, preemptable);
             } else {
                 this.scheduleCoschedImpl(req, coschedid);
                 return new Reservation(ids, null);
@@ -274,14 +275,14 @@ public class DefaultSchedulerAdapter implements Scheduler {
         }
     }
 
-    private Reservation scheduleImpl(NodeRequest req)
+    private Reservation scheduleImpl(NodeRequest req, boolean preemptable)
                 throws WorkspaceDatabaseException,
                        ResourceRequestDeniedException {
 
         final String invalidResponse = "Implementation problem: slot " +
                 "manager returned invalid response";
 
-        final Reservation res = this.slotManager.reserveSpace(req, false);
+        final Reservation res = this.slotManager.reserveSpace(req, preemptable);
 
         if (res == null) {
             throw new ResourceRequestDeniedException(

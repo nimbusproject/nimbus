@@ -51,7 +51,8 @@ public interface Scheduler {
                                 String[] neededAssociations,
                                 int numNodes,
                                 String groupid,
-                                String coschedid)
+                                String coschedid,
+                                boolean preemptable)
                 
             throws SchedulingException,
                    ResourceRequestDeniedException;
