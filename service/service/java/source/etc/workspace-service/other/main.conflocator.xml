@@ -23,7 +23,7 @@
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 
         <property name="location"
-                  value="/@WORKSPACE_CONFDIR@/other/common.conf" />
+                  value="$NIMBUS_HOME/services/etc/nimbus/workspace-service/other/common.conf" />
         <property name="placeholderPrefix"
                   value="$COMMON{" />
     </bean>
@@ -32,7 +32,7 @@
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 
         <property name="location"
-                  value="/@WORKSPACE_CONFDIR@/logging.conf" />
+                  value="$NIMBUS_HOME/services/etc/nimbus/workspace-service/logging.conf" />
         <property name="placeholderPrefix"
                   value="$LOGGING{" />
     </bean>
@@ -41,7 +41,7 @@
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 
         <property name="location"
-                  value="/@WORKSPACE_CONFDIR@/global-policies.conf" />
+                  value="$NIMBUS_HOME/services/etc/nimbus/workspace-service/global-policies.conf" />
         <property name="placeholderPrefix"
                   value="$GLOBAL{" />
     </bean>
@@ -50,7 +50,7 @@
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 
         <property name="location"
-                  value="/@WORKSPACE_CONFDIR@/repository.conf" />
+                  value="$NIMBUS_HOME/services/etc/nimbus/workspace-service/repository.conf" />
         <property name="placeholderPrefix"
                   value="$REPO{" />
     </bean>
@@ -59,7 +59,7 @@
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 
         <property name="location"
-                  value="/@WORKSPACE_CONFDIR@/accounting.conf" />
+                  value="$NIMBUS_HOME/services/etc/nimbus/workspace-service/accounting.conf" />
         <property name="placeholderPrefix"
                   value="$ACCOUNTING{" />
     </bean>
@@ -68,7 +68,7 @@
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 
         <property name="location"
-                  value="/@WORKSPACE_CONFDIR@/ssh.conf" />
+                  value="$NIMBUS_HOME/services/etc/nimbus/workspace-service/ssh.conf" />
         <property name="placeholderPrefix"
                   value="$SSH{" />
     </bean>
@@ -77,7 +77,7 @@
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 
         <property name="location"
-                  value="/@WORKSPACE_CONFDIR@/network.conf" />
+                  value="$NIMBUS_HOME/services/etc/nimbus/workspace-service/network.conf" />
         <property name="placeholderPrefix"
                   value="$NETWORK{" />
     </bean>
@@ -86,7 +86,7 @@
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 
         <property name="location"
-                  value="/@WORKSPACE_CONFDIR@/vmm.conf" />
+                  value="$NIMBUS_HOME/services/etc/nimbus/workspace-service/vmm.conf" />
         <property name="placeholderPrefix"
                   value="$VMM{" />
     </bean>
@@ -95,7 +95,7 @@
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 
         <property name="location"
-                  value="/@WORKSPACE_CONFDIR@/pilot.conf" />
+                  value="$NIMBUS_HOME/services/etc/nimbus/workspace-service/pilot.conf" />
         <property name="placeholderPrefix"
                   value="$PILOT{" />
     </bean>
@@ -104,7 +104,7 @@
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 
         <property name="location"
-                  value="/@WORKSPACE_CONFDIR@/metadata.conf" />
+                  value="$NIMBUS_HOME/services/etc/nimbus/workspace-service/metadata.conf" />
         <property name="placeholderPrefix"
                   value="$METADATA{" />
     </bean>
@@ -112,7 +112,7 @@
     <bean id="derbySettings"
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="location"
-                  value="/@DERBY_DIR@/derby.properties" />
+                  value="$NIMBUS_HOME/services/var/derby.properties" />
         <property name="placeholderPrefix"
                   value="$DERBY{" />
         

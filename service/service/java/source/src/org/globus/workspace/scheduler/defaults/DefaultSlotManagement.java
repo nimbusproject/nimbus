@@ -30,7 +30,9 @@ import org.globus.workspace.service.binding.vm.VirtualMachineDeployment;
 import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
 import org.nimbustools.api.services.rm.DoesNotExistException;
 import org.nimbustools.api.services.rm.ManageException;
+import org.springframework.core.io.Resource;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -99,8 +101,9 @@ public class DefaultSlotManagement implements SlotManagement {
     // SET
     // -------------------------------------------------------------------------
 
-    public void setVmmpoolDirectory(String vmmpoolDirectory) {
-        this.vmmpoolDirectory = vmmpoolDirectory;
+    public void setVmmpoolDirectoryResource(Resource vmmpoolDirectoryResource)
+            throws IOException {
+        this.vmmpoolDirectory = vmmpoolDirectoryResource.getFile().getAbsolutePath();
     }
 
     public void setSelectionStrategy(String selectionStrategy) {

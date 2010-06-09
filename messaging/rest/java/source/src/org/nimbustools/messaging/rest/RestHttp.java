@@ -23,10 +23,12 @@ import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.FilterHolder;
 import org.mortbay.jetty.servlet.ServletHolder;
 import org.mortbay.jetty.security.SslSocketConnector;
+import org.springframework.core.io.Resource;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.filter.DelegatingFilterProxy;
 import org.apache.cxf.transport.servlet.CXFServlet;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -117,20 +119,12 @@ public class RestHttp {
         this.port = port;
     }
 
-    public String getSpringConfig() {
-        return springConfig;
+    public void setSpringConfigResource(Resource springConfigResource) throws IOException {
+        this.springConfig = springConfigResource.getFile().getAbsolutePath();
     }
 
-    public void setSpringConfig(String springConfig) {
-        this.springConfig = springConfig;
-    }
-
-    public String getKeystoreLocation() {
-        return keystoreLocation;
-    }
-
-    public void setKeystoreLocation(String keystoreLocation) {
-        this.keystoreLocation = keystoreLocation;
+    public void setKeystoreResource(Resource keystoreResource) throws IOException {
+        this.keystoreLocation = keystoreResource.getFile().getAbsolutePath();
     }
 
     public String getKeystorePassword() {

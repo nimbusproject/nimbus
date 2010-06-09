@@ -214,7 +214,7 @@
         <property name="backendTempDirPath"
                   value="$VMM{control.tmp.dir}" />
         
-        <property name="localTempDirPath"
+        <property name="localTempDirResource"
                   value="$COMMON{persistence.dir}/tmpfiles" />
 
     </bean>
@@ -548,9 +548,9 @@
         <constructor-arg ref="nimbus-rm.loglevels" />
         <constructor-arg ref="nimbus-rm.persistence.dbloader" />
 
-        <property name="currentReservationsPath"
+        <property name="currentReservationsResource"
                   value="$COMMON{persistence.dir}/current-reservations.txt" />
-        <property name="eventsPath"
+        <property name="eventsResource"
                   value="$COMMON{persistence.dir}/accounting-events.txt" />
 
         <property name="chargeGranularity" value="$ACCOUNTING{charge.granularity}" />

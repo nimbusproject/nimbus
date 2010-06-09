@@ -18,7 +18,6 @@ package org.nimbustools.api.brain;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 /**
  * <p><img src="http://www.nimbusproject.org/images/sh.png" /> Use to instantiate
@@ -92,7 +91,7 @@ public class BreathOfLife {
      *
      * @param xmlCtxPath path to XML context/configuration file
      * @return locator
-     * @see FileSystemXmlApplicationContext
+     * @see NimbusFileSystemXmlApplicationContext
      * @see ModuleLocator
      */
     public ModuleLocator breathe(String xmlCtxPath) {
@@ -110,7 +109,7 @@ public class BreathOfLife {
         if (xmlCtxPath == null) {
             ctx = new ClassPathXmlApplicationContext(DEFAULT_CONFIG);
         } else {
-            ctx = new FileSystemXmlApplicationContext(xmlCtxPath);
+            ctx = new NimbusFileSystemXmlApplicationContext(xmlCtxPath);
         }
         
         final ModuleLocator locator =

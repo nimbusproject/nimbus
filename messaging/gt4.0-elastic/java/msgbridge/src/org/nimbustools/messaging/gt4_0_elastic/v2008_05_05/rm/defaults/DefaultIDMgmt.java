@@ -19,6 +19,7 @@ package org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.IDMappings;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.security.defaults.KeyCacheProvider;
 
+import java.io.IOException;
 import java.util.Random;
 import java.net.URL;
 
@@ -28,6 +29,7 @@ import net.sf.ehcache.Element;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.core.io.Resource;
 
 /**
  * Translations between underlying manager IDs and elastic style.  Since the
@@ -70,11 +72,13 @@ public class DefaultIDMgmt implements IDMappings, KeyCacheProvider {
     // CONSTRUCTOR
     // -------------------------------------------------------------------------
 
-    public DefaultIDMgmt(String diskStorePath) {
+    public DefaultIDMgmt(Resource diskStoreResource) throws IOException {
 
-        if (diskStorePath == null) {
-            throw new IllegalArgumentException("diskStorePath may not be null");
+        if (diskStoreResource == null) {
+            throw new IllegalArgumentException("diskStoreResource may not be null");
         }
+
+        final String diskStorePath = diskStoreResource.getFile().getAbsolutePath();
 
         // TODO: Do dynamically. This is problematic for other ehcache+diskstore
         //       users, could not quickly see how to set on per-manager basis

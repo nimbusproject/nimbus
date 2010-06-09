@@ -215,6 +215,12 @@ public class Util {
 
         final String[] listing = associationDir.list();
 
+        if (listing == null) {
+            // null return from list() is different than zero results, it denotes a real problem
+            throw new Exception("Problem listing contents of directory '" +
+                    associationDir.getAbsolutePath() + '\'');
+        }
+
         final Hashtable newAssocSet = new Hashtable(listing.length);
         
         for (int i = 0; i < listing.length; i++) {

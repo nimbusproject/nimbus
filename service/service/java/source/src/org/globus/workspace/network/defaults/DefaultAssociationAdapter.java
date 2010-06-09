@@ -24,6 +24,7 @@ import org.globus.workspace.persistence.PersistenceAdapter;
 import org.globus.workspace.Lager;
 import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
 import org.nimbustools.api.services.rm.ManageException;
+import org.springframework.core.io.Resource;
 
 import java.io.File;
 import java.util.Enumeration;
@@ -59,7 +60,7 @@ public class DefaultAssociationAdapter implements AssociationAdapter {
     private final PersistenceAdapter persistence;
     private final Lager lager;
 
-    private String networksDir;
+    private Resource networksDir;
 
     private String macPrefix;
 
@@ -193,7 +194,7 @@ public class DefaultAssociationAdapter implements AssociationAdapter {
 
         if (this.networksDir != null) {
 
-            final File associationDir = new File(this.networksDir);
+            final File associationDir = this.networksDir.getFile();
 
             Hashtable previous_associations;
             try {
@@ -256,7 +257,7 @@ public class DefaultAssociationAdapter implements AssociationAdapter {
         }
     }
 
-    public void setNetworksDir(String dir) {
+    public void setNetworksDir(Resource dir) {
         this.networksDir = dir;
     }
 

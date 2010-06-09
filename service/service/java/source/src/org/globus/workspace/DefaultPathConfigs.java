@@ -18,6 +18,7 @@ package org.globus.workspace;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.core.io.Resource;
 
 import java.io.File;
 
@@ -35,7 +36,8 @@ public class DefaultPathConfigs implements PathConfigs {
     // INSTANCE VARIABLES
     // -------------------------------------------------------------------------
 
-    private String localTempDirPath;
+    private Resource localTempDirResource;
+    private String localTempDirAbsolutePath;
     private String backendTempDirPath;
 
 
@@ -44,11 +46,11 @@ public class DefaultPathConfigs implements PathConfigs {
     // -------------------------------------------------------------------------
 
     public String getLocalTempDirPath() {
-        return this.localTempDirPath;
+        return this.localTempDirAbsolutePath;
     }
 
-    public void setLocalTempDirPath(String localTempDirPath) {
-        this.localTempDirPath = localTempDirPath;
+    public void setLocalTempDirResource(Resource localTempDirResource) {
+        this.localTempDirResource = localTempDirResource;
     }
 
     public String getBackendTempDirPath() {
@@ -67,25 +69,28 @@ public class DefaultPathConfigs implements PathConfigs {
     public void validate() throws Exception {
 
         // tied to each other
-        if (this.localTempDirPath != null
+        if (this.localTempDirResource != null
                 && this.backendTempDirPath == null) {
             throw new Exception("Local tmpfiles directory is configured " +
                         "but backend tmpfiles path is not.");
         }
 
-        if (this.localTempDirPath != null) {
+        if (this.localTempDirResource != null) {
+            final File dir = this.localTempDirResource.getFile();
+            this.localTempDirAbsolutePath = dir.getAbsolutePath();
+
             logger.debug("Checking on local tmpfiles directory: '" +
-                                            this.localTempDirPath + "'");
-            final File dir = new File(this.localTempDirPath);
+                                            this.localTempDirAbsolutePath + '\'');
+            
             if (!dir.exists()) {
                 throw new Exception("Local tmpfiles directory does not " +
                         "exist. Configuration is '" +
-                        this.localTempDirPath + "'");
+                        this.localTempDirAbsolutePath + "'");
             }
             if (!dir.isDirectory()) {
                 throw new Exception("Local tmpfiles directory exists but is " +
                         "not a directory?  Configuration is '" +
-                        this.localTempDirPath + "'");
+                        this.localTempDirAbsolutePath + "'");
             }
         } else {
             logger.warn("No local tmpfiles directory is configured, " +
