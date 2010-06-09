@@ -26,7 +26,24 @@ if [ -n "$OLD_GLOBUS_LOCATION" ]; then
   fi
 fi
 
-INCLUDED_COMMANDLINE_STRING="--conf $USER_PROPFILE --history-dir $HISTORY_DIR"
+needsconf="y"
+needshist="y"
+for i in "$@"; do
+  if [ "--conf" == "$i" ]; then
+    needsconf="n"
+  fi
+  if [ "--history-dir" == "$i" ]; then
+    needshist="n"
+  fi
+done
+
+INCLUDED_COMMANDLINE_STRING=""
+if [ "X$needsconf" == "Xy" ]; then
+  INCLUDED_COMMANDLINE_STRING="$INCLUDED_COMMANDLINE_STRING --conf $USER_PROPFILE"
+fi
+if [ "X$needshist" == "Xy" ]; then
+  INCLUDED_COMMANDLINE_STRING="$INCLUDED_COMMANDLINE_STRING --history-dir $HISTORY_DIR"
+fi
 
 ####### JAVA CHECK ##########
 
@@ -36,7 +53,7 @@ if [ "X$JAVA_HOME" = "X" ] ; then
   _RUNJAVA="$JAVA_HOME"/bin/java
 fi
 
-####### Generated globus client sh script follows.  It is slightly modified (see "NOTE").
+####### Generated globus client sh script follows.
 
 DELIM="#"
 EXEC="org.globus.bootstrap.Bootstrap org.globus.workspace.cloud.client.CloudClient"
@@ -82,13 +99,9 @@ if [ "X$IBM_JAVA_OPTIONS" = "X" ] ; then
   export IBM_JAVA_OPTIONS
 fi
 
-# NOTE: we've switched the normal position of DEF_CMD_OPTIONS.  This allows
-#       cloud-client.sh user to pass in commandline flags that override flags
-#       this script is passing: parser consumes the FIRST appearance of a flag.
-
 if [ $# -gt 0 ]; then
   if [ "X${DEF_CMD_OPTIONS}" != "X" ]; then
-    set - ${GLOBUS_OPTIONS} -classpath ${LOCALCLASSPATH} ${EXEC} "$@" ${DEF_CMD_OPTIONS} 
+    set - ${GLOBUS_OPTIONS} -classpath ${LOCALCLASSPATH} ${EXEC} ${DEF_CMD_OPTIONS} "$@"
   else
     set - ${GLOBUS_OPTIONS} -classpath ${LOCALCLASSPATH} ${EXEC} "$@"
   fi
