@@ -44,6 +44,7 @@ public class DefaultVM implements _VM {
     private int launchIndex;
     private String mdUserData;
     private String sshKeyName;
+    private String type;
 
 
     // -------------------------------------------------------------------------
@@ -93,6 +94,11 @@ public class DefaultVM implements _VM {
     public String getSshKeyName() {
         return sshKeyName;
     }
+    
+    @Override
+    public String getType() {
+        return this.type;
+    }    
 
     // -------------------------------------------------------------------------
     // implements org.nimbustools.api._repr.vm._VM
@@ -149,6 +155,11 @@ public class DefaultVM implements _VM {
     public void setSshKeyName(String sshKeyName) {
         this.sshKeyName = sshKeyName;
     }
+    
+    @Override
+    public void setType(String type) {
+        this.type = type;
+    }    
 
     // -------------------------------------------------------------------------
     // DEBUG STRING

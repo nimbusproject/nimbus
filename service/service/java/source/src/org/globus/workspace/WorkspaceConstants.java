@@ -102,5 +102,12 @@ public interface WorkspaceConstants {
 
     public static final int STATE_LAST_LEGAL
                                 = STATE_CORRUPTED + STATE_DESTROYING;
+    
+    // -------------------------------------------------------------------------
+    // INSTANCE TYPES
+    // -------------------------------------------------------------------------
+    
+    public static final String TYPE_NORMAL = "normal";
+    public static final String TYPE_SPOT = "spot";
 
 }

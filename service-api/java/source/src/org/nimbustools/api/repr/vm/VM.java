@@ -33,4 +33,6 @@ public interface VM {
     public String getMdUserData();
     public String getSshKeyName();
     
+    public String getType();
+    
 }
