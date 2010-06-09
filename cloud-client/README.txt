@@ -41,7 +41,7 @@ This will do the following:
 
 Notes:
 
-  - You need to have the Nimbus source tree, in particular "bin", "messaging", and the
+  - You need to have the Nimbus source tree, in particular "scripts", "messaging", and the
     "service/client" directories.
 
   - Once you have downloaded the wscore binary tarball, you can make a fresh release over
