@@ -90,6 +90,7 @@
         <constructor-arg ref="nimbus-rm.home.cosched" />        
         <constructor-arg ref="other.timerManager" />
         <constructor-arg ref="nimbus-rm.loglevels" />
+	<constructor-arg ref="nimbus-rm.service.binding.BindNetwork">
 
         <property name="accountingEventAdapter"
                   ref="nimbus-rm.accounting" />
@@ -283,6 +284,7 @@
         <constructor-arg ref="nimbus-rm.service.binding.GlobalPolicies" />
         <constructor-arg ref="nimbus-rm.persistence.DataConvert" />
         <constructor-arg ref="nimbus-rm.loglevels" />
+	<constructor-arg ref="nimbus-rm.service.binding.BindNetwork" />
 
         <!-- for StatefulResourceImpl: -->
         <constructor-arg ref="nimbus-rm.scheduler.Scheduler" />

@@ -74,8 +74,7 @@ public class DefaultBasicLegality implements BasicLegality {
     protected void checkCreateNulls(CreateRequest req)
 
             throws CreationException,
-                   MetadataException,
-                   ResourceRequestDeniedException {
+                   MetadataException {
 
         if (req == null) {
             throw new CreationException("no CreateRequest?");
