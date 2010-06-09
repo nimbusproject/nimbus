@@ -24,8 +24,8 @@
     <content url="file://$MODULE_DIR$/../../service/service/java/source">
       <sourceFolder url="file://$MODULE_DIR$/../../service/service/java/source/src" isTestSource="false" />
     </content>
-    <content url="file://$MODULE_DIR$/../../service/service/java/tests">
-      <sourceFolder url="file://$MODULE_DIR$/../../service/service/java/tests/src" isTestSource="true" />
+    <content url="file://$MODULE_DIR$/../../service/service/java/tests/unit">
+      <sourceFolder url="file://$MODULE_DIR$/../../service/service/java/tests/unit" isTestSource="true" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

@@ -74,3 +74,4 @@ public class NimbusFileSystemXmlApplicationContext extends FileSystemXmlApplicat
         return super.getResourceByPath(path);
     }
 }
+
