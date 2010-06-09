@@ -40,7 +40,7 @@ public class SIRequestUtils {
         List<SIRequest> activeRequestsBelowPrice = new ArrayList<SIRequest>();
         
         for (SIRequest siRequest : allRequests) {
-            if(siRequest.getStatus().equals(SIRequestStatus.ACTIVE) && siRequest.getMaxBid() < price){
+            if(siRequest.getStatus().isActive() && siRequest.getMaxBid() < price){
                 activeRequestsBelowPrice.add(siRequest);
             }
         }
@@ -54,7 +54,7 @@ public class SIRequestUtils {
         List<SIRequest> activeRequestsEqualPrice = new ArrayList<SIRequest>();
         
         for (SIRequest siRequest : allRequests) {
-            if(siRequest.getStatus().equals(SIRequestStatus.ACTIVE) && siRequest.getMaxBid().equals(price)){
+            if(siRequest.getStatus().isActive() && siRequest.getMaxBid().equals(price)){
                 activeRequestsEqualPrice.add(siRequest);
             }
         }
@@ -81,7 +81,7 @@ public class SIRequestUtils {
         List<SIRequest> aliveRequestsAbovePrice = new ArrayList<SIRequest>();
         
         for (SIRequest siRequest : allRequests) {
-            if(siRequest.isAlive() && siRequest.getMaxBid() > currentPrice){
+            if(siRequest.getStatus().isAlive() && siRequest.getMaxBid() > currentPrice){
                 aliveRequestsAbovePrice.add(siRequest);
             }
         }
@@ -95,7 +95,7 @@ public class SIRequestUtils {
         List<SIRequest> aliveRequests = new ArrayList<SIRequest>();
         
         for (SIRequest siRequest : allRequests) {
-            if(siRequest.isAlive()){
+            if(siRequest.getStatus().isAlive()){
                 aliveRequests.add(siRequest);
             }
         }
