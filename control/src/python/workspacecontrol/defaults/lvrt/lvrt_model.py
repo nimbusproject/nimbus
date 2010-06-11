@@ -165,7 +165,7 @@ class Disk:
         if self.driver:
             # file is ignored at the moment
             if self.driver == "tap:aio":
-                x.write(L(3, "<driver name='tap' type='aio'>"))
+                x.write(L(3, "<driver name='tap' type='aio' />"))
         
         x.write(L(3, "<source file='%s' />" % self.source))
         x.write(L(3, "<target dev='%s' />" % self.target))
