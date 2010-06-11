@@ -209,10 +209,10 @@ public class PropagationAdapterImpl implements PropagationAdapter,
             throw new Exception(err + e.getMessage());
         }
 
-        this.notify = this.notificationInfo + this.pollScript;
+        this.notify = this.notificationInfo + pollScriptPath;
 
         logger.debug("test run of notification script '" +
-                                        this.pollScript + "' succeeded");
+                                        pollScriptPath + "' succeeded");
 
 
         if (fake) {
@@ -231,7 +231,7 @@ public class PropagationAdapterImpl implements PropagationAdapter,
                                             this.persistence,
                                             3000);
 
-            final String eventsPath = this.pollScript + ".txt";
+            final String eventsPath = pollScriptPath + ".txt";
             logger.debug("Setting events file to '" + eventsPath + "'");
 
             this.watcher = new ControlPoll(this.timerManager,
