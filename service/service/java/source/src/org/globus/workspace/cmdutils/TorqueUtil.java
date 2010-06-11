@@ -55,6 +55,7 @@ public class TorqueUtil {
      * @param destination if not null, destination (like a queue name) is sent,
      *        For Torque 2.1.8 this should be one of three forms: "queue",
      *        "@server", or "queue@server"
+     * @param memoryMB memory to request
      * @param nodenum nodes to request
      * @param ppn processors per node
      * @param walltimeSeconds requested walltime
@@ -73,6 +74,7 @@ public class TorqueUtil {
      * @throws org.globus.workspace.WorkspaceException problem with parameters or initialization
      */
     public ArrayList constructQsub(String destination,
+                                   int memoryMB,
                                    int nodenum,
                                    int ppn,
                                    long walltimeSeconds,
@@ -82,6 +84,12 @@ public class TorqueUtil {
                                    boolean mail,
                                    String account)
             throws WorkspaceException {
+
+        if (memoryMB < 1) {
+            final String err = "invalid memory " +
+                    "request: " + Integer.toString(memoryMB);
+            throw new WorkspaceException(err);
+        }
 
         if (ppn < 1) {
             final String err = "invalid processors per node " +
@@ -132,6 +140,9 @@ public class TorqueUtil {
         cmd.add(props);
         cmd.add("-l");
         cmd.add("walltime=" + walltimeFromSeconds(walltimeSeconds));
+
+        cmd.add("-l");
+        cmd.add("mem=" + Integer.toString(memoryMB) + "mb");
 
         if (stdoutPath != null) {
             cmd.add("-o");
