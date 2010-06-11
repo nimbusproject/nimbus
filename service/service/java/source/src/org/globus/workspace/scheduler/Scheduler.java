@@ -42,6 +42,7 @@ public interface Scheduler {
      * @param numNodes number needed
      * @param groupid group ID, can be null
      * @param coschedid co-scheduling ID, can be null
+     * @param creatorDN creator's identifying DN, can be null
      * @return reservation never null
      * @throws ResourceRequestDeniedException will not grant
      * @throws SchedulingException internal problem
@@ -51,7 +52,8 @@ public interface Scheduler {
                                 String[] neededAssociations,
                                 int numNodes,
                                 String groupid,
-                                String coschedid)
+                                String coschedid,
+                                String creatorDN)
                 
             throws SchedulingException,
                    ResourceRequestDeniedException;

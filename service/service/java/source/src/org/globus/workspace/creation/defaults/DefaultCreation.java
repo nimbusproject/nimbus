@@ -443,7 +443,8 @@ public class DefaultCreation implements Creation {
         final Reservation res = this.scheduleImpl(bindings[0],
                                                   bindings.length,
                                                   groupID,
-                                                  coschedID);
+                                                  coschedID,
+                                                  caller.getIdentity());
 
         if (res == null) {
             throw new SchedulingException("reservation is missing, illegal " +
@@ -504,7 +505,8 @@ public class DefaultCreation implements Creation {
     protected Reservation scheduleImpl(VirtualMachine vm,
                                        int numNodes,
                                        String groupid,
-                                       String coschedid)
+                                       String coschedid,
+                                       String callerID)
             
             throws SchedulingException,
                    ResourceRequestDeniedException {
@@ -526,7 +528,7 @@ public class DefaultCreation implements Creation {
         }
 
         return this.scheduler.schedule(memory, duration, assocs, numNodes,
-                                       groupid, coschedid);
+                                       groupid, coschedid, callerID);
     }
 
 

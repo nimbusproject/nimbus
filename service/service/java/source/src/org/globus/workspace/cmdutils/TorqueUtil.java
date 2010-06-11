@@ -68,6 +68,7 @@ public class TorqueUtil {
      * @param reRunnable job can survive restarts?
      * @param mail if mail is true, MAIL_AT_EXIT and MAIL_AT_ABORT will be set,
      *             otherwise NO_MAIL will be set
+     * @param account string to apply to job
      * @return ArrayList of cmdline tokens
      * @throws org.globus.workspace.WorkspaceException problem with parameters or initialization
      */
@@ -78,7 +79,8 @@ public class TorqueUtil {
                                    String extraProperties,
                                    String stdoutPath,
                                    boolean reRunnable,
-                                   boolean mail)
+                                   boolean mail,
+                                   String account)
             throws WorkspaceException {
 
         if (ppn < 1) {
@@ -134,6 +136,11 @@ public class TorqueUtil {
         if (stdoutPath != null) {
             cmd.add("-o");
             cmd.add(stdoutPath);
+        }
+
+        if (account != null) {
+            cmd.add("-A");
+            cmd.add(account);
         }
 
         return cmd;
