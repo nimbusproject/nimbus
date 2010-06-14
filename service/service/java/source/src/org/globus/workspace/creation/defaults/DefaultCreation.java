@@ -16,68 +16,64 @@
 
 package org.globus.workspace.creation.defaults;
 
+import java.text.DateFormat;
+import java.util.Calendar;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.globus.workspace.ErrorUtil;
 import org.globus.workspace.Lager;
 import org.globus.workspace.LockManager;
 import org.globus.workspace.ProgrammingError;
 import org.globus.workspace.WorkspaceConstants;
 import org.globus.workspace.WorkspaceUtil;
-import org.globus.workspace.network.AssociationAdapter;
 import org.globus.workspace.accounting.AccountingEventAdapter;
 import org.globus.workspace.creation.Creation;
+import org.globus.workspace.network.AssociationAdapter;
 import org.globus.workspace.persistence.DataConvert;
 import org.globus.workspace.persistence.PersistenceAdapter;
 import org.globus.workspace.persistence.WorkspaceDatabaseException;
 import org.globus.workspace.scheduler.IdHostnameTuple;
 import org.globus.workspace.scheduler.Reservation;
 import org.globus.workspace.scheduler.Scheduler;
-import org.globus.workspace.scheduler.Event;
+import org.globus.workspace.scheduler.StateChangeEvent;
 import org.globus.workspace.service.InstanceResource;
-import org.globus.workspace.service.WorkspaceHome;
-import org.globus.workspace.service.WorkspaceGroupHome;
 import org.globus.workspace.service.WorkspaceCoschedHome;
+import org.globus.workspace.service.WorkspaceGroupHome;
+import org.globus.workspace.service.WorkspaceHome;
 import org.globus.workspace.service.binding.Authorize;
 import org.globus.workspace.service.binding.BindNetwork;
 import org.globus.workspace.service.binding.BindingAdapter;
 import org.globus.workspace.service.binding.GlobalPolicies;
+import org.globus.workspace.service.binding.vm.CustomizationNeed;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.globus.workspace.service.binding.vm.VirtualMachineDeployment;
-import org.globus.workspace.service.binding.vm.CustomizationNeed;
 import org.globus.workspace.spotinstances.SIRequest;
 import org.globus.workspace.spotinstances.SpotInstancesManager;
-
-import org.nimbustools.api._repr._CreateResult;
+import org.globus.workspace.spotinstances.SpotInstancesManagerImpl;
 import org.nimbustools.api._repr._Advertised;
-import org.nimbustools.api._repr._RequestSIResult;
-import org.nimbustools.api.defaults.repr.DefaultSIResult;
+import org.nimbustools.api._repr._CreateResult;
+import org.nimbustools.api.repr.Advertised;
 import org.nimbustools.api.repr.Caller;
+import org.nimbustools.api.repr.CannotTranslateException;
 import org.nimbustools.api.repr.CreateRequest;
 import org.nimbustools.api.repr.CreateResult;
-import org.nimbustools.api.repr.RequestSI;
 import org.nimbustools.api.repr.ReprFactory;
-import org.nimbustools.api.repr.CannotTranslateException;
-import org.nimbustools.api.repr.Advertised;
+import org.nimbustools.api.repr.RequestSI;
 import org.nimbustools.api.repr.RequestSIResult;
 import org.nimbustools.api.repr.ctx.Context;
-import org.nimbustools.api.repr.vm.VM;
-import org.nimbustools.api.repr.vm.ResourceAllocation;
 import org.nimbustools.api.repr.vm.NIC;
+import org.nimbustools.api.repr.vm.ResourceAllocation;
+import org.nimbustools.api.repr.vm.VM;
 import org.nimbustools.api.services.rm.AuthorizationException;
 import org.nimbustools.api.services.rm.BasicLegality;
 import org.nimbustools.api.services.rm.CoSchedulingException;
 import org.nimbustools.api.services.rm.CreationException;
+import org.nimbustools.api.services.rm.ManageException;
 import org.nimbustools.api.services.rm.MetadataException;
 import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
 import org.nimbustools.api.services.rm.SchedulingException;
-import org.nimbustools.api.services.rm.ManageException;
-
 import org.safehaus.uuid.UUIDGenerator;
-
-import java.util.Calendar;
-import java.text.DateFormat;
 
 import commonj.timers.TimerManager;
 
@@ -145,7 +141,8 @@ public class DefaultCreation implements Creation {
                            DataConvert dataConvertImpl,
                            TimerManager timerManagerImpl,
                            Lager lagerImpl,
-                           BindNetwork bindNetworkImpl) {
+                           BindNetwork bindNetworkImpl,
+                           SpotInstancesManagerImpl siManagerImpl) {
 
         if (lockManagerImpl == null) {
             throw new IllegalArgumentException("lockManager may not be null");
@@ -227,7 +224,10 @@ public class DefaultCreation implements Creation {
         }
         this.bindNetwork = bindNetworkImpl;     
         
-        this.siManager = new SpotInstancesManager(persistence, lager);
+        if (siManagerImpl == null) {
+            throw new IllegalArgumentException("siManagerImpl may not be null");
+        }        
+        this.siManager = siManagerImpl;
     }
 
 
@@ -288,8 +288,10 @@ public class DefaultCreation implements Creation {
                                     " from '" + caller.getIdentity() + "'");
         }
 
+        //Check basic request errors
         this.legals.checkCreateRequest(req);
         
+        //Check site policies and constraints
         final VirtualMachine[] bound = this.binding.processRequest(req);
         if (bound == null || bound.length == 0) {
             throw new CreationException("no binding result but no binding " +
@@ -301,9 +303,9 @@ public class DefaultCreation implements Creation {
             throw new CreationException("Cannot determine identity");
         }       
         
-        final String siID = generateID();
-        final String groupID = this.getGroupID(caller.getIdentity(), bound.length);                
+        final String groupID = this.getGroupID(creatorID, bound.length);   
         
+        final String siID = generateID();
         SIRequest siRequest = new SIRequest(siID, req.getSpotPrice(), req.isPersistent(), caller, groupID, bound, req.getContext(), req.getRequestedNics());
         
         siManager.addRequest(siRequest);
@@ -312,7 +314,7 @@ public class DefaultCreation implements Creation {
         try {
             requestSIResult = dataConvert.getRequestSIResult(siRequest, req.getSshKeyName());
         } catch (CannotTranslateException e) {
-            throw new CreationException("Could not translate request from internal representation to RM API representation.");
+            throw new CreationException("Could not translate request from internal representation to RM API representation.", e);
         }
         
         return requestSIResult;
@@ -618,8 +620,7 @@ public class DefaultCreation implements Creation {
 
         for (int i = 0; i < ids.length; i++) {
             try {
-                this.scheduler.stateNotification(
-                            ids[i], WorkspaceConstants.STATE_DESTROYING);
+                this.scheduler.removeScheduling(ids[i]);
 
             } catch (Throwable t) {
                 logger.error("Problem with removing " + Lager.id(ids[i]) +
@@ -702,7 +703,8 @@ public class DefaultCreation implements Creation {
                            callerID,
                            context,
                            groupID,
-                           coschedID);
+                           coschedID,
+                           spotInstances);
 
         } catch (CoSchedulingException e) {
             this.backoutAccounting(ids, callerID);
@@ -756,7 +758,8 @@ public class DefaultCreation implements Creation {
                                    String callerID,
                                    Context context,
                                    String groupID,
-                                   String coschedID)
+                                   String coschedID,
+                                   boolean spotInstances)
             
             throws AuthorizationException,
                    CoSchedulingException,
@@ -843,13 +846,13 @@ public class DefaultCreation implements Creation {
             }
 
             // go:
-            this.schedulerCreatedNotification(ids);
+            this.schedulerCreatedNotification(ids, spotInstances);
 
             return result;
         }
     }
 
-    protected void schedulerCreatedNotification(int[] ids) {
+    protected void schedulerCreatedNotification(int[] ids, boolean spotInstances) {
         
         // From here on, scheduler can do whatever it likes.  Instead
         // of letting the scheduler hijack this thread, launching this
@@ -859,11 +862,19 @@ public class DefaultCreation implements Creation {
         // immediately, not doing this could significantly delay the op
         // return to the client.
 
-        final Event event = new Event(ids,
+        final StateChangeEvent schedulerEvent = new StateChangeEvent(ids,
                                       WorkspaceConstants.STATE_FIRST_LEGAL,
                                       this.scheduler);
 
-        this.timerManager.schedule(event, 20);
+        this.timerManager.schedule(schedulerEvent, 20);
+        
+        if(!spotInstances){
+            final StateChangeEvent simEvent = new StateChangeEvent(ids,
+                    WorkspaceConstants.STATE_FIRST_LEGAL,
+                    this.siManager);
+
+            this.timerManager.schedule(simEvent, 50);            
+        }
     }
 
 
