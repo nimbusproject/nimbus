@@ -23,6 +23,7 @@ import org.globus.workspace.WorkspaceConstants;
 import org.globus.workspace.LockManager;
 import org.globus.workspace.persistence.DataConvert;
 import org.globus.workspace.persistence.WorkspaceDatabaseException;
+import org.globus.workspace.scheduler.StateChangeEvent;
 import org.globus.workspace.scheduler.Reservation;
 import org.globus.workspace.scheduler.Scheduler;
 import org.globus.workspace.scheduler.IdHostnameTuple;
@@ -62,6 +63,7 @@ public class DefaultSchedulerAdapter implements Scheduler {
     protected final GlobalPolicies globals;
     protected final DataConvert dataConvert;
     protected final Lager lager;
+    protected final PreemptableSpaceManager siManager;
 
     // lock per coscheduling ID (see usage to know why)
     protected final LockManager lockManager;
@@ -91,7 +93,8 @@ public class DefaultSchedulerAdapter implements Scheduler {
                                    TimerManager timerManager,
                                    GlobalPolicies globalPolicies,
                                    DataConvert dataConvert,
-                                   Lager lagerImpl) {
+                                   Lager lagerImpl,
+                                   PreemptableSpaceManager siManager) {
 
         if (lockManager == null) {
             throw new IllegalArgumentException("lockManager may not be null");
@@ -127,6 +130,11 @@ public class DefaultSchedulerAdapter implements Scheduler {
             throw new IllegalArgumentException("lagerImpl may not be null");
         }
         this.lager = lagerImpl;
+        
+        if (siManager == null) {
+            throw new IllegalArgumentException("siManager may not be null");
+        }
+        this.siManager = siManager;        
     }
 
 
@@ -613,13 +621,9 @@ public class DefaultSchedulerAdapter implements Scheduler {
 
         if (state == WorkspaceConstants.STATE_DESTROYING) {
             
-            // could be from scheduler backout during create, remember pending
-            // just means "between the time the scheduler conjures the id
-            // numbers and the time when the service creates and finalizes
-            // the new resources"
-            this.creationPending.notpending(id);
+            removeScheduling(id);
             
-            remove(id);
+            notifySiManager(id);
             return;
         }
 
@@ -751,6 +755,15 @@ public class DefaultSchedulerAdapter implements Scheduler {
         }
     }
 
+
+    private void notifySiManager(int id) {
+        final StateChangeEvent simEvent = new StateChangeEvent(id,
+                WorkspaceConstants.STATE_DESTROYING,
+                this.siManager);
+
+        this.timerManager.schedule(simEvent, 20);
+    }
+
     private InstanceResource fetchResource(int id, int state)
                     throws ManageException {
 
@@ -874,5 +887,34 @@ public class DefaultSchedulerAdapter implements Scheduler {
     protected int[] findWorkspacesToShutdown()
                             throws WorkspaceDatabaseException {
         return this.db.findWorkspacesToShutdown();
+    }
+
+    public void stateNotification(int[] ids, int state) {
+        for (int i = 0; i < ids.length; i++) {
+            try {
+                this.stateNotification(ids[i], state);
+            } catch (ManageException e) {
+                logger.fatal(e);
+            }                
+        }
+    }
+
+
+
+    /**
+     * Used just in backout situations, when request did not reach STATE_FIRST_LEGAL
+     * NOTE: This is to be used instead of scheduler.stateNotification(id, WorkspaceConstants.STATE_DESTROYING),
+     * when the request did not reach the first legal state
+     * @param vmid id
+     * @throws ManageException
+     */
+    public void removeScheduling(int id) throws ManageException {
+        // could be from scheduler backout during create, remember pending
+        // just means "between the time the scheduler conjures the id
+        // numbers and the time when the service creates and finalizes
+        // the new resources"
+        this.creationPending.notpending(id);
+        
+        remove(id);
     }
 }

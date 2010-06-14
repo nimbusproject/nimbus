@@ -20,34 +20,41 @@ import commonj.timers.Timer;
 import commonj.timers.TimerListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.globus.workspace.StateChangeInterested;
 import org.globus.workspace.WorkspaceConstants;
 import org.nimbustools.api.services.rm.ManageException;
 
 /**
- * Used to prevent scheduler from hijacking a thread.
- * Currently only used at workspace creation time.
+ * Notify state change interested about state changes
  */
-public class Event implements TimerListener {
+public class StateChangeEvent implements TimerListener {
 
-    private static final Log logger = LogFactory.getLog(Event.class.getName());
+    private static final Log logger = LogFactory.getLog(StateChangeEvent.class.getName());
 
-    private final int[] ids;
+    private Integer id = null;
+    private int[] ids = null;
     private final int state;
-    private final Scheduler adapter;
+    private final StateChangeInterested interested;
 
-    public Event(int[] ids, int state, Scheduler adapter) {
+    public StateChangeEvent(int[] ids, int state, StateChangeInterested interested) {
         this.ids = ids;
         this.state = state;
-        this.adapter = adapter;
+        this.interested = interested;
     }
 
+    public StateChangeEvent(int id, int state, StateChangeInterested interested) {
+        this.id = id;
+        this.state = state;
+        this.interested = interested;
+    }    
+    
     public void timerExpired(Timer timer) {
-        if (this.adapter == null) {
+        if (this.interested == null) {
             logger.fatal("adapter is null");
             return;
         }
 
-        if (this.ids == null) {
+        if (this.ids == null && this.id == null) {
             logger.fatal("ids is null");
             return;
         }
@@ -57,12 +64,15 @@ public class Event implements TimerListener {
             return;
         }
 
-        for (int i = 0; i < this.ids.length; i++) {
+        if(this.id != null){
             try {
-                this.adapter.stateNotification(this.ids[i], this.state);
+                this.interested.stateNotification(id, state);
             } catch (ManageException e) {
                 logger.fatal(e);
             }
+        } else if(this.ids != null){
+            this.interested.stateNotification(ids, state);
         }
+        
     }
 }

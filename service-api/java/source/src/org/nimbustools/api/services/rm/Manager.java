@@ -42,6 +42,7 @@ import org.nimbustools.api.repr.vm.VM;
  *
  * <ul>
  *  <li>create VMs</li>
+ *  <li>request spot instances</li>
  *  <li>manage VMs by instance handle or group handle</li>
  *  <li>destroy VMs by instance handle or group handle</li>
  *  <li>query for up to date information</li>
