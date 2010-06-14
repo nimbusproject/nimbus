@@ -41,7 +41,6 @@ public class ResourcepoolUtilTest extends NimbusDatabaseTestCase {
     public static void init() throws Exception {
         
         //objects creation
-        loader.setDerbySystemHome(getDerbyDir().getAbsolutePath());
         loader.setDerbySystemProperty();
         adapter = new PersistenceAdapterImpl(getDataSource(), lagerImpl, loader);
         

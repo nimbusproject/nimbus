@@ -2360,7 +2360,7 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
     }
 
 
-    private synchronized Integer getTotalMemory(String mem_type) throws WorkspaceDatabaseException {
+    private synchronized Integer getTotalMemory(String sql) throws WorkspaceDatabaseException {
 
         Connection c = null;
         PreparedStatement pstmt = null;
@@ -2368,9 +2368,8 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
         try {
             c = getConnection();
 
-            pstmt = c.prepareStatement(SQL_SELECT_TOTAL_MEMORY);
-            pstmt.setString(1, mem_type);
-
+            pstmt = c.prepareStatement(sql);
+            
             if (rs == null) {
                 if (this.dbTrace) {
                     logger.trace("getTotalMemory(): null result so " +
@@ -2401,8 +2400,8 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
                 if (c != null) {
                     returnConnection(c);
                 }
-            } catch (SQLException sql) {
-                logger.error("SQLException in finally cleanup", sql);
+            } catch (SQLException e) {
+                logger.error("SQLException in finally cleanup", e);
             }
         }
     }
@@ -2413,7 +2412,7 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
             logger.trace("getTotalAvailableMemory()");
         }
         
-        Integer total = getTotalMemory("available_memory");
+        Integer total = getTotalMemory(SQL_SELECT_TOTAL_AVAILABLE_MEMORY);
         
         if (this.dbTrace) {
             logger.trace("getTotalAvailableMemory(): total available memory = " + total);
@@ -2428,7 +2427,7 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
             logger.trace("getTotalMaxMemory()");
         }
         
-        Integer total = getTotalMemory("maximum_memory");
+        Integer total = getTotalMemory(SQL_SELECT_TOTAL_MAX_MEMORY);
         
         if (this.dbTrace) {
             logger.trace("getTotalMaxMemory(): total max memory = " + total);
@@ -2443,7 +2442,7 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
             logger.trace("getTotalPreemptableMemory()");
         }
         
-        Integer total = getTotalMemory("preemptable_memory");
+        Integer total = getTotalMemory(SQL_SELECT_TOTAL_PREEMPTABLE_MEMORY);
         
         if (this.dbTrace) {
             logger.trace("getTotalPreemptableMemory(): total pre-emptable memory = " + total);

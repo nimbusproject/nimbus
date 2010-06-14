@@ -57,7 +57,6 @@ public class ResourcepoolUtilProfiling extends NimbusDatabaseTestCase {
         }
         
         //objects creation
-        loader.setDerbySystemHome(getDerbyDir().getAbsolutePath());
         loader.setDerbySystemProperty();
         adapter = new PersistenceAdapterImpl(getDataSource(), lagerImpl, loader);
     }    
