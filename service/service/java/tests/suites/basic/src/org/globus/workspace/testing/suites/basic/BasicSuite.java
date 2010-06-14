@@ -41,7 +41,7 @@ public class BasicSuite extends NimbusTestBase {
         super.suiteSetup();
     }
 
-    @AfterSuite
+    @AfterSuite(alwaysRun=true)
     @Override
     public void suiteTeardown() throws Exception {
         super.suiteTeardown();
