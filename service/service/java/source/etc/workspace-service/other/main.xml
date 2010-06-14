@@ -90,8 +90,8 @@
         <constructor-arg ref="nimbus-rm.home.cosched" />        
         <constructor-arg ref="other.timerManager" />
         <constructor-arg ref="nimbus-rm.loglevels" />
-	<constructor-arg ref="nimbus-rm.service.binding.BindNetwork">
-	<constructor-arg ref="nimbus-rm.spotinstances.manager">
+        <constructor-arg ref="nimbus-rm.service.binding.BindNetwork" />
+        <constructor-arg ref="nimbus-rm.spotinstances.manager" />
 
         <property name="accountingEventAdapter"
                   ref="nimbus-rm.accounting" />
@@ -519,7 +519,7 @@
         <constructor-arg ref="nimbus-rm.service.binding.GlobalPolicies" />
         <constructor-arg ref="nimbus-rm.persistence.DataConvert" />
         <constructor-arg ref="nimbus-rm.loglevels" />
-	<constructor-arg ref="nimbus-rm.spotinstances.manager" />
+        <constructor-arg ref="nimbus-rm.spotinstances.manager" />
 
 
 
@@ -533,7 +533,7 @@
          =================================================================== -->
 
     <bean id="nimbus-rm.spotinstances.manager"
-          class="SpotInstancesManagerImpl"
+          class="org.globus.workspace.spotinstances.SpotInstancesManagerImpl"
           init-method="calculateAvailableResources">
 
         <constructor-arg ref="nimbus-rm.persistence.PersistenceAdapter" />
