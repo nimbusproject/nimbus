@@ -93,4 +93,37 @@ public class DefaultSIRequestState implements _SIRequestState {
             t = t.getCause();
         }
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((problem == null) ? 0 : problem.hashCode());
+        result = prime * result + ((state == null) ? 0 : state.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        DefaultSIRequestState other = (DefaultSIRequestState) obj;
+        if (problem == null) {
+            if (other.problem != null)
+                return false;
+        } else if (!problem.equals(other.problem))
+            return false;
+        if (state == null) {
+            if (other.state != null)
+                return false;
+        } else if (!state.equals(other.state))
+            return false;
+        return true;
+    }
+    
+    
 }
