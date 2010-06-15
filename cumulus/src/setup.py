@@ -24,6 +24,8 @@ setup(name='cumulus',
             'cumulus-remove-user = pycb.tools.remove_user:main',
             'cumulus-list-users = pycb.tools.list_users:main',
             'cumulus-quota = pycb.tools.set_quota:main',
+            'nimbusauthz-add-user = pynimbusauthz.add_user:main',
+            'nimbusauthz-list-users = pynimbusauthz.list_user:main',
         ]
       },
 

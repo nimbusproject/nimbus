@@ -26,5 +26,6 @@ if [ -e $HOME/.nimbus/cumulus.ini ]; then
     mv $HOME/.nimbus/cumulus.ini $bkup
 fi
 
+cd $source_dir
 ./configure --prefix=$installdir
 make install

@@ -10,6 +10,9 @@ import org.globus.workspace.persistence.WorkspaceDatabaseException;
 import org.globus.workspace.service.binding.vm.VirtualMachinePartition;
 import org.nimbustools.api.services.rm.AuthorizationException;
 import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
+import org.nimbus.authz.AuthzDBAdapter;
+import org.nimbus.authz.AuthzDBException;
+
 
 import javax.sql.DataSource;
 import java.io.File;
@@ -93,7 +96,7 @@ public class AuthzDecisionLogic extends DecisionLogic
 
             return rc;
         }
-        catch(WorkspaceDatabaseException wsdbex)
+        catch(AuthzDBException wsdbex)
         {
             logger.error("iternal db problem", wsdbex);
             throw new AuthorizationException("Internal problem with the data base " + wsdbex.toString()); 
@@ -158,7 +161,7 @@ public class AuthzDecisionLogic extends DecisionLogic
             
             return rc;
         }
-        catch(WorkspaceDatabaseException wsdbex)
+        catch(AuthzDBException wsdbex)
         {
             logger.error("trouble looking up the cumulus information ", wsdbex);
             throw new AuthorizationException("Trouble with the database " + wsdbex.toString());
@@ -311,7 +314,7 @@ public class AuthzDecisionLogic extends DecisionLogic
 
                 return size;
             }
-            catch(WorkspaceDatabaseException wsdbex)
+            catch(AuthzDBException wsdbex)
             {
                 logger.error("iternal db problem", wsdbex);
                 throw new AuthorizationException("Internal problem with the data base " + wsdbex.toString());
@@ -405,7 +408,7 @@ public class AuthzDecisionLogic extends DecisionLogic
         {
             throw new WorkspaceException("Authorization exception occured ", authex);
         }
-        catch(WorkspaceDatabaseException wsdbex)
+        catch(AuthzDBException wsdbex)
         {
             throw new WorkspaceException("Workspace database exception occured ", wsdbex);
         }

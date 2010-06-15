@@ -94,7 +94,7 @@ if CUMULUS_HOME == None:
     CUMULUS_HOME = NIMBUS_HOME + "/cumulus"
 
 if cumulus_enabled:
-    CUMULUS_SERVICE_EXE = os.path.join(NIMBUS_HOME, "cumulus/bin/cumulus.sh")
+    CUMULUS_SERVICE_EXE = os.path.join(NIMBUS_HOME, "cumulus/bin/cumulus")
     if not os.path.exists(CUMULUS_SERVICE_EXE):
         sys.exit("The services executable does not exist: " + 
                 CUMULUS_SERVICE_EXE)

@@ -1,9 +1,7 @@
-package org.globus.workspace.sqlauthz;
+package org.nimbus.authz;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.globus.workspace.Lager;
-import org.globus.workspace.persistence.WorkspaceDatabaseException;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -33,6 +31,7 @@ public class AuthzDBAdapter
     private static final String GET_FILE_SIZE = "SELECT object_size FROM objects WHERE id = ?";
     private static final String GET_FILE_OWNER = "SELECT owner_id FROM objects WHERE id = ?";
     private static final String GET_USER_ALIAS = "SELECT alias_name, friendly_name, alias_type, alias_type_data from user_alias WHERE user_id = ?";
+    private static final String GET_ALL_USER_OBJECTS = "Select id,name,object_size,creation_time from objects where object_type = ? and owner = ?";
 
     public static final int ALIAS_TYPE_S3 = 1;
     public static final int ALIAS_TYPE_DN = 2;
@@ -57,20 +56,20 @@ public class AuthzDBAdapter
 
     public String getCanonicalUserIdFromS3(
         String                          name)
-            throws   WorkspaceDatabaseException
+            throws   AuthzDBException
     {
           return getCanonicalUserIdFromAlias(name, ALIAS_TYPE_S3);
     }
 
     public String getCanonicalUserIdFromDn(
         String                          name)
-            throws   WorkspaceDatabaseException
+            throws   AuthzDBException
     {
           return getCanonicalUserIdFromAlias(name, ALIAS_TYPE_DN);
     }
 
     public List<UserAlias> getUserAliases(String userId)
-        throws WorkspaceDatabaseException
+        throws AuthzDBException
     {
         Connection c = null;
         PreparedStatement pstmt = null;
@@ -96,7 +95,7 @@ public class AuthzDBAdapter
         catch(SQLException e)
         {
             logger.error("",e);
-            throw new WorkspaceDatabaseException(e);
+            throw new AuthzDBException(e);
         }
         finally
         {
@@ -121,7 +120,7 @@ public class AuthzDBAdapter
 
     public long getFileSize(
         int                             fileId)
-            throws   WorkspaceDatabaseException
+            throws   AuthzDBException
     {
         Connection c = null;
         PreparedStatement pstmt = null;
@@ -135,7 +134,7 @@ public class AuthzDBAdapter
             rs = pstmt.executeQuery();
             if(!rs.next())
             {
-                throw new WorkspaceDatabaseException("no such file id found  " + fileId);
+                throw new AuthzDBException("no such file id found  " + fileId);
             }
             long size = rs.getLong(1);
             return size;
@@ -143,7 +142,7 @@ public class AuthzDBAdapter
         catch(SQLException e)
         {
             logger.error("",e);
-            throw new WorkspaceDatabaseException(e);
+            throw new AuthzDBException(e);
         }
         finally
         {
@@ -167,7 +166,7 @@ public class AuthzDBAdapter
 
     public String getFileOwner(
         int                             fileId)
-            throws   WorkspaceDatabaseException
+            throws   AuthzDBException
     {
         Connection c = null;
         PreparedStatement pstmt = null;
@@ -181,7 +180,7 @@ public class AuthzDBAdapter
             rs = pstmt.executeQuery();
             if(!rs.next())
             {
-                throw new WorkspaceDatabaseException("no such file id found  " + fileId);
+                throw new AuthzDBException("no such file id found  " + fileId);
             }
             String owner = rs.getString(1);
             return owner;
@@ -189,7 +188,7 @@ public class AuthzDBAdapter
         catch(SQLException e)
         {
             logger.error("",e);
-            throw new WorkspaceDatabaseException(e);
+            throw new AuthzDBException(e);
         }
         finally
         {
@@ -215,7 +214,7 @@ public class AuthzDBAdapter
         long                            fileSize,
         String                          canUser,
         int                             objectType)
-            throws   WorkspaceDatabaseException
+            throws   AuthzDBException
     {
         Connection c = null;
         PreparedStatement pstmt = null;
@@ -254,7 +253,7 @@ public class AuthzDBAdapter
         catch(SQLException e)
         {
             logger.error("",e);
-            throw new WorkspaceDatabaseException(e);
+            throw new AuthzDBException(e);
         }
         finally
         {
@@ -281,7 +280,7 @@ public class AuthzDBAdapter
         Connection                      c,
         String                          objectName,
         int                             objectType)
-            throws WorkspaceDatabaseException, SQLException
+            throws AuthzDBException, SQLException
     {
         PreparedStatement pstmt = null;
 
@@ -296,7 +295,7 @@ public class AuthzDBAdapter
             {
                 logger.debug("pstmt " + pstmt.toString());
                 pstmt.close();
-                throw new WorkspaceDatabaseException("no such parent file found " + objectName + " " + objectType);
+                throw new AuthzDBException("no such parent file found " + objectName + " " + objectType);
             }
             int objectId = rs.getInt(1);
             return objectId;
@@ -317,9 +316,64 @@ public class AuthzDBAdapter
         }
     }
 
+
+    public List<ObjectWrapper>  getAllUsersFiles(
+        String                          canonicalUser)
+                throws AuthzDBException
+        {
+            Connection c = null;
+            PreparedStatement pstmt = null;
+
+            try
+            {
+                c = getConnection();
+                pstmt = c.prepareStatement(GET_ALL_USER_OBJECTS);
+                pstmt.setInt(1, OBJECT_TYPE_S3);
+                pstmt.setString(2, canonicalUser);
+
+                ResultSet rs = pstmt.executeQuery();
+
+                final List<ObjectWrapper> objs = new ArrayList<ObjectWrapper>();
+
+                while(rs.next())
+                {
+                    ObjectWrapper ow = new ObjectWrapper();
+                    ow.setName(rs.getString("name"));
+                    ow.setId(rs.getInt("id"));
+                    ow.setSize(rs.getInt("object_size"));
+                    objs.add(ow);
+                }
+                return objs;
+            }
+            catch(SQLException e)
+            {
+                logger.error("",e);
+                throw new AuthzDBException(e);
+            }
+            finally
+            {
+                try
+                {
+                    if (pstmt != null)
+                    {
+                        pstmt.close();
+                    }
+                    if (c != null)
+                    {
+                        returnConnection(c);
+                    }
+                }
+                catch (SQLException sql)
+                {
+                    logger.error("SQLException in finally cleanup", sql);
+                }
+            }
+
+        }
+
     public String getDataKey(
         int                             objectId)
-            throws WorkspaceDatabaseException
+            throws AuthzDBException
     {
         Connection c = null;
         PreparedStatement pstmt = null;
@@ -332,7 +386,7 @@ public class AuthzDBAdapter
             ResultSet rs = pstmt.executeQuery();
             if(!rs.next())
             {
-                throw new WorkspaceDatabaseException("no such file id found  " + objectId);
+                throw new AuthzDBException("no such file id found  " + objectId);
             }
             String dataKey = rs.getString(1);
             return dataKey;
@@ -340,7 +394,7 @@ public class AuthzDBAdapter
         catch(SQLException e)
         {
             logger.error("",e);
-            throw new WorkspaceDatabaseException(e);
+            throw new AuthzDBException(e);
         }
         finally
         {
@@ -368,7 +422,7 @@ public class AuthzDBAdapter
         String                          canonicalUser,
         String                          dataKey,
         int                             objectType)
-            throws WorkspaceDatabaseException
+            throws AuthzDBException
     {
         Connection c = null;
         PreparedStatement pstmt = null;
@@ -387,7 +441,7 @@ public class AuthzDBAdapter
             int rc = pstmt.executeUpdate();
             if(rc != 1)
             {
-                throw new WorkspaceDatabaseException("did not insert the row properly");
+                throw new AuthzDBException("did not insert the row properly");
             }
             int fileId = this.getFileID(fileName, parentId, objectType, c);
 
@@ -406,7 +460,7 @@ public class AuthzDBAdapter
                 rc = pstmt.executeUpdate();
                 if(rc != 1)
                 {
-                    throw new WorkspaceDatabaseException("did not insert the row properly");
+                    throw new AuthzDBException("did not insert the row properly");
                 }
             }
             return fileId;
@@ -414,7 +468,7 @@ public class AuthzDBAdapter
         catch(SQLException e)
         {
             logger.error("an error occured looking up the file ", e);
-            throw new WorkspaceDatabaseException(e);
+            throw new AuthzDBException(e);
         }
         finally
         {
@@ -440,7 +494,7 @@ public class AuthzDBAdapter
         String                          fileName,
         int                             parentId,
         int                             objectType)
-            throws WorkspaceDatabaseException
+            throws AuthzDBException
     {
         Connection c = null;
         try
@@ -451,7 +505,7 @@ public class AuthzDBAdapter
         catch(SQLException e)
         {
             logger.error("an error occured looking up the file ", e);
-            throw new WorkspaceDatabaseException(e);
+            throw new AuthzDBException(e);
         }
         finally
         {
@@ -465,7 +519,7 @@ public class AuthzDBAdapter
         int                             parentId,
         int                             objectType,
         Connection                      c)
-            throws WorkspaceDatabaseException
+            throws AuthzDBException
     {
         PreparedStatement pstmt = null;
 
@@ -491,7 +545,7 @@ public class AuthzDBAdapter
         catch(SQLException e)
         {
             logger.error("an error occured looking up the file ", e);
-            throw new WorkspaceDatabaseException(e);
+            throw new AuthzDBException(e);
         }
         finally
         {
@@ -513,7 +567,7 @@ public class AuthzDBAdapter
     public String getPermissions(
         int                             objectId,
         String                          userId)
-            throws WorkspaceDatabaseException
+            throws AuthzDBException
     {
         Connection c = null;
         PreparedStatement pstmt = null;
@@ -537,7 +591,7 @@ public class AuthzDBAdapter
         catch(SQLException e)
         {
             logger.error("",e);
-            throw new WorkspaceDatabaseException(e);
+            throw new AuthzDBException(e);
         }
         finally
         {
@@ -562,7 +616,7 @@ public class AuthzDBAdapter
     public void setFileSize(
         int                             objectId,
         long                            size)
-            throws WorkspaceDatabaseException
+            throws AuthzDBException
     {
         Connection c = null;
         PreparedStatement pstmt = null;
@@ -577,13 +631,13 @@ public class AuthzDBAdapter
             int rc = pstmt.executeUpdate();
             if(rc != 1)
             {
-                throw new WorkspaceDatabaseException("did not insert the row properly");
+                throw new AuthzDBException("did not insert the row properly");
             }
         }
         catch(SQLException e)
         {
             logger.error("an error occured looking up the file ", e);
-            throw new WorkspaceDatabaseException(e);
+            throw new AuthzDBException(e);
         }
         finally
         {
@@ -609,7 +663,7 @@ public class AuthzDBAdapter
     public String getCanonicalUserIdFromAlias(
         String                          name,
         int                             type)
-            throws   WorkspaceDatabaseException
+            throws   AuthzDBException
     {
         Connection c = null;
         PreparedStatement pstmt = null;
@@ -625,7 +679,7 @@ public class AuthzDBAdapter
 
             if(!rs.next())
             {                
-                throw new WorkspaceDatabaseException("no such user found  " + name);
+                throw new AuthzDBException("no such user found  " + name);
             }
             String canUserId = rs.getString(1);
 
@@ -635,7 +689,7 @@ public class AuthzDBAdapter
         catch(SQLException e)
         {
             logger.error("",e);
-            throw new WorkspaceDatabaseException(e);
+            throw new AuthzDBException(e);
         }
         finally
         {

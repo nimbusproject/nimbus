@@ -29,6 +29,8 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="module" module-name="workspace-service" />
+    <orderEntry type="module" module-name="authzdb" />
   </component>
 </module>
 

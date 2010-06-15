@@ -32,6 +32,7 @@
     <orderEntry type="library" name="workspace-service-libs" level="project" />
     <orderEntry type="module" module-name="rm-api" />
     <orderEntry type="library" name="test-libs" level="project" />
+    <orderEntry type="module" module-name="authzdb" />
   </component>
 </module>
 
