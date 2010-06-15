@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<project default="dist" basedir="." name="Workspace Service">
+<project default="dist" basedir="." name="Authz DB Module">
 
     <description>Authz DB Module</description>
 
