@@ -270,6 +270,7 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
 
     </bean>
 
+    <!--
     <bean id="nimbus-query.image.repository"
           class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.image.defaults.DefaultRepository"
           init-method="validate">
@@ -284,6 +285,21 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
         <property name="enableListing" value="$ELASTIC{repository.listing.enabled}" />
         <property name="idAuthz" value="$ELASTIC{repository.idauthz}" />
 
+    </bean>
+-->
+
+     <bean id="nimbus-query.image.repository"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.image.defaults.CumulusRepository"
+          init-method="validate">
+
+        <constructor-arg ref="nimbus-query.rm.containerInterface" />
+         <constructor-arg ref="nimbus-query.rm.modulelocator" />
+         <constructor-arg ref="other.AuthzDataSource" />
+
+
+        <property name="repoBucket" value="$COMMON{cumulus.repo.bucket}" />
+        <property name="prefix" value="$COMMON{cumulus.repo.prefix}" />
+        <property name="cumulusHost" value="$COMMON(cumulus.host}" />
     </bean>
 
 

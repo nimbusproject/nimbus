@@ -31,7 +31,7 @@ public class AuthzDBAdapter
     private static final String GET_FILE_SIZE = "SELECT object_size FROM objects WHERE id = ?";
     private static final String GET_FILE_OWNER = "SELECT owner_id FROM objects WHERE id = ?";
     private static final String GET_USER_ALIAS = "SELECT alias_name, friendly_name, alias_type, alias_type_data from user_alias WHERE user_id = ?";
-    private static final String GET_ALL_USER_OBJECTS = "Select id,name,object_size,creation_time from objects where object_type = ? and owner = ?";
+    private static final String GET_ALL_USER_OBJECTS = "Select id,name,object_size,creation_time from objects where object_type = ? and owner_id = ?";
 
     public static final int ALIAS_TYPE_S3 = 1;
     public static final int ALIAS_TYPE_DN = 2;
