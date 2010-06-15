@@ -16,21 +16,26 @@
 
 package org.globus.workspace.testing.utils;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import org.nimbustools.api._repr._Caller;
 import org.nimbustools.api._repr._CreateRequest;
+import org.nimbustools.api._repr._RequestSI;
 import org.nimbustools.api._repr.vm._NIC;
 import org.nimbustools.api._repr.vm._RequiredVMM;
 import org.nimbustools.api._repr.vm._ResourceAllocation;
 import org.nimbustools.api._repr.vm._Schedule;
 import org.nimbustools.api._repr.vm._VMFile;
+import org.nimbustools.api.defaults.repr.DefaultRequestSI;
 import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.CreateRequest;
 import org.nimbustools.api.repr.ReprFactory;
+import org.nimbustools.api.repr.RequestSI;
+import org.nimbustools.api.repr.si.SIConstants;
 import org.nimbustools.api.repr.vm.NIC;
 import org.nimbustools.api.repr.vm.ResourceAllocation;
 import org.nimbustools.api.repr.vm.VMFile;
-
-import java.net.URI;
 
 /**
  * Non-static to allow suites to easily override defaults for their own situation.
@@ -54,8 +59,15 @@ public class ReprPopulator {
      */
     public CreateRequest getCreateRequest(String name) throws Exception {
         final _CreateRequest req = this.repr._newCreateRequest();
-        req.setName(name);
 
+        populate(req, name, 64, 1);
+
+        return req;
+    }
+
+    private void populate(final _CreateRequest req, String name, int mem, int numNodes) throws URISyntaxException {
+        req.setName(name);
+        
         final _NIC nic = this.repr._newNIC();
         nic.setNetworkName("public");
         nic.setAcquisitionMethod(NIC.ACQUISITION_AllocateAndConfigure);
@@ -66,7 +78,7 @@ public class ReprPopulator {
         final _Schedule schedule = this.repr._newSchedule();
         schedule.setDurationSeconds(240);
         req.setRequestedSchedule(schedule);
-        ra.setNodeNumber(1);
+        ra.setNodeNumber(numNodes);
         ra.setMemory(64);
         req.setShutdownType(CreateRequest.SHUTDOWN_TYPE_TRASH);
         req.setInitialStateRequest(CreateRequest.INITIAL_STATE_RUNNING);
@@ -85,18 +97,32 @@ public class ReprPopulator {
         file.setMountAs("sda1");
         file.setDiskPerms(VMFile.DISKPERMS_ReadWrite);
         req.setVMFiles(new _VMFile[]{file});
-
-        return req;
     }
 
     public Caller getCaller() {
-        final _Caller caller = this.repr._newCaller();
-        caller.setIdentity("TEST_RUNNER");
-        return caller;
+        return getCaller("TEST_RUNNER");
     }
+    
+    public Caller getCaller(String id) {
+        final _Caller caller = this.repr._newCaller();
+        caller.setIdentity(id);
+        return caller;
+    }    
 
     public Caller getSuperuserCaller() {
         // workspace-service is currently broken with superuser
         return this.repr._newCaller();
+    }
+
+    public RequestSI getBasicRequestSI(String name, int numNodes, Double spotPrice, boolean persistent) throws Exception {
+        final _RequestSI reqSI = new DefaultRequestSI();
+        
+        populate(reqSI, name, SIConstants.SI_TYPE_BASIC_MEM, numNodes);
+        
+        reqSI.setInstanceType(SIConstants.SI_TYPE_BASIC);
+        reqSI.setSpotPrice(spotPrice);
+        reqSI.setPersistent(persistent);
+        
+        return reqSI;
     }
 }
