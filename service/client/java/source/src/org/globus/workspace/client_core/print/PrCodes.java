@@ -245,9 +245,7 @@ public class PrCodes {
     public static final int CTXMONITOR__REPORT_DIR = 20104;
     public static final int CTXMONITOR__KNOWNHOSTS_FILE_CREATE = 20105;
 
-    public static final int CTXPRINTSTATUS__ALL_OK = 30100;
     public static final int CTXPRINTSTATUS__ONE_ERROR = 30102;
     public static final int CTXPRINTSTATUS__ONE_IP = 30103;
-    public static final int CTXPRINTSTATUS__ONE_STATUS = 30104;
 
 }

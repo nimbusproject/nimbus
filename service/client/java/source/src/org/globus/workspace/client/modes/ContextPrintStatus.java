@@ -23,29 +23,48 @@ import org.globus.workspace.client.AllArguments;
 import org.globus.workspace.client.Opts;
 import org.globus.workspace.client.modes.aux.CommonLogs;
 import org.globus.workspace.client_common.BaseClient;
-import org.globus.workspace.client_common.CommonStrings;
 import org.globus.workspace.client_core.ExecutionProblem;
 import org.globus.workspace.client_core.ExitNow;
 import org.globus.workspace.client_core.ParameterProblem;
 import org.globus.workspace.client_core.StubConfigurator;
 import org.globus.workspace.client_core.actions.Ctx_Identities;
-import org.globus.workspace.client_core.actions.Ctx_RPQuery;
 import org.globus.workspace.client_core.print.PrCodes;
 import org.globus.workspace.client_core.utils.EPRUtils;
 import org.globus.workspace.common.print.Print;
 import org.nimbustools.ctxbroker.generated.gt4_0.broker.NimbusContextualizationFault;
 import org.nimbustools.ctxbroker.generated.gt4_0.description.IdentityProvides_Type;
-import org.nimbustools.ctxbroker.generated.gt4_0.types.ContextualizationContext;
 import org.nimbustools.ctxbroker.generated.gt4_0.types.Node_Type;
 import org.nimbustools.messaging.gt4_0.common.CommonUtil;
-import org.oasis.wsrf.faults.BaseFaultType;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class ContextPrintStatus extends Mode {
+    
+    // -------------------------------------------------------------------------
+    // INNER CLASS
+    // -------------------------------------------------------------------------
 
+    // tuple...
+    protected static class IpAndStatus {
+        public final String ip;
+        public final String status;
+
+        protected IpAndStatus(String ip, String status) {
+            if (ip == null) {
+                throw new IllegalArgumentException("ip is missing");
+            }
+            if (status == null) {
+                throw new IllegalArgumentException("status is missing");
+            }
+            this.ip = ip;
+            this.status = status;
+        }
+    }
+
+    
     // -------------------------------------------------------------------------
     // STATIC VARIABLES
     // -------------------------------------------------------------------------
@@ -53,15 +72,17 @@ public class ContextPrintStatus extends Mode {
     private static final Log logger =
             LogFactory.getLog(ContextPrintStatus.class.getName());
 
+    public static final String CTX_SUCCESS = "[CTX_SUCCESS]";
+    public static final String CTX_ERROR = "[CTX_ERROR]";
+    public static final String CTX_CHECKED_IN_PENDING = "[CTX_CHECKED_IN_PENDING]";
+    public static final String CTX_NOT_CHECKED_IN = "[CTX_NOT_CHECKED_IN]";
+
 
     // -------------------------------------------------------------------------
     // INSTANCE VARIABLES
     // -------------------------------------------------------------------------
 
-    private String nameToPrint;
-    private Ctx_RPQuery rpQuery;
     private Ctx_Identities identitiesQuery;
-    private EndpointReferenceType epr;
     private boolean dryrun;
 
     
@@ -87,7 +108,6 @@ public class ContextPrintStatus extends Mode {
     public void validateOptionsImpl() throws ParameterProblem {
 
         this.validateEndpoint();
-        this.setName();
         this.validateIpDir();
         this.dryrun = this.args.dryrun;
         CommonLogs.logBoolean(this.dryrun, "dryrun mode", this.pr, logger);
@@ -104,15 +124,15 @@ public class ContextPrintStatus extends Mode {
 
     private void validateEndpoint() throws ParameterProblem {
 
-        this.epr = this.stubConf.getEPR();
+        final EndpointReferenceType epr = this.stubConf.getEPR();
 
-        if (this.epr == null) {
+        if (epr == null) {
             throw new ParameterProblem(name() + " requires EPR");
         }
 
         final String eprStr;
         try {
-            eprStr = EPRUtils.eprToString(this.epr);
+            eprStr = EPRUtils.eprToString(epr);
         } catch (Exception e) {
             final String err = CommonUtil.genericExceptionMessageWrapper(e);
             throw new ParameterProblem(err, e);
@@ -130,10 +150,8 @@ public class ContextPrintStatus extends Mode {
             }
         }
 
-        this.rpQuery =
-                new Ctx_RPQuery(this.epr, this.stubConf, this.pr);
         this.identitiesQuery =
-                new Ctx_Identities(this.epr, this.stubConf, this.pr);
+                new Ctx_Identities(epr, this.stubConf, this.pr);
     }
 
     private void validateIpDir() throws ParameterProblem {
@@ -178,20 +196,13 @@ public class ContextPrintStatus extends Mode {
             return; // *** EARLY RETURN ***
         }
 
-        final ContextualizationContext contextRP;
-        try {
-            contextRP = this.rpQuery.query();
-        } catch (BaseFaultType e) {
-            final String err =
-                    CommonStrings.faultStringOrCommonCause(e, "context");
-            throw new ExecutionProblem(err, e);
-        }
-
-        if (contextRP.isErrorPresent()) {
-
+        final List<String> knownIps = this.gatherIpAddressesFromFilesystem();
+        
+        if (knownIps.isEmpty()) {
             if (this.pr.enabled()) {
                 final String msg =
-                        "Error reported to context broker for " + this.nameToPrint;
+                        "Could not find any IP addresses to analyze, is this directory " +
+                                "empty? '" + this.args.eprIdDir + '\'';
                 if (this.pr.useThis()) {
                     this.pr.errln(PrCodes.CTXPRINTSTATUS__ONE_ERROR, msg);
                 } else if (this.pr.useLogging()) {
@@ -199,20 +210,140 @@ public class ContextPrintStatus extends Mode {
                 }
             }
             throw new ExitNow(BaseClient.APPLICATION_EXIT_CODE);
+        }
 
-        } else if (contextRP.isAllOK()) {
+        final Node_Type[] nodes = this.queryContextBroker();
+
+        final List<IpAndStatus> results = this.analyze(knownIps, nodes);
+
+        // if all are OK, it exits normally
+        boolean notAllOK = false;
+
+        String longestString = "";
+        for (IpAndStatus result : results) {
+            if (longestString.length() < result.ip.length()) {
+                longestString = result.ip;
+            }
+        }
+        final int longestStringLen = longestString.length();
+
+        for (IpAndStatus result : results) {
+
+            if (!result.status.equals(CTX_SUCCESS)) {
+                notAllOK = true;
+            }
 
             if (this.pr.enabled()) {
-                final String msg = "Context broker reports that all nodes for '" +
-                        this.nameToPrint + "' have contextualized.";
+
+                final StringBuilder printIp = new StringBuilder(result.ip);
+                while (printIp.length() < longestStringLen) {
+                    printIp.append(' ');
+                }
+                printIp.append("    ").append(result.status);
+                
                 if (this.pr.useThis()) {
-                    this.pr.infoln(PrCodes.CTXPRINTSTATUS__ALL_OK, msg);
+                    this.pr.infoln(PrCodes.CTXPRINTSTATUS__ONE_IP, printIp.toString());
                 } else if (this.pr.useLogging()) {
-                    logger.info(msg);
+                    logger.info(printIp.toString());
                 }
             }
-            throw new ExitNow(BaseClient.SUCCESS_EXIT_CODE);
         }
+
+        if (notAllOK) {
+            throw new ExitNow(BaseClient.CTX_PENDING_RESULTS);
+        }
+    }
+
+    private List<IpAndStatus> analyze(Collection<String> knownIps, Node_Type[] nodes) {
+
+        final List<IpAndStatus> results = new ArrayList<IpAndStatus>(knownIps.size());
+
+        for (String knownIp : knownIps) {
+
+            final String dbg = "Analyzing known ip " + knownIp;
+            if (this.pr.useThis()) {
+                this.pr.dbg(dbg);
+            } else if (this.pr.useLogging()) {
+                logger.debug(dbg);
+            }
+
+            boolean foundIp = false;
+
+            for (Node_Type node : nodes) {
+                final IdentityProvides_Type[] identities = node.getIdentity();
+                for (IdentityProvides_Type identity : identities) {
+                    final String ip = identity.getIp();
+                    if (ip != null && ip.equals(knownIp)) {
+
+                        final String status = this.getNodeState(node);
+                        results.add(new IpAndStatus(knownIp, status));
+                        
+                        final String dbg2 = "  - found context node with that ip: " + status;
+                        if (this.pr.useThis()) {
+                            this.pr.dbg(dbg2);
+                        } else if (this.pr.useLogging()) {
+                            logger.debug(dbg2);
+                        }
+
+                        foundIp = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!foundIp) {
+
+                results.add(new IpAndStatus(knownIp, CTX_NOT_CHECKED_IN));
+
+                final String dbg2 = "  - did not find context node with that ip";
+                if (this.pr.useThis()) {
+                    this.pr.dbg(dbg2);
+                } else if (this.pr.useLogging()) {
+                    logger.debug(dbg2);
+                }
+            }
+
+        }
+
+        return results;
+    }
+
+    private String getNodeState(Node_Type node) {
+        if (node == null) {
+            throw new IllegalArgumentException("node is missing");
+        }
+        if (!node.isExited()) {
+            return CTX_CHECKED_IN_PENDING;
+        } else if (node.isOk()) {
+            return CTX_SUCCESS;
+        } else {
+            return CTX_ERROR;
+        }
+    }
+
+    private Node_Type[] queryContextBroker() throws ExitNow,
+                                                    ExecutionProblem,
+                                                    ParameterProblem {
+        final Node_Type[] nodes;
+        try {
+            this.identitiesQuery.setQueryAll(true);
+            nodes = this.identitiesQuery.identities();
+        } catch (NimbusContextualizationFault e) {
+            final String err = CommonUtil.genericExceptionMessageWrapper(e);
+            if (this.pr.enabled()) {
+                final String errMsg = "Problem querying context broker: " + err;
+                if (this.pr.useThis()) {
+                    this.pr.errln(errMsg);
+                } else if (this.pr.useLogging()) {
+                    logger.error(errMsg);
+                }
+            }
+            throw new ExitNow(1);
+        }
+        return nodes;
+    }
+
+    private List<String> gatherIpAddressesFromFilesystem() throws ExitNow {
         
         final List<String> knownIps = new ArrayList<String>(10);
         final File idDir = new File(this.args.eprIdDir);
@@ -241,108 +372,6 @@ public class ContextPrintStatus extends Mode {
             }
         }
 
-        if (knownIps.isEmpty()) {
-            if (this.pr.enabled()) {
-                final String msg =
-                        "Could not find any IP addresses to analyze, is this directory " +
-                                "empty? '" + this.args.eprIdDir + '\'';
-                if (this.pr.useThis()) {
-                    this.pr.errln(PrCodes.CTXPRINTSTATUS__ONE_ERROR, msg);
-                } else if (this.pr.useLogging()) {
-                    logger.error(msg);
-                }
-            }
-            throw new ExitNow(BaseClient.APPLICATION_EXIT_CODE);
-        }
-
-        final Node_Type[] nodes;
-        try {
-            this.identitiesQuery.setQueryAll(true);
-            nodes = this.identitiesQuery.identities();
-        } catch (NimbusContextualizationFault e) {
-            final String err = CommonUtil.genericExceptionMessageWrapper(e);
-            if (this.pr.enabled()) {
-                final String errMsg = "Problem querying ctx nodes: " + err;
-                if (this.pr.useThis()) {
-                    this.pr.errln(errMsg);
-                } else if (this.pr.useLogging()) {
-                    logger.error(errMsg);
-                }
-            }
-            throw new ExitNow(1);
-        }
-
-
-        final List<String> printIps = new ArrayList<String>(knownIps.size());
-        
-        // this is finally what the end user is asking for, print each IP address that we
-        // know about locally but does not exist in context or is in context without an OK
-        
-        for (String knownIp : knownIps) {
-
-            final String dbg = "Analyzing known ip " + knownIp;
-            if (this.pr.useThis()) {
-                this.pr.dbg(dbg);
-            } else if (this.pr.useLogging()) {
-                logger.debug(dbg);
-            }
-
-            boolean printThis = true;
-            for (Node_Type node : nodes) {
-                final IdentityProvides_Type[] identities = node.getIdentity();
-                for (IdentityProvides_Type identity : identities) {
-                    final String ip = identity.getIp();
-                    if (ip != null && ip.equals(knownIp)) {
-                        String tail = " [not OK]";
-                        if (node.isOk()) {
-                            tail = " [OK]";
-                            printThis = false;
-                        }
-
-                        final String dbg2 = "  - found context node with that ip " + tail;
-                        if (this.pr.useThis()) {
-                            this.pr.dbg(dbg2);
-                        } else if (this.pr.useLogging()) {
-                            logger.debug(dbg2);
-                        }
-                    }
-                }
-            }
-
-            if (printThis) {
-                printIps.add(knownIp);
-            }
-        }
-
-        for (String printIp : printIps) {
-            if (this.pr.enabled()) {
-                if (this.pr.useThis()) {
-                    this.pr.infoln(PrCodes.CTXPRINTSTATUS__ONE_IP, printIp);
-                } else if (this.pr.useLogging()) {
-                    logger.info(printIp);
-                }
-            }
-        }
-
-        throw new ExitNow(BaseClient.CTX_PENDING_RESULTS);
-    }
-
-    private void setName() {
-
-        if (this.args.shortName != null) {
-            this.nameToPrint = this.args.shortName;
-        } else {
-            this.nameToPrint = '\"' +
-                        EPRUtils.getContextIdFromEPR(this.epr) + '\"';
-        }
-
-        if (this.pr.enabled()) {
-            final String dbg = "Name to print: '" + this.nameToPrint + '\'';
-            if (this.pr.useThis()) {
-                this.pr.dbg(dbg);
-            } else if (this.pr.useLogging()) {
-                logger.debug(dbg);
-            }
-        }
+        return knownIps;
     }
 }
