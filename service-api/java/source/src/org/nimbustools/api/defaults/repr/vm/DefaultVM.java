@@ -44,7 +44,7 @@ public class DefaultVM implements _VM {
     private int launchIndex;
     private String mdUserData;
     private String sshKeyName;
-    private String type;
+    private String lifeCycle;
 
 
     // -------------------------------------------------------------------------
@@ -96,8 +96,8 @@ public class DefaultVM implements _VM {
     }
     
     @Override
-    public String getType() {
-        return this.type;
+    public String getLifeCycle() {
+        return this.lifeCycle;
     }    
 
     // -------------------------------------------------------------------------
@@ -157,8 +157,8 @@ public class DefaultVM implements _VM {
     }
     
     @Override
-    public void setType(String type) {
-        this.type = type;
+    public void setLifeCycle(String lifeCycle) {
+        this.lifeCycle = lifeCycle;
     }    
 
     // -------------------------------------------------------------------------

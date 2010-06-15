@@ -39,5 +39,5 @@ public interface _VM extends VM {
     public void setMdUserData(String mdUserData);
     public void setSshKeyName(String keyName);
     
-    public void setType(String type);
+    public void setLifeCycle(String lifeCycle);
 }
