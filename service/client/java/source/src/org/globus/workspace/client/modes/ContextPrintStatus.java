@@ -169,7 +169,7 @@ public class ContextPrintStatus extends Mode {
             if (this.pr.enabled()) {
                 final String msg = "Dryrun, done.";
                 if (this.pr.useThis()) {
-                    this.pr.infoln(PrCodes.CTXPENDINGPRINT__DRYRUN, msg);
+                    this.pr.infoln(PrCodes.CTXPRINTSTATUS__DRYRUN, msg);
                 } else if (this.pr.useLogging()) {
                     logger.info(msg);
                 }
@@ -193,7 +193,7 @@ public class ContextPrintStatus extends Mode {
                 final String msg =
                         "Error reported to context broker for " + this.nameToPrint;
                 if (this.pr.useThis()) {
-                    this.pr.errln(PrCodes.CTXPENDINGPRINT__ONE_ERROR, msg);
+                    this.pr.errln(PrCodes.CTXPRINTSTATUS__ONE_ERROR, msg);
                 } else if (this.pr.useLogging()) {
                     logger.error(msg);
                 }
@@ -206,7 +206,7 @@ public class ContextPrintStatus extends Mode {
                 final String msg = "Context broker reports that all nodes for '" +
                         this.nameToPrint + "' have contextualized.";
                 if (this.pr.useThis()) {
-                    this.pr.infoln(PrCodes.CTXPENDINGPRINT__ALL_OK, msg);
+                    this.pr.infoln(PrCodes.CTXPRINTSTATUS__ALL_OK, msg);
                 } else if (this.pr.useLogging()) {
                     logger.info(msg);
                 }
@@ -225,7 +225,7 @@ public class ContextPrintStatus extends Mode {
                             "id directory " + this.args.eprIdDir +
                                     " contains unexpected file name: " + idFile.getName();
                     if (this.pr.useThis()) {
-                        this.pr.errln(PrCodes.CTXPENDINGPRINT__ONE_ERROR, msg);
+                        this.pr.errln(PrCodes.CTXPRINTSTATUS__ONE_ERROR, msg);
                     } else if (this.pr.useLogging()) {
                         logger.error(msg);
                     }
@@ -247,7 +247,7 @@ public class ContextPrintStatus extends Mode {
                         "Could not find any IP addresses to analyze, is this directory " +
                                 "empty? '" + this.args.eprIdDir + '\'';
                 if (this.pr.useThis()) {
-                    this.pr.errln(PrCodes.CTXPENDINGPRINT__ONE_ERROR, msg);
+                    this.pr.errln(PrCodes.CTXPRINTSTATUS__ONE_ERROR, msg);
                 } else if (this.pr.useLogging()) {
                     logger.error(msg);
                 }
@@ -317,7 +317,7 @@ public class ContextPrintStatus extends Mode {
         for (String printIp : printIps) {
             if (this.pr.enabled()) {
                 if (this.pr.useThis()) {
-                    this.pr.infoln(PrCodes.CTXPENDINGPRINT__ONE_IP, printIp);
+                    this.pr.infoln(PrCodes.CTXPRINTSTATUS__ONE_IP, printIp);
                 } else if (this.pr.useLogging()) {
                     logger.info(printIp);
                 }
