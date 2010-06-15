@@ -1,12 +1,23 @@
-nimbus-cloud-client-XXX
+nimbus-cloud-client-015
 -----------------------
+
+[*] New flag "--print-pending" (see "--extrahelp") to find nodes that have not
+    checked in with the context broker.
+    http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7055
 
 [*] Scripts use /bin/bash exclusively now.
     http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7009
 
-[*] 
+[*] Now fails early when known_hosts file is unknown or nonexistent
+    http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7004
 
+[*] Fixed the "--conf" argument for overriding the conf location, the previous
+    cloud client release broke this behavior (the fix for Bug 6873).
+    http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7010
 
+[*] Friendlier unpropagation message
+    http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=6908
+    
 
 nimbus-cloud-client-014
 -----------------------
