@@ -20,6 +20,7 @@
         <constructor-arg ref="nimbus-repr.ReprFactory"/>
         <constructor-arg ref="nimbus-rm.persistence.DataConvert"/>
         <constructor-arg ref="nimbus-rm.loglevels" />
+        <constructor-arg ref="nimbus-rm.spotinstances.manager" />        
 
         <property name="accounting"
                   ref="nimbus-rm.accounting" />

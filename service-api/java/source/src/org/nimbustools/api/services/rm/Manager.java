@@ -24,7 +24,7 @@ import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.CreateRequest;
 import org.nimbustools.api.repr.CreateResult;
 import org.nimbustools.api.repr.RequestSI;
-import org.nimbustools.api.repr.RequestSIResult;
+import org.nimbustools.api.repr.SpotRequest;
 import org.nimbustools.api.repr.ShutdownTasks;
 import org.nimbustools.api.repr.Usage;
 import org.nimbustools.api.repr.vm.VM;
@@ -99,14 +99,6 @@ public interface Manager extends NimbusModule {
                   MetadataException,
                   ResourceRequestDeniedException,
                   SchedulingException;
-    
-    public RequestSIResult requestSpotInstances(RequestSI req, Caller caller)
-           throws AuthorizationException,
-                  CoSchedulingException,
-                  CreationException,
-                  MetadataException,
-                  ResourceRequestDeniedException,
-                  SchedulingException;  
 
     public void setDestructionTime(String id, int type, Calendar time)
             throws DoesNotExistException, ManageException;
@@ -182,4 +174,25 @@ public interface Manager extends NimbusModule {
                                             int type,
                                             DestructionCallback listener)
             throws ManageException, DoesNotExistException;
+    
+    // -------------------------------------------------------------------------
+    // SPOT INSTANCES OPERATIONS
+    // -------------------------------------------------------------------------    
+    
+    public SpotRequest requestSpotInstances(RequestSI req, Caller caller)
+            throws AuthorizationException,
+                   CoSchedulingException,
+                   CreationException,
+                   MetadataException,
+                   ResourceRequestDeniedException,
+                   SchedulingException;     
+    
+    public SpotRequest getSpotRequest(String id, Caller caller)
+            throws DoesNotExistException, ManageException, AuthorizationException;
+    
+    public SpotRequest[] getSpotRequestByCaller(Caller caller)
+            throws ManageException;
+    
+    public Double getSpotPrice()
+            throws ManageException;    
 }

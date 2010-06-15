@@ -23,7 +23,7 @@ import org.nimbustools.api.repr.CreateRequest;
 import org.nimbustools.api.repr.CreateResult;
 import org.nimbustools.api.repr.ReprFactory;
 import org.nimbustools.api.repr.RequestSI;
-import org.nimbustools.api.repr.RequestSIResult;
+import org.nimbustools.api.repr.SpotRequest;
 import org.nimbustools.api.repr.ShutdownTasks;
 import org.nimbustools.api.repr.Usage;
 import org.nimbustools.api.repr.vm.VM;
@@ -125,15 +125,6 @@ public class DefaultManager implements Manager {
                                        "request:" + req);
         return null;
     }
-
-    @Override
-    public RequestSIResult requestSpotInstances(RequestSI req, Caller caller) {
-
-        Logging.debug("Manager.requestSpotInstances() -- caller '" + caller + "', " +
-                "request:" + req);
-        
-        return null;
-    }    
     
     public void setDestructionTime(String id, int type, Calendar time)
             throws DoesNotExistException, ManageException {
@@ -280,6 +271,43 @@ public class DefaultManager implements Manager {
                                             DestructionCallback listener) {
         Logging.debug("Manager.registerDestructionListener() -- id '" + id +
                 "', type '" + type + "', listener '" + listener + "'");
+    }
+    
+    
+    // -------------------------------------------------------------------------
+    // SPOT INSTANCES OPERATIONS
+    // -------------------------------------------------------------------------        
+    
+    public SpotRequest requestSpotInstances(RequestSI req, Caller caller) {
+
+        Logging.debug("Manager.requestSpotInstances() -- caller '" + caller + "', " +
+                "request:" + req);
+        
+        return null;
+    }        
+    
+    public Double getSpotPrice() throws ManageException {
+
+        Logging.debug("Manager.getSpotPrice()'");        
+        
+        return null;
+    }
+
+
+    public SpotRequest getSpotRequest(String id, Caller caller) throws DoesNotExistException,
+            ManageException {
+        Logging.debug("Manager.getSpotRequest() -- caller '" + caller + "', " +
+                "id:" + id);
+        
+        return null;
+    }
+
+
+    public SpotRequest[] getSpotRequestByCaller(Caller caller)
+            throws ManageException {
+        Logging.debug("Manager.getSpotRequestByCaller() -- caller '" + caller + "'");
+        
+        return null;
     }
 
 }

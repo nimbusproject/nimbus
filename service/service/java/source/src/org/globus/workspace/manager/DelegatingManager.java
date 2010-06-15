@@ -16,11 +16,12 @@
 
 package org.globus.workspace.manager;
 
+import java.util.Calendar;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.globus.workspace.PathConfigs;
 import org.globus.workspace.Lager;
+import org.globus.workspace.PathConfigs;
 import org.globus.workspace.accounting.AccountingReaderAdapter;
 import org.globus.workspace.accounting.ElapsedAndReservedMinutes;
 import org.globus.workspace.creation.Creation;
@@ -29,7 +30,8 @@ import org.globus.workspace.service.InstanceResource;
 import org.globus.workspace.service.WorkspaceCoschedHome;
 import org.globus.workspace.service.WorkspaceGroupHome;
 import org.globus.workspace.service.WorkspaceHome;
-
+import org.globus.workspace.spotinstances.SIRequest;
+import org.globus.workspace.spotinstances.SpotInstancesHome;
 import org.nimbustools.api._repr._Caller;
 import org.nimbustools.api.repr.Advertised;
 import org.nimbustools.api.repr.Caller;
@@ -38,8 +40,8 @@ import org.nimbustools.api.repr.CreateRequest;
 import org.nimbustools.api.repr.CreateResult;
 import org.nimbustools.api.repr.ReprFactory;
 import org.nimbustools.api.repr.RequestSI;
-import org.nimbustools.api.repr.RequestSIResult;
 import org.nimbustools.api.repr.ShutdownTasks;
+import org.nimbustools.api.repr.SpotRequest;
 import org.nimbustools.api.repr.Usage;
 import org.nimbustools.api.repr.vm.VM;
 import org.nimbustools.api.services.rm.AuthorizationException;
@@ -54,8 +56,6 @@ import org.nimbustools.api.services.rm.OperationDisabledException;
 import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
 import org.nimbustools.api.services.rm.SchedulingException;
 import org.nimbustools.api.services.rm.StateChangeCallback;
-
-import java.util.Calendar;
 
 /**
  * Link into the application from the messaging layer.
@@ -91,9 +91,10 @@ public class DelegatingManager implements Manager {
     protected final ReprFactory repr;
     protected final DataConvert dataConvert;
     protected final Lager lager;
-
+    protected final SpotInstancesHome siHome;
+    
     protected AccountingReaderAdapter accounting;
-
+    
     // -------------------------------------------------------------------------
     // CONSTRUCTOR
     // -------------------------------------------------------------------------
@@ -105,7 +106,8 @@ public class DelegatingManager implements Manager {
                              WorkspaceCoschedHome coschedHome,
                              ReprFactory reprFactory,
                              DataConvert dataConvertImpl,
-                             Lager lagerImpl) {
+                             Lager lagerImpl,
+                             SpotInstancesHome siHome) {
         
         if (creationImpl == null) {
             throw new IllegalArgumentException("creationImpl may not be null");
@@ -146,6 +148,11 @@ public class DelegatingManager implements Manager {
             throw new IllegalArgumentException("lagerImpl may not be null");
         }
         this.lager = lagerImpl;
+        
+        if (siHome == null) {
+            throw new IllegalArgumentException("siHome may not be null");
+        }
+        this.siHome = siHome;        
     }
 
 
@@ -210,15 +217,7 @@ public class DelegatingManager implements Manager {
                   SchedulingException {
         
         return this.creation.create(req, caller);
-    }
-   
-    public RequestSIResult requestSpotInstances(RequestSI req, Caller caller)
-           throws AuthorizationException, CoSchedulingException,
-                  CreationException, MetadataException,
-                  ResourceRequestDeniedException, SchedulingException {
-        
-        return this.creation.requestSpotInstances(req, caller);
-    }    
+    }   
 
     public void setDestructionTime(String id, int type, Calendar time)
             throws DoesNotExistException, ManageException {
@@ -737,6 +736,60 @@ public class DelegatingManager implements Manager {
         } catch (CannotTranslateException e) {
             throw new ManageException(e.getMessage(), e);
         }
+    }
+
+    // -------------------------------------------------------------------------
+    // SPOT INSTANCES OPERATIONS
+    // -------------------------------------------------------------------------        
+
+    public SpotRequest requestSpotInstances(RequestSI req, Caller caller)
+            throws AuthorizationException, CoSchedulingException,
+                   CreationException, MetadataException,
+                   ResourceRequestDeniedException, SchedulingException {
+
+        return this.creation.requestSpotInstances(req, caller);
+    }     
+    
+    public Double getSpotPrice() throws ManageException {
+        return siHome.getSpotPrice();
+    }
+
+
+    public SpotRequest getSpotRequest(String id, Caller caller)
+            throws DoesNotExistException, ManageException, AuthorizationException {
+        SIRequest siReq = siHome.getRequest(id);
+        
+        if(!caller.isSuperUser() && !siReq.getCaller().equals(caller)){
+            throw new AuthorizationException("Caller is not authorized to get information about this request");
+        }
+        
+        return this.getSpotRequest(siReq);
+    }
+
+
+    public SpotRequest[] getSpotRequestByCaller(Caller caller)
+            throws ManageException {
+        
+        return this.getSpotRequests(siHome.getRequests(caller));
+    }
+
+
+    private SpotRequest getSpotRequest(SIRequest siReq) throws ManageException {
+        try {
+            return dataConvert.getSpotRequest(siReq);
+        } catch (CannotTranslateException e) {
+            throw new ManageException(e.getMessage(), e);
+        }
+    }    
+    
+    private SpotRequest[] getSpotRequests(SIRequest[] requests) throws ManageException{
+        SpotRequest[] result = new SpotRequest[requests.length];
+        
+        for (int i = 0; i < requests.length; i++) {
+            result[i] = getSpotRequest(requests[i]);
+        }
+        
+        return result;
     }
 
 }
