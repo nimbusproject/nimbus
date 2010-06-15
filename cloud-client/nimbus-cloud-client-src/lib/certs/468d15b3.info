@@ -1,5 +1,5 @@
 #
-# @(#)$Id: 468d15b3.info,v 1.1.1.1 2009/05/28 21:09:04 tfreeman Exp $
+# @(#)$Id: 468d15b3.info,v 1.4 2006/10/10 08:54:30 pmacvsdg Exp $
 # Information for CA SEE-GRID
 #   obtained from 468d15b3 in SEE-GRID/
 alias = SEE-GRID
@@ -8,5 +8,5 @@ crl_url = http://www.grid.auth.gr/pki/seegrid-ca/services/crl/468d15b3.r0
 email = contact@grid.auth.gr
 status = accredited:classic
 url = http://www.grid.auth.gr/pki/seegrid-ca
-version = 1.22
-sha1fp.0 = 67:8C:B7:71:0C:78:0D:2E:DF:06:DE:51:88:59:D5:9B:9C:EC:8D:B7
+version = 1.35
+sha1fp.0 = CE:DB:DD:E2:DC:74:A8:84:86:36:EB:73:F4:F3:84:E9:98:B3:F5:6D

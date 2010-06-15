@@ -1,5 +1,5 @@
 #
-# @(#)$Id: 1f0e8352.info,v 1.1.1.1 2009/05/28 21:09:07 tfreeman Exp $
+# @(#)$Id: 1f0e8352.info,v 1.6 2006/05/12 05:03:33 pmacvsdg Exp $
 # Information for CA NorduGrid
 #   obtained from 1f0e8352 in NorduGrid/
 alias = NorduGrid
@@ -8,5 +8,5 @@ url = http://ca.nordugrid.org/
 email = ca@nordugrid.org
 crl_url = http://ca.nordugrid.org/cacrl.crl
 status = accredited:classic
-version = 1.22
-sha1fp.0 = AB:BF:6E:46:01:F9:5B:36:22:B8:C2:76:C0:E3:30:3C:B4:6A:12:B5
+version = 1.35
+sha1fp.0 = 6B:89:C0:01:50:C1:0B:B8:CF:24:D2:45:94:41:97:2B:64:BC:FA:6B

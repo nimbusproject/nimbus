@@ -1,11 +1,11 @@
 #
-# @(#)$Id: a317c467.info,v 1.1.1.1 2009/05/28 21:09:06 tfreeman Exp $
+# @(#)$Id: a317c467.info,v 1.5 2009/04/06 13:23:40 pmacvsyt Exp $
 # Information for CA AIST
 #   obtained from a317c467 in APGrid/
 alias = AIST
-crl_url = http://www.apgrid.org/CA/AIST/Production/a317c467.r0
-email = yoshio.tanaka@aist.go.jp
+crl_url = http://crls.apgrid.org/AIST/a317c467.r0
+email = gridca@m.aist.go.jp
 status = accredited:classic
 url = https://www.apgrid.org/CA/AIST/Production/
-version = 1.22
-sha1fp.0 = F2:17:89:A1:42:A2:79:A1:34:AD:F3:84:30:63:87:05:13:EB:7C:27
+version = 1.35
+sha1fp.0 = 72:A1:E0:49:1A:B7:41:04:60:D7:88:14:2C:A6:27:36:F4:6A:7C:54

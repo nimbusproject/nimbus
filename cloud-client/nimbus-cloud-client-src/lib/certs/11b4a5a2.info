@@ -1,5 +1,5 @@
 #
-# @(#)$Id: 11b4a5a2.info,v 1.1.1.1 2009/05/28 21:09:06 tfreeman Exp $
+# @(#)$Id: 11b4a5a2.info,v 1.4 2006/01/13 11:06:16 pmacvsdg Exp $
 # Information for CA LIPCA
 #   obtained from 11b4a5a2 in LIPCA/
 alias = LIPCA
@@ -7,5 +7,5 @@ crl_url = http://ca.lip.pt/lip-lisboa/pub/crl/cacrl.pem
 email = ca@lip.pt
 status = accredited:classic
 url = http://ca.lip.pt/
-version = 1.22
-sha1fp.0 = C7:D5:DE:7B:F1:51:F9:DA:B7:43:C2:83:1A:C7:92:0F:5C:23:33:11
+version = 1.35
+sha1fp.0 = 06:BA:B3:02:A6:8E:3F:55:48:F9:4C:1B:3A:E6:B2:E4:BA:ED:5A:F7
