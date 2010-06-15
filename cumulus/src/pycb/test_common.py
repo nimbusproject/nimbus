@@ -45,7 +45,7 @@ def cb_get_conn(host, port, id, pw):
 def make_user():
     global user_count
     type = pycb.config.sec_type
-    display_name = "test%d@nosetests.nimbus.org" % (user_count)
+    display_name = "test%d%s@nosetests.nimbus.org" % (user_count, random_string(10))
     user_count = user_count + 1
 
     id = random_string(21)

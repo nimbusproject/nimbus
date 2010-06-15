@@ -4,6 +4,12 @@ cd ..
 source env.sh
 cd -
 
+echo "Cleaning up"
+echo "==========="
+
+sqlite3 -line $NIMBUS_AUTHZ_DB "delete from user_alias where friendly_name like '%nosetests.nimbus.org'"
+
+
 echo "Running without security"
 echo "=========================="
 
