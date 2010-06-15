@@ -72,8 +72,8 @@ insert into user_alias_types(name) values ('unix');
 create table user_alias(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id char(36) REFERENCES users_canonical(id) NOT NULL,
-    alias_name varchar(256),
-    friendly_name varchar(256),
+    alias_name varchar(256) NOT NULL,
+    friendly_name varchar(256) NOT NULL,
     alias_type INTEGER REFERENCES user_alias_types(id) NOT NULL,
     alias_type_data varchar(1024),
     UNIQUE(alias_name, alias_type),

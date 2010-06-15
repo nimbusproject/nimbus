@@ -129,7 +129,7 @@ class User(object):
         c = self.db_obj._run_fetch_iterator(s, data, _convert_alias_row_to_UserAlias)
         return c
 
-    def create_alias(self, alias_name, alias_type, alias_data=None, friendly_name=None):
+    def create_alias(self, alias_name, alias_type, friendly_name, alias_data=None):
         at = pynimbusauthz.alias_types[alias_type]
         i = "INSERT INTO user_alias(user_id, alias_name, alias_type"
         v = "values(?, ?, ?"

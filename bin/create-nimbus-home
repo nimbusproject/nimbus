@@ -79,6 +79,11 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 source $NIMBUS_HOME/cumulus/env.sh
+export CUMULUS_REPO_BUCKET="Repo"
+export CUMULUS_HOST=`hostname`:8888
+
+echo $CUMULUS_REPO_BUCKET $CUMULUS_HOST
+${NIMBUS_SRC}/cumulus/bin/cumulus-create-repo-admin nimbusadmin@`hostname -f` ${CUMULUS_REPO_BUCKET}
 
 
 echo "Deploying skeleton directory structure.."

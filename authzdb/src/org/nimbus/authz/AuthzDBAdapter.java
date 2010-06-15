@@ -341,6 +341,8 @@ public class AuthzDBAdapter
                     ow.setName(rs.getString("name"));
                     ow.setId(rs.getInt("id"));
                     ow.setSize(rs.getInt("object_size"));
+                    Timestamp time = rs.getTimestamp("creation_time");
+                    ow.setTime(time.getTime());
                     objs.add(ow);
                 }
                 return objs;
