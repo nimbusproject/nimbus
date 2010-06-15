@@ -6,7 +6,7 @@ Print IP addresses of cluster nodes that were launched but have not registered w
 as OK or ERR.
 
 Unadvertised option, only really works with Nimbus clusters launched with the cloud-client.
-And it is usually only invoked programatically via the cloud-client's --print-pending option. 
+And it is usually only invoked programatically via the cloud-client's --print-ctx-status option. 
 
 This will only exit successfully if all context members have moved to 'OK'.  Otherwise, it
 will exit with an error code 6 after printing all of the IP addresses, one per line, of nodes

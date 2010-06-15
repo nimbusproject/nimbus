@@ -456,11 +456,11 @@ public class CloudClient {
             CommonPrint.printDebugSectionEnd(this.print, sectionTitle);
         }
 
-        if (actions.contains(AllArgs.ACTION_PRINT_PENDING)) {
+        if (actions.contains(AllArgs.ACTION_PRINT_CTX_STATUS)) {
             final String sectionTitle = "PARAMETER CHECK: --" +
-                                                Opts.PRINT_PENDING_OPT_STRING;
+                                                Opts.PRINT_CTX_STATUS_OPT_STRING;
             CommonPrint.printDebugSection(this.print, sectionTitle);
-            this.parameterCheck_printPending();
+            this.parameterCheck_printContextStatus();
             CommonPrint.printDebugSectionEnd(this.print, sectionTitle);
         }
     }
@@ -527,22 +527,22 @@ public class CloudClient {
         }
     }
 
-    void parameterCheck_printPending() throws ParameterProblem {
+    void parameterCheck_printContextStatus() throws ParameterProblem {
 
         if (this.args.getActions().contains(AllArgs.ACTION_RUN)) {
             throw new ParameterProblem(
                     "You cannot create (--" + Opts.RUN_OPT_STRING +
-                            ") and run print pending (on a previously" +
-                            "created workspace) in the same invocation");
+                            ") and run print context status (on a previously" +
+                            "created cluster) in the same invocation");
         }
 
-        final String actionString = "Printing pending cluster nodes";
+        final String actionString = "Printing ctx status of each node";
         this._checkCredential(actionString);
         this._translateHandle(actionString);
 
         if (this.args.getHistorySubDir() != null ||
                 this.args.getEprGivenFilePath() != null) {
-            this._checkSpecificBrokerEPR("Printing pending cluster nodes");
+            this._checkSpecificBrokerEPR(actionString);
         } else {
             throw new ParameterProblem(actionString + " requires either " +
                     "'--" + Opts.HANDLE_OPT_STRING +
@@ -1310,7 +1310,7 @@ public class CloudClient {
         this.action_init_context();
         this.action_download();
         this.action_delete();
-        this.action_print_pending_context_nodes();
+        this.action_print_context_status();
     }
 
     void trustedCAs() throws ExecutionProblem {
@@ -1830,8 +1830,8 @@ public class CloudClient {
                 this.print);
     }
 
-    void action_print_pending_context_nodes() throws ExecutionProblem, ExitNow {
-        if (!this.args.getActions().contains(AllArgs.ACTION_PRINT_PENDING)) {
+    void action_print_context_status() throws ExecutionProblem, ExitNow {
+        if (!this.args.getActions().contains(AllArgs.ACTION_PRINT_CTX_STATUS)) {
             return; // *** EARLY RETURN ***
         }
 
@@ -1841,7 +1841,7 @@ public class CloudClient {
             brokerIdentityAuthorization = this.args.getFactoryID();
         }
 
-        this.executeUtil.printPendingQuery(this.specificEPRpath,
+        this.executeUtil.printContextStatusQuery(this.specificEPRpath,
                                            brokerIdentityAuthorization,
                                            this.print);
     }

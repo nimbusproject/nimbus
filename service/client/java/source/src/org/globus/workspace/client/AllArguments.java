@@ -41,7 +41,7 @@ public class AllArguments {
     public boolean mode_monitorEnsemble;
     public boolean mode_monitorContext;
     public boolean mode_noMoreContextInjections;
-    public boolean mode_ctxPending;
+    public boolean mode_ctxPrintStatus;
     public boolean mode_injectContextData;
     public boolean mode_createContext;
     public boolean mode_createInjectableContext;
@@ -196,9 +196,9 @@ public class AllArguments {
             this.gotCmdLine(Opts.CTX_NO_MORE_INJECTIONS_OPT_STRING, "enabled");
         }
 
-        if (line.hasOption(Opts.CTX_PENDING_OPT_STRING)) {
-            this.mode_ctxPending = true;
-            this.gotCmdLine(Opts.CTX_PENDING_OPT_STRING, "enabled");
+        if (line.hasOption(Opts.CTX_PRINT_STATUS_OPT_STRING)) {
+            this.mode_ctxPrintStatus = true;
+            this.gotCmdLine(Opts.CTX_PRINT_STATUS_OPT_STRING, "enabled");
         }
 
         if (line.hasOption(Opts.IMPERSONATE_CTX_AGENT_OPT_STRING)) {

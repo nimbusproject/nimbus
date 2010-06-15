@@ -44,14 +44,14 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ContextPendingPrint extends Mode {
+public class ContextPrintStatus extends Mode {
 
     // -------------------------------------------------------------------------
     // STATIC VARIABLES
     // -------------------------------------------------------------------------
 
     private static final Log logger =
-            LogFactory.getLog(ContextPendingPrint.class.getName());
+            LogFactory.getLog(ContextPrintStatus.class.getName());
 
 
     // -------------------------------------------------------------------------
@@ -69,7 +69,7 @@ public class ContextPendingPrint extends Mode {
     // CONSTRUCTOR
     // -------------------------------------------------------------------------
 
-    public ContextPendingPrint(Print print,
+    public ContextPrintStatus(Print print,
                           AllArguments arguments,
                           StubConfigurator stubConfigurator) {
         super(print, arguments, stubConfigurator);

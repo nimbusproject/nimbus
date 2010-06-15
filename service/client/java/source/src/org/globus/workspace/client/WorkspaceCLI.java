@@ -25,7 +25,7 @@ import org.apache.commons.cli.PosixParser;
 import org.globus.axis.gsi.GSIConstants;
 import org.globus.workspace.client.modes.ContextDataInject;
 import org.globus.workspace.client.modes.ContextMonitor;
-import org.globus.workspace.client.modes.ContextPendingPrint;
+import org.globus.workspace.client.modes.ContextPrintStatus;
 import org.globus.workspace.client.modes.Destroy;
 import org.globus.workspace.client.modes.FactoryQuery;
 import org.globus.workspace.client.modes.InstanceQuery;
@@ -436,8 +436,8 @@ public class WorkspaceCLI extends BaseClient {
             this.setMode(new ContextCreate_Injectable(this.pr, this.cliArgs, this));
         } else if (this.cliArgs.mode_impersonateContextAgent) {
             this.setMode(new ContextAgentImpersonate(this.pr, this.cliArgs, this));
-        } else if (this.cliArgs.mode_ctxPending) {
-            this.setMode(new ContextPendingPrint(this.pr, this.cliArgs, this));
+        } else if (this.cliArgs.mode_ctxPrintStatus) {
+            this.setMode(new ContextPrintStatus(this.pr, this.cliArgs, this));
         }
 
         if (this.mode == null) {

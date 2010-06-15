@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2008 University of Chicago
+ * Copyright 1999-2010 University of Chicago
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy
@@ -24,7 +24,7 @@ import java.util.ArrayList;
 
 import edu.emory.mathcs.backport.java.util.concurrent.Callable;
 
-public class PrintPendingTask implements Callable {
+public class PrintContextStatusTask implements Callable {
 
     private final String contextEprPath;
     private final String name;
@@ -33,11 +33,11 @@ public class PrintPendingTask implements Callable {
 
     private final Print pr;
 
-    public PrintPendingTask(String contextEprPath,
-                            String identityAuthorization,
-                            String shortName,
-                            String ipIdDir,
-                            Print print) {
+    public PrintContextStatusTask(String contextEprPath,
+                                  String identityAuthorization,
+                                  String shortName,
+                                  String ipIdDir,
+                                  Print print) {
         if (print == null) {
             throw new IllegalArgumentException("print may not be null");
         }
@@ -74,7 +74,7 @@ public class PrintPendingTask implements Callable {
         cmdList.add("--" + Opts.EPRFILE2_OPT_STRING);
         cmdList.add(this.contextEprPath);
 
-        cmdList.add("--" + Opts.CTX_PENDING_OPT_STRING);
+        cmdList.add("--" + Opts.CTX_PRINT_STATUS_OPT_STRING);
 
         cmdList.add("--" + Opts.EPR_ID_DIR_OPT_STRING);
         cmdList.add(this.ipIdDir);

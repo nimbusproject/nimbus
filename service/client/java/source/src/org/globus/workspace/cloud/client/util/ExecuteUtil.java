@@ -39,7 +39,7 @@ import org.globus.workspace.cloud.client.tasks.ContextMonitorTask;
 import org.globus.workspace.cloud.client.tasks.CreateContextTask;
 import org.globus.workspace.cloud.client.tasks.DestroyTask;
 import org.globus.workspace.cloud.client.tasks.FactoryQueryTask;
-import org.globus.workspace.cloud.client.tasks.PrintPendingTask;
+import org.globus.workspace.cloud.client.tasks.PrintContextStatusTask;
 import org.globus.workspace.cloud.client.tasks.QueryTask;
 import org.globus.workspace.cloud.client.tasks.RunTask;
 import org.globus.workspace.cloud.client.tasks.SaveTask;
@@ -228,10 +228,10 @@ public class ExecuteUtil {
 
 
     // -------------------------------------------------------------------------
-    // PRINT PENDING QUERY
+    // PRINT CONTEXT STATUS QUERY
     // -------------------------------------------------------------------------
 
-    public void printPendingQuery(String eprPath,
+    public void printContextStatusQuery(String eprPath,
                                   String brokerIdAuthz,
                                   Print print)
 
@@ -263,7 +263,7 @@ public class ExecuteUtil {
 
         final FutureTask task =
                 new FutureTask(
-                        new PrintPendingTask(eprPath, brokerIdAuthz, shortName,
+                        new PrintContextStatusTask(eprPath, brokerIdAuthz, shortName,
                                              ipIdDirPath, print));
 
         this.executor.submit(task);

@@ -37,10 +37,7 @@ Miscellaneous actions:
     --networks               Print the available networks (see contextualization
                              guide and the sample cluster definitions).
 
-    --print-pending          Print IP addresses of nodes that were launched but
-                             have not registered with the broker as OK or ERR.
-                             Returns 0 if all OK, returns 6 if it found such
-                             nodes, returns other non-zero if there is an issue.
+    --print-ctx-status       TODO
 
 --------------------------------------------------------------------------------
 
@@ -50,9 +47,9 @@ Required "--print-file-URL" options:
 
 --------------------------------------------------------------------------------
 
-Required "--print-pending" options:
+Required "--print-ctx-status" options:
 
-    Use --handle
+    Use --handle <cluster-name>
 
 --------------------------------------------------------------------------------
 

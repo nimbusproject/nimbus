@@ -79,7 +79,7 @@ public class AllArgs {
     public static final Integer ACTION_USAGE = new Integer(17);
     public static final Integer ACTION_EC2_CLUSTER = new Integer(18);
     public static final Integer ACTION_INIT_CONTEXT = new Integer(19);
-    public static final Integer ACTION_PRINT_PENDING = new Integer(20);
+    public static final Integer ACTION_PRINT_CTX_STATUS = new Integer(20);
 
     // ------------------------------------
 
@@ -422,9 +422,9 @@ public class AllArgs {
                             msString);
         }
 
-        if (line.hasOption(Opts.PRINT_PENDING_OPT_STRING)) {
-            this.actions.add(ACTION_PRINT_PENDING);
-            this.gotCmdLine(Opts.PRINT_PENDING_OPT_STRING,
+        if (line.hasOption(Opts.PRINT_CTX_STATUS_OPT_STRING)) {
+            this.actions.add(ACTION_PRINT_CTX_STATUS);
+            this.gotCmdLine(Opts.PRINT_CTX_STATUS_OPT_STRING,
                             "enabled");
         }
 
