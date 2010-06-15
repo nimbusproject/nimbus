@@ -1,0 +1,13 @@
+##############################################################################
+#NAMESPACES-VERSION: 1.0
+#
+# @(#)e8ac4b61.namespaces
+# CA alias    : ncsa-gridshib-ca
+#    subord_of: 
+#    subjectDN: /C=US/O=National Center for Supercomputing Applications/OU=Certificate Authorities/CN=GridShib CA
+#    hash     : e8ac4b61
+#    (generated automatically from e8ac4b61.signing_policy)
+#
+TO Issuer "/C=US/O=National Center for Supercomputing Applications/OU=Certificate Authorities/CN=GridShib CA" \
+  PERMIT Subject "/C=US/O=National Center for Supercomputing Applications/CN=.*"
+
