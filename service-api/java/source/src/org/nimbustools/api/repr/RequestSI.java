@@ -19,7 +19,7 @@ package org.nimbustools.api.repr;
 
 public interface RequestSI extends CreateRequest{
 
+    public String getInstanceType();
     public Double getSpotPrice();
-    
     public boolean isPersistent();
 }

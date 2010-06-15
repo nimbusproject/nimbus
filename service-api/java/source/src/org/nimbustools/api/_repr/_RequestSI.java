@@ -18,8 +18,10 @@ package org.nimbustools.api._repr;
 
 import org.nimbustools.api.repr.RequestSI;
 
-public interface _RequestSI extends RequestSI {
+public interface _RequestSI extends RequestSI, _CreateRequest {
 
+    public void setInstanceType(String instanceType);
+    
     public void setSpotPrice(Double spotPrice);
     
     public void setPersistent(boolean persistent);

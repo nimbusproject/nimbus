@@ -26,6 +26,7 @@ public class DefaultRequestSI extends DefaultCreateRequest implements _RequestSI
     // INSTANCE VARIABLES
     // -------------------------------------------------------------------------
 
+    private String instanceType;
     private Double spotPrice;
     private boolean persistent; 
     
@@ -44,18 +45,25 @@ public class DefaultRequestSI extends DefaultCreateRequest implements _RequestSI
         return this.persistent;
     }    
     
+    @Override
+    public String getInstanceType() {
+        return null;
+    }
+    
     // -------------------------------------------------------------------------
     // implements org.nimbustools.api._repr._RequestSI
     // -------------------------------------------------------------------------
 
-    @Override
     public void setSpotPrice(Double spotPrice) {
         this.spotPrice = spotPrice;
     }    
     
-    @Override
     public void setPersistent(boolean persistent) {
        this.persistent = persistent;
+    }    
+    
+    public void setInstanceType(String instanceType) {
+       this.instanceType = instanceType;
     }    
     
     // -------------------------------------------------------------------------
@@ -85,6 +93,8 @@ public class DefaultRequestSI extends DefaultCreateRequest implements _RequestSI
                 prefix + "initialStateRequest='" + this.initialStateRequest + "'" +
                 prefix + "sshKeyName='" + this.sshKeyName + "'" +
                 prefix + "context=" + this.context + "'" +
+                prefix + "instanceType=" + this.instanceType + "'" +
+                prefix + "persistent=" + this.persistent + "'" +
                 prefix + "spotPrice='" + this.spotPrice + "\n";
         
     }
