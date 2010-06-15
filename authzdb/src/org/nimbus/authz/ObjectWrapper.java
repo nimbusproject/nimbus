@@ -1,5 +1,7 @@
 package org.nimbus.authz;
 
+import java.sql.Timestamp;
+
 /**
  * Created by John Bresnahan
  * User: bresnaha
@@ -13,6 +15,7 @@ public class ObjectWrapper
     private String name;
     private int id;
     private long size;
+    private long timestamp;
 
     public void setName(String n)
     {
@@ -42,5 +45,15 @@ public class ObjectWrapper
     public int getId()
     {
         return this.id;
+    }
+
+    public void setTime(long tm)
+    {
+        this.timestamp = tm;
+    }
+
+    public long getTime()
+    {
+        return this.timestamp;
     }
 }

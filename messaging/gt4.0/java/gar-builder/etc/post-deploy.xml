@@ -120,6 +120,11 @@
                 value="${env.CUMULUS_HOME}"/>
         <filter token="AUTHZDB"
                 value="${env.NIMBUS_AUTHZ_DB}"/>
+
+        <filter token="CUMULUS_REPO_BUCKET"
+                value="${env.CUMULUS_REPO_BUCKET}"/>
+        <filter token="CUMULUS_HOST"
+                value="${env.CUMULUS_HOST}"/>
     </filterset>
 
     

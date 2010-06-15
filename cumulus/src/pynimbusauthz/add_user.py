@@ -49,6 +49,9 @@ Manage cumulus authz user accounts
     if o.alias == None and o.setkey != None:
         raise AuthzException('CLI_PARAMETER', "You must specify the alias that you are changing")
 
+    if o.alias != None and o.friendlyname == None:
+        o.friendlyname = o.alias
+
     return (o, args)
 
 def main(argv=sys.argv[1:]):
@@ -72,7 +75,7 @@ def main(argv=sys.argv[1:]):
         if opts.alias != None:
             user_alias = user.get_alias(opts.alias, opts.type)
             if user_alias == None:
-                user_alias = user.create_alias(opts.alias, opts.type, friendly_name=opts.friendlyname)
+                user_alias = user.create_alias(opts.alias, opts.type, opts.friendlyname)
                 pynimbusauthz.print_msg(opts, 0, "Creating new alias %s:%s" % (opts.type,opts.alias))
             if opts.genkey:
                 data = pynimbusauthz.random_string_gen(42)

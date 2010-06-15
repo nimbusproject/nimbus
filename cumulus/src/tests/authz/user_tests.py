@@ -49,11 +49,11 @@ class TestUser(unittest.TestCase):
 
     def test_create_alias_simple(self):
         user1 = User(self.db)
-        alias1 = user1.create_alias("/name/", pynimbusauthz.alias_type_s3)
+        alias1 = user1.create_alias("/name/", pynimbusauthz.alias_type_s3, "testname@")
 
         user2 = alias1.get_canonical_user()
         self.assertEqual(user1.get_id(), user2.get_id(), "User IDs should be equal")
-        alias1 = user1.create_alias("/name2", pynimbusauthz.alias_type_s3, "pooP")
+        alias1 = user1.create_alias("/name2", pynimbusauthz.alias_type_s3, "name2@", "pooP")
 
         user2 = alias1.get_canonical_user()
         self.assertEqual(user1.get_id(), user2.get_id(), "User IDs should be equal")
@@ -61,7 +61,7 @@ class TestUser(unittest.TestCase):
         
     def test_alias_lookup_simple(self):
         user1 = User(self.db)
-        alias1 = user1.create_alias("/name/", pynimbusauthz.alias_type_s3)
+        alias1 = user1.create_alias("/name/", pynimbusauthz.alias_type_s3, "name1@")
         alias2 = user1.get_alias("/name/", pynimbusauthz.alias_type_s3)
 
         self.assertEqual(alias1.get_name(), alias2.get_name(), "Alias names should be the same")
@@ -70,10 +70,10 @@ class TestUser(unittest.TestCase):
 
     def test_alias_lookup(self):
         user1 = User(self.db)
-        alias1 = user1.create_alias("/name/", pynimbusauthz.alias_type_s3)
-        aliasX = user1.create_alias("/name2", pynimbusauthz.alias_type_s3)
-        aliasX = user1.create_alias("/name3", pynimbusauthz.alias_type_s3)
-        aliasX = user1.create_alias("/name4", pynimbusauthz.alias_type_s3)
+        alias1 = user1.create_alias("/name/", pynimbusauthz.alias_type_s3, "1")
+        aliasX = user1.create_alias("/name2", pynimbusauthz.alias_type_s3, "2")
+        aliasX = user1.create_alias("/name3", pynimbusauthz.alias_type_s3, "3")
+        aliasX = user1.create_alias("/name4", pynimbusauthz.alias_type_s3, "4")
         all_alias = user1.get_all_alias()
         found = False
         for a in all_alias:
@@ -90,17 +90,17 @@ class TestUser(unittest.TestCase):
 
     def test_delete_alias(self):
         user1 = User(self.db)
-        alias1 = user1.create_alias("/name/", pynimbusauthz.alias_type_s3)
+        alias1 = user1.create_alias("/name/", pynimbusauthz.alias_type_s3, "name@")
         alias1.remove()
         alias2 = user1.get_alias("/name/", pynimbusauthz.alias_type_s3)
         self.assertEqual(alias2, None, "The alias should be gone")
 
     def test_create_same_alias(self):
         user1 = User(self.db)
-        alias1 = user1.create_alias("/name/", pynimbusauthz.alias_type_s3)
+        alias1 = user1.create_alias("/name/", pynimbusauthz.alias_type_s3, "name@")
 
         try:
-            alias2 = user1.create_alias("/name/", pynimbusauthz.alias_type_s3)
+            alias2 = user1.create_alias("/name/", pynimbusauthz.alias_type_s3, "name@")
             self.fail("This should have caused an conflict on insert")
         except:
             pass
@@ -138,7 +138,7 @@ class TestUser(unittest.TestCase):
         user1 = User(self.db)
         self.db.commit()
         alias_name = "helloname"
-        alias1 = user1.create_alias(alias_name, pynimbusauthz.alias_type_s3)
+        alias1 = user1.create_alias(alias_name, pynimbusauthz.alias_type_s3, alias_name)
         self.db.commit()
         fid = "%%" + alias_name[1:]
         lid = alias_name[:-1] + "%%"
@@ -164,7 +164,7 @@ class TestUser(unittest.TestCase):
         user1 = User(self.db)
         self.db.commit()
         alias_name = "helloname"
-        alias1 = user1.create_alias(alias_name, pynimbusauthz.alias_type_s3)
+        alias1 = user1.create_alias(alias_name, pynimbusauthz.alias_type_s3, alias_name)
         key = "helloworld"
         alias1.set_data(key)
         self.db.commit()

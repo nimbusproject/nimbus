@@ -20,6 +20,7 @@ if [ "X${CUMULUS_TEST_HTTPS}" == "X" ]; then
 fi
 
 
+$CUMULUS_HOME/bin/cumulus-remove-user tests3cmd1@nimbus.test
 $CUMULUS_HOME/bin/cumulus -p $cumulus_port $https_opt &
 cumulus_pid=$!
 echo $cumulus_pid
