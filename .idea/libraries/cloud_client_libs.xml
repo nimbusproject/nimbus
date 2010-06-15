@@ -5,8 +5,10 @@
       <root url="jar://$PROJECT_DIR$/lib/clients/globus_delegation_client.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/clients/globus_delegation_stubs.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/services/commons-cli-2.0.jar!/" />
+      <root url="file://$PROJECT_DIR$/lib/clients" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
+    <jarDirectory url="file://$PROJECT_DIR$/lib/clients" recursive="false" />
   </library>
 </component>

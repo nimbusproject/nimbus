@@ -57,6 +57,7 @@ public class ElasticService implements ElasticVersion {
             throw new IllegalArgumentException("serviceSecurity may not be null");
         }
 
+        logger.debug("Elastic Service creation");
         this.serviceRM = serviceRM;
         this.serviceGeneral = serviceGeneral;
         this.serviceImage = serviceImage;

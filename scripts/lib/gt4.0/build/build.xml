@@ -66,6 +66,7 @@
         <ant dir="${nimbus.messaging.query.service.builddir}" target="clean" />
         <ant dir="${nimbus.messaging.rest.builddir}" target="clean" />
         <ant dir="${nimbus.ctx-broker.gt4_0.builddir}" target="clean" />
+        <ant dir="${nimbus.authzdb.builddir}" target="clean" />
         
 
     </target>
@@ -130,6 +131,7 @@
         <echo>Building default Nimbus-for-GT4.0 packages:
         </echo>
 
+        <ant dir="${nimbus.authzdb.builddir}" target="dist" />
         <ant dir="${nimbus.autocommon.gt4_0.builddir}" target="dist" /> <!-- dep -->
         <antcall target="dist-service-api" />
         <antcall target="dist-default-services" />
@@ -213,6 +215,7 @@
         <echo>Default clients-only installation to GT4.0 GLOBUS_LOCATION:
         </echo>
 
+        <ant dir="${nimbus.authzdb.builddir}" target="dist" />
         <ant dir="${nimbus.messaging.gt4_0.schemas.builddir}" target="deploy" />
         <ant dir="${nimbus.messaging.gt4_0.stubs.builddir}" target="deploy" />
         <ant dir="${nimbus.messaging.gt4_0.client.builddir}" target="deploy" />

@@ -73,7 +73,7 @@ if [ ! -d $NIMBUS_HOME ]; then
 fi
 
 echo "Installing cumulus..."
-${NIMBUS_SRC}/cumulus/install.sh $NIMBUS_HOME/cumulus
+${NIMBUS_SRC}/cumulus/cumulus-install.sh $NIMBUS_HOME/cumulus
 if [ $? -ne 0 ]; then
     echo "Failed to install cumulus"
     exit 1

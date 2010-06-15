@@ -17,9 +17,9 @@ package org.nimbustools.messaging.query.security;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.globus.workspace.persistence.WorkspaceDatabaseException;
-import org.globus.workspace.sqlauthz.AuthzDBAdapter;
-import org.globus.workspace.sqlauthz.UserAlias;
+import org.nimbus.authz.AuthzDBAdapter;
+import org.nimbus.authz.AuthzDBException;
+import org.nimbus.authz.UserAlias;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -82,7 +82,7 @@ public class NimbusAuthzUserDetailsService
             return new QueryUser(username,secret, dn);
 
 
-        } catch (WorkspaceDatabaseException e) {
+        } catch (AuthzDBException e) {
             throw new UsernameNotFoundException("Failed to retrieve credentials for access ID " + username, e);
         }
     }
@@ -121,7 +121,7 @@ public class NimbusAuthzUserDetailsService
             return new QueryUser(accessId, secret, dn);
 
 
-        } catch (WorkspaceDatabaseException e) {
+        } catch (AuthzDBException e) {
             throw new UsernameNotFoundException("Failed to retrieve query credentials for DN '" + dn + "'", e);
         }
     }

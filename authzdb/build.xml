@@ -2,7 +2,7 @@
 
 <project default="dist" basedir="." name="Workspace Service">
 
-    <description>Workspace Service</description>
+    <description>Authz DB Module</description>
 
     <!-- load user nimbus.build.properties file, if it exists -->
     <property file="${user.home}/nimbus.build.properties"/>
@@ -36,9 +36,9 @@
          ******************************************************************* -->
 
     <target name="init" depends="checkjdk">
-        <mkdir dir="${nimbus.service.main.build.dir}"/>
-        <mkdir dir="${nimbus.service.main.build.dest}"/>
-        <mkdir dir="${nimbus.service.main.dist.dir}"/>
+        <mkdir dir="${nimbus.authz.main.build.dir}"/>
+        <mkdir dir="${nimbus.authz.main.build.dest}"/>
+        <mkdir dir="${nimbus.authz.main.dist.dir}"/>
     </target>
 
 
@@ -46,23 +46,17 @@
          COMPILATION
          ******************************************************************* -->
 
-    <path id="nimbus.service.main.classpath">
-        <fileset dir="${nimbus.service.main.lib.dir}">
+    <path id="nimbus.authz.main.classpath">
+        <fileset dir="${nimbus.authz.main.lib.dir}">
              <include name="*.jar"/>
-        </fileset>
-        <fileset dir="${nimbus.service.api.dist.dir}">
-              <include name="*.jar"/>
-        </fileset>
-        <fileset dir="${nimbus.authz.dist.dir}">
-              <include name="*.jar"/>
         </fileset>
     </path>
 
     <target name="compile" depends="init">
 
-        <javac srcdir="${nimbus.service.main.src.dir}"
-               destdir="${nimbus.service.main.build.dest}"
-               classpathref="nimbus.service.main.classpath"
+        <javac srcdir="${nimbus.authz.main.src.dir}"
+               destdir="${nimbus.authz.main.build.dest}"
+               classpathref="nimbus.authz.main.classpath"
                debug="on">
 
             <include name="**/*.java"/>
@@ -70,12 +64,12 @@
             
         </javac>
 
-        <copy todir="${nimbus.service.main.build.dest}" >
-              <fileset dir="${nimbus.service.main.src.dir}"
+        <copy todir="${nimbus.authz.main.build.dest}" >
+              <fileset dir="${nimbus.authz.main.src.dir}"
                        includes="**/*.properties" />
-              <fileset dir="${nimbus.service.main.src.dir}"
+              <fileset dir="${nimbus.authz.main.src.dir}"
                        includes="**/*.xml" />
-              <fileset dir="${nimbus.service.main.src.dir}"
+              <fileset dir="${nimbus.authz.main.src.dir}"
                        includes="**/*.txt" />
         </copy>
 
@@ -87,8 +81,8 @@
          ******************************************************************* -->
 
     <target name="jar" depends="compile">
-        <jar destfile="${nimbus.service.main.dist.dir}/${nimbus.service.main.jar.name}"
-             basedir="${nimbus.service.main.build.dest}"/>
+        <jar destfile="${nimbus.authz.main.dist.dir}/${nimbus.authz.main.jar.name}"
+             basedir="${nimbus.authz.main.build.dest}"/>
     </target>
 
     
@@ -98,9 +92,9 @@
 
     <target name="dist">
         <echo message="**** Module: ${basedir}" />
-        <echo>Building: ${nimbus.service.main.print-noun}</echo>
+        <echo>Building: ${nimbus.authz.main.print-noun}</echo>
         <antcall target="jar" />
-        <echo>Built: ${nimbus.service.main.print-noun}
+        <echo>Built: ${nimbus.authz.main.print-noun}
         </echo>
     </target>
 
@@ -110,8 +104,8 @@
          ******************************************************************* -->
 
     <target name="clean">
-        <delete dir="${nimbus.service.main.build.dir}"/>
-        <delete dir="${nimbus.service.main.dist.dir}"/>
+        <delete dir="${nimbus.authz.main.build.dir}"/>
+        <delete dir="${nimbus.authz.main.dist.dir}"/>
         <delete dir="tmp"/>
         <echo message="Cleaned: ${basedir}" />
     </target>

@@ -63,7 +63,7 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
        <property name="password" value="nimbus"/>
    </bean>
 
-    <bean id="authzDBAdapter" class="org.globus.workspace.sqlauthz.AuthzDBAdapter">
+    <bean id="authzDBAdapter" class="org.nimbus.authz.AuthzDBAdapter">
         <constructor-arg ref="other.AuthzDataSource"/>
     </bean>
 
