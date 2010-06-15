@@ -708,6 +708,10 @@ public class CloudClient {
         boolean adjustKnownHosts = false;
 
         String ssh_hostsfile = this.args.getSsh_hostsfile();
+        if (ssh_hostsfile == null) {
+            this.print.errln("Your SSH known_hosts file will not be updated with " +
+                    "generated keys (see cloud.properties to enable).");
+        }
         
         for (int i = 0; i < this.clusterMembers.length; i++) {
 
@@ -1633,9 +1637,14 @@ public class CloudClient {
             printNames[i] = member.getPrintName(); // may be null
         }
 
-        final KnownHostsTask[] knownHostTasks =
-            ClusterUtil.constructKnownHostTasks(this.clusterMembers,
-                this.args.isHostkeyDir());
+        final KnownHostsTask[] knownHostTasks;
+        if (this.args.getSsh_hostsfile() != null) {
+            knownHostTasks =
+                    ClusterUtil.constructKnownHostTasks(this.clusterMembers,
+                                                        this.args.isHostkeyDir());
+        } else {
+            knownHostTasks = null;
+        }
 
         this.executeUtil.startWorkspaceCluster(this.workspaceFactoryURL,
                                                knownHostTasks,

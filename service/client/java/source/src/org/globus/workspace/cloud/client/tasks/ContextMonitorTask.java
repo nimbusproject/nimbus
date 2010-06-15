@@ -35,7 +35,7 @@ public class ContextMonitorTask implements Callable {
     private final long pollMs;
     private final String knownHostsFile;
     private String knownHostsDir;
-    private final String knownHostsTasks;
+    private final String knownHostsTasksStr;
 
     private final Print pr;
 
@@ -60,7 +60,7 @@ public class ContextMonitorTask implements Callable {
         if (knownHostTasks == null || knownHostTasks.length == 0) {
             
             this.knownHostsFile = null;
-            this.knownHostsTasks = null;
+            this.knownHostsTasksStr = null;
             this.knownHostsDir = null;
 
         } else {
@@ -99,10 +99,10 @@ public class ContextMonitorTask implements Callable {
                 }
             }
             
-            this.knownHostsTasks = buf.toString();
+            this.knownHostsTasksStr = buf.toString();
         }
 
-        if (this.knownHostsTasks != null) {
+        if (this.knownHostsTasksStr != null) {
             if (this.knownHostsFile == null && this.knownHostsDir == null) {
                 throw new ExecutionProblem("known-host tasks " +
                         "but no path/dir to adjust");
@@ -149,13 +149,13 @@ public class ContextMonitorTask implements Callable {
             cmdList.add(this.name);
         }
 
-        if (this.knownHostsTasks != null) {
+        if (this.knownHostsTasksStr != null) {
             if (this.knownHostsFile != null) {
             cmdList.add("--" + Opts.SSHHOSTS_OPT_STRING);
             cmdList.add(this.knownHostsFile);
             }
             cmdList.add("--" + Opts.ADJUST_SSHHOSTS_OPT_STRING);
-            cmdList.add(this.knownHostsTasks);
+            cmdList.add(this.knownHostsTasksStr);
             if (this.knownHostsDir != null) {
                 cmdList.add("--" + Opts.SSHHOSTSDIR_OPT_STRING);
                 cmdList.add(this.knownHostsDir);

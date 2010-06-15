@@ -31,8 +31,8 @@ import org.globus.workspace.client_core.utils.EPRUtils;
 import org.globus.workspace.client_core.utils.FileUtils;
 import org.globus.workspace.client_core.utils.StringUtils;
 import org.globus.workspace.cloud.client.Opts;
-import org.globus.workspace.cloud.client.cluster.KnownHostsTask;
 import org.globus.workspace.cloud.client.cluster.ClusterMember;
+import org.globus.workspace.cloud.client.cluster.KnownHostsTask;
 import org.globus.workspace.cloud.client.tasks.ClusterDoneTask;
 import org.globus.workspace.cloud.client.tasks.ClusterMonitorTask;
 import org.globus.workspace.cloud.client.tasks.ContextMonitorTask;
@@ -46,7 +46,6 @@ import org.globus.workspace.cloud.meta.client.CloudDeployment;
 import org.globus.workspace.common.client.CommonPrint;
 import org.globus.workspace.common.print.Print;
 import org.globus.workspace.common.print.PrintOpts;
-import org.globus.wsrf.encoding.SerializationException;
 import org.nimbustools.ctxbroker.generated.gt4_0.description.BrokerContactType;
 import org.nimbustools.ctxbroker.generated.gt4_0.description.Cloudcluster_Type;
 import org.nimbustools.ctxbroker.generated.gt4_0.description.Nimbusctx_Type;
@@ -58,7 +57,6 @@ import javax.xml.namespace.QName;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.PrintStream;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -897,9 +895,14 @@ public class ExecuteUtil {
 
             // find specific EPR IPs in order to key the known_hosts request
             // correctly.
-            final KnownHostsTask[] sendTasks =
+            final KnownHostsTask[] sendTasks;
+            if (knownHostTasks != null) {
+                sendTasks =
                     hostTaskIDs(knownHostTasks, allEPRpaths,
                                 print, eprIdIpDirPath, knownHostsDirPath);
+            } else {
+                sendTasks = null;
+            }
 
             final long ctx_start = System.currentTimeMillis();
             
