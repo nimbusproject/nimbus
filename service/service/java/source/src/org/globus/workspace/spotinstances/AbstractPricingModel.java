@@ -16,7 +16,7 @@ public abstract class AbstractPricingModel implements PricingModel{
         
         if(totalReservedResources < 1){
             Double highestPrice = priceCandidates.last();
-            return highestPrice+1;
+            return highestPrice+0.1;
         }
         
         return getNextPriceImpl(totalReservedResources, requests, currentPrice);
