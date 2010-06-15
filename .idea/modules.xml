@@ -3,7 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea-modules/service-suites/basic.iml" filepath="$PROJECT_DIR$/.idea-modules/service-suites/basic.iml" group="service-suites" />
-      <module fileurl="file://$PROJECT_DIR$/authzdb.iml" filepath="$PROJECT_DIR$/authzdb.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea-modules/authzdb//authzdb.iml" filepath="$PROJECT_DIR$/.idea-modules/authzdb//authzdb.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea-modules/cloud-client/cloud-client.iml" filepath="$PROJECT_DIR$/.idea-modules/cloud-client/cloud-client.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea-modules/protocol-common/common.iml" filepath="$PROJECT_DIR$/.idea-modules/protocol-common/common.iml" group="protocols" />
       <module fileurl="file://$PROJECT_DIR$/.idea-modules/ctx/contextualization.iml" filepath="$PROJECT_DIR$/.idea-modules/ctx/contextualization.iml" />
