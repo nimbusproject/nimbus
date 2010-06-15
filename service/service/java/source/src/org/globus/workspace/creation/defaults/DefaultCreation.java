@@ -50,7 +50,6 @@ import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.globus.workspace.service.binding.vm.VirtualMachineDeployment;
 import org.globus.workspace.spotinstances.SIRequest;
 import org.globus.workspace.spotinstances.SpotInstancesManager;
-import org.globus.workspace.spotinstances.SpotInstancesManagerImpl;
 import org.nimbustools.api._repr._Advertised;
 import org.nimbustools.api._repr._CreateResult;
 import org.nimbustools.api.repr.Advertised;
@@ -60,7 +59,7 @@ import org.nimbustools.api.repr.CreateRequest;
 import org.nimbustools.api.repr.CreateResult;
 import org.nimbustools.api.repr.ReprFactory;
 import org.nimbustools.api.repr.RequestSI;
-import org.nimbustools.api.repr.RequestSIResult;
+import org.nimbustools.api.repr.SpotRequest;
 import org.nimbustools.api.repr.ctx.Context;
 import org.nimbustools.api.repr.vm.NIC;
 import org.nimbustools.api.repr.vm.ResourceAllocation;
@@ -142,7 +141,7 @@ public class DefaultCreation implements Creation {
                            TimerManager timerManagerImpl,
                            Lager lagerImpl,
                            BindNetwork bindNetworkImpl,
-                           SpotInstancesManagerImpl siManagerImpl) {
+                           SpotInstancesManager siManagerImpl) {
 
         if (lockManagerImpl == null) {
             throw new IllegalArgumentException("lockManager may not be null");
@@ -276,7 +275,7 @@ public class DefaultCreation implements Creation {
     }
     
     @Override
-    public RequestSIResult requestSpotInstances(RequestSI req, Caller caller) throws CreationException, MetadataException, ResourceRequestDeniedException, SchedulingException {
+    public SpotRequest requestSpotInstances(RequestSI req, Caller caller) throws CreationException, MetadataException, ResourceRequestDeniedException, SchedulingException {
 
         
         if (caller == null) {
@@ -306,18 +305,15 @@ public class DefaultCreation implements Creation {
         final String groupID = this.getGroupID(creatorID, bound.length);   
         
         final String siID = generateID();
-        SIRequest siRequest = new SIRequest(siID, req.getSpotPrice(), req.isPersistent(), caller, groupID, bound, req.getContext(), req.getRequestedNics());
+        SIRequest siRequest = new SIRequest(siID, req.getSpotPrice(), req.isPersistent(), caller, groupID, bound, req.getContext(), req.getRequestedNics(), Calendar.getInstance());
         
         siManager.addRequest(siRequest);
         
-        RequestSIResult requestSIResult;
         try {
-            requestSIResult = dataConvert.getRequestSIResult(siRequest, req.getSshKeyName());
+            return dataConvert.getSpotRequest(siRequest);
         } catch (CannotTranslateException e) {
             throw new CreationException("Could not translate request from internal representation to RM API representation.", e);
-        }
-        
-        return requestSIResult;
+        }        
     }    
 
     /**

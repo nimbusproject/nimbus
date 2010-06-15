@@ -31,7 +31,7 @@ import org.globus.workspace.spotinstances.SIRequest;
 import org.globus.workspace.spotinstances.SIRequestStatus;
 import org.globus.workspace.xen.XenUtil;
 import org.nimbustools.api._repr._Caller;
-import org.nimbustools.api._repr._RequestSIResult;
+import org.nimbustools.api._repr._SpotRequest;
 import org.nimbustools.api._repr._Usage;
 import org.nimbustools.api._repr.si._SIRequestState;
 import org.nimbustools.api._repr.vm._NIC;
@@ -40,13 +40,13 @@ import org.nimbustools.api._repr.vm._Schedule;
 import org.nimbustools.api._repr.vm._State;
 import org.nimbustools.api._repr.vm._VM;
 import org.nimbustools.api._repr.vm._VMFile;
-import org.nimbustools.api.defaults.repr.DefaultSIResult;
+import org.nimbustools.api.defaults.repr.DefaultSpotRequest;
 import org.nimbustools.api.defaults.repr.si.DefaultSIRequestState;
 import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.CannotTranslateException;
 import org.nimbustools.api.repr.ReprFactory;
 import org.nimbustools.api.repr.RequestSI;
-import org.nimbustools.api.repr.RequestSIResult;
+import org.nimbustools.api.repr.SpotRequest;
 import org.nimbustools.api.repr.Usage;
 import org.nimbustools.api.repr.si.SIRequestState;
 import org.nimbustools.api.repr.vm.NIC;
@@ -54,6 +54,7 @@ import org.nimbustools.api.repr.vm.ResourceAllocation;
 import org.nimbustools.api.repr.vm.Schedule;
 import org.nimbustools.api.repr.vm.State;
 import org.nimbustools.api.repr.vm.VM;
+import org.nimbustools.api.repr.vm.VMConstants;
 import org.nimbustools.api.repr.vm.VMFile;
 
 /**
@@ -222,15 +223,15 @@ public class DataConvert implements WorkspaceConstants {
         vm.setCreator(this.getCreator(resource));
         
         if(resource.getVM().isPreemptable()){
-            vm.setType(WorkspaceConstants.TYPE_SPOT);
+            vm.setLifeCycle(VMConstants.LIFE_CYCLE_SPOT);
         } else {
-            vm.setType(WorkspaceConstants.TYPE_NORMAL);
+            vm.setLifeCycle(VMConstants.LIFE_CYCLE_NORMAL);
         }
         
         return vm;
     }
     
-    public RequestSIResult getRequestSIResult(SIRequest siRequest, String sshKeyName) throws CannotTranslateException {
+    public SpotRequest getSpotRequest(SIRequest siRequest) throws CannotTranslateException {
 
         VirtualMachine[] bindings = siRequest.getBindings();
         
@@ -238,9 +239,9 @@ public class DataConvert implements WorkspaceConstants {
             throw new CannotTranslateException("no resource?");
         }        
         
-        final _RequestSIResult result = new DefaultSIResult();
+        final _SpotRequest result = new DefaultSpotRequest();
 
-        result.setCreationTime(Calendar.getInstance());
+        result.setCreationTime(siRequest.getCreationTime());
         result.setCreator(siRequest.getCaller());
         result.setGroupID(siRequest.getGroupID());
         result.setMdUserData(bindings[0].getMdUserData());
@@ -249,7 +250,6 @@ public class DataConvert implements WorkspaceConstants {
         result.setSpotPrice(siRequest.getMaxBid());
         result.setVMFiles(this.getStorage(bindings[0]));
         result.setResourceAllocation(this.getRA(bindings[0]));
-        result.setSshKeyName(sshKeyName);
         
         _SIRequestState state = new DefaultSIRequestState();
         state.setState(this.getSIRequestState(siRequest.getStatus()));

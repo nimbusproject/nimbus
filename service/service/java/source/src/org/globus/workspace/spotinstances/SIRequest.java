@@ -1,5 +1,6 @@
 package org.globus.workspace.spotinstances;
 
+import java.util.Calendar;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 
@@ -25,6 +26,7 @@ public class SIRequest implements Comparable<SIRequest>{
     
     private LinkedHashSet<Integer> allocatedVMs = new LinkedHashSet<Integer>();
     private LinkedHashSet<Integer> fulfilledVMs = new LinkedHashSet<Integer>();
+    private Calendar creationTime;
 
     public SIRequest(String id, Double highestPrice, Integer requestedInstances) {
         this(id, highestPrice, requestedInstances, false);
@@ -40,7 +42,7 @@ public class SIRequest implements Comparable<SIRequest>{
 
     public SIRequest(String id, Double spotPrice, boolean persistent,
             Caller caller, String groupID, VirtualMachine[] bindings, Context context,
-            NIC[] requestedNics) {
+            NIC[] requestedNics, Calendar creationTime) {
         this.requestedInstances = bindings.length;
         this.status = SIRequestStatus.OPEN;        
         this.id = id;
@@ -50,6 +52,8 @@ public class SIRequest implements Comparable<SIRequest>{
         this.context = context;
         this.requestedNics = requestedNics;
         this.groupID = groupID;
+        this.caller = caller;
+        this.creationTime = creationTime;
     }
 
     public Double getMaxBid() {
@@ -217,5 +221,9 @@ public class SIRequest implements Comparable<SIRequest>{
         }
         
         return result;
+    }
+
+    public Calendar getCreationTime() {
+        return this.creationTime;
     }    
 }
