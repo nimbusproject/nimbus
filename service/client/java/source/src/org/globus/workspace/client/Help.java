@@ -89,6 +89,8 @@ public class Help {
             filename = "client-help-mode-ctxdata.txt";
         } else if (args.mode_start) {
             filename = "client-help-mode-shared1.txt";
+        } else if (args.mode_ctxPending) {
+            filename = "client-help-mode-ctxpendingprint.txt";
         } else {
             return null;
         }

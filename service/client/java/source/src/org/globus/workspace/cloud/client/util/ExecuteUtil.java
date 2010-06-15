@@ -39,6 +39,7 @@ import org.globus.workspace.cloud.client.tasks.ContextMonitorTask;
 import org.globus.workspace.cloud.client.tasks.CreateContextTask;
 import org.globus.workspace.cloud.client.tasks.DestroyTask;
 import org.globus.workspace.cloud.client.tasks.FactoryQueryTask;
+import org.globus.workspace.cloud.client.tasks.PrintPendingTask;
 import org.globus.workspace.cloud.client.tasks.QueryTask;
 import org.globus.workspace.cloud.client.tasks.RunTask;
 import org.globus.workspace.cloud.client.tasks.SaveTask;
@@ -46,7 +47,6 @@ import org.globus.workspace.cloud.meta.client.CloudDeployment;
 import org.globus.workspace.common.client.CommonPrint;
 import org.globus.workspace.common.print.Print;
 import org.globus.workspace.common.print.PrintOpts;
-import org.globus.wsrf.encoding.SerializationException;
 import org.nimbustools.ctxbroker.generated.gt4_0.description.BrokerContactType;
 import org.nimbustools.ctxbroker.generated.gt4_0.description.Cloudcluster_Type;
 import org.nimbustools.ctxbroker.generated.gt4_0.description.Nimbusctx_Type;
@@ -58,7 +58,6 @@ import javax.xml.namespace.QName;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.PrintStream;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -227,6 +226,59 @@ public class ExecuteUtil {
         }
     }
 
+
+    // -------------------------------------------------------------------------
+    // PRINT PENDING QUERY
+    // -------------------------------------------------------------------------
+
+    public void printPendingQuery(String eprPath,
+                                  String brokerIdAuthz,
+                                  Print print)
+
+            throws ExecutionProblem, ExitNow {
+
+        String shortName = null;
+        print.debugln("Received broker EPR path: " + eprPath);
+        final File epr = new File(eprPath);
+        final String dirName = epr.getParentFile().getName();
+
+        if (dirName.startsWith(HistoryUtil.historyDirPrefix) ||
+                dirName.startsWith(HistoryUtil.historyClusterDirPrefix)) {
+
+            print.debugln("Surmising from context EPR parent directory that " +
+                          "short name is '" + dirName +
+                          "' (used for printing only)");
+
+            shortName = dirName;
+        }
+
+        final File ipIdDir = new File(epr.getParentFile(), "id-ip-dir");
+        final String ipIdDirPath = ipIdDir.getAbsolutePath();
+        print.debugln("Surmising from context EPR parent directory that " +
+                          "id-ip-dir is: " + ipIdDirPath);
+        if (!ipIdDir.exists()) {
+            throw new ExecutionProblem("Could not find the 'id-ip-dir' for this handle, " +
+                    "was it a virtual cluster launched with the context broker?");
+        }
+
+        final FutureTask task =
+                new FutureTask(
+                        new PrintPendingTask(eprPath, brokerIdAuthz, shortName,
+                                             ipIdDirPath, print));
+
+        this.executor.submit(task);
+
+        try {
+            final Integer retCode = (Integer) task.get();
+            if (retCode.intValue() != BaseClient.SUCCESS_EXIT_CODE) {
+                throw new ExitNow(retCode.intValue());
+            }
+        } catch (InterruptedException e) {
+            throw new ExecutionProblem(e.getMessage(), e);
+        } catch (ExecutionException e) {
+            throw new ExecutionProblem(e.getMessage(), e);
+        }
+    }
 
     // -------------------------------------------------------------------------
     // ASSOCIATION QUERY

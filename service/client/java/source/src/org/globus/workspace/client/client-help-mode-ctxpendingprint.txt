@@ -1,0 +1,27 @@
+
+Definition:
+==========
+
+Print IP addresses of cluster nodes that were launched but have not registered with the broker
+as OK or ERR.
+
+Unadvertised option, only really works with Nimbus clusters launched with the cloud-client.
+And it is usually only invoked programatically via the cloud-client's --print-pending option. 
+
+This will only exit successfully if all context members have moved to 'OK'.  Otherwise, it
+will exit with an error code 6 after printing all of the IP addresses, one per line, of nodes
+in the cluster launch that don't have an OK report in the context yet.
+
+NOTE: If there is another problem (for example, an ERROR was reported by a node to the context
+or there is a given parameter issue), the client will exit with an error code besides 0 or 6. 
+
+
+Required:
+========
+
+--eprFile (-e) <file>    EPR of the context to query.
+
+--epr-ip-dir <dir>       The directory to the ip/id recordings directory.
+
+
+Also see "--help" and "--extrahelp"
