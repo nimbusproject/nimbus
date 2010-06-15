@@ -17,7 +17,10 @@ nimbus-cloud-client-015
 
 [*] Friendlier unpropagation message
     http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=6908
-    
+
+[*] Updated certificates.  Includes FutureGrid and BIRN CAs.
+    Includes updates via VDT CA distribution.
+
 
 nimbus-cloud-client-014
 -----------------------
