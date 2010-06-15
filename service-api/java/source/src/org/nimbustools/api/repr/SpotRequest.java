@@ -23,7 +23,7 @@ import org.nimbustools.api.repr.vm.ResourceAllocation;
 import org.nimbustools.api.repr.vm.VMFile;
 
 
-public interface RequestSIResult {
+public interface SpotRequest {
 
     public String getRequestID();
     public Double getSpotPrice();
