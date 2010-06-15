@@ -3,5 +3,5 @@ crl_url = http://www.naregi.org/ca/out-CRL2.crl
 email = naregi-ca@grid.nii.ac.jp
 status = accredited:classic
 url = https://www.naregi.org/ca/
-version = 1.22
+version = 1.35
 sha1fp.0 = FF:A5:3A:9D:C9:BB:8F:06:6E:AB:CE:A8:1E:DC:5A:91:3C:D7:5C:A1

@@ -1,7 +1,7 @@
 # Information for CA SiGNET
 # Subject: C=SI, O=SiGNET, CN=SiGNET CA
 #
-# @(#)$Id: 3d5be7bc.info,v 1.1.1.1 2009/05/28 21:09:08 tfreeman Exp $
+# @(#)$Id: 3d5be7bc.info,v 1.2 2007/01/27 22:37:44 pmacvsdg Exp $
 #
 alias = SiGNET-CA
 ca_url = http://signet-ca.ijs.si/pub/cacert/signet02cacert.pem
@@ -9,5 +9,5 @@ crl_url = http://signet-ca.ijs.si/pub/crl/signet02cacrl.crl
 email = signet-ca@ijs.si
 status = accredited:classic
 url = http://signet-ca.ijs.si/
-version = 1.22
+version = 1.35
 sha1fp.0 = BC:89:93:37:26:8E:3D:B5:8D:DF:72:D7:09:53:D4:9B:E7:D9:B2:90

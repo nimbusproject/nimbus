@@ -1,4 +1,4 @@
-# @(#)$Id: 2f3fadf6.info,v 1.1.1.1 2009/05/28 21:09:05 tfreeman Exp $
+# @(#)$Id: 2f3fadf6.info,v 1.1 2006/10/10 10:13:18 pmacvsdg Exp $
 # Information for CA: INFN-CA-2006
 #   hash = 2f3fadf6
 #   subject = "/C=IT/O=INFN/CN=INFN CA"
@@ -7,5 +7,5 @@ url = http://security.fi.infn.it/CA/
 email = infn-ca@fi.infn.it
 crl_url = http://security.fi.infn.it/CA/INFNCA_crl.der
 status = accredited:classic
-version = 1.22
+version = 1.35
 sha1fp.0 = 7D:17:44:C4:C9:1F:01:A8:B3:1C:81:E1:FF:8D:D8:91:B4:E1:5C:71

@@ -1,4 +1,4 @@
-# @(#)$Id: 1691b9ba.signing_policy,v 1.1.1.1 2009/05/28 21:09:08 tfreeman Exp $
+# @(#)$Id: 1691b9ba.signing_policy,v 1.1 2005/10/14 16:02:37 pmacvsdg Exp $
 #
 access_id_CA  X509   '/C=TR/O=TRGrid/CN=TR-Grid CA'
 pos_rights    globus CA:sign

@@ -1,5 +1,5 @@
 # EACL - NIIF Hungarnet CA - new root certificate
-# @(#)$Id: cc800af0.signing_policy,v 1.1.1.1 2009/05/28 21:09:06 tfreeman Exp $
+# @(#)$Id: cc800af0.signing_policy,v 1.2 2005/10/25 07:42:10 pmacvsdg Exp $
 # hash: cc800af0
 #
  access_id_CA      X509     '/C=HU/O=NIIF/OU=Certificate Authorities/CN=NIIF Root CA'

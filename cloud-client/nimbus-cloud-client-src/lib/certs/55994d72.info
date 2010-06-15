@@ -1,5 +1,5 @@
 #
-# @(#)$Id: 55994d72.info,v 1.1.1.1 2009/05/28 21:09:06 tfreeman Exp $
+# @(#)$Id: 55994d72.info,v 1.4 2006/05/16 11:15:06 pmacvsdg Exp $
 # Information for CA RDIG
 #   obtained from 55994d72 in Russia/
 alias = RDIG
@@ -8,5 +8,5 @@ crl_url = http://ice.grid.kiae.ru/ca/RDIG/cacrl.pem
 email = rdig-ca-support@grid.kiae.ru
 status = accredited:classic
 url = http://ca.grid.kiae.ru/RDIG/
-version = 1.22
+version = 1.35
 sha1fp.0 = CB:00:03:30:76:2E:94:31:07:D4:D7:DE:EC:55:FB:A0:E2:8B:73:94

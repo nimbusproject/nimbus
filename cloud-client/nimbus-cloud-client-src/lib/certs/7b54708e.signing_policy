@@ -1,4 +1,4 @@
-# @(#)$Id: 7b54708e.signing_policy,v 1.1.1.1 2009/05/28 21:09:08 tfreeman Exp $
+# @(#)$Id: 7b54708e.signing_policy,v 1.1 2007/11/13 15:36:50 pmacvsdg Exp $
  access_id_CA      X509     '/C=MA/O=MaGrid/CN=MaGrid CA'
  pos_rights        globus   CA:sign
  cond_subjects     globus   '"/C=MA/O=MaGrid/CN=MaGrid CA" "/C=MA/O=MaGrid/*"'

@@ -1,9 +1,9 @@
-# @(#)$Id: 2418a3f3.info,v 1.1.1.1 2009/05/28 21:09:06 tfreeman Exp $
+# @(#)$Id: 2418a3f3.info,v 1.1 2007/03/07 09:19:23 pmacvsdg Exp $
 alias = BG-ACAD-CA
 url = http://www.ca.acad.bg/
 ca_url = http://www.ca.acad.bg/ca_cert/bg_acad_ca-cacert.pem
 crl_url = http://www.ca.acad.bg/crl/bg_acad_ca-crl.pem
 email = operations@ca.acad.bg
 status = accredited:classic
-version = 1.22
+version = 1.35
 sha1fp.0 = 7F:1B:4D:3F:50:1D:BC:30:2B:7A:2A:46:FF:B8:8E:92:5D:55:34:05

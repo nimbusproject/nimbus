@@ -1,4 +1,4 @@
-# $Id: d1b603c3.signing_policy,v 1.1.1.1 2009/05/28 21:09:07 tfreeman Exp $
+# $Id: d1b603c3.signing_policy,v 1.2 2006/11/24 17:00:35 pmacvsdg Exp $
 #
 # This file is parsed from start to finish with a given CA and subject
 # name.
@@ -32,9 +32,6 @@
 # End DOE SG CA Policy
 # 
 # $Log: d1b603c3.signing_policy,v $
-# Revision 1.1.1.1  2009/05/28 21:09:07  tfreeman
-# builder for cloud client 011, see README.txt
-#
 # Revision 1.2  2006/11/24 17:00:35  pmacvsdg
 # Updated ESnet and DOEGrids certs as per Mike signed mail of Nov 9 2006
 # verified PGP signatures on tar ball using DGs web of trust
@@ -56,7 +53,7 @@
 # Modified the access_id_CA and included /O=ESnet
 #
 # Revision 1.2  2003/05/03 01:18:09  dhiva
-# $Id: d1b603c3.signing_policy,v 1.1.1.1 2009/05/28 21:09:07 tfreeman Exp $ included for all these files
+# $Id: d1b603c3.signing_policy,v 1.2 2006/11/24 17:00:35 pmacvsdg Exp $ included for all these files
 #
 # Revision 1.1  2003/05/03 01:15:06  dhiva
 # Globus Support Files for pki1.doegrids.org CA

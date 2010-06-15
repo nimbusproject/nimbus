@@ -1,4 +1,4 @@
-# $Id: bffbd7d0.signing_policy,v 1.1.1.1 2009/05/28 21:09:08 tfreeman Exp $
+# $Id: bffbd7d0.signing_policy,v 1.1 2006/02/13 15:46:12 pmacvsdg Exp $
  access_id_CA      X509         '/C=CA/O=Grid/CN=Grid Canada Certificate Authority'
  pos_rights        globus        CA:sign
  cond_subjects     globus       '"/C=CA/O=Grid/*"'

@@ -4,5 +4,5 @@ ca_url = http://ra.srce.hr/cacert.pem
 crl_url = http://ra.srce.hr/cacrl.crl
 email = srce-ca@srce.hr
 status = accredited:classic
-version = 1.22
+version = 1.35
 sha1fp.0 = A0:39:C3:FD:D6:A3:5F:C5:94:5C:5B:87:89:0D:4C:32:8F:11:C7:E0

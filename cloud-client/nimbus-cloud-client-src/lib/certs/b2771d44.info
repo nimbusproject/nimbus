@@ -3,5 +3,5 @@ crl_url = http://ca.grid.cn/crl/cacrl.pem
 email = gridca@cnic.cn
 status = accredited:classic
 url = http://ca.grid.cn/en/
-version = 1.22
+version = 1.35
 sha1fp.0 = AB:46:6F:7D:09:38:0F:E4:FD:5C:CA:F6:E1:45:5A:CB:BE:76:1F:78

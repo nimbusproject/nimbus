@@ -1,12 +1,12 @@
 #
-# @(#)$Id: afe55e66.info,v 1.1.1.1 2009/05/28 21:09:07 tfreeman Exp $
+# @(#)$Id: afe55e66.info,v 1.4 2008/07/11 07:35:56 pmacvsdg Exp $
 # Information for CA CyGrid
 #   obtained from afe55e66 in CyGrid/
 alias = CyGrid
-ca_url = http://grid.ucy.ac.cy/CyGridCA/afe55e66.0
-crl_url = http://grid.ucy.ac.cy/CyGridCA/afe55e66.r0
-email = kyriacos@ucy.ac.cy
+ca_url = http://cygrid.org.cy/CyGridCA/afe55e66.0
+crl_url = http://cygrid.org.cy/CyGridCA/afe55e66.r0
+email = cygrid-ca@ucy.ac.cy
+url = http://cygrid.org.cy/CyGridCA/
 status = accredited:classic
-url = http://grid.ucy.ac.cy/CyGridCA/
-version = 1.22
+version = 1.35
 sha1fp.0 = 31:75:10:A5:62:1D:14:F0:A9:EC:68:14:F0:33:7E:49:FD:E4:37:95

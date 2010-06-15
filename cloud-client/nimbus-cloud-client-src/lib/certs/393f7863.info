@@ -1,9 +1,9 @@
-# @(#)$Id: 393f7863.info,v 1.1.1.1 2009/05/28 21:09:07 tfreeman Exp $
+# @(#)$Id: 393f7863.info,v 1.4 2009/08/21 08:51:04 pmacvsdg Exp $
 alias = AEGIS
-url = http://aegis-ca.rcub.bg.ac.yu/
-ca_url = http://aegis-ca.rcub.bg.ac.yu/repository/ca.pem
-crl_url = http://aegis-ca.rcub.bg.ac.yu/repository/crl-v2.crl
-email = aegis-ca@aegis-ca.rcub.bg.ac.yu
+url = http://aegis-ca.rcub.bg.ac.rs/
+ca_url = http://aegis-ca.rcub.bg.ac.rs/repository/ca.pem
+crl_url = http://aegis-ca.rcub.bg.ac.rs/repository/crl-v2.crl
+email = aegis-ca@rcub.bg.ac.rs
 status = accredited:classic
-version = 1.22
-sha1fp.0 = 1B:60:CD:E5:50:72:B0:1E:96:42:86:42:CA:0C:D6:8E:F3:51:2B:DD
+version = 1.35
+sha1fp.0 = 5D:06:B7:97:46:B9:E1:A4:86:3D:BB:D0:49:A4:CC:96:2D:11:64:16

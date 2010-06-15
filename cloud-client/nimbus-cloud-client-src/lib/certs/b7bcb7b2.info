@@ -7,5 +7,5 @@ ca_url = https://www.pkigrid.unlp.edu.ar/pub/cacert/cacert.txt
 crl_url = http://www.pkigrid.unlp.edu.ar/pub/crl/cacrl.crl
 email = ca@pkigrid.unlp.edu.ar
 status = accredited:classic
-version = 1.22
+version = 1.35
 sha1fp.0 = 88:C2:FE:A4:15:7C:C6:EA:33:EC:D2:22:E7:FF:A6:50:0A:A2:9C:64

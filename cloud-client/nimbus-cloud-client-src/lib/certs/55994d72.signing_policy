@@ -1,5 +1,5 @@
 #
-# @(#)$Id: 55994d72.signing_policy,v 1.1.1.1 2009/05/28 21:09:08 tfreeman Exp $
+# @(#)$Id: 55994d72.signing_policy,v 1.1 2005/07/12 08:34:36 pmacvsdg Exp $
 # EACL Russian Data Intensive Grid CA
 # 
 access_id_CA      X509         '/C=RU/O=RDIG/CN=Russian Data-Intensive Grid CA'

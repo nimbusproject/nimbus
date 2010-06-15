@@ -1,4 +1,4 @@
-# @(#)$Id: 1f3834d0.signing_policy,v 1.1.1.1 2009/05/28 21:09:07 tfreeman Exp $
+# @(#)$Id: 1f3834d0.signing_policy,v 1.1 2007/10/03 13:24:45 pmacvsdg Exp $
 access_id_CA      X509     '/DC=RO/DC=RomanianGRID/O=ROSA/OU=Certification Authority/CN=RomanianGRID CA'
 pos_rights        globus   CA:sign
 cond_subjects     globus   '"/DC=RO/DC=RomanianGRID/*"'

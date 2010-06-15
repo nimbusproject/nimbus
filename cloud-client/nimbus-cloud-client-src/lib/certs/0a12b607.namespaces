@@ -1,7 +1,7 @@
 ##############################################################################
 #NAMESPACES-VERSION: 1.0
 #
-# @(#)$Id: 0a12b607.namespaces,v 1.1.1.1 2009/05/28 21:09:06 tfreeman Exp $
+# @(#)$Id: 0a12b607.namespaces,v 1.1 2008/01/21 20:29:39 pmacvsdg Exp $
 # CA alias    : UGRID
 #    subord_of: 
 #    subjectDN: /DC=org/DC=ugrid/CN=UGRID CA

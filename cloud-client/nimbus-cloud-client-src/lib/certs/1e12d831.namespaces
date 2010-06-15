@@ -4,7 +4,7 @@
 # @(#)1e12d831.signing_policy.namespaces
 # CA alias    : APAC
 #    subord_of: 
-#    subjectDN: /C=AU/O=APACGrid/OU=CA/CN=APACGrid/emailAddress=camanager@vpac.org
+#    subjectDN: /C=AU/O=APACGrid/OU=CA/CN=APACGrid/E=camanager@vpac.org
 #    hash     : 1e12d831.signing_policy
 #    (generated automatically from 1e12d831.signing_policy)
 #
@@ -12,5 +12,11 @@ TO Issuer "/C=AU/O=APACGrid/OU=CA/CN=APACGrid/emailAddress=camanager@vpac.org" \
   PERMIT Subject "/C=AU/O=APACGrid/.*"
 
 TO Issuer "/C=AU/O=APACGrid/OU=CA/CN=APACGrid/emailAddress=camanager@vpac.org" \
+  PERMIT Subject "/C=NZ/O=BeSTGRID/.*"
+
+TO Issuer "/C=AU/O=APACGrid/OU=CA/CN=APACGrid/E=camanager@vpac.org" \
+  PERMIT Subject "/C=AU/O=APACGrid/.*"
+
+TO Issuer "/C=AU/O=APACGrid/OU=CA/CN=APACGrid/E=camanager@vpac.org" \
   PERMIT Subject "/C=NZ/O=BeSTGRID/.*"
 

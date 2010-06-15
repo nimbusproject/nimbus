@@ -1,5 +1,5 @@
 #
-# @(#)$Id: 6e3b436b.info,v 1.1.1.1 2009/05/28 21:09:07 tfreeman Exp $
+# @(#)$Id: 6e3b436b.info,v 1.4 2007/09/20 14:21:51 pmacvsdg Exp $
 # Information for CA AustrianGrid
 #   obtained from 6e3b436b in AustrianGrid/
 alias = AustrianGrid
@@ -7,5 +7,5 @@ ca_url = https://ca.austriangridca.at/certs/cacert.pem
 crl_url = http://ca.austriangridca.at/crl/crl.pem
 email = ca@austriangrid.at
 status = accredited:classic
-version = 1.22
-sha1fp.0 = A5:3C:9B:3E:CE:2E:B8:B1:33:C7:9F:3A:5C:86:53:12:77:28:42:FE
+version = 1.35
+sha1fp.0 = 82:49:52:B3:81:E0:0E:05:29:81:DD:BD:08:5E:AC:8E:D2:38:18:DA

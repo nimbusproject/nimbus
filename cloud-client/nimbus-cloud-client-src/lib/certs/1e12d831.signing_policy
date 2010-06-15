@@ -1,9 +1,13 @@
-# EACL APACGrid CA 2007/04/24
+# EACL APACGrid CA 2009/05/01
  access_id_CA  X509    '/C=AU/O=APACGrid/OU=CA/CN=APACGrid/emailAddress=camanager@vpac.org'
  pos_rights    globus  CA:sign
  cond_subjects globus  '"/C=AU/O=APACGrid/*" "/C=NZ/O=BeSTGRID/*"'
 #
  access_id_CA  X509    '/C=AU/O=APACGrid/OU=CA/CN=APACGrid/Email=camanager@vpac.org'
+ pos_rights    globus  CA:sign
+ cond_subjects globus  '"/C=AU/O=APACGrid/*" "/C=NZ/O=BeSTGRID/*"'
+#
+ access_id_CA  X509    '/C=AU/O=APACGrid/OU=CA/CN=APACGrid/E=camanager@vpac.org'
  pos_rights    globus  CA:sign
  cond_subjects globus  '"/C=AU/O=APACGrid/*" "/C=NZ/O=BeSTGRID/*"'
 # end of EACL

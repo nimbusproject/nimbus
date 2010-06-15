@@ -1,6 +1,6 @@
 #
 # EACL Baltic Grid Certification Authority
-# @(#)$Id: 2a237f16.signing_policy,v 1.1.1.1 2009/05/28 21:09:05 tfreeman Exp $
+# @(#)$Id: 2a237f16.signing_policy,v 1.1 2005/10/15 10:03:30 pmacvsdg Exp $
 #
 access_id_CA  X509   '/DC=org/DC=balticgrid/CN=Baltic Grid Certification Authority'
 pos_rights    globus CA:sign
