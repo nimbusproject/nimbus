@@ -18,8 +18,8 @@ nimbus-cloud-client-015
 [*] Friendlier unpropagation message
     http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=6908
 
-[*] Updated certificates.  Includes FutureGrid, GridShib and BIRN CAs.
-    Includes updates via IGTF accredited CA distribution.
+[*] Updated the default trusted X509 certificates.  Now includes FutureGrid,
+    GridShib and BIRN CAs.  Other updates via IGTF accredited CA distribution.
 
 
 nimbus-cloud-client-014
