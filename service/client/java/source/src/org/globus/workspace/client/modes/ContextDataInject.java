@@ -94,7 +94,7 @@ public class ContextDataInject extends Mode {
             if (this.pr.enabled()) {
                 final String msg = "Dryrun, done.";
                 if (this.pr.useThis()) {
-                    this.pr.infoln(PrCodes.CTXLOCK__DRYRUN, msg);
+                    this.pr.infoln(PrCodes.CTXDATA__DRYRUN, msg);
                 } else if (this.pr.useLogging()) {
                     logger.info(msg);
                 }
