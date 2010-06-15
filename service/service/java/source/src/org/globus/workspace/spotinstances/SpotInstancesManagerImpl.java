@@ -1,5 +1,6 @@
 package org.globus.workspace.spotinstances;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -13,11 +14,15 @@ import org.globus.workspace.WorkspaceConstants;
 import org.globus.workspace.persistence.PersistenceAdapter;
 import org.globus.workspace.persistence.WorkspaceDatabaseException;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
+import org.nimbustools.api.repr.Caller;
+import org.nimbustools.api.repr.si.SIConstants;
+import org.nimbustools.api.services.rm.DoesNotExistException;
 import org.nimbustools.api.services.rm.ManageException;
 
 public class SpotInstancesManagerImpl implements SpotInstancesManager {
 
-    private static Integer BASIC_MACHINE_MEM = 128;
+    private static String MACHINE_TYPE = SIConstants.SI_TYPE_BASIC;
+    private static Integer INSTANCE_MEM = SIConstants.getInstanceMem(MACHINE_TYPE);
     
     private static final Integer MINIMUM_RESERVED_MEMORY = 128;
     private static final Double MAX_NON_PREEMP_UTILIZATION = 0.7;
@@ -46,7 +51,7 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
         this.availableResources = 0;
     }
     
-    // Implements org.globus.workspace.spotinstances.SpotInstancesManager
+    // Implements org.globus.workspace.spotinstances.SpotInstancesHome
     
     public void addRequest(SIRequest request){
         allRequests.put(request.getId(), request);
@@ -54,8 +59,32 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
             logger.info(Lager.ev(-1) + "[Spot Instances] REQUEST ARRIVED: " + request.toString() + ". Changing price and reallocating requests.");
         }        
         changePriceAndReallocateRequests();
-        
     }
+    
+    public SIRequest getRequest(String id) throws DoesNotExistException {
+        logger.info(Lager.ev(-1) + "[Spot Instances] Retrieving request with id: " + id + ".");                
+        SIRequest siRequest = allRequests.get(id);
+        if(siRequest != null){
+            return siRequest;
+        } else {
+            throw new DoesNotExistException("Spot instance request with id " + id + " does not exists.");
+        }
+    }
+
+    public SIRequest[] getRequests(Caller caller) {
+        logger.info(Lager.ev(-1) + "[Spot Instances] Retrieving requests from caller: " + caller.getIdentity() + ".");        
+        ArrayList<SIRequest> requestsByCaller = new ArrayList<SIRequest>();
+        for (SIRequest siRequest : allRequests.values()) {
+            if(siRequest.getCaller().equals(caller)){
+                requestsByCaller.add(siRequest);
+            }
+        }
+        return requestsByCaller.toArray(new SIRequest[0]);
+    }
+
+    public Double getSpotPrice() {
+        return this.currentPrice;
+    }    
 
 //    public SIRequest removeRequest(String requestID){
 //        SIRequest request = allRequests.get(requestID);
@@ -271,20 +300,21 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
                 siMem = (availableMem - reservedNonPreempMem) + usedPreemptableMem;
             } else {
                 if (this.lager.eventLog) {
-                    logger.info(Lager.ev(-1) + "[Spot Instances] Not enough available memory. Decreasing SI resources.");
+                    logger.info(Lager.ev(-1) + "[Spot Instances] Not enough available memory for Spot Instances. Trying to satisfy currently active requests.");
                 }                
-                siMem = Math.min(usedPreemptableMem-reservedNonPreempMem, 0);
+                siMem = Math.max(usedPreemptableMem-reservedNonPreempMem, 0);
             }
             
             if (this.lager.eventLog) {
-                logger.info(Lager.ev(-1) + "[Spot Instances] Maximum site memory: " + maxMem);
-                logger.info(Lager.ev(-1) + "[Spot Instances] Used non pre-emptable memory: " + usedNonPreemptableMem);
-                logger.info(Lager.ev(-1) + "[Spot Instances] Used pre-emptable memory: " + usedPreemptableMem);                
-                logger.info(Lager.ev(-1) + "[Spot Instances] Available site memory: " + availableMem);
-                logger.info(Lager.ev(-1) + "[Spot Instances] Calculated memory for SI requests: " + siMem);
+                logger.info(Lager.ev(-1) + "[Spot Instances] Maximum site memory: " + maxMem + "MB");
+                logger.info(Lager.ev(-1) + "[Spot Instances] Available site memory: " + availableMem + "MB");                
+                logger.info(Lager.ev(-1) + "[Spot Instances] Used non pre-emptable memory: " + usedNonPreemptableMem + "MB");
+                logger.info(Lager.ev(-1) + "[Spot Instances] Reserved non pre-emptable memory: " + reservedNonPreempMem + "MB");
+                logger.info(Lager.ev(-1) + "[Spot Instances] Used pre-emptable memory: " + usedPreemptableMem + "MB");                
+                logger.info(Lager.ev(-1) + "[Spot Instances] Calculated memory for SI requests: " + siMem + "MB");
             }            
             
-            resourceQuantity = siMem/BASIC_MACHINE_MEM;
+            resourceQuantity = siMem/INSTANCE_MEM;
             
         } catch (WorkspaceDatabaseException e) {
             e.printStackTrace();
