@@ -14,28 +14,45 @@ from ConfigParser import SafeConfigParser
 from pycb.cumulus import *
 import time
 import pycb.test_common
+import pynimbusauthz
 import unittest
 import tempfile
 import filecmp
 from pycb.cumulus import *
 
+def setup_options(argv):
+
+    u = """[options] <admin name> <repo dir>
+Create a base repository directory with public write permissions
+    """
+    (parser, all_opts) = pynimbusauthz.get_default_options(u)
+
+    (o, args) = pynimbusauthz.parse_args(parser, all_opts, argv)
+
+    if len(args) < 2:
+        pynimbusauthz.parse_args(parser, all_opts, ["--help"])
+
+    return (o, args)
+
 
 def main(argv=sys.argv[1:]):
 
+    (o, args) = setup_options(argv)
     # make the user that will create the dir
     id = pycb.test_common.random_string(21)
     pw = pycb.test_common.random_string(42)
     auth = pycb.config.auth
 
-    display_name = "repobucketcreator@nimbusproject.org"
+    display_name = args[0]
+    repo_dir = args[1]
     auth.create_user(display_name, id, pw, None)
 
-    print "id: %s" % (id)
-    print "pw: %s" % (pw)
+    print "admin s3 id is: %s" % (id)
+    print "admin s3 pw:    %s" % (pw)
 
     conn = pycb.test_common.cb_get_conn(pycb.config.hostname, pycb.config.port, id, pw)
 
-    bucket = conn.create_bucket("Repo", policy='public-read-write')
+    bucket = conn.create_bucket(repo_dir, policy='public-read-write')
     
 
 
