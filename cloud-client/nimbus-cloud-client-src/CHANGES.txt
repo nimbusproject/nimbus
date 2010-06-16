@@ -1,8 +1,8 @@
 nimbus-cloud-client-015
 -----------------------
 
-[*] New flag "--print-pending" (see "--extrahelp") to find nodes that have not
-    checked in with the context broker.
+[*] New flag "--print-cxt-status" (see "--extrahelp") to find out the contextualization
+    status of each node in the cluster.
     http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7055
 
 [*] Scripts use /bin/bash exclusively now.
