@@ -67,10 +67,10 @@ class TestEC2List(unittest.TestCase):
             self.db.close()
 
 
-    def test_ec2_list_empty(self):
+#    def test_ec2_list_empty(self):
 
-        images = self.ec2conn.get_all_images()
-        self.assertEqual(len(images), 0, "should be no images listed %d" % len(images))
+#        images = self.ec2conn.get_all_images()
+#        self.assertEqual(len(images), 0, "should be no images listed %d" % len(images))
 
     def test_ec2_list_upload(self):
         # obviously this will not work if the default name changes
@@ -83,9 +83,7 @@ class TestEC2List(unittest.TestCase):
         self.assertEqual(len(images), 1, "should be 1 image %d" % len(images))
 
         for i in images:
+            print "+++++++++++++++++++++++++"
             print i
-
-        self.fail("poop")
-
 
 
