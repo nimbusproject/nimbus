@@ -290,7 +290,7 @@ public class ServiceImageImpl extends UnimplementedOperations
             // replace just gsiftp and check URL
             String newTestURL = givenLocationBase.trim();
             if (newTestURL.startsWith("cumulus")) {
-                newTestURL = newTestURL.replaceFirst("gsiftp", "http");
+                newTestURL = newTestURL.replaceFirst("cumulus", "http");
                 try {
                     url = new URL(newTestURL);
                 } catch (MalformedURLException e2) {

@@ -299,7 +299,7 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
 
         <property name="repoBucket" value="$COMMON{cumulus.repo.bucket}" />
         <property name="prefix" value="$COMMON{cumulus.repo.prefix}" />
-        <property name="cumulusHost" value="$COMMON(cumulus.host}" />
+        <property name="cumulusHost" value="$COMMON{cumulus.host}" />
     </bean>
 
 
