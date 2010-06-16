@@ -39,6 +39,7 @@ import org.globus.workspace.cloud.client.tasks.ContextMonitorTask;
 import org.globus.workspace.cloud.client.tasks.CreateContextTask;
 import org.globus.workspace.cloud.client.tasks.DestroyTask;
 import org.globus.workspace.cloud.client.tasks.FactoryQueryTask;
+import org.globus.workspace.cloud.client.tasks.PrintContextStatusTask;
 import org.globus.workspace.cloud.client.tasks.QueryTask;
 import org.globus.workspace.cloud.client.tasks.RunTask;
 import org.globus.workspace.cloud.client.tasks.SaveTask;
@@ -225,6 +226,59 @@ public class ExecuteUtil {
         }
     }
 
+
+    // -------------------------------------------------------------------------
+    // PRINT CONTEXT STATUS QUERY
+    // -------------------------------------------------------------------------
+
+    public void printContextStatusQuery(String eprPath,
+                                  String brokerIdAuthz,
+                                  Print print)
+
+            throws ExecutionProblem, ExitNow {
+
+        String shortName = null;
+        print.debugln("Received broker EPR path: " + eprPath);
+        final File epr = new File(eprPath);
+        final String dirName = epr.getParentFile().getName();
+
+        if (dirName.startsWith(HistoryUtil.historyDirPrefix) ||
+                dirName.startsWith(HistoryUtil.historyClusterDirPrefix)) {
+
+            print.debugln("Surmising from context EPR parent directory that " +
+                          "short name is '" + dirName +
+                          "' (used for printing only)");
+
+            shortName = dirName;
+        }
+
+        final File ipIdDir = new File(epr.getParentFile(), "id-ip-dir");
+        final String ipIdDirPath = ipIdDir.getAbsolutePath();
+        print.debugln("Surmising from context EPR parent directory that " +
+                          "id-ip-dir is: " + ipIdDirPath);
+        if (!ipIdDir.exists()) {
+            throw new ExecutionProblem("Could not find the 'id-ip-dir' for this handle, " +
+                    "was it a virtual cluster launched with the context broker?");
+        }
+
+        final FutureTask task =
+                new FutureTask(
+                        new PrintContextStatusTask(eprPath, brokerIdAuthz, shortName,
+                                             ipIdDirPath, print));
+
+        this.executor.submit(task);
+
+        try {
+            final Integer retCode = (Integer) task.get();
+            if (retCode.intValue() != BaseClient.SUCCESS_EXIT_CODE) {
+                throw new ExitNow(retCode.intValue());
+            }
+        } catch (InterruptedException e) {
+            throw new ExecutionProblem(e.getMessage(), e);
+        } catch (ExecutionException e) {
+            throw new ExecutionProblem(e.getMessage(), e);
+        }
+    }
 
     // -------------------------------------------------------------------------
     // ASSOCIATION QUERY

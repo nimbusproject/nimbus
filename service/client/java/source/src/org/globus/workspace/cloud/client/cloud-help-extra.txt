@@ -37,11 +37,25 @@ Miscellaneous actions:
     --networks               Print the available networks (see contextualization
                              guide and the sample cluster definitions).
 
+    --print-ctx-status       Print IP addresses and contextualization status of
+                             cluster nodes that were launched.  The output is
+                             somewhat self explanatory, the full explanation of
+                             output and return codes can be obtained by running
+                             this command (the flag is indeed different):
+
+                             $ sh ./lib/workspace.sh --help --ctx-print-status
+
 --------------------------------------------------------------------------------
 
 Required "--print-file-URL" options:
 
     Use --name OR --sourcefile
+
+--------------------------------------------------------------------------------
+
+Required "--print-ctx-status" options:
+
+    Use --handle <cluster-name>
 
 --------------------------------------------------------------------------------
 

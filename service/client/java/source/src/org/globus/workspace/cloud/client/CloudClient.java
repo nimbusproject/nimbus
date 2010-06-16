@@ -455,6 +455,14 @@ public class CloudClient {
             this.parameterCheck_initCtx();
             CommonPrint.printDebugSectionEnd(this.print, sectionTitle);
         }
+
+        if (actions.contains(AllArgs.ACTION_PRINT_CTX_STATUS)) {
+            final String sectionTitle = "PARAMETER CHECK: --" +
+                                                Opts.PRINT_CTX_STATUS_OPT_STRING;
+            CommonPrint.printDebugSection(this.print, sectionTitle);
+            this.parameterCheck_printContextStatus();
+            CommonPrint.printDebugSectionEnd(this.print, sectionTitle);
+        }
     }
 
     void parameterCheck_initCtx() throws ParameterProblem {
@@ -516,6 +524,30 @@ public class CloudClient {
             this._checkSpecificEPR("Checking status of one workspace");
         } else {
             this._checkStatusServiceEPR("Checking status of all workspaces");
+        }
+    }
+
+    void parameterCheck_printContextStatus() throws ParameterProblem {
+
+        if (this.args.getActions().contains(AllArgs.ACTION_RUN)) {
+            throw new ParameterProblem(
+                    "You cannot create (--" + Opts.RUN_OPT_STRING +
+                            ") and run print context status (on a previously" +
+                            "created cluster) in the same invocation");
+        }
+
+        final String actionString = "Printing ctx status of each node";
+        this._checkCredential(actionString);
+        this._translateHandle(actionString);
+
+        if (this.args.getHistorySubDir() != null ||
+                this.args.getEprGivenFilePath() != null) {
+            this._checkSpecificBrokerEPR(actionString);
+        } else {
+            throw new ParameterProblem(actionString + " requires either " +
+                    "'--" + Opts.HANDLE_OPT_STRING +
+                    "' or path to specific context EPR file using '--" +
+                    Opts.EPR_FILE_OPT_STRING + '\'');
         }
     }
 
@@ -1082,6 +1114,72 @@ public class CloudClient {
         }
     }
 
+    void _checkSpecificBrokerEPR(String action)
+
+            throws ParameterProblem {
+
+        final String historySubDir = this.args.getHistorySubDir();
+        final String eprGivenFilePath = this.args.getEprGivenFilePath();
+
+        if (historySubDir == null && eprGivenFilePath == null) {
+
+            // This is a message present to human.  An unmentioned, third option
+            // is technically possible.  It's more esoteric, but one could
+            // specify Opts.HISTORY_SUBDIR_OPT_STRING directly.
+
+            throw new ParameterProblem(action + " requires either " +
+                    "'" + Opts.HANDLE_OPT_STRING +
+                    "' or path to specific EPR file using '" +
+                    Opts.EPR_FILE_OPT_STRING + "'");
+        }
+
+        if (historySubDir != null && eprGivenFilePath != null) {
+            throw new ParameterProblem(action + " will use either '" +
+                                       Opts.HISTORY_SUBDIR_OPT_STRING +
+                                       "' or '" + Opts.EPR_FILE_OPT_STRING +
+                                       "', but you've provided BOTH options.");
+        }
+
+        File f;
+        if (historySubDir != null) {
+            CloudClientUtil.verifyHistoryDir(historySubDir, false, false);
+            f = new File(historySubDir, HistoryUtil.CONTEXT_EPR_FILE_NAME);
+            if (!CloudClientUtil.fileExistsAndReadable(f)) {
+                throw new ParameterProblem("Cannot find or read any " +
+                            "context EPRs under '" +
+                            historySubDir + "'\nPerhaps this launch did " +
+                            "not succeed or it was not a virtual cluster launch " +
+                            "using the context broker?");
+            }
+        } else {
+            f = new File(eprGivenFilePath);
+            if (!CloudClientUtil.fileExistsAndReadable(f)) {
+                throw new ParameterProblem("Cannot find or read '" +
+                        eprGivenFilePath + "'");
+            }
+        }
+
+        String old = null;
+        if (this.specificEPRpath != null) {
+            old = this.specificEPRpath;
+        }
+
+        this.specificEPRpath = f.getAbsolutePath();
+
+        if (old != null) {
+            if (!old.equals(this.specificEPRpath)) {
+                throw new ParameterProblem(
+                        "Unexpected with any input: specific EPR that was " +
+                                "previously set is '" + old + "' but it is " +
+                                "not the same as a repeat derivation which " +
+                                "is '" + this.specificEPRpath + "'. Please " +
+                                "send debug output file (in the history " +
+                                "directory) to developers, thankyou.");
+            }
+        }
+        
+    }
+
     void _checkSourcefile() throws ParameterProblem {
         final String sourcefile = this.args.getSourcefile();
         if (!CloudClientUtil.fileExistsAndReadable(sourcefile)) {
@@ -1216,6 +1314,7 @@ public class CloudClient {
         this.action_init_context();
         this.action_download();
         this.action_delete();
+        this.action_print_context_status();
     }
 
     void trustedCAs() throws ExecutionProblem {
@@ -1738,6 +1837,22 @@ public class CloudClient {
                 !this.args.isNoContextLock(),
                 this.args.getInitCtxDir(),
                 this.print);
+    }
+
+    void action_print_context_status() throws ExecutionProblem, ExitNow {
+        if (!this.args.getActions().contains(AllArgs.ACTION_PRINT_CTX_STATUS)) {
+            return; // *** EARLY RETURN ***
+        }
+
+        String brokerIdentityAuthorization = this.args.getBrokerID();
+        if (brokerIdentityAuthorization == null
+                && this.args.getFactoryID() != null) {
+            brokerIdentityAuthorization = this.args.getFactoryID();
+        }
+
+        this.executeUtil.printContextStatusQuery(this.specificEPRpath,
+                                           brokerIdentityAuthorization,
+                                           this.print);
     }
 
     void action_run_ec2cluster() throws ExecutionProblem, ExitNow {

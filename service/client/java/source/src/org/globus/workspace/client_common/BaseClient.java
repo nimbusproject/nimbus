@@ -26,6 +26,7 @@ public abstract class BaseClient
     public static final int COMMAND_LINE_EXIT_CODE = 1;
     public static final int APPLICATION_EXIT_CODE = 2;
     public static final int UNKNOWN_EXIT_CODE = 3;
+    public static final int CTX_PENDING_RESULTS = 6;
 
     public static String retCodeDebugStr(int retCode) {
 

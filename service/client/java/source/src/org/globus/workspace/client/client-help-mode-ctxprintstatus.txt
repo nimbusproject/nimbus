@@ -1,0 +1,74 @@
+
+Definition:
+==========
+
+Print IP addresses and contextualization status of cluster nodes that
+were launched.
+
+Unadvertised option for the "workspace.sh" program, it works best with
+Nimbus clusters launched with the cloud-client and it is usually only
+invoked programatically via the cloud-client's --print-ctx-status option.
+
+Sample output (fields can be split by awk):
+
+118.135.125.1     [CTX_CHECKED_IN_PENDING]
+118.135.125.17    [CTX_CHECKED_IN_PENDING]
+118.135.125.28    [CTX_NOT_CHECKED_IN]
+
+This will only exit successfully if all context members have moved to
+'OK'.  Otherwise, it will exit with an error code 6 after printing all
+of the IP addresses, one per line, of VMs in the cluster launch and
+their contextualization status.
+
+NOTE: If there is another problem (for example, there is an issue with
+a given parameter issue), the client will exit with an error code
+different than 0 or 6.
+
+
+[CTX_SUCCESS]
+=============
+
+This means that the node with that IP address has reported "OK" to the
+context broker, it has gotten all of the information necessary and has
+run the on-VM contextualization scripts to set everything up and become
+"operational."
+
+
+[CTX_ERROR]
+===========
+
+The VM has successfully established communications with the context
+broker but there was an issue during contextualization so it reported
+an error to the context broker.  If you launched with the cloud-client,
+there will normally be a "reports" directory in the history directory
+with the error messages written out to files.
+
+
+[CTX_CHECKED_IN_PENDING]
+========================
+
+The VM has successfully established communications with the context
+broker but it is still waiting for a "complete" response with all
+of the information it needs from other VMs.  It is normally the
+case that this state will happen while VMs are booting up, some
+have not even initially contacted the broker yet.
+
+
+[CTX_NOT_CHECKED_IN]
+====================
+
+This VM has not established any communication channel with the
+context broker.  It could have never launched, be booting up, or
+have failed to communicate with the broker at all due to a network
+or configuration issue.
+
+
+If using directly via lib/workspace.sh (which would be odd):
+===========================================================
+
+--eprFile (-e) <file>    EPR of the context to query.
+
+--epr-ip-dir <dir>       The directory to the ip/id recordings
+                         directory that were written at launch
+                         time.
+

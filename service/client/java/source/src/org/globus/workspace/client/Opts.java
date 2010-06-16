@@ -239,6 +239,10 @@ public class Opts {
     public final Option CTX_CREATE_OPT =
         OptionBuilder.withLongOpt(CTX_CREATE_OPT_STRING).create();
 
+    public static final String CTX_PRINT_STATUS_OPT_STRING = "ctx-print-status";
+    public final Option CTX_PRINT_STATUS_OPT =
+        OptionBuilder.withLongOpt(CTX_PRINT_STATUS_OPT_STRING).create();
+
     public static final String CTX_CREATE_INJECTABLE_OPT_STRING =
                                                     "ctx-create-injectable";
     public final Option CTX_CREATE_INJECTABLE_OPT =
@@ -341,6 +345,7 @@ public class Opts {
                                                  this.ENSEMBLE_MONITOR_OPT,
                                                  this.CTX_NO_MORE_INJECTIONS_OPT,
                                                  this.CTX_CREATE_OPT,
+                                                 this.CTX_PRINT_STATUS_OPT,
                                                  this.CTX_CREATE_INJECTABLE_OPT,
                                                  this.CTX_CONTACT_PATH_OPT,
                                                  this.CTX_DATA_OPT,

@@ -23,6 +23,9 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.globus.axis.gsi.GSIConstants;
+import org.globus.workspace.client.modes.ContextDataInject;
+import org.globus.workspace.client.modes.ContextMonitor;
+import org.globus.workspace.client.modes.ContextPrintStatus;
 import org.globus.workspace.client.modes.Destroy;
 import org.globus.workspace.client.modes.FactoryQuery;
 import org.globus.workspace.client.modes.InstanceQuery;
@@ -36,8 +39,6 @@ import org.globus.workspace.client.modes.Deploy;
 import org.globus.workspace.client.modes.ShutdownSave;
 import org.globus.workspace.client.modes.EnsembleDone;
 import org.globus.workspace.client.modes.EnsembleMonitor;
-import org.globus.workspace.client.modes.ContextDataInject;
-import org.globus.workspace.client.modes.ContextMonitor;
 import org.globus.workspace.client.modes.ContextNoMoreInjections;
 import org.globus.workspace.client.modes.ContextCreate;
 import org.globus.workspace.client.modes.ContextCreate_Injectable;
@@ -435,6 +436,8 @@ public class WorkspaceCLI extends BaseClient {
             this.setMode(new ContextCreate_Injectable(this.pr, this.cliArgs, this));
         } else if (this.cliArgs.mode_impersonateContextAgent) {
             this.setMode(new ContextAgentImpersonate(this.pr, this.cliArgs, this));
+        } else if (this.cliArgs.mode_ctxPrintStatus) {
+            this.setMode(new ContextPrintStatus(this.pr, this.cliArgs, this));
         }
 
         if (this.mode == null) {

@@ -95,6 +95,10 @@ public class Opts {
     public final Option INIT_CTX_OPT =
         OptionBuilder.hasArg().withLongOpt(INIT_CTX_OPT_STRING).create();
 
+    public static final String PRINT_CTX_STATUS_OPT_STRING = "print-ctx-status";
+    public final Option PRINT_CTX_STATUS_OPT =
+        OptionBuilder.withLongOpt(PRINT_CTX_STATUS_OPT_STRING).create();
+
     /* OPTIONS */
 
     public static final String PROPFILE_OPT_STRING = "conf";
@@ -269,6 +273,7 @@ public class Opts {
                                                  this.NOCTXLOCK_OPT,
                                                  this.HOSTKEYDIR_OPT,
 												 this.KERNEL_OPT,
+                                                 this.PRINT_CTX_STATUS_OPT,
                                                  this.INIT_CTX_OPT
                                                  };
 }

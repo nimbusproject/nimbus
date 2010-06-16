@@ -121,6 +121,7 @@ public class PrCodes {
     public static final int CTXLOCK__DRYRUN = 32;
     public static final int CTXDATA__DRYRUN = 33;
     public static final int CTXMONITOR__DRYRUN = 34;
+    public static final int CTXPRINTSTATUS__DRYRUN = 35;
 
     public static final int CREATE__EXTRALINES = 100;
 
@@ -243,5 +244,8 @@ public class PrCodes {
     public static final int CTXMONITOR__SINGLE_REPORT_NAMES = 20103;
     public static final int CTXMONITOR__REPORT_DIR = 20104;
     public static final int CTXMONITOR__KNOWNHOSTS_FILE_CREATE = 20105;
+
+    public static final int CTXPRINTSTATUS__ONE_ERROR = 30102;
+    public static final int CTXPRINTSTATUS__ONE_IP = 30103;
 
 }
