@@ -183,12 +183,15 @@ class SimpleRunThread(Thread):
         p.childerr.close()
         self.log.debug("program ended: '%s'" % self.cmd)
         
-def runexe(cmd, killtime=2.0):
+def runexe(cmd, killtime=2.0, retry=0):
     """Run a system program.
     
     Required parameter:
     
     * cmd -- command to run, string
+    
+    * retry -- how many retry we will do when the exit status is non-zero
+    Default is 0.
     
     Keyword parameter:
     
@@ -207,16 +210,22 @@ def runexe(cmd, killtime=2.0):
     
     """
     
-    if killtime > 0:
-        thr = SimpleRunThread(cmd, killsig=signal.SIGKILL, killtime=killtime)
-    else:
-        thr = SimpleRunThread(cmd)
-    thr.start()
-    thr.join()
+    for i in range(retry+1):
+        if killtime > 0:
+            thr = SimpleRunThread(cmd, killsig=signal.SIGKILL, killtime=killtime)
+        else:
+            thr = SimpleRunThread(cmd)
+        thr.start()
+        thr.join()
     
-    # sudo child won't take signals
-    if thr.exception:
-        raise IncompatibleEnvironment(str(thr.exception))
+        # sudo child won't take signals
+        if thr.exception:
+            raise IncompatibleEnvironment(str(thr.exception))
+
+        if thr.exit == "0":
+            break
+        else:
+            time.sleep(0.5)
         
     return (thr.exit, thr.stdout, thr.stderr)
        
