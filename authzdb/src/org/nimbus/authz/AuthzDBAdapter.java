@@ -32,6 +32,7 @@ public class AuthzDBAdapter
     private static final String GET_FILE_OWNER = "SELECT owner_id FROM objects WHERE id = ?";
     private static final String GET_USER_ALIAS = "SELECT alias_name, friendly_name, alias_type, alias_type_data from user_alias WHERE user_id = ?";
     private static final String GET_ALL_USER_OBJECTS = "Select id,name,object_size,creation_time from objects where object_type = ? and owner_id = ?";
+    private static final String SEARCH_BUCKET_OBJECT_BY_NAME = "Select id,name,object_size,creation_time from objects where name LIKE ? and parent_id = ? and object_type = ?";
 
     public static final int ALIAS_TYPE_S3 = 1;
     public static final int ALIAS_TYPE_DN = 2;
@@ -316,6 +317,65 @@ public class AuthzDBAdapter
         }
     }
 
+
+
+    public List<ObjectWrapper>  searchParentFilesByKey(
+        int                             parent_id,
+        String                          keyName)
+                throws AuthzDBException
+        {
+            Connection c = null;
+            PreparedStatement pstmt = null;
+
+            try
+            {                
+                c = getConnection();
+                pstmt = c.prepareStatement(SEARCH_BUCKET_OBJECT_BY_NAME);
+
+                pstmt.setString(1, keyName);
+                pstmt.setInt(2, parent_id);
+                pstmt.setInt(3, OBJECT_TYPE_S3);
+                ResultSet rs = pstmt.executeQuery();
+
+                final List<ObjectWrapper> objs = new ArrayList<ObjectWrapper>();
+
+                while(rs.next())
+                {
+                    ObjectWrapper ow = new ObjectWrapper();
+                    ow.setName(rs.getString("name"));
+                    ow.setId(rs.getInt("id"));
+                    ow.setSize(rs.getInt("object_size"));
+                    Timestamp time = rs.getTimestamp("creation_time");
+                    ow.setTime(time.getTime());
+                    objs.add(ow);
+                }
+                return objs;
+            }
+            catch(SQLException e)
+            {
+                logger.error("",e);
+                throw new AuthzDBException(e);
+            }
+            finally
+            {
+                try
+                {
+                    if (pstmt != null)
+                    {
+                        pstmt.close();
+                    }
+                    if (c != null)
+                    {
+                        returnConnection(c);
+                    }
+                }
+                catch (SQLException sql)
+                {
+                    logger.error("SQLException in finally cleanup", sql);
+                }
+            }
+
+        }
 
     public List<ObjectWrapper>  getAllUsersFiles(
         String                          canonicalUser)
