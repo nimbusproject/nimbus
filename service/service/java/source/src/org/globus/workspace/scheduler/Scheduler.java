@@ -43,6 +43,7 @@ public interface Scheduler {
      * @param groupid group ID, can be null
      * @param coschedid co-scheduling ID, can be null
      * @param creatorDN creator's identifying DN, can be null
+     * @param backfillReq whether this is a backfill request
      * @return reservation never null
      * @throws ResourceRequestDeniedException will not grant
      * @throws SchedulingException internal problem
@@ -53,7 +54,8 @@ public interface Scheduler {
                                 int numNodes,
                                 String groupid,
                                 String coschedid,
-                                String creatorDN)
+                                String creatorDN,
+                                boolean backfillReq)
                 
             throws SchedulingException,
                    ResourceRequestDeniedException;

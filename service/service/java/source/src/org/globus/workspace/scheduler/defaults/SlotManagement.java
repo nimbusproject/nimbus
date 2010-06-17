@@ -87,4 +87,8 @@ public interface SlotManagement {
      * @return true if neededAssociations is supported
      */
     public boolean isNeededAssociationsSupported();
+
+    public int getBackfillVMID();
+    public boolean isOldBackfillID(int vmid);
+    public boolean isCurrentBackfillID(int vmid);
 }

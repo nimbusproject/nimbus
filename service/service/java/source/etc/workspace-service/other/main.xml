@@ -20,6 +20,7 @@
         <constructor-arg ref="nimbus-repr.ReprFactory"/>
         <constructor-arg ref="nimbus-rm.persistence.DataConvert"/>
         <constructor-arg ref="nimbus-rm.loglevels" />
+        <constructor-arg ref="nimbus-rm.backfill" />
 
         <property name="accounting"
                   ref="nimbus-rm.accounting" />
@@ -90,6 +91,7 @@
         <constructor-arg ref="nimbus-rm.home.cosched" />        
         <constructor-arg ref="other.timerManager" />
         <constructor-arg ref="nimbus-rm.loglevels" />
+        <constructor-arg ref="nimbus-rm.backfill" />
 
         <property name="accountingEventAdapter"
                   ref="nimbus-rm.accounting" />
@@ -250,6 +252,32 @@
         <constructor-arg ref="nimbus-rm.service.async.ResourceMessage" />
         <constructor-arg ref="nimbus-rm.service.binding.GlobalPolicies" />
         <constructor-arg ref="nimbus-rm.service.propagation" />
+
+    </bean>
+
+    <bean id="nimbus-rm.backfill"
+          class="org.globus.workspace.Backfill"
+          init-method="validate">
+
+        <constructor-arg ref="nimbus-repr.ReprFactory"/>
+        <constructor-arg ref="nimbus-rm.PathConfigs" />
+        <constructor-arg ref="other.timerManager" />
+        <constructor-arg ref="nimbus-rm.scheduler.SlotManagement" />
+
+        <property name="backfillDisabled"
+                  value="$BACKFILL{backfill.disabled}" />
+        <property name="maxInstances"
+                  value="$BACKFILL{max.instances}" />
+        <property name="diskImage"
+                  value="$BACKFILL{disk.image}" />
+        <property name="memoryMB"
+                  value="$BACKFILL{memory.MB}" />
+        <property name="durationSeconds"
+                  value="$BACKFILL{duration.seconds}" />
+        <property name="retryPeriod"
+                  value="$BACKFILL{retry.period}" />
+        <property name="network"
+                  value="$BACKFILL{network}" />
 
     </bean>
 
@@ -525,6 +553,7 @@
         <constructor-arg ref="nimbus-rm.service.binding.GlobalPolicies" />
         <constructor-arg ref="nimbus-rm.persistence.DataConvert" />
         <constructor-arg ref="nimbus-rm.loglevels" />
+        <constructor-arg ref="nimbus-rm.backfill" />
 
 
 

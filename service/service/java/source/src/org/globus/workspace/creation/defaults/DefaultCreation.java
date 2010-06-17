@@ -45,6 +45,7 @@ import org.globus.workspace.service.binding.GlobalPolicies;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.globus.workspace.service.binding.vm.VirtualMachineDeployment;
 import org.globus.workspace.service.binding.vm.CustomizationNeed;
+import org.globus.workspace.Backfill;
 
 import org.nimbustools.api._repr._CreateResult;
 import org.nimbustools.api._repr._Advertised;
@@ -113,6 +114,8 @@ public class DefaultCreation implements Creation {
     protected final Lager lager;
     protected final DateFormat localFormat = DateFormat.getDateTimeInstance();
 
+    private final Backfill backfill;
+
     protected AccountingEventAdapter accounting;
 
 
@@ -134,7 +137,8 @@ public class DefaultCreation implements Creation {
                            PersistenceAdapter persistenceAdapter,
                            DataConvert dataConvertImpl,
                            TimerManager timerManagerImpl,
-                           Lager lagerImpl) {
+                           Lager lagerImpl,
+                           Backfill backfill) {
 
         if (lockManagerImpl == null) {
             throw new IllegalArgumentException("lockManager may not be null");
@@ -210,6 +214,11 @@ public class DefaultCreation implements Creation {
             throw new IllegalArgumentException("lagerImpl may not be null");
         }
         this.lager = lagerImpl;
+
+        if (backfill == null) {
+            throw new IllegalArgumentException("backfill may not be null");
+        }
+        this.backfill = backfill;
     }
 
 
@@ -316,7 +325,35 @@ public class DefaultCreation implements Creation {
                    ResourceRequestDeniedException,
                    SchedulingException {
 
-        final VirtualMachine[] bound = this.binding.processRequest(req);
+        // We trigger backfill termination here just in case the network
+        // binding causes a ResourceRequestDeniedException (because there
+        // are no more available IP addresses, for instance)
+        VirtualMachine[] bound = null;
+        try {
+            bound = this.binding.processRequest(req);
+        } catch (ResourceRequestDeniedException e) {
+            logger.debug("Failed to reserve the resource: " + e.getMessage());
+            if (req.getRequestedSchedule().getBackfillReq() == false) {
+                logger.debug("The request isn't a backfill request");
+                logger.debug("Attempting to terminate backfill nodes");
+                boolean continueTerminateBackfill = true;
+                while (continueTerminateBackfill == true) {
+                    try {
+                        bound = this.binding.processRequest(req);
+                        continueTerminateBackfill = false;
+                    } catch (ResourceRequestDeniedException rDE) {
+                        if (this.backfill.terminateBackfillNode() == false) {
+                            throw rDE;
+                        } else {
+                            continueTerminateBackfill = true;
+                        }
+                    }
+                }
+            } else {
+                throw e;
+            }
+        }
+
         if (bound == null || bound.length == 0) {
             throw new CreationException("no binding result but no binding " +
                     "error: illegal binding implementation");
@@ -330,10 +367,13 @@ public class DefaultCreation implements Creation {
         final Context context = req.getContext();
         final String groupID = this.getGroupID(creatorID, bound.length);
         final String coschedID = this.getCoschedID(req, creatorID);
+        final boolean backfillReq =
+                req.getRequestedSchedule().getBackfillReq();
 
         // From this point forward an error requires backOutAllocations
         try {
-            return this.create2(bound, caller, context, groupID, coschedID);
+            return this.create2(bound, caller, context, groupID, coschedID,
+                                backfillReq);
         } catch (CoSchedulingException e) {
             this.backoutBound(bound);
             throw e;
@@ -414,7 +454,8 @@ public class DefaultCreation implements Creation {
                                    Caller caller,
                                    Context context,
                                    String groupID,
-                                   String coschedID)
+                                   String coschedID,
+                                   boolean backfillReq)
 
             throws AuthorizationException,
                    CoSchedulingException,
@@ -444,7 +485,8 @@ public class DefaultCreation implements Creation {
                                                   bindings.length,
                                                   groupID,
                                                   coschedID,
-                                                  caller.getIdentity());
+                                                  caller.getIdentity(),
+                                                  backfillReq);
 
         if (res == null) {
             throw new SchedulingException("reservation is missing, illegal " +
@@ -506,7 +548,8 @@ public class DefaultCreation implements Creation {
                                        int numNodes,
                                        String groupid,
                                        String coschedid,
-                                       String callerID)
+                                       String callerID,
+                                       boolean backfillReq)
             
             throws SchedulingException,
                    ResourceRequestDeniedException {
@@ -528,7 +571,7 @@ public class DefaultCreation implements Creation {
         }
 
         return this.scheduler.schedule(memory, duration, assocs, numNodes,
-                                       groupid, coschedid, callerID);
+                                       groupid, coschedid, callerID, backfillReq);
     }
 
 

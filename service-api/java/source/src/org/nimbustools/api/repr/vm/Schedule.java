@@ -23,4 +23,5 @@ public interface Schedule {
     public Calendar getStartTime();
     public int getDurationSeconds();
     public Calendar getDestructionTime();
+    public boolean getBackfillReq();
 }

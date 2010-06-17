@@ -25,4 +25,5 @@ public interface _Schedule extends Schedule {
     public void setStartTime(Calendar startTime);
     public void setDurationSeconds(int durationSeconds);
     public void setDestructionTime(Calendar destructionTime);
+    public void setBackfillReq(boolean backfillReq);
 }

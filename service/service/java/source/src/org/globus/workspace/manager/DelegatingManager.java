@@ -21,6 +21,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.globus.workspace.PathConfigs;
 import org.globus.workspace.Lager;
+import org.globus.workspace.Backfill;
 import org.globus.workspace.accounting.AccountingReaderAdapter;
 import org.globus.workspace.accounting.ElapsedAndReservedMinutes;
 import org.globus.workspace.creation.Creation;
@@ -88,6 +89,7 @@ public class DelegatingManager implements Manager {
     protected final ReprFactory repr;
     protected final DataConvert dataConvert;
     protected final Lager lager;
+    protected final Backfill backfill;
 
     protected AccountingReaderAdapter accounting;
 
@@ -102,7 +104,8 @@ public class DelegatingManager implements Manager {
                              WorkspaceCoschedHome coschedHome,
                              ReprFactory reprFactory,
                              DataConvert dataConvertImpl,
-                             Lager lagerImpl) {
+                             Lager lagerImpl,
+                             Backfill backfill) {
         
         if (creationImpl == null) {
             throw new IllegalArgumentException("creationImpl may not be null");
@@ -143,6 +146,11 @@ public class DelegatingManager implements Manager {
             throw new IllegalArgumentException("lagerImpl may not be null");
         }
         this.lager = lagerImpl;
+
+        if (backfill == null) {
+            throw new IllegalArgumentException("backfill may not be null");
+        }
+        this.backfill = backfill;
     }
 
 
@@ -188,6 +196,8 @@ public class DelegatingManager implements Manager {
      */
     public void recover_initialize() throws Exception {
         this.home.recover_initialize();
+        this.backfill.setDelegatingManager(this);
+        this.backfill.initiateBackfill();
     }
 
     public void shutdownImmediately() {

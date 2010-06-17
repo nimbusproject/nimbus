@@ -37,6 +37,7 @@ public class DefaultSchedule implements _Schedule {
     private Calendar startTime;
     private int durationSeconds = -1;
     private Calendar destructionTime;
+    private boolean backfillReq = false;
 
 
     // -------------------------------------------------------------------------
@@ -53,6 +54,10 @@ public class DefaultSchedule implements _Schedule {
 
     public Calendar getDestructionTime() {
         return this.destructionTime;
+    }
+
+    public boolean getBackfillReq() {
+        return this.backfillReq;
     }
 
     
@@ -72,6 +77,10 @@ public class DefaultSchedule implements _Schedule {
         this.destructionTime = destructionTime;
     }
 
+    public void setBackfillReq(boolean backfillReq) {
+        this.backfillReq = backfillReq;
+    }
+
 
     // -------------------------------------------------------------------------
     // DEBUG STRING
@@ -82,6 +91,7 @@ public class DefaultSchedule implements _Schedule {
                 "startTime=" + calendarStr(this.startTime) +
                 ", durationSeconds='" + this.durationSeconds +
                 "', destructionTime='" + calendarStr(this.destructionTime) +
+                ", backfillReq=" + this.backfillReq +
                 "'}";
     }
 

@@ -73,6 +73,16 @@
                   value="$ACCOUNTING{" />
     </bean>
 
+    <bean id="backfillSettings"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+
+        <property name="location"
+                  value="$NIMBUS_HOME/services/etc/nimbus/workspace-service/backfill.conf" />
+        <property name="placeholderPrefix"
+                  value="$BACKFILL{" />
+
+     </bean>
+
     <bean id="sshSettings"
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 

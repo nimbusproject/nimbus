@@ -30,6 +30,7 @@ import org.globus.workspace.service.InstanceResource;
 import org.globus.workspace.service.WorkspaceHome;
 import org.globus.workspace.service.binding.GlobalPolicies;
 import org.globus.workspace.LockAcquisitionFailure;
+import org.globus.workspace.Backfill;
 import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
 import org.nimbustools.api.services.rm.SchedulingException;
 import org.nimbustools.api.services.rm.DoesNotExistException;
@@ -80,6 +81,7 @@ public class DefaultSchedulerAdapter implements Scheduler {
     // see CreationPending class comment
     protected final CreationPending creationPending = new CreationPending();
 
+    private final Backfill backfill;
 
     // -------------------------------------------------------------------------
     // CONSTRUCTOR
@@ -91,7 +93,8 @@ public class DefaultSchedulerAdapter implements Scheduler {
                                    TimerManager timerManager,
                                    GlobalPolicies globalPolicies,
                                    DataConvert dataConvert,
-                                   Lager lagerImpl) {
+                                   Lager lagerImpl,
+                                   Backfill backfill) {
 
         if (lockManager == null) {
             throw new IllegalArgumentException("lockManager may not be null");
@@ -127,6 +130,11 @@ public class DefaultSchedulerAdapter implements Scheduler {
             throw new IllegalArgumentException("lagerImpl may not be null");
         }
         this.lager = lagerImpl;
+
+        if (backfill == null) {
+            throw new IllegalArgumentException("backfill may not be null");
+        }
+        this.backfill = backfill;
     }
 
 
@@ -219,7 +227,8 @@ public class DefaultSchedulerAdapter implements Scheduler {
                                 int numNodes,
                                 String groupid,
                                 String coschedid,
-                                String creatorDN)
+                                String creatorDN,
+                                boolean backfillReq)
 
             throws SchedulingException,
                    ResourceRequestDeniedException {
@@ -252,7 +261,7 @@ public class DefaultSchedulerAdapter implements Scheduler {
         this.creationPending.pending(ids);
 
         final NodeRequest req =
-                new NodeRequest(ids, memory, duration, assocs, groupid, creatorDN);
+                new NodeRequest(ids, memory, duration, assocs, groupid, creatorDN, backfillReq);
 
         try {
 
@@ -282,7 +291,31 @@ public class DefaultSchedulerAdapter implements Scheduler {
         final String invalidResponse = "Implementation problem: slot " +
                 "manager returned invalid response";
 
-        final Reservation res = this.slotManager.reserveSpace(req);
+        Reservation res = null;
+        try {
+            res = this.slotManager.reserveSpace(req);
+        } catch (ResourceRequestDeniedException e) {
+            logger.debug("Failed to reserve the resource: " + e.getMessage());
+            if (req.getBackfillReq() == false) {
+                logger.debug("The request isn't a backfill request");
+                logger.debug("Attempting to terminate backfill nodes");
+                boolean continueTerminateBackfill = true;
+                while (continueTerminateBackfill == true) {
+                    try {
+                        res = this.slotManager.reserveSpace(req);
+                        continueTerminateBackfill = false;
+                    } catch (ResourceRequestDeniedException rDE) {
+                        if (this.backfill.terminateBackfillNode() == false) {
+                            throw rDE;
+                        } else {
+                            continueTerminateBackfill = true;
+                        }
+                    }
+                }
+            } else {
+                throw e;
+            }
+        }
 
         if (res == null) {
             throw new ResourceRequestDeniedException(
@@ -861,6 +894,12 @@ public class DefaultSchedulerAdapter implements Scheduler {
         this.db.backOutTasks(vmid);
         this.slotManager.releaseSpace(vmid);
         this.db.deleteNodeRequest(vmid);
+
+        if ((this.slotManager.isOldBackfillID(vmid) == false) &&
+            (this.slotManager.isCurrentBackfillID(vmid) == false)) {
+            logger.debug("Relaunching backfill timer");
+            this.backfill.launchBackfillTimer();
+        }
     }
 
     protected void markShutdown(int id) throws WorkspaceDatabaseException {

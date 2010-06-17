@@ -26,6 +26,8 @@ public class NodeRequest {
     private String groupid = null;
     private String creatorDN = null;
 
+    private boolean backfillReq = false;
+
     public NodeRequest(int memory,
                        int duration) {
         if (duration < 1) {
@@ -44,14 +46,17 @@ public class NodeRequest {
                        int duration,
                        String[] neededAssociations,
                        String groupid,
-                       String creatorDN) {
+                       String creatorDN,
+                       boolean backfillReq) {
         this(memory, duration);
 
         this.ids = ids;
         this.neededAssociations = neededAssociations;
         this.groupid = groupid;
         this.creatorDN = creatorDN;
+        this.backfillReq = backfillReq;
     }
+
 
     public int[] getIds() {
         return this.ids;
@@ -111,12 +116,20 @@ public class NodeRequest {
     public void setGroupid(String groupid) {
         this.groupid = groupid;
     }
-
+    
     public String getCreatorDN() {
         return this.creatorDN;
     }
 
     public void setCreatorDN(String creatorDN) {
         this.creatorDN = creatorDN;
+    }
+
+    public boolean getBackfillReq() {
+        return this.backfillReq;
+    }
+
+    public void setBackfillReq(boolean backfillReq) {
+        this.backfillReq = backfillReq;
     }
 }

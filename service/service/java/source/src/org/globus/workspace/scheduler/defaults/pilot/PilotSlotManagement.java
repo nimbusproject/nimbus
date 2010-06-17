@@ -1630,4 +1630,18 @@ public class PilotSlotManagement implements SlotManagement,
             }
         }
     }
+
+    /* None of the below are used in the context of the pilot service at this time */
+    public int getBackfillVMID() {
+        int tmp=-1;
+        return tmp;
+    }
+
+    public boolean isOldBackfillID(int vmid) {
+        return false;
+    }
+
+    public boolean isCurrentBackfillID(int vmid) {
+        return false;
+    }
 }
