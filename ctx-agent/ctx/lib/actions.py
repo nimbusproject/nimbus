@@ -201,11 +201,17 @@ class DefaultOK:
         self.log.info("CMD: " + self.runcmd)
         
         (exit, stdout, stderr) = runexe(self.runcmd, killtime=10)
-        result = "'%s': exit=%d, stdout='%s'," % (self.runcmd, exit, stdout)
+        result = "'%s': exit=%s, stdout='%s'," % (self.runcmd, exit, stdout)
         result += " stderr='%s'" % (stderr)
         
         self.log.debug(result)
-        self.log.info("Reported OK to context broker.")
+        
+        if exit != "0":
+            msg = "PROBLEM: reporting OK to context broker failed, "
+            msg += "result: %s" % result
+            self.log.error(msg)
+        else:
+            self.log.info("Reported OK to context broker.")
         
 class DefaultERR:
     
@@ -243,11 +249,17 @@ class DefaultERR:
         self.log.info("CMD: " + self.runcmd)
         
         (exit, stdout, stderr) = runexe(self.runcmd, killtime=10)
-        result = "'%s': exit=%d, stdout='%s'," % (self.runcmd, exit, stdout)
+        result = "'%s': exit=%s, stdout='%s'," % (self.runcmd, exit, stdout)
         result += " stderr='%s'" % (stderr)
         
         self.log.info(result)
-        self.log.info("Reported ERROR to context broker.")
+        
+        if exit != "0":
+            msg = "PROBLEM: reporting ERROR to context broker failed, "
+            msg += "result: %s" % result
+            self.log.error(msg)
+        else:
+            self.log.info("Reported ERROR to context broker.")
         
     def complete_template(self, errcodestr, errmessage):
         text = ""
@@ -426,16 +438,16 @@ class RegularInstantiation(Action):
         # todo: switch to python classes
         
         timeout = 5
-        curlcmd = "%s --silent --url %s -o /dev/stdout" % (self.common.curlpath, url)
+        curlcmd = "%s --silent --url %s" % (self.common.curlpath, url)
         
         (exit, stdout, stderr) = runexe(curlcmd, killtime=timeout+1)
-        result = "'%s': exit=%d, stdout='%s'," % (curlcmd, exit, stdout)
+        result = "'%s': exit=%s, stdout='%s'," % (curlcmd, exit, stdout)
         result += " stderr='%s'" % (stderr)
         
         if self.common.trace:
             self.log.debug(result)
         
-        if exit != 0:
+        if exit != "0":
             msg = "PROBLEM: curl command failed, "
             msg += "result: %s" % result
             self.log.error(msg)
@@ -790,16 +802,16 @@ class AmazonInstantiation(Action):
         # todo: switch to python classes
         
         timeout = 5
-        curlcmd = "%s --silent --url %s -o /dev/stdout" % (self.common.curlpath, url)
+        curlcmd = "%s --silent --url %s" % (self.common.curlpath, url)
         
         (exit, stdout, stderr) = runexe(curlcmd, killtime=timeout+1)
-        result = "'%s': exit=%d, stdout='%s'," % (curlcmd, exit, stdout)
+        result = "'%s': exit=%s, stdout='%s'," % (curlcmd, exit, stdout)
         result += " stderr='%s'" % (stderr)
         
         if self.common.trace:
             self.log.debug(result)
         
-        if exit != 0:
+        if exit != "0":
             msg = "PROBLEM: curl command failed, "
             msg += "result: %s" % result
             self.log.error(msg)
@@ -922,13 +934,13 @@ class DefaultRetrieveAction(Action):
             raise ProgrammingError("no runcmd setup for retrieve action")
         
         (exit, stdout, stderr) = runexe(self.runcmd, killtime=timeout+1)
-        result = "'%s': exit=%d, stdout='%s'," % (self.runcmd, exit, stdout)
+        result = "'%s': exit=%s, stdout='%s'," % (self.runcmd, exit, stdout)
         result += " stderr='%s'" % (stderr)
         
         if self.common.trace:
             self.log.debug(result)
         
-        if exit != 0:
+        if exit != "0":
             msg = "PROBLEM: curl command failed, "
             msg += "result: %s" % result
             self.log.error(msg)
@@ -1187,13 +1199,13 @@ class DefaultConsumeRetrieveResult(Action):
             
             cmd = "%s %s %s %s" % (etchostspath, ident.ip, short_host, ident.host)
             (exit, stdout, stderr) = runexe(cmd, killtime=0)
-            result = "'%s': exit=%d, stdout='%s'," % (cmd, exit, stdout)
+            result = "'%s': exit=%s, stdout='%s'," % (cmd, exit, stdout)
             result += " stderr='%s'" % (stderr)
             
             if self.common.trace:
                 self.log.debug(result)
             
-            if exit != 0:
+            if exit != "0":
                 msg = "PROBLEM: etchosts addition command failed, "
                 msg += "result: %s" % result
                 raise UnexpectedError(msg)
@@ -1308,13 +1320,13 @@ class DefaultConsumeRetrieveResult(Action):
                 cmd += " %s %s" % (ident.host.split(".")[0], ident.host)
             
             (exit, stdout, stderr) = runexe(cmd, killtime=0)
-            result = "'%s': exit=%d, stdout='%s'," % (cmd, exit, stdout)
+            result = "'%s': exit=%s, stdout='%s'," % (cmd, exit, stdout)
             result += " stderr='%s'" % (stderr)
             
             if self.common.trace:
                 self.log.debug(result)
             
-            if exit != 0:
+            if exit != "0":
                 msg = "PROBLEM: task command failed, "
                 msg += "result: %s" % result
                 raise UnexpectedError(msg)
@@ -1368,13 +1380,13 @@ class DefaultConsumeRetrieveResult(Action):
         self.log.debug("CMD: %s" % cmd)
         
         (exit, stdout, stderr) = runexe(cmd, killtime=0)
-        result = "'%s': exit=%d, stdout='%s'," % (cmd, exit, stdout)
+        result = "'%s': exit=%s, stdout='%s'," % (cmd, exit, stdout)
         result += " stderr='%s'" % (stderr)
         
         if self.common.trace:
             self.log.debug(result)
         
-        if exit != 0:
+        if exit != "0":
             msg = "PROBLEM: data task command failed, "
             msg += "result: %s" % result
             raise UnexpectedError(msg)
@@ -1457,13 +1469,13 @@ class DefaultConsumeRetrieveResult(Action):
             cmd = "%s %s %s %s" % (taskpath, ident[1], ident[2], ident[3])
             
             (exit, stdout, stderr) = runexe(cmd, killtime=0)
-            result = "'%s': exit=%d, stdout='%s'," % (cmd, exit, stdout)
+            result = "'%s': exit=%s, stdout='%s'," % (cmd, exit, stdout)
             result += " stderr='%s'" % (stderr)
             
             if self.common.trace:
                 self.log.debug(result)
             
-            if exit != 0:
+            if exit != "0":
                 msg = "PROBLEM: %s command failed, " % self.logname
                 msg += "result: %s" % result
                 self.log.error(msg)
@@ -1490,13 +1502,13 @@ class DefaultConsumeRetrieveResult(Action):
                 continue
                 
             (exit, stdout, stderr) = runexe(taskpath, killtime=0)
-            result = "'%s': exit=%d, stdout='%s'," % (taskpath, exit, stdout)
+            result = "'%s': exit=%s, stdout='%s'," % (taskpath, exit, stdout)
             result += " stderr='%s'" % (stderr)
             
             if self.common.trace:
                 self.log.debug(result)
             
-            if exit != 0:
+            if exit != "0":
                 msg = "PROBLEM: restart task command failed, "
                 msg += "result: %s" % result
                 raise UnexpectedError(msg)

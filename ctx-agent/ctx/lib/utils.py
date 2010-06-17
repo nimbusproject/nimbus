@@ -169,7 +169,14 @@ class SimpleRunThread(Thread):
                 self.exception = e
                 return
                 
-        self.exit = p.wait()
+        status = p.wait()
+        if os.WIFSIGNALED(status):
+            self.exit = "SIGNAL: " + str(os.WTERMSIG(status))
+        elif os.WIFEXITED(status):
+            self.exit = str(os.WEXITSTATUS(status))
+        else:
+            self.exit = "UNKNOWN"
+            
         self.stdout = p.fromchild.read()
         self.stderr = p.childerr.read()
         p.fromchild.close()
@@ -190,7 +197,7 @@ def runexe(cmd, killtime=2.0):
     
     Return (exitcode, stdout, stderr)
     
-    * exitcode -- integer exit code
+    * exitcode -- string exit code or msg
     
     * stdout -- stdout or None
     
