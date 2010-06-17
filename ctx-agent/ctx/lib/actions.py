@@ -434,13 +434,13 @@ class RegularInstantiation(Action):
         # strip any newlines and extra whitespace
         return text.replace("\n", "").strip()
         
-    def get_stdout(self, url):
+    def get_stdout(self, url, retry=0):
         # todo: switch to python classes
         
-        timeout = 5
+        timeout = 6
         curlcmd = "%s --silent --url %s" % (self.common.curlpath, url)
         
-        (exit, stdout, stderr) = runexe(curlcmd, killtime=timeout+1)
+        (exit, stdout, stderr) = runexe(curlcmd, killtime=timeout, retry=retry)
         result = "'%s': exit=%s, stdout='%s'," % (curlcmd, exit, stdout)
         result += " stderr='%s'" % (stderr)
         
@@ -491,7 +491,9 @@ class RegularInstantiation(Action):
         metadataServerURL = metadataServerURL + "/2007-01-19/"
             
         geturl = metadataServerURL + "user-data"
-        userdataText = self.get_stdout(geturl)
+        
+        # first call to md server, retry a good amt
+        userdataText = self.get_stdout(geturl, retry=10) 
         if userdataText == None or userdataText.strip() == "":
             raise UnexpectedError("could not obtain userdata @ '%s'" % geturl)
         
@@ -524,22 +526,22 @@ class RegularInstantiation(Action):
         # start by getting NIC information from the metadata server
         
         geturl = metadataServerURL + "meta-data/local-hostname"
-        localHostname = self.get_stdout(geturl)
+        localHostname = self.get_stdout(geturl, retry=3)
         if localHostname != None and localHostname.strip() == "":
             localHostname = None
         
         geturl = metadataServerURL + "meta-data/local-ipv4"
-        localIP = self.get_stdout(geturl)
+        localIP = self.get_stdout(geturl, retry=3)
         if localIP != None and localIP.strip() == "":
             localIP = None
             
         geturl = metadataServerURL + "meta-data/public-hostname"
-        publicHostname = self.get_stdout(geturl)
+        publicHostname = self.get_stdout(geturl, retry=3)
         if publicHostname != None and publicHostname.strip() == "":
             publicHostname = None
             
         geturl = metadataServerURL + "meta-data/public-ipv4"
-        publicIP = self.get_stdout(geturl)
+        publicIP = self.get_stdout(geturl, retry=3)
         if publicIP != None and publicIP.strip() == "":
             publicIP = None
         
@@ -715,23 +717,23 @@ class AmazonInstantiation(Action):
         result.iface_name = "publicnic" # public
         result.iface2_name = "localnic" # private LAN address
         
-        r = self.get_stdout(self.conf.publicipURL)
+        r = self.get_stdout(self.conf.publicipURL, retry=3)
         if r == None:
             raise UnexpectedError("Couldn't obtain pub IP")
         result.iface_ip = r.replace("\n", "").strip()
         
-        r = self.get_stdout(self.conf.localipURL)
+        r = self.get_stdout(self.conf.localipURL, retry=3)
         if r == None:
             raise UnexpectedError("Couldn't obtain local IP")
         result.iface2_ip = r.replace("\n", "").strip()
          
-        r = self.get_stdout(self.conf.publichostnameURL)
+        r = self.get_stdout(self.conf.publichostnameURL, retry=3)
         if r == None:
             raise UnexpectedError("Couldn't obtain pub hostname")
         result.iface_hostname = r.replace("\n", "").strip()
         result.iface_short_hostname = result.iface_hostname.split(".")[0]
          
-        r = self.get_stdout(self.conf.localhostnameURL)
+        r = self.get_stdout(self.conf.localhostnameURL, retry=3)
         if r == None:
             raise UnexpectedError("Couldn't obtain local hostname")
         result.iface2_hostname = r.replace("\n", "").strip()
@@ -770,7 +772,9 @@ class AmazonInstantiation(Action):
         
     # can raise UnexpectedError
     def consume_bootstrap(self):
-        text = self.get_stdout(self.conf.userdataURL)
+        
+        # first call to md server, retry a good amt
+        text = self.get_stdout(self.conf.userdataURL, retry=10)
         if text == None:
             raise UnexpectedError("no user data for bootstrap")
             
@@ -798,13 +802,13 @@ class AmazonInstantiation(Action):
         
         self.result.cluster_text = bootstrap.cluster
         
-    def get_stdout(self, url):
+    def get_stdout(self, url, retry=0):
         # todo: switch to python classes
         
-        timeout = 5
+        timeout = 6
         curlcmd = "%s --silent --url %s" % (self.common.curlpath, url)
         
-        (exit, stdout, stderr) = runexe(curlcmd, killtime=timeout+1)
+        (exit, stdout, stderr) = runexe(curlcmd, killtime=timeout, retry=retry)
         result = "'%s': exit=%s, stdout='%s'," % (curlcmd, exit, stdout)
         result += " stderr='%s'" % (stderr)
         
