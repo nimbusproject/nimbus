@@ -254,18 +254,18 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
         }
     }
 
-    protected void allocate(SIRequest siRequest, Integer delta) {
+    protected void allocate(SIRequest siRequest, Integer quantity) {
         VirtualMachine[] unallocatedVMs = null;
         try {
-            unallocatedVMs = siRequest.getUnallocatedVMs(delta);
+            unallocatedVMs = siRequest.getUnallocatedVMs(quantity);
         } catch (SIRequestException e) {
             logger.fatal("[Spot Instances] " + e.getMessage(), e);
             return;
         }
         
         //TODO: temporary, just for testing
-        int[] fakeIDs = new int[delta];
-        for (int i = 0; i < fakeIDs.length; i++) {
+        int[] fakeIDs = new int[quantity];
+        for (int i = 0; i < quantity; i++) {
             fakeIDs[i] = (int)(Math.random()*10000);
             unallocatedVMs[i].setID(fakeIDs[i]);
         }

@@ -52,7 +52,7 @@ public class NoResourcesSISuite extends NimbusTestBase {
      */
     @Override
     protected String getNimbusHome() throws Exception {
-        return this.determineSuitesPath() + "/basic/home";
+        return this.determineSuitesPath() + "/spotinstances/noresources/home";
     }
     
     /**
@@ -60,8 +60,8 @@ public class NoResourcesSISuite extends NimbusTestBase {
      * @throws Exception problem
      */
     @Test
-    public void simpleRequest() throws Exception {
-        logger.debug("simpleRequest");
+    public void singleRequest() throws Exception {
+        logger.debug("singleRequest");
 
         Caller caller = this.populator().getCaller();
         Manager rm = this.locator.getManager();

@@ -2369,6 +2369,7 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
             c = getConnection();
 
             pstmt = c.prepareStatement(sql);
+            rs = pstmt.executeQuery();
             
             if (rs == null) {
                 if (this.dbTrace) {

@@ -1,5 +1,6 @@
 package org.globus.workspace.spotinstances;
 
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -147,7 +148,8 @@ public class SIRequest implements Comparable<SIRequest>{
         return "SIRequest [id " + id + ", status= " + status + ", requestedInstances="
                 + requestedInstances + ", allocatedInstances=" + getAllocatedInstances()
                 + ", maxBid=" + maxBid + ", persistent=" + persistent 
-                + ", caller=" + caller + "]";
+                + ", caller=" + caller
+                + ", bindings=" + Arrays.toString(bindings) + "]";
     }
 
     public void fulfillVM(int vmid, Double spotPrice) {
@@ -196,7 +198,7 @@ public class SIRequest implements Comparable<SIRequest>{
         
         for (int i = 0; i < quantity; i++) {
             VirtualMachine current = bindings[i];
-            if(!current.getID().equals(-1)){
+            if(current.getID().equals(-1)){
                 result[j++] = current;
             }
         }
