@@ -6,14 +6,12 @@
 
 # NOTE: this requires the network.  We have seen that some Linux
 # distributions do not bring up the network before calling rc.local tasks.
-# In that case it is wise to put a while+sleep loop before launching the
-# context-agent that will check to make sure the network is up.
-
+# Inside the ctx-agent launch.sh script is a while+sleep loop that will
+# wait forever until the network is up.
 
 sh /opt/nimbus/ctx-scripts/clean.sh &>/dev/null
 
 sh /opt/nimbus/ctx/launch.sh &>/dev/null
-
 
 
 # Note that you can start the context agent without fear of system alteration
