@@ -9,12 +9,12 @@ from ctx_exceptions import InvalidConfig, ProgrammingError
 # Globals
 # #########################################################{{{
 
-VERSION = "2.2"
+VERSION = "2.3"
 
 # Apache License 2.0:
 LICENSE = """
 
-Copyright 1999-2009 University of Chicago
+Copyright 1999-2010 University of Chicago
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ permissions and limitations under the License.
 
 """
 
-# Project home: http://workspace.globus.org
+# Project home: http://www.nimbusproject.org
 
 # In the future, this value may come from bootstrap or the information
 # may even be notification based.

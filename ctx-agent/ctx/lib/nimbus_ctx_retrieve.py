@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-# Copyright 1999-2009 University of Chicago
+# Copyright 1999-2010 University of Chicago
 
-# Project home: http://workspace.globus.org
+# Project home: http://www.nimbusproject.org
 
 import os
 import sys
@@ -50,7 +50,7 @@ class ARGS:
 def parsersetup():
     """Return configured command-line parser."""
 
-    ver="Workspace VM context agent %s, http://workspace.globus.org" % VERSION
+    ver="Nimbus VM context agent %s, http://www.nimbusproject.org" % VERSION
     usage="see help (-h)."
     parser = optparse.OptionParser(version=ver,usage=usage)
 
