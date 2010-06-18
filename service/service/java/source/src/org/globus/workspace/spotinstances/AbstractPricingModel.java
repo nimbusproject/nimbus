@@ -1,7 +1,9 @@
 package org.globus.workspace.spotinstances;
 
 import java.util.Collection;
-import java.util.TreeSet;
+import java.util.LinkedList;
+
+import edu.emory.mathcs.backport.java.util.Collections;
 
 public abstract class AbstractPricingModel implements PricingModel{
     
@@ -12,10 +14,10 @@ public abstract class AbstractPricingModel implements PricingModel{
             return PricingModelConstants.MINIMUM_PRICE;
         }
         
-        TreeSet<Double> priceCandidates = getPriceCandidates(requests);
+        LinkedList<Double> priceCandidates = getOrderedPriceCandidates(requests);
         
-        if(totalReservedResources < 1){
-            Double highestPrice = priceCandidates.last();
+        if(totalReservedResources < 1 && !priceCandidates.isEmpty()){
+            Double highestPrice = priceCandidates.peekLast();
             return highestPrice+0.1;
         }
         
@@ -27,9 +29,9 @@ public abstract class AbstractPricingModel implements PricingModel{
             Collection<SIRequest> requests, Double currentPrice);
 
 
-    protected TreeSet<Double> getPriceCandidates(Collection<SIRequest> requests) {
+    protected LinkedList<Double> getOrderedPriceCandidates(Collection<SIRequest> requests) {
         
-        TreeSet<Double> priceCandidates = new TreeSet<Double>();
+        LinkedList<Double> priceCandidates = new LinkedList<Double>();
         
         for (SIRequest siRequest : requests) {
             Double requestBid = siRequest.getMaxBid();
@@ -37,6 +39,8 @@ public abstract class AbstractPricingModel implements PricingModel{
                 priceCandidates.add(requestBid);
             }
         }
+        
+        Collections.sort(priceCandidates);
         
         return priceCandidates;
     }

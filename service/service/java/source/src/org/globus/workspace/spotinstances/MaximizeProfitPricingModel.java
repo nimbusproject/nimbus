@@ -2,7 +2,6 @@ package org.globus.workspace.spotinstances;
 
 import java.util.Collection;
 import java.util.LinkedList;
-import java.util.TreeSet;
 
 public class MaximizeProfitPricingModel extends AbstractPricingModel {
 
@@ -10,7 +9,7 @@ public class MaximizeProfitPricingModel extends AbstractPricingModel {
     @Override
     public Double getNextPriceImpl(Integer totalReservedResources, Collection<SIRequest> requests, Double currentPrice) {
                 
-        TreeSet<Double> priceCandidates = getPriceCandidates(requests);
+        LinkedList<Double> priceCandidates = getOrderedPriceCandidates(requests);
         
         Double highestProfitPrice = PricingModelConstants.NEGATIVE_INFINITY;
         Double highestProfit = PricingModelConstants.NEGATIVE_INFINITY;
@@ -24,7 +23,7 @@ public class MaximizeProfitPricingModel extends AbstractPricingModel {
         }
         
         if(highestProfitPrice == PricingModelConstants.NEGATIVE_INFINITY){
-            Double highestPrice = priceCandidates.last();
+            Double highestPrice = priceCandidates.peekLast();
             return highestPrice+1;
         }
         
