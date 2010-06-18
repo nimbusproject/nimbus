@@ -755,15 +755,28 @@ public class DelegatingManager implements Manager {
     }
 
 
-    public SpotRequest getSpotRequest(String id, Caller caller)
+    @Override
+    public SpotRequest getSpotRequest(String requestID, Caller caller)
             throws DoesNotExistException, ManageException, AuthorizationException {
-        SIRequest siReq = siHome.getRequest(id);
+        return this.getSpotRequests(new String[]{requestID}, caller)[0];
+    }    
+    
+    public SpotRequest[] getSpotRequests(String[] ids, Caller caller)
+            throws DoesNotExistException, ManageException, AuthorizationException {
         
-        if(!caller.isSuperUser() && !siReq.getCaller().equals(caller)){
-            throw new AuthorizationException("Caller is not authorized to get information about this request");
+        SpotRequest[] result = new SpotRequest[ids.length];
+        
+        for (int i = 0; i < ids.length; i++) {
+            SIRequest siReq = siHome.getRequest(ids[i]);
+            
+            if(!caller.isSuperUser() && !siReq.getCaller().equals(caller)){
+                throw new AuthorizationException("Caller is not authorized to get information about this request");
+            }
+            
+            result[i] = getSpotRequest(siReq);
         }
         
-        return this.getSpotRequest(siReq);
+        return result;
     }
 
 
@@ -774,6 +787,24 @@ public class DelegatingManager implements Manager {
     }
 
 
+    @Override
+    public SpotRequest[] cancelSpotInstanceRequests(String[] ids, Caller caller) 
+            throws DoesNotExistException, AuthorizationException, ManageException {
+        SpotRequest[] result = new SpotRequest[ids.length];
+        
+        for (int i = 0; i < ids.length; i++) {
+            SIRequest siReq = siHome.getRequest(ids[i]);
+            
+            if(!caller.isSuperUser() && !siReq.getCaller().equals(caller)){
+                throw new AuthorizationException("Caller is not authorized to get information about this request");
+            }
+            
+            result[i] = getSpotRequest(siHome.cancelRequest(ids[i]));
+        }
+        
+        return result;
+    }
+    
     private SpotRequest getSpotRequest(SIRequest siReq) throws ManageException {
         try {
             return dataConvert.getSpotRequest(siReq);
@@ -790,6 +821,6 @@ public class DelegatingManager implements Manager {
         }
         
         return result;
-    }
+    }    
 
 }

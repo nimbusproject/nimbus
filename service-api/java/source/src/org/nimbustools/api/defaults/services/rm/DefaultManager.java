@@ -42,6 +42,7 @@ import org.nimbustools.api.services.rm.SchedulingException;
 import org.nimbustools.api.services.rm.StateChangeCallback;
 
 import java.text.DateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 
 /**
@@ -306,6 +307,26 @@ public class DefaultManager implements Manager {
     public SpotRequest[] getSpotRequestByCaller(Caller caller)
             throws ManageException {
         Logging.debug("Manager.getSpotRequestByCaller() -- caller '" + caller + "'");
+        
+        return null;
+    }
+
+
+    @Override
+    public SpotRequest[] cancelSpotInstanceRequests(String[] ids, Caller caller) {
+        Logging.debug("Manager.cancelSpotInstanceRequests() -- caller '" + caller + "', " +
+                "ids:" + Arrays.toString(ids));
+        
+        return null;
+    }
+
+
+    @Override
+    public SpotRequest[] getSpotRequests(String[] ids, Caller caller)
+            throws DoesNotExistException, ManageException,
+            AuthorizationException {
+        Logging.debug("Manager.getSpotRequest() -- caller '" + caller + "', " +
+                "ids:" + Arrays.toString(ids));
         
         return null;
     }

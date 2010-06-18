@@ -187,11 +187,18 @@ public interface Manager extends NimbusModule {
                    ResourceRequestDeniedException,
                    SchedulingException;     
     
-    public SpotRequest getSpotRequest(String id, Caller caller)
+    public SpotRequest getSpotRequest(String requestID, Caller caller)
             throws DoesNotExistException, ManageException, AuthorizationException;
     
+    public SpotRequest[] getSpotRequests(String[] ids, Caller caller)
+            throws DoesNotExistException, ManageException, AuthorizationException;    
+    
     public SpotRequest[] getSpotRequestByCaller(Caller caller)
-            throws ManageException;
+            throws ManageException;    
+    
+    public SpotRequest[] cancelSpotInstanceRequests(String[] ids,
+                                                    Caller caller)
+            throws DoesNotExistException, AuthorizationException, ManageException;
     
     public Double getSpotPrice()
             throws ManageException;    
