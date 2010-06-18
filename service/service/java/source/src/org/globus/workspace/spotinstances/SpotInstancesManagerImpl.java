@@ -24,7 +24,7 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
     private static String MACHINE_TYPE = SIConstants.SI_TYPE_BASIC;
     private static Integer INSTANCE_MEM = SIConstants.getInstanceMem(MACHINE_TYPE);
     
-    private static final Integer MINIMUM_RESERVED_MEMORY = 128;
+    private static final Integer MINIMUM_RESERVED_MEMORY = 256;
     private static final Double MAX_NON_PREEMP_UTILIZATION = 0.7;
 
     private static final Log logger =
@@ -61,7 +61,20 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
         changePriceAndReallocateRequests();
     }
     
+    @Override
+    public SIRequest cancelRequest(String reqID) throws DoesNotExistException {
+        logger.info(Lager.ev(-1) + "[Spot Instances] Cancelling request with id: " + reqID + ".");                
+        SIRequest siRequest = getRequest(reqID, false);
+        siRequest.cancelRequest();
+        changeAllocation(siRequest, 0);
+        return siRequest;
+    }    
+    
     public SIRequest getRequest(String id) throws DoesNotExistException {
+        return this.getRequest(id, true);
+    }    
+    
+    protected SIRequest getRequest(String id, boolean log) throws DoesNotExistException {
         logger.info(Lager.ev(-1) + "[Spot Instances] Retrieving request with id: " + id + ".");                
         SIRequest siRequest = allRequests.get(id);
         if(siRequest != null){
@@ -231,8 +244,6 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
         } else if (delta < 0) {
             preempt(siRequest, -delta);
         }
-
-        siRequest.addCreatedVMs(new int[newAllocation]);
 
         if (this.lager.eventLog) {
             logger.info(Lager.ev(-1) + "[Spot Instances] CHANGING ALLOCATION - AFTER: " + siRequest.toString());

@@ -1,6 +1,5 @@
 package org.globus.workspace.spotinstances;
 
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -111,7 +110,9 @@ public class SIRequest implements Comparable<SIRequest>{
     }
 
     private void setStatus(SIRequestStatus status) {
-        this.status = status;
+        if(this.status.isAlive()){
+            this.status = status;
+        }
     }
 
     @Override
@@ -148,8 +149,7 @@ public class SIRequest implements Comparable<SIRequest>{
         return "SIRequest [id " + id + ", status= " + status + ", requestedInstances="
                 + requestedInstances + ", allocatedInstances=" + getAllocatedInstances()
                 + ", maxBid=" + maxBid + ", persistent=" + persistent 
-                + ", caller=" + caller
-                + ", bindings=" + Arrays.toString(bindings) + "]";
+                + ", caller=" + caller + "]";
     }
 
     public void fulfillVM(int vmid, Double spotPrice) {
@@ -174,7 +174,9 @@ public class SIRequest implements Comparable<SIRequest>{
             }
             
             fulfilledVMs.add(vmid);
-            changeStatus(spotPrice);
+            if(status.isAlive()){
+                changeStatus(spotPrice);
+            }
         }
     }
 
@@ -227,5 +229,9 @@ public class SIRequest implements Comparable<SIRequest>{
 
     public Calendar getCreationTime() {
         return this.creationTime;
+    }
+
+    public void cancelRequest() {
+        this.setStatus(SIRequestStatus.CANCELLED);
     }    
 }
