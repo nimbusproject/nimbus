@@ -52,7 +52,7 @@ public class NoResourcesSISuite extends NimbusTestBase {
      */
     @Override
     protected String getNimbusHome() throws Exception {
-        return this.determineSuitesPath() + "/spotinstances/noresources/home";
+        return this.determineSuitesPath() + "/basic/home";
     }
     
     /**
@@ -60,8 +60,8 @@ public class NoResourcesSISuite extends NimbusTestBase {
      * @throws Exception problem
      */
     @Test
-    public void singleRequest() throws Exception {
-        logger.debug("singleRequest");
+    public void simpleRequest() throws Exception {
+        logger.debug("simpleRequest");
 
         Caller caller = this.populator().getCaller();
         Manager rm = this.locator.getManager();
@@ -69,7 +69,7 @@ public class NoResourcesSISuite extends NimbusTestBase {
         Double previousPrice = rm.getSpotPrice();
         
         final Double bid = previousPrice + 1;
-        RequestSI requestSI = this.populator().getBasicRequestSI("suite:spotinstances:noresources:singleRequest", 1, bid, false);
+        RequestSI requestSI = this.populator().getBasicRequestSI("suite:spotinstances:simpleRequest", 1, bid, false);
         
         SpotRequest result = rm.requestSpotInstances(requestSI, caller);
 
@@ -86,16 +86,6 @@ public class NoResourcesSISuite extends NimbusTestBase {
         assertEquals(result, spotRequestByCaller[0]);
         
         assertEquals(result, rm.getSpotRequest(result.getRequestID(), caller));
-        
-        //Cancel request
-        SpotRequest[] cancelledReqs = rm.cancelSpotInstanceRequests(new String[]{result.getRequestID()}, caller);
-        assertEquals(1, cancelledReqs.length);
-        assertEquals(SIRequestState.STATE_Cancelled, cancelledReqs[0].getState().getState());
-        assertEquals(result.getRequestID(), cancelledReqs[0].getRequestID());
-        
-        //Check if request was really cancelled
-        SpotRequest request = rm.getSpotRequest(result.getRequestID(), caller);
-        assertEquals(SIRequestState.STATE_Cancelled, request.getState().getState());           
     }    
     
     /**
@@ -136,14 +126,5 @@ public class NoResourcesSISuite extends NimbusTestBase {
         SpotRequest[] spotRequestByCaller2 = rm.getSpotRequestByCaller(caller2);
         assertEquals(1, spotRequestByCaller2.length);        
         
-        //Cancel requests
-        rm.cancelSpotInstanceRequests(new String[]{result1.getRequestID(), result3.getRequestID()}, caller1);
-        SpotRequest[] cancelledReqs = rm.cancelSpotInstanceRequests(new String[]{result2.getRequestID()}, caller2);
-        
-        //Check if requests were really cancelled
-        assertEquals(SIRequestState.STATE_Cancelled, cancelledReqs[0].getState().getState());
-        spotRequestByCaller1 = rm.getSpotRequestByCaller(caller1);
-        assertEquals(SIRequestState.STATE_Cancelled, spotRequestByCaller1[0].getState().getState());
-        assertEquals(SIRequestState.STATE_Cancelled, spotRequestByCaller1[1].getState().getState());
     }
 }
