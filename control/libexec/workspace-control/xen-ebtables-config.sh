@@ -262,4 +262,4 @@ if [ "$ADDREM" = "add" ]; then
   fi
 fi
 
-) 200>$FLOCKFILE
+) 200>>$FLOCKFILE
