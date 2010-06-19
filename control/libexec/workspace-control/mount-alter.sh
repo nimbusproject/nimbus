@@ -88,6 +88,14 @@ MOUNT="/bin/mount"
 UMOUNT="/bin/umount"
 CP="/bin/cp"
 
+FLOCKFILE=/var/lock/nimbus.mountalter.lock
+FLOCK=/usr/bin/flock
+if [ ! -O $FLOCK ]; then
+  echo "*** can not find flock program, disabling"
+  echo "*** disabling flock might result in a error like \"kernel doesn't support a certain ebtables extension\""
+  FLOCK=/bin/true
+fi
+
 
 #######################
 # ADJUST AS NECESSARY #
@@ -302,6 +310,9 @@ done
 # ALTER IMAGE #
 ###############
 
+(
+$FLOCK -x 200
+
 echo ""
 echo "Altering image (dryrun = $DRYRUN):"
 echo ""
@@ -364,3 +375,4 @@ if [ "$DRYRUN" != "true" ]; then
   fi
 fi
 
+) 200>>$FLOCKFILE
