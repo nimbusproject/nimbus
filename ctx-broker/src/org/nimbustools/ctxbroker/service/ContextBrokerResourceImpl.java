@@ -325,6 +325,10 @@ public class ContextBrokerResourceImpl implements ContextBrokerResource {
                 final NodeManifest nodeManifest =
                         this.getBlackboard().retrieve(workspaceID);
 
+                if (nodeManifest == null) {
+                    return null;
+                }
+
                 return translateNodeManifest(nodeManifest);
             }
             return null;
