@@ -200,7 +200,7 @@ class DefaultOK:
         
         self.log.info("CMD: " + self.runcmd)
         
-        (exit, stdout, stderr) = runexe(self.runcmd, killtime=10)
+        (exit, stdout, stderr) = runexe(self.runcmd, killtime=0)
         result = "'%s': exit=%s, stdout='%s'," % (self.runcmd, exit, stdout)
         result += " stderr='%s'" % (stderr)
         
@@ -248,7 +248,7 @@ class DefaultERR:
             
         self.log.info("CMD: " + self.runcmd)
         
-        (exit, stdout, stderr) = runexe(self.runcmd, killtime=10)
+        (exit, stdout, stderr) = runexe(self.runcmd, killtime=0)
         result = "'%s': exit=%s, stdout='%s'," % (self.runcmd, exit, stdout)
         result += " stderr='%s'" % (stderr)
         
@@ -898,8 +898,6 @@ class DefaultRetrieveAction(Action):
         
     def retrieve_result(self):
         
-        timeout = 8
-        
         responsepath = os.path.join(self.common.scratchdir, "response.xml")
         
         if self.postdocumentpath == None:
@@ -910,7 +908,6 @@ class DefaultRetrieveAction(Action):
             
             curlcmd = "%s --cert %s " % (curlpath, self.pub_pem_path)
             curlcmd += "--key %s " % self.priv_pem_path
-            curlcmd += "--max-time %s " % timeout
             
             # The --insecure flag means that we do not validate remote
             # host which would close spoof possibility: for future version.
@@ -937,7 +934,7 @@ class DefaultRetrieveAction(Action):
         if not self.runcmd:
             raise ProgrammingError("no runcmd setup for retrieve action")
         
-        (exit, stdout, stderr) = runexe(self.runcmd, killtime=timeout+1)
+        (exit, stdout, stderr) = runexe(self.runcmd, killtime=20)
         result = "'%s': exit=%s, stdout='%s'," % (self.runcmd, exit, stdout)
         result += " stderr='%s'" % (stderr)
         
