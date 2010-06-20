@@ -790,10 +790,7 @@ public abstract class InstanceResourceImpl implements InstanceResource {
 
                 this.accounting.destroy(this.id,
                                         this.getCreatorID(),
-                                        0L,
-                                        network,
-                                        resource,
-                                        this.name);
+                                        0L);
             } else {
                 final long runningTimeMS =
                         Calendar.getInstance().getTimeInMillis() -
@@ -807,10 +804,7 @@ public abstract class InstanceResourceImpl implements InstanceResource {
 
                 this.accounting.destroy(this.id,
                                         this.getCreatorID(),
-                                        runningTime,
-                                        network,
-                                        resource,
-                                        this.name);
+                                        runningTime);
             }
         }
 

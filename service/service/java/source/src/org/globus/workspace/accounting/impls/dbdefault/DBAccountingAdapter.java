@@ -214,12 +214,9 @@ public class DBAccountingAdapter implements AccountingEventAdapter,
     // implements AccountingEventAdapter
     // -------------------------------------------------------------------------
 
-    public void create(int id, String ownerDN, long minutesRequested) {
-        this.create(id, ownerDN, minutesRequested, null, null, null);
-    }
-
     public void create(int id, String ownerDN, long minutesRequested,
-                       String network, String resource, String clientLaunchName) {
+                       String network, String resource, String clientLaunchName,
+                       int CPUCount, int memory) {
 
         String moreToLog = "";
 
@@ -238,7 +235,8 @@ public class DBAccountingAdapter implements AccountingEventAdapter,
         
         if (this.lager.accounting) {
             logger.trace("create(): id = " + id + ", ownerDN = '" +
-                    ownerDN + "', minutesRequested = " + minutesRequested + moreToLog);
+                    ownerDN + "', minutesRequested = " + minutesRequested +
+                         ", CPUCount = " + CPUCount + ", memory = " + memory + moreToLog);
         }
 
         if (!this.initialized) {
@@ -292,19 +290,21 @@ public class DBAccountingAdapter implements AccountingEventAdapter,
 
             final Calendar now = Calendar.getInstance();
 
-            this.db.add(uuid, id, ownerDN, charge, now);
+            this.db.add(uuid, id, ownerDN, charge, now, CPUCount, memory);
             
             if (this.lager.eventLog) {
                 logger.info(Lager.ev(id) + "accounting: ownerDN = '" +
                     ownerDN + "', minutesRequested = " + minutesRequested +
                     ", minutes reserved = " + charge +
+                    ", CPUCount = " + CPUCount + ", memory = " + memory +
                     ", uuid = '" + uuid + "'" + moreToLog);
             }
 
             if (this.fileLog != null) {
                 try {
                     this.fileLog.logCreate(uuid, id, ownerDN,
-                                           minutesRequested, charge, now, moreToLog);
+                                           minutesRequested, charge, now,
+                                           CPUCount, memory, moreToLog);
                 } catch (WorkspaceException e) {
                     if (logger.isDebugEnabled()) {
                         logger.error(e.getMessage(), e);
@@ -322,30 +322,10 @@ public class DBAccountingAdapter implements AccountingEventAdapter,
     }
 
     public void destroy(int id, String ownerDN, long minutesElapsed) {
-        this.destroy(id, ownerDN, minutesElapsed, null, null, null);
-    }
-
-    public void destroy(int id, String ownerDN, long minutesElapsed,
-                        String network, String resource, String clientLaunchName) {
-
-        String moreToLog = "";
-        
-        if (resource != null) {
-            moreToLog += ", vmm='" + resource.trim() + '\'';
-        }
-
-        if (clientLaunchName != null) {
-            moreToLog += ", clientLaunchName='" + clientLaunchName.trim() + '\'';
-        }
-
-
-        if (network != null) {
-            moreToLog += ", network='" + network.trim() + '\'';
-        }
 
         if (this.lager.accounting) {
             logger.trace("destroy(): id = " + id + ", ownerDN = '" +
-                    ownerDN + "', minutesElapsed = " + minutesElapsed + moreToLog);
+                    ownerDN + "', minutesElapsed = " + minutesElapsed);
         }
 
         if (!this.initialized) {
@@ -364,13 +344,13 @@ public class DBAccountingAdapter implements AccountingEventAdapter,
                 logger.info(Lager.ev(id) + "accounting: ownerDN = '" +
                     ownerDN + "', minutesElapsed = " + charge +
                     ", real usage = " + minutesElapsed +
-                    ", uuid = '" + uuid + "'"  + moreToLog);
+                    ", uuid = '" + uuid + '\'');
             }
 
             if (this.fileLog != null) {
                 final Calendar now = Calendar.getInstance();
                 try {
-                    this.fileLog.logRemove(uuid, id, ownerDN, charge, now, moreToLog);
+                    this.fileLog.logRemove(uuid, id, ownerDN, charge, now);
                 } catch (WorkspaceException e) {
                     if (logger.isDebugEnabled()) {
                         logger.error(e.getMessage(), e);

@@ -34,10 +34,11 @@ public interface DBAccountingConstants {
     /* Prepared Statements with dynamic markers */
 
     public static final String SQL_INSERT_DEPLOYMENT =
-            "INSERT INTO deployments VALUES(?,?,?,?,?,?,?)";
+            "INSERT INTO deployments VALUES(?,?,?,?,?,?,?,?,?)";
 
     public static final String SQL_LOAD_DEPLOYMENT =
-            "SELECT uuid, creator_dn, creation_time, requested_duration " +
+            "SELECT uuid, creator_dn, creation_time, requested_duration, " +
+                    "cpu_cores, memory " +
                     "FROM deployments " +
                     "WHERE workspaceid=? AND active=1";
 

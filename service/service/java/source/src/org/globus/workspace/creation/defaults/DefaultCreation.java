@@ -591,9 +591,11 @@ public class DefaultCreation implements Creation {
             final long requestedMinutes =
                     WorkspaceUtil.secondsToMinutes(requestSeconds);
 
+            final int requestedCPUCount = bindings[0].getDeployment().getIndividualCPUCount();
+            final int requestedMemory = bindings[0].getDeployment().getIndividualPhysicalMemory();
+
 
             for (int i = 0; i < ids.length; i++) {
-
                 final String resource;
                 if (res.isConcrete()) {
                     final IdHostnameTuple tup = res.getIdHostnamePair(i);
@@ -606,7 +608,8 @@ public class DefaultCreation implements Creation {
                 final String name = bindings[i].getName();
                 
                 this.accounting.create(ids[i], callerID, requestedMinutes,
-                                       network, resource, name);
+                                       network, resource, name,
+                                       requestedCPUCount, requestedMemory);
             }
         }
 
