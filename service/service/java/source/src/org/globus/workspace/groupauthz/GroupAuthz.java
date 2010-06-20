@@ -272,7 +272,7 @@ public class GroupAuthz implements CreationAuthorizationCallout,
         }
 
         final Group group =
-                new Group(new File(path), new File(defpath), numString);
+                new Group(policyPath, memberPath, numString);
 
         // jump start it
         group.identityRights(" ");
