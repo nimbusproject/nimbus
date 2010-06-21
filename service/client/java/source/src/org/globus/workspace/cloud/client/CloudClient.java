@@ -536,7 +536,7 @@ public class CloudClient {
         }
 
         final String actionString = "Printing ctx status of each node";
-        this._checkCredential(actionString);
+        CloudClientUtil.checkGSICredential(actionString);
         this._translateHandle(actionString);
 
         if (this.args.getHistorySubDir() != null ||
