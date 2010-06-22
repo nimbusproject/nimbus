@@ -594,7 +594,8 @@
          =================================================================== -->
 
     <bean id="other.timerManager"
-          class="org.globus.workspace.scheduler.TimerManagerImpl" />
+          class="org.globus.workspace.scheduler.TimerManagerImpl" 
+          destroy-method="stop"/>
 
     <bean id="other.cacheManager"
           class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
