@@ -24,7 +24,7 @@
        <property name="poolPreparedStatements" value="true" />
 
        <property name="url"
-                 value="jdbc:sqlite://$COMMON{cumulus.authz.db}" />
+                 value="jdbc:sqlite://$CUMULUS{cumulus.authz.db}" />
        <property name="username" value="nimbus"/>
        <property name="password" value="nimbus"/>
    </bean>
@@ -34,7 +34,7 @@
 
         <constructor-arg ref="other.AuthzDataSource" />
 
-        <property name="repoDir" value="$COMMON{cumulus.repo.dir}" />
+        <property name="repoDir" value="$CUMULUS{cumulus.repo.dir}" />
         <property name="repoHost" value="$SSH{service.sshd.contact.string}" />
         <property name="repoScheme" value="scp://" />
      </bean>
