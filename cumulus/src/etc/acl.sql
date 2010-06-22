@@ -41,8 +41,10 @@ insert into object_types(name) values ('hdfs');
 -- IDs and credentials and such that references this single ID
 create table users_canonical(
     id char(36) PRIMARY KEY,
-    friendly_name varchar(64) UNIQUE
+    friendly_name varchar(64) UNIQUE NOT NULL
 );
+insert into users_canonical(id, friendly_name) values ('CumulusAuthenticatedUser', 'CumulusAuthenticatedUser');
+insert into users_canonical(id, friendly_name) values ('CumulusPublicUser', 'CumulusPublicUser');
 
 -- insert into users_canonical(id, friendly_name) values ('CumulusPublicUser', 'CumulusPublicUser');
 -- insert into users_canonical(id, friendly_name) values ('CumulusAuthenticatedUser', 'CumulusAuthenticatedUser');
@@ -80,6 +82,8 @@ create table user_alias(
     UNIQUE(friendly_name, alias_type)
 );
 
+insert into user_alias(user_id, alias_name, friendly_name, alias_type) values ('CumulusAuthenticatedUser', 'CumulusAuthenticatedUser', 'CumulusAuthenticatedUser', 1);
+insert into user_alias(user_id, alias_name, friendly_name, alias_type) values ('CumulusPublicUser', 'CumulusPublicUser', 'CumulusPublicUser', 1);
 -- the actual data.
 -- this can be a file, a dhfs file key, or a gridftp url (?)
 -- it is names speced by the url spec

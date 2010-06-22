@@ -25,7 +25,7 @@ import logging
 import shlex
 
 g_created_cert_files=False
-g_report_options = ["cert", "key", "dn", "canonical_id", "accessid", "accesssecret", "url"]
+g_report_options = ["cert", "key", "dn", "canonical_id", "access_id", "access_secret", "url", "web_id"]
 
 
 def get_nimbus_home():
@@ -113,13 +113,13 @@ Create a new nimbus user
     all_opts.append(opt)
     opt = cbOpts("cn", "n", "This is used to set the common name when generating a new certificate.  If none is specified the email address is used.  This can be optionally used in conjunction with --key and --cert", None)
     all_opts.append(opt)
-    opt = cbOpts("accessid", "a", "Instead of generating a new access id/secret pair, use this one.  This must be used with the --accesssecret option", None)
+    opt = cbOpts("access_id", "a", "Instead of generating a new access id/secret pair, use this one.  This must be used with the --access-secret option", None)
     all_opts.append(opt)
-    opt = cbOpts("accesssecret", "p", "Instead of generating a new access id/secret pair, use this one.  This must be used with the --accessid option", None)
+    opt = cbOpts("access_secret", "p", "Instead of generating a new access id/secret pair, use this one.  This must be used with the --access-id option", None)
     all_opts.append(opt)
     opt = cbOpts("dest", "d", "The directory to put all of the new files into.", None)
     all_opts.append(opt)
-    opt = cbOpts("web", "w", "Set the web user name.  If not set and a web user is desired a username will be created from the email address.", None)
+    opt = cbOpts("web_id", "w", "Set the web user name.  If not set and a web user is desired a username will be created from the email address.", None)
     all_opts.append(opt)
     opt = cbOpts("noweb", "W", "Do not put stuff into webapp sqlite", False)
     all_opts.append(opt)
@@ -141,14 +141,15 @@ Create a new nimbus user
     if o.cert == None and o.key != None or o.cert != None and o.key == None:
         print "key and cert must be used together"
         pynimbusauthz.parse_args(parser, all_opts, ["--help"])
-    if o.accessid == None and o.accesssecret != None or o.accessid != None and o.accesssecret == None:
-        print "secret and accessid must be used together"
+    if o.access_id == None and o.access_secret != None or o.access_id != None and o.access_secret == None:
+        print "secret and access-id must be used together"
         pynimbusauthz.parse_args(parser, all_opts, ["--help"])
     if o.noweb and o.nocert and o.noaccess:
         print "you must want this tool to do something"
         pynimbusauthz.parse_args(parser, all_opts, ["--help"])
     if o.dest == None:
-        o.dest = tempfile.mkdtemp()
+        nh = get_nimbus_home() + "/var/ca/"
+        o.dest = tempfile.mkdtemp(suffix='cert', prefix='tmp', dir=nh)
     else:
         try:
             os.mkdir(o.dest)
@@ -156,12 +157,12 @@ Create a new nimbus user
             pass
 
     # verify the id/secret length
-    if o.accessid != None:
-        if len(o.accessid) != 21:
-            print "secret and accessid must be used together"
+    if o.access_id != None:
+        if len(o.access_id) != 21:
+            print "secret and access_id must be used together"
             pynimbusauthz.parse_args(parser, all_opts, ["--help"])
-        if len(o.accesssecret) != 42:
-            print "secret and accessid must be used together"
+        if len(o.access_secret) != 42:
+            print "secret and access_id must be used together"
             pynimbusauthz.parse_args(parser, all_opts, ["--help"])
     if o.cert != None:
         if not os.path.isfile(o.cert):
@@ -209,11 +210,11 @@ def create_user(o):
         # create canonical user
         user = User(db, friendly=o.emailaddr)
         o.canonical_id = user.get_id()
-        if not o.noaccess and o.accessid == None:
-            o.accessid = pynimbusauthz.random_string_gen(21)
-            o.accesspw = pynimbusauthz.random_string_gen(42)
+        if not o.noaccess and o.access_id == None:
+            o.access_id = pynimbusauthz.random_string_gen(21)
+            o.access_secret = pynimbusauthz.random_string_gen(42)
             # add to db
-            ua1 = user.create_alias(o.accessid, pynimbusauthz.alias_type_s3, o.emailaddr, alias_data=o.accesspw)
+            ua1 = user.create_alias(o.access_id, pynimbusauthz.alias_type_s3, o.emailaddr, alias_data=o.access_secret)
 
         if not o.nocert:
             # if not give a dn we need to get it from the provided cert, or 
@@ -229,10 +230,11 @@ def create_user(o):
             add_gridmap(o)
 
         if not o.noweb:
-            if o.web == None:
-                o.web = o.emailaddr.__hash__()
-            # call into web api
+            if o.web_id == None:
+                o.web_id = o.emailaddr.__hash__()
+            do_web_bidnes(o)
             pass
+        do_group_bidnes(o)
 
         db.commit()
     except Exception, ex1:
@@ -242,6 +244,12 @@ def create_user(o):
             os.remove(o.key)
         db.rollback()
         raise ex1
+
+def do_web_bidnes(o):
+    pass
+
+def do_group_bidnes(o):
+    pass
 
 def report_results(o):
     pycb.tools.print_report(o, o.report, o)

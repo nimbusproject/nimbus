@@ -29,6 +29,10 @@ object_types[object_type_hdfs] = 3
 
 Version = "0.1"
 
+def long_help_callback(option, opt, value, parser, all_opts):
+    for o in all_opts:
+        print o
+
 def reverse_lookup_type(dict, val):
     for x in dict.keys():
         if dict[x] == val:

@@ -65,7 +65,7 @@ class CBConfig(object):
 
         if config_error:
             print """cumulus.ini file must have the following set:
-installdir=<path to cumulus installation
+installdir=<path to cumulus installation>
 
 The search path for cumulus.ini is:
 

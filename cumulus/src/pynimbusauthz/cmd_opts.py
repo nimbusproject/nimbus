@@ -5,8 +5,8 @@ from optparse import SUPPRESS_HELP
 
 class cbOpts(object):
 
-    def __init__(self, long, short, description, default, vals=None, range=None, flag=None, count=False):
-        self.long = "--" + long
+    def __init__(self, long, short, description, default, vals=None, range=None, flag=None, count=False, long_help=False):
+        self.long = "--" + long.replace('_', '-')
         self.dest = long
         self.short = "-" + short
         self.vals = vals
@@ -15,6 +15,7 @@ class cbOpts(object):
         self.range = range
         self.description = description
         self.count = count
+        self.long_help = long_help
 
     def get_error_msg(self):
         if self.flag != None:

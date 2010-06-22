@@ -21,6 +21,7 @@ def print_report(report_obj, cols, opts):
             out_line = out_line + delim + v
             delim = d
         else:
+            c = c.replace('_', " ")
             pynimbusauthz.print_msg(opts, 0,  "%-15s : %s" % (c, v))
 
     pynimbusauthz.print_msg(opts, 0,  out_line)

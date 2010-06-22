@@ -15,11 +15,9 @@ class User(object):
             else:
                 self.uuid = str(uuid.uuid1())
             if friendly == None:
-                s = "INSERT INTO users_canonical(id) values(?)"
-                data = (self.uuid,)
-            else:
-                s = "INSERT INTO users_canonical(id, friendly_name) values(?, ?)"
-                data = (self.uuid,friendly,)
+                raise Exception('You must specify a friendly name')
+            s = "INSERT INTO users_canonical(id, friendly_name) values(?, ?)"
+            data = (self.uuid,friendly,)
 
             db_obj._run_no_fetch(s, data)
             self.friendly_name = friendly
@@ -134,15 +132,14 @@ class User(object):
         i = "INSERT INTO user_alias(user_id, alias_name, alias_type"
         v = "values(?, ?, ?"
         data = [self.uuid, alias_name, at]
+        i = i + ", friendly_name"
+        v = v + ", ?"
+        data.append(friendly_name)
 
         if alias_data != None:
             i = i + ", alias_type_data"
             v = v + ", ?"
             data.append(alias_data)
-        if friendly_name != None:
-            i = i + ", friendly_name"
-            v = v + ", ?"
-            data.append(friendly_name)
 
         s = i + ')' + v + ')'
 
