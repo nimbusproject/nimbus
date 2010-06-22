@@ -16,31 +16,44 @@
 
 package org.globus.workspace.testing;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.sql.SQLException;
+import java.util.Properties;
+
+import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.PropertyConfigurator;
+import org.globus.workspace.ReturnException;
+import org.globus.workspace.WorkspaceException;
 import org.globus.workspace.WorkspaceUtil;
 import org.globus.workspace.testing.utils.ReprPopulator;
-import org.nimbustools.api.brain.BreathOfLife;
 import org.nimbustools.api.brain.ModuleLocator;
 import org.nimbustools.api.brain.NimbusHomePathResolver;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.Properties;
+import commonj.timers.TimerManager;
 
 /**
  * Class to extend from to use the spring-loaded Nimbus Workspace Service environment in tests.
  * Will be helpful to look at an example subclass to see how it's done.  
  */
-public abstract class NimbusTestBase {
+public abstract class NimbusTestBase extends AbstractTestNGSpringContextTests {
 
     // -----------------------------------------------------------------------------------------
     // STATIC VARIABLES
     // -----------------------------------------------------------------------------------------
 
+    private static final String DATA_SOURCE_BEAN_NAME = "other.MainDataSource";
+    private static final String TIMER_MANAGER_BEAN_NAME = "other.timerManager";
     public static final String FORCE_SUITES_DIR_PATH = "nimbus.servicetestsuites.abspath";
     public static final String NO_TEARDOWN = "nimbus.servicetestsuites.noteardown";
     private static final String LOG_SEP =
@@ -70,14 +83,50 @@ public abstract class NimbusTestBase {
      */
     protected abstract String getNimbusHome() throws Exception;
 
-
+    // -----------------------------------------------------------------------------------------
+    // @Overrides AbstractTestNGSpringContextTests
+    // -----------------------------------------------------------------------------------------
+    
+    @Override
+    @BeforeClass(alwaysRun=true)
+    protected void springTestContextPrepareTestInstance() throws Exception {
+        this.suiteSetup();
+        
+        super.springTestContextPrepareTestInstance();
+    }
+    
+    @Override
+    @BeforeMethod(alwaysRun=true)
+    protected void springTestContextBeforeTestMethod(Method testMethod)
+            throws Exception {      
+        super.springTestContextBeforeTestMethod(testMethod);
+        
+        //Looked up before each test method in case @DirtiesContext was used in previous method
+        this.locator = (ModuleLocator) applicationContext.getBean("nimbus-brain.ModuleLocator");
+    }
+    
+    @Override
+    @AfterMethod(alwaysRun=true)
+    protected void springTestContextAfterTestMethod(Method testMethod)
+            throws Exception {
+        
+        if(testMethod.isAnnotationPresent(DirtiesContext.class)){
+            logger.debug(LOG_SEP + "\n*** @DirtiesContext FOUND - STARTING CLEANUP: " + LOG_SEP);       
+            stopTimerManager();
+            shutdownDB();
+            resetDB();
+            logger.debug(LOG_SEP + "\n*** @DirtiesContext FOUND - FINISHED CLEANUP: " + LOG_SEP);
+        } 
+        
+        super.springTestContextAfterTestMethod(testMethod);  
+    }    
+    
     // -----------------------------------------------------------------------------------------
     // TEST SETUP / TEARDOWN
     // -----------------------------------------------------------------------------------------
 
     /**
-     * Set up logger and var directory for this test suite.  Intended to be called from
-     * your subclass's @BeforeSuite method.
+     * Set up logger and var directory for this test suite.
      *
      * Configures NIMBUS_HOME via system property.
      *
@@ -85,7 +134,7 @@ public abstract class NimbusTestBase {
      * 
      * @throws Exception problem setting up var dir
      */
-    public void suiteSetup() throws Exception {
+    protected void suiteSetup() throws Exception {
 
         logger = this.setUpLogger();
         logger.debug(LOG_SEP + "\n*** SUITE SETUP: " +
@@ -110,11 +159,6 @@ public abstract class NimbusTestBase {
             this.setUpVarDir(vardir, setupExe);
         }
 
-        final File conf = new File(nimbusHome, this.getRelativeSpringConf());
-        // spring wants extra leading / for absolute paths
-        final String springPath = '/' + conf.getAbsolutePath();
-        this.locator = new BreathOfLife().breathe(springPath);
-
         logger.debug(LOG_SEP + "\n*** SUITE SETUP DONE (tests will begin): " +
                         this.getClass().getSimpleName() + LOG_SEP);
     }
@@ -127,7 +171,7 @@ public abstract class NimbusTestBase {
      *
      * @throws Exception problem removing var dir
      */
-    public void suiteTeardown() throws Exception {
+    protected void suiteTeardown() throws Exception {
 
         final Properties props = System.getProperties();
         final String override = props.getProperty(NO_TEARDOWN);
@@ -396,5 +440,36 @@ public abstract class NimbusTestBase {
             fos.close();
         }
     }
+    
+    // -----------------------------------------------------------------------------------------
+    // CLEAN-UP METHODS
+    // -----------------------------------------------------------------------------------------
 
+    private void stopTimerManager() {
+        logger.info("Stopping Timer Manager..");
+        TimerManager timerManager = (TimerManager) applicationContext.getBean(TIMER_MANAGER_BEAN_NAME);
+        timerManager.stop();
+        logger.info("Timer Manager succesfully stopped");        
+    }
+
+    private void resetDB() throws Exception, WorkspaceException,
+            ReturnException {
+        final File exe = new File(getNimbusHome(), "services/share/nimbus/servicedb-reset.sh"); // requires ant on PATH
+        final String[] cmd = {exe.getAbsolutePath()};
+        WorkspaceUtil.runCommand(cmd, true, true);
+    }
+
+    private void shutdownDB() {
+        logger.info("Shutting down DB..");
+        BasicDataSource ds = (BasicDataSource) applicationContext.getBean(DATA_SOURCE_BEAN_NAME);
+        ds.addConnectionProperty("shutdown", "true");
+        try{
+            //Calling twice to be sure that connection is going to be shutdown (calling once doesn't shutdown, probably a bug)
+            ds.getConnection();
+            ds.getConnection();
+        } catch (SQLException e){
+            logger.info("DB succesfully shutdown.");
+        }
+        
+    }
 }
