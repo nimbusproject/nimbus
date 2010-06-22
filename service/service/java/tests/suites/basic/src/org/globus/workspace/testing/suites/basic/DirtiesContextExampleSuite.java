@@ -26,14 +26,29 @@ import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.CreateResult;
 import org.nimbustools.api.repr.vm.VM;
 import org.nimbustools.api.services.rm.Manager;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.Test;
 
+
+/**
+ * Suite to exemplify the use of spring test annotation @DirtiesContext, 
+ * that indicate that a test method dirties the context for the current test. 
+ * 
+ * This annotation can be used if the context needs to be reloaded,
+ * because a test has modified it (for example, by making the DB dirty 
+ * or replacing a bean definition).
+ * 
+ * In this example, the test dirtyTest() leases a VM but doesn't
+ * destroy it at the end of the test. The following test (checkEmpty())
+ * checks if there are no VM leases. If the @DirtiesContext annotation
+ * is not used in the dirtyTest(), the checkEmpty() test fails.
+ */
 @ContextConfiguration(
         locations={"file:./service/service/java/tests/suites/basic/home/services/etc/nimbus/workspace-service/other/main.xml"},
         loader=NimbusTestContextLoader.class)
-public class BasicSuite extends NimbusTestBase {
+public class DirtiesContextExampleSuite extends NimbusTestBase {
 
     // -----------------------------------------------------------------------------------------
     // extends NimbusTestBase
@@ -44,7 +59,7 @@ public class BasicSuite extends NimbusTestBase {
     public void suiteTeardown() throws Exception {
         super.suiteTeardown();
     }
-
+    
     /**
      * This is how coordinate your Java test suite code with the conf files to use.
      * @return absolute path to the value that should be set for $NIMBUS_HOME
@@ -57,35 +72,22 @@ public class BasicSuite extends NimbusTestBase {
 
 
     // -----------------------------------------------------------------------------------------
-    // PREREQ TESTS (if any of these fail, nothing else will work at all)
+    // TESTS
     // -----------------------------------------------------------------------------------------
 
     /**
-     * Check if ModuleLocator can be retrieved and used at all.
+     * Lease a VM and doesn't destroy it
      * @throws Exception problem
      */
-    @Test(groups="prereqs")
-    public void retrieveModuleLocator() throws Exception {
-        logger.debug("retrieveModuleLocator");
-        final Manager rm = this.locator.getManager();
-        final VM[] vms = rm.getGlobalAll();
-
-        // we know there are zero so far because it is in group 'prereqs'
-        assertEquals(0, vms.length);
-    }
-
-    /**
-     * Lease a VM and then destroy it.
-     * @throws Exception problem
-     */
-    @Test(dependsOnGroups="prereqs")
-    public void leaseOne() throws Exception {
-        logger.debug("leaseOne");
+    @DirtiesContext
+    @Test(groups="dirtyTest")
+    public void dirtyTest() throws Exception {
+        logger.debug("dirtyTest");
         final Manager rm = this.locator.getManager();
 
         final Caller caller = this.populator().getCaller();
         final CreateResult result =
-                rm.create(this.populator().getCreateRequest("suite:basic:leaseOne"),
+                rm.create(this.populator().getCreateRequest("suite:basic:dirtyTest"),
                           caller);
 
         final VM[] vms = result.getVMs();
@@ -94,8 +96,21 @@ public class BasicSuite extends NimbusTestBase {
         logger.info("Leased vm '" + vms[0].getID() + '\'');
 
         assertTrue(rm.exists(vms[0].getID(), Manager.INSTANCE));
-
-        Thread.sleep(1000L);
-        rm.trash(vms[0].getID(), Manager.INSTANCE, caller);
     }
+    
+
+    /**
+     * Check if no VM's are left from previous test
+     * @throws Exception problem
+     */
+    @Test(dependsOnGroups="dirtyTest")
+    public void checkEmpty() throws Exception {
+        logger.debug("checkExistence");
+        final Manager rm = this.locator.getManager();
+        
+        final VM[] vms = rm.getGlobalAll();
+
+        assertEquals(0, vms.length);
+    }
+    
 }
