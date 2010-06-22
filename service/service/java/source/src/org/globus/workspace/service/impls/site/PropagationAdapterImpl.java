@@ -203,7 +203,7 @@ public class PropagationAdapterImpl implements PropagationAdapter,
                                      this.lager.eventLog,
                                      this.lager.traceLog);
         } catch (Exception e) {
-            final String err = "error testing notification script: ";
+            final String err = "error testing notification script: " + pollScriptPath;
             // passing e to error gives very long stacktrace to user
             // logger.error(err, e);
             throw new Exception(err + e.getMessage());
