@@ -21,27 +21,28 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.globus.workspace.spotinstances.PricingModelConstants;
 import org.globus.workspace.testing.NimbusTestBase;
+import org.globus.workspace.testing.NimbusTestContextLoader;
 import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.RequestSI;
 import org.nimbustools.api.repr.SpotRequest;
 import org.nimbustools.api.repr.si.SIRequestState;
 import org.nimbustools.api.services.rm.Manager;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ContextConfiguration;
+import org.testng.annotations.AfterSuite;
 import org.testng.annotations.Test;
 
+@ContextConfiguration(
+        locations={"file:./service/service/java/tests/suites/spotinstances/" +
+                "singleresourcepool/home/services/etc/nimbus/workspace-service/other/main.xml"},
+        loader=NimbusTestContextLoader.class)
 public class SingleResourcePoolSISuite extends NimbusTestBase {
 
     // -----------------------------------------------------------------------------------------
     // extends NimbusTestBase
     // -----------------------------------------------------------------------------------------
 
-    @BeforeTest
-    public void setup() throws Exception {
-        super.suiteSetup();
-    }
-
-    @AfterTest(alwaysRun=true)
+    @AfterSuite(alwaysRun=true)
     public void suiteTeardown() throws Exception {
         super.suiteTeardown();
     }
@@ -61,6 +62,7 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
      * @throws Exception problem
      */
     @Test
+    @DirtiesContext
     public void singleRequest() throws Exception {
         logger.debug("singleRequest");
 
@@ -108,6 +110,7 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
      * @throws Exception problem
      */
     @Test
+    @DirtiesContext
     public void multipleRequestsSIOnly() throws Exception {
         logger.debug("multipleRequestsSIOnly");
 
@@ -154,23 +157,6 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         
         //Check if submitted request is active
         assertEquals(SIRequestState.STATE_Active, rm.getSpotRequest(lowReq3Result.getRequestID(), caller2).getState().getState());
-        
-//        SpotRequest[] spotRequestByCaller = rm.getSpotRequestByCaller(caller);
-//        assertEquals(1, spotRequestByCaller.length);
-//        assertEquals(result, spotRequestByCaller[0]);
-//        
-//        //Let's assume the request was already scheduled, so the state should be ACTIVE
-//        SpotRequest request = rm.getSpotRequest(result.getRequestID(), caller);
-//        assertEquals(SIRequestState.STATE_Active, request.getState().getState());
-//        
-//        //Cancel request
-//        SpotRequest[] cancelledReqs = rm.cancelSpotInstanceRequests(new String[]{result.getRequestID()}, caller);
-//        assertEquals(1, cancelledReqs.length);
-//        assertEquals(SIRequestState.STATE_Cancelled, cancelledReqs[0].getState().getState());
-//        assertEquals(result.getRequestID(), cancelledReqs[0].getRequestID());
-//        
-//        //Check if request was really cancelled
-//        request = rm.getSpotRequest(result.getRequestID(), caller);
-//        assertEquals(SIRequestState.STATE_Cancelled, request.getState().getState());           
+                 
     }     
 }

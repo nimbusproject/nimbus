@@ -20,27 +20,28 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
 import org.globus.workspace.testing.NimbusTestBase;
+import org.globus.workspace.testing.NimbusTestContextLoader;
 import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.RequestSI;
 import org.nimbustools.api.repr.SpotRequest;
 import org.nimbustools.api.repr.si.SIRequestState;
 import org.nimbustools.api.services.rm.Manager;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ContextConfiguration;
+import org.testng.annotations.AfterSuite;
 import org.testng.annotations.Test;
 
+@ContextConfiguration(
+        locations={"file:./service/service/java/tests/suites/spotinstances/" +
+        		"noresources/home/services/etc/nimbus/workspace-service/other/main.xml"},
+        loader=NimbusTestContextLoader.class)
 public class NoResourcesSISuite extends NimbusTestBase {
 
     // -----------------------------------------------------------------------------------------
     // extends NimbusTestBase
     // -----------------------------------------------------------------------------------------
 
-    @BeforeTest
-    public void setup() throws Exception {
-        super.suiteSetup();
-    }
-
-    @AfterTest(alwaysRun=true)
+    @AfterSuite(alwaysRun=true)
     public void suiteTeardown() throws Exception {
         super.suiteTeardown();
     }
@@ -60,6 +61,7 @@ public class NoResourcesSISuite extends NimbusTestBase {
      * @throws Exception problem
      */
     @Test
+    @DirtiesContext
     public void singleRequest() throws Exception {
         logger.debug("singleRequest");
 
@@ -103,6 +105,7 @@ public class NoResourcesSISuite extends NimbusTestBase {
      * @throws Exception problem
      */
     @Test
+    @DirtiesContext
     public void multipleRequests() throws Exception {
         logger.debug("multipleRequests");
         
