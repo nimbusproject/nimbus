@@ -25,6 +25,8 @@ creator_dn VARCHAR(512) NOT NULL,
 creation_time FLOAT NOT NULL,
 requested_duration INT NOT NULL,
 active SMALLINT NOT NULL,
-elapsed_minutes FLOAT
+elapsed_minutes FLOAT,
+cpu_cores INT,
+memory INT
 );
 
