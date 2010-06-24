@@ -1,0 +1,56 @@
+Cumulus Quickstart
+==================
+
+1) Install the software:
+
+    % ./cumulus-install.sh <path to installation location>
+
+Optionally you may provide a path where the software will be installed.  If
+no path is provided the source directory is used.
+
+2) Inspect the configuration settings in ~/.nimbus/cumulus.ini
+
+3) Change to the install directory and start the server
+
+    % ./bin/cumulus.sh
+
+This will start the cumulus server with the options in ~/.nimbus/cumulus.ini
+
+4) Create a new user
+
+    % ./cumulus-add-user.sh <email address or display name>
+    ID              : eqe0YoRAs2GT1sDvPZKAU
+    password        : S9Ii7QqcCQxDecrezMn6o5frSFvXhThYWmCE4S7nAf
+    quota           : None
+    canonical_id    : 048db304-6b4c-11df-897b-001de0a80259
+
+Remember the ID and Key.  The rest of the information can be ignored.
+
+5) Configure s3cmd.  s3cmd is a popular third party S3 client that can
+be used against cumulus.
+
+    % cp ~/.s3cfg ~/.s3cfg.backup
+    % cp dot_s3cfg ~/.s3cfg
+
+Now add your key and ID to ~/.s3cfg.  Open the file and search for @@ID@@
+and @@KEY@@.  Replace those strings with the appropriate values.
+
+6) Try some s3cmd operations
+
+    % s3cmd mb s3://TEST
+    % s3cmd put /etc/group s3://TEST/group
+    % s3cmd ls s3://TEST/
+    
+7) Run the tests
+
+    % cd tests
+    % ./run-all.sh
+
+This will produce a lot of output.  When it is complete the last line should
+indicate it was successful by displaying:
+
+Success :  tests passed
+
+If anything else is seen last it indicates that tests failed.
+
+

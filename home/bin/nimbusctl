@@ -1,10 +1,12 @@
-#!/bin/sh
+#!/bin/bash
 
 PYTHON_EXE="/usr/bin/env python -Wignore::DeprecationWarning"
 
 NIMBUS_HOME_REL="`dirname $0`/.."
 NIMBUS_HOME=`cd $NIMBUS_HOME_REL; pwd`
 export NIMBUS_HOME
+
+source $NIMBUS_HOME/cumulus/env.sh
 
 NIMBUS_WEBDIR="$NIMBUS_HOME/web"
 

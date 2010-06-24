@@ -17,6 +17,7 @@
 package org.globus.workspace.groupauthz;
 
 import org.globus.workspace.service.binding.authorization.CreationAuthorizationCallout;
+import org.globus.workspace.service.binding.authorization.Decision;
 import org.globus.workspace.service.binding.authorization.PostTaskAuthorization;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.nimbustools.api.services.rm.AuthorizationException;
@@ -83,6 +84,8 @@ public class GroupAuthz implements CreationAuthorizationCallout,
     private String def13;
     private String def14;
     private String def15;
+
+    protected DecisionLogic theDecider = new DecisionLogic();
 
     public void setGroup01(String group01) {
         this.group01 = group01;
@@ -320,7 +323,7 @@ public class GroupAuthz implements CreationAuthorizationCallout,
 
             // only first inclusion of DN is considered
             if (rights != null) {
-                return DecisionLogic.decide(callerDN,
+                return theDecider.decide(callerDN,
                                             rights,
                                             bindings,
                                             elapsedMins,
@@ -354,9 +357,9 @@ public class GroupAuthz implements CreationAuthorizationCallout,
             final GroupRights rights = getRights(caller, this.groups[i]);
             // only first inclusion of DN is considered
             if (rights != null) {
-                return DecisionLogic.checkNewAltTargetURI(rights,
+                return  theDecider.checkNewAltTargetURI(rights,
                                                           target,
-                                                          caller);
+                                                          caller);                
             }
         }
 

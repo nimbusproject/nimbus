@@ -180,6 +180,7 @@
 
     </bean>
 
+    <!--
     <bean id="nimbus-elastic.image.repository"
           class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.image.defaults.DefaultRepository"
           init-method="validate">
@@ -195,7 +196,36 @@
         <property name="idAuthz" value="$ELASTIC{repository.idauthz}" />
 
     </bean>
-    
+    -->
+    <bean id="other.AuthzDataSource"
+         class="org.apache.commons.dbcp.BasicDataSource">
+       <property name="driverClassName" value="org.sqlite.JDBC" />
+       <property name="maxActive" value="10" />
+       <property name="maxIdle" value="4" />
+       <property name="maxWait" value="2000" />
+       <property name="poolPreparedStatements" value="true" />
+
+       <property name="url"
+                 value="jdbc:sqlite://$CUMULUS{cumulus.authz.db}" />
+       <property name="username" value="nimbus"/>
+       <property name="password" value="nimbus"/>
+   </bean>
+
+    <bean id="nimbus-elastic.image.repository"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.image.defaults.CumulusRepository"
+          init-method="validate">
+
+        <constructor-arg ref="nimbus-elastic.rm.containerInterface" />
+        <constructor-arg ref="nimbus-elastic.rm.modulelocator" />
+        <constructor-arg ref="other.AuthzDataSource" />
+
+        <property name="repoBucket" value="$CUMULUS{cumulus.repo.bucket}" />
+        <property name="prefix" value="$CUMULUS{cumulus.repo.prefix}" />
+        <property name="cumulusHost" value="$CUMULUS{cumulus.host}" />
+        <property name="rootFileMountAs" value="$OTHER_ELASTIC{rootfile.mountas}" />
+
+    </bean>
+
     <bean id="nimbus-query.httpserver" 
           class="org.nimbustools.messaging.query.HttpQuery" 
           init-method="startListening">

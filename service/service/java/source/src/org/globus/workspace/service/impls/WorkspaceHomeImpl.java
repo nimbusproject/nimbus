@@ -29,6 +29,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.globus.workspace.Lager;
 import org.globus.workspace.LockManager;
+import org.globus.workspace.RepoFileSystemAdaptor;
 import org.globus.workspace.persistence.PersistenceAdapter;
 import org.globus.workspace.persistence.WorkspaceDatabaseException;
 import org.globus.workspace.persistence.DataConvert;
@@ -73,6 +74,7 @@ public abstract class WorkspaceHomeImpl implements WorkspaceHome,
     protected final Lager lager;
     protected final DataConvert dataConvert;
     protected Scheduler scheduler;
+    protected RepoFileSystemAdaptor repoAdaptor;
 
     // perhaps quartz in the future
     protected ScheduledThreadPoolExecutor scheduledExecutor;
@@ -150,6 +152,10 @@ public abstract class WorkspaceHomeImpl implements WorkspaceHome,
         this.scheduler = schedulerImpl;
     }
 
+    public void setRepoAdaptor(RepoFileSystemAdaptor ra) {
+        this.repoAdaptor = ra;
+        XenUtil.setRepoAdaptor(ra);
+    }
 
     // -------------------------------------------------------------------------
     // SETTERS (from outside config)

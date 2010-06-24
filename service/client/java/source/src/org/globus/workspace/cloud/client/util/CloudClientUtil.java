@@ -32,6 +32,7 @@ import org.nimbustools.messaging.gt4_0.generated.metadata.definition.Definition;
 import org.nimbustools.messaging.gt4_0.generated.metadata.definition.DiskCollection_Type;
 import org.nimbustools.messaging.gt4_0.generated.metadata.definition.BoundDisk_Type;
 
+import org.globus.gsi.GlobusCredential;
 import java.io.File;
 import java.io.PrintStream;
 import java.io.FilenameFilter;
@@ -48,7 +49,15 @@ import java.util.List;
 import java.util.Iterator;
 import java.util.StringTokenizer;
 
+import org.globus.workspace.cloud.client.Props;
+import org.globus.workspace.cloud.client.AllArgs;
+import org.globus.workspace.common.print.Print;
+
 public class CloudClientUtil {
+
+    public static final String credURL =
+            "http://www.globus.org/toolkit/docs/4.0/security/prewsaa/" +
+                    "Pre_WS_AA_Public_Interfaces.html#prewsaa-env-credentials";
 
     public static String sourceURL(String sourcePath) {
         final String sourceAbsolutePath = absPath(sourcePath);
@@ -719,40 +728,41 @@ public class CloudClientUtil {
         return "";
     }
 
-    public static String deriveImageURL(String hostPort, String imageName,
-                              String remoteUserBaseDir, String scheme,
-                              boolean keepPort) throws ExecutionProblem {
+    public static RepositoryInterface getRepoUtil(
+        String                          repoType,
+        AllArgs                         args,
+        Print                           print)
+    {
+        RepositoryInterface             repoUtil;
+
+        if(repoType == null)
+        {
+            repoType = "gridftp";
+        }
+        if(repoType.equals("cumulus"))
+        {
+            repoUtil = new CumulusRepositoryUtil(args, print);
+        }
+        else
+        {
+            repoUtil = new GridFTPRepositoryUtil(args, print);
+        }
+        return repoUtil;
+    }
+
+    public static String deriveImageURL(String imageName, AllArgs args)
+                              throws ExecutionProblem {
+
+        RepositoryInterface repoUtil;
+
+        String repoType = args.getXferType();
+        repoUtil = CloudClientUtil.getRepoUtil(repoType, args, new Print());
 
         if (imageName == null) {
             throw new IllegalArgumentException("imageName may not be null");
         }
 
-        String imageURL = scheme;
-
-        if (imageURL.indexOf("://") < 0) {
-            imageURL += "://";
-        }
-
-        // a bit messy
-        if (keepPort) {
-
-            imageURL += hostPort;
-
-        } else {
-
-            final String[] parts = hostPort.split(":");
-
-            if (parts.length != 2) {
-                throw new ExecutionProblem(
-                        "gridftp host + port has no port?");
-            }
-
-            imageURL += parts[0];
-        }
-
-        imageURL += remoteUserBaseDir + imageName;
-
-        return imageURL;
+        return repoUtil.getDerivedImageURL(imageName);
     }
 
     public static String expandSshPath(String sshfile) 
@@ -792,4 +802,42 @@ public class CloudClientUtil {
             return test.isFile();
         }
     }
+
+    public static void checkGSICredential(String action)
+        throws ParameterProblem {
+        String tail = null;
+
+        try {
+            CloudClientUtil.getProxyBeingUsed();
+        } catch (Exception e) {
+
+            String actionTxt = action;
+
+            if (action == null) {
+                actionTxt = "This action";
+            }
+
+            String msg = actionTxt + " requires credential";
+
+            if (tail != null) {
+                msg += tail;
+                msg += "\nSee:\n";
+            } else {
+                msg += ", see:\n";
+            }
+            msg += "  - " + credURL + "\n";
+            msg += "  - README.txt\n";
+            msg += "  - ./bin/grid-proxy-init.sh";
+            throw new ParameterProblem(msg);
+        }
+    }
+
+    public static GlobusCredential getProxyBeingUsed() throws Exception {
+        GlobusCredential proxyUsed = GlobusCredential.getDefaultCredential();
+        if (proxyUsed == null) {
+            throw new Exception("Could not find current credential");
+        }
+        return proxyUsed;
+    }
+
 }

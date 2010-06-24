@@ -37,6 +37,7 @@ OPT_ALL_DNS="--all-dns"
 OPT_AUTHZ_ON="--enable-groupauthz"
 OPT_AUTHZ_OFF="--disable-groupauthz"
 OPT_ADD_QUERY_DN="--add-query-dn"
+OPT_CUMULUS_AUTHZ_ON="--enable-cumulusauthz"
 
 # }}}
 
@@ -65,9 +66,13 @@ function help() {
   echo ""
   echo "$OPT_ALL_DNS                    Prints all active DNs"
   echo ""
-  echo "$OPT_AUTHZ_ON          Enables the groupauthz plugin"
+# leave this option in for now in case we want to look back at pre-gridftp ways
+# but leave it out of the help message
+#  echo "$OPT_AUTHZ_ON          Enables the groupauthz plugin"
+#  echo ""
+  echo "$OPT_CUMULUS_AUTHZ_ON        Enables the groupauthz plugin with the cumulus database"
   echo ""
-  echo "$OPT_AUTHZ_OFF         Disables the groupauthz plugin"
+  echo "$OPT_AUTHZ_OFF         Disables the cumulus groupauthz plugin"
   echo ""
   echo "-h, --help                   This help output"
   echo ""
@@ -336,7 +341,10 @@ function check_decision_file() {
   
   echo ""
   echo "----------"
-  
+ 
+  return
+ 
+  # below is for the legacy gridftp repository management
   QUESTION="When you add users on a regular basis, do you want this script to also create the appropriate directories at the cloud repository?"
   
   get_y_n "$QUESTION"
@@ -731,9 +739,50 @@ action_findhash() {
 # }}}
 
 # -----------------------------------------------------------------------------
+# {{{  ACTION: enable group-authz-sql
+# -----------------------------------------------------------------------------
+action_enable_group_sql_authz() {
+  echo "Enabling group authorization SQL module."
+
+  OTHERDIR=`$JAVA_BIN $NIMWIZ_JAVA_OPTS $EXE_GET_OTHERCONF_DIR`
+  if [ $? -ne 0 ]; then
+    echo "Problem locating the 'other' configuration directory"
+    return 1
+  fi
+
+  if [ ! -f "$OTHERDIR/$SQLGROUPAUTHZ_CONF_FILE" ]; then
+    echo "Sorry, cannot find this file to activate the group authz module:"
+    echo "  $OTHERDIR/$SQLGROUPAUTHZ_CONF_FILE"
+    return 1
+  fi
+
+  if [ -f "$OTHERDIR/$ACTIVEAUTHZ_TARGET_CONF_FILE" ]; then
+    OUTPUT=`diff --brief $OTHERDIR/$ACTIVEAUTHZ_TARGET_CONF_FILE $OTHERDIR/$SQLGROUPAUTHZ_CONF_FILE`
+    if [ $? -eq 0 ]; then
+      echo ""
+      echo "Group authorization module was already enabled."
+      return 0
+    fi
+  fi
+
+  CMD="cp $OTHERDIR/$SQLGROUPAUTHZ_CONF_FILE $OTHERDIR/$ACTIVEAUTHZ_TARGET_CONF_FILE"
+
+  $CMD
+  if [ $? -ne 0 ]; then
+    echo "Problem copying file, command was: $CMD"
+    return 1
+  fi
+
+  echo ""
+  echo "Enabled.  Container restart is necessary."
+
+  return 0
+}
+# }}}
+
+# -----------------------------------------------------------------------------
 # {{{  ACTION: enable group-authz
 # -----------------------------------------------------------------------------
-
 action_enable_group_authz() {
   
   echo "Enabling group authorization module."
@@ -826,6 +875,8 @@ action_disable_group_authz() {
 
 if [ "$1" = "$OPT_AUTHZ_ON" ]; then
   action_enable_group_authz $*
+elif [ "$1" = "$OPT_CUMULUS_AUTHZ_ON" ]; then
+  action_enable_group_sql_authz $*
 elif [ "$1" = "$OPT_AUTHZ_OFF" ]; then
   action_disable_group_authz $*
 elif [ "$1" = "$OPT_ALL_DNS" ]; then

@@ -22,7 +22,8 @@ import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
 
 import javax.security.auth.Subject;
 
-public class DisabledCallout implements CreationAuthorizationCallout {
+public class DisabledCallout implements CreationAuthorizationCallout
+{
 
     public boolean isEnabled() {
         return false;

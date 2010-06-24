@@ -53,6 +53,9 @@
         <fileset dir="${nimbus.service.api.dist.dir}">
               <include name="*.jar"/>
         </fileset>
+        <fileset dir="${nimbus.authz.dist.dir}">
+              <include name="*.jar"/>
+        </fileset>
     </path>
 
     <target name="compile" depends="init">

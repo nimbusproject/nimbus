@@ -8,6 +8,7 @@
 
     <property environment="env" />
     <property name="env.GLOBUS_LOCATION" value="."/>
+    <property name="env.NIMBUS_AUTHZ_DB" value="."/>
     <property name="deploy.dir" location="${env.GLOBUS_LOCATION}"/>
 
     <property name="base.package.name"

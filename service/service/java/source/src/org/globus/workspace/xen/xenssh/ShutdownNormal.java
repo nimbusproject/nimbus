@@ -16,9 +16,11 @@
 
 package org.globus.workspace.xen.xenssh;
 
+import org.globus.workspace.RepoFileSystemAdaptor;
 import org.globus.workspace.WorkspaceException;
 import org.globus.workspace.cmdutils.SSHUtil;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
+import org.globus.workspace.service.binding.vm.VirtualMachinePartition;
 import org.globus.workspace.xen.XenTask;
 import org.globus.workspace.xen.XenUtil;
 
@@ -40,5 +42,38 @@ public class ShutdownNormal extends XenTask {
             throw new WorkspaceException("no VirtualMachine in request " +
                     "context, can not " + this.name);
         }
+    }
+
+    protected Exception postExecute(Exception e, boolean fake) {
+        e = super.postExecute(e, fake);
+        if(e != null) {
+            return e;
+        }
+
+        try {
+            VirtualMachine vm = this.ctx.getVm();
+            
+            RepoFileSystemAdaptor nsTrans = XenUtil.getNsTrans();
+
+            VirtualMachinePartition[] parts = vm.getPartitions();            
+
+            for(int i = 0; i < parts.length; i++) {
+                if (parts[i].isRootdisk()) {
+                    String img = parts[i].getImage();
+                    if(parts[i].getAlternateUnpropTarget() != null)
+                    {
+                        img = parts[i].getAlternateUnpropTarget();
+                    }
+                    
+                    if(nsTrans != null) {
+                        nsTrans.unpropagationFinished(img);                        
+                    }
+                    break;
+                }
+            }
+        } catch(Exception ex) {
+            return ex;
+        }
+        return null;
     }
 }

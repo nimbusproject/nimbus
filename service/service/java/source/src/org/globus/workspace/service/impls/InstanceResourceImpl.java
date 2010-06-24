@@ -561,7 +561,7 @@ public abstract class InstanceResourceImpl implements InstanceResource {
             return; // *** EARLY RETURN ***
         }
 
-        final URI target = tasks.getBaseFileUnpropagationTarget();
+        URI target = tasks.getBaseFileUnpropagationTarget();
         if (target == null) {
             return; // *** EARLY RETURN ***
         }
@@ -581,6 +581,7 @@ public abstract class InstanceResourceImpl implements InstanceResource {
             final String dnToAuthorize = this.creatorID;
 
             final Integer decision;
+            String newTargetName;
             try {
                 decision = ((PostTaskAuthorization)this.authzCallout).
                     isRootPartitionUnpropTargetPermitted(target, dnToAuthorize);

@@ -83,6 +83,10 @@ public class ExecuteUtil {
         this.okToShutdownExecutorService = true;
     }
 
+    public ExecutorService getExecer() {
+        return this.executor;
+    }
+
     public ExecuteUtil(ExecutorService executorService, boolean okToShutdown) {
         if (executorService == null) {
             throw new IllegalArgumentException(
@@ -106,73 +110,6 @@ public class ExecuteUtil {
         if (!this.executor.isShutdown()) {
             this.executor.shutdownNow();
         }
-    }
-
-
-    // -------------------------------------------------------------------------
-    // SEND FILE
-    // -------------------------------------------------------------------------
-
-    public void sendFile(String sourceUrlString,
-                         String destUrlString,
-                         long timeoutMinutes,
-                         String identAuthz,
-                         PrintStream info,
-                         PrintStream debug)
-
-            throws ExecutionProblem {
-
-        RepositoryUtil.sendFile(sourceUrlString, destUrlString, timeoutMinutes,
-                                identAuthz, info, debug, this.executor);
-    }
-
-    // -------------------------------------------------------------------------
-    // DELETE FILE
-    // -------------------------------------------------------------------------
-
-    public void deleteFile(String delUrlString,
-                           String identAuthz,
-                           PrintStream info,
-                           PrintStream debug)
-
-            throws ExecutionProblem {
-
-        RepositoryUtil.deleteFile(delUrlString, identAuthz, info, debug);
-    }
-
-    // -------------------------------------------------------------------------
-    // DOWNLOAD FILE
-    // -------------------------------------------------------------------------
-
-    public void downloadFile(String sourceUrlString,
-                             String destUrlString,
-                             long timeoutMinutes,
-                             String identityAuthorization,
-                             PrintStream info,
-                             PrintStream debug)
-
-            throws ExecutionProblem {
-
-        // same impl
-        this.sendFile(sourceUrlString,
-                      destUrlString,
-                      timeoutMinutes,
-                      identityAuthorization,
-                      info,
-                      debug);
-    }
-
-    // -------------------------------------------------------------------------
-    // LIST FILES
-    // -------------------------------------------------------------------------
-
-    public FileListing[] listFiles(String url,
-                                   String identAuthz,
-                                   PrintStream info,
-                                   PrintStream err,
-                                   PrintStream debug) throws ExecutionProblem {
-
-        return RepositoryUtil.listFiles(url, identAuthz, info, err, debug);
     }
 
     // -------------------------------------------------------------------------

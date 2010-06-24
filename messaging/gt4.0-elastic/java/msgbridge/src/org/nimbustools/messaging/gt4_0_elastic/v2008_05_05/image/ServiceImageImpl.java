@@ -280,16 +280,17 @@ public class ServiceImageImpl extends UnimplementedOperations
             throw new IllegalArgumentException("empty givenLocationBase");
         }
 
+        // XXX it seems historically this could only be gsiftp so the exception will always trip
         URL url = null;
         try {
             url = new URL(givenLocationBase);
         } catch (MalformedURLException e) {
 
-            // gsiftp is an unknown scheme for Java
+            // CUMULUS is an unknown scheme for Java
             // replace just gsiftp and check URL
             String newTestURL = givenLocationBase.trim();
-            if (newTestURL.startsWith("gsiftp")) {
-                newTestURL = newTestURL.replaceFirst("gsiftp", "http");
+            if (newTestURL.startsWith("cumulus")) {
+                newTestURL = newTestURL.replaceFirst("cumulus", "http");
                 try {
                     url = new URL(newTestURL);
                 } catch (MalformedURLException e2) {
@@ -304,6 +305,7 @@ public class ServiceImageImpl extends UnimplementedOperations
                     "invalid givenLocationBase? (no url)");
         }
 
+        // This will be http now?  i am confused
         final String scheme = url.getProtocol();
         if (scheme == null) {
             throw new IllegalArgumentException(

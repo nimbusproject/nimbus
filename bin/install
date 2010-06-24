@@ -1,8 +1,7 @@
 #!/bin/bash
 
-PYTHON_EXE="/usr/bin/env python"
-
 FORCE_FRESH_INSTALL="yes"
+NIMBUS_ALLOW_ROOT_INSTALL="no"
 
 NIMBUS_SRC_REL="`dirname $0`/.."
 NIMBUS_SRC=`cd $NIMBUS_SRC_REL; pwd`
@@ -44,6 +43,12 @@ if [ -d $NIMBUS_HOME ] && [ "$(ls -A $NIMBUS_HOME)" ]; then
     fi
 fi
 
+
+if [ ! -d $NIMBUS_HOME ]; then
+    mkdir $NIMBUS_HOME
+fi
+
+PYTHON_EXE="/usr/bin/env python"
 # returns 0 if Python 2.4+
 $PYTHON_EXE -c "import sys; sys.exit(sys.version_info < (2,4))"
 if [ $? -ne 0 ]; then
@@ -51,12 +56,18 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+$NIMBUS_SRC/bin/create-nimbus-home $NIMBUS_HOME 2>&1 | tee $NIMBUS_HOME/install.log
 
-$NIMBUS_SRC/bin/create-nimbus-home $NIMBUS_HOME
 
 if [ $? -ne 0 ]; then
     echo ""
     echo "Nimbus home directory creation failed!"
+    exit 1
+fi
+
+CUMULUS_ENV="$NIMBUS_HOME/cumulus/env.sh"
+if [ ! -f $CUMULUS_ENV ]; then
+    echo "Expected file to be created: $CUMULUS_ENV"
     exit 1
 fi
 
@@ -82,25 +93,5 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-echo ""
-echo "-----------------------------------------------------------------"
-echo " Nimbus installation succeeded!"
-echo "-----------------------------------------------------------------"
-echo ""
-echo "However, additional configuration may be necessary:"
-echo ""
-echo "    To run the auto-configuration program, launch:"
-echo "        $NIMBUS_HOME/services/share/nimbus-autoconfig/autoconfig.sh"
-echo ""
-echo "    To run the cloud configuration admin helper, launch:"
-echo "        $NIMBUS_HOME/services/share/nimbus-autoconfig/cloud-admin.sh"
-echo ""
 
-echo "Refer to the Administrator Guide for details:"
-echo "    http://www.nimbusproject.org/docs/"
-echo ""
-echo "You can start/stop Nimbus services with the nimbusctl command. e.g:"
-echo "    $NIMBUS_HOME/bin/nimbusctl start"
-echo ""
-
-exit 0
+$NIMBUS_SRC/bin/install-real.sh  "${@}" 2>&1 | tee -a $NIMBUS_HOME/install.log

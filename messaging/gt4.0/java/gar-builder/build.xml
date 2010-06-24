@@ -107,6 +107,10 @@
                 <include name="*.jar"/>
                 <include name="*LICENSE*"/>
             </fileset>
+            <fileset dir="${nimbus.authzdbmodule.dist.dir}">
+                <include name="*.jar"/>
+                <include name="*LICENSE*"/>
+            </fileset>
             <fileset dir="${nimbus.service.main.dist.dir}">
                 <include name="*.jar"/>
                 <include name="*LICENSE*"/>

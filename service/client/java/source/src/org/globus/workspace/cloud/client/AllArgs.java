@@ -91,7 +91,12 @@ public class AllArgs {
     private String eprGivenFilePath;
     private String factoryHostPort;
     private String factoryID;
-    private String gridftpHostPort;
+    private String xferHostPort;
+    private String xferType;
+    private String xferS3ID;
+    private String xferS3Key;
+    private String xferS3BaseKey;
+    private String s3Bucket;
     private String gridftpID;
     private String handle;
     private String hashPrintDN;
@@ -107,7 +112,6 @@ public class AllArgs {
     private boolean useNotifications;
     private int pollMs;
     private boolean propagationKeepPort = true;
-    private String propagationScheme;
     private String propertiesPath;
     private String sourcefile;
     private String sshfile;
@@ -292,10 +296,10 @@ public class AllArgs {
         }
 
         if (line.hasOption(Opts.GRIDFTP_OPT_STRING)) {
-            this.gridftpHostPort =
+            this.xferHostPort =
                     line.getOptionValue(Opts.GRIDFTP_OPT_STRING);
             this.gotCmdLine(Opts.GRIDFTP_OPT_STRING,
-                            this.gridftpHostPort);
+                            this.xferHostPort);
         }
 
         if (line.hasOption(Opts.GRIDFTP_ID_OPT_STRING)) {
@@ -593,7 +597,7 @@ public class AllArgs {
         CommonPrint.printDebugSectionEnd(this.print, sectionTitle);
     }
 
-    private void intakeProperties(Properties props,
+    public void intakeProperties(Properties props,
                                   String sourceName) throws ParameterProblem {
 
         this.print.dbg("\nAll properties in " + sourceName + " file:\n");
@@ -631,11 +635,51 @@ public class AllArgs {
                          sourceName);
         }
 
-        if (this.gridftpHostPort == null) {
-            this.gridftpHostPort =
-                    CloudClientUtil.getProp(props, Props.KEY_GRIDFTP_HOSTPORT);
-            this.gotProp(Props.KEY_GRIDFTP_HOSTPORT,
-                         this.gridftpHostPort,
+        if (this.xferS3ID == null) {
+            this.xferS3ID =
+                    CloudClientUtil.getProp(props, Props.KEY_S3_ID);
+            this.gotProp(Props.KEY_S3_ID,
+                         this.xferS3ID,
+                         sourceName);
+        }
+
+        if (this.xferS3Key == null) {
+            this.xferS3Key =
+                    CloudClientUtil.getProp(props, Props.KEY_S3_KEY);
+            this.gotProp(Props.KEY_S3_KEY,
+                         this.xferS3Key,
+                         sourceName);
+        }
+
+        if (this.xferS3BaseKey == null) {
+            this.xferS3BaseKey =
+                    CloudClientUtil.getProp(props, Props.KEY_S3_BASEKEY);
+            this.gotProp(Props.KEY_S3_BASEKEY,
+                         this.xferS3BaseKey,
+                         sourceName);
+        }
+
+        if (this.s3Bucket == null) {
+            this.s3Bucket =
+                    CloudClientUtil.getProp(props, Props.KEY_S3_BUCKET);
+            this.gotProp(Props.KEY_S3_BUCKET,
+                         this.s3Bucket,
+                         sourceName);
+        }
+
+        if (this.xferHostPort == null) {
+            this.xferHostPort =
+                    CloudClientUtil.getProp(props, Props.KEY_XFER_HOSTPORT);
+            this.gotProp(Props.KEY_XFER_HOSTPORT,
+                         this.xferHostPort,
+                         sourceName);
+        }
+
+        if (this.xferType == null) {
+            this.xferType =
+                    CloudClientUtil.getProp(props, Props.KEY_XFER_TYPE);
+            this.gotProp(Props.KEY_XFER_TYPE,
+                         this.xferType,
                          sourceName);
         }
 
@@ -689,15 +733,6 @@ public class AllArgs {
                     CloudClientUtil.getProp(props, Props.KEY_CAHASH);
             this.gotProp(Props.KEY_CAHASH,
                          this.caHash,
-                         sourceName);
-        }
-
-        if (this.propagationScheme == null) {
-            this.propagationScheme =
-                    CloudClientUtil.getProp(props,
-                                            Props.KEY_PROPAGATION_SCHEME);
-            this.gotProp(Props.KEY_PROPAGATION_SCHEME,
-                         this.propagationScheme,
                          sourceName);
         }
 
@@ -938,16 +973,56 @@ public class AllArgs {
         this.factoryID = factoryID;
     }
 
-    public String getGridftpHostPort() {
-        return this.gridftpHostPort;
+    public String getXferHostPort() {
+        return this.xferHostPort;
     }
 
-    public void setGridftpHostPort(String gridftpHostPort) {
-        this.gridftpHostPort = gridftpHostPort;
+    public void setGridftpHostPort(String xferHostPort) {
+        this.xferHostPort = xferHostPort;
+    }
+
+    public String getXferType() {
+        return this.xferType;
+    }
+
+    public void setXferType(String xferType) {
+        this.xferType = xferType;
+    }
+
+    public String getXferS3ID() {
+        return this.xferS3ID;
+    }
+
+    public void setXferS3ID(String xferS3ID) {
+        this.xferS3ID = xferS3ID;
+    }
+
+    public String getXferS3BaseKey() {
+        return this.xferS3BaseKey;
+    }
+
+    public void setXferS3BaseKey(String xferS3BaseKey) {
+        this.xferS3BaseKey = xferS3BaseKey;
+    }
+
+    public String getXferS3Key() {
+        return this.xferS3Key;
+    }
+
+    public void setXferS3Key(String xferS3Key) {
+        this.xferS3Key = xferS3Key;
     }
 
     public String getGridftpID() {
         return this.gridftpID;
+    }
+
+    public String getS3Bucket() {
+        return this.s3Bucket;
+    }
+
+    public void setS3Bucket(String s3Bucket) {
+        this.s3Bucket = s3Bucket;
     }
 
     public void setGridftpID(String gridftpID) {
@@ -1080,14 +1155,6 @@ public class AllArgs {
 
     public void setPropagationKeepPort(boolean propagationKeepPort) {
         this.propagationKeepPort = propagationKeepPort;
-    }
-
-    public String getPropagationScheme() {
-        return this.propagationScheme;
-    }
-
-    public void setPropagationScheme(String propagationScheme) {
-        this.propagationScheme = propagationScheme;
     }
 
     public String getPropertiesPath() {

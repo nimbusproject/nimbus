@@ -33,21 +33,168 @@ import java.io.PrintStream;
 import java.io.IOException;
 import java.util.Vector;
 import java.util.ArrayList;
+import java.io.File;
 
 import edu.emory.mathcs.backport.java.util.concurrent.FutureTask;
 import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
 import edu.emory.mathcs.backport.java.util.concurrent.ExecutionException;
 import edu.emory.mathcs.backport.java.util.concurrent.TimeoutException;
 import edu.emory.mathcs.backport.java.util.concurrent.ExecutorService;
+import org.globus.workspace.client_core.ParameterProblem;
 
-public class RepositoryUtil {
+import org.globus.workspace.common.SecurityUtil;
+import org.globus.workspace.cloud.client.AllArgs;
+import org.globus.workspace.cloud.client.Opts;
+import org.globus.workspace.client_core.ExecutionProblem;
+import org.globus.workspace.common.print.Print;
+import edu.emory.mathcs.backport.java.util.concurrent.ExecutorService;
+import org.globus.workspace.cloud.client.Props;
+import java.util.Properties;
+
+public class GridFTPRepositoryUtil 
+    implements RepositoryInterface {
+
+    private AllArgs                     args;
+    private final Print print;
+    private String remoteUserBaseURLString;
+    private String remoteUserBaseDir;
+
+    public GridFTPRepositoryUtil(
+        AllArgs                         args,
+        Print                           pr)
+    {
+        this.args = args;
+        this.print = pr;
+    }
+
+    public void paramterCheck(
+        AllArgs                         args,
+        String                          action)
+            throws ParameterProblem
+    {
+        CloudClientUtil.checkGSICredential(action);
+        this._checkGridFTPGeneric(action);
+    }
+
+    private void _checkGridFTPGeneric(String action) throws ParameterProblem {
+
+        if (this.args.getXferHostPort() == null) {
+            throw new ParameterProblem(action + " requires '" +
+                                       Opts.GRIDFTP_OPT_STRING + "'");
+        }
+        if (this.args.getTargetBaseDirectory() == null) {
+            throw new ParameterProblem(action + " requires '" +
+                                       Opts.TARGETDIR_OPT_STRING + "'");
+        }
+
+        final String url;
+        try {
+            url = this.getRemoteUserBaseURLString();
+        } catch (Exception e) {
+            throw new ParameterProblem("Issue deriving target image " +
+                    "repository URL: " + e.getMessage());
+        }
+        if (!CloudClientUtil.validURL(url, this.print.getDebugProxy())) {
+            throw new ParameterProblem("Derived target image " +
+                    "repository URL is not a valid URL: '" + url + "'");
+        }
+    }
+
+    public void uploadVM(
+        String                          localfile,
+        String                          vmName,
+        PrintStream                     info,
+        PrintStream                     debug,
+        ExecutorService                 executorService)
+            throws ExecutionProblem
+    {
+        String sourceUrlString = CloudClientUtil.localTargetURL(localfile);
+        String destUrlString;
+        long timeoutMinutes = this.args.getTimeoutMinutes();
+        String identityAuthorization = this.args.getGridftpID();
+        final File f = new File(vmName);
+        destUrlString = this.getRemoteUserBaseURLString() + f.getName();
+
+        this.sendFile(
+            sourceUrlString,
+            destUrlString,
+            timeoutMinutes,
+            identityAuthorization,
+            info,
+            debug,
+            executorService);
+    }
+
+    public void downloadVM(
+        String                          localfile,
+        String                          vmName,
+        PrintStream                     info,
+        PrintStream                     debug,
+        ExecutorService                 executorService)
+            throws ExecutionProblem
+    {
+        String sourceUrlString = this.getRemoteUserBaseURLString() + vmName;
+        String destUrlString = CloudClientUtil.localTargetURL(localfile);
+        long timeoutMinutes = this.args.getTimeoutMinutes();
+        String identityAuthorization = this.args.getGridftpID();
+
+        this.sendFile(
+            sourceUrlString,
+            destUrlString,
+            timeoutMinutes,
+            identityAuthorization,
+            info,
+            debug,
+            executorService);
+    }
+
+    private String getRemoteUserBaseURLString() 
+        throws ExecutionProblem
+    {
+
+        if (this.remoteUserBaseURLString != null) {
+            return this.remoteUserBaseURLString;
+        }
+
+        String hash = null;
+        try
+        {
+            hash = SecurityUtil.hashGlobusCredential(
+                CloudClientUtil.getProxyBeingUsed(),
+                this.print.getDebugProxy());
+        }
+        catch(Exception ex)
+        {
+            hash = null;
+        }
+        if (hash == null) {
+            throw new ExecutionProblem("Could not obtain hash of current " +
+                        "credential to generate directory name");
+        }
+
+        this.remoteUserBaseDir =
+                CloudClientUtil.destUserBaseDir(this.args.getTargetBaseDirectory(),
+                                                hash);
+
+        this.remoteUserBaseURLString =
+                CloudClientUtil.destUserBaseURL(this.args.getXferHostPort(),
+                                                this.args.getTargetBaseDirectory(),
+                                                hash);
+
+        this.print.debugln("\nDerived user base dir: " +
+                                            this.remoteUserBaseDir);
+        this.print.debugln("\nDerived user base URL: " +
+                                            this.remoteUserBaseURLString);
+
+        return this.remoteUserBaseURLString;
+    }
 
 
     // -------------------------------------------------------------------------
     // SEND FILE
     // -------------------------------------------------------------------------
 
-    public static void sendFile(String sourceUrlString,
+    private void sendFile(String sourceUrlString,
                                 String destUrlString,
                                 long timeoutMinutes,
                                 String identityAuthorization,
@@ -158,13 +305,14 @@ public class RepositoryUtil {
     // DELETE FILE
     // -------------------------------------------------------------------------
 
-    public static void deleteFile(String delUrlString,
-                                  String identityAuthorization,
-                                  PrintStream info,
-                                  PrintStream debug)
-
+    public void deleteVM(
+        String                          vmName,
+        PrintStream                     info,
+        PrintStream                     debug)
             throws ExecutionProblem {
+        String identityAuthorization = this.args.getGridftpID();
 
+        String delUrlString = this.getRemoteUserBaseURLString() + vmName;
         final GlobusURL delURL;
         try {
             delURL = new GlobusURL(delUrlString);
@@ -230,12 +378,20 @@ public class RepositoryUtil {
     // LIST FILES
     // -------------------------------------------------------------------------
 
-    public static FileListing[] listFiles(String url,
-                                          String identAuthz,
-                                          PrintStream info,
-                                          PrintStream err,
-                                          PrintStream debug) 
-              throws ExecutionProblem {
+    public FileListing[] listFiles(
+        PrintStream                     info,
+        PrintStream                     err,
+        PrintStream                     debug) 
+              throws ExecutionProblem 
+    {
+        String url = null;
+        try {
+            url = this.getRemoteUserBaseURLString();
+        } catch (Exception e) {
+            throw new ExecutionProblem(e.getMessage(), e);
+        }
+
+        String identAuthz = this.args.getGridftpID();
 
         try {
             return listFilesImpl(url, identAuthz, info, err, debug);
@@ -251,11 +407,12 @@ public class RepositoryUtil {
         }
     }
 
-    public static FileListing[] listFilesImpl(String url,
-                                              String identityAuthorization,
-                                              PrintStream info,
-                                              PrintStream err,
-                                              PrintStream debug) 
+    public FileListing[] listFilesImpl(
+        String                          url,
+        String                          identityAuthorization,
+        PrintStream                     info,
+        PrintStream                     err,
+        PrintStream                     debug) 
                throws Exception {
 
         final GlobusURL listdir = new GlobusURL(url);
@@ -398,7 +555,7 @@ public class RepositoryUtil {
         return (FileListing[]) files.toArray(new FileListing[files.size()]);
     }
 
-    private static String parseDate(String modified) {
+    private String parseDate(String modified) {
         if (modified == null || modified.length() != 14) {
             throw new IllegalArgumentException("invalid modified arg");
         }
@@ -409,7 +566,7 @@ public class RepositoryUtil {
         return month + " " + day + ", " + year;
     }
 
-    private static String getMonthStr(int month) {
+    private String getMonthStr(int month) {
         switch (month) {
             case 1: return "Jan";
             case 2: return "Feb";
@@ -427,7 +584,7 @@ public class RepositoryUtil {
         }
     }
 
-    private static String parseTime(String modified) {
+    private String parseTime(String modified) {
         if (modified == null || modified.length() != 14) {
             throw new IllegalArgumentException("invalid modified arg");
         }
@@ -436,8 +593,46 @@ public class RepositoryUtil {
         return hours + ":" + minutes;
     }
 
-    public static void main(String[] args) {
-        System.out.println(parseDate("20080522161726"));
-        System.out.println(parseTime("20080522161726"));
+
+    public String getDerivedImageURL(
+        String                          imageName)
+            throws ExecutionProblem 
+    {
+        String url = "gridftp://" + this.args.getXferHostPort() + this.remoteUserBaseDir + "/" + imageName;
+        return url;
     }
+
+    public void chmod(
+        String                          ownerId,
+        String                          permissions,
+        String                          vmName,
+        PrintStream                     info,
+        PrintStream                     debug)
+              throws ExecutionProblem
+    {
+        throw new ExecutionProblem(
+            "GridFTP does not provide a way to change permissions");
+    }
+
+    public String getRemoteUrl(
+        String                          fname)
+            throws ExecutionProblem
+    {
+        String sourcefile = this.args.getSourcefile();
+        String name = this.args.getName();
+        String rc = null;
+
+        if (sourcefile != null)
+        {
+            final File f = new File(sourcefile);
+            rc = this.getRemoteUserBaseURLString() + f.getName();
+        }
+        if (name != null)
+        {
+            rc = this.getRemoteUserBaseURLString() + name;
+        }
+
+        return rc;
+    }
+
 }

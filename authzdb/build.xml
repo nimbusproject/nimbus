@@ -1,0 +1,113 @@
+<?xml version="1.0"?>
+
+<project default="dist" basedir="." name="Authz DB Module">
+
+    <description>Authz DB Module</description>
+
+    <!-- load user nimbus.build.properties file, if it exists -->
+    <property file="${user.home}/nimbus.build.properties"/>
+
+    <!-- load some defaults from colocated build.properties file -->
+    <property file="build.properties"/>
+
+
+    <!-- *******************************************************************
+         MODULE NAME
+         ******************************************************************* -->
+
+    <target name="disp">
+        <echo message="**** Module: ${basedir}" />
+    </target>
+
+
+    <!-- *******************************************************************
+         CHECK MINIMUM JDK
+         ******************************************************************* -->
+
+    <target name="checkjdk">
+        <available property="jdk1.4+" classname="java.lang.CharSequence"/>
+        <fail message="Aborting: determined you are not building with >= JDK 1.4"
+              unless="jdk1.4+" />
+    </target>
+    
+
+    <!-- *******************************************************************
+         INITIALIZE
+         ******************************************************************* -->
+
+    <target name="init" depends="checkjdk">
+        <mkdir dir="${nimbus.authz.main.build.dir}"/>
+        <mkdir dir="${nimbus.authz.main.build.dest}"/>
+        <mkdir dir="${nimbus.authz.main.dist.dir}"/>
+    </target>
+
+
+    <!-- *******************************************************************
+         COMPILATION
+         ******************************************************************* -->
+
+    <path id="nimbus.authz.main.classpath">
+        <fileset dir="${nimbus.authz.main.lib.dir}">
+             <include name="*.jar"/>
+        </fileset>
+    </path>
+
+    <target name="compile" depends="init">
+
+        <javac srcdir="${nimbus.authz.main.src.dir}"
+               destdir="${nimbus.authz.main.build.dest}"
+               classpathref="nimbus.authz.main.classpath"
+               debug="on">
+
+            <include name="**/*.java"/>
+            <compilerarg value="${nimbus.java.compilerarg}" />
+            
+        </javac>
+
+        <copy todir="${nimbus.authz.main.build.dest}" >
+              <fileset dir="${nimbus.authz.main.src.dir}"
+                       includes="**/*.properties" />
+              <fileset dir="${nimbus.authz.main.src.dir}"
+                       includes="**/*.xml" />
+              <fileset dir="${nimbus.authz.main.src.dir}"
+                       includes="**/*.txt" />
+        </copy>
+
+    </target>
+
+    
+    <!-- *******************************************************************
+         CREATE ARCHIVE FILE
+         ******************************************************************* -->
+
+    <target name="jar" depends="compile">
+        <jar destfile="${nimbus.authz.main.dist.dir}/${nimbus.authz.main.jar.name}"
+             basedir="${nimbus.authz.main.build.dest}"/>
+    </target>
+
+    
+    <!-- *******************************************************************
+         CREATE DISTRIBUTION
+         ******************************************************************* -->
+
+    <target name="dist">
+        <echo message="**** Module: ${basedir}" />
+        <echo>Building: ${nimbus.authz.main.print-noun}</echo>
+        <antcall target="jar" />
+        <echo>Built: ${nimbus.authz.main.print-noun}
+        </echo>
+    </target>
+
+    
+    <!-- *******************************************************************
+         CLEAN
+         ******************************************************************* -->
+
+    <target name="clean">
+        <delete dir="${nimbus.authz.main.build.dir}"/>
+        <delete dir="${nimbus.authz.main.dist.dir}"/>
+        <delete dir="tmp"/>
+        <echo message="Cleaned: ${basedir}" />
+    </target>
+
+</project>

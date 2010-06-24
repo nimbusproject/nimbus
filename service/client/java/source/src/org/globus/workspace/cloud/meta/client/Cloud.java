@@ -19,6 +19,7 @@ package org.globus.workspace.cloud.meta.client;
 import org.globus.workspace.client_core.ParameterProblem;
 import org.globus.workspace.client_core.ExecutionProblem;
 import org.globus.workspace.cloud.client.Props;
+import org.globus.workspace.cloud.client.AllArgs;
 import org.globus.workspace.cloud.client.cluster.ClusterUtil;
 import org.globus.workspace.cloud.client.util.MetadataXMLUtil;
 import org.globus.workspace.cloud.client.util.CloudClientUtil;
@@ -32,6 +33,7 @@ import org.apache.axis.types.URI;
 import java.util.Properties;
 import java.io.InputStream;
 import java.io.IOException;
+import org.globus.workspace.common.print.Print;
 
 /**
  * Cloud-specific properties
@@ -101,21 +103,24 @@ public class Cloud {
     private String metadata_vmmVersion;
     private String metadata_vmmType;
     private String targetBaseDirectory;
-    private String propagationScheme;
     private boolean propagationKeepPort;
     private int memory;
     private int pollTime;
     private String brokerPublicNicPrefix;
     private String brokerLocalNicPrefix;
+    private Properties props;
 
 
     private void intakeProperties(Properties props) throws ParameterProblem {
+
+        this.props = props;
+
         this.factoryHostPort = getRequiredProp(props,
             Props.KEY_FACTORY_HOSTPORT);
         this.factoryID = getRequiredProp(props,
             Props.KEY_FACTORY_IDENTITY);
         this.gridftpHostPort = getRequiredProp(props,
-            Props.KEY_GRIDFTP_HOSTPORT);
+            Props.KEY_XFER_HOSTPORT);
         this.gridftpID = getRequiredProp(props,
             Props.KEY_GRIDFTP_IDENTITY);
         this.metadata_mountAs = getRequiredProp(props,
@@ -128,8 +133,6 @@ public class Cloud {
             Props.KEY_METADATA_VMMTYPE);
         this.targetBaseDirectory = getRequiredProp(props,
             Props.KEY_TARGET_BASEDIR);
-        this.propagationScheme = getRequiredProp(props,
-            Props.KEY_PROPAGATION_SCHEME);
         this.brokerLocalNicPrefix = getRequiredProp(props,
             Props.KEY_BROKER_LOCAL);
         this.brokerPublicNicPrefix = getRequiredProp(props,
@@ -197,13 +200,13 @@ public class Cloud {
 
     private URI deriveImageURL(String imageName) throws ExecutionProblem {
 
-        final String urlString = CloudClientUtil.deriveImageURL(
-            this.gridftpHostPort,
-            imageName,
-            this.getRemoteUserBaseDir(),
-            this.propagationScheme,
-            this.propagationKeepPort
-            );
+        AllArgs args = new AllArgs(new Print());
+        try {
+            args.intakeProperties(this.props, "from meta");
+        } catch (Exception e) {
+            throw new ExecutionProblem(e.getMessage(), e);
+        }
+        String urlString = CloudClientUtil.deriveImageURL(imageName, args);
 
         try {
             return new URI(urlString);

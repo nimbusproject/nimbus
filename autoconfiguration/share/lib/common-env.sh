@@ -138,6 +138,9 @@ export GROUPAUTHZ_CONF_FILE
 DISABLEDAUTHZ_CONF_FILE="authz-callout-disabled.xml"
 export DISABLEDAUTHZ_CONF_FILE
 
+SQLGROUPAUTHZ_CONF_FILE="authz-callout-sql.xml"
+export SQLGROUPAUTHZ_CONF_FILE
+
 EXE_GROUPAUTHZ_HARNESS="org.nimbustools.auto_config.groupauthz.harness.Main"
 export EXE_GROUPAUTHZ_HARNESS
 

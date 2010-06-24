@@ -11,7 +11,10 @@
     enabled authorization callout.
 
     -->
-
+     <bean id="nimbus-rm.service.binding.RepoAdaptor"
+         class="org.globus.workspace.DefaultRepoFileSystemAdaptorImpl">
+     </bean>
+    
     <bean id="nimbus-rm.service.binding.AuthorizationCallout"
           class="org.globus.workspace.service.binding.authorization.DisabledCallout" />
 

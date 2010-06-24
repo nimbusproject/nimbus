@@ -18,11 +18,7 @@ package org.globus.workspace.service.impls.site;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.globus.workspace.Counter;
-import org.globus.workspace.CounterCallback;
-import org.globus.workspace.Lager;
-import org.globus.workspace.WorkspaceException;
-import org.globus.workspace.WorkspaceUtil;
+import org.globus.workspace.*;
 import org.globus.workspace.persistence.WorkspaceDatabaseException;
 import org.globus.workspace.persistence.PersistenceAdapter;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
@@ -71,7 +67,6 @@ public class PropagationAdapterImpl implements PropagationAdapter,
     private Resource pollScript;
     private boolean enabled;
     private long watcherDelay = 2000;
-
 
     // -------------------------------------------------------------------------
     // CONSTRUCTOR
@@ -250,8 +245,7 @@ public class PropagationAdapterImpl implements PropagationAdapter,
         this.globals.setUnpropagateEnabled(true);
 
         logger.debug("validated/initialized");
-    }
-
+    }    
     
     // -------------------------------------------------------------------------
     // implements PropagationAdapter
