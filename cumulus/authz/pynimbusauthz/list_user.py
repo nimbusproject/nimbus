@@ -30,7 +30,7 @@ List cumulus authz user accounts"""
 
 
 def list_user(opts, user):
-    pynimbusauthz.print_msg(opts, 0, "User %s" % (user.get_id()))
+    pynimbusauthz.print_msg(opts, 0, "User %s : %s" % (user.get_id(), user.get_friendly()))
     if opts.alias:
         alias_a = user.get_all_alias()
 

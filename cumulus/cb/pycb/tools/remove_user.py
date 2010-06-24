@@ -43,8 +43,7 @@ def main_trap(argv=sys.argv[1:]):
         u = auth.get_user(user_id)
     except Exception, ex:
         raise cbToolsException('UNKNOWN_USER', (display_name), ex)
-
-    u.remove_user()
+    u.remove_user(force=opts.all)
 
     return 0
 
@@ -52,6 +51,7 @@ def main(argv=sys.argv[1:]):
     try:
         rc = main_trap(argv)
     except cbToolsException, tex:
+        traceback.print_exc(file=sys.stdout)
         print tex
         rc = tex.get_rc()
     except SystemExit:

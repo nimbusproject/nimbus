@@ -262,8 +262,12 @@ class cbAuthzUser(object):
     def set_user_pw(self, password):
         self.alias.set_data(password)
 
-    def remove_user(self):
-        self.alias.remove()
+    def remove_user(self, force=False):
+        if force:
+            uc = User(self.db_obj, uu=self.get_canonical_id(), create=False)
+            uc.destroy_brutally()
+        else:
+            self.alias.remove()
 
 class cbAuthzSec(object):
 
@@ -301,6 +305,10 @@ class cbAuthzSec(object):
         a_it = UserAlias.find_all_alias_by_friendly(db_obj, pattern)
         new_it = map(lambda r: r.get_name(), a_it)
         return new_it
+
+    def get_db():
+        db_obj = DB(con_str=self.con_str)
+        return db_obj
 
 def _convert_test_it(a):
     return a.get_name()

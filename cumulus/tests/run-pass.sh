@@ -24,7 +24,7 @@ $CUMULUS_HOME/bin/cumulus-remove-user -a tests3cmd1@nimbus.test
 $CUMULUS_HOME/bin/cumulus -p $cumulus_port $https_opt &
 cumulus_pid=$!
 echo $cumulus_pid
-trap "kill $cumulus_pid; mv ~/.s3cfg.cumulus.test ~/.s3cfg; $CUMULUS_HOME/bin/cumulus-remove-user tests3cmd1@nimbus.test" EXIT
+trap "kill $cumulus_pid; mv ~/.s3cfg.cumulus.test ~/.s3cfg; $CUMULUS_HOME/bin/cumulus-remove-user -a tests3cmd1@nimbus.test" EXIT
 sleep 2
 log_file=`mktemp`
 echo "Logging output to $log_file" 

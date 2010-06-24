@@ -63,7 +63,7 @@ def set_user_quota(id, quota):
 def clean_user(id):
     auth = pycb.config.auth
     u = auth.get_user(id)
-    u.remove_user()
+    u.remove_user(force=True)
 
 def get_contact():
     try:

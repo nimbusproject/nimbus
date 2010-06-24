@@ -45,7 +45,7 @@ class TestAddUsers(unittest.TestCase):
     def test_new_user(self):
         rc = pycb.tools.add_user.main(["test@nosetests.nimbus.org"])
         self.assertEqual(rc, 0, "rc = %d" % (rc))
-        rc = pycb.tools.remove_user.main(["test@nosetests.nimbus.org"])
+        rc = pycb.tools.remove_user.main(["-a", "test@nosetests.nimbus.org"])
         self.assertEqual(rc, 0, "rc = %d" % (rc))
 
     def test_list_user(self):
@@ -61,7 +61,7 @@ class TestAddUsers(unittest.TestCase):
         rc = self.find_in_file(outFileName, display_name)
         self.assertTrue(rc, "display name not found in list %s" % (display_name))
 
-        rc = pycb.tools.remove_user.main([display_name])
+        rc = pycb.tools.remove_user.main(["-a", display_name])
         self.assertEqual(rc, 0, "rc = %d" % (rc))
 
     def test_column_report(self):
@@ -85,7 +85,7 @@ class TestAddUsers(unittest.TestCase):
         n = "None,%s,None" % (display_name)
         rc = self.find_in_file(outFileName, display_name)
         self.assertTrue(rc, "display name not found in list")
-        rc = pycb.tools.remove_user.main([display_name])
+        rc = pycb.tools.remove_user.main(["-a", display_name])
         self.assertEqual(rc, 0, "rc = %d" % (rc))
 
     def test_quota(self):
@@ -107,7 +107,7 @@ class TestAddUsers(unittest.TestCase):
         rc = self.find_in_file(outFileName, display_name)
         self.assertTrue(rc, "display name not found in list")
 
-        rc = pycb.tools.remove_user.main([display_name])
+        rc = pycb.tools.remove_user.main(["-a", display_name])
         self.assertEqual(rc, 0, "rc = %d" % (rc))
 
     def test_error_cmdline(self):
@@ -190,7 +190,7 @@ class TestAddUsers(unittest.TestCase):
         rc = self.find_in_file(outFileName, display_name)
         self.assertTrue(rc, "display name not found in list")
 
-        rc = pycb.tools.remove_user.main([display_name])
+        rc = pycb.tools.remove_user.main(["-a", display_name])
         self.assertEqual(rc, 0, "rc = %d" % (rc))
 
     def test_add_user(self):
@@ -207,7 +207,7 @@ class TestAddUsers(unittest.TestCase):
         self.assertEqual(rc, 0, "rc = %d" % (rc))
         rc = self.find_in_file(outFileName, "hello")
 
-        rc = pycb.tools.remove_user.main([display_name])
+        rc = pycb.tools.remove_user.main(["-a", display_name])
         self.assertEqual(rc, 0, "rc = %d" % (rc))
 
     def test_add_user_unknown(self):
