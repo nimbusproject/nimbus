@@ -178,11 +178,11 @@ def edit_user(o, db):
     if o.access_id != None:
         if s3u == None:
             raise CLIError('EUSER', "There is no s3 user for: %s" % (o.emailaddr))
-        dnu.set_name(o.access_id.strip())
+        s3u.set_name(o.access_id.strip())
     if o.access_secret != None:
         if s3u == None:
             raise CLIError('EUSER', "There is no s3 user for: %s" % (o.emailaddr))
-        dnu.set_data(o.access_secret.strip())
+        s3u.set_data(o.access_secret.strip())
     db.commit()
 
     # todo, reset options structure to report user

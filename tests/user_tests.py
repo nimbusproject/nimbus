@@ -162,6 +162,7 @@ class TestUsers(unittest.TestCase):
         rc = nimbus_edit_user.main(["-b", "-a", s3id, "-p", s3pw, "-r", "access_id,access_secret", "-O", outFileName, friendly_name])
         self.assertEqual(rc, 0, "should be 0 %d" % (rc))
         needle = "%s,%s" % (s3id, s3pw)
+        print "--> %s <--" % (needle)
         rc = self.find_in_file(outFileName, needle)
         os.unlink(outFileName)
         self.assertTrue(rc)
