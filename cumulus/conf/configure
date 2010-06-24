@@ -3855,6 +3855,7 @@ fi
 done
 
 
+
 # Extract the first word of "sqlite3", so it can be a program name with args.
 set dummy sqlite3; ac_word=$2
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
@@ -3943,14 +3944,14 @@ fi
 if test "$PYTHON" == no ; then
     as_fn_error "Cannot find python2.5." "$LINENO" 5
 fi
-
+# must verify cumulus and pynimbusauthz are installed
 HOSTNAME=`hostname`
 INSTALLDIR=$prefix
 
 
 
 
-ac_config_files="$ac_config_files Makefile src/etc/cumulus.ini src/etc/cumulus_tests.ini src/etc/cumulus_tests_https.ini src/etc/env.sh"
+ac_config_files="$ac_config_files Makefile etc/cumulus.ini etc/cumulus_tests.ini etc/cumulus_tests_https.ini etc/env.sh"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -4676,10 +4677,10 @@ do
   case $ac_config_target in
     "depfiles") CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
-    "src/etc/cumulus.ini") CONFIG_FILES="$CONFIG_FILES src/etc/cumulus.ini" ;;
-    "src/etc/cumulus_tests.ini") CONFIG_FILES="$CONFIG_FILES src/etc/cumulus_tests.ini" ;;
-    "src/etc/cumulus_tests_https.ini") CONFIG_FILES="$CONFIG_FILES src/etc/cumulus_tests_https.ini" ;;
-    "src/etc/env.sh") CONFIG_FILES="$CONFIG_FILES src/etc/env.sh" ;;
+    "etc/cumulus.ini") CONFIG_FILES="$CONFIG_FILES etc/cumulus.ini" ;;
+    "etc/cumulus_tests.ini") CONFIG_FILES="$CONFIG_FILES etc/cumulus_tests.ini" ;;
+    "etc/cumulus_tests_https.ini") CONFIG_FILES="$CONFIG_FILES etc/cumulus_tests_https.ini" ;;
+    "etc/env.sh") CONFIG_FILES="$CONFIG_FILES etc/env.sh" ;;
 
   *) as_fn_error "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac

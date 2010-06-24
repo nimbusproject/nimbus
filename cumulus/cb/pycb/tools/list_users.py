@@ -18,7 +18,7 @@ g_report_options = ["friendly", "ID", "password", "quota", "canonical_id"]
 
 class printer_obj(object):
     def __init__(self):
-        self.x = 1
+        pass
 
 def setup_options(argv):
 

@@ -20,7 +20,7 @@ if [ "X${CUMULUS_TEST_HTTPS}" == "X" ]; then
 fi
 
 
-$CUMULUS_HOME/bin/cumulus-remove-user tests3cmd1@nimbus.test
+$CUMULUS_HOME/bin/cumulus-remove-user -a tests3cmd1@nimbus.test
 $CUMULUS_HOME/bin/cumulus -p $cumulus_port $https_opt &
 cumulus_pid=$!
 echo $cumulus_pid
@@ -48,16 +48,10 @@ if [ "X$?" != "X0" ]; then
 fi
 cd ..
 
-cd authz
-nosetests *.py
-if [ "X$?" != "X0" ]; then
-    echo "FAILED : authz tests failed"
-    exit 1
-fi
-cd ..
+$CUMULUS_HOME/bin/nosetests pynimbusauthz.tests.__init__
 
 cd client
-nosetests *.py
+$CUMULUS_HOME/bin/nosetests *.py
 if [ "X$?" != "X0" ]; then
     echo "FAILED : boto tests failed"
     exit 1

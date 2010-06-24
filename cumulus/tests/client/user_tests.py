@@ -42,7 +42,6 @@ class TestAddUsers(unittest.TestCase):
         os.unlink(fname)
         return found
 
-
     def test_new_user(self):
         rc = pycb.tools.add_user.main(["test@nosetests.nimbus.org"])
         self.assertEqual(rc, 0, "rc = %d" % (rc))

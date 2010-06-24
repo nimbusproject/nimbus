@@ -15,7 +15,7 @@ class User(object):
             else:
                 self.uuid = str(uuid.uuid1())
             if friendly == None:
-                raise Exception('You must specify a friendly name')
+                friendly = self.uuid
             s = "INSERT INTO users_canonical(id, friendly_name) values(?, ?)"
             data = (self.uuid,friendly,)
 
@@ -239,7 +239,7 @@ class User(object):
         if len(ua) < 1:
             return None
         return ua[0]
-    get_user = staticmethod(get_user_by_friendly)
+    get_user_by_friendly = staticmethod(get_user_by_friendly)
 
 
 class UserAlias(object):
@@ -306,6 +306,12 @@ class UserAlias(object):
 
     def get_data(self):
         return self.alias_type_data
+
+    def set_name(self, alias_name):
+        s = "UPDATE user_alias set alias_name = ? where id = ?"
+        data = (alias_name,self.id,)
+        self.db._run_no_fetch(s, data)
+        self.alias_name = alias_name
 
     def set_data(self, data_key):
         s = "UPDATE user_alias set alias_type_data = ? where id = ?"

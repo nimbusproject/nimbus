@@ -23,6 +23,7 @@ from pynimbusauthz.db import DB
 from pynimbusauthz.user import *
 import logging
 import shlex
+from nimbusweb.setup.setuperrors import *
 
 g_created_cert_files=False
 g_report_options = ["cert", "key", "dn", "canonical_id", "access_id", "access_secret", "url", "web_id"]
@@ -40,14 +41,14 @@ def get_nimbus_home():
         script_dir = os.path.dirname(__file__)
         nimbus_home = os.path.dirname(script_dir)
     if not os.path.exists(nimbus_home):
-        raise IncompatibleEnvironment("NIMBUS_HOME must refer to a valid path")
+        raise CLIError('ENIMBUSHOME', "NIMBUS_HOME must refer to a valid path")
     return nimbus_home
 
 def get_dn(cert_file):
     nimbus_home = get_nimbus_home()
     webdir = os.path.join(nimbus_home, 'web/')
     if not os.path.exists(webdir):
-        raise IncompatibleEnvironment(
+        raise CLIError('ENIMBUSHOME', 
                 "web dir doesn't exist. is this a valid Nimbus install? (%s)"
                 % webdir)
     log = logging.getLogger()
@@ -58,32 +59,33 @@ def generate_cert(o):
     nimbus_home = get_nimbus_home()
     webdir = os.path.join(nimbus_home, 'web/')
     if not os.path.exists(webdir):
-        raise IncompatibleEnvironment(
+        raise CLIError('ENIMBUSHOME', 
                 "web dir doesn't exist. is this a valid Nimbus install? (%s)"
                 % webdir)
     configpath = os.path.join(nimbus_home, 'nimbus-setup.conf')
     config = SafeConfigParser()
     if not config.read(configpath):
-        raise IncompatibleEnvironment(
+        raise CLIError('ENIMBUSHOME', 
                 "Failed to read config from '%s'. Has Nimbus been configured?"
                 % configpath)
     try:
         cadir = config.get('nimbussetup', 'ca.dir')
     except NoOptionError:
-        raise IncompatibleEnvironment("Config file '%s' does not contain ca.dir" %
+        raise CLIError('ENIMBUSHOME', 
+                "Config file '%s' does not contain ca.dir" %
                 configpath)
 
     dir = o.dest
     keypath = os.path.join(dir, "userkey.pem")
     certpath = os.path.join(dir, "usercert.pem")
     if os.path.exists(keypath):
-        raise IncompatibleEnvironment(
+        raise CLIError('EPATH', 
                 "The destination key path exists: '%s'" % keypath)
     if os.path.exists(certpath):
-        raise IncompatibleEnvironment(
+        raise CLIError('EPATH', 
                 "The destination cert path exists: '%s'" % certpath)
     if not os.access(dir, os.W_OK):
-        raise IncompatibleEnvironment(
+        raise CLIError('EPATH', 
                 "The destination directory is not writable: '%s'" % dir)
 
     cn = o.cn
@@ -101,10 +103,12 @@ def generate_cert(o):
 def setup_options(argv):
 
     u = """[options] <email>
-Create a new nimbus user
+Create/edit a nimbus user
     """
     (parser, all_opts) = pynimbusauthz.get_default_options(u)
 
+    opt = cbOpts("edit", "e", SUPPRESS_HELP, False, flag=True)
+    all_opts.append(opt)
     opt = cbOpts("dn", "s", "This is used when the user already has a cert.  This option will use the given DN instead of generating a new cert", None)
     all_opts.append(opt)
     opt = cbOpts("cert", "c", "Instead of generating a new key pair use this certificate.  This must be used with the --key option", None)
@@ -131,6 +135,8 @@ Create a new nimbus user
     all_opts.append(opt)
     opt = cbOpts("report", "r", "Report the selected columns from the following: " + pycb.tools.report_options_to_string(g_report_options), pycb.tools.report_options_to_string(g_report_options))
     all_opts.append(opt)
+    opt = cbOpts("gencert", "G", "Generate a cert (only relevant when editting an existing user)", False)
+    all_opts.append(opt)
 
     (o, args) = pynimbusauthz.parse_args(parser, all_opts, argv)
 
@@ -139,14 +145,11 @@ Create a new nimbus user
         pynimbusauthz.parse_args(parser, [], ["--help"])
 
     if o.cert == None and o.key != None or o.cert != None and o.key == None:
-        print "key and cert must be used together"
-        pynimbusauthz.parse_args(parser, all_opts, ["--help"])
+        raise CLIError('ECMDLINE', "key and cert must be used together")
     if o.access_id == None and o.access_secret != None or o.access_id != None and o.access_secret == None:
-        print "secret and access-id must be used together"
-        pynimbusauthz.parse_args(parser, all_opts, ["--help"])
+        raise CLIError('ECMDLINE', "secret and access-id must be used together")
     if o.noweb and o.nocert and o.noaccess:
-        print "you must want this tool to do something"
-        pynimbusauthz.parse_args(parser, all_opts, ["--help"])
+        raise CLIError('ECMDLINE', "you must want this tool to do something")
     if o.dest == None:
         nh = get_nimbus_home() + "/var/ca/"
         o.dest = tempfile.mkdtemp(suffix='cert', prefix='tmp', dir=nh)
@@ -159,24 +162,18 @@ Create a new nimbus user
     # verify the id/secret length
     if o.access_id != None:
         if len(o.access_id) != 21:
-            print "secret and access_id must be used together"
-            pynimbusauthz.parse_args(parser, all_opts, ["--help"])
+            raise CLIError('ECMDLINE', "secret and access_id must be used together")
         if len(o.access_secret) != 42:
-            print "secret and access_id must be used together"
-            pynimbusauthz.parse_args(parser, all_opts, ["--help"])
+            raise CLIError('ECMDLINE', "secret and access_id must be used together")
     if o.cert != None:
         if not os.path.isfile(o.cert):
-            print "No such cert file %s" % (o.cert)
-            pynimbusauthz.parse_args(parser, all_opts, ["--help"])
+            raise CLIError('ECMDLINE', "No such cert file %s" % (o.cert))
         if not os.path.isfile(o.key):
-            print "No such cert file %s" % (o.key)
-            pynimbusauthz.parse_args(parser, all_opts, ["--help"])
+            raise CLIError('ECMDLINE', "No such cert file %s" % (o.key))
     if o.cert != None and o.nocert:
-        print "why specify a cert and use nocert?"
-        pynimbusauthz.parse_args(parser, all_opts, ["--help"])
+        raise CLIError('ECMDLINE', "why specify a cert and use nocert?")
     if o.dn != None and o.nocert:
-        print "why specify a dn and use nocert?"
-        pynimbusauthz.parse_args(parser, all_opts, ["--help"])
+        raise CLIError('ECMDLINE', "why specify a dn and use nocert?")
 
     o.canonical_id = None
     o.url = None
@@ -188,13 +185,16 @@ def add_gridmap(o):
     configpath = os.path.join(nimbus_home, 'nimbus-setup.conf')
     config = SafeConfigParser()
     if not config.read(configpath):
-        raise IncompatibleEnvironment(
+        raise CLIError('ENIMBUSHOME', 
                 "Failed to read config from '%s'. Has Nimbus been configured?"
                 % configpath)
     gmf = config.get('nimbussetup', 'gridmap')
 
     f = open(gmf, 'r+')
     for l in f.readlines():
+        l = l.strip()
+        if l == "":
+            continue
         a = shlex.split(l)
         if o.dn == a[0]:
             print "WARNING! This dn is already in the gridmap file"
@@ -203,11 +203,13 @@ def add_gridmap(o):
     f.write("\"%s\" not_a_real_account\n" % (o.dn))
     f.close()
 
-def create_user(o):
-    con_str = pycb.config.authzdb
-    db = DB(con_str)
+def create_user(o, db):
     try:
         # create canonical user
+        user = User.get_user_by_friendly(db, o.emailaddr)
+        if user != None:
+            raise CLIError('EUSER', "The user already exists: %s" % (o.emailaddr))
+
         user = User(db, friendly=o.emailaddr)
         o.canonical_id = user.get_id()
         if not o.noaccess and o.access_id == None:
@@ -243,6 +245,7 @@ def create_user(o):
             os.remove(o.cert)
             os.remove(o.key)
         db.rollback()
+        #traceback.print_exc(file=sys.stdout)
         raise ex1
 
 def do_web_bidnes(o):
@@ -251,15 +254,74 @@ def do_web_bidnes(o):
 def do_group_bidnes(o):
     pass
 
-def report_results(o):
+def report_results(o, db):
+    user = User.get_user_by_friendly(db, o.emailaddr)
+    if user == None:
+        raise CLIError('EUSER', "The user should not be in db but is not: %s" % (o.emailaddr))
+
+    dnu = user.get_alias_by_friendly(o.emailaddr, pynimbusauthz.alias_type_x509)
+    if dnu != None:
+        o.dn = dnu.get_name()
+    o.canonical_id = user.get_name()
+
+    s3u = user.get_alias_by_friendly(o.emailaddr, pynimbusauthz.alias_type_s3)
+    if s3u != None:
+        o.access_id = s3u.get_name()
+        o.access_secret = s3u.get_data()
+ 
     pycb.tools.print_report(o, o.report, o)
+
+def edit_user(o, db):
+    # create canonical user
+    user = User.get_user_by_friendly(db, o.emailaddr)
+    if user == None:
+        raise CLIError('EUSER', "The user does not exists: %s" % (o.emailaddr))
+    dnu = user.get_alias_by_friendly(o.emailaddr, pynimbusauthz.alias_type_x509)
+
+    s3u = user.get_alias_by_friendly(o.emailaddr, pynimbusauthz.alias_type_s3)
+    # if they want a new cert generated, do so
+    if o.gencert:
+        (o.cert, o.key) = generate_cert(o)
+    # if there is a cert, generate or pointed, get the dn from it
+    if o.cert != None:
+        o.dn = get_dn(o.cert)
+    # if there is a dn set it
+    if o.dn != None
+        if dnu == None:
+            raise CLIError('EUSER', "There is x509 entry for: %s" % (o.emailaddr))
+        dnu.set_name(o.dn.strip())
+
+    if o.access_id != None:
+        if s3u == None:
+            raise CLIError('EUSER', "There is no s3 user for: %s" % (o.emailaddr))
+        dnu.set_name(o.access_id.strip())
+    if o.access_secret != None:
+        if s3u == None:
+            raise CLIError('EUSER', "There is no s3 user for: %s" % (o.emailaddr))
+        dnu.set_data(o.access_secret.strip())
+    db.commit()
+
+    # todo, reset options structure to report user
 
 def main(argv=sys.argv[1:]):
 
-    (o, args, p) = setup_options(argv)
-    o.emailaddr = args[0]
-    create_user(o)
-    report_results(o)
+    try:
+        (o, args, p) = setup_options(argv)
+
+        con_str = pycb.config.authzdb
+        db = DB(con_str)
+
+        o.emailaddr = args[0]
+        if o.edit:
+            edit_user(o, db)
+        else:
+            create_user(o, db)
+        report_results(o, db)
+    except CLIError, clie:
+        print clie
+        return clie.get_rc()
+
+    return 0
 
 if __name__ == "__main__":
     rc = main()
