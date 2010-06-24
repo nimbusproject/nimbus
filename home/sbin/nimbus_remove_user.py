@@ -68,6 +68,7 @@ def remove_gridmap(dn):
                 "Failed to read config from '%s'. Has Nimbus been configured?"
                 % configpath)
     gmf = config.get('nimbussetup', 'gridmap')
+    gmf = os.path.join(nimbus_home, gmf)
 
     found = False
     f = open(gmf, 'r')
@@ -103,9 +104,9 @@ def delete_user(o):
     dnu = user.get_alias_by_friendly(o.emailaddr, pynimbusauthz.alias_type_x509)
     if dnu == None:
         print "WARNING! there is no x509 alias for user %s" % (o.emailaddr)
-    dn = dnu.get_name()
-
-    remove_gridmap(dn)
+    else:
+        dn = dnu.get_name()
+        remove_gridmap(dn)
 
     user.destroy_brutally()
     

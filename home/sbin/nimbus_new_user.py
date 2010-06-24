@@ -26,7 +26,6 @@ import shlex
 from nimbusweb.setup.setuperrors import *
 from optparse import SUPPRESS_HELP
 
-g_created_cert_files=False
 g_report_options = ["cert", "key", "dn", "canonical_id", "access_id", "access_secret", "url", "web_id"]
 
 
@@ -71,6 +70,7 @@ def generate_cert(o):
                 % configpath)
     try:
         cadir = config.get('nimbussetup', 'ca.dir')
+        cadir = os.path.join(nimbus_home, cadir)
     except NoOptionError:
         raise CLIError('ENIMBUSHOME', 
                 "Config file '%s' does not contain ca.dir" %
@@ -95,8 +95,6 @@ def generate_cert(o):
     # XXX
     log = logging.getLogger()
     dn = autoca.createCert(cn, webdir, cadir, certpath, keypath, log)
-    global g_created_cert_files
-    g_created_cert_files = True
 
     return (certpath, keypath)
 
@@ -126,17 +124,17 @@ Create/edit a nimbus user
     all_opts.append(opt)
     opt = cbOpts("web_id", "w", "Set the web user name.  If not set and a web user is desired a username will be created from the email address.", None)
     all_opts.append(opt)
-    opt = cbOpts("noweb", "W", "Do not put stuff into webapp sqlite", False)
+    opt = cbOpts("noweb", "W", "Do not put stuff into webapp sqlite", False, flag=True)
     all_opts.append(opt)
-    opt = cbOpts("nocert", "C", "Do not add a DN", False)
+    opt = cbOpts("nocert", "C", "Do not add a DN", False, flag=True)
     all_opts.append(opt)
     opt = cbOpts("delim", "D", "Character between columns in the report", ",")
     all_opts.append(opt)
-    opt = cbOpts("noaccess", "A", "Do not add access tokens", False)
+    opt = cbOpts("noaccess", "A", "Do not add access tokens", False, flag=True)
     all_opts.append(opt)
     opt = cbOpts("report", "r", "Report the selected columns from the following: " + pycb.tools.report_options_to_string(g_report_options), pycb.tools.report_options_to_string(g_report_options))
     all_opts.append(opt)
-    opt = cbOpts("gencert", "G", "Generate a cert (only relevant when editting an existing user)", False)
+    opt = cbOpts("gencert", "G", "Generate a cert (only relevant when editting an existing user)", False, flag=True)
     all_opts.append(opt)
 
     (o, args) = pynimbusauthz.parse_args(parser, all_opts, argv)
@@ -146,7 +144,7 @@ Create/edit a nimbus user
         pynimbusauthz.parse_args(parser, [], ["--help"])
 
     if o.cert == None and o.key != None or o.cert != None and o.key == None:
-        raise CLIError('ECMDLINE', "key and cert must be used together")
+        raise CLIError('ECMDLINE', "key and cert must be used together %s %s" % (str(o.cert), str(o.key)))
     if o.access_id == None and o.access_secret != None or o.access_id != None and o.access_secret == None:
         raise CLIError('ECMDLINE', "secret and access-id must be used together")
     if o.noweb and o.nocert and o.noaccess:
@@ -160,12 +158,6 @@ Create/edit a nimbus user
         except:
             pass
 
-    # verify the id/secret length
-    if o.access_id != None:
-        if len(o.access_id) != 21:
-            raise CLIError('ECMDLINE', "secret and access_id must be used together")
-        if len(o.access_secret) != 42:
-            raise CLIError('ECMDLINE', "secret and access_id must be used together")
     if o.cert != None:
         if not os.path.isfile(o.cert):
             raise CLIError('ECMDLINE', "No such cert file %s" % (o.cert))
@@ -190,6 +182,7 @@ def add_gridmap(o):
                 "Failed to read config from '%s'. Has Nimbus been configured?"
                 % configpath)
     gmf = config.get('nimbussetup', 'gridmap')
+    gmf = os.path.join(nimbus_home, gmf)
 
     f = open(gmf, 'r+')
     for l in f.readlines():
@@ -241,12 +234,8 @@ def create_user(o, db):
 
         db.commit()
     except Exception, ex1:
-        global g_created_cert_files
-        if g_created_cert_files:
-            os.remove(o.cert)
-            os.remove(o.key)
         db.rollback()
-        #traceback.print_exc(file=sys.stdout)
+        traceback.print_exc(file=sys.stdout)
         raise ex1
 
 def do_web_bidnes(o):

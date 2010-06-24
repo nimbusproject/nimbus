@@ -20,7 +20,9 @@ import pycb.test_common
 from boto.s3.connection import OrdinaryCallingFormat
 from boto.s3.connection import S3Connection
 import random
-
+import nimbus_remove_user
+import nimbus_new_user
+import nimbus_list_users
 
 class TestUsers(unittest.TestCase):
 
@@ -102,8 +104,10 @@ class TestUsers(unittest.TestCase):
         s3id = str(uuid.uuid1())
         s3pw = str(uuid.uuid1())
         rc = nimbus_new_user.main(["-a", s3id, "-p", s3pw, "-b", "-r", "access_id,access_secret", "-O", outFileName, friendly_name])
+        self.assertEqual(rc, 0, "should be 0 %d" % (rc))
         needle = "%s,%s" % (s3id, s3pw)
-        rc = find_in_file(outFileName, needle)
+        print needle
+        rc = self.find_in_file(outFileName, needle)
         os.unlink(outFileName)
         self.assertTrue(rc)
 
@@ -120,7 +124,7 @@ class TestUsers(unittest.TestCase):
         s3pw = str(uuid.uuid1())
         rc = nimbus_new_user.main(["--noaccess", "-b", "-r", "access_id,access_secret", "-O", outFileName, friendly_name])
         needle = "None,None"
-        rc = find_in_file(outFileName, needle)
+        rc = self.find_in_file(outFileName, needle)
         os.unlink(outFileName)
         self.assertTrue(rc)
         
@@ -137,7 +141,7 @@ class TestUsers(unittest.TestCase):
         s3pw = str(uuid.uuid1())
         rc = nimbus_new_user.main(["--nocert", "-b", "-r", "cert,key,dn", "-O", outFileName, friendly_name])
         needle = "None,None,None" 
-        rc = find_in_file(outFileName, needle)
+        rc = self.find_in_file(outFileName, needle)
         os.unlink(outFileName)
         self.assertTrue(rc)
         
@@ -153,9 +157,11 @@ class TestUsers(unittest.TestCase):
         s3id = str(uuid.uuid1())
         s3pw = str(uuid.uuid1())
         rc = nimbus_new_user.main([friendly_name])
+        self.assertEqual(rc, 0, "should be 0 %d" % (rc))
         rc = nimbus_new_user.main(["-e", "-a", s3id, "-p", s3pw, "-b", "-r", "access_id,access_secret", "-O", outFileName, friendly_name])
+        self.assertEqual(rc, 0, "should be 0 %d" % (rc))
         needle = "%s,%s" % (s3id, s3pw)
-        rc = find_in_file(outFileName, needle)
+        rc = self.find_in_file(outFileName, needle)
         os.unlink(outFileName)
         self.assertTrue(rc)
         
@@ -178,13 +184,13 @@ class TestUsers(unittest.TestCase):
         (tmpFD, outFileName) = tempfile.mkstemp("cumulustests")
         os.close(tmpFD)
         rc = nimbus_list_users.main(["-b", "-r", "display_name", "-O", outFileName, friendly_name])
-        rc = find_in_file(outFileName, name1)
+        rc = self.find_in_file(outFileName, name1)
         self.assertTrue(rc)
 
-        rc = find_in_file(outFileName, name2)
+        rc = self.find_in_file(outFileName, name2)
         self.assertTrue(rc)
 
-        rc = find_in_file(outFileName, name3)
+        rc = self.find_in_file(outFileName, name3)
         self.assertTrue(rc)
 
         os.unlink(outFileName)
