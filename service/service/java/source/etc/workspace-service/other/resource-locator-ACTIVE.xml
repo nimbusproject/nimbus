@@ -21,6 +21,7 @@
 
         <constructor-arg ref="nimbus-rm.persistence.PersistenceAdapter" />
         <constructor-arg ref="nimbus-rm.loglevels" />
+        <constructor-arg ref="nimbus-rm.PathConfigs" />
 
         <!-- set after object creation time to avoid circular dep with home -->
         <property name="home" ref="nimbus-rm.home.instance" />

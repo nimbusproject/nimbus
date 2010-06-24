@@ -19,6 +19,7 @@ package org.globus.workspace.scheduler.defaults;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.globus.workspace.Lager;
+import org.globus.workspace.PathConfigs;
 import org.globus.workspace.ProgrammingError;
 import org.globus.workspace.persistence.WorkspaceDatabaseException;
 import org.globus.workspace.scheduler.*;
@@ -31,6 +32,13 @@ import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
 import org.nimbustools.api.services.rm.DoesNotExistException;
 import org.nimbustools.api.services.rm.ManageException;
 
+import java.io.IOException;
+import java.io.File;
+import java.io.ObjectOutputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.*;
 
 /**
@@ -58,6 +66,9 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
 
     private Hashtable backfillVMs = new Hashtable();
     private Set oldBackfillIDs = new HashSet();
+    private File backfillHashFile;
+
+    protected final PathConfigs pathConfigs;
 
 
     // -------------------------------------------------------------------------
@@ -65,7 +76,8 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
     // -------------------------------------------------------------------------
 
     public DefaultSlotManagement(PersistenceAdapter db,
-                                 Lager lager) {
+                                 Lager lager,
+                                 PathConfigs pathConfigs) {
 
         if (db == null) {
             throw new IllegalArgumentException("db may not be null");
@@ -76,6 +88,15 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
             throw new IllegalArgumentException("lager may not be null");
         }
         this.lager = lager;
+
+        if (pathConfigs == null) {
+            throw new IllegalArgumentException("pathConfigs may not be null");
+        }
+        this.pathConfigs = pathConfigs;
+        this.backfillHashFile = new File(
+                this.pathConfigs.getLocalTempDirPath() +
+                "/backfill.hashtable");
+        this.populateBackfillHashTable();
     }
 
     
@@ -142,6 +163,7 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
             }
             logger.debug("Added backfill node to the hashtable: " +
                          this.backfillVMs.toString());
+            this.writeBackfillHashTable();
         }
 
         return new Reservation(vmids, hostnames);
@@ -444,6 +466,7 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
             logger.debug("Removed backfill node from the hashtable: " +
                         this.backfillVMs.toString());
             this.oldBackfillIDs.add(vmid);
+            this.writeBackfillHashTable();
         } else {
             logger.debug("Failed to remove backfill node from the " +
                          "hashtable: " + Integer.toString(vmid));
@@ -657,5 +680,62 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
 
     public boolean isCurrentBackfillID(int vmid) {
         return this.backfillVMs.contains(vmid);
+    }
+
+    private void populateBackfillHashTable() {
+        try {
+            logger.debug("Attempting to read backfill hash table file:\n" +
+                         this.backfillHashFile.toString());
+            FileInputStream backfillFIS =
+                    new FileInputStream(this.backfillHashFile);
+            ObjectInputStream backfillOIS =
+                    new ObjectInputStream(backfillFIS);
+
+            this.backfillVMs = (Hashtable)backfillOIS.readObject();
+
+            logger.debug("For the backfill hash table file," +
+                         " we read:\n" + this.backfillVMs.toString());
+            backfillOIS.close();
+            backfillFIS.close();
+        } catch (FileNotFoundException e) {
+            logger.debug("Can't read a file that doesn't exist:\n" +
+                         this.backfillHashFile.toString());
+        } catch (Exception uE) {
+            logger.error("Caught unknown exception while attempting to " +
+                         "read the backfill hash table file: " +
+                         uE.getMessage());
+        }
+    }
+
+    private void writeBackfillHashTable() {
+        if (this.backfillHashFile.exists()) {
+            logger.debug("Backfill hash table file already exists");
+            logger.debug("Deleting existing backfill hash table file");
+            try {
+                this.backfillHashFile.delete();
+            } catch (Exception e) {
+                logger.error("There was a problem deleting the existing " +
+                             "backfill hash table file: " + e.getMessage());
+            }
+        }
+        logger.debug("Attempting to write backfill file:\n" +
+                this.backfillHashFile.toString());
+        try {
+            this.backfillHashFile.createNewFile();
+            FileOutputStream backfillFOS =
+                    new FileOutputStream(this.backfillHashFile);
+            ObjectOutputStream backfillOOS =
+                    new ObjectOutputStream(backfillFOS);
+            backfillOOS.writeObject(this.backfillVMs);
+            backfillOOS.close();
+            backfillFOS.close();
+            logger.debug("For the backfill hash table file, we wrote:\n" +
+                         this.backfillVMs.toString());
+        } catch (Exception cE) {
+            logger.error("There was a problem writing the backfill " +
+                         "hash table to the file: " + cE.getMessage());
+            logger.error("There may be extra backfill VMs present that " +
+                         "we are unable to manage.");
+        }
     }
 }
