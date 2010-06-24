@@ -14,5 +14,5 @@ PYTHONPATH="$NIMBUS_PYSRC:$NIMBUS_PYLIB:$PYTHONPATH"
 export PYTHONPATH
 
 source $NIMBUS_HOME/cumulus/env.sh
-$PYTHON_EXE $NIMBUS_HOME/sbin/nimbus_new_user.py -e $@
+$PYTHON_EXE $NIMBUS_HOME/sbin/nimbus_edit_user.py "$@"
 exit $?

@@ -106,8 +106,6 @@ Create/edit a nimbus user
     """
     (parser, all_opts) = pynimbusauthz.get_default_options(u)
 
-    opt = cbOpts("edit", "e", SUPPRESS_HELP, False, flag=True)
-    all_opts.append(opt)
     opt = cbOpts("dn", "s", "This is used when the user already has a cert.  This option will use the given DN instead of generating a new cert", None)
     all_opts.append(opt)
     opt = cbOpts("cert", "c", "Instead of generating a new key pair use this certificate.  This must be used with the --key option", None)
@@ -133,8 +131,6 @@ Create/edit a nimbus user
     opt = cbOpts("noaccess", "A", "Do not add access tokens", False, flag=True)
     all_opts.append(opt)
     opt = cbOpts("report", "r", "Report the selected columns from the following: " + pycb.tools.report_options_to_string(g_report_options), pycb.tools.report_options_to_string(g_report_options))
-    all_opts.append(opt)
-    opt = cbOpts("gencert", "G", "Generate a cert (only relevant when editting an existing user)", False, flag=True)
     all_opts.append(opt)
 
     (o, args) = pynimbusauthz.parse_args(parser, all_opts, argv)
@@ -261,38 +257,6 @@ def report_results(o, db):
  
     pycb.tools.print_report(o, o.report, o)
 
-def edit_user(o, db):
-    # create canonical user
-    user = User.get_user_by_friendly(db, o.emailaddr)
-    if user == None:
-        raise CLIError('EUSER', "The user does not exists: %s" % (o.emailaddr))
-    dnu = user.get_alias_by_friendly(o.emailaddr, pynimbusauthz.alias_type_x509)
-
-    s3u = user.get_alias_by_friendly(o.emailaddr, pynimbusauthz.alias_type_s3)
-    # if they want a new cert generated, do so
-    if o.gencert:
-        (o.cert, o.key) = generate_cert(o)
-    # if there is a cert, generate or pointed, get the dn from it
-    if o.cert != None:
-        o.dn = get_dn(o.cert)
-    # if there is a dn set it
-    if o.dn != None:
-        if dnu == None:
-            raise CLIError('EUSER', "There is x509 entry for: %s" % (o.emailaddr))
-        dnu.set_name(o.dn.strip())
-
-    if o.access_id != None:
-        if s3u == None:
-            raise CLIError('EUSER', "There is no s3 user for: %s" % (o.emailaddr))
-        dnu.set_name(o.access_id.strip())
-    if o.access_secret != None:
-        if s3u == None:
-            raise CLIError('EUSER', "There is no s3 user for: %s" % (o.emailaddr))
-        dnu.set_data(o.access_secret.strip())
-    db.commit()
-
-    # todo, reset options structure to report user
-
 def main(argv=sys.argv[1:]):
 
     try:
@@ -302,10 +266,7 @@ def main(argv=sys.argv[1:]):
         db = DB(con_str)
 
         o.emailaddr = args[0]
-        if o.edit:
-            edit_user(o, db)
-        else:
-            create_user(o, db)
+        create_user(o, db)
         report_results(o, db)
     except CLIError, clie:
         print clie

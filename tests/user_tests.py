@@ -23,6 +23,7 @@ import random
 import nimbus_remove_user
 import nimbus_new_user
 import nimbus_list_users
+import nimbus_edit_user
 
 class TestUsers(unittest.TestCase):
 
@@ -158,7 +159,7 @@ class TestUsers(unittest.TestCase):
         s3pw = str(uuid.uuid1())
         rc = nimbus_new_user.main([friendly_name])
         self.assertEqual(rc, 0, "should be 0 %d" % (rc))
-        rc = nimbus_new_user.main(["-e", "-a", s3id, "-p", s3pw, "-b", "-r", "access_id,access_secret", "-O", outFileName, friendly_name])
+        rc = nimbus_edit_user.main(["-b", "-a", s3id, "-p", s3pw, "-r", "access_id,access_secret", "-O", outFileName, friendly_name])
         self.assertEqual(rc, 0, "should be 0 %d" % (rc))
         needle = "%s,%s" % (s3id, s3pw)
         rc = self.find_in_file(outFileName, needle)
