@@ -183,7 +183,7 @@ class TestUsers(unittest.TestCase):
 
         (tmpFD, outFileName) = tempfile.mkstemp("cumulustests")
         os.close(tmpFD)
-        rc = nimbus_list_users.main(["-b", "-r", "display_name", "-O", outFileName, friendly_name])
+        rc = nimbus_list_users.main(["-b", "-r", "display_name", "-O", outFileName, '%'])
         rc = self.find_in_file(outFileName, name1)
         self.assertTrue(rc)
 
