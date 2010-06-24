@@ -24,6 +24,7 @@ from pynimbusauthz.user import *
 import logging
 import shlex
 from nimbusweb.setup.setuperrors import *
+from optparse import SUPPRESS_HELP
 
 g_created_cert_files=False
 g_report_options = ["cert", "key", "dn", "canonical_id", "access_id", "access_secret", "url", "web_id"]
@@ -262,7 +263,7 @@ def report_results(o, db):
     dnu = user.get_alias_by_friendly(o.emailaddr, pynimbusauthz.alias_type_x509)
     if dnu != None:
         o.dn = dnu.get_name()
-    o.canonical_id = user.get_name()
+    o.canonical_id = user.get_id()
 
     s3u = user.get_alias_by_friendly(o.emailaddr, pynimbusauthz.alias_type_s3)
     if s3u != None:
@@ -286,7 +287,7 @@ def edit_user(o, db):
     if o.cert != None:
         o.dn = get_dn(o.cert)
     # if there is a dn set it
-    if o.dn != None
+    if o.dn != None:
         if dnu == None:
             raise CLIError('EUSER', "There is x509 entry for: %s" % (o.emailaddr))
         dnu.set_name(o.dn.strip())

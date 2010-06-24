@@ -241,6 +241,13 @@ class User(object):
         return ua[0]
     get_user_by_friendly = staticmethod(get_user_by_friendly)
 
+    def find_user_by_friendly(db_obj, friendly_pattern):
+        s = "select id from users_canonical where friendly_name LIKE '%s'" % (friendly_pattern)
+        data = []
+        c = db_obj._run_fetch_iterator(s, data, _convert_user_row_to_User)
+        return c
+    find_user_by_friendly = staticmethod(find_user_by_friendly)
+
 
 class UserAlias(object):
 
