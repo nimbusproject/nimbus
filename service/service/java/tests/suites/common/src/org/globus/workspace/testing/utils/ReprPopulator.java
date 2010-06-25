@@ -58,14 +58,18 @@ public class ReprPopulator {
      * @throws Exception problem
      */
     public CreateRequest getCreateRequest(String name) throws Exception {
+        return getCreateRequest(name, 240, 64, 1);
+    }
+    
+    public CreateRequest getCreateRequest(String name, int durationSecs, int mem, int numNodes) throws Exception {
         final _CreateRequest req = this.repr._newCreateRequest();
 
-        populate(req, name, 64, 1);
+        populate(req, durationSecs, name, mem, numNodes);
 
         return req;
-    }
+    }    
 
-    private void populate(final _CreateRequest req, String name, int mem, int numNodes) throws URISyntaxException {
+    private void populate(final _CreateRequest req, int durationSeconds, String name, int mem, int numNodes) throws URISyntaxException {
         req.setName(name);
         
         final _NIC nic = this.repr._newNIC();
@@ -76,10 +80,10 @@ public class ReprPopulator {
         final _ResourceAllocation ra = this.repr._newResourceAllocation();
         req.setRequestedRA(ra);
         final _Schedule schedule = this.repr._newSchedule();
-        schedule.setDurationSeconds(240);
+        schedule.setDurationSeconds(durationSeconds);
         req.setRequestedSchedule(schedule);
         ra.setNodeNumber(numNodes);
-        ra.setMemory(64);
+        ra.setMemory(mem);
         req.setShutdownType(CreateRequest.SHUTDOWN_TYPE_TRASH);
         req.setInitialStateRequest(CreateRequest.INITIAL_STATE_RUNNING);
 
@@ -114,10 +118,10 @@ public class ReprPopulator {
         return this.repr._newCaller();
     }
 
-    public RequestSI getBasicRequestSI(String name, int numNodes, Double spotPrice, boolean persistent) throws Exception {
+    public RequestSI getBasicRequestSI(String name, int numNodes, Double spotPrice, boolean persistent, int durationSeconds) throws Exception {
         final _RequestSI reqSI = new DefaultRequestSI();
         
-        populate(reqSI, name, SIConstants.SI_TYPE_BASIC_MEM, numNodes);
+        populate(reqSI, durationSeconds, name, SIConstants.SI_TYPE_BASIC_MEM, numNodes);
         
         reqSI.setInstanceType(SIConstants.SI_TYPE_BASIC);
         reqSI.setSpotPrice(spotPrice);
@@ -125,4 +129,9 @@ public class ReprPopulator {
         
         return reqSI;
     }
+    
+    public RequestSI getBasicRequestSI(String name, int numNodes, Double spotPrice, boolean persistent) throws Exception {
+        
+        return getBasicRequestSI(name, numNodes, spotPrice, persistent, 240);
+    }    
 }
