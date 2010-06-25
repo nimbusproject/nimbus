@@ -58,6 +58,11 @@ public class NoResourcesSISuite extends NimbusTestBase {
     
     /**
      * Request a single spot instance from a single caller
+     *      * Check if spot price is higher than highest bid 
+     *      * Since there are no available resources, the
+     *        request is not allocated
+     * Cancel the request
+     * 
      * @throws Exception problem
      */
     @Test
@@ -76,7 +81,7 @@ public class NoResourcesSISuite extends NimbusTestBase {
         SpotRequest result = rm.requestSpotInstances(requestSI, caller);
 
         //Check result
-        assertEquals(SIRequestState.STATE_Open, result.getState().getState());
+        assertEquals(SIRequestState.STATE_Open, result.getState().getStateStr());
         assertEquals(bid, result.getSpotPrice());
         assertTrue(!result.isPersistent());
         
@@ -92,16 +97,21 @@ public class NoResourcesSISuite extends NimbusTestBase {
         //Cancel request
         SpotRequest[] cancelledReqs = rm.cancelSpotInstanceRequests(new String[]{result.getRequestID()}, caller);
         assertEquals(1, cancelledReqs.length);
-        assertEquals(SIRequestState.STATE_Cancelled, cancelledReqs[0].getState().getState());
+        assertEquals(SIRequestState.STATE_Cancelled, cancelledReqs[0].getState().getStateStr());
         assertEquals(result.getRequestID(), cancelledReqs[0].getRequestID());
         
         //Check if request was really cancelled
         SpotRequest request = rm.getSpotRequest(result.getRequestID(), caller);
-        assertEquals(SIRequestState.STATE_Cancelled, request.getState().getState());           
+        assertEquals(SIRequestState.STATE_Cancelled, request.getState().getStateStr());           
     }    
     
     /**
      * Request multiple spot instances from multiple callers
+     *      * Check if spot price is higher than highest bid 
+     *      * Since there are no available resources, the
+     *        requests are not allocated
+     * Cancel the request      
+     *      
      * @throws Exception problem
      */
     @Test
@@ -144,9 +154,9 @@ public class NoResourcesSISuite extends NimbusTestBase {
         SpotRequest[] cancelledReqs = rm.cancelSpotInstanceRequests(new String[]{result2.getRequestID()}, caller2);
         
         //Check if requests were really cancelled
-        assertEquals(SIRequestState.STATE_Cancelled, cancelledReqs[0].getState().getState());
+        assertEquals(SIRequestState.STATE_Cancelled, cancelledReqs[0].getState().getStateStr());
         spotRequestByCaller1 = rm.getSpotRequestByCaller(caller1);
-        assertEquals(SIRequestState.STATE_Cancelled, spotRequestByCaller1[0].getState().getState());
-        assertEquals(SIRequestState.STATE_Cancelled, spotRequestByCaller1[1].getState().getState());
+        assertEquals(SIRequestState.STATE_Cancelled, spotRequestByCaller1[0].getState().getStateStr());
+        assertEquals(SIRequestState.STATE_Cancelled, spotRequestByCaller1[1].getState().getStateStr());
     }
 }

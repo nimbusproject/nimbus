@@ -14,11 +14,11 @@
 
 # Examples:
 
-# 1G RAM, all networks supported
+# 512MB RAM, all networks supported
 vmm1 512
 
-# 2G RAM, all networks supported
+# 512MB RAM, all networks supported
 vmm2 512 *
 
-# 2G RAM, only the 'private1' and 'private2' associations are supported
-vmm3 256 private1,private2
+# 256MB RAM, only the 'public' and 'private1' associations are supported
+vmm3 256 *
