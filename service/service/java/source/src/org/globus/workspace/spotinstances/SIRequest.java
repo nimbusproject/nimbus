@@ -1,6 +1,8 @@
 package org.globus.workspace.spotinstances;
 
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 
@@ -8,6 +10,7 @@ import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.ctx.Context;
 import org.nimbustools.api.repr.vm.NIC;
+
 
 
 public class SIRequest implements Comparable<SIRequest>{
@@ -75,6 +78,10 @@ public class SIRequest implements Comparable<SIRequest>{
     public Integer getAllocatedInstances() {
         return allocatedVMs.size();
     }
+    
+    public Collection<Integer> getVMIds(){
+        return Collections.unmodifiableCollection(this.allocatedVMs);
+    }
 
     public void addCreatedVMs(int[] createdIds) {
         if(createdIds != null && createdIds.length > 0){
@@ -117,7 +124,14 @@ public class SIRequest implements Comparable<SIRequest>{
 
     @Override
     public int compareTo(SIRequest o) {
-        return getMaxBid().compareTo(o.getMaxBid());
+        int compareBid = getMaxBid().compareTo(o.getMaxBid());
+        
+        if(compareBid == 0){
+            //Older created requests have preference over newly created ones
+            return this.creationTime.compareTo(o.creationTime);
+        }
+        
+        return compareBid;
     }
 
     public Caller getCaller() {
@@ -181,7 +195,7 @@ public class SIRequest implements Comparable<SIRequest>{
     }
 
     private void changeStatus(Double spotPrice) {
-        if(this.allocatedVMs.isEmpty()){
+        if(spotPrice != null && this.allocatedVMs.isEmpty()){
             if(!this.persistent && (!needsMoreInstances() || spotPrice > this.maxBid)){
                 this.setStatus(SIRequestStatus.CLOSED);
             } else {
@@ -198,7 +212,7 @@ public class SIRequest implements Comparable<SIRequest>{
         VirtualMachine[] result = new VirtualMachine[quantity];
         int j = 0;
         
-        for (int i = 0; i < quantity; i++) {
+        for (int i = 0; i < bindings.length && j < quantity; i++) {
             VirtualMachine current = bindings[i];
             if(current.getID().equals(-1)){
                 result[j++] = current;
@@ -232,6 +246,9 @@ public class SIRequest implements Comparable<SIRequest>{
     }
 
     public void cancelRequest() {
+        for (Integer id : allocatedVMs) {
+            fulfillVM(id, null);
+        }
         this.setStatus(SIRequestStatus.CANCELLED);
     }    
 }

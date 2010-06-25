@@ -6,7 +6,7 @@ import java.util.List;
 
 public class SIRequestUtils {
 
-    public static Collection<SIRequest> getRequestsEqualPrice(
+    public static List<SIRequest> getRequestsEqualPrice(
             Double price, Collection<SIRequest> allRequests) {
         
         List<SIRequest> offersEqualPrice = new ArrayList<SIRequest>();
@@ -20,7 +20,7 @@ public class SIRequestUtils {
         return offersEqualPrice;
     }
 
-    public static Collection<SIRequest> getRequestsAbovePrice(Double price,
+    public static List<SIRequest> getRequestsAbovePrice(Double price,
             Collection<SIRequest> allRequests) {
 
         List<SIRequest> offersAbovePrice = new ArrayList<SIRequest>();
@@ -34,7 +34,7 @@ public class SIRequestUtils {
         return offersAbovePrice;          
     }
     
-    public static Collection<SIRequest> filterActiveRequestsBelowPrice(Double price,
+    public static List<SIRequest> filterActiveRequestsBelowPrice(Double price,
             Collection<SIRequest> allRequests) {
 
         List<SIRequest> activeRequestsBelowPrice = new ArrayList<SIRequest>();
@@ -48,7 +48,7 @@ public class SIRequestUtils {
         return activeRequestsBelowPrice;          
     }
 
-    public static Collection<SIRequest> filterActiveRequestsEqualPrice(
+    public static List<SIRequest> filterActiveRequestsEqualPrice(
             Double price, Collection<SIRequest> allRequests) {
         
         List<SIRequest> activeRequestsEqualPrice = new ArrayList<SIRequest>();
@@ -62,7 +62,7 @@ public class SIRequestUtils {
         return activeRequestsEqualPrice;
     }
     
-    public static Collection<SIRequest> filterOpenRequestsEqualPrice(
+    public static List<SIRequest> filterOpenRequestsEqualPrice(
             Double price, Collection<SIRequest> allRequests) {
         
         List<SIRequest> inactiveRequestsEqualPrice = new ArrayList<SIRequest>();
@@ -76,7 +76,7 @@ public class SIRequestUtils {
         return inactiveRequestsEqualPrice;
     }
 
-    public static Collection<SIRequest> filterAliveRequestsAbovePrice(
+    public static List<SIRequest> filterAliveRequestsAbovePrice(
             Double currentPrice, Collection<SIRequest> allRequests) {
         List<SIRequest> aliveRequestsAbovePrice = new ArrayList<SIRequest>();
         
@@ -89,7 +89,7 @@ public class SIRequestUtils {
         return aliveRequestsAbovePrice;
     }
 
-    public static Collection<SIRequest> filterAliveRequests(
+    public static List<SIRequest> filterAliveRequests(
             Collection<SIRequest> allRequests) {
         
         List<SIRequest> aliveRequests = new ArrayList<SIRequest>();
@@ -101,6 +101,20 @@ public class SIRequestUtils {
         }
         
         return aliveRequests;
+    }
+
+    public static List<SIRequest> filterHungryAliveRequestsEqualPrice(
+            Double price, Collection<SIRequest> allRequests) {
+        
+        List<SIRequest> hungryRequests = new ArrayList<SIRequest>();
+        
+        for (SIRequest siRequest : allRequests) {
+            if(siRequest.getMaxBid().equals(price) && siRequest.needsMoreInstances() && siRequest.getStatus().isAlive()){
+                hungryRequests.add(siRequest);
+            }
+        }
+        
+        return hungryRequests;
     }    
       
     
