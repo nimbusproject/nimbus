@@ -174,6 +174,11 @@ def edit_user(o, db):
         remove_gridmap(old_dn)
         add_gridmap(o)
         dnu.set_name(o.dn.strip())
+        groupauthz_dir = os.path.join(nh, "/services/etc/nimbus/workspace-service/group-authz/")
+
+        remove_member(groupauthz_dir, old_dn)
+        add_member(groupauthz_dir, o.dn)
+
 
     if o.access_id != None:
         if s3u == None:

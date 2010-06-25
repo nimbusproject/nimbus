@@ -1,9 +1,10 @@
 #! /bin/bash
 
 if ([ "X$1" == "X--help" ] || [ "X$1" == "X-h" ]); then
-    echo "cumulus-install.sh [<installation directory>]"
+    echo "cumulus-install.sh <installation directory> [<path to python>]"
     exit 0
 fi
+
 
 installdir=$1
 start_dir=`pwd`
@@ -11,34 +12,70 @@ source_dir=`dirname $0`
 cd $source_dir
 source_dir=`pwd`
 
-PYTHON=`which python2.5`
+# if no
+if [ "X$2" == "X" ]; then
+    PYTHON=`which python2.5`
 
-if [ "X$PYTHON" == "X" ]; then
-    echo "you must have python2.5 in your system path for installation"
+    if [ "X$PYTHON" == "X" ]; then
+        echo "you must have python2.5 in your system path for installation"
+        exit 1
+    fi
+
+    if [ -e $installdir ]; then
+        echo "----- WARNING -----"
+        echo "Target directory already exists"
+        bkup_dir="$installdir".`date +%s`
+        echo "moving existing directory to $bkup_dir"
+        mv $installdir $bkup_dir
+    fi 
+
+    echo "====================================="
+    echo "Making the python virtual env for cumulus"
+    echo "====================================="
+    $PYTHON $source_dir/virtualenv.py -p $PYTHON $installdir
+
+    if [ ! -e $HOME/.nimbus/ ]; then
+        mkdir $HOME/.nimbus/
+        if [ $? -ne 0 ]; then
+            echo "get-em failed"
+            exit 1
+        fi
+
+    fi
+    if [ -e $HOME/.nimbus/cumulus.ini ]; then 
+        echo "----- WARNING -----"
+        bkup=$HOME/.nimbus/cumulus.ini.`date +%s`
+        echo "$HOME/.nimbus/cumulus.ini exists, moving it to $bkup"
+        mv $HOME/.nimbus/cumulus.ini $bkup
+    fi
+
+    PYVE=$installdir/bin/python
+else
+    use_py=$2
+    echo "====================================="
+    echo "Using the provided python $use_py"
+    echo "====================================="
+
+    $use_py -c "import sys; sys.exit(sys.version_info < (2,5))"
+    if [ $? -ne 0 ]; then
+        echo "ERROR: Your system must have Python version 2.5 or later."
+        exit 1
+    fi
+
+    PYVE=$use_py
+fi
+
+cd $source_dir/deps
+if [ $? -ne 0 ]; then
+    echo "Could not change to the deps directory"
     exit 1
 fi
-
-if [ -e $installdir ]; then
-    echo "----- WARNING -----"
-    echo "Target directory already exists"
-    bkup_dir="$installdir".`date +%s`
-    echo "moving existing directory to $bkup_dir"
-    mv $installdir $bkup_dir
-fi 
-
-echo "====================================="
-echo "Making the python virtual env for cumulus"
-echo "====================================="
-$PYTHON $source_dir/virtualenv.py -p $PYTHON --no-site-packages $installdir
-
-if [ -e $HOME/.nimbus/cumulus.ini ]; then 
-    echo "----- WARNING -----"
-    bkup=$HOME/.nimbus/cumulus.ini.`date +%s`
-    echo "$HOME/.nimbus/cumulus.ini exists, moving it to $bkup"
-    mv $HOME/.nimbus/cumulus.ini $bkup
+pwd
+./get-em.sh
+if [ $? -ne 0 ]; then
+    echo "get-em failed"
+    exit 1
 fi
-
-PYVE=$installdir/bin/python
 
 echo "====================================="
 echo "Installing the dependencies"
@@ -62,14 +99,25 @@ echo "Installing the cumulus package"
 echo "====================================="
 cd $source_dir/cb
 $PYVE ./setup.py install 
-
+if [ $? -ne 0 ]; then
+    echo "setup.py"
+    exit 1
+fi
 
 echo "====================================="
 echo "Configuring the environment"
 echo "====================================="
 cd $source_dir/conf
 ./configure --prefix=$installdir
+if [ $? -ne 0 ]; then
+    echo "configure failed"
+    exit 1
+fi
 make install
+if [ $? -ne 0 ]; then
+    echo "make install failed"
+    exit 1
+fi
 
 echo "====================================="
 echo "Final copies"

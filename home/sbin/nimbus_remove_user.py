@@ -108,6 +108,11 @@ def delete_user(o):
         dn = dnu.get_name()
         remove_gridmap(dn)
 
+    groupauthz_dir = os.path.join(nh, "/services/etc/nimbus/workspace-service/group-authz/")
+    remove_member(groupauthz_dir, old_dn)
+
+
+
     user.destroy_brutally()
     
 

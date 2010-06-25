@@ -58,7 +58,7 @@ public class AuthzDecisionLogic extends DecisionLogic
             {
                 rc = this.translateCumulus(hostport, objectname);
             }
-            else if(scheme.equals("file"))
+            else
             {
                 rc = publicUrl;
             }
