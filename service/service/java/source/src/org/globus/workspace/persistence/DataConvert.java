@@ -18,8 +18,9 @@ package org.globus.workspace.persistence;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Calendar;
+import java.util.Collection;
 import java.util.Hashtable;
+import java.util.Iterator;
 
 import org.globus.workspace.WorkspaceConstants;
 import org.globus.workspace.accounting.ElapsedAndReservedMinutes;
@@ -45,7 +46,6 @@ import org.nimbustools.api.defaults.repr.si.DefaultSIRequestState;
 import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.CannotTranslateException;
 import org.nimbustools.api.repr.ReprFactory;
-import org.nimbustools.api.repr.RequestSI;
 import org.nimbustools.api.repr.SpotRequest;
 import org.nimbustools.api.repr.Usage;
 import org.nimbustools.api.repr.si.SIRequestState;
@@ -251,11 +251,23 @@ public class DataConvert implements WorkspaceConstants {
         result.setVMFiles(this.getStorage(bindings[0]));
         result.setResourceAllocation(this.getRA(bindings[0]));
         
+        result.setVMIds(getVMIDs(siRequest.getVMIds()));
+        
         _SIRequestState state = new DefaultSIRequestState();
         state.setState(this.getSIRequestState(siRequest.getStatus()));
         result.setState(state);
                 
         return result;
+    }
+
+
+    private String[] getVMIDs(Collection<Integer> vmIds) {
+        String[] ids = new String[vmIds.size()];
+        Iterator<Integer> iterator = vmIds.iterator();
+        for (int i = 0; i < vmIds.size(); i++) {
+            ids[i] = String.valueOf(iterator.next());
+        }
+        return ids;
     }    
     
     

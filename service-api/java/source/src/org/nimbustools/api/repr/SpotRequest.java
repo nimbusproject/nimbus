@@ -30,6 +30,7 @@ public interface SpotRequest {
     public boolean isPersistent();    
     public SIRequestState getState();
     public Calendar getCreationTime();
+    public String[] getVMIds();
     
     public VMFile[] getVMFiles();
     public String getSshKeyName();

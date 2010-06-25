@@ -42,6 +42,7 @@ public class DefaultSpotRequest implements _SpotRequest {
     private String mdUserData;
     private String sshKeyName;
     private Double spotPrice;
+    private String[] vmIds;
     
     // -------------------------------------------------------------------------
     // implements org.nimbustools.api.repr.RequestSIResult
@@ -103,6 +104,10 @@ public class DefaultSpotRequest implements _SpotRequest {
     public Double getSpotPrice() {
         return spotPrice;
     }    
+    
+    public String[] getVMIds() {
+        return this.vmIds;
+    }       
 
     // -------------------------------------------------------------------------
     // implements org.nimbustools.api._repr._RequestSIResult
@@ -139,6 +144,10 @@ public class DefaultSpotRequest implements _SpotRequest {
     public void setSpotPrice(Double spotPrice) {
         this.spotPrice = spotPrice;
     }
+    
+    public void setVMIds(String[] ids) {
+        this.vmIds = ids;
+    }    
 
     @Override
     public int hashCode() {
@@ -236,8 +245,7 @@ public class DefaultSpotRequest implements _SpotRequest {
                 + resourceAllocation + ", spotPrice=" + spotPrice
                 + ", sshKeyName=" + sshKeyName + ", state=" + state
                 + ", vmFiles=" + Arrays.toString(vmFiles) + "]";
-    }    
-    
+    } 
     
 }
 
