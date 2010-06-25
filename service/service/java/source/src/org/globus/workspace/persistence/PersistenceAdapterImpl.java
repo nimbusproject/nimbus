@@ -2408,15 +2408,56 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
     }
 
 
-    public Integer getTotalAvailableMemory() throws WorkspaceDatabaseException {
+    public Integer getTotalAvailableMemory(Integer multipleOf) throws WorkspaceDatabaseException {
         if (this.dbTrace) {
-            logger.trace("getTotalAvailableMemory()");
+            logger.trace("getTotalAvailableMemory(" + multipleOf + ")");
         }
+                
+        Integer total = 0;
         
-        Integer total = getTotalMemory(SQL_SELECT_TOTAL_AVAILABLE_MEMORY);
+        Connection c = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            c = getConnection();
+
+            pstmt = c.prepareStatement(SQL_SELECT_TOTAL_AVAILABLE_MEMORY);
+            pstmt.setInt(1, multipleOf);
+            rs = pstmt.executeQuery();
+            
+            if (rs == null) {
+                if (this.dbTrace) {
+                    logger.trace("getTotalMemory(): null result so " +
+                                 "total is 0 MB");
+                }
+                return 0;
+            }
+
+            if(rs.next()){
+                total = rs.getInt(1);
+            } 
+                        
+        } catch(SQLException e) {
+            logger.error("",e);
+            throw new WorkspaceDatabaseException(e);
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+                if (c != null) {
+                    returnConnection(c);
+                }
+            } catch (SQLException e) {
+                logger.error("SQLException in finally cleanup", e);
+            }
+        }        
         
         if (this.dbTrace) {
-            logger.trace("getTotalAvailableMemory(): total available memory = " + total);
+            logger.trace("getTotalAvailableMemory(" + multipleOf + "): total available memory = " + total);
         }
 
         return total;
@@ -2450,6 +2491,19 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
         }
 
         return total;
-    }    
+    }
+    
+    public Integer getUsedNonPreemptableMemory() throws WorkspaceDatabaseException {
+        if (this.dbTrace) {
+            logger.trace("getUsedNonPreemptableMemory()");
+        }
+        
+        Integer total = getTotalMemory(SQL_SELECT_USED_NON_PREEMPTABLE_MEMORY);
+        
+        if (this.dbTrace) {
+            logger.trace("getUsedNonPreemptableMemory(): used non pre-emptable memory = " + total);
+        }
 
+        return total;
+    }    
 }
