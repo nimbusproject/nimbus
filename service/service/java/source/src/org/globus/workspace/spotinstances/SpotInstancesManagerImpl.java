@@ -2,10 +2,13 @@ package org.globus.workspace.spotinstances;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -18,6 +21,7 @@ import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.si.SIConstants;
 import org.nimbustools.api.services.rm.DoesNotExistException;
 import org.nimbustools.api.services.rm.ManageException;
+
 
 public class SpotInstancesManagerImpl implements SpotInstancesManager {
 
@@ -51,7 +55,9 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
         this.availableResources = 0;
     }
     
+    // -------------------------------------------------------------------------
     // Implements org.globus.workspace.spotinstances.SpotInstancesHome
+    // -------------------------------------------------------------------------     
     
     public void addRequest(SIRequest request){
         allRequests.put(request.getId(), request);
@@ -66,7 +72,9 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
         logger.info(Lager.ev(-1) + "[Spot Instances] Cancelling request with id: " + reqID + ".");                
         SIRequest siRequest = getRequest(reqID, false);
         siRequest.cancelRequest();
-        changeAllocation(siRequest, 0);
+        if(siRequest.getStatus().isActive()){
+            preempt(siRequest, siRequest.getAllocatedInstances());
+        }
         return siRequest;
     }    
     
@@ -126,9 +134,21 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
         //TODO Put this call in a separate thread to avoid blocking
         //TODO Create timer schema to avoid multiple calls to this method in a small time frame
         reallocateRequests();
+        
+        if(availableResources == 0){
+            newPrice = pricingModel.getNextPrice(availableResources, getAliveRequests(), currentPrice);
+            if(!newPrice.equals(this.currentPrice)){
+                if (this.lager.eventLog) {
+                    logger.info(Lager.ev(-1) + "[Spot Instances] PRICE CHANGED. OLD PRICE = " + this.currentPrice + ". NEW PRICE = " + newPrice);
+                }
+                this.currentPrice = newPrice;
+            }
+        }
     }
 
-    // Allocation    
+    // -------------------------------------------------------------------------
+    // ALLOCATION
+    // ------------------------------------------------------------------------- 
 
     protected void reallocateRequests() {
 
@@ -148,7 +168,7 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
         
         Collection<SIRequest> inelegibleRequests = getLowerBidActiveRequests();
         for (SIRequest inelegibleRequest : inelegibleRequests) {
-            changeAllocation(inelegibleRequest, 0);
+            preempt(inelegibleRequest, inelegibleRequest.getAllocatedInstances());
         }
     }    
     
@@ -161,7 +181,9 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
         Collection<SIRequest> aliveRequests = getHigherBidAliveRequests();
         
         for (SIRequest aliveRequest : aliveRequests) {
-            changeAllocation(aliveRequest, aliveRequest.getNeededInstances());
+            if(aliveRequest.needsMoreInstances()){
+                allocate(aliveRequest, aliveRequest.getUnallocatedInstances());
+            }
         }
     }
 
@@ -175,97 +197,211 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
 
         Integer availableResources = this.availableResources - greaterBidResources;
 
-        Collection<SIRequest> activeRequests = getEqualBidActiveRequests();
+        List<SIRequest> activeRequests = getEqualBidActiveRequests();
 
-        LinkedList<SIRequest> partiallyAttendedReqs = new LinkedList<SIRequest>();
-
-        boolean hasLogged = false;
-        
-      //Tries to satisfy currently allocated requests (pre-empts allocated instances that exceeds capacity)
+        Integer allocatedVMs = 0;
         for (SIRequest activeRequest : activeRequests) {
-            Integer allocatedInstances = activeRequest.getAllocatedInstances();
-            if(availableResources >= allocatedInstances){
-                availableResources -= allocatedInstances;
-                if(activeRequest.needsMoreInstances()){
-                    partiallyAttendedReqs.add(activeRequest);
+            allocatedVMs += activeRequest.getAllocatedInstances();
+        }
+        
+        if(allocatedVMs <= availableResources){
+            availableResources -= allocatedVMs;
+        } else {
+            Integer needToPreempt = allocatedVMs - availableResources;
+            if (this.lager.eventLog) {
+                logger.info(Lager.ev(-1) + "[Spot Instances] No more resources for equal bid requests. Pre-empting " + needToPreempt + " VMs.");   
+            }
+            preemptProportionaly(activeRequests, needToPreempt, allocatedVMs);
+            return;
+        }
+
+        allocateEvenly(availableResources);
+    }
+
+    /**
+     * Allocates equal bid requests in a balanced manner.
+     * 
+     * This means allocating the same number of VMs to each request
+     * until all requests are satisfied, or there are no available
+     * resources to distribute.
+     * 
+     * @param availableResources the number of VMs available
+     *                           for allocation
+     */
+    private void allocateEvenly(Integer availableResources) {
+        List<SIRequest> hungryRequests = getEqualBidHungryRequests();
+        Collections.sort(hungryRequests, getAllocationComparator());
+        
+        Map<SIRequest, Integer> allocations = new HashMap<SIRequest, Integer>();
+        for (SIRequest hungryRequest : hungryRequests) {
+            allocations.put(hungryRequest, 0);
+        }
+        
+        while(availableResources > 0 && !hungryRequests.isEmpty()){
+            Integer vmsPerRequest = Math.max(availableResources/hungryRequests.size(), 1);
+            
+            Iterator<SIRequest> iterator = hungryRequests.iterator();
+            while(availableResources > 0 && iterator.hasNext()){
+                vmsPerRequest = Math.min(vmsPerRequest, availableResources);
+                
+                SIRequest siRequest = (SIRequest) iterator.next();
+                Integer vmsToAllocate = allocations.get(siRequest);
+                
+                Integer stillNeeded = siRequest.getNeededInstances() - vmsToAllocate;
+                if(stillNeeded <= vmsPerRequest){
+                    allocations.put(siRequest, vmsToAllocate+stillNeeded);
+                    availableResources -= stillNeeded;
+                    iterator.remove();
+                    continue;
                 }
-            } else {
-                if (!hasLogged && this.lager.eventLog) {
-                    logger.info(Lager.ev(-1) + "[Spot Instances] No more resources for equal bid requests. Pre-empting.");
-                    hasLogged = true;
-                }                
-                changeAllocation(activeRequest, availableResources);
-                availableResources = 0;
+                
+                allocations.put(siRequest, vmsToAllocate+vmsPerRequest);
+                availableResources -= vmsPerRequest;
+            }
+            
+            for (Entry<SIRequest, Integer> allocationEntry : allocations.entrySet()) {
+                SIRequest siRequest = allocationEntry.getKey();
+                allocate(siRequest, allocationEntry.getValue());
+            }            
+        }
+    } 
+    
+    /**
+     * Pre-empts equal bid requests more-or-less proportional 
+     * to the number of allocations that the request currently has.
+     * 
+     * NOTE: Each ACTIVE request must have at least one
+     * VM pre-empted in order to ensure the needed 
+     * quantity will be pre-empted.
+     * 
+     * Example:
+     * 
+     * Req A: 3 allocations (33.33%)
+     * Req B: 1 allocation (11.11%)
+     * Req C: 5 allocations (55.55%)
+     * 
+     * If 6 machines needs to be pre-empted, the pre-emptions will be:
+     * 
+     * Req A: 2 pre-emptions (33.33%)
+     * Req B: 1 pre-emption (11.11%)
+     * Req C: 3 pre-emptions (55.55%)
+     * 
+     * @param activeRequests ACTIVE requests with bid equal to the current spot price
+     * @param needToPreempt the number of VMs that needs to be pre-empted
+     * @param allocatedVMs the number of currently allocated VMs in <b>activeRequests</b>
+     */
+    private void preemptProportionaly(List<SIRequest> activeRequests, Integer needToPreempt, Integer allocatedVMs) {
+        
+        Collections.sort(activeRequests, getPreemptionComparator());
+        
+        Integer stillToPreempt = needToPreempt;
+        
+        Iterator<SIRequest> iterator = activeRequests.iterator();
+        while(iterator.hasNext() && stillToPreempt > 0){
+            SIRequest siRequest = iterator.next();
+            Double allocatedProportion = (double)siRequest.getAllocatedInstances()/allocatedVMs;
+            
+            //Minimum deserved pre-emption is 1
+            Integer deservedPreemption = Math.max((int)Math.round(allocatedProportion*needToPreempt), 1);
+            
+            Integer realPreemption = Math.min(deservedPreemption, stillToPreempt); 
+            preempt(siRequest, realPreemption);
+            stillToPreempt -= realPreemption;
+        }
+        
+        
+        //This may never happen. But just in case.
+        if(stillToPreempt > 0){
+            logger.error("Unable to pre-empt VMs proportionally. Still " + stillToPreempt + 
+                         " VMs to pre-empt. Pre-empting best-effort.");
+            
+            iterator = activeRequests.iterator();
+            while(iterator.hasNext() && stillToPreempt > 0){
+                SIRequest siRequest = iterator.next();
+                Integer allocatedInstances = siRequest.getAllocatedInstances();
+                if(allocatedInstances > 0){
+                    if(allocatedInstances > stillToPreempt){
+                        preempt(siRequest, stillToPreempt);
+                        stillToPreempt = 0;
+                    } else {
+                        preempt(siRequest, allocatedInstances);
+                        stillToPreempt -= allocatedInstances;                        
+                    }
+                }
             }
         }
+    }
 
-        //Tries to satisfy partially attended requests
-        Iterator<SIRequest> iterator = partiallyAttendedReqs.iterator();
-        while(availableResources > 0 && iterator.hasNext()){
-            SIRequest partialReq = iterator.next();
-            Integer unallocatedInstances = partialReq.getUnallocatedInstances();
+    private Comparator<SIRequest> getPreemptionComparator() {
+        return new Comparator<SIRequest>() {
 
-            Integer extraInstances = (unallocatedInstances < availableResources) ? unallocatedInstances : availableResources;
+            @Override
+            public int compare(SIRequest o1, SIRequest o2) {
+                
+                //Requests with more allocated instances come first
+                int compareTo = o2.getAllocatedInstances().compareTo(o1.getAllocatedInstances());
+                
+                if(compareTo == 0){
+                    //Newer requests come first
+                    compareTo = o2.getCreationTime().compareTo(o1.getCreationTime());
+                }
+                
+                return compareTo;
+            }
+        };
+    }
+    
+    private Comparator<SIRequest> getAllocationComparator() {
+        return new Comparator<SIRequest>() {
 
-            changeAllocation(partialReq, partialReq.getAllocatedInstances()+extraInstances);
-            availableResources -= extraInstances;            
-        }
-
-
-        //Remaining open equal-bid requests is best effort
-        Collection<SIRequest> openRequests = getEqualBidOpenRequests();
-        iterator = openRequests.iterator();
-        while(availableResources > 0 && iterator.hasNext()){
-            SIRequest openReq = iterator.next();
-
-            Integer requestedInstances = openReq.getNeededInstances();
-
-            Integer alocatedInstances = (requestedInstances < availableResources) ? requestedInstances : availableResources;
-
-            changeAllocation(openReq, alocatedInstances);
-            availableResources -= alocatedInstances;                
-        }
-
+            @Override
+            public int compare(SIRequest o1, SIRequest o2) {
+                
+                //Requests with less allocated instances come first
+                int compareTo = o1.getAllocatedInstances().compareTo(o2.getAllocatedInstances());
+                
+                if(compareTo == 0){
+                    //Older requests come first
+                    compareTo = o1.getCreationTime().compareTo(o2.getCreationTime());
+                }
+                
+                return compareTo;
+            }
+        };
     }    
 
-    protected void changeAllocation(SIRequest siRequest, Integer newAllocation) {
-
-        
+    protected void preempt(SIRequest siRequest, int quantity) {
         if (this.lager.eventLog) {
-            logger.info(Lager.ev(-1) + "[Spot Instances] CHANGING ALLOCATION - BEFORE: " + siRequest.toString());
-        } 
+            logger.info(Lager.ev(-1) + "[Spot Instances] Pre-empting " + quantity + " VMs for request: " + siRequest.getId());
+        }
         
-        Integer oldAllocation = siRequest.getAllocatedInstances();
-
-        Integer delta = newAllocation - oldAllocation;
-
-        if(delta > 0){
-            allocate(siRequest, delta);
-        } else if (delta < 0) {
-            preempt(siRequest, -delta);
-        }
-
-        if (this.lager.eventLog) {
-            logger.info(Lager.ev(-1) + "[Spot Instances] CHANGING ALLOCATION - AFTER: " + siRequest.toString());
-        }
-    }    
-
-    protected void preempt(SIRequest siRequest, int delta) {
+        SIRequestStatus oldStatus = siRequest.getStatus();        
+        
         int[] allocatedVMs = null;
         try {
-            allocatedVMs = siRequest.getAllocatedVMs(delta);
+            allocatedVMs = siRequest.getAllocatedVMs(quantity);
         } catch (SIRequestException e) {
             logger.fatal("[Spot Instances] " + e.getMessage(), e);
             return;
         }
         
-        //TODO: temporary, just for testing
+        //FIXME: temporary, just for testing
         for (int i = 0; i < allocatedVMs.length; i++) {
             siRequest.fulfillVM(allocatedVMs[i], this.currentPrice);
         }
+        
+        if (!oldStatus.equals(siRequest.getStatus()) && this.lager.eventLog) {
+            logger.info(Lager.ev(-1) + "[Spot Instances] Request '" + siRequest.getId() + "' changed status from " + oldStatus + " to " + siRequest.getStatus());
+        }           
     }
 
     protected void allocate(SIRequest siRequest, Integer quantity) {
+        if (this.lager.eventLog) {
+            logger.info(Lager.ev(-1) + "[Spot Instances] Allocating " + quantity + " VMs for request: " + siRequest.getId());
+        }
+        
+        SIRequestStatus oldStatus = siRequest.getStatus();
+        
         VirtualMachine[] unallocatedVMs = null;
         try {
             unallocatedVMs = siRequest.getUnallocatedVMs(quantity);
@@ -274,16 +410,22 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
             return;
         }
         
-        //TODO: temporary, just for testing
+        //FIXME: temporary, just for testing
         int[] fakeIDs = new int[quantity];
         for (int i = 0; i < quantity; i++) {
             fakeIDs[i] = (int)(Math.random()*10000);
             unallocatedVMs[i].setID(fakeIDs[i]);
         }
         siRequest.addCreatedVMs(fakeIDs);
+        
+        if (!oldStatus.equals(siRequest.getStatus()) && this.lager.eventLog) {
+            logger.info(Lager.ev(-1) + "[Spot Instances] Request " + siRequest.getId() + " changed status from " + oldStatus + " to " + siRequest.getStatus());
+        }        
     }
 
-    //Define available resources
+    // -------------------------------------------------------------------------
+    // DEFINE SPOT INSTANCES CAPACITY
+    // -------------------------------------------------------------------------        
     
     protected synchronized void calculateAvailableResources() {
         
@@ -294,11 +436,9 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
         Integer resourceQuantity = 0;
         
         try {
-            Integer availableMem = persistence.getTotalAvailableMemory();
-            Integer maxMem = persistence.getTotalMaxMemory();
+            Integer availableMem = persistence.getTotalAvailableMemory(INSTANCE_MEM);
             Integer usedPreemptableMem = persistence.getTotalPreemptableMemory();             
-           
-            Integer usedNonPreemptableMem = maxMem - availableMem - usedPreemptableMem;
+            Integer usedNonPreemptableMem = persistence.getUsedNonPreemptableMemory();
             
             //Formula derived from maximum_utilization =       usedNonPreemptable
             //                                           ---------------------------------
@@ -317,7 +457,7 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
             }
             
             if (this.lager.eventLog) {
-                logger.info(Lager.ev(-1) + "[Spot Instances] Maximum site memory: " + maxMem + "MB");
+                logger.info(Lager.ev(-1) + "[Spot Instances] REAL available site memory: " + persistence.getTotalAvailableMemory(1) + "MB");
                 logger.info(Lager.ev(-1) + "[Spot Instances] Available site memory: " + availableMem + "MB");                
                 logger.info(Lager.ev(-1) + "[Spot Instances] Used non pre-emptable memory: " + usedNonPreemptableMem + "MB");
                 logger.info(Lager.ev(-1) + "[Spot Instances] Reserved non pre-emptable memory: " + reservedNonPreempMem + "MB");
@@ -348,13 +488,51 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
         }
     }    
     
-    // Util
+    // -------------------------------------------------------------------------
+    // Implements org.globus.workspace.StateChangeInterested
+    // -------------------------------------------------------------------------    
+    
+    public void stateNotification(int vmid, int state) throws ManageException {
+        if(state == WorkspaceConstants.STATE_DESTROYING){
+            SIRequest siRequest = this.getSIRequest(vmid);
+            if(siRequest != null){
+                if (this.lager.eventLog) {
+                    logger.info(Lager.ev(-1) + "[Spot Instances] VM '" + vmid + "' from request '" + siRequest.getId() + "' finished. Changing price and reallocating requests.");
+                }                
+                siRequest.fulfillVM(vmid, this.currentPrice);
+                this.changePriceAndReallocateRequests();
+            } else {
+                if (this.lager.eventLog) {
+                    logger.info(Lager.ev(-1) + "[Spot Instances] A non-preemptable VM was destroyed. Recalculating available resources.");
+                }
+                this.calculateAvailableResources();
+            }
+        }
+    }    
+    
+    public void stateNotification(int[] vmids, int state) {
+        //assume just non-preemptable VM's are being notified here 
+        if(state == WorkspaceConstants.STATE_FIRST_LEGAL){
+            if (this.lager.eventLog) {
+                logger.info(Lager.ev(-1) + "[Spot Instances] " + vmids.length + " non-preemptable VMs created. Recalculating available resources.");
+            }            
+            this.calculateAvailableResources();
+        }
+    }
+    
+    // -------------------------------------------------------------------------
+    // UTILS
+    // -------------------------------------------------------------------------  
+    
+    private List<SIRequest> getEqualBidHungryRequests() {
+        return SIRequestUtils.filterHungryAliveRequestsEqualPrice(this.currentPrice, this.allRequests.values());
+    }
     
     protected Collection<SIRequest> getLowerBidActiveRequests() {
         return SIRequestUtils.filterActiveRequestsBelowPrice(this.currentPrice, this.allRequests.values());
     }
 
-    protected Collection<SIRequest> getEqualBidActiveRequests(){
+    protected List<SIRequest> getEqualBidActiveRequests(){
         return SIRequestUtils.filterActiveRequestsEqualPrice(this.currentPrice, this.allRequests.values());
     }
 
@@ -390,35 +568,13 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
         }
         
         return null;
-    }
-    
-    // Implements org.globus.workspace.StateChangeInterested
-
-    public void stateNotification(int vmid, int state) throws ManageException {
-        if(state == WorkspaceConstants.STATE_DESTROYING){
-            SIRequest siRequest = this.getSIRequest(vmid);
-            if(siRequest != null){
-                if (this.lager.eventLog) {
-                    logger.info(Lager.ev(-1) + "[Spot Instances] VM '" + vmid + "' from request '" + siRequest.getId() + "' finished. Changing price and reallocating requests.");
-                }                
-                siRequest.fulfillVM(vmid, this.currentPrice);
-                this.changePriceAndReallocateRequests();
-            } else {
-                if (this.lager.eventLog) {
-                    logger.info(Lager.ev(-1) + "[Spot Instances] A non-preemptable VM was destroyed. Recalculating available resources.");
-                }
-                this.calculateAvailableResources();
-            }
-        }
     }    
     
-    public void stateNotification(int[] vmids, int state) {
-        //assume just non-preemptable VM's are being notified here 
-        if(state == WorkspaceConstants.STATE_FIRST_LEGAL){
-            if (this.lager.eventLog) {
-                logger.info(Lager.ev(-1) + "[Spot Instances] " + vmids.length + " non-preemptable VMs created. Recalculating available resources.");
-            }            
-            this.calculateAvailableResources();
-        }
+    // -------------------------------------------------------------------------
+    // TEST UTILS
+    // -------------------------------------------------------------------------
+    
+    public Integer getAvailableResources() {
+        return availableResources;
     }
 }
