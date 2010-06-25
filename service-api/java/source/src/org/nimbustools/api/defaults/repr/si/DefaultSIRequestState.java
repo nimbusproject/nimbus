@@ -32,7 +32,7 @@ public class DefaultSIRequestState implements _SIRequestState {
     // implements org.nimbustools.api.repr.si.SIRequestState
     // -------------------------------------------------------------------------
 
-    public String getState() {
+    public String getStateStr() {
         return this.state;
     }
 

@@ -25,7 +25,7 @@ public interface SIRequestState {
     public static final String STATE_Cancelled = "Cancelled";
     public static final String STATE_Failed = "Failed";
     
-    public String getState();
+    public String getStateStr();
     public Throwable getProblem();    
 
 }
