@@ -159,7 +159,11 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
 
         if (req.getBackfillReq() == true) {
             for (int i=0; i < vmids.length; i++) {
-                this.backfillVMs.put(vmids[i], hostnames[i]);
+                Date start = new Date();
+                BackfillNode tmpNode = new BackfillNode(vmids[i],
+                                                        start,
+                                                        hostnames[i]);
+                this.backfillVMs.put(vmids[i], tmpNode);
             }
             logger.debug("Added backfill node to the hashtable: " +
                          this.backfillVMs.toString());
@@ -671,6 +675,27 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
             String vmidStr = e.nextElement().toString();
             int vmid = Integer.parseInt(vmidStr.trim());
             return vmid;
+        }
+    }
+
+    public int getMostRecentBackfillVMID() {
+        if (this.backfillVMs.isEmpty() == true) {
+            return -1;
+        } else {
+            int randomVMID = this.getBackfillVMID();
+            BackfillNode randomNode =
+                    (BackfillNode)this.backfillVMs.get(randomVMID);
+            Date mostRecentDate = randomNode.getStartDate();
+            int mostRecentVMID = randomNode.getVMID();
+            Enumeration e = this.backfillVMs.elements();
+            while (e.hasMoreElements()) {
+                BackfillNode tmpNode = (BackfillNode)e.nextElement();
+                if(mostRecentDate.compareTo(tmpNode.getStartDate()) < 0) {
+                    mostRecentDate = tmpNode.getStartDate();
+                    mostRecentVMID = tmpNode.getVMID();
+                }
+            }
+            return mostRecentVMID;
         }
     }
 

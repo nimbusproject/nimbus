@@ -66,6 +66,7 @@ public class Backfill {
     private String diskImage;
     private int memoryMB;
     private int durationSeconds;
+    private String terminationPolicy;
     private int retryPeriod;
     private String network;
     private File backfillReqFile;
@@ -124,6 +125,10 @@ public class Backfill {
         return this.durationSeconds;
     }
 
+    public String getTerminationPolicy() {
+        return this.terminationPolicy;
+    }
+
     public int getRetryPeriod() {
         return this.retryPeriod;
     }
@@ -158,6 +163,10 @@ public class Backfill {
 
     public void setDurationSeconds(int durationSeconds) {
         this.durationSeconds = durationSeconds;
+    }
+
+    public void setTerminationPolicy(String terminationPolicy) {
+        this.terminationPolicy = terminationPolicy;
     }
 
     public void setNetwork(String network) {
@@ -221,7 +230,15 @@ public class Backfill {
 
     public boolean terminateBackfillNode() {
 
-        int vmid = this.slotManager.getBackfillVMID();
+        int vmid;
+        if ((this.terminationPolicy.compareTo("ANY")) == 0) {
+            logger.debug("Backfill is using the ANY policy");
+            vmid = this.slotManager.getBackfillVMID();
+        } else {
+            logger.debug("Backfill is using the MOST_RECENT policy");
+            vmid = this.slotManager.getMostRecentBackfillVMID();
+        }
+
         String vmidStr = Integer.toString(vmid);
         logger.debug("Terminating backfill node with ID: " + vmidStr);
 

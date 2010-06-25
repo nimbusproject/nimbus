@@ -1637,6 +1637,11 @@ public class PilotSlotManagement implements SlotManagement,
         return tmp;
     }
 
+    public int getMostRecentBackfillVMID() {
+        int tmp=-1;
+        return tmp;
+    }
+
     public boolean isOldBackfillID(int vmid) {
         return false;
     }

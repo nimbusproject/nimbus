@@ -274,6 +274,8 @@
                   value="$BACKFILL{memory.MB}" />
         <property name="durationSeconds"
                   value="$BACKFILL{duration.seconds}" />
+        <property name="terminationPolicy"
+                  value="$BACKFILL{termination.policy}" />
         <property name="retryPeriod"
                   value="$BACKFILL{retry.period}" />
         <property name="network"
