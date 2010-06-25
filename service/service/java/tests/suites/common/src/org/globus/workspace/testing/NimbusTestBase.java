@@ -52,8 +52,10 @@ public abstract class NimbusTestBase extends AbstractTestNGSpringContextTests {
     // STATIC VARIABLES
     // -----------------------------------------------------------------------------------------
 
+    private static final String MODULE_LOCATOR_BEAN_NAME = "nimbus-brain.ModuleLocator";
     private static final String DATA_SOURCE_BEAN_NAME = "other.MainDataSource";
     private static final String TIMER_MANAGER_BEAN_NAME = "other.timerManager";
+    
     public static final String FORCE_SUITES_DIR_PATH = "nimbus.servicetestsuites.abspath";
     public static final String NO_TEARDOWN = "nimbus.servicetestsuites.noteardown";
     private static final String LOG_SEP =
@@ -102,7 +104,7 @@ public abstract class NimbusTestBase extends AbstractTestNGSpringContextTests {
         super.springTestContextBeforeTestMethod(testMethod);
         
         //Looked up before each test method in case @DirtiesContext was used in previous method
-        this.locator = (ModuleLocator) applicationContext.getBean("nimbus-brain.ModuleLocator");
+        this.locator = (ModuleLocator) applicationContext.getBean(MODULE_LOCATOR_BEAN_NAME);
     }
     
     @Override
@@ -459,17 +461,20 @@ public abstract class NimbusTestBase extends AbstractTestNGSpringContextTests {
         WorkspaceUtil.runCommand(cmd, true, true);
     }
 
-    private void shutdownDB() {
+    private void shutdownDB() throws Exception {
         logger.info("Shutting down DB..");
         BasicDataSource ds = (BasicDataSource) applicationContext.getBean(DATA_SOURCE_BEAN_NAME);
         ds.addConnectionProperty("shutdown", "true");
-        try{
-            //Calling twice to be sure that connection is going to be shutdown (calling once doesn't shutdown, probably a bug)
-            ds.getConnection();
-            ds.getConnection();
-        } catch (SQLException e){
-            logger.info("DB succesfully shutdown.");
-        }
         
+        for (int i = 0; i < 1000; i++) {
+            try{
+                ds.getConnection();
+            } catch (SQLException e){
+                logger.info("DB succesfully shutdown.");
+                return;
+            }
+        }
+
+        throw new Exception("Could not shutdown DB!");
     }
 }
