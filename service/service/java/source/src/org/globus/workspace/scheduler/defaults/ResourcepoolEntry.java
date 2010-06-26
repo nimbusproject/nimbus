@@ -19,6 +19,7 @@ package org.globus.workspace.scheduler.defaults;
 public class ResourcepoolEntry {
 
     private String resourcePool;
+
     private String hostname;
     private int memMax = -1; // in MBytes
     private int memCurrent = -1; // in MBytes
@@ -73,6 +74,14 @@ public class ResourcepoolEntry {
     
     public void addMemPreemptable(int add) {
         this.memPreemptable += add;
+    }    
+    
+    public String getResourcePool() {
+        return resourcePool;
+    }
+
+    public void setResourcePool(String resourcePool) {
+        this.resourcePool = resourcePool;
     }    
 
     public int percentEmpty() {
