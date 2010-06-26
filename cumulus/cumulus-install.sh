@@ -5,7 +5,6 @@ if ([ "X$1" == "X--help" ] || [ "X$1" == "X-h" ]); then
     exit 0
 fi
 
-
 installdir=$1
 start_dir=`pwd`
 source_dir=`dirname $0`
@@ -40,7 +39,6 @@ if [ "X$2" == "X" ]; then
             echo "get-em failed"
             exit 1
         fi
-
     fi
     if [ -e $HOME/.nimbus/cumulus.ini ]; then 
         echo "----- WARNING -----"
