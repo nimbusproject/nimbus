@@ -1,7 +1,6 @@
 #!/bin/bash
 
 FORCE_FRESH_INSTALL="yes"
-NIMBUS_ALLOW_ROOT_INSTALL="no"
 
 NIMBUS_SRC_REL="`dirname $0`/.."
 NIMBUS_SRC=`cd $NIMBUS_SRC_REL; pwd`
