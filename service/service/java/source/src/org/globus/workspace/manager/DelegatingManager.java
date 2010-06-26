@@ -32,6 +32,7 @@ import org.globus.workspace.service.WorkspaceGroupHome;
 import org.globus.workspace.service.WorkspaceHome;
 import org.globus.workspace.spotinstances.SIRequest;
 import org.globus.workspace.spotinstances.SpotInstancesHome;
+
 import org.nimbustools.api._repr._Caller;
 import org.nimbustools.api.repr.Advertised;
 import org.nimbustools.api.repr.Caller;
@@ -209,15 +210,29 @@ public class DelegatingManager implements Manager {
     // EVENTS CAUSED BY USER OPERATIONS - MUTATIVE
     // -------------------------------------------------------------------------
 
-    public CreateResult create(CreateRequest req, Caller caller)
+    public InstanceResource[] create(CreateRequest req, Caller caller)
            throws CoSchedulingException,
                   CreationException,
                   MetadataException,
                   ResourceRequestDeniedException,
                   SchedulingException {
         
-        return this.creation.create(req, caller);
-    }   
+        InstanceResource[] resources = this.creation.create(req, caller);
+        final _CreateResult result = this.repr._newCreateResult();        
+        if(resources.length > 0){
+            result.setCoscheduledID(resources[0].getEnsembleId());
+            result.setGroupID(resources[0].getGroupId());
+        }
+
+        try {
+            result.setVMs(getInstances(resources));
+        } catch (CannotTranslateException e) {
+            throw new MetadataException(e.getMessage(), e);
+        }
+        
+        
+        return result;
+    }
 
     public void setDestructionTime(String id, int type, Calendar time)
             throws DoesNotExistException, ManageException {

@@ -16,9 +16,6 @@
 
 package org.globus.workspace.creation.defaults;
 
-import java.text.DateFormat;
-import java.util.Calendar;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.globus.workspace.ErrorUtil;
@@ -50,13 +47,13 @@ import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.globus.workspace.service.binding.vm.VirtualMachineDeployment;
 import org.globus.workspace.spotinstances.SIRequest;
 import org.globus.workspace.spotinstances.SpotInstancesManager;
+
 import org.nimbustools.api._repr._Advertised;
 import org.nimbustools.api._repr._CreateResult;
 import org.nimbustools.api.repr.Advertised;
 import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.CannotTranslateException;
 import org.nimbustools.api.repr.CreateRequest;
-import org.nimbustools.api.repr.CreateResult;
 import org.nimbustools.api.repr.ReprFactory;
 import org.nimbustools.api.repr.RequestSI;
 import org.nimbustools.api.repr.SpotRequest;
@@ -72,7 +69,11 @@ import org.nimbustools.api.services.rm.ManageException;
 import org.nimbustools.api.services.rm.MetadataException;
 import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
 import org.nimbustools.api.services.rm.SchedulingException;
+
 import org.safehaus.uuid.UUIDGenerator;
+
+import java.util.Calendar;
+import java.text.DateFormat;
 
 import commonj.timers.TimerManager;
 
@@ -325,7 +326,7 @@ public class DefaultCreation implements Creation {
     }
 
 
-    public CreateResult create(CreateRequest req, Caller caller)
+    public InstanceResource[] create(CreateRequest req, Caller caller)
 
             throws CoSchedulingException,
                    CreationException,
@@ -390,7 +391,7 @@ public class DefaultCreation implements Creation {
     // CREATE I
     // -------------------------------------------------------------------------
 
-    protected CreateResult create1(VirtualMachine[] bindings,
+    protected InstanceResource[] create1(VirtualMachine[] bindings,
                                    NIC[] nics,
                                    Caller caller,
                                    Context context,
@@ -486,7 +487,7 @@ public class DefaultCreation implements Creation {
     // -------------------------------------------------------------------------
 
     // create #2 (wrapped, backOutAllocations required for failures)
-    protected CreateResult create2(VirtualMachine[] bindings,
+    protected InstanceResource[] create2(VirtualMachine[] bindings,
                                    Caller caller,
                                    Context context,
                                    String groupID,
@@ -631,7 +632,7 @@ public class DefaultCreation implements Creation {
     // -------------------------------------------------------------------------
 
     // create #3 (wrapped, scheduler notification required for failure)
-    protected CreateResult create3(Reservation res,
+    protected InstanceResource[] create3(Reservation res,
                                    VirtualMachine[] bindings,
                                    String callerID,
                                    Context context,
@@ -749,7 +750,7 @@ public class DefaultCreation implements Creation {
     // -------------------------------------------------------------------------
 
     // create #4 (wrapped, accounting destruction might be required for failure)
-    protected CreateResult create4(Reservation res,
+    protected InstanceResource[] create4(Reservation res,
                                    VirtualMachine[] bindings,
                                    String callerID,
                                    Context context,
@@ -799,17 +800,14 @@ public class DefaultCreation implements Creation {
                         "expecting ID assignments from reservation");
         }
 
-        final _CreateResult result = this.repr._newCreateResult();
-        result.setCoscheduledID(coschedID);
-        result.setGroupID(groupID);
-        final VM[] createdVMs = new VM[ids.length];
+        final InstanceResource[] createdResources = new InstanceResource[ids.length];
 
         int bailed = -1;
         Throwable failure = null;
         for (int i = 0; i < ids.length; i++) {
 
             try {
-                createdVMs[i] =
+                createdResources[i] =
                         this.createOne(i, ids, res, bindings[i],
                                        callerID, context, coschedID, groupID,
                                        startTime, termTime);
@@ -828,8 +826,6 @@ public class DefaultCreation implements Creation {
 
         } else {
 
-            result.setVMs(createdVMs);
-
             final boolean eventLog = this.lager.eventLog;
             final boolean debugLog = logger.isDebugEnabled();
 
@@ -844,7 +840,7 @@ public class DefaultCreation implements Creation {
             // go:
             this.schedulerCreatedNotification(ids, spotInstances);
 
-            return result;
+            return createdResources;
         }
     }
 
@@ -879,7 +875,7 @@ public class DefaultCreation implements Creation {
     // -------------------------------------------------------------------------
 
     // always throws an exception, return is to satisfy compiler
-    protected CreateResult failure(int[] ids, int bailed, Throwable failure)
+    protected InstanceResource[] failure(int[] ids, int bailed, Throwable failure)
             throws CreationException {
 
         if (ids == null) {
@@ -929,16 +925,16 @@ public class DefaultCreation implements Creation {
         throw new CreationException(err, failure);
     }
 
-    protected VM createOne(int idx,
-                           int[] ids,
-                           Reservation res,
-                           VirtualMachine vm,
-                           String callerID,
-                           Context context,
-                           String coschedID,
-                           String groupID,
-                           Calendar startTime,
-                           Calendar termTime)
+    protected InstanceResource createOne(int idx,
+                                         int[] ids,
+                                         Reservation res,
+                                         VirtualMachine vm,
+                                         String callerID,
+                                         Context context,
+                                         String coschedID,
+                                         String groupID,
+                                         Calendar startTime,
+                                         Calendar termTime)
 
             throws CreationException,
                    WorkspaceDatabaseException,
@@ -988,7 +984,7 @@ public class DefaultCreation implements Creation {
             }
         }
 
-        return this.dataConvert.getVM(resource);
+        return resource;
     }
 
     protected String addIPs(String bootstrapText, VirtualMachine vm)

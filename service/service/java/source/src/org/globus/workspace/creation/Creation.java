@@ -16,10 +16,10 @@
 
 package org.globus.workspace.creation;
 
-import org.nimbustools.api.repr.CreateResult;
-import org.nimbustools.api.repr.CreateRequest;
-import org.nimbustools.api.repr.Caller;
+import org.globus.workspace.service.InstanceResource;
 import org.nimbustools.api.repr.Advertised;
+import org.nimbustools.api.repr.Caller;
+import org.nimbustools.api.repr.CreateRequest;
 import org.nimbustools.api.repr.RequestSI;
 import org.nimbustools.api.repr.SpotRequest;
 import org.nimbustools.api.services.rm.CoSchedulingException;
@@ -30,7 +30,7 @@ import org.nimbustools.api.services.rm.SchedulingException;
 
 public interface Creation {
 
-    public CreateResult create(CreateRequest req, Caller caller)
+    public InstanceResource[] create(CreateRequest req, Caller caller)
            throws CoSchedulingException,
                   CreationException,
                   MetadataException,
