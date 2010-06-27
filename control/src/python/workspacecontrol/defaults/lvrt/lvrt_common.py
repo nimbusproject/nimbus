@@ -78,6 +78,18 @@ class Platform:
             raise UnexpectedError(shorterr)
             
         self.c.log.info("launched '%s'" % newvm.name())
+        
+    def print_create_spec(self, local_file_set, nic_set, kernel):
+        """If possible, print to stdout something that the platform adapter
+        produces for the underlying mechanism's creation call(s).
+        
+        This is used for testing and debugging.  This is not a requirement to
+        implement an IPlatform adapter, it could do nothing.
+        """
+        model = self._fill_model(local_file_set, nic_set, kernel)
+        xml = model.toXML()
+        print xml
+        
 
     def destroy(self, running_vm):
         """destroy shuts a VM down instantly"""
