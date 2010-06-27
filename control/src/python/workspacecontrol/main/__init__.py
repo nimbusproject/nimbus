@@ -30,7 +30,9 @@ class ACTIONS:
     UNPAUSE = "unpause"
     PROPAGATE = "propagate"
     UNPROPAGATE = "unpropagate"
-    ALL = [CREATE, REMOVE, INFO, REBOOT, PAUSE, UNPAUSE, PROPAGATE, UNPROPAGATE]
+    PRINTXML = "printxml"
+    ALL = [CREATE, REMOVE, INFO, REBOOT, PAUSE, UNPAUSE, 
+           PROPAGATE, UNPROPAGATE, PRINTXML]
 
 # -----------------------------------------------------------------------------
 # "DEPENDENCY INJECTION"

@@ -54,7 +54,7 @@ class ControlArg:
 ################################################################################
 
 ACTION = ControlArg("action", "-a", since="2.3", createarg=False)
-ACTION.help = "Action for the program to take: create, remove, info, reboot, pause, unpause, propagate, unpropagate"
+ACTION.help = "Action for the program to take: create, remove, info, reboot, pause, unpause, propagate, unpropagate, printxml"
 a.append(ACTION)
 
 CONF = ControlArg("conf", "-c", createarg=False, metavar="PATH")

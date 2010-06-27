@@ -198,6 +198,10 @@ class DefaultImageProcurement:
             if self._is_propagation_needed(l_files):
                 self._propagate(l_files)
                 
+        elif action in [ACTIONS.PRINTXML]:
+            
+            l_files = self._process_image_args()
+                
         elif action in [ACTIONS.UNPROPAGATE]:
             
             self._ensure_instance_dir()
@@ -454,7 +458,7 @@ class DefaultImageProcurement:
 
         self.c.log.debug("found %d valid partitions/HD images" % len(l_files))
         
-        if action != ACTIONS.CREATE:
+        if action != ACTIONS.CREATE and action != ACTIONS.PRINTXML:
             # only creation requires mountpoints which is checked below
             return l_files
             

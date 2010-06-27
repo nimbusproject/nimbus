@@ -279,16 +279,17 @@ class Platform:
             # this situation is undefined, could be under unit test
             # the actual user cmdline intake will require an action
             return
-            
-        if action == ACTIONS.CREATE:
-            self._validate_create_basics(dom)
-    
-        if action in [ACTIONS.CREATE, ACTIONS.REMOVE, ACTIONS.INFO, ACTIONS.REBOOT, ACTIONS.PAUSE, ACTIONS.UNPAUSE, ACTIONS.PROPAGATE, ACTIONS.UNPROPAGATE]:
+        
+        if action in [ACTIONS.CREATE, ACTIONS.REMOVE, ACTIONS.INFO, ACTIONS.REBOOT, ACTIONS.PAUSE, ACTIONS.UNPAUSE, ACTIONS.PROPAGATE, ACTIONS.UNPROPAGATE, ACTIONS.PRINTXML]:
             name = self.p.get_arg_or_none(wc_args.NAME)
             if not name:
                 raise InvalidInput("The %s action requires a name" % action)
         else:
             raise InvalidInput("Unknown action: '%s'" % action)
+            
+        if action == ACTIONS.CREATE or action == ACTIONS.PRINTXML:
+            self._validate_create_basics(dom)
+    
         
     def _validate_create_basics(self, dom):
         
