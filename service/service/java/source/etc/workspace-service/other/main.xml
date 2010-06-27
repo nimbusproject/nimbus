@@ -74,7 +74,7 @@
          =================================================================== -->
 
     <bean id="nimbus-rm.creation"
-          class="org.globus.workspace.creation.defaults.DefaultCreation">
+          class="org.globus.workspace.creation.defaults.CreationManagerImpl">
 
         <constructor-arg ref="nimbus-rm.LockManager" />
         <constructor-arg ref="nimbus-rm.BasicLegality" />

@@ -24,7 +24,7 @@ import org.globus.workspace.Lager;
 import org.globus.workspace.PathConfigs;
 import org.globus.workspace.accounting.AccountingReaderAdapter;
 import org.globus.workspace.accounting.ElapsedAndReservedMinutes;
-import org.globus.workspace.creation.Creation;
+import org.globus.workspace.creation.CreationManager;
 import org.globus.workspace.persistence.DataConvert;
 import org.globus.workspace.service.InstanceResource;
 import org.globus.workspace.service.WorkspaceCoschedHome;
@@ -84,7 +84,7 @@ public class DelegatingManager implements Manager {
     // INSTANCE VARIABLES
     // -------------------------------------------------------------------------
 
-    protected final Creation creation;
+    protected final CreationManager creation;
     protected final WorkspaceHome home;
     protected final WorkspaceGroupHome ghome;
     protected final WorkspaceCoschedHome cohome;
@@ -100,7 +100,7 @@ public class DelegatingManager implements Manager {
     // CONSTRUCTOR
     // -------------------------------------------------------------------------
 
-    public DelegatingManager(Creation creationImpl,
+    public DelegatingManager(CreationManager creationImpl,
                              PathConfigs pathConfigs,
                              WorkspaceHome instanceHome,
                              WorkspaceGroupHome groupHome,

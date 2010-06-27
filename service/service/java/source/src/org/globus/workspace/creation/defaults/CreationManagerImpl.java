@@ -25,7 +25,7 @@ import org.globus.workspace.ProgrammingError;
 import org.globus.workspace.WorkspaceConstants;
 import org.globus.workspace.WorkspaceUtil;
 import org.globus.workspace.accounting.AccountingEventAdapter;
-import org.globus.workspace.creation.Creation;
+import org.globus.workspace.creation.CreationManager;
 import org.globus.workspace.network.AssociationAdapter;
 import org.globus.workspace.persistence.DataConvert;
 import org.globus.workspace.persistence.PersistenceAdapter;
@@ -81,14 +81,14 @@ import commonj.timers.TimerManager;
  * Includes rollbacks (looking into dedicated transaction technology for the
  * future).
  */
-public class DefaultCreation implements Creation {
+public class CreationManagerImpl implements CreationManager {
 
     // -------------------------------------------------------------------------
     // STATIC VARIABLES
     // -------------------------------------------------------------------------
 
     private static final Log logger =
-            LogFactory.getLog(DefaultCreation.class.getName());
+            LogFactory.getLog(CreationManagerImpl.class.getName());
     
 
     // -------------------------------------------------------------------------
@@ -123,7 +123,7 @@ public class DefaultCreation implements Creation {
     // CONSTRUCTORS
     // -------------------------------------------------------------------------
 
-    public DefaultCreation(LockManager lockManagerImpl,
+    public CreationManagerImpl(LockManager lockManagerImpl,
                            BasicLegality legalsImpl,
                            BindingAdapter bindingImpl,
                            AssociationAdapter networkImpl,

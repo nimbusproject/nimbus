@@ -29,7 +29,7 @@ import org.nimbustools.api.services.rm.MetadataException;
 import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
 import org.nimbustools.api.services.rm.SchedulingException;
 
-public interface Creation {
+public interface CreationManager {
 
     public InstanceResource[] create(CreateRequest req, Caller caller)
            throws CoSchedulingException,
