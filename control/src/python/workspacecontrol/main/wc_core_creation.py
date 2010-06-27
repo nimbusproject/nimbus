@@ -28,7 +28,7 @@ def _create_local(vm_name, p, c, async, editing, images, kernels, localnet, netb
     
 def _common(local_file_set, vm_name, p, c, editing, kernels, localnet, netbootstrap, netlease, netsecurity, persistence, platform):
     """To understand _common(), it might make sense to go look at
-    "_common_withnetsecurity()" first and work backwards
+    "_common_withnetbootstrap()" first and work backwards
     """
     
     if c.trace:
