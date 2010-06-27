@@ -49,6 +49,7 @@ if [ "X$2" == "X" ]; then
         mv $HOME/.nimbus/cumulus.ini $bkup
     fi
 
+    PYVEDIR=$installdir
     PYVE=$installdir/bin/python
     PIP=$installdir/bin/pip
 else
@@ -57,6 +58,7 @@ else
     echo "Using the provided python $use_py"
     echo "====================================="
 
+    PYVEDIR=$use_py
     PYVE=$use_py/bin/python
     PIP=$use_py/bin/pip
     $PYVE -c "import sys; sys.exit(sys.version_info < (2,5))"
@@ -112,7 +114,7 @@ echo "====================================="
 echo "Configuring the environment"
 echo "====================================="
 cd $source_dir/conf
-./configure --prefix=$installdir
+./configure --prefix=$installdir  --with-ve=$PYVEDIR
 if [ $? -ne 0 ]; then
     echo "configure failed"
     exit 1

@@ -176,9 +176,11 @@ def edit_user(o, db):
         dnu.set_name(o.dn.strip())
         groupauthz_dir = os.path.join(nh, "/services/etc/nimbus/workspace-service/group-authz/")
 
-        remove_member(groupauthz_dir, old_dn)
-        add_member(groupauthz_dir, o.dn)
-
+        try:
+            remove_member(groupauthz_dir, old_dn)
+            add_member(groupauthz_dir, o.dn)
+        except Exception, ex:
+            print "WARNING %s" % (ex)
 
     if o.access_id != None:
         if s3u == None:

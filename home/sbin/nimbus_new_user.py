@@ -24,7 +24,7 @@ from pynimbusauthz.user import *
 import logging
 import shlex
 from nimbusweb.setup.setuperrors import *
-from nimbusweb.groupauthz import *
+from nimbusweb.setup.groupauthz import *
 from optparse import SUPPRESS_HELP
 
 g_report_options = ["cert", "key", "dn", "canonical_id", "access_id", "access_secret", "url", "web_id"]
@@ -121,7 +121,7 @@ Create/edit a nimbus user
     all_opts.append(opt)
     opt = cbOpts("dest", "d", "The directory to put all of the new files into.", None)
     all_opts.append(opt)
-    opt = cbOpts("group", "g", "Put this user in the given group", "01", values=("01", "02", "03", "04"))
+    opt = cbOpts("group", "g", "Put this user in the given group", "01", vals=("01", "02", "03", "04"))
     all_opts.append(opt)
     opt = cbOpts("web_id", "w", "Set the web user name.  If not set and a web user is desired a username will be created from the email address.", None)
     all_opts.append(opt)
@@ -244,9 +244,13 @@ def do_group_bidnes(o):
     if o.dn == None:
         return
     
-    nh = get_nimbus_home('NIMBUS_HOME')
+    nh = get_nimbus_home()
     groupauthz_dir = os.path.join(nh, "/services/etc/nimbus/workspace-service/group-authz/")
-    add_member(groupauthz_dir, o.dn)
+    try:
+        add_member(groupauthz_dir, o.dn)
+    except Exception, ex:
+        print "WARNING %s" % (ex)
+
 
 
 def report_results(o, db):

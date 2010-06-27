@@ -591,6 +591,7 @@ ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS
 LIBOBJS
+VEDIR
 HOSTNAME
 INSTALLDIR
 PYTHON
@@ -679,6 +680,7 @@ ac_subst_files=''
 ac_user_opts='
 enable_option_checking
 enable_dependency_tracking
+with_ve
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1306,6 +1308,11 @@ Optional Features:
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
   --disable-dependency-tracking  speeds up one-time build
   --enable-dependency-tracking   do not reject slow dependency extractors
+
+Optional Packages:
+  --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
+  --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
+  --with-ve               specify the virtual env directory. Default is prefix
 
 Some influential environment variables:
   CC          C compiler command
@@ -3944,9 +3951,21 @@ fi
 if test "$PYTHON" == no ; then
     as_fn_error "Cannot find python2.5." "$LINENO" 5
 fi
+
+
+# Check whether --with-ve was given.
+if test "${with_ve+set}" = set; then :
+  withval=$with_ve; with_ve=$withval
+else
+  with_ve=$prefix
+fi
+
+
+VEDIR=$with_ve
 # must verify cumulus and pynimbusauthz are installed
 HOSTNAME=`hostname`
 INSTALLDIR=$prefix
+
 
 
 

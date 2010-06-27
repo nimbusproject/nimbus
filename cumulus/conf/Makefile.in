@@ -109,6 +109,7 @@ SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 SQLITE = @SQLITE@
 STRIP = @STRIP@
+VEDIR = @VEDIR@
 VERSION = @VERSION@
 abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@
