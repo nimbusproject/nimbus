@@ -13,16 +13,46 @@
     -->
 
     <import resource="main.conflocator.xml" />
+    <!-- <import resource="authz-callout-groupauthz.xml" /> cannot quite inheirt :-( -->    
 
-     <bean id="nimbus-rm.service.binding.RepoAdaptor"
-         class="org.globus.workspace.DefaultRepoFileSystemAdaptorImpl">
+    <bean id="other.AuthzDataSource"
+         class="org.apache.commons.dbcp.BasicDataSource">
+       <property name="driverClassName" value="org.sqlite.JDBC" />
+       <property name="maxActive" value="10" />
+       <property name="maxIdle" value="4" />
+       <property name="maxWait" value="2000" />
+       <property name="poolPreparedStatements" value="true" />
+
+       <property name="url"
+                 value="jdbc:sqlite://$CUMULUS{cumulus.authz.db}" />
+       <property name="username" value="nimbus"/>
+       <property name="password" value="nimbus"/>
+   </bean>
+
+    <bean id="nimbus-rm.service.binding.Decider"
+         class="org.globus.workspace.sqlauthz.AuthzDecisionLogic">
+
+        <constructor-arg ref="other.AuthzDataSource" />
+
+        <property name="repoDir" value="$CUMULUS{cumulus.repo.dir}" />
+        <property name="repoHost" value="$SSH{service.sshd.contact.string}" />
+        <property name="repoScheme" value="scp://" />
      </bean>
-    
-    <bean id="nimbus-rm.service.binding.AuthorizationCallout"
-          class="org.globus.workspace.groupauthz.GroupAuthz"
-          init-method="initializeCallout">
 
-        <property name="def01"
+    <bean id="nimbus-rm.service.binding.RepoAdaptor"
+         class="org.globus.workspace.sqlauthz.CumulusRepoFileSystemAdaptor">
+
+        <constructor-arg ref="nimbus-rm.service.binding.Decider" />
+    </bean>      
+
+
+    <bean id="nimbus-rm.service.binding.AuthorizationCallout"
+            class="org.globus.workspace.sqlauthz.SqlAuthz"
+            init-method="validate">
+
+        <constructor-arg ref="nimbus-rm.service.binding.Decider" />
+
+       <property name="def01"
                   value="$COMMON{conf.dir}/group-authz/group01.properties" />
         <property name="group01"
                   value="$COMMON{conf.dir}/group-authz/group01.txt" />
@@ -97,6 +127,7 @@
         <property name="group15"
                   value="$COMMON{conf.dir}/group-authz/group15.txt" />
 
-    </bean>
+
+   </bean>
 
 </beans>

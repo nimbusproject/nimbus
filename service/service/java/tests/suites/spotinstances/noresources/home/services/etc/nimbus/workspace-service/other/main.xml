@@ -74,7 +74,7 @@
          =================================================================== -->
 
     <bean id="nimbus-rm.creation"
-          class="org.globus.workspace.creation.defaults.DefaultCreation">
+          class="org.globus.workspace.creation.defaults.CreationManagerImpl">
 
         <constructor-arg ref="nimbus-rm.LockManager" />
         <constructor-arg ref="nimbus-rm.BasicLegality" />
@@ -325,7 +325,9 @@
         <constructor-arg ref="nimbus-rm.loglevels" />
         <constructor-arg ref="nimbus-rm.persistence.DataConvert" />
         <constructor-arg ref="other.cacheManager" />
+        
         <property name="scheduler" ref="nimbus-rm.scheduler.Scheduler" />
+        <property name="repoAdaptor" ref="nimbus-rm.service.binding.RepoAdaptor" />
 
     </bean>
 
@@ -433,11 +435,11 @@
           class="org.globus.workspace.service.impls.site.PropagationAdapterImpl"
           init-method="validate">
 
+
         <!-- configs from *.conf files -->
         <property name="enabled" value="$REPO{propagation.enabled}" />
         <property name="notificationInfo" 
-                  value="$SSH{service.sshd.contact.string}" />
-
+                  value="$SSH{service.sshd.contact.string}" />        
         
         <!--
             pollScript is the path to the notifications program that the
@@ -463,7 +465,6 @@
         <constructor-arg ref="other.timerManager" />
         <constructor-arg ref="nimbus-rm.service.binding.GlobalPolicies" />
         <constructor-arg ref="nimbus-rm.loglevels" />
-
     </bean>
 
     
@@ -612,7 +613,8 @@
          =================================================================== -->
 
     <bean id="other.timerManager"
-          class="org.globus.workspace.scheduler.TimerManagerImpl" />
+          class="org.globus.workspace.scheduler.TimerManagerImpl" 
+          destroy-method="stop"/>
 
     <bean id="other.cacheManager"
           class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">

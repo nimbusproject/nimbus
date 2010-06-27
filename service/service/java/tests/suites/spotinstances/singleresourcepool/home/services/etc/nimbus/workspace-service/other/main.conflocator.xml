@@ -55,6 +55,15 @@
                   value="$REPO{" />
     </bean>
 
+    <bean id="cumulusSettings"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+
+        <property name="location"
+                  value="$NIMBUS_HOME/services/etc/nimbus/workspace-service/cumulus.conf" />
+        <property name="placeholderPrefix"
+                  value="$CUMULUS{" />
+    </bean>
+
     <bean id="accountingSettings"
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 
