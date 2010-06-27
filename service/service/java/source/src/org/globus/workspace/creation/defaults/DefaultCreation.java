@@ -49,18 +49,15 @@ import org.globus.workspace.spotinstances.SIRequest;
 import org.globus.workspace.spotinstances.SpotInstancesManager;
 
 import org.nimbustools.api._repr._Advertised;
-import org.nimbustools.api._repr._CreateResult;
 import org.nimbustools.api.repr.Advertised;
 import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.CannotTranslateException;
 import org.nimbustools.api.repr.CreateRequest;
 import org.nimbustools.api.repr.ReprFactory;
 import org.nimbustools.api.repr.RequestSI;
-import org.nimbustools.api.repr.SpotRequest;
 import org.nimbustools.api.repr.ctx.Context;
 import org.nimbustools.api.repr.vm.NIC;
 import org.nimbustools.api.repr.vm.ResourceAllocation;
-import org.nimbustools.api.repr.vm.VM;
 import org.nimbustools.api.services.rm.AuthorizationException;
 import org.nimbustools.api.services.rm.BasicLegality;
 import org.nimbustools.api.services.rm.CoSchedulingException;
@@ -276,7 +273,7 @@ public class DefaultCreation implements Creation {
     }
     
     @Override
-    public SpotRequest requestSpotInstances(RequestSI req, Caller caller) throws CreationException, MetadataException, ResourceRequestDeniedException, SchedulingException {
+    public SIRequest requestSpotInstances(RequestSI req, Caller caller) throws CreationException, MetadataException, ResourceRequestDeniedException, SchedulingException {
 
         
         if (caller == null) {
@@ -308,13 +305,9 @@ public class DefaultCreation implements Creation {
         final String siID = generateID();
         SIRequest siRequest = new SIRequest(siID, req.getSpotPrice(), req.isPersistent(), caller, groupID, bound, req.getContext(), req.getRequestedNics(), Calendar.getInstance());
         
-        siManager.addRequest(siRequest);
+        siManager.addRequest(siRequest); 
         
-        try {
-            return dataConvert.getSpotRequest(siRequest);
-        } catch (CannotTranslateException e) {
-            throw new CreationException("Could not translate request from internal representation to RM API representation.", e);
-        }        
+        return siRequest;
     }    
 
     /**

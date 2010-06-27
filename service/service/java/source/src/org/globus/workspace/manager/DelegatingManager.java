@@ -32,8 +32,8 @@ import org.globus.workspace.service.WorkspaceGroupHome;
 import org.globus.workspace.service.WorkspaceHome;
 import org.globus.workspace.spotinstances.SIRequest;
 import org.globus.workspace.spotinstances.SpotInstancesHome;
-
 import org.nimbustools.api._repr._Caller;
+import org.nimbustools.api._repr._CreateResult;
 import org.nimbustools.api.repr.Advertised;
 import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.CannotTranslateException;
@@ -210,7 +210,7 @@ public class DelegatingManager implements Manager {
     // EVENTS CAUSED BY USER OPERATIONS - MUTATIVE
     // -------------------------------------------------------------------------
 
-    public InstanceResource[] create(CreateRequest req, Caller caller)
+    public CreateResult create(CreateRequest req, Caller caller)
            throws CoSchedulingException,
                   CreationException,
                   MetadataException,
@@ -762,7 +762,13 @@ public class DelegatingManager implements Manager {
                    CreationException, MetadataException,
                    ResourceRequestDeniedException, SchedulingException {
 
-        return this.creation.requestSpotInstances(req, caller);
+        SIRequest siRequest = this.creation.requestSpotInstances(req, caller);
+        
+        try {
+            return dataConvert.getSpotRequest(siRequest);
+        } catch (CannotTranslateException e) {
+            throw new MetadataException("Could not translate request from internal representation to RM API representation.", e);
+        }
     }     
     
     public Double getSpotPrice() throws ManageException {
