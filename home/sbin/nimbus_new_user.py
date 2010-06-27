@@ -27,7 +27,6 @@ from nimbusweb.setup.setuperrors import *
 from nimbusweb.groupauthz import *
 from optparse import SUPPRESS_HELP
 
-
 g_report_options = ["cert", "key", "dn", "canonical_id", "access_id", "access_secret", "url", "web_id"]
 
 
@@ -271,7 +270,6 @@ def main(argv=sys.argv[1:]):
 
     try:
         (o, args, p) = setup_options(argv)
-
         con_str = pycb.config.authzdb
         db = DB(con_str)
 

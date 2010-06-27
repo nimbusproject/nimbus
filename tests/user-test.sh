@@ -1,8 +1,7 @@
 #!/bin/bash
 
-#PYTHON_EXE="/usr/bin/env python -Wignore::DeprecationWarning"
+PYTHON_EXE="/usr/bin/env python -Wignore::DeprecationWarning"
 
-PYTHON_EXE="$NIMBUS_HOME/ve/bin/python -Wignore::DeprecationWarning"
 NIMBUS_WEBDIR="$NIMBUS_HOME/web"
 
 NIMBUS_PYLIB="$NIMBUS_WEBDIR/lib/python"

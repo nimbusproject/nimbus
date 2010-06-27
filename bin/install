@@ -48,7 +48,7 @@ if [ ! -d $NIMBUS_HOME ]; then
     mkdir $NIMBUS_HOME
 fi
 
-PYTHON_EXE="/usr/bin/env python"
+PYTHON_EXE=`which python`
 # returns 0 if Python 2.5+
 $PYTHON_EXE -c "import sys; sys.exit(sys.version_info < (2,5))"
 if [ $? -ne 0 ]; then
@@ -59,8 +59,9 @@ fi
 echo "====================================="
 echo "Making the python virtual env"
 echo "====================================="
-pyve_path=$installdir/ve
-$PYTHON_EXE $source_dir/cumulus/virtualenv.py -p $PYTHON $pyve_path
+pyve_path=$NIMBUS_HOME/ve
+echo $NIMBUS_SRC
+$PYTHON_EXE $NIMBUS_SRC/cumulus/virtualenv.py -p $PYTHON_EXE $pyve_path
 if [ $? -ne 0 ]; then
     echo "ERROR: python virtualenv installation failed."
     exit 1

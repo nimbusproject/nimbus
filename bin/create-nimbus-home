@@ -72,8 +72,6 @@ if [ ! -d $NIMBUS_HOME ]; then
     fi
 fi
 
-sed 's^@@NIMBUS_HOME@@^$NIMBUS_HOME^' ${NIMBUS_SRC}/libexec/env.sh.in > $NIMBUS_HOME/libexec/env.sh
-
 echo "Installing cumulus..."
 ${NIMBUS_SRC}/cumulus/cumulus-install.sh $NIMBUS_HOME/cumulus $NIMBUS_HOME/ve
 if [ $? -ne 0 ]; then

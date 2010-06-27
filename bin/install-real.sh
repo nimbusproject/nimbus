@@ -35,7 +35,7 @@ echo "Creating Cumulus repository with the following commands:"
 echo ""
 
 REPOCMD1="$NIMBUS_HOME/bin/nimbusctl cumulus start"
-REPOCMD2="$NIMBUS_HOME/cumulus/bin/cumulus-create-repo-admin nimbusadmin@${CUMULUS_HOST} $CUMULUS_REPO_BUCKET"
+REPOCMD2="$NIMBUS_HOME/ve/bin/cumulus-create-repo-admin nimbusadmin@${CUMULUS_HOST} $CUMULUS_REPO_BUCKET"
 REPOCMD3="$NIMBUS_HOME/bin/nimbusctl cumulus stop"
 
 echo "    $REPOCMD1"
