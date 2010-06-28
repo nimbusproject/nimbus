@@ -48,6 +48,20 @@ if [ ! -d $NIMBUS_HOME ]; then
     mkdir $NIMBUS_HOME
 fi
 
+# If the dir exists but is not writable, this will also trip that situation early/gracefully.
+touch $NIMBUS_HOME/install.log
+if [ $? -ne 0 ]; then
+  echo "ERROR: cannot write install log file: $NIMBUS_HOME/install.log"
+  exit 1
+fi
+
+# The install log contains the initial cumulus admin secrets 
+chmod 600 $NIMBUS_HOME/install.log
+if [ $? -ne 0 ]; then
+  echo "ERROR: cannot chmod install log file: $NIMBUS_HOME/install.log"
+  exit 1
+fi
+
 PYTHON_EXE=`which python`
 # returns 0 if Python 2.5+
 $PYTHON_EXE -c "import sys; sys.exit(sys.version_info < (2,5))"
@@ -56,19 +70,21 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-echo "====================================="
-echo "Making the python virtual env"
-echo "====================================="
+echo "=====================================" | tee -a $NIMBUS_HOME/install.log
+echo "Making the Python virtual env" | tee -a $NIMBUS_HOME/install.log
+echo "=====================================" | tee -a $NIMBUS_HOME/install.log
+
 pyve_path=$NIMBUS_HOME/ve
-echo $NIMBUS_SRC
-$PYTHON_EXE $NIMBUS_SRC/cumulus/virtualenv.py -p $PYTHON_EXE $pyve_path
-if [ $? -ne 0 ]; then
+echo "Installing from $NIMBUS_SRC"
+
+$PYTHON_EXE $NIMBUS_SRC/cumulus/virtualenv.py -p $PYTHON_EXE $pyve_path | tee -a $NIMBUS_HOME/install.log
+if [ $PIPESTATUS -ne 0 ]; then
     echo "ERROR: python virtualenv installation failed."
     exit 1
 fi
 PYVE=$pyve/bin/python
 
-$NIMBUS_SRC/bin/create-nimbus-home $NIMBUS_HOME 2>&1 | tee $NIMBUS_HOME/install.log
+$NIMBUS_SRC/bin/create-nimbus-home $NIMBUS_HOME 2>&1 | tee -a $NIMBUS_HOME/install.log
 
 # need PIPESTATUS because tee is not the exit code this needs to check
 if [ $PIPESTATUS -ne 0 ]; then
