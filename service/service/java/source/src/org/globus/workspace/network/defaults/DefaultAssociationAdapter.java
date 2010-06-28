@@ -20,6 +20,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.globus.workspace.network.Association;
 import org.globus.workspace.network.AssociationAdapter;
+import org.globus.workspace.network.AssociationEntry;
 import org.globus.workspace.persistence.PersistenceAdapter;
 import org.globus.workspace.Lager;
 import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
@@ -27,10 +28,8 @@ import org.nimbustools.api.services.rm.ManageException;
 import org.springframework.core.io.Resource;
 
 import java.io.File;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Set;
-import java.util.List;
+import java.io.IOException;
+import java.util.*;
 
 public class DefaultAssociationAdapter implements AssociationAdapter {
 
@@ -63,6 +62,10 @@ public class DefaultAssociationAdapter implements AssociationAdapter {
     private Resource networksDir;
 
     private String macPrefix;
+    private String netSampleNetwork;
+    private Resource netSampleResource;
+    private Resource dhcpdEntriesResource;
+    private Resource ipMacResource;
 
     public DefaultAssociationAdapter(PersistenceAdapter db,
                                      Lager lagerImpl) {
@@ -130,65 +133,7 @@ public class DefaultAssociationAdapter implements AssociationAdapter {
     public void validate() throws Exception {
 
         if (this.macPrefix != null) {
-
-            if (this.macPrefix.length() > 17) {
-                throw new IllegalArgumentException("MAC prefix is too long, " +
-                        " it is " + this.macPrefix.length() +
-                        " characters, max is 17");
-            }
-
-            final char[] macChars = this.macPrefix.toCharArray();
-
-            for (int i = 0; i < macChars.length; i++) {
-                boolean thisOneOK = false;
-                boolean expectedSeparator = false;
-
-                if (i == 2 || i == 5 || i == 8 || i == 11 || i == 14) {
-                    if (':' == macChars[i]) {
-                        thisOneOK = true;
-                    }
-                    expectedSeparator = true;
-                } else {
-                    for (int j = 0; j < MacUtil.MAC_ARRAY.length; j++) {
-                        if (MacUtil.MAC_ARRAY[j] == macChars[i]) {
-                            thisOneOK = true;
-                            break;
-                        }
-                    }
-                }
-                if (!thisOneOK) {
-
-                    final String tail;
-                    if (expectedSeparator) {
-                        tail = " (expected separator ':')" ;
-                    } else {
-                        tail = " (expected hex character)" ;
-                    }
-
-                    throw new IllegalArgumentException("This character is in " +
-                            "the MAC prefix is NOT ok: '" +
-                            macChars[i] + "'" + tail);
-                }
-            }
-
-            if (macChars.length > 1) {
-                boolean ok = false;
-                switch (macChars[1]) {
-                    case '2': ok = true; break;
-                    case '6': ok = true; break;
-                    case 'A': ok = true; break;
-                    case 'E': ok = true; break;
-                }
-
-                if (!ok) {
-                    final String choice = "\n\nYou're seeing this message" +
-                            " because you chose '" + macChars[1] +
-                            "' as the second character in MAC prefix \"" +
-                            this.macPrefix + "\"\n";
-                    throw new IllegalArgumentException(MAC_MESSAGE + choice);
-                }
-            }
-
+            this.validateMacPrefix();
             logger.info("MAC prefix: \"" + this.macPrefix + "\"");
         }
 
@@ -246,6 +191,116 @@ public class DefaultAssociationAdapter implements AssociationAdapter {
                             " addresses.");
                 }
             }
+
+            // we write network info to various files (dhcpd entries, etc)
+            this.writeNetworkFiles(new_associations);
+        }
+    }
+
+    private void writeNetworkFiles(Map<String,Association> associations) {
+        if (this.netSampleResource != null) {
+            if (this.netSampleNetwork != null && this.netSampleNetwork.length() != 0) {
+                final Association assoc = associations.get(this.netSampleNetwork);
+                final List entries = assoc.getEntries();
+                if (entries == null || entries.isEmpty()) {
+                    logger.warn ("Not writing netsample file because network '" +
+                            this.netSampleNetwork + "' has no entries");
+                } else {
+                    final File netsampleFile;
+                    try {
+
+                        netsampleFile = this.netSampleResource.getFile();
+
+                        FileUtil.writeNetSample(netsampleFile,
+                                (AssociationEntry) entries.get(0),
+                            this.netSampleNetwork, assoc.getDns());
+
+                    } catch (IOException e) {
+                        logger.warn("Failed to write netsample file to "+
+                            this.netSampleResource.getFilename(), e);
+                    }
+                }
+            }
+        }
+
+        if (this.dhcpdEntriesResource != null) {
+            try {
+                final File dhcpdEntriesFile = this.dhcpdEntriesResource.getFile();
+                FileUtil.writeDhcpdEntries(dhcpdEntriesFile, associations);
+            } catch (IOException e) {
+                logger.warn("Failed to write dhcpd entries file to: "+
+                        this.dhcpdEntriesResource.getFilename(), e);
+            }
+        }
+
+        if (this.ipMacResource != null) {
+            try {
+                final File ipMacFile = this.ipMacResource.getFile();
+                FileUtil.writeIpMacPairs(ipMacFile, associations);
+            } catch (IOException e) {
+                logger.warn("Failed to write IP -> MAC pairs to file: " +
+                        this.ipMacResource.getFilename(), e);
+            }
+        }
+    }
+
+    private void validateMacPrefix() {
+        if (this.macPrefix.length() > 17) {
+            throw new IllegalArgumentException("MAC prefix is too long, " +
+                    " it is " + this.macPrefix.length() +
+                    " characters, max is 17");
+        }
+
+        final char[] macChars = this.macPrefix.toCharArray();
+
+        for (int i = 0; i < macChars.length; i++) {
+            boolean thisOneOK = false;
+            boolean expectedSeparator = false;
+
+            if (i == 2 || i == 5 || i == 8 || i == 11 || i == 14) {
+                if (':' == macChars[i]) {
+                    thisOneOK = true;
+                }
+                expectedSeparator = true;
+            } else {
+                for (int j = 0; j < MacUtil.MAC_ARRAY.length; j++) {
+                    if (MacUtil.MAC_ARRAY[j] == macChars[i]) {
+                        thisOneOK = true;
+                        break;
+                    }
+                }
+            }
+            if (!thisOneOK) {
+
+                final String tail;
+                if (expectedSeparator) {
+                    tail = " (expected separator ':')" ;
+                } else {
+                    tail = " (expected hex character)" ;
+                }
+
+                throw new IllegalArgumentException("This character is in " +
+                        "the MAC prefix is NOT ok: '" +
+                        macChars[i] + "'" + tail);
+            }
+        }
+
+        if (macChars.length > 1) {
+            boolean ok = false;
+            switch (macChars[1]) {
+                case '2': ok = true; break;
+                case '6': ok = true; break;
+                case 'A': ok = true; break;
+                case 'E': ok = true; break;
+            }
+
+            if (!ok) {
+                final String choice = "\n\nYou're seeing this message" +
+                        " because you chose '" + macChars[1] +
+                        "' as the second character in MAC prefix \"" +
+                        this.macPrefix + "\"\n";
+                throw new IllegalArgumentException(MAC_MESSAGE + choice);
+            }
         }
     }
 
@@ -269,4 +324,35 @@ public class DefaultAssociationAdapter implements AssociationAdapter {
         }
     }
 
+    public void setNetSampleResource(Resource netSampleResource) {
+        this.netSampleResource = netSampleResource;
+    }
+
+    public Resource getNetSampleResource() {
+        return netSampleResource;
+    }
+
+    public void setDhcpdEntriesResource(Resource dhcpdEntriesResource) {
+        this.dhcpdEntriesResource = dhcpdEntriesResource;
+    }
+
+    public Resource getDhcpdEntriesResource() {
+        return dhcpdEntriesResource;
+    }
+
+    public void setIpMacResource(Resource ipMacResource) {
+        this.ipMacResource = ipMacResource;
+    }
+
+    public Resource getIpMacResource() {
+        return ipMacResource;
+    }
+
+    public String getNetSampleNetwork() {
+        return netSampleNetwork;
+    }
+
+    public void setNetSampleNetwork(String netSampleNetwork) {
+        this.netSampleNetwork = netSampleNetwork;
+    }
 }

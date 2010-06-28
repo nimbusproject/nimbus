@@ -336,12 +336,11 @@ public class Util {
                         oldassoc.getDns() + " to " + assoc.getDns());
         }
 
-        final Iterator iter = assocEntries.iterator();
-        while (iter.hasNext()) {
-            final AssociationEntry entry = (AssociationEntry) iter.next();
+        for (Object assocEntry : assocEntries) {
+            final AssociationEntry entry = (AssociationEntry) assocEntry;
             final AssociationEntry oldentry =
-                                     getMatchingIpEntry(entry.getIpAddress(),
-                                                        oldassocEntries);
+                    getMatchingIpEntry(entry.getIpAddress(),
+                            oldassocEntries);
 
             if (oldentry == null) {
                 continue;
@@ -355,8 +354,8 @@ public class Util {
             entry.setInUse(oldentry.isInUse());
 
             if (entry.isInUse()) {
-                logger.debug("Network '" + assocName + "', ip " + 
-                             entry.getIpAddress() + " is currently in use.");
+                logger.debug("Network '" + assocName + "', ip " +
+                        entry.getIpAddress() + " is currently in use.");
             }
         }
         return assoc;
@@ -588,12 +587,11 @@ public class Util {
             return null;
         }
 
-        // for now we do not handle anything but the full syntax
-        // full syntax is actually 5 tokens, but we already got one above
-        // to check for comments
-        if (st.countTokens() != 4) {
-            logger.error("entry in network file does not have " +
-                    "five components, which is currently unsupported" +
+
+        final int tokens = st.countTokens();
+        if (tokens != 4 && tokens != 5) {
+            logger.error("entry in network file is invalid. Expecting either" +
+                    " five or six tokens (MAC optional)" +
                     " -- line = '" + line + "'");
             return null;
         }
@@ -623,9 +621,20 @@ public class Util {
             subnetmask = null;
         }
 
-        // mac is not set from network file
-        return new AssociationEntry(ipaddress, null, hostname,
-                                    gateway, broadcast, subnetmask);
+        // mac can be optionally supplied as final token
+        String mac = null;
+        if (tokens == 5) {
+            mac = st.nextToken().trim();
+            if (mac.equals(NOENTRY)) {
+                mac = null;
+            }
+        }
+
+        final AssociationEntry entry =
+                new AssociationEntry(ipaddress, mac, hostname,
+                gateway, broadcast, subnetmask);
+        entry.setExplicitMac(mac != null);
+        return entry;
 
     }
 

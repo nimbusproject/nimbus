@@ -67,9 +67,8 @@ public class MacUtil {
         while (els.hasMoreElements()) {
             final Association assoc = (Association) els.nextElement();
             final List entries = assoc.getEntries();
-            final Iterator iter = entries.iterator();
-            while (iter.hasNext()) {
-                _findMac((AssociationEntry)iter.next(), macs, checkInUseOnly);
+            for (Object entry : entries) {
+                _findMac((AssociationEntry) entry, macs, checkInUseOnly);
             }
         }
     }
@@ -111,9 +110,8 @@ public class MacUtil {
         while (els.hasMoreElements()) {
             final Association assoc = (Association) els.nextElement();
             final List entries = assoc.getEntries();
-            final Iterator iter = entries.iterator();
-            while (iter.hasNext()) {
-                _setMac((AssociationEntry)iter.next(), macPrefix, macs);
+            for (Object entry : entries) {
+                _setMac((AssociationEntry) entry, macPrefix, macs);
             }
         }
     }
@@ -132,6 +130,12 @@ public class MacUtil {
         final String previousMac = entry.getMac();
         boolean replacement = false;
         if (previousMac != null) {
+
+            if (entry.isExplicitMac()) {
+                return; // *** EARLY RETURN ***
+            }
+
+            
 
             if (previousMac.startsWith(macPrefix)) {
                 return; // *** EARLY RETURN ***
@@ -238,9 +242,8 @@ public class MacUtil {
     }
 
     private static boolean uniqueMacTest(List macs, String attempt) {
-        final Iterator iter = macs.iterator();
-        while (iter.hasNext()) {
-            final String mac = (String) iter.next();
+        for (Object mac1 : macs) {
+            final String mac = (String) mac1;
             if (attempt.equals(mac)) {
                 return false;
             }

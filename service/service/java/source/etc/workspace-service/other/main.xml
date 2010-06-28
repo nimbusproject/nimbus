@@ -267,6 +267,13 @@
         
         <property name="networksDir" value="$COMMON{conf.dir}/network-pools" />
         <property name="macPrefix" value="$NETWORK{mac.prefix}" />
+        <property name="netSampleNetwork" value="$NETWORK{netsample.network}" />
+        <property name="netSampleResource"
+                  value="$COMMON{persistence.dir}/control.netsample.txt" />
+        <property name="dhcpdEntriesResource"
+                  value="$COMMON{persistence.dir}/dhcpd.entries" />
+        <property name="ipMacResource"
+                  value="$COMMON{persistence.dir}/ip_macs.txt" />
 
     </bean>
 
