@@ -13,22 +13,25 @@ def create(vm_name, p, c, async, editing, images, kernels, localnet, netbootstra
         _propagate_then_create(vm_name, p, c, async, editing, images, kernels, localnet, netbootstrap, netlease, netsecurity, persistence, platform)
     else:
         _create_local(vm_name, p, c, async, editing, images, kernels, localnet, netbootstrap, netlease, netsecurity, persistence, platform)
+
+def printspec(vm_name, p, c, async, editing, images, kernels, localnet, netbootstrap, netlease, netsecurity, persistence, platform):
+    _create_local(vm_name, p, c, async, editing, images, kernels, localnet, netbootstrap, netlease, netsecurity, persistence, platform, justprint=True)
         
 # ----------------------------------------------------------------------------
 # _create_local()
 # ----------------------------------------------------------------------------
         
-def _create_local(vm_name, p, c, async, editing, images, kernels, localnet, netbootstrap, netlease, netsecurity, persistence, platform):
+def _create_local(vm_name, p, c, async, editing, images, kernels, localnet, netbootstrap, netlease, netsecurity, persistence, platform, justprint=False):
     
     c.log.debug("_create_local()")
     
     local_file_set = images.obtain()
     
-    _common(local_file_set, vm_name, p, c, editing, kernels, localnet, netbootstrap, netlease, netsecurity, persistence, platform)
+    _common(local_file_set, vm_name, p, c, editing, kernels, localnet, netbootstrap, netlease, netsecurity, persistence, platform, justprint=justprint)
     
-def _common(local_file_set, vm_name, p, c, editing, kernels, localnet, netbootstrap, netlease, netsecurity, persistence, platform):
+def _common(local_file_set, vm_name, p, c, editing, kernels, localnet, netbootstrap, netlease, netsecurity, persistence, platform, justprint=False):
     """To understand _common(), it might make sense to go look at
-    "_common_withnetsecurity()" first and work backwards
+    "_common_withnetbootstrap()" first and work backwards
     """
     
     if c.trace:
@@ -89,7 +92,7 @@ def _common(local_file_set, vm_name, p, c, editing, kernels, localnet, netbootst
         localnet.choose_vifnames(nic_set, vm_name)
         persistence.store_nic_set(vm_name, nic_set, ok_to_replace=True)
         
-        _common_withnics(nic_set, kernel, local_file_set, c, localnet, netbootstrap, netsecurity, platform)
+        _common_withnics(nic_set, kernel, local_file_set, c, localnet, netbootstrap, netsecurity, platform, justprint)
         
     except Exception,e:
         
@@ -102,7 +105,7 @@ def _common(local_file_set, vm_name, p, c, editing, kernels, localnet, netbootst
             c.log.exception(e2)
         raise e
     
-def _common_withnics(nic_set, kernel, local_file_set, c, localnet, netbootstrap, netsecurity, platform):
+def _common_withnics(nic_set, kernel, local_file_set, c, localnet, netbootstrap, netsecurity, platform, justprint):
     
     if c.trace:
         c.log.debug("_common_withnics()")
@@ -112,7 +115,7 @@ def _common_withnics(nic_set, kernel, local_file_set, c, localnet, netbootstrap,
     
     netbootstrap.setup(nic_set)
     try:
-        _common_withnetbootstrap(nic_set, kernel, local_file_set, c, netsecurity, platform)
+        _common_withnetbootstrap(nic_set, kernel, local_file_set, c, netsecurity, platform, justprint)
     except Exception,e:
         c.log.exception(e)
         try:
@@ -123,14 +126,17 @@ def _common_withnics(nic_set, kernel, local_file_set, c, localnet, netbootstrap,
             c.log.exception(e2)
         raise e
     
-def _common_withnetbootstrap(nic_set, kernel, local_file_set, c, netsecurity, platform):
+def _common_withnetbootstrap(nic_set, kernel, local_file_set, c, netsecurity, platform, justprint):
     
     if c.trace:
         c.log.debug("_common_withnetbootstrap()")
     
     netsecurity.setup(nic_set)
     try:
-        platform.create(local_file_set, nic_set, kernel)
+        if justprint:
+            platform.print_create_spec(local_file_set, nic_set, kernel)
+        else:
+            platform.create(local_file_set, nic_set, kernel)
     except Exception,e:
         c.log.exception(e)
         try:

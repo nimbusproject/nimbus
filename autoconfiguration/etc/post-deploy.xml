@@ -33,8 +33,6 @@
                perm="755"/>
         <chmod file="${base.share.dir}/autoconfig-adjustments.sh"
                perm="755"/>
-        <chmod file="${base.share.dir}/cloud-admin.sh"
-               perm="755"/>
     </target>
 
 </project>

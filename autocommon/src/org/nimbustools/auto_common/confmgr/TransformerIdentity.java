@@ -276,6 +276,8 @@ public class TransformerIdentity extends Transformer
      * @throws TransformerException If an unrecoverable error occurs
      * during the course of the transformation.
      */
+
+    @SuppressWarnings("deprecation")
     public void transform(Source source, Result outputTarget)
             throws TransformerException
     {
@@ -495,6 +497,7 @@ public class TransformerIdentity extends Transformer
      * up to the processor to provide the proper object coersion or to simply
      * pass the object on for use in an extension.
      */
+    @SuppressWarnings("unchecked")
     public void setParameter(String name, Object value)
     {
       if (value == null) {

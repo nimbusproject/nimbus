@@ -24,6 +24,7 @@ from pynimbusauthz.user import *
 import logging
 import shlex
 from nimbusweb.setup.setuperrors import *
+from nimbusweb.setup.groupauthz import *
 
 g_created_cert_files=False
 g_report_options = ["cert", "key", "dn", "canonical_id", "access_id", "access_secret", "url", "web_id"]
@@ -107,6 +108,13 @@ def delete_user(o):
     else:
         dn = dnu.get_name()
         remove_gridmap(dn)
+
+        nh = get_nimbus_home()
+        groupauthz_dir = os.path.join(nh, "/services/etc/nimbus/workspace-service/group-authz/")
+        try:
+            remove_member(groupauthz_dir, dn)
+        except Exception, ex:
+            print "WARNING %s" % (ex)
 
     user.destroy_brutally()
     

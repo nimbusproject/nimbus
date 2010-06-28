@@ -25,6 +25,7 @@ import org.globus.wsrf.utils.FaultHelper;
 import java.util.List;
 import java.util.LinkedList;
 
+@SuppressWarnings("unchecked")
 public class CommonUtil {
 
     private static final Log logger =

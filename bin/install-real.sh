@@ -35,7 +35,7 @@ echo "Creating Cumulus repository with the following commands:"
 echo ""
 
 REPOCMD1="$NIMBUS_HOME/bin/nimbusctl cumulus start"
-REPOCMD2="$NIMBUS_HOME/cumulus/bin/cumulus-create-repo-admin nimbusadmin@${CUMULUS_HOST} $CUMULUS_REPO_BUCKET"
+REPOCMD2="$NIMBUS_HOME/ve/bin/cumulus-create-repo-admin nimbusadmin@${CUMULUS_HOST} $CUMULUS_REPO_BUCKET"
 REPOCMD3="$NIMBUS_HOME/bin/nimbusctl cumulus stop"
 
 echo "    $REPOCMD1"
@@ -70,9 +70,6 @@ echo "However, additional configuration may be necessary:"
 echo ""
 echo "    To run the auto-configuration program, launch:"
 echo "        $NIMBUS_HOME/services/share/nimbus-autoconfig/autoconfig.sh"
-echo ""
-echo "    To run the cloud configuration admin helper, launch:"
-echo "        $NIMBUS_HOME/services/share/nimbus-autoconfig/cloud-admin.sh"
 echo ""
 
 echo "Refer to the Administrator Guide for details:"

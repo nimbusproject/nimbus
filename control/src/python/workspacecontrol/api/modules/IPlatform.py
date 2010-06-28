@@ -37,3 +37,11 @@ class IPlatform(workspacecontrol.api.IWCModule):
         
         Return instance of RunningVM or None if the handle was not found.
         """
+
+    def print_create_spec(local_file_set, nic_set, kernel):
+        """If possible, print to stdout something that the platform adapter
+        produces for the underlying mechanism's creation call(s).
+        
+        This is used for testing and debugging.  This is not a requirement to
+        implement an IPlatform adapter, it could do nothing.
+        """

@@ -166,6 +166,13 @@ def _core(vm_name, action, p, c):
         
         wc_core_creation.create(vm_name, p, c, async, editing, images, kernels, localnet, netbootstrap, netlease, netsecurity, persistence, platform)
         
+    elif action == ACTIONS.PRINTXML:
+        
+        if running_vm:
+            c.log.warn("Received printxml request for VM with name '%s' but that was found running." % vm_name)
+            
+        wc_core_creation.printspec(vm_name, p, c, async, editing, images, kernels, localnet, netbootstrap, netlease, netsecurity, persistence, platform)
+        
     elif action == ACTIONS.REMOVE:
         
         deleteall = p.get_arg_or_none(wc_args.DELETE_ALL)
@@ -257,7 +264,7 @@ def _core(vm_name, action, p, c):
             raise UnexpectedError("Received unpropagation request for VM with name '%s' but that was found running." % vm_name)
         
         wc_core_propagation.unpropagate(vm_name, c, async, images, editing)
-    
+
     else:
         raise ProgrammingError("unhandled action %s" % action)
 

@@ -91,10 +91,10 @@ if web_enabled:
 
 CUMULUS_HOME = os.getenv("CUMULUS_HOME")
 if CUMULUS_HOME == None:
-    CUMULUS_HOME = NIMBUS_HOME + "/cumulus"
+    CUMULUS_HOME = NIMBUS_HOME + "/ve"
 
 if cumulus_enabled:
-    CUMULUS_SERVICE_EXE = os.path.join(NIMBUS_HOME, "cumulus/bin/cumulus")
+    CUMULUS_SERVICE_EXE = os.path.join(NIMBUS_HOME, "ve/bin/cumulus")
     if not os.path.exists(CUMULUS_SERVICE_EXE):
         sys.exit("The services executable does not exist: " + 
                 CUMULUS_SERVICE_EXE)

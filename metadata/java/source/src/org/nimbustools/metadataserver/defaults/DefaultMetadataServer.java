@@ -38,6 +38,7 @@ import net.sf.ehcache.Element;
 /**
  * See: http://docs.amazonwebservices.com/AWSEC2/2008-08-08/DeveloperGuide/index.html?AESDG-chapter-instancedata.html
  */
+@SuppressWarnings("unchecked")
 public class DefaultMetadataServer implements MetadataServer {
 
     // -------------------------------------------------------------------------

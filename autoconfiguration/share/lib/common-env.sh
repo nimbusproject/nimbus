@@ -43,7 +43,7 @@ export NIMWIZ_SCP_BATCH_OPTIONS
 NIMWIZ_NO_NETWORK_CONFIGS="(( not configuring ))"
 export NIMWIZ_NO_NETWORK_CONFIGS
 
-WORKSPACE_CONTROL_DOC_LINK="http://www.nimbusproject.org/docs/2.4/admin/quickstart.html#part-III"
+WORKSPACE_CONTROL_DOC_LINK="http://www.nimbusproject.org/docs/current/admin/"
 export WORKSPACE_CONTROL_DOC_LINK
 
 CONTROL_EXE="/opt/nimbus/bin/workspace-control.sh"
@@ -120,38 +120,6 @@ export NEW_NET_NAME
 
 EXE_ALTER_FAKEMODE="org.nimbustools.auto_config.confmgr.AlterFakeMode"
 export EXE_ALTER_FAKEMODE
-
-# for cloud-admin
-
-CLOUDADMIN_DECISIONS_FILE="$NIMBUS_WIZARD_RUNDIR/cloud-decisions.sh"
-export CLOUDADMIN_DECISIONS_FILE
-
-EXE_GET_OTHERCONF_DIR="org.nimbustools.auto_config.confmgr.GetOtherConfDirectory"
-export EXE_GET_OTHERCONF_DIR
-
-ACTIVEAUTHZ_TARGET_CONF_FILE="authz-callout-ACTIVE.xml"
-export ACTIVEAUTHZ_TARGET_CONF_FILE
-
-GROUPAUTHZ_CONF_FILE="authz-callout-groupauthz.xml"
-export GROUPAUTHZ_CONF_FILE
-
-DISABLEDAUTHZ_CONF_FILE="authz-callout-disabled.xml"
-export DISABLEDAUTHZ_CONF_FILE
-
-SQLGROUPAUTHZ_CONF_FILE="authz-callout-sql.xml"
-export SQLGROUPAUTHZ_CONF_FILE
-
-EXE_GROUPAUTHZ_HARNESS="org.nimbustools.auto_config.groupauthz.harness.Main"
-export EXE_GROUPAUTHZ_HARNESS
-
-EXE_GRIDMAP_ADD="org.nimbustools.auto_config.GridMapAdd"
-export EXE_GRIDMAP_ADD
-
-EXE_GRIDMAP_DEL="org.nimbustools.auto_config.GridMapDel"
-export EXE_GRIDMAP_DEL
-
-EXE_QUERY_ADD="org.nimbustools.auto_config.QueryUserAdd"
-export EXE_QUERY_ADD
 
 NIMWIZ_ENVIRONMENT_DEFINED="X"
 export NIMWIZ_ENVIRONMENT_DEFINED
