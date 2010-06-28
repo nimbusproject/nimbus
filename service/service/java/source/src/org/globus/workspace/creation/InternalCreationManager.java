@@ -17,32 +17,29 @@
 package org.globus.workspace.creation;
 
 import org.globus.workspace.service.InstanceResource;
-import org.globus.workspace.spotinstances.SIRequest;
-
-import org.nimbustools.api.repr.Advertised;
+import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.nimbustools.api.repr.Caller;
-import org.nimbustools.api.repr.CreateRequest;
-import org.nimbustools.api.repr.RequestSI;
+import org.nimbustools.api.repr.ctx.Context;
+import org.nimbustools.api.repr.vm.NIC;
 import org.nimbustools.api.services.rm.CoSchedulingException;
 import org.nimbustools.api.services.rm.CreationException;
 import org.nimbustools.api.services.rm.MetadataException;
 import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
 import org.nimbustools.api.services.rm.SchedulingException;
 
-public interface CreationManager {
+public interface InternalCreationManager {
 
-    public InstanceResource[] create(CreateRequest req, Caller caller)
-           throws CoSchedulingException,
-                  CreationException,
-                  MetadataException,
-                  ResourceRequestDeniedException,
-                  SchedulingException;
-    
-    public SIRequest requestSpotInstances(RequestSI req, Caller caller)
-                  throws CreationException,
-                  MetadataException,
-                  ResourceRequestDeniedException,
-                  SchedulingException;
+    public InstanceResource[] createVMs(VirtualMachine[] bindings,
+                                        NIC[] nics,
+                                        Caller caller,
+                                        Context context,
+                                        String groupId,
+                                        String coschedID,
+                                        boolean spotInstances)
 
-    public Advertised getAdvertised();
+            throws CoSchedulingException,
+                   CreationException,
+                   MetadataException,
+                   ResourceRequestDeniedException,
+                   SchedulingException;
 }

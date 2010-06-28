@@ -47,6 +47,7 @@ import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.globus.workspace.service.binding.vm.VirtualMachineDeployment;
 import org.globus.workspace.spotinstances.SIRequest;
 import org.globus.workspace.spotinstances.SpotInstancesManager;
+import org.globus.workspace.creation.InternalCreationManager;
 
 import org.nimbustools.api._repr._Advertised;
 import org.nimbustools.api.repr.Advertised;
@@ -81,7 +82,7 @@ import commonj.timers.TimerManager;
  * Includes rollbacks (looking into dedicated transaction technology for the
  * future).
  */
-public class CreationManagerImpl implements CreationManager {
+public class CreationManagerImpl implements CreationManager, InternalCreationManager {
 
     // -------------------------------------------------------------------------
     // STATIC VARIABLES
@@ -116,7 +117,7 @@ public class CreationManagerImpl implements CreationManager {
 
     protected AccountingEventAdapter accounting;
     
-    protected final SpotInstancesManager siManager;
+    protected SpotInstancesManager siManager;
 
 
     // -------------------------------------------------------------------------
@@ -138,8 +139,7 @@ public class CreationManagerImpl implements CreationManager {
                            DataConvert dataConvertImpl,
                            TimerManager timerManagerImpl,
                            Lager lagerImpl,
-                           BindNetwork bindNetworkImpl,
-                           SpotInstancesManager siManagerImpl) {
+                           BindNetwork bindNetworkImpl) {
 
         if (lockManagerImpl == null) {
             throw new IllegalArgumentException("lockManager may not be null");
@@ -220,11 +220,6 @@ public class CreationManagerImpl implements CreationManager {
             throw new IllegalArgumentException("bindNetworkImpl may not be null");
         }
         this.bindNetwork = bindNetworkImpl;     
-        
-        if (siManagerImpl == null) {
-            throw new IllegalArgumentException("siManagerImpl may not be null");
-        }        
-        this.siManager = siManagerImpl;
     }
 
 
@@ -238,7 +233,7 @@ public class CreationManagerImpl implements CreationManager {
 
     
     // -------------------------------------------------------------------------
-    // implements Creation
+    // implements CreationManager
     // -------------------------------------------------------------------------
 
     public Advertised getAdvertised() {
@@ -272,8 +267,11 @@ public class CreationManagerImpl implements CreationManager {
         return adv;
     }
     
-    @Override
-    public SIRequest requestSpotInstances(RequestSI req, Caller caller) throws CreationException, MetadataException, ResourceRequestDeniedException, SchedulingException {
+    public SIRequest requestSpotInstances(RequestSI req, Caller caller)
+            throws CreationException,
+                   MetadataException,
+                   ResourceRequestDeniedException,
+                   SchedulingException {
 
         
         if (caller == null) {
@@ -310,15 +308,6 @@ public class CreationManagerImpl implements CreationManager {
         return siRequest;
     }    
 
-    /**
-     * TODO: Temporary random generation, update to use more advanced method.
-     * @return
-     */
-    private String generateID() {
-        return "" + Math.random()*10000000;
-    }
-
-
     public InstanceResource[] create(CreateRequest req, Caller caller)
 
             throws CoSchedulingException,
@@ -352,8 +341,16 @@ public class CreationManagerImpl implements CreationManager {
         final String coschedID = this.getCoschedID(req, creatorID);  
         final String groupID = this.getGroupID(caller.getIdentity(), bound.length);        
         
-        return this.create1(bound, req.getRequestedNics(), caller, req.getContext(), groupID, coschedID, false);
+        return this.createVMs(bound, req.getRequestedNics(), caller, req.getContext(), groupID, coschedID, false);
     }
+    
+    /**
+     * TODO: Temporary random generation, update to use more advanced method.
+     * @return
+     */
+    private String generateID() {
+        return "" + Math.random()*10000000;
+    }    
 
     protected String getType(CreateRequest req) {
         if (req == null) {
@@ -376,52 +373,6 @@ public class CreationManagerImpl implements CreationManager {
             return "instance" + suffix;
         } else {
             return "group" + suffix;
-        }
-    }
-
-    
-    // -------------------------------------------------------------------------
-    // CREATE I
-    // -------------------------------------------------------------------------
-
-    protected InstanceResource[] create1(VirtualMachine[] bindings,
-                                   NIC[] nics,
-                                   Caller caller,
-                                   Context context,
-                                   String groupId,
-                                   String coschedID,
-                                   boolean spotInstances)
-
-            throws CoSchedulingException,
-                   CreationException,
-                   MetadataException,
-                   ResourceRequestDeniedException,
-                   SchedulingException {
-
-        this.bindNetwork.consume(bindings, nics);
-
-        // From this point forward an error requires backOutIPAllocations
-        try {
-            return this.create2(bindings, caller, context, groupId, coschedID, spotInstances);
-        } catch (CoSchedulingException e) {
-            this.backoutBound(bindings);
-            throw e;
-        } catch (CreationException e) {
-            this.backoutBound(bindings);
-            throw e;
-        } catch (MetadataException e) {
-            this.backoutBound(bindings);
-            throw e;
-        } catch (ResourceRequestDeniedException e) {
-            this.backoutBound(bindings);
-            throw e;
-        } catch (SchedulingException e) {
-            this.backoutBound(bindings);
-            throw e;                    
-        } catch (Throwable t) {
-            this.backoutBound(bindings);
-            throw new CreationException("Unknown problem occured: " +
-                    "'" + ErrorUtil.excString(t) + "'", t);
         }
     }
 
@@ -462,6 +413,51 @@ public class CreationManagerImpl implements CreationManager {
         }
 
     }
+    
+    // -------------------------------------------------------------------------
+    // implements InternalCreationManager
+    // -------------------------------------------------------------------------
+
+    public InstanceResource[] createVMs(VirtualMachine[] bindings,
+                                   NIC[] nics,
+                                   Caller caller,
+                                   Context context,
+                                   String groupId,
+                                   String coschedID,
+                                   boolean spotInstances)
+
+            throws CoSchedulingException,
+                   CreationException,
+                   MetadataException,
+                   ResourceRequestDeniedException,
+                   SchedulingException {
+
+        this.bindNetwork.consume(bindings, nics);
+
+        // From this point forward an error requires backOutIPAllocations
+        try {
+            return this.create1(bindings, caller, context, groupId, coschedID, spotInstances);
+        } catch (CoSchedulingException e) {
+            this.backoutBound(bindings);
+            throw e;
+        } catch (CreationException e) {
+            this.backoutBound(bindings);
+            throw e;
+        } catch (MetadataException e) {
+            this.backoutBound(bindings);
+            throw e;
+        } catch (ResourceRequestDeniedException e) {
+            this.backoutBound(bindings);
+            throw e;
+        } catch (SchedulingException e) {
+            this.backoutBound(bindings);
+            throw e;                    
+        } catch (Throwable t) {
+            this.backoutBound(bindings);
+            throw new CreationException("Unknown problem occured: " +
+                    "'" + ErrorUtil.excString(t) + "'", t);
+        }
+    }
 
     protected void backoutBound(VirtualMachine[] bound) {
         try {
@@ -476,11 +472,11 @@ public class CreationManagerImpl implements CreationManager {
     
     
     // -------------------------------------------------------------------------
-    // CREATE II
+    // CREATE I
     // -------------------------------------------------------------------------
 
-    // create #2 (wrapped, backOutAllocations required for failures)
-    protected InstanceResource[] create2(VirtualMachine[] bindings,
+    // create #1 (wrapped, backOutAllocations required for failures)
+    protected InstanceResource[] create1(VirtualMachine[] bindings,
                                    Caller caller,
                                    Context context,
                                    String groupID,
@@ -543,7 +539,7 @@ public class CreationManagerImpl implements CreationManager {
                 }
             }
 
-            return create3(res,
+            return create2(res,
                            bindings,
                            caller.getIdentity(),
                            context,
@@ -621,11 +617,11 @@ public class CreationManagerImpl implements CreationManager {
 
     
     // -------------------------------------------------------------------------
-    // CREATE III
+    // CREATE II
     // -------------------------------------------------------------------------
 
-    // create #3 (wrapped, scheduler notification required for failure)
-    protected InstanceResource[] create3(Reservation res,
+    // create #2 (wrapped, scheduler notification required for failure)
+    protected InstanceResource[] create2(Reservation res,
                                    VirtualMachine[] bindings,
                                    String callerID,
                                    Context context,
@@ -688,7 +684,7 @@ public class CreationManagerImpl implements CreationManager {
         }
 
         try {
-            return create4(res,
+            return create3(res,
                            bindings,
                            callerID,
                            context,
@@ -739,11 +735,11 @@ public class CreationManagerImpl implements CreationManager {
 
 
     // -------------------------------------------------------------------------
-    // CREATE IV
+    // CREATE III
     // -------------------------------------------------------------------------
 
-    // create #4 (wrapped, accounting destruction might be required for failure)
-    protected InstanceResource[] create4(Reservation res,
+    // create #3 (wrapped, accounting destruction might be required for failure)
+    protected InstanceResource[] create3(Reservation res,
                                    VirtualMachine[] bindings,
                                    String callerID,
                                    Context context,
@@ -1208,5 +1204,15 @@ public class CreationManagerImpl implements CreationManager {
         }
         buf.append("\n");
         return buf.toString();
+    }
+
+    // -------------------------------------------------------------------------
+    // MODULE SET (avoids circular dependency problem)
+    // -------------------------------------------------------------------------
+    public void setSiManager(SpotInstancesManager siManagerImpl) {
+        if (siManagerImpl == null) {
+            throw new IllegalArgumentException("siManagerImpl may not be null");
+        }
+        this.siManager = siManagerImpl;
     }
 }
