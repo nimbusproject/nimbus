@@ -180,8 +180,6 @@ function get_STRING_ANSWER() {
     echo ""
     echo "Exiting, no response."
     echo ""
-    rm $CLOUDADMIN_DECISIONS_FILE
-    echo "Removed '$CLOUDADMIN_DECISIONS_FILE'"
     exit 1
   fi
 }
