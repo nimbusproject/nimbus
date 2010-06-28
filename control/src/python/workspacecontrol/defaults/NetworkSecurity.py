@@ -31,7 +31,11 @@ class DefaultNetworkSecurity:
          
     def validate(self):
         
+        localdhcp = self.p.get_conf_or_none("dhcp", "localdhcp")
+        self.localdhcp = bool(localdhcp and localdhcp.lower() != 'false')
+        
         self.ebtablesconfig = self.p.get_conf_or_none("netsecurity", "ebtablesconfig")
+
         if not self.ebtablesconfig:
             self.c.log.warn("no ebtablesconfig configuration (networks.conf), network security configuration disabled")
             return
@@ -84,14 +88,16 @@ class DefaultNetworkSecurity:
             
             if not nic.vifname:
                 raise InvalidInput("NIC object has no vifname")
-            if not nic.dhcpvifname:
-                raise InvalidInput("NIC object has no dhcpvifname")
+            if self.localdhcp and not nic.dhcpvifname:
+                raise InvalidInput("NIC object has no dhcpvifname but localdhcp is enabled")
             if not nic.mac:
                 raise InvalidInput("NIC object has no mac")
             if not nic.ip:
                 raise InvalidInput("NIC object has no ip")
                 
-            cmd = "%s %s add %s %s %s %s" % (self.sudo_path, self.ebtablesconfig, nic.vifname, nic.dhcpvifname, nic.mac, nic.ip)
+            cmd = "%s %s add %s %s %s" % (self.sudo_path, self.ebtablesconfig, nic.vifname, nic.mac, nic.ip)
+            if self.localdhcp:
+                cmd += " " + nic.dhcpvifname
 
             self.c.log.debug("command = '%s'" % cmd)
             if self.c.dryrun:
