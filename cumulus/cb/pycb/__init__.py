@@ -158,7 +158,6 @@ The search path for cumulus.ini is:
                     self.auth = cbPosixSec(posix_dir)
                 elif sec == "authz":
                     self.authzdb = s.get("security", "authzdb")
-                    print self.authzdb
                     self.auth = cbAuthzSec(self.authzdb)
                 else:
                     self.auth_error = self.auth_error + "no type %s" % (sec)
