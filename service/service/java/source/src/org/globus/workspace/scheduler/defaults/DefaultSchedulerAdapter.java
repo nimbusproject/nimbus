@@ -30,6 +30,7 @@ import org.globus.workspace.scheduler.IdHostnameTuple;
 import org.globus.workspace.service.InstanceResource;
 import org.globus.workspace.service.WorkspaceHome;
 import org.globus.workspace.service.binding.GlobalPolicies;
+import org.globus.workspace.spotinstances.SpotInstancesManager;
 import org.globus.workspace.LockAcquisitionFailure;
 import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
 import org.nimbustools.api.services.rm.SchedulingException;
@@ -63,7 +64,7 @@ public class DefaultSchedulerAdapter implements Scheduler {
     protected final GlobalPolicies globals;
     protected final DataConvert dataConvert;
     protected final Lager lager;
-    protected final PreemptableSpaceManager siManager;
+    protected PreemptableSpaceManager siManager;
 
     // lock per coscheduling ID (see usage to know why)
     protected final LockManager lockManager;
@@ -93,8 +94,7 @@ public class DefaultSchedulerAdapter implements Scheduler {
                                    TimerManager timerManager,
                                    GlobalPolicies globalPolicies,
                                    DataConvert dataConvert,
-                                   Lager lagerImpl,
-                                   PreemptableSpaceManager siManager) {
+                                   Lager lagerImpl) {
 
         if (lockManager == null) {
             throw new IllegalArgumentException("lockManager may not be null");
@@ -130,11 +130,6 @@ public class DefaultSchedulerAdapter implements Scheduler {
             throw new IllegalArgumentException("lagerImpl may not be null");
         }
         this.lager = lagerImpl;
-        
-        if (siManager == null) {
-            throw new IllegalArgumentException("siManager may not be null");
-        }
-        this.siManager = siManager;        
     }
 
 
@@ -149,6 +144,12 @@ public class DefaultSchedulerAdapter implements Scheduler {
         this.home = homeImpl;
     }
     
+    public void setSiManager(SpotInstancesManager siManagerImpl) {
+        if (siManagerImpl == null) {
+            throw new IllegalArgumentException("siManagerImpl may not be null");
+        }
+        this.siManager = siManagerImpl;
+    }
 
     // -------------------------------------------------------------------------
     // IoC INIT METHOD
@@ -898,8 +899,6 @@ public class DefaultSchedulerAdapter implements Scheduler {
             }                
         }
     }
-
-
 
     /**
      * Used just in backout situations, when request did not reach STATE_FIRST_LEGAL

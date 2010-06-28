@@ -84,15 +84,15 @@ public class DelegatingManager implements Manager {
     // INSTANCE VARIABLES
     // -------------------------------------------------------------------------
 
-    protected final CreationManager creation;
+    protected CreationManager creation;
     protected final WorkspaceHome home;
     protected final WorkspaceGroupHome ghome;
     protected final WorkspaceCoschedHome cohome;
+    protected final SpotInstancesHome siHome;
     protected final PathConfigs paths;
     protected final ReprFactory repr;
     protected final DataConvert dataConvert;
     protected final Lager lager;
-    protected final SpotInstancesHome siHome;
     
     protected AccountingReaderAdapter accounting;
     
@@ -100,21 +100,15 @@ public class DelegatingManager implements Manager {
     // CONSTRUCTOR
     // -------------------------------------------------------------------------
 
-    public DelegatingManager(CreationManager creationImpl,
-                             PathConfigs pathConfigs,
+    public DelegatingManager(PathConfigs pathConfigs,
                              WorkspaceHome instanceHome,
                              WorkspaceGroupHome groupHome,
                              WorkspaceCoschedHome coschedHome,
                              ReprFactory reprFactory,
                              DataConvert dataConvertImpl,
                              Lager lagerImpl,
-                             SpotInstancesHome siHome) {
+                             SpotInstancesHome siManagerImpl) {
         
-        if (creationImpl == null) {
-            throw new IllegalArgumentException("creationImpl may not be null");
-        }
-        this.creation = creationImpl;
-
         if (pathConfigs == null) {
             throw new IllegalArgumentException("pathConfigs may not be null");
         }
@@ -150,10 +144,10 @@ public class DelegatingManager implements Manager {
         }
         this.lager = lagerImpl;
         
-        if (siHome == null) {
-            throw new IllegalArgumentException("siHome may not be null");
+        if (siManagerImpl == null) {
+            throw new IllegalArgumentException("siManagerImpl may not be null");
         }
-        this.siHome = siHome;        
+        this.siHome = siManagerImpl;
     }
 
 
@@ -165,6 +159,16 @@ public class DelegatingManager implements Manager {
         this.accounting = accountingReader;
     }
 
+    // -------------------------------------------------------------------------
+    // MODULE SET (avoids circular dependency problem)
+    // -------------------------------------------------------------------------        
+
+    public void setCreation(CreationManager creationImpl) {
+        if (creationImpl == null) {
+            throw new IllegalArgumentException("creationImpl may not be null");
+        }
+        this.creation = creationImpl;
+    }
     
     // -------------------------------------------------------------------------
     // implements NimbusModule
@@ -758,9 +762,11 @@ public class DelegatingManager implements Manager {
     // -------------------------------------------------------------------------        
 
     public SpotRequest requestSpotInstances(RequestSI req, Caller caller)
-            throws AuthorizationException, CoSchedulingException,
-                   CreationException, MetadataException,
-                   ResourceRequestDeniedException, SchedulingException {
+            throws AuthorizationException,
+                   CreationException,
+                   MetadataException,
+                   ResourceRequestDeniedException,
+                   SchedulingException {
 
         SIRequest siRequest = this.creation.requestSpotInstances(req, caller);
         

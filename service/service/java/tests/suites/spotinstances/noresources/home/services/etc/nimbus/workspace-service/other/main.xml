@@ -12,7 +12,6 @@
     <bean id="nimbus-rm.manager"
           class="org.globus.workspace.manager.DelegatingManager">
 
-        <constructor-arg ref="nimbus-rm.creation"/>
         <constructor-arg ref="nimbus-rm.PathConfigs"/>
         <constructor-arg ref="nimbus-rm.home.instance"/>
         <constructor-arg ref="nimbus-rm.home.group"/>
@@ -20,11 +19,16 @@
         <constructor-arg ref="nimbus-repr.ReprFactory"/>
         <constructor-arg ref="nimbus-rm.persistence.DataConvert"/>
         <constructor-arg ref="nimbus-rm.loglevels" />
-        <constructor-arg ref="nimbus-rm.spotinstances.manager" />        
+        <constructor-arg ref="nimbus-rm.spotinstances.manager" />
 
         <property name="accounting"
                   ref="nimbus-rm.accounting" />
-    </bean>
+ 
+        <!-- set after object creation time to avoid circular dep -->
+        <property name="creation"
+		  ref="nimbus-rm.creation" />
+
+   </bean>
 
     
     <!-- ===================================================================
@@ -92,11 +96,13 @@
         <constructor-arg ref="other.timerManager" />
         <constructor-arg ref="nimbus-rm.loglevels" />
         <constructor-arg ref="nimbus-rm.service.binding.BindNetwork" />
-        <constructor-arg ref="nimbus-rm.spotinstances.manager" />
 
         <property name="accountingEventAdapter"
                   ref="nimbus-rm.accounting" />
 
+        <!-- set after object creation time to avoid circular dep -->
+        <property name="siManager"
+		  ref="nimbus-rm.spotinstances.manager" />
     </bean>
 
 
@@ -520,13 +526,13 @@
         <constructor-arg ref="nimbus-rm.service.binding.GlobalPolicies" />
         <constructor-arg ref="nimbus-rm.persistence.DataConvert" />
         <constructor-arg ref="nimbus-rm.loglevels" />
-        <constructor-arg ref="nimbus-rm.spotinstances.manager" />
-
-
 
         <!-- set after object creation time to avoid circular dep with home -->
         <property name="home" ref="nimbus-rm.home.instance" />
 
+        <!-- set after object creation time to avoid circular dep -->
+        <property name="siManager"
+                   ref="nimbus-rm.spotinstances.manager" /> 
     </bean>
 
     <!-- ===================================================================
@@ -539,7 +545,9 @@
 
         <constructor-arg ref="nimbus-rm.persistence.PersistenceAdapter" />
         <constructor-arg ref="nimbus-rm.loglevels" />
-
+ 
+        <!-- set after object creation time to avoid circular dep -->
+        <property name="creationManager" ref="nimbus-rm.creation" />
     </bean>
 
     

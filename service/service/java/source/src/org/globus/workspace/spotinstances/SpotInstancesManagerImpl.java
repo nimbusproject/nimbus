@@ -14,6 +14,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.globus.workspace.Lager;
 import org.globus.workspace.WorkspaceConstants;
+import org.globus.workspace.creation.InternalCreationManager;
 import org.globus.workspace.persistence.PersistenceAdapter;
 import org.globus.workspace.persistence.WorkspaceDatabaseException;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
@@ -42,9 +43,10 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
 
     protected Double currentPrice;
 
-    protected Lager lager;
 
-    private PersistenceAdapter persistence;
+    protected PersistenceAdapter persistence;
+    protected Lager lager;
+    protected InternalCreationManager creationManager;
 
     public SpotInstancesManagerImpl(PersistenceAdapter persistenceAdapter, Lager lager){
         this.allRequests = new HashMap<String, SIRequest>();
@@ -570,6 +572,16 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
         return null;
     }    
     
+    // -------------------------------------------------------------------------
+    // MODULE SET (avoids circular dependency problem)
+    // -------------------------------------------------------------------------
+    public void setCreationManager(InternalCreationManager creationManagerImpl) {
+        if (creationManagerImpl == null) {
+            throw new IllegalArgumentException("creationManagerImpl may not be null");
+        }
+        this.creationManager = creationManagerImpl;
+    }
+
     // -------------------------------------------------------------------------
     // TEST UTILS
     // -------------------------------------------------------------------------
