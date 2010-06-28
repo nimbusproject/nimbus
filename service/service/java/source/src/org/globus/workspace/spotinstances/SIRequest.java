@@ -27,8 +27,10 @@ public class SIRequest implements Comparable<SIRequest>{
     private NIC[] requestedNics;
     private String groupID;
     
+    private Throwable problem = null;
+
     private LinkedHashSet<Integer> allocatedVMs = new LinkedHashSet<Integer>();
-    private LinkedHashSet<Integer> fulfilledVMs = new LinkedHashSet<Integer>();
+    private LinkedHashSet<Integer> finishedVMs = new LinkedHashSet<Integer>();
     private Calendar creationTime;
 
     public SIRequest(String id, Double highestPrice, Integer requestedInstances) {
@@ -71,7 +73,7 @@ public class SIRequest implements Comparable<SIRequest>{
         if(this.persistent){
             return this.requestedInstances;
         } else {
-            return this.requestedInstances-this.fulfilledVMs.size();
+            return this.requestedInstances-this.finishedVMs.size();
         }
     }
     
@@ -83,13 +85,9 @@ public class SIRequest implements Comparable<SIRequest>{
         return Collections.unmodifiableCollection(this.allocatedVMs);
     }
 
-    public void addCreatedVMs(int[] createdIds) {
-        if(createdIds != null && createdIds.length > 0){
-            for (int i = 0; i < createdIds.length; i++) {
-                allocatedVMs.add(createdIds[i]);
-            }
-            this.setStatus(SIRequestStatus.ACTIVE);
-        }
+    public void addAllocatedVM(int createdId) {
+        this.allocatedVMs.add(createdId);
+        this.setStatus(SIRequestStatus.ACTIVE);
     }
     
     public Integer getUnallocatedInstances(){
@@ -116,7 +114,7 @@ public class SIRequest implements Comparable<SIRequest>{
         return status;
     }
 
-    private void setStatus(SIRequestStatus status) {
+    public void setStatus(SIRequestStatus status) {
         if(this.status.isAlive()){
             this.status = status;
         }
@@ -158,6 +156,14 @@ public class SIRequest implements Comparable<SIRequest>{
         return allocatedVMs.contains(vmid);
     }
     
+    public Throwable getProblem() {
+        return problem;
+    }
+
+    public void setProblem(Throwable problem) {
+        this.problem = problem;
+    }
+
     @Override
     public String toString() {
         return "SIRequest [id " + id + ", status= " + status + ", requestedInstances="
@@ -166,7 +172,7 @@ public class SIRequest implements Comparable<SIRequest>{
                 + ", caller=" + caller + "]";
     }
 
-    public void fulfillVM(int vmid, Double spotPrice) {
+    public void finishVM(int vmid, Double spotPrice) {
         if(this.allocatedVMs.remove(vmid)){
             if(this.persistent){
                 //If the request is persistent, it is going to be considered again
@@ -187,7 +193,7 @@ public class SIRequest implements Comparable<SIRequest>{
                 }
             }
             
-            fulfilledVMs.add(vmid);
+            finishedVMs.add(vmid);
             if(status.isAlive()){
                 changeStatus(spotPrice);
             }
@@ -247,7 +253,7 @@ public class SIRequest implements Comparable<SIRequest>{
 
     public void cancelRequest() {
         for (Integer id : allocatedVMs) {
-            fulfillVM(id, null);
+            finishVM(id, null);
         }
         this.setStatus(SIRequestStatus.CANCELLED);
     }    

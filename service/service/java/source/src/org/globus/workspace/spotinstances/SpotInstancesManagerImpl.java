@@ -17,6 +17,7 @@ import org.globus.workspace.WorkspaceConstants;
 import org.globus.workspace.creation.InternalCreationManager;
 import org.globus.workspace.persistence.PersistenceAdapter;
 import org.globus.workspace.persistence.WorkspaceDatabaseException;
+import org.globus.workspace.service.InstanceResource;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.si.SIConstants;
@@ -389,7 +390,7 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
         
         //FIXME: temporary, just for testing
         for (int i = 0; i < allocatedVMs.length; i++) {
-            siRequest.fulfillVM(allocatedVMs[i], this.currentPrice);
+            siRequest.finishVM(allocatedVMs[i], this.currentPrice);
         }
         
         if (!oldStatus.equals(siRequest.getStatus()) && this.lager.eventLog) {
@@ -412,13 +413,16 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
             return;
         }
         
-        //FIXME: temporary, just for testing
-        int[] fakeIDs = new int[quantity];
-        for (int i = 0; i < quantity; i++) {
-            fakeIDs[i] = (int)(Math.random()*10000);
-            unallocatedVMs[i].setID(fakeIDs[i]);
+        try {
+            InstanceResource[] createdVMs = creationManager.createVMs(unallocatedVMs, siRequest.getRequestedNics(), siRequest.getCaller(), siRequest.getContext(), siRequest.getGroupID(), null, true);
+            for (InstanceResource resource : createdVMs) {
+                siRequest.addAllocatedVM(resource.getID());
+            }
+        } catch (Exception e) {
+            siRequest.setStatus(SIRequestStatus.FAILED);
+            siRequest.setProblem(e);
+            logger.warn(Lager.ev(-1) + "[Spot Instances] Error while allocating VMs for request: " + siRequest.getId() + ". Setting state to FAILED. Problem: " + e.getMessage());
         }
-        siRequest.addCreatedVMs(fakeIDs);
         
         if (!oldStatus.equals(siRequest.getStatus()) && this.lager.eventLog) {
             logger.info(Lager.ev(-1) + "[Spot Instances] Request " + siRequest.getId() + " changed status from " + oldStatus + " to " + siRequest.getStatus());
@@ -501,7 +505,7 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
                 if (this.lager.eventLog) {
                     logger.info(Lager.ev(-1) + "[Spot Instances] VM '" + vmid + "' from request '" + siRequest.getId() + "' finished. Changing price and reallocating requests.");
                 }                
-                siRequest.fulfillVM(vmid, this.currentPrice);
+                siRequest.finishVM(vmid, this.currentPrice);
                 this.changePriceAndReallocateRequests();
             } else {
                 if (this.lager.eventLog) {
