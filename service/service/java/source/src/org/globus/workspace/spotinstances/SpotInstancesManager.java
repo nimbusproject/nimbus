@@ -4,4 +4,6 @@ import org.globus.workspace.scheduler.defaults.PreemptableSpaceManager;
 
 public interface SpotInstancesManager extends SpotInstancesHome, PreemptableSpaceManager {
 
+    public void addRequest(SIRequest request);
+    
 }

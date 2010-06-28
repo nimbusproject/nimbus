@@ -6,8 +6,6 @@ import org.nimbustools.api.services.rm.DoesNotExistException;
 
 public interface SpotInstancesHome {
 
-    public void addRequest(SIRequest request);
-
     public SIRequest cancelRequest(String reqID) throws DoesNotExistException;
     
     public SIRequest getRequest(String id) throws DoesNotExistException;
