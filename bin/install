@@ -70,8 +70,8 @@ PYVE=$pyve/bin/python
 
 $NIMBUS_SRC/bin/create-nimbus-home $NIMBUS_HOME 2>&1 | tee $NIMBUS_HOME/install.log
 
-
-if [ $? -ne 0 ]; then
+# need PIPESTATUS because tee is not the exit code this needs to check
+if [ $PIPESTATUS -ne 0 ]; then
     echo ""
     echo "Nimbus home directory creation failed!"
     exit 1
@@ -107,3 +107,5 @@ fi
 
 
 $NIMBUS_SRC/bin/install-real.sh  "${@}" 2>&1 | tee -a $NIMBUS_HOME/install.log
+# need PIPESTATUS because tee is not the exit code of interest
+exit $PIPESTATUS
