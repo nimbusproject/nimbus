@@ -545,6 +545,8 @@
 
         <constructor-arg ref="nimbus-rm.persistence.PersistenceAdapter" />
         <constructor-arg ref="nimbus-rm.loglevels" />
+        <constructor-arg ref="nimbus-rm.home.instance"/>
+        <constructor-arg ref="nimbus-rm.home.group"/>
  
         <!-- set after object creation time to avoid circular dep -->
         <property name="creationManager" ref="nimbus-rm.creation" />

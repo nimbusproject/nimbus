@@ -18,6 +18,8 @@ import org.globus.workspace.creation.InternalCreationManager;
 import org.globus.workspace.persistence.PersistenceAdapter;
 import org.globus.workspace.persistence.WorkspaceDatabaseException;
 import org.globus.workspace.service.InstanceResource;
+import org.globus.workspace.service.WorkspaceGroupHome;
+import org.globus.workspace.service.WorkspaceHome;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.si.SIConstants;
@@ -48,14 +50,38 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
     protected PersistenceAdapter persistence;
     protected Lager lager;
     protected InternalCreationManager creationManager;
+    protected final WorkspaceHome home;
+    protected final WorkspaceGroupHome ghome;
 
-    public SpotInstancesManagerImpl(PersistenceAdapter persistenceAdapter, Lager lager){
+    public SpotInstancesManagerImpl(PersistenceAdapter persistenceAdapterImpl,
+                                    Lager lagerImpl,
+                                    WorkspaceHome instanceHome,
+                                    WorkspaceGroupHome groupHome){
+
         this.allRequests = new HashMap<String, SIRequest>();
         this.currentPrice = PricingModelConstants.MINIMUM_PRICE;
         this.pricingModel = new MaximizeUtilizationPricingModel();
-        this.persistence = persistenceAdapter;         
-        this.lager = lager;
         this.availableResources = 0;
+
+        if (persistenceAdapterImpl == null) {
+            throw new IllegalArgumentException("persistenceAdapterImpl may not be null");
+        }
+        this.persistence = persistenceAdapterImpl;
+
+        if (lagerImpl == null) {
+            throw new IllegalArgumentException("lagerImpl may not be null");
+        }
+        this.lager = lagerImpl;
+
+        if (instanceHome == null) {
+            throw new IllegalArgumentException("instanceHome may not be null");
+        }
+        this.home = instanceHome;
+
+        if (groupHome == null) {
+            throw new IllegalArgumentException("groupHome may not be null");
+        }
+        this.ghome = groupHome;
     }
     
     // -------------------------------------------------------------------------
