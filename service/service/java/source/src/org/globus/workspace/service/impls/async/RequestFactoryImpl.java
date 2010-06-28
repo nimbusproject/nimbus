@@ -55,6 +55,8 @@ import java.util.Hashtable;
  * happen in the WorkspaceRequest implementation for a particular
  * command based on information in the WorkspaceRequestContext.
  */
+
+@SuppressWarnings("unchecked")
 public class RequestFactoryImpl implements RequestFactory {
     
     // -------------------------------------------------------------------------
@@ -302,6 +304,13 @@ public class RequestFactoryImpl implements RequestFactory {
         this.impls.put(cancelPropToPause, null);
     }
 
+    public void disablePropagateAndCreate() {
+        this.impls.put(propAndStart, null);
+        this.impls.put(propAndPause, null);
+        this.impls.put(cancelPropToStart, null);
+        this.impls.put(cancelPropToPause, null);
+    }
+
     public void disableReadyTransport() {
         this.impls.put(readyForTransport, null);
         this.impls.put(cancelReadyingForTr, null);
@@ -415,6 +424,9 @@ public class RequestFactoryImpl implements RequestFactory {
             result = loadLocal();
             this.commandSet = XEN_LOCAL;
         }
+
+        // addressed Bug 6998 until Bug can be fixed
+        this.disablePropagateAndCreate();
 
         return result && test();
     }
