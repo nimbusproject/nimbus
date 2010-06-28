@@ -73,7 +73,6 @@ $NIMBUS_SRC/bin/create-nimbus-home $NIMBUS_HOME 2>&1 | tee $NIMBUS_HOME/install.
 # need PIPESTATUS because tee is not the exit code this needs to check
 if [ $PIPESTATUS -ne 0 ]; then
     echo ""
-    echo "Nimbus home directory creation failed!"
     exit 1
 fi
 
