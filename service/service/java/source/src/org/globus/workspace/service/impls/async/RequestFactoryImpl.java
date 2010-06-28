@@ -425,7 +425,7 @@ public class RequestFactoryImpl implements RequestFactory {
             this.commandSet = XEN_LOCAL;
         }
 
-        // addressed Bug 6998 until Bug can be fixed
+        // addressed Bug 6998 until Bug 7063 can be fixed
         this.disablePropagateAndCreate();
 
         return result && test();
