@@ -43,7 +43,7 @@ export NIMWIZ_SCP_BATCH_OPTIONS
 NIMWIZ_NO_NETWORK_CONFIGS="(( not configuring ))"
 export NIMWIZ_NO_NETWORK_CONFIGS
 
-WORKSPACE_CONTROL_DOC_LINK="http://www.nimbusproject.org/docs/2.4/admin/quickstart.html#part-III"
+WORKSPACE_CONTROL_DOC_LINK="http://www.nimbusproject.org/docs/current/admin/"
 export WORKSPACE_CONTROL_DOC_LINK
 
 CONTROL_EXE="/opt/nimbus/bin/workspace-control.sh"
