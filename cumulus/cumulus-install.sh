@@ -95,22 +95,6 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "====================================="
-echo "Installing the authz package"
-echo "====================================="
-cd $source_dir/authz/
-$PYVE ./setup.py install 
-
-echo "====================================="
-echo "Installing the cumulus package"
-echo "====================================="
-cd $source_dir/cb
-$PYVE ./setup.py install 
-if [ $? -ne 0 ]; then
-    echo "setup.py"
-    exit 1
-fi
-
-echo "====================================="
 echo "Configuring the environment"
 echo "====================================="
 cd $source_dir/conf
@@ -131,5 +115,3 @@ echo "====================================="
 cd $source_dir
 cp -r $source_dir/tests $installdir
 cp -r $source_dir/docs $installdir
-cp -r $source_dir/bin $installdir
-
