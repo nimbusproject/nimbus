@@ -54,12 +54,11 @@ def createPath(headers, path):
     if len(h_a) > 0:
         host = h_a[0]
 
-    if host == pycb.config.hostname:
-        return path
+#    if host == pycb.config.hostname:
+#        return path
 
-    b = host.split('.', 1)[0]
-
-    path = '/' + b + path
+#    b = host.split('.', 1)[0]
+#    path = '/' + b + path
 
     return path
 

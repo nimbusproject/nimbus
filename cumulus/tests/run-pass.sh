@@ -20,16 +20,16 @@ if [ "X${CUMULUS_TEST_HTTPS}" == "X" ]; then
 fi
 
 
-$CUMULUS_HOME/bin/cumulus-remove-user -a tests3cmd1@nimbus.test
-$CUMULUS_HOME/bin/cumulus -p $cumulus_port $https_opt &
+$CUMULUS_VE_HOME/bin/cumulus-remove-user -a tests3cmd1@nimbus.test
+$CUMULUS_VE_HOME/bin/cumulus -p $cumulus_port $https_opt &
 cumulus_pid=$!
 echo $cumulus_pid
-trap "kill $cumulus_pid; mv ~/.s3cfg.cumulus.test ~/.s3cfg; $CUMULUS_HOME/bin/cumulus-remove-user -a tests3cmd1@nimbus.test" EXIT
+trap "kill $cumulus_pid; mv ~/.s3cfg.cumulus.test ~/.s3cfg; $CUMULUS_VE_HOME/bin/cumulus-remove-user -a tests3cmd1@nimbus.test" EXIT
 sleep 2
 log_file=`mktemp`
 echo "Logging output to $log_file" 
-$CUMULUS_HOME/bin/cumulus-add-user tests3cmd1@nimbus.test
-x=`$CUMULUS_HOME/bin/cumulus-list-users -b -r ID,password tests3cmd1@nimbus.test`
+$CUMULUS_VE_HOME/bin/cumulus-add-user tests3cmd1@nimbus.test
+x=`$CUMULUS_VE_HOME/bin/cumulus-list-users -b -r ID,password tests3cmd1@nimbus.test | tail -n 1`
 
 echo $x
 id=`echo $x | awk -F , '{ print $1 }'`
@@ -48,10 +48,10 @@ if [ "X$?" != "X0" ]; then
 fi
 cd ..
 
-$CUMULUS_HOME/bin/nosetests pynimbusauthz.tests.__init__
+$CUMULUS_VE_HOME/bin/nosetests pynimbusauthz.tests.__init__
 
 cd client
-$CUMULUS_HOME/bin/nosetests *.py
+$CUMULUS_VE_HOME/bin/nosetests *.py
 if [ "X$?" != "X0" ]; then
     echo "FAILED : boto tests failed"
     exit 1
