@@ -759,8 +759,4 @@ class DefaultImageProcurement:
                 old = lf._unpropagation_target
                 lf._unpropagation_target = unproptargets[counter]
                 self.c.log.debug("old unpropagation target '%s' is now '%s'" % (old, lf._unpropagation_target))
-<<<<<<< HEAD
-        
-=======
 
->>>>>>> 07ade63... First try at backend http support (needs better exception handling)
