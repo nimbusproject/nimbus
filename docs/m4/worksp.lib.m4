@@ -386,6 +386,17 @@ m4_define([[[_NIMBUS_LEFT2_ADMIN2_SIDEBAR',
 </div>
 
 )m4_dnl
+m4_define([[[_NIMBUS_LEFT2_Z2C_SIDEBAR',
+
+<div id="sidebarmenu">
+    <ul>
+        <li>
+          <a href="index.html" title="Z2C" class="$1">Zero to Cloud Guide</a>
+        </li>
+    </ul>
+</div>
+
+)m4_dnl
 m4_define([[[_NIMBUS_LEFT2_CLOUDS1_SIDEBAR',
 
 <div id="sidebarmenu">

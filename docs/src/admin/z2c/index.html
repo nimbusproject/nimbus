@@ -1,0 +1,126 @@
+m4_include(/mcs/m4/worksp.lib.m4)
+_NIMBUS_HEADER(2.5RC1 Zero To Cloud Guide)
+_NIMBUS_HEADER2(n,n,y,n,n,n,n)
+_NIMBUS_LEFT2_COLUMN
+_NIMBUS_LEFT2_Z2C_SIDEBAR(y)
+_NIMBUS_LEFT2_COLUMN_END
+_NIMBUS_CENTER2_COLUMN
+_NIMBUS_2_5_DEPRECATED
+
+<h2>Nimbus 2.5RC1 Zero To Cloud Guide</h2>
+
+<p>
+    This "zero to cloud" guide contains configuration information for system 
+    administrators working with Nimbus.
+</p>
+
+<p>
+	This is the main way Nimbus is installed and if this is your first time
+	installing it, it is highly recommended that you follow this process
+	exactly.
+</p>
+
+<p>
+    When you have finished the guide, you will have a working ______TODO
+</p>
+<p>
+    (picture of cloud setup here?) ____________TODO
+</p>
+
+<p>
+    If you are unfamiliar with the cloud client, it may be good to get access
+    to a working installation to try it out first: ____________TODO
+</p>
+
+<p>
+	The guide is broken up into different pages. As you make your way
+	through, in sequence, you must complete each page's instructions.
+	By the end of each page you will have been able to test your work such
+	that you know you can move on. 
+</p>
+<ul>
+    <li>
+        <p>
+            <a href="service-dependencies.html">Service Dependencies</a>
+        </p>
+        <p>
+            On this page, you will install any missing dependencies for the
+            service node.
+        </p>
+    </li>
+    <li>
+        <p>
+            <a href="service-setup.html">Service Installation</a>
+        </p>
+        <p>
+            On this page, you will install the Nimbus central services and
+            image repository (<i>Cumulus</i>), and use a cloud
+            client to access your cloud as a remote client.
+        </p>
+        <p>
+            This will however only work in "fake mode" which means that the
+            service is only pretending to start VMs.  In later steps you will
+            enable VMMs, connect them with the central service, and have a
+            working cloud setup.
+        </p>
+    </li>
+    <li>
+        <p>
+            <a href="networking-setup.html">Install DHCPd and Configure Networking</a>
+        </p>
+        <p>
+            On this page, you will install a central DHCPd daemon (or
+            integrate with an existing one) and configure the networking
+            addresses you want to give out to virtual machines when they
+            boot.
+        </p>
+    </li>
+    <li>
+        <p>
+            <a href="vmm-setup.html">Install VMM Software</a>
+        </p>
+        <p>
+            On this page, you will install the Nimbus VMM software
+            (<i>workspace-control</i>) and any of its dependencies
+            (including Xen or KVM as well as libvirt, if these are not present
+            already).
+        </p>
+        <p>
+            workspace-control contains scripts that will help you test that
+            your Xen/KVM/libvirt installation will work with the programmatic
+            access patterns that Nimbus uses.
+        </p>
+    </li>
+    <li>
+        <p>
+            <a href="ssh-setup.html">SSH Setup</a>
+        </p>
+        <p>
+            On this page, you will configure SSH on your cluster so that the
+            Nimbus components can properly and securely communicate.
+        </p>
+    </li>
+    <li>
+        <p>
+            <a href="final-tests.html">Final Tests</a>
+        </p>
+        <p>
+            On this page, you will remotely test the system with the cloud
+            client like you did before.  But this time, a virtual machine
+            will be started for you as expected.
+        </p>
+    </li>
+    <li>
+        <p>
+            <a href="what-next.html">What Next?</a>
+        </p>
+        <p>
+            ________ TODO
+        </p>
+    </li>
+</ul>
+
+_NIMBUS_CENTER2_COLUMN_END
+_NIMBUS_FOOTER1
+_NIMBUS_FOOTER2
+_NIMBUS_FOOTER3
