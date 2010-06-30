@@ -179,7 +179,7 @@
             <tarfileset dir="${distbuild.dir}" mode="755">
                 <include name="${nimbus.main}/scripts/*sh" />
                 <include name="${nimbus.main}/bin/*" />
-                <include name="${nimbus.main}/cumulus/*" />
+                <include name="${nimbus.main}/cumulus/**" />
                 <include name="${nimbus.main}/home/bin/*" />
                 <include name="${nimbus.main}/home/sbin/*" />
                 <include name="${nimbus.main}/web/bin/*" />
