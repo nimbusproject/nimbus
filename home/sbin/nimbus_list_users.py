@@ -15,7 +15,6 @@ import pycb
 import pycb.tools
 import pynimbusauthz
 import tempfile
-import traceback
 import filecmp
 from pynimbusauthz.cmd_opts import cbOpts
 from pynimbusauthz.db import DB

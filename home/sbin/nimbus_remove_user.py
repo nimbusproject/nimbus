@@ -16,7 +16,6 @@ import pycb
 import pycb.tools
 import pynimbusauthz
 import tempfile
-import traceback
 import filecmp
 from pynimbusauthz.cmd_opts import cbOpts
 from pynimbusauthz.db import DB
@@ -110,7 +109,7 @@ def delete_user(o):
         remove_gridmap(dn)
 
         nh = get_nimbus_home()
-        groupauthz_dir = os.path.join(nh, "services/etc/nimbus/workspace-service/group-authz/")
+        groupauthz_dir = os.path.join(nh, "eservices/etc/nimbus/workspace-service/group-authz/")
         try:
             remove_member(groupauthz_dir, dn)
         except Exception, ex:

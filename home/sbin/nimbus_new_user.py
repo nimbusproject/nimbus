@@ -29,6 +29,7 @@ from optparse import SUPPRESS_HELP
 
 g_report_options = ["cert", "key", "dn", "canonical_id", "access_id", "access_secret", "url", "web_id"]
 
+DEBUG = False
 
 def get_nimbus_home():
     """Determines home directory of Nimbus install we are using.
@@ -234,7 +235,8 @@ def create_user(o, db):
         db.commit()
     except Exception, ex1:
         db.rollback()
-        traceback.print_exc(file=sys.stdout)
+        if DEBUG:
+            traceback.print_exc(file=sys.stdout)
         raise ex1
 
 def do_web_bidnes(o):
