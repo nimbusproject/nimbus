@@ -158,11 +158,9 @@ public class DefaultAssociationAdapter implements AssociationAdapter {
                 if (logger.isDebugEnabled()) {
                     mstart = System.currentTimeMillis();
                 }
-                this.allMacs = MacUtil.findMacs(previous_associations,
-                                                new_associations);
-                MacUtil.setMacs(new_associations,
-                                this.macPrefix,
-                                this.allMacs);
+                this.allMacs = MacUtil.handleMacs(previous_associations,
+                        new_associations,
+                        this.macPrefix);
                 if (logger.isDebugEnabled()) {
                     final long mstop = System.currentTimeMillis();
                     logger.debug("MAC handling took " +

@@ -22,12 +22,7 @@ import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.util.List;
-import java.util.Hashtable;
-import java.util.LinkedList;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.Random;
+import java.util.*;
 
 public class MacUtil {
 
@@ -42,55 +37,95 @@ public class MacUtil {
     private static final Object list_lock = new Object();
 
     private static final Random random = new Random();
-
-    // need to examine previous_associations as well because, while not leasable
-    // from here on, entries from previous configuration could still be in use
-    public static List findMacs(Hashtable previous_associations,
-                                Hashtable new_associations) {
-
-        final LinkedList macs = new LinkedList();
-        _findMacs(previous_associations, macs, true);
-        _findMacs(new_associations, macs, false);
-        return macs;
-    }
-
-    private static void _findMacs(Hashtable assocs,
-                                  LinkedList macs,
-                                  boolean checkInUseOnly) {
-
-        if (assocs == null) {
-            return; // *** EARLY RETURN ***
+    
+    
+    public static List<String> handleMacs(Map<String, Association> previous,
+                                          Map<String, Association> current,
+                                          String macPrefix)
+            throws ResourceRequestDeniedException {
+        if (previous == null) {
+            throw new IllegalArgumentException("previous may not be null");
+        }
+        if (current == null) {
+            throw new IllegalArgumentException("current may not be null");
+        }
+        if (macPrefix == null) {
+            throw new IllegalArgumentException("macPrefix may not be null");
         }
 
-        final Enumeration els = assocs.elements();
+        final Map<String, AssociationEntry> inUse = getInUseMacMap(previous);
 
-        while (els.hasMoreElements()) {
-            final Association assoc = (Association) els.nextElement();
-            final List entries = assoc.getEntries();
-            for (Object entry : entries) {
-                _findMac((AssociationEntry) entry, macs, checkInUseOnly);
+
+        final Set<String> explicit = new HashSet<String>();
+        for (Map.Entry<String, Association> assocPair : current.entrySet()) {
+            final String assocName = assocPair.getKey();
+            final Association assoc = assocPair.getValue();
+            if (assoc == null || assoc.getEntries() == null) {
+                continue;
+            }
+            for (Object entryObject : assoc.getEntries()) {
+                final AssociationEntry entry = (AssociationEntry) entryObject;
+                if (entry.isExplicitMac()) {
+                    final AssociationEntry inUseEntry = inUse.get(entry.getMac());
+                    if (inUseEntry != null) {
+                        final String inUseIp = inUseEntry.getIpAddress();
+                        if (inUseIp == null || !inUseIp.equals(entry.getIpAddress())) {
+                            logger.error("An explicit MAC in network '"+assocName+
+                                    "' collides with an in-use network entry! "+
+                                    "Explicit: "+ entry.toString() + "\nIn use: "+
+                                    inUseEntry.toString());
+                            entry.setMac(null);
+                            entry.setExplicitMac(false);
+                        }
+
+                    }
+
+                }
+                if (entry.isExplicitMac()) {
+                    if (!explicit.add(entry.getMac())) {
+                        logger.warn("Duplicate explicit MAC? "+ entry.getMac());
+                    }
+                }
             }
         }
+
+        final List<String> macList =
+                new ArrayList<String>();
+        macList.addAll(inUse.keySet());
+        macList.addAll(explicit);
+
+        for (Association assoc : current.values()) {
+            for (Object entryObject : assoc.getEntries()) {
+                final AssociationEntry entry = (AssociationEntry) entryObject;
+                _setMac(entry, macPrefix, macList, explicit);
+            }
+        }
+
+        return macList;
     }
 
-    private static void _findMac(AssociationEntry entry,
-                                 LinkedList macs,
-                                 boolean checkInUseOnly) {
-
-        if (entry == null) {
-            return; // *** EARLY RETURN ***
+    private static Map<String, AssociationEntry> getInUseMacMap(Map<String, Association> previous) {
+        Map<String, AssociationEntry> inUse = new HashMap<String, AssociationEntry>();
+        for (Association assoc : previous.values()) {
+            for (Object entryObject : assoc.getEntries()) {
+                final AssociationEntry entry = (AssociationEntry) entryObject;
+                if (entry.isInUse()) {
+                    final String mac = entry.getMac();
+                    if (mac == null || mac.length() == 0) {
+                        logger.warn("Network association entry is supposedly " +
+                                "in use but has no MAC address..? "+ entry.toString());
+                    }
+                    final AssociationEntry clobbered = inUse.put(mac, entry);
+                    if (clobbered != null) {
+                        logger.warn("There appear to be duplicate MAC addresses in use: "+
+                                clobbered.toString() + "\nand\n"+entry.toString());
+                    }
+                }
+            }
         }
-
-        if (checkInUseOnly && !entry.isInUse()) {
-            return; // *** EARLY RETURN ***
-        }
-
-        final String mac = entry.getMac();
-        if (mac != null) {
-            macs.add(mac);
-        }
+        return inUse;
     }
-
+    /*
     public static void setMacs(Hashtable new_associations,
                                String macPrefix,
                                List macs)
@@ -114,11 +149,12 @@ public class MacUtil {
                 _setMac((AssociationEntry) entry, macPrefix, macs);
             }
         }
-    }
+    } */
 
     private static void _setMac(AssociationEntry entry,
                                 String macPrefix,
-                                List macs)
+                                List<String> macs, 
+                                Set<String> explicit)
             throws ResourceRequestDeniedException {
         
         if (entry == null) {
@@ -128,28 +164,33 @@ public class MacUtil {
         final String entryId = "[entry with ip " + entry.getIpAddress() + "]";
 
         final String previousMac = entry.getMac();
-        boolean replacement = false;
+        boolean prefixReplacement = false;
+        boolean explicitReplacement = false;
         if (previousMac != null) {
 
             if (entry.isExplicitMac()) {
                 return; // *** EARLY RETURN ***
             }
 
-            
-
-            if (previousMac.startsWith(macPrefix)) {
+            if (explicit.contains(previousMac)) {
+                explicitReplacement = true;
+            } else if (previousMac.startsWith(macPrefix)) {
                 return; // *** EARLY RETURN ***
+            } else {
+               prefixReplacement = true;
             }
-
-            replacement = true;
         }
 
         final String newMac = pickNew(macs, macPrefix);
         entry.setMac(newMac);
 
-        if (replacement) {
+        if (prefixReplacement) {
             logger.debug("Replaced previous MAC '" + previousMac + "' with " +
                     "a MAC that has the new prefix: '" + newMac + "' " + entryId);
+        } else if (explicitReplacement) {
+            logger.warn("Replaced previous MAC '" + previousMac + "' with '" +
+                    newMac + "' because it collided with an explicitly specified MAC. " +
+                    entryId);
         }
 
     }
