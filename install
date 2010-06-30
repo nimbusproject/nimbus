@@ -2,7 +2,7 @@
 
 FORCE_FRESH_INSTALL="yes"
 
-NIMBUS_SRC_REL="`dirname $0`/.."
+NIMBUS_SRC_REL="`dirname $0`/."
 NIMBUS_SRC=`cd $NIMBUS_SRC_REL; pwd`
 
 if [ "X$1" = "X" ]; then
