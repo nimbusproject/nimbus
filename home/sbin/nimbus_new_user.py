@@ -245,7 +245,7 @@ def do_group_bidnes(o):
         return
     
     nh = get_nimbus_home()
-    groupauthz_dir = os.path.join(nh, "/services/etc/nimbus/workspace-service/group-authz/")
+    groupauthz_dir = os.path.join(nh, "services/etc/nimbus/workspace-service/group-authz/")
     try:
         add_member(groupauthz_dir, o.dn)
     except Exception, ex:

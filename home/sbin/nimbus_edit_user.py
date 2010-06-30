@@ -176,7 +176,7 @@ def edit_user(o, db):
         dnu.set_name(o.dn.strip())
         
         nh = get_nimbus_home()
-        groupauthz_dir = os.path.join(nh, "/services/etc/nimbus/workspace-service/group-authz/")
+        groupauthz_dir = os.path.join(nh, "services/etc/nimbus/workspace-service/group-authz/")
 
         try:
             remove_member(groupauthz_dir, old_dn)
