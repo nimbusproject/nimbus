@@ -13,6 +13,9 @@ NIMBUS_PYSRC="$NIMBUS_WEBDIR/src/python"
 PYTHONPATH="$NIMBUS_PYSRC:$NIMBUS_PYLIB:$PYTHONPATH"
 export PYTHONPATH
 
+DJANGO_SETTINGS_MODULE="nimbusweb.portal.settings"
+export DJANGO_SETTINGS_MODULE
+
 source $NIMBUS_HOME/cumulus/env.sh
 cd $NIMBUS_HOME
 $PYTHON_EXE $NIMBUS_HOME/sbin/nimbus_new_user.py "$@"

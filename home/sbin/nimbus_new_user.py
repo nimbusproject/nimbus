@@ -126,7 +126,7 @@ Create/edit a nimbus user
     all_opts.append(opt)
     opt = cbOpts("web_id", "w", "Set the web user name.  If not set and a web user is desired a username will be created from the email address.", None)
     all_opts.append(opt)
-    opt = cbOpts("noweb", "W", "Do not put stuff into webapp sqlite", False, flag=True)
+    opt = cbOpts("web", "W", "Insert user into webapp for key(s) pickup", False, flag=True)
     all_opts.append(opt)
     opt = cbOpts("nocert", "C", "Do not add a DN", False, flag=True)
     all_opts.append(opt)
@@ -147,7 +147,7 @@ Create/edit a nimbus user
         raise CLIError('ECMDLINE', "key and cert must be used together %s %s" % (str(o.cert), str(o.key)))
     if o.access_id == None and o.access_secret != None or o.access_id != None and o.access_secret == None:
         raise CLIError('ECMDLINE', "secret and access-id must be used together")
-    if o.noweb and o.nocert and o.noaccess:
+    if not o.web and o.nocert and o.noaccess:
         raise CLIError('ECMDLINE', "you must want this tool to do something")
     if o.dest == None:
         nh = get_nimbus_home() + "/var/ca/"
@@ -225,11 +225,11 @@ def create_user(o, db):
             # add dn to gridmap
             add_gridmap(o)
 
-        if not o.noweb:
+        if o.web:
             if o.web_id == None:
-                o.web_id = o.emailaddr.__hash__()
-            do_web_bidnes(o)
-            pass
+                o.web_id = o.emailaddr.split("@")[0]
+            o.url = do_web_bidnes(o)
+
         do_group_bidnes(o)
 
         db.commit()
@@ -240,7 +240,25 @@ def create_user(o, db):
         raise ex1
 
 def do_web_bidnes(o):
-    pass
+    
+    # import this here because otherwise errors will be thrown when
+    # the settings.py is imported (transitively) and for example there
+    # is no web database setup.  Web is disabled by default in a Nimbus
+    # install, we should keep the experience cleanest for new admins.
+    try:
+        import nimbusweb.portal.nimbus.create_web_user as create_web_user
+    except:
+        print "\nWARNING: You probably have not run web/bin/run-standalone-ssl.sh\n"
+        raise
+    
+    (errmsg, url) = create_web_user.create_web_user(o.web_id, o.emailaddr, o.cert, o.key, o.access_id, o.access_secret)
+    
+    if errmsg:
+        raise CLIError('EUSER', "Problem adding user to webapp: %s" % (errmsg))
+    elif url:
+        return url
+    else:
+        raise CLIError('EUSER', "Problem adding user to webapp, nothing returned?")
 
 def do_group_bidnes(o):
     if o.dn == None:
@@ -252,8 +270,6 @@ def do_group_bidnes(o):
         add_member(groupauthz_dir, o.dn)
     except Exception, ex:
         print "WARNING %s" % (ex)
-
-
 
 def report_results(o, db):
     user = User.get_user_by_friendly(db, o.emailaddr)
