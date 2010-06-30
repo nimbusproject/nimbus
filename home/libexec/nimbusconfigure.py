@@ -315,7 +315,7 @@ class NimbusSetup(object):
         self.hostkey_path = self.resolve_config_path('hostkey')
         self.keystore_path = self.resolve_config_path('keystore')
         self.gridmap_path = self.resolve_config_path('gridmap')
-        self.envfile_path = self.resolve_path('sbin/environment.sh')
+        self.envfile_path = self.resolve_path('libexec/environment.sh')
     
     def __getitem__(self, key):
         try:
