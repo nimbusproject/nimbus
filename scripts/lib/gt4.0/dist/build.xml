@@ -87,7 +87,7 @@
             <fileset dir="${nimbus.basedir}/home/bin">
                 <include name="*"/>
             </fileset>
-            <fileset dir="${nimbus.basedir}/home/sbin">
+            <fileset dir="${nimbus.basedir}/home/libexec">
                 <include name="*"/>
             </fileset>
             <fileset dir="${nimbus.basedir}/web/bin">
