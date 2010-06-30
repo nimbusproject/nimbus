@@ -26,7 +26,7 @@ cumulus_pid=$!
 echo $cumulus_pid
 trap "kill $cumulus_pid; mv ~/.s3cfg.cumulus.test ~/.s3cfg; $CUMULUS_VE_HOME/bin/cumulus-remove-user -a tests3cmd1@nimbus.test" EXIT
 sleep 2
-log_file=`mktemp`
+log_file=`mktemp -t tmp.XXXXXXXXXX`
 echo "Logging output to $log_file" 
 $CUMULUS_VE_HOME/bin/cumulus-add-user tests3cmd1@nimbus.test
 x=`$CUMULUS_VE_HOME/bin/cumulus-list-users -b -r ID,password tests3cmd1@nimbus.test | tail -n 1`

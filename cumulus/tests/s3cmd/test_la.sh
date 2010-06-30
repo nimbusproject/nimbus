@@ -2,8 +2,8 @@
 
 bucket_name=CumulusTest$RANDOM
 fname=GRP$RANDOM
-src_dir=`mktemp -d`
-dest_dir=`mktemp -d`
+src_dir=`mktemp -d -t tmp.XXXXXXXXXX`
+dest_dir=`mktemp -d -t tmp.XXXXXXXXXX`
 
 for i in `seq 1 10`
 do

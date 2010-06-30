@@ -2,7 +2,7 @@
 
 bucket_name=CumulusTest$RANDOM
 fname=GRP$RANDOM
-src_f1=`mktemp`
+src_f1=`mktemp -t tmp.XXXXXXXXXX`
 
 s3cmd mb s3://$bucket_name
 # just run it a few times for races
