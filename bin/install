@@ -66,7 +66,7 @@ PYTHON_EXE=`which python`
 # returns 0 if Python 2.5+
 $PYTHON_EXE -c "import sys; sys.exit(sys.version_info < (2,5))"
 if [ $? -ne 0 ]; then
-    echo "ERROR: Your system must have Python version 2.5 or later."
+    echo "ERROR: The central Nimbus node must have Python version 2.5 or later (VMM nodes can have 2.4+)."
     exit 1
 fi
 
