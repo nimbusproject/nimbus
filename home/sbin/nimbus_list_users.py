@@ -49,7 +49,7 @@ def get_nimbus_home():
 def setup_options(argv):
 
     u = """[options] <email pattern>
-Create/edit a nimbus user
+List a Nimbus user
 
 Use % for a wild card
     """
