@@ -174,6 +174,8 @@ def edit_user(o, db):
         remove_gridmap(old_dn)
         add_gridmap(o)
         dnu.set_name(o.dn.strip())
+        
+        nh = get_nimbus_home()
         groupauthz_dir = os.path.join(nh, "/services/etc/nimbus/workspace-service/group-authz/")
 
         try:
