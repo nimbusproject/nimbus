@@ -51,7 +51,7 @@ def setup_options(argv):
     u = """[options] <email pattern>
 Create/edit a nimbus user
 
-User % for a wild card
+Use % for a wild card
     """
     (parser, all_opts) = pynimbusauthz.get_default_options(u)
 
