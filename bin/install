@@ -61,7 +61,11 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-PYTHON_EXE=`which python`
+if [ "X$PYTHON" = "X" ]; then
+    PYTHON_EXE=`which python`
+else
+    PYTHON_EXE="$PYTHON"
+fi
 # returns 0 if Python 2.5+
 $PYTHON_EXE -c "import sys; sys.exit(sys.version_info < (2,5))"
 if [ $? -ne 0 ]; then
