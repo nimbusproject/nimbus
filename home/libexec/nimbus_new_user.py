@@ -10,6 +10,7 @@ import random
 import os
 import sys
 import sys
+import ConfigParser
 from ConfigParser import SafeConfigParser
 import time
 import pycb
@@ -27,7 +28,7 @@ from nimbusweb.setup.setuperrors import *
 from nimbusweb.setup.groupauthz import *
 from optparse import SUPPRESS_HELP
 
-g_report_options = ["cert", "key", "dn", "canonical_id", "access_id", "access_secret", "url", "web_id"]
+g_report_options = ["cert", "key", "dn", "canonical_id", "access_id", "access_secret", "url", "web_id", "cloud_properties"]
 
 DEBUG = False
 
@@ -73,7 +74,7 @@ def generate_cert(o):
     try:
         cadir = config.get('nimbussetup', 'ca.dir')
         cadir = os.path.join(nimbus_home, cadir)
-    except NoOptionError:
+    except ConfigParser.NoOptionError:
         raise CLIError('ENIMBUSHOME', 
                 "Config file '%s' does not contain ca.dir" %
                 configpath)
@@ -100,6 +101,45 @@ def generate_cert(o):
 
     return (certpath, keypath)
 
+def cloud_props(o):
+
+    if o.nocloud_properties:
+        return
+
+    nimbus_home = get_nimbus_home()
+    configpath = os.path.join(nimbus_home, 'nimbus-setup.conf')
+    config = SafeConfigParser()
+    if not config.read(configpath):
+        raise CLIError('ENIMBUSHOME',
+                "Failed to read config from '%s'. Has Nimbus been configured?"
+                % configpath)
+    try:
+        cert_file = config.get('nimbussetup', 'hostcert')
+        cert_file = os.path.join(nimbus_home, cert_file)
+        factory_id = get_dn(cert_file)
+        hostname = config.get('nimbussetup', 'hostname')
+        template_file = os.path.join(nimbus_home, "var/cloud.properties.in")
+    except ConfigParser.NoOptionError:
+        raise CLIError('ENIMBUSHOME',
+                "Config file '%s' does not contain the needed values" %
+                configpath)
+
+    string_subs = {}
+    string_subs['@FACTORY_DN@'] = factory_id
+    string_subs['@HOST@'] = hostname
+    string_subs['@CUMULUS_ID@'] = o.access_id
+    string_subs['@CUMULUS_SECRET@'] = o.access_secret
+
+    # start the sed
+    o.cloud_properties = o.dest + "/cloud.properties"
+    fin = open(template_file, "r")
+    fout = open(o.cloud_properties, "w")
+    for l in fin.readlines():
+        for k in string_subs:
+            l = l.replace(k, string_subs[k])
+        fout.write(l)
+    fin.close()
+    fout.close()
 
 def setup_options(argv):
 
@@ -127,6 +167,8 @@ Create/edit a nimbus user
     opt = cbOpts("web_id", "w", "Set the web user name.  If not set and a web user is desired a username will be created from the email address.", None)
     all_opts.append(opt)
     opt = cbOpts("web", "W", "Insert user into webapp for key(s) pickup", False, flag=True)
+    all_opts.append(opt)
+    opt = cbOpts("nocloud_properties", "P", "Do not make the cloud.properties file", False, flag=False)
     all_opts.append(opt)
     opt = cbOpts("nocert", "C", "Do not add a DN", False, flag=True)
     all_opts.append(opt)
@@ -170,6 +212,7 @@ Create/edit a nimbus user
 
     o.canonical_id = None
     o.url = None
+    o.cloud_properties = None
 
     return (o, args, parser)
 
@@ -225,6 +268,7 @@ def create_user(o, db):
             # add dn to gridmap
             add_gridmap(o)
 
+        cloud_props(o)
         if o.web:
             if o.web_id == None:
                 o.web_id = o.emailaddr.split("@")[0]
