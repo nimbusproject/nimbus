@@ -73,6 +73,10 @@
             <fileset dir="${nimbus.basedir}/bin"/>
         </copy>
 
+        <copy todir="${distbuild.dir}/${nimbus.main}/cumulus">
+            <fileset dir="${nimbus.basedir}/cumulus"/>
+        </copy>
+
         <copy todir="${distbuild.dir}/${nimbus.main}/">
             <fileset dir="topdocs"/>
         </copy>
