@@ -64,7 +64,6 @@ User % for a wild card
 
     # def verify_opts(o, args, parser):
     if len(args) != 1:
-        raise CLIError('ECMDLINE', "You must provide exactly 1 argument: %d" % (len(args)))
         pynimbusauthz.parse_args(parser, [], ["--help"])
 
     return (o, args, parser)
