@@ -77,6 +77,10 @@
             <fileset dir="${nimbus.basedir}/bin"/>
         </copy>
 
+        <copy todir="${distbuild.dir}/${nimbus.main}/libexec">
+            <fileset dir="${nimbus.basedir}/libexec"/>
+        </copy>
+
         <copy todir="${distbuild.dir}/${nimbus.main}/">
             <fileset dir="topdocs"/>
         </copy>
@@ -89,6 +93,9 @@
                 <include name="*"/>
             </fileset>
             <fileset dir="${nimbus.basedir}/home/bin">
+                <include name="*"/>
+            </fileset>
+            <fileset dir="${nimbus.basedir}/libexec">
                 <include name="*"/>
             </fileset>
             <fileset dir="${nimbus.basedir}/home/libexec">
