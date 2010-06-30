@@ -49,6 +49,10 @@ fi
 cd ..
 
 $CUMULUS_VE_HOME/bin/nosetests pynimbusauthz.tests.__init__
+if [ "X$?" != "X0" ]; then
+    echo "FAILED : authz tests failed"
+    exit 1
+fi
 
 cd client
 $CUMULUS_VE_HOME/bin/nosetests *.py

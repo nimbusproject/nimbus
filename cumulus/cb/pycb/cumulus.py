@@ -285,7 +285,11 @@ class CumulusRunner(object):
 def main(argv=sys.argv[0:]):
     pycb.config.parse_cmdline(argv)
 
-    cumulus = CumulusRunner()
+    try:
+        cumulus = CumulusRunner()
+    except Exception, ex:
+        pycb.log(logging.ERROR, "error starting the server, check that the port is not already taken: %s" % (str(ex)), tb=traceback)
+        raise ex
     pycb.log(logging.INFO, "listening at %s" % (str(cumulus.getListener())))
     cumulus.run()
     return 0

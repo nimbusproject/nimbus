@@ -87,7 +87,7 @@ if [ $PIPESTATUS -ne 0 ]; then
 fi
 PYVE=$pyve/bin/python
 
-$NIMBUS_SRC/bin/create-nimbus-home $NIMBUS_HOME 2>&1 | tee -a $NIMBUS_HOME/install.log
+$NIMBUS_SRC/libexec/create-nimbus-home $NIMBUS_HOME 2>&1 | tee -a $NIMBUS_HOME/install.log
 
 # need PIPESTATUS because tee is not the exit code this needs to check
 if [ $PIPESTATUS -ne 0 ]; then
@@ -124,6 +124,6 @@ if [ $? -ne 0 ]; then
 fi
 
 
-$NIMBUS_SRC/bin/install-real.sh  "${@}" 2>&1 | tee -a $NIMBUS_HOME/install.log
+$NIMBUS_SRC/libexec/install-real.sh  "${@}" 2>&1 | tee -a $NIMBUS_HOME/install.log
 # need PIPESTATUS because tee is not the exit code of interest
 exit $PIPESTATUS

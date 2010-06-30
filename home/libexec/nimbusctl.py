@@ -63,7 +63,7 @@ if not os.path.isdir(NIMBUS_RUN_DIR):
 ProcessManager.init(dataDir = NIMBUS_RUN_DIR)
 
 if services_enabled:
-    NIMBUS_SERVICES_EXE = os.path.join(NIMBUS_HOME, 'sbin/run-services.sh')
+    NIMBUS_SERVICES_EXE = os.path.join(NIMBUS_HOME, 'libexec/run-services.sh')
     if not os.path.exists(NIMBUS_SERVICES_EXE):
         sys.exit("The services executable does not exist: " + 
                 NIMBUS_SERVICES_EXE)
@@ -77,7 +77,7 @@ if services_enabled:
       ))
 
 if web_enabled:
-    NIMBUS_WEB_EXE = os.path.join(NIMBUS_HOME, 'sbin/run-web.sh')
+    NIMBUS_WEB_EXE = os.path.join(NIMBUS_HOME, 'libexec/run-web.sh')
     if not os.path.exists(NIMBUS_WEB_EXE):
         sys.exit("The web executable does not exist: " + NIMBUS_WEB_EXE)
     ProcessManager.add( Process(

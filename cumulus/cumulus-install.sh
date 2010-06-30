@@ -41,10 +41,19 @@ if [ "X$2" == "X" ]; then
     echo "====================================="
     $PYTHON $source_dir/virtualenv.py -p $PYTHON $installdir
 
+    if [ -e $HOME/.nimbus/ ]; then
+        if [ ! -d $HOME/.nimbus/ ]; then
+            echo "~/.nimbus exists but it is a regular file, not a directory."
+            echo "This installation program needs to create the directory ~/.nimbus."
+            echo "please rename your existing file"
+            exit 1
+        fi
+    fi
+
     if [ ! -e $HOME/.nimbus/ ]; then
         mkdir $HOME/.nimbus/
         if [ $? -ne 0 ]; then
-            echo "get-em failed"
+            echo "mkdir ~/.nimbus failed"
             exit 1
         fi
     fi

@@ -260,14 +260,20 @@ class cbAuthzUser(object):
             self.db_obj.commit()
 
     def set_user_pw(self, password):
-        self.alias.set_data(password)
+        try:
+            self.alias.set_data(password)
+        finally:
+            self.db_obj.commit()
 
     def remove_user(self, force=False):
-        if force:
-            uc = User(self.db_obj, uu=self.get_canonical_id(), create=False)
-            uc.destroy_brutally()
-        else:
-            self.alias.remove()
+        try:
+            if force:
+                uc = User(self.db_obj, uu=self.get_canonical_id(), create=False)
+                uc.destroy_brutally()
+            else:
+                self.alias.remove()
+        finally:
+            self.db_obj.commit()
 
 class cbAuthzSec(object):
 

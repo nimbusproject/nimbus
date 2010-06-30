@@ -15,6 +15,6 @@ NIMBUS_PYLIB="$NIMBUS_WEBDIR/lib/python"
 PYTHONPATH="$NIMBUS_PYLIB:$PYTHONPATH"
 export PYTHONPATH
 
-$PYTHON_EXE $NIMBUS_HOME/sbin/nimbusctl.py $@
+$PYTHON_EXE $NIMBUS_HOME/libexec/nimbusctl.py $@
 
 exit $?

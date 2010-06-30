@@ -298,6 +298,7 @@ def main(argv=sys.argv[1:]):
         o.emailaddr = args[0]
         create_user(o, db)
         report_results(o, db)
+        db.close()
     except CLIError, clie:
         print clie
         return clie.get_rc()
