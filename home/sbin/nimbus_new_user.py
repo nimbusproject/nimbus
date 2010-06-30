@@ -248,7 +248,7 @@ def do_web_bidnes(o):
     try:
         import nimbusweb.portal.nimbus.create_web_user as create_web_user
     except:
-        print "\nWARNING: You probably have not run web/bin/run-standalone-ssl.sh\n"
+        print "\nERROR linking with web application (have you ever run web/bin/run-standalone-ssl.sh which sets things up?)\n"
         raise
     
     (errmsg, url) = create_web_user.create_web_user(o.web_id, o.emailaddr, o.cert, o.key, o.access_id, o.access_secret)
