@@ -124,9 +124,6 @@
         <copy todir="${distbuild.dir}/${nimbus.main}/monitoring">
             <fileset dir="${nimbus.basedir}/monitoring"/>
         </copy>
-        <copy todir="${distbuild.dir}/${nimbus.main}/plugins">
-            <fileset dir="${nimbus.basedir}/plugins"/>
-        </copy>
         <copy todir="${distbuild.dir}/${nimbus.main}/service">
             <fileset dir="${nimbus.basedir}/service"/>
         </copy>
