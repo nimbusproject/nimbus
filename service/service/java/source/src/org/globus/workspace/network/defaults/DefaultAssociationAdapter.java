@@ -251,39 +251,13 @@ public class DefaultAssociationAdapter implements AssociationAdapter {
                     " characters, max is 17");
         }
 
-        final char[] macChars = this.macPrefix.toCharArray();
-
-        for (int i = 0; i < macChars.length; i++) {
-            boolean thisOneOK = false;
-            boolean expectedSeparator = false;
-
-            if (i == 2 || i == 5 || i == 8 || i == 11 || i == 14) {
-                if (':' == macChars[i]) {
-                    thisOneOK = true;
-                }
-                expectedSeparator = true;
-            } else {
-                for (int j = 0; j < MacUtil.MAC_ARRAY.length; j++) {
-                    if (MacUtil.MAC_ARRAY[j] == macChars[i]) {
-                        thisOneOK = true;
-                        break;
-                    }
-                }
-            }
-            if (!thisOneOK) {
-
-                final String tail;
-                if (expectedSeparator) {
-                    tail = " (expected separator ':')" ;
-                } else {
-                    tail = " (expected hex character)" ;
-                }
-
-                throw new IllegalArgumentException("This character is in " +
-                        "the MAC prefix is NOT ok: '" +
-                        macChars[i] + "'" + tail);
-            }
+        if (!MacUtil.isValidMac(this.macPrefix, true)) {
+            throw new IllegalArgumentException(
+                    "MAC prefix has invalid characters or format: "+
+                            this.macPrefix);
         }
+
+        final char[] macChars = this.macPrefix.toCharArray();
 
         if (macChars.length > 1) {
             boolean ok = false;

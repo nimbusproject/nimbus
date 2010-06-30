@@ -317,4 +317,52 @@ public class MacUtil {
         final long mstop = System.currentTimeMillis();
         System.out.println("ELAPSED: " + Long.toString(mstop - mstart) + "ms");
     }
+
+    public static boolean isValidMac(String mac, boolean prefixOk) {
+        if (mac == null) {
+            throw new IllegalArgumentException("mac may not be null");
+        }
+
+        if (!prefixOk && mac.length() != 17) {
+            throw new IllegalArgumentException("MAC must be 17 characters long");
+        } else if (mac.length() > 17) {
+            throw new IllegalArgumentException("MAC length cannot be more than 17 characters");
+        }
+
+        mac = mac.toUpperCase();
+        final char[] macChars = mac.toCharArray();
+
+        for (int i = 0; i < macChars.length; i++) {
+            boolean thisOneOK = false;
+            boolean expectedSeparator = false;
+
+            if (i == 2 || i == 5 || i == 8 || i == 11 || i == 14) {
+                if (':' == macChars[i]) {
+                    thisOneOK = true;
+                }
+                expectedSeparator = true;
+            } else {
+                for (int j = 0; j < MAC_ARRAY.length; j++) {
+                    if (MAC_ARRAY[j] == macChars[i]) {
+                        thisOneOK = true;
+                        break;
+                    }
+                }
+            }
+            if (!thisOneOK) {
+
+                final String tail;
+                if (expectedSeparator) {
+                    tail = " (expected separator ':')" ;
+                } else {
+                    tail = " (expected hex character)" ;
+                }
+
+                logger.warn("Invalid character in MAC (" +
+                        mac + "): '" + macChars[i] + "'" + tail);
+                return false;
+            }
+        }
+        return true;
+    }
 }

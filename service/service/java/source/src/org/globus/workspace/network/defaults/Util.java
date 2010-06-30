@@ -627,7 +627,14 @@ public class Util {
             mac = st.nextToken().trim();
             if (mac.equals(NOENTRY)) {
                 mac = null;
+            } else {
+                if (!MacUtil.isValidMac(mac, false)) {
+                    logger.error("Invalid MAC address entry -- line = '" +
+                            line + "'.");
+                    return null;
+                }
             }
+
         }
 
         final AssociationEntry entry =
