@@ -12,7 +12,7 @@ data_dir=@INSTALLDIR@/posixdata
 [security]
 type=authz
 security_dir=@INSTALLDIR@/posixauth
-authzdb=@INSTALLDIR@/etc/authz.db
+authzdb=@AUTHZDB@
 
 
 [log]

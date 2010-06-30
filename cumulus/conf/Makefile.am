@@ -35,6 +35,6 @@ install: predest
 	cp $(cumulus_src_dir)/etc/cumulus.ini ~/.nimbus
 	cp -r $(cumulus_src_dir)/etc $(cumulus_dst_dir)
 	cp -r $(cumulus_src_dir)/etc/env.sh $(cumulus_dst_dir)
-	$(SQLITE) $(cumulus_dst_dir)/etc/authz.db < $(cumulus_src_dir)/etc/acl.sql
+	$(SQLITE) $(AUTHZDB) < $(cumulus_src_dir)/etc/acl.sql
 	echo "done"
 

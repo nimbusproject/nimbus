@@ -34,8 +34,9 @@ class TestUsers(unittest.TestCase):
         for f in self.users:
             nimbus_remove_user.main([f])
 
-    def get_user_name(self):
-        friendly_name = str(uuid.uuid1())
+    def get_user_name(self, friendly_name=None):
+        if friendly_name == None:
+            friendly_name = str(uuid.uuid1())
         self.users.append(friendly_name)
         return friendly_name    
 
@@ -196,3 +197,15 @@ class TestUsers(unittest.TestCase):
         self.assertTrue(rc)
 
         os.unlink(outFileName)
+
+    def test_db_commit_user(self):
+        friendly_name = self.get_user_name(friendly_name="test1@nimbus.test")
+        rc = nimbus_new_user.main(["-W", friendly_name])
+        self.assertEqual(rc, 0, "should be 0 %d" % (rc))
+        friendly_name = self.get_user_name(friendly_name="test1@nimbus22.test")
+        rc = nimbus_new_user.main(["-W", friendly_name])
+        self.assertNotEqual(rc, 0, "we expect this one to fail %d" % (rc))
+        friendly_name = self.get_user_name(friendly_name="test1@nimbus22.test")
+        rc = nimbus_new_user.main(["-W", "-w", "NewName", friendly_name])
+        self.assertEqual(rc, 0, "but then this clarification should succeed %d" % (rc))
+

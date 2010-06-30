@@ -15,10 +15,16 @@ source_dir=`pwd`
 
 # if no
 if [ "X$2" == "X" ]; then
-    PYTHON=`which python2.5`
+    PYTHON=`which python`
+
+    $PYTHON -c "import sys; sys.exit(sys.version_info < (2,5))"
+    if [ $? -ne 0 ]; then
+        echo "ERROR: Your system must have Python version 2.5 or later."
+        exit 1
+    fi
 
     if [ "X$PYTHON" == "X" ]; then
-        echo "you must have python2.5 in your system path for installation"
+        echo "you must have python in your system path for installation"
         exit 1
     fi
 
