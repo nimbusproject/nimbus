@@ -14,7 +14,7 @@ if [ "X$?" != "X0" ]; then
     exit 1
 fi
 
-for i in `seq 1 4`
+for ((i=1; i <= 4; i++))
 do
     s3cmd --force get s3://$bucket_name/$fname $f &
     pid=$!

@@ -5,7 +5,7 @@ fname=GRP$RANDOM
 src_dir=`mktemp -d -t tmp.XXXXXXXXXX`
 dest_dir=`mktemp -d -t tmp.XXXXXXXXXX`
 
-for i in `seq 1 10`
+for ((i=1; i <= 10; i++))
 do
     cp /etc/group $src_dir
 done

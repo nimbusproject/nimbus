@@ -21,7 +21,7 @@ do
 
         rm -f cumulus_tests.*
         # put them all at once
-        for cnt in `seq 1 $c`
+        for ((cnt=1; cnt <= $c; cnt++))
         do
             tf=`mktemp $pwd_dir/cumulus_tests.XXXXXXXXXX`
             echo $tf
@@ -31,7 +31,7 @@ do
         cat cumulus_tests.* >> $tm_file
         rm -f cumulus_tests.*
 
-        for cnt in `seq 1 $c`
+        for ((cnt=1; cnt <= $c; cnt++))
         do
             tf=`mktemp $pwd_dir/cumulus_tests.XXXXXXXXXX`
             /usr/bin/time -a -o $tf --format "get $s $c %e" s3cmd --force get $buck/$fname $fname.back &
