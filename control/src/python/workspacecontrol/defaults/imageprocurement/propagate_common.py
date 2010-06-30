@@ -550,6 +550,7 @@ class DefaultImageProcurement:
         lf.rootdisk = False # not set in this method
         lf.editable = True
         lf.read_write = True
+        lf.physical = False
         
         # if 'ro' is not a field, assumed to be 'rw'
         parts = imgstr.split(';')

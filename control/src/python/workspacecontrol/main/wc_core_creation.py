@@ -1,5 +1,6 @@
 from workspacecontrol.api.exceptions import *
 import workspacecontrol.main.wc_args as wc_args
+import workspacecontrol.experimental.tmplease as tmplease
 import workspacecontrol.defaults.NetworkLease as NetworkLease
 import wc_daemonize
 import wc_core_propagation
@@ -92,7 +93,7 @@ def _common(local_file_set, vm_name, p, c, editing, kernels, localnet, netbootst
         localnet.choose_vifnames(nic_set, vm_name)
         persistence.store_nic_set(vm_name, nic_set, ok_to_replace=True)
         
-        _common_withnics(nic_set, kernel, local_file_set, c, localnet, netbootstrap, netsecurity, platform, justprint)
+        _common_withnics(vm_name, nic_set, kernel, local_file_set, p, c, localnet, netbootstrap, netsecurity, platform, justprint)
         
     except Exception,e:
         
@@ -105,7 +106,7 @@ def _common(local_file_set, vm_name, p, c, editing, kernels, localnet, netbootst
             c.log.exception(e2)
         raise e
     
-def _common_withnics(nic_set, kernel, local_file_set, c, localnet, netbootstrap, netsecurity, platform, justprint):
+def _common_withnics(vm_name, nic_set, kernel, local_file_set, p, c, localnet, netbootstrap, netsecurity, platform, justprint):
     
     if c.trace:
         c.log.debug("_common_withnics()")
@@ -115,7 +116,7 @@ def _common_withnics(nic_set, kernel, local_file_set, c, localnet, netbootstrap,
     
     netbootstrap.setup(nic_set)
     try:
-        _common_withnetbootstrap(nic_set, kernel, local_file_set, c, netsecurity, platform, justprint)
+        _common_withnetbootstrap(vm_name, nic_set, kernel, local_file_set, p, c, netsecurity, platform, justprint)
     except Exception,e:
         c.log.exception(e)
         try:
@@ -126,17 +127,14 @@ def _common_withnics(nic_set, kernel, local_file_set, c, localnet, netbootstrap,
             c.log.exception(e2)
         raise e
     
-def _common_withnetbootstrap(nic_set, kernel, local_file_set, c, netsecurity, platform, justprint):
+def _common_withnetbootstrap(vm_name, nic_set, kernel, local_file_set, p, c, netsecurity, platform, justprint):
     
     if c.trace:
         c.log.debug("_common_withnetbootstrap()")
     
     netsecurity.setup(nic_set)
     try:
-        if justprint:
-            platform.print_create_spec(local_file_set, nic_set, kernel)
-        else:
-            platform.create(local_file_set, nic_set, kernel)
+        _common_withnetsecurity(vm_name, nic_set, kernel, local_file_set, p, c, netsecurity, platform, justprint)
     except Exception,e:
         c.log.exception(e)
         try:
@@ -146,6 +144,34 @@ def _common_withnetbootstrap(nic_set, kernel, local_file_set, c, netsecurity, pl
         except Exception,e2:
             c.log.exception(e2)
         raise e
+
+def _common_withnetsecurity(vm_name, nic_set, kernel, local_file_set, p, c, netsecurity, platform, justprint):
+    
+    if c.trace:
+        c.log.debug("_common_withnetsecurity()")
+    
+    local_file_set = tmplease.setup(p, c, local_file_set, vm_name)
+    try:
+        _common_withtmplease(nic_set, kernel, local_file_set, c, netsecurity, platform, justprint)
+    except Exception,e:
+        c.log.exception(e)
+        try:
+            c.log.error("Creation problem: going to back out tmp space lease")
+            tmplease.teardown(local_file_set)
+            c.log.error("Backed out tmp space lease")
+        except Exception,e2:
+            c.log.exception(e2)
+        raise e
+
+def _common_withtmplease(nic_set, kernel, local_file_set, c, netsecurity, platform, justprint):
+    
+    if c.trace:
+        c.log.debug("_common_withtmplease()")
+    
+    if justprint:
+        platform.print_create_spec(local_file_set, nic_set, kernel)
+    else:
+        platform.create(local_file_set, nic_set, kernel)
 
 def _discover_nic_and_network_names(p, c):
     

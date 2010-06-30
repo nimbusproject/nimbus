@@ -42,6 +42,13 @@ class intakeadapter(PlatformInputAdapter):
             raise InvalidConfig("unknown xen disk driver value: %s" % driver)
         for disk in dom.devices.disks:
             disk.driver = driver
+            
+        for lf in local_file_set.flist():
+            if lf.physical:
+                for disk in dom.devices.disks:
+                    if disk.target == lf.mountpoint:
+                        disk._type = "block"
+                        self.c.log.debug("set as block device: '%s' with mountpoint '%s'" % (disk.source, disk.target))
         
         script = self.p.get_conf_or_none("xencreation", "bridge_script")
         if script:
