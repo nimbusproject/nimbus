@@ -1,8 +1,8 @@
 #!/usr/bin/python
 
 """
-Creates a new nimbus users.  It will create all needed user aliases (cumulus,
-x509, and web loging id)
+Creates new Nimbus users.  It will create all needed user aliases (Cumulus,
+x509, and web login id)
 """
 from nimbusweb.setup import autoca
 import string
