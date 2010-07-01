@@ -64,12 +64,12 @@ public class ReprPopulator {
     public CreateRequest getCreateRequest(String name, int durationSecs, int mem, int numNodes) throws Exception {
         final _CreateRequest req = this.repr._newCreateRequest();
 
-        populate(req, durationSecs, name, mem, numNodes);
+        populate(req, durationSecs, name, mem, numNodes, false);
 
         return req;
     }    
 
-    private void populate(final _CreateRequest req, int durationSeconds, String name, int mem, int numNodes) throws URISyntaxException {
+    private void populate(final _CreateRequest req, int durationSeconds, String name, int mem, int numNodes, boolean preemptable) throws URISyntaxException {
         req.setName(name);
         
         final _NIC nic = this.repr._newNIC();
@@ -88,6 +88,7 @@ public class ReprPopulator {
         req.setInitialStateRequest(CreateRequest.INITIAL_STATE_RUNNING);
 
         ra.setArchitecture(ResourceAllocation.ARCH_x86);
+        ra.setPreemptable(preemptable);
         final _RequiredVMM reqVMM = this.repr._newRequiredVMM();
         reqVMM.setType("Xen");
         reqVMM.setVersions(new String[]{"3"});
@@ -121,7 +122,7 @@ public class ReprPopulator {
     public RequestSI getBasicRequestSI(String name, int numNodes, Double spotPrice, boolean persistent, int durationSeconds) throws Exception {
         final _RequestSI reqSI = new DefaultRequestSI();
         
-        populate(reqSI, durationSeconds, name, SIConstants.SI_TYPE_BASIC_MEM, numNodes);
+        populate(reqSI, durationSeconds, name, SIConstants.SI_TYPE_BASIC_MEM, numNodes, true);
         
         reqSI.setInstanceType(SIConstants.SI_TYPE_BASIC);
         reqSI.setSpotPrice(spotPrice);

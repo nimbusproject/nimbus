@@ -69,7 +69,7 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
      * 
      *  * One non-persistent SI request is submitted
      *    * Check SI request result
-     *    * Check if it was allocated
+     *    * Check if request was allocated
      *    * Check if spot price is equal to MINIMUM PRICE (since there are still available SI resources)
      *    
      *  * This request is canceled
@@ -89,29 +89,31 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         
         Double previousPrice = rm.getSpotPrice();
         
+        logger.debug("Submitting basic SI request: singleRequest");
+        
         final Double bid = previousPrice + 1;
-        RequestSI requestSI = this.populator().getBasicRequestSI("suite:spotinstances:singleresourcepool:singleRequest", 1, bid, false);
+        RequestSI requestSI = this.populator().getBasicRequestSI("singleRequest", 1, bid, false);
         
         //Request spot instances
         SpotRequest result = rm.requestSpotInstances(requestSI, caller);
         
         //Check result
         //note: cannot check state at this point, because it can either be 
-        //OPEN (not scheduler yet) or ACTIVE (already scheduled)
+        //OPEN (not scheduled yet) or ACTIVE (already scheduled)
         assertEquals(bid, result.getSpotPrice());
         assertTrue(!result.isPersistent());
         
         // Spot Instances Snapshot
         // 
         // Total memory: 1280MB
-        // Reserved free memory (for ordinary WS requests): 256MB
-        // Available basic SI VMs: 8 (128MB each)         
+        // Reserved free memory (for ordinary WS requests): 256MB  (minimum reserved capacity)
+        // Available basic SI VMs: 8 (128MB x 8 = 1024)
         //
         // Current Requests___________________________________________________________
         // |   Request  | reqVMs | allocVMs |       Bid        | Status | Persistent |
         // | singleReq  |    1   |    1     |  previousPrice+1 | ACTIVE |    false   |
         // ---------------------------------------------------------------------------
-        // Requested SI VMs: 1
+        // Requested SI VMs (alive requests): 1
         // Spot price: MINIUM_PRICE (since requestedVMs < availableVMs)                  
         
         //New spot price is equal to minimum price (since there are still available resources)
@@ -119,13 +121,13 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         
         SpotRequest[] spotRequestByCaller = rm.getSpotRequestByCaller(caller);
         assertEquals(1, spotRequestByCaller.length);
-        assertEquals(result, spotRequestByCaller[0]);
         
         //Let's assume the request was already scheduled, so the state should be ACTIVE
         SpotRequest request = rm.getSpotRequest(result.getRequestID(), caller);
         assertEquals(SIRequestState.STATE_Active, request.getState().getStateStr());
+                
+        logger.debug("Cancelling basic SI request: singleRequest");        
         
-        //Cancel request
         SpotRequest[] cancelledReqs = rm.cancelSpotInstanceRequests(new String[]{result.getRequestID()}, caller);
         assertEquals(1, cancelledReqs.length);
         assertEquals(SIRequestState.STATE_Cancelled, cancelledReqs[0].getState().getStateStr());
@@ -135,14 +137,17 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         // 
         // Total memory: 1280MB
         // Reserved free memory (for ordinary WS requests): 256MB
-        // Available basic SI VMs: 8 (128MB each)         
+        // Available basic SI VMs: 8 (128MB x 8 = 1024)         
         //
         // Current Requests______________________________________________________________
         // |   Request  | reqVMs | allocVMs |       Bid        |   Status  | Persistent |
         // | singleReq  |    1   |    0     |  previousPrice+1 | CANCELLED |    false   |
         // ------------------------------------------------------------------------------
-        // Requested SI VMs: 1
+        // Requested SI VMs (alive requests): 1
         // Spot price: MINIUM_PRICE (since requestedVMs < availableVMs)              
+        
+        logger.debug("Waiting 2 seconds for resources to be pre-empted.");        
+        Thread.sleep(2000);
         
         //Check if request was really cancelled
         request = rm.getSpotRequest(result.getRequestID(), caller);
@@ -166,7 +171,7 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
      * 
      * 1024(SI VMs) + 256(minimum free space reserved for WS requests) = 1280(pool capacity)
      * 
-     * There are 3 classes of SI requests:
+     * For this test, there are 3 classes of SI requests:
      *    1 - Low bid (lowReq1, lowReq2, lowReq3)
      *    2 - Medium bid (mediumReq1, mediumReq2)
      *    3 - High bid (highReq)
@@ -177,23 +182,23 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
      * 
      *  * lowReq1(1 VM), lowReq2(3 VMs) and mediumReq1(3 VMs) are submitted
      *    * Check if they were allocated
-     *    * Check if spot price is equal to MINIMUM PRICE (since not all resources are taken)
+     *    * Check if spot price is equal to MINIMUM PRICE (since there are still SI VMs available)
      *    
      *  * lowReq3(1 VM) is submitted
      *    * Check if it was allocated
-     *    * Check if spot price is equal to lowBid (since all resources are taken, and all requests 
-     *                                           satisfied)
+     *    * Check if spot price is equal to lowBid (since all available SI VMs are allocated)
+     *    
      *  * mediumReq2(5 VMs) is submitted
      *    * Check if it was allocated
-     *    * Check if spot price has raised to mediumBid (since all resources are taken, and just 
-     *                                                Medium bid requests can be satisfied)
+     *    * Check if spot price has raised to mediumBid (since all available SI VMs are allocated, 
+     *                                                  and just medium bid requests can be satisfied)
      *    * Check if low bid requests were pre-empted
      *    * Check if persistent low bid requests are OPEN and non-persistent are CLOSED 
      *    
      *  * highReq(8 VMs) is submitted
      *    * Check if it was allocated
-     *    * Check if spot price has raised to highBid (since all resources are taken, and just 
-     *                                                High bid requests can be satisfied)
+     *    * Check if spot price has raised to highBid (since all available SI VMs are allocated, 
+     *                                                  and just high bid requests can be satisfied)
      *    * Check if medium bid requests were pre-empted
      *    * Check if persistent medium bid requests are OPEN and non-persistent are CLOSED                                                                                        
      *    
@@ -225,6 +230,8 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         RequestSI mediumReq2 = this.populator().getBasicRequestSI("mediumReq2", 5, mediumBid, true, 500);
         RequestSI highReq = this.populator().getBasicRequestSI("highReq", 10, highBid, false, 60);
         
+        logger.debug("Submitting SI requests: lowReq1, lowReq2, mediumReq1");         
+        
         //Submit 3 SI Requests
         String lowReq1Id = rm.requestSpotInstances(lowReq1, caller1).getRequestID();
         String lowReq2Id = rm.requestSpotInstances(lowReq2, caller1).getRequestID();
@@ -233,8 +240,8 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         // Spot Instances Snapshot
         // 
         // Total memory: 1280MB
-        // Reserved free memory (for ordinary WS requests): 256MB (mininum reserved capacity)
-        // Available basic SI VMs: 8 (128MB each)         
+        // Reserved free memory (for ordinary WS requests): 256MB (minimum reserved capacity)
+        // Available basic SI VMs: 8 (128MB x 8 = 1024MB)         
         //
         // Current Requests___________________________________________________________
         // |   Request  | reqVMs | allocVMs |       Bid        | Status | Persistent |
@@ -242,7 +249,7 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         // | lowReq2    |   3    |    3     |  previousPrice+1 | ACTIVE |    true    |
         // | mediumReq1 |   3    |    3     |  previousPrice+2 | ACTIVE |    false   |
         // ----------------------------------------------------------------------------
-        // Requested SI VMs: 7
+        // Requested SI VMs (alive requests): 7
         // Spot price: MINIUM_PRICE (since requestedVMs < availableVMs)           
         
         //New spot price is equal to minimum price
@@ -256,14 +263,16 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         SpotRequest[] caller2Reqs = rm.getSpotRequestByCaller(caller2);
         assertEquals(SIRequestState.STATE_Active, caller2Reqs[0].getState().getStateStr());
         
+        logger.debug("Submitting SI request: lowReq3");                 
+        
         //Submit another SI Request 
         String lowReq3Id = rm.requestSpotInstances(lowReq3, caller2).getRequestID();
         
         // Spot Instances Snapshot
         // 
         // Total memory: 1280MB
-        // Reserved free memory (for ordinary WS requests): 256MB (mininum reserved capacity)
-        // Available basic SI VMs: 8 (128MB each)         
+        // Reserved free memory (for ordinary WS requests): 256MB (minimum reserved capacity)
+        // Available basic SI VMs: 8 (128MB x 8 = 1024MB)         
         //
         // Current Requests___________________________________________________________
         // |   Request  | reqVMs | allocVMs |       Bid        | Status | Persistent |
@@ -272,7 +281,7 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         // | mediumReq1 |   3    |    3     |  previousPrice+2 | ACTIVE |    false   |
         // | lowReq3    |   1    |    1     |  previousPrice+1 | ACTIVE |    false   |        
         // ---------------------------------------------------------------------------      
-        // Requested SI VMs: 8
+        // Requested SI VMs (alive requests): 8
         // Spot price: lowBid (previousPrice+1) 
         
         //New spot price is equal to lower bid
@@ -281,14 +290,16 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         //Check if submitted request is active
         assertEquals(SIRequestState.STATE_Active, rm.getSpotRequest(lowReq3Id, caller2).getState().getStateStr());
         
+        logger.debug("Submitting SI request: mediumReq2");
+        
         //Submit another medium-bid SI Request 
         String medReq2Id = rm.requestSpotInstances(mediumReq2, caller2).getRequestID();
         
         // Spot Instances Snapshot
         // 
         // Total memory: 1280MB
-        // Reserved free memory (for ordinary WS requests): 256MB (mininum reserved capacity)
-        // Available basic SI VMs: 8 (128MB each)         
+        // Reserved free memory (for ordinary WS requests): 256MB (minimum reserved capacity)
+        // Available basic SI VMs: 8 (128MB x 8 = 1024MB)         
         // 
         // Current Requests___________________________________________________________
         // |   Request  | reqVMs | allocVMs |       Bid        | Status | Persistent |
@@ -298,8 +309,11 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         // | lowReq3    |   1    |    0     |  previousPrice+1 | CLOSED |    false   |
         // | mediumReq2 |   5    |    5     |  previousPrice+2 | ACTIVE |    true    |
         // ---------------------------------------------------------------------------
-        // Requested SI VMs: 13
+        // Requested SI VMs (alive requests): 11
         // Spot price: mediumBid (previousPrice+2)             
+
+        logger.debug("Waiting 2 seconds for resources to be pre-empted.");
+        Thread.sleep(2000);         
         
         //New spot price is equal to medium bid
         assertEquals(mediumBid,  rm.getSpotPrice());   
@@ -317,14 +331,16 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         assertEquals(SIRequestState.STATE_Closed, rm.getSpotRequest(lowReq1Id, caller1).getState().getStateStr());
         assertEquals(SIRequestState.STATE_Closed, rm.getSpotRequest(lowReq3Id, caller2).getState().getStateStr());
         
+        logger.debug("Submitting SI request: highReq");   
+        
         //Submit a higher-bid SI Request 
         String highReqId = rm.requestSpotInstances(highReq, caller3).getRequestID();
         
         // Spot Instances Snapshot
         // 
         // Total memory: 1280MB
-        // Reserved free memory (for ordinary WS requests): 256MB (mininum reserved capacity)
-        // Available basic SI VMs: 8 (128MB each)         
+        // Reserved free memory (for ordinary WS requests): 256MB (minimum reserved capacity)
+        // Available basic SI VMs: 8 (128MB x 8 = 1024MB)         
         // 
         // Current Requests___________________________________________________________
         // |   Request  | reqVMs | allocVMs |       Bid        | Status | Persistent |
@@ -335,8 +351,11 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         // | mediumReq2 |   5    |    0     |  previousPrice+2 | OPEN   |    true    |
         // | highReq    |  10    |    8     |  previousPrice+3 | ACTIVE |    false   |            
         // ---------------------------------------------------------------------------              
-        // Requested SI VMs: 23
+        // Requested SI VMs (alive requests): 18
         // Spot price: highBid (previousPrice+3)              
+        
+        logger.debug("Waiting 2 seconds for resources to be pre-empted.");
+        Thread.sleep(2000);        
         
         //New spot price is equal to high bid
         assertEquals(highBid,  rm.getSpotPrice());
@@ -351,7 +370,7 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         //Check if non-persistent requests are closed
         assertEquals(SIRequestState.STATE_Closed, rm.getSpotRequest(lowReq1Id, caller1).getState().getStateStr());
         assertEquals(SIRequestState.STATE_Closed, rm.getSpotRequest(lowReq3Id, caller2).getState().getStateStr());
-        assertEquals(SIRequestState.STATE_Closed, rm.getSpotRequest(medReq1Id, caller2).getState().getStateStr());        
+        assertEquals(SIRequestState.STATE_Closed, rm.getSpotRequest(medReq1Id, caller2).getState().getStateStr());
     }
     
 
@@ -435,8 +454,9 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         // Spot Instances Snapshot
         // 
         // Total memory: 1280MB
-        // Reserved free memory (for ordinary WS requests): 256MB (mininum reserved capacity)
-        // Available basic SI VMs: 8 (128MB each)         
+        // Used WS memory: 0MB
+        // Reserved free memory (for ordinary WS requests): 256MB (minimum reserved capacity)
+        // Available basic SI VMs: 8 (128MB x 8 = 1024MB)         
         //
         // Current Requests___________________________________________________________
         // |   Request  | reqVMs | allocVMs |       Bid        | Status | Persistent |
@@ -444,7 +464,7 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         // | lowReq2    |   2    |     2    | previousPrice+1  | ACTIVE |    true    |
         // | mediumReq1 |   3    |     3    | previousPrice+3  | ACTIVE |    false   |
         // ---------------------------------------------------------------------------
-        // Requested SI VMs (ALIVE requests): 8
+        // Requested SI VMs (alive requests): 8
         // Spot price: lowBid (previousPrice+1)          
         
         //Check available SI VMs
@@ -478,7 +498,7 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         // Total memory: 1280MB
         // Used WS memory: 240MB
         // Reserved free memory (for ordinary WS requests): 256MB (minimum reserved capacity)
-        // Available basic SI VMs: 6 (128MB each)         
+        // Available basic SI VMs: 6 (128MB x 6 = 768)         
         //
         // Current Requests___________________________________________________________
         // |   Request  | reqVMs | allocVMs |       Bid        | Status | Persistent |
@@ -486,7 +506,7 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         // | lowReq2    |   2    |     1    | previousPrice+1  | ACTIVE |    true    |
         // | mediumReq1 |   3    |     3    | previousPrice+3  | ACTIVE |    false   |
         // ---------------------------------------------------------------------------
-        // Requested SI VMs (ALIVE requests): 7 (1 from lowReq1 was closed)
+        // Requested SI VMs (alive requests): 7 (1 from lowReq1 was closed)
         // Spot price: lowBid (previousPrice+1)       
 
         logger.debug("Waiting 2 seconds for resources to be pre-empted.");
@@ -520,7 +540,7 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         // Total memory: 1280MB
         // Used WS memory: 460MB
         // Reserved free memory (for ordinary WS requests): 256MB (minimum reserved capacity)
-        // Available basic SI VMs: 4 (128MB each)         
+        // Available basic SI VMs: 4 (128MB x 4 = 512MB)         
         //
         // Current Requests___________________________________________________________
         // |   Request  | reqVMs | allocVMs |       Bid        | Status | Persistent |
@@ -528,7 +548,7 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         // | lowReq2    |   2    |     0    | previousPrice+1  | OPEN   |    true    |
         // | mediumReq1 |   3    |     3    | previousPrice+3  | ACTIVE |    false   |
         // ---------------------------------------------------------------------------
-        // Requested SI VMs (ALIVE requests): 6 (2 from lowReq1 were closed)
+        // Requested SI VMs (alive requests): 6 (2 from lowReq1 were closed)
         // Spot price: lowBid (previousPrice+1)
         
         logger.debug("Waiting 2 seconds for SI VMs to be pre-empted.");
@@ -566,7 +586,7 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         // Total memory: 1280MB
         // Used WS memory: 240MB
         // Reserved free memory (for ordinary WS requests): 256MB (minimum reserved capacity)
-        // Available basic SI VMs: 6 (128MB each)         
+        // Available basic SI VMs: 6 (128MB x 6 = 768MB)        
         //
         // Current Requests___________________________________________________________
         // |   Request  | reqVMs | allocVMs |       Bid        | Status | Persistent |
@@ -574,7 +594,7 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         // | lowReq2    |   2    |     2    | previousPrice+1  | ACTIVE |    true    |
         // | mediumReq1 |   3    |     3    | previousPrice+3  | ACTIVE |    false   |
         // ---------------------------------------------------------------------------
-        // Requested SI VMs (ALIVE requests): 6 (2 from lowReq1 were closed)
+        // Requested SI VMs (alive requests): 6 (2 from lowReq1 were closed)
         // Spot price: lowBid (previousPrice+1)        
         //
         // ** lowReq1 is not persistent, so no more VMs are allocated for this
@@ -608,7 +628,7 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         // Total memory: 1280MB
         // Used WS memory: 752MB
         // Reserved capacity (for ordinary WS requests): 322MB (to ensure 70% max utilization)
-        // Available basic SI VMs: 1 (128MB each)         
+        // Available basic SI VMs: 1 (128MB)         
         //
         // Current Requests___________________________________________________________
         // |   Request  | reqVMs | allocVMs |       Bid        | Status | Persistent |
@@ -616,7 +636,7 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         // | lowReq2    |   2    |     0    | previousPrice+1  | OPEN   |    true    |
         // | mediumReq1 |   3    |     1    | previousPrice+3  | ACTIVE |    false   |
         // ---------------------------------------------------------------------------
-        // Requested SI VMs (ALIVE requests): 3
+        // Requested SI VMs (alive requests): 3
         // Spot price: lowBid (previousPrice+1)
         
         logger.debug("Waiting 2 seconds for SI VMs to be pre-empted.");
@@ -650,7 +670,7 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         // Total memory: 1280MB
         // Used WS memory: 1008MB
         // Reserved capacity (for ordinary WS requests): 432MB (to ensure 70% max utilization)
-        // Available basic SI VMs: 0        
+        // Available basic SI VMs: 0
         //
         // Current Requests___________________________________________________________
         // |   Request  | reqVMs | allocVMs |       Bid        | Status | Persistent |
@@ -658,7 +678,7 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         // | lowReq2    |   2    |     0    | previousPrice+1  | OPEN   |    true    |
         // | mediumReq1 |   3    |     0    | previousPrice+3  | CLOSED |    false   |
         // ---------------------------------------------------------------------------
-        // Requested SI VMs (ALIVE requests): 2
+        // Requested SI VMs (alive requests): 2
         // Spot price: lowBid + 1
         
         logger.debug("Waiting 2 seconds for SI VMs to be pre-empted.");
@@ -699,7 +719,7 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         // | lowReq2    |   2    |     2    | previousPrice+1  | ACTIVE |    true    |
         // | mediumReq1 |   3    |     0    | previousPrice+3  | CLOSED |    false   |
         // ---------------------------------------------------------------------------
-        // Requested SI VMs (ALIVE requests): 2
+        // Requested SI VMs (alive requests): 2
         // Spot price: lowBid
         
         logger.debug("Waiting 2 seconds for resources to be allocated.");
