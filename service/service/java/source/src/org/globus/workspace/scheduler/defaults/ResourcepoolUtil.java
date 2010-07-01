@@ -22,6 +22,7 @@ import org.globus.workspace.Lager;
 import org.globus.workspace.ProgrammingError;
 import org.globus.workspace.persistence.PersistenceAdapter;
 import org.globus.workspace.persistence.WorkspaceDatabaseException;
+import org.nimbustools.api.services.rm.NotEnoughMemoryException;
 import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
 import org.nimbustools.api.services.rm.ManageException;
 
@@ -416,7 +417,7 @@ class ResourcepoolUtil {
         if(availableEntries.isEmpty()){
             String err = "No resource is available for this request (based on memory).";
             logger.error(err);
-            throw new ResourceRequestDeniedException(err);
+            throw new NotEnoughMemoryException(err);
         }
 
         netFilter(availableEntries, neededAssociations, trace);
