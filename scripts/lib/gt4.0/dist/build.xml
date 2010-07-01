@@ -69,9 +69,8 @@
             </fileset>
         </copy>
 
-        <copy todir="${distbuild.dir}/${nimbus.main}">
-            <filename dir="${nimbus.basedir}/install"/>
-        </copy>
+        <copy tofile="${distbuild.dir}/${nimbus.main}/install"
+            file="${nimbus.basedir}/install"/>
 
         <copy todir="${distbuild.dir}/${nimbus.main}/cumulus">
             <fileset dir="${nimbus.basedir}/cumulus"/>
