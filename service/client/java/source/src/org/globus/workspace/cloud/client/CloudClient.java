@@ -1498,6 +1498,7 @@ public class CloudClient {
         final WorkspaceDeployment_Type deploymentRequest =
                 DeploymentXMLUtil.constructDeployment(this.args.getDurationMinutes(),
                                                       this.args.getMemory(),
+                                                      this.args.getCores(),
                                                       this.newUnpropTargetURL);
 
         this.executeUtil.startOneWorkspace(this.workspaceFactoryURL,
@@ -1575,6 +1576,7 @@ public class CloudClient {
             deploymentRequests[i] =
                 DeploymentXMLUtil.constructDeployment(this.args.getDurationMinutes(),
                                                       this.args.getMemory(),
+                                                      this.args.getCores(),
                                                       this.newUnpropTargetURL,
                                                       member.getQuantity());
 

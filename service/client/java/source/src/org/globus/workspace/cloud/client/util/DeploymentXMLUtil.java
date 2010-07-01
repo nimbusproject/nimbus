@@ -34,10 +34,12 @@ public class DeploymentXMLUtil {
     public static WorkspaceDeployment_Type constructDeployment(
             int durationMinutes,
             int memoryMegabytes,
+            int cores,
             String newPropagationTargetURL) {
 
         return constructDeployment(durationMinutes,
                                    memoryMegabytes,
+                                   cores,
                                    newPropagationTargetURL,
                                    1);
     }
@@ -45,6 +47,7 @@ public class DeploymentXMLUtil {
     public static WorkspaceDeployment_Type constructDeployment(
             int durationMinutes,
             int memoryMegabytes,
+            int cores,
             String newPropagationTargetURL,
             int numInstances) {
 
@@ -65,6 +68,7 @@ public class DeploymentXMLUtil {
                                                numInstances,
                                                InitialState_Type.Running,
                                                shutdownType,
-                                               newPropagationTargetURI);
+                                               newPropagationTargetURI,
+                                               cores);
     }
 }
