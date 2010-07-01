@@ -8,6 +8,7 @@
 
 ssh.pubkey=~/.ssh/id_rsa.pub
 
+
 ###########################################################################
 # Path to SSH known_hosts file
 #
@@ -22,16 +23,28 @@ ssh.pubkey=~/.ssh/id_rsa.pub
 
 ssh.hostsfile=~/.ssh/known_hosts
 
+
 ###########################################################################
-# Host+port of Virtal Workspace Service (not the URL)
+# Host+port of the Nimbus central service (not the URL)
 ###########################################################################
 
 vws.factory=@HOST@:8443
 
+
+###########################################################################
+# Default settings for this Nimbus cloud
+###########################################################################
+
+vws.memory.request=200
+vws.cores.request=1
+
+
 ###########################################################################
 # Host+port of image repository (not the URL)
 ###########################################################################
+
 vws.repository=@HOST@:8888
+
 
 ###########################################################################
 # Virtal Workspace Service identity, to verify we are talking to the
@@ -42,13 +55,18 @@ vws.factory.identity=@FACTORY_DN@
 
 
 ###########################################################################
-# Image repository identity, to verify we are talking to the right machine.
+# Image repository settings
 ###########################################################################
+
 vws.repository.type=cumulus
-vws.repository.s3id=@CUMULUS_ID@
-vws.repository.s3key=@CUMULUS_SECRET@
 vws.repository.s3basekey=VMS
 vws.repository.s3bucket=Repo
 
 
-vws.memory.request=200
+###########################################################################
+# Your image repository credentials
+###########################################################################
+
+vws.repository.s3id=@CUMULUS_ID@
+vws.repository.s3key=@CUMULUS_SECRET@
+
