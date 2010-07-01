@@ -646,8 +646,10 @@ public class AllArgs {
         if (this.xferS3Key == null) {
             this.xferS3Key =
                     CloudClientUtil.getProp(props, Props.KEY_S3_KEY);
+
+            // don't want keys all over the debug logs in the history directory
             this.gotProp(Props.KEY_S3_KEY,
-                         this.xferS3Key,
+                         "[REDACTED]",
                          sourceName);
         }
 
