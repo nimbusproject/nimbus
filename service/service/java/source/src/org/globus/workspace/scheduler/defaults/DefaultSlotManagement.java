@@ -16,30 +16,32 @@
 
 package org.globus.workspace.scheduler.defaults;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.globus.workspace.Lager;
-import org.globus.workspace.ProgrammingError;
-import org.globus.workspace.scheduler.Reservation;
-import org.globus.workspace.scheduler.Scheduler;
-import org.globus.workspace.persistence.PersistenceAdapter;
-import org.globus.workspace.service.InstanceResource;
-import org.globus.workspace.service.WorkspaceHome;
-import org.globus.workspace.service.binding.vm.VirtualMachine;
-import org.globus.workspace.service.binding.vm.VirtualMachineDeployment;
-import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
-import org.nimbustools.api.services.rm.DoesNotExistException;
-import org.nimbustools.api.services.rm.ManageException;
-import org.springframework.core.io.Resource;
-
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.ArrayList;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.globus.workspace.Lager;
+import org.globus.workspace.ProgrammingError;
+import org.globus.workspace.persistence.PersistenceAdapter;
+import org.globus.workspace.persistence.WorkspaceDatabaseException;
+import org.globus.workspace.scheduler.Reservation;
+import org.globus.workspace.scheduler.Scheduler;
+import org.globus.workspace.service.InstanceResource;
+import org.globus.workspace.service.WorkspaceHome;
+import org.globus.workspace.service.binding.vm.VirtualMachine;
+import org.globus.workspace.service.binding.vm.VirtualMachineDeployment;
+import org.nimbustools.api.services.rm.DoesNotExistException;
+import org.nimbustools.api.services.rm.ManageException;
+import org.nimbustools.api.services.rm.NotEnoughMemoryException;
+import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
+import org.springframework.core.io.Resource;
 
 /**
  * Needs dependency cleanups
@@ -61,6 +63,7 @@ public class DefaultSlotManagement implements SlotManagement {
     private final PersistenceAdapter db;
     private final Lager lager;
     private WorkspaceHome home;
+    private PreemptableSpaceManager preempManager;    
 
     private String vmmpoolDirectory;
     private boolean greedy;
@@ -95,6 +98,13 @@ public class DefaultSlotManagement implements SlotManagement {
         }
         this.home = homeImpl;
     }
+    
+    public void setPreempManager(PreemptableSpaceManager preempManagerImpl) {
+        if (preempManagerImpl == null) {
+            throw new IllegalArgumentException("preempManagerImpl may not be null");
+        }
+        this.preempManager = preempManagerImpl;
+    }    
 
     
     // -------------------------------------------------------------------------
@@ -268,7 +278,8 @@ public class DefaultSlotManagement implements SlotManagement {
      */
     private String[] reserveSpace(final int[] vmids,
                                   final int memory,
-                                  final String[] assocs, boolean preemptable)
+                                  final String[] assocs, 
+                                  boolean preemptable)
                   throws ResourceRequestDeniedException {
 
 
@@ -305,7 +316,7 @@ public class DefaultSlotManagement implements SlotManagement {
         final String[] nodes = new String[vmids.length];
         int bailed = -1;
         Throwable failure = null;
-
+        
         for (int i = 0; i < vmids.length; i++) {
 
             try {
@@ -319,6 +330,40 @@ public class DefaultSlotManagement implements SlotManagement {
                 if (nodes[i] == null) {
                     throw new ProgrammingError(
                                     "returned node should not be null");
+                }
+            } catch (NotEnoughMemoryException e) {
+                if(!preemptable){
+                    try {
+                        //If there isn't available memory
+                        //for a non-preemptable reservation
+                        //ask preemptable space manager
+                        //to free needed space from
+                        //preemptable (lower priority)
+                        //reservations
+                        
+                        Integer availableMemory = this.db.getTotalAvailableMemory();    
+                        Integer usedPreemptable = this.db.getTotalPreemptableMemory();
+                        
+                        Integer realAvailable = availableMemory + usedPreemptable;
+                        
+                        Integer neededMem = (vmids.length-i)*memory;
+                        
+                        if(realAvailable >= neededMem){
+                            //There will be sufficient space to
+                            //fulfill this reservation
+                            //so, free preemptable space
+                            //and decrease i value, so 
+                            //previous entry can be reconsidered
+                            preempManager.freeSpace(neededMem);
+                            i--;
+                        } else {
+                            throw e;
+                        }
+                    } catch (Throwable t) {
+                        bailed = i;
+                        failure = t;
+                        break;
+                    }                    
                 }
             } catch (Throwable t) {
                 bailed = i;
@@ -546,5 +591,8 @@ public class DefaultSlotManagement implements SlotManagement {
         }
 
         this.db.replaceResourcepools(new_resourcepools);
+        
+        preempManager.start();
     }
+    
 }

@@ -19,6 +19,7 @@ package org.globus.workspace.scheduler.defaults;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.globus.workspace.Lager;
+import org.globus.workspace.StateChangeInterested;
 import org.globus.workspace.WorkspaceConstants;
 import org.globus.workspace.LockManager;
 import org.globus.workspace.persistence.DataConvert;
@@ -30,7 +31,6 @@ import org.globus.workspace.scheduler.IdHostnameTuple;
 import org.globus.workspace.service.InstanceResource;
 import org.globus.workspace.service.WorkspaceHome;
 import org.globus.workspace.service.binding.GlobalPolicies;
-import org.globus.workspace.spotinstances.SpotInstancesManager;
 import org.globus.workspace.LockAcquisitionFailure;
 import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
 import org.nimbustools.api.services.rm.SchedulingException;
@@ -59,17 +59,17 @@ public class DefaultSchedulerAdapter implements Scheduler {
     // -------------------------------------------------------------------------
 
     protected final DataSource dataSource;
-    protected final SlotManagement slotManager;
     protected final TimerManager timerManager;
     protected final GlobalPolicies globals;
     protected final DataConvert dataConvert;
     protected final Lager lager;
-    protected PreemptableSpaceManager siManager;
+    protected StateChangeInterested siManager;
 
     // lock per coscheduling ID (see usage to know why)
     protected final LockManager lockManager;
 
     
+    protected SlotManagement slotManager;  
     protected WorkspaceHome home; // see setHome
     protected boolean valid;
     
@@ -89,7 +89,6 @@ public class DefaultSchedulerAdapter implements Scheduler {
     // -------------------------------------------------------------------------
 
     public DefaultSchedulerAdapter(LockManager lockManager,
-                                   SlotManagement slotManager,
                                    DataSource dataSource,
                                    TimerManager timerManager,
                                    GlobalPolicies globalPolicies,
@@ -100,11 +99,6 @@ public class DefaultSchedulerAdapter implements Scheduler {
             throw new IllegalArgumentException("lockManager may not be null");
         }
         this.lockManager = lockManager;
-        
-        if (slotManager == null) {
-            throw new IllegalArgumentException("slotManager may not be null");
-        }
-        this.slotManager = slotManager;
 
         if (dataSource == null) {
             throw new IllegalArgumentException("dataSource may not be null");
@@ -144,11 +138,18 @@ public class DefaultSchedulerAdapter implements Scheduler {
         this.home = homeImpl;
     }
     
-    public void setSiManager(SpotInstancesManager siManagerImpl) {
+    public void setSiManager(StateChangeInterested siManagerImpl) {
         if (siManagerImpl == null) {
             throw new IllegalArgumentException("siManagerImpl may not be null");
         }
         this.siManager = siManagerImpl;
+    }
+    
+    public void setSlotManager(SlotManagement slotManagement) {
+        if (slotManagement == null) {
+            throw new IllegalArgumentException("slotManagement may not be null");
+        }
+        this.slotManager = slotManagement;        
     }
 
     // -------------------------------------------------------------------------
@@ -624,7 +625,7 @@ public class DefaultSchedulerAdapter implements Scheduler {
             
             removeScheduling(id);
             
-            notifySiManager(id);
+            notifySiManager(id, state);
             return;
         }
 
@@ -757,10 +758,10 @@ public class DefaultSchedulerAdapter implements Scheduler {
     }
 
 
-    private void notifySiManager(int id) {
+    private void notifySiManager(int id, int state) {
         final StateChangeEvent simEvent = new StateChangeEvent(id,
-                WorkspaceConstants.STATE_DESTROYING,
-                this.siManager);
+                                                               state,
+                                                               this.siManager);
 
         this.timerManager.schedule(simEvent, 20);
     }
