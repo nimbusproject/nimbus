@@ -25,7 +25,7 @@ import shlex
 from nimbusweb.setup.setuperrors import *
 from optparse import SUPPRESS_HELP
 
-g_report_options = ["cert", "key", "dn", "canonical_id", "access_id", "access_secret", "url", "web_id"]
+g_report_options = ["dn", "canonical_id", "access_id", "access_secret"]
 
 
 def get_nimbus_home():

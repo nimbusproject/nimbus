@@ -40,7 +40,7 @@ _NIMBUS_2_5_DEPRECATED
     <li><a href="#necessary">Necessary Configurations</a></li>
     <li><a href="#props">Properties and Options</a></li>
     <li><a href="#security">Security</a></li>
-    <li><a href="#cloud-admin">Cloud admin program</a></li>
+    <li><a href="#user-management">User Management</a></li>
     <li><a href="#configs">Configuration Appendix</a></li>
 </ul>
 
@@ -60,21 +60,21 @@ _NIMBUS_2_5_DEPRECATED
 </p>
 
 <p>
-    For the sake of discussion we will assume that the workspace service and
-    file repository setup are on different nodes.  This does not necessarily
-    need to be the case but it is the recommended configuration because of the
-    heavy I/O traffic the repository can experience.
+    In the Nimbus 2.5 release the repository service and the service service
+    MUST be on the same node, or at least must be installed on a filesystem
+    that they both can access.  In future releases this restriction will
+    be lifted.
 </p>
 <p>
     The workspace service should be <a href="../admin/index.html">installed</a> as
-    normal on the service node and <a href="http://www.gridftp.org">GridFTP</a>
-    must be installed on the repository node.
+    normal on the service/repository node along with Cumulus <HREF!!!>.
 </p>
 <p>
     The server addresses must be directly reachable from the Internet
     or otherwise configured to deal with being NAT'd.  The Globus container
-    (where the workspace service runs) and GridFTP can both be setup for
-    NAT or other port forwarding situations.
+    (where the workspace service runs) can be setup for NAT or other port 
+    forwarding situations.  Cumulus should be NAT friendly so long as
+    its listen port (default 8888) is forwarded through the NAT.
 </p>
 <p>
     <img src="../img/cloud-overview-rt.png" alt="workspace cloud configuration" />
@@ -85,15 +85,15 @@ _NIMBUS_2_5_DEPRECATED
 <ul>
     <li>
         A special workspace client called the "cloud-client" invokes operations
-        on the service and GridFTP server.  A number of defaults are assumed
+        on the service and Cumulus server.  A number of defaults are assumed
         which makes this work out of the box (these defaults will be discussed
         later).
     </li>
     <li>
         Files are transferred from the cloud-client to a client-specific
-        directory on the repository node (manual or other types of GridFTP
-        based transfers are also possible if the user is comfortable with
-        using grid tools directly).
+        storage system  on the repository node (manual or other types of 
+        S3 protocol 
+        based transfers are also possible for advanced users).
     </li>
     <li>
         The service invokes commands on the VMMs to trigger file transfers
@@ -271,8 +271,8 @@ Running: 'vm-023'
 
 <p>
     There are three main groups of assumptions and defaults.  The first is the
-    contact and identity information of the workspace service and GridFTP
-    server (see above for configuration sample where this are specified).
+    contact and identity information of the workspace service
+    (see above for configuration sample where this are specified).
     The other two groups make up the rest of this "Assumptions" section:
 </p>
 
@@ -286,11 +286,11 @@ Running: 'vm-023'
 <h3>Deriving per-user repository directories _NAMELINK(personaldir)</h3>
 
 <p>
-    For GridFTP based commands (like <i>--list</i>, <i>--delete</i>, and
+    For Cumulus S3 based commands (like <i>--list</i>, <i>--delete</i>, and
     <i>--transfer</i>) the server to contact is based on the contact in
-    the cloud properties file.  The X509 identity to verify is in the
-    cloud properties file.  If that property was missing, identity checks
-    would be based on hostname.
+    the cloud properties file.  The s3id and s3 secret to authenticate with
+    the Cumulus server is stored in the
+    cloud properties file. 
 </p>
 
 <p class="indent">
@@ -311,51 +311,18 @@ Running: 'vm-023'
 
 <p>
     There are two other components to derive the directory used: the configured
-    <i>base directory property</i> and the <i>hash of the caller's X509
-    Distinguished Name</i>.
+    <i>base bucket property</i> and the <i>user S3 ID</i>.
 </p>
 <ul>
     <li>
         The configured <i>base directory property</i>.  The default
-        configuration for the base directory on the repository node is
-        "<b>/cloud</b>".
-    </li>
-    <li>
-        A <i>hash of the caller's X509 Distinguished Name</i> is used as
-        the subdirectory of the base directory.  The algorithm for this
-        is based on MD5.  It produces a string of eight characters, for
-        example "<b>31ceb17f</b>".  The <i>credential being used for the
-        call</i> is inspected to get the user's DN.
+        configuration for the base bucket on the repository node is
+        "<b>Repo</b>".  This value can be changed in the cloud.properties 
+        file so long as it matches the particular clouds setup.  It is
+        best to not alter this value.
     </li>
 </ul>
 
-<p>
-    The directories for each user are created by the administrator.  Any
-    (unlikely) hash collisions would be detected at this point.  You can
-    see the hash of any "Globus style" DN with the <i>--hash-print</i> option
-    of the cloud client.  For example:
-</p>
-
-
-<div class="screen">
-<b>$</b> ./bin/cloud-client.sh --hash-print "/DC=org/DC=agrid/OU=people/CN=John Q. Public"<br>
-</div>
-
-<p>
-    Sample output:
-</p>
-
-<div class="screen">
-<pre>DN: /DC=org/DC=agrid/OU=people/CN=John Q. Public
-HASH: a9bad55</pre>
-</div>
-
-<p>
-    So with a hypothetical repository hostname "repository.cloudurl.edu",
-    "/cloud" base directory and DN hash of "a9bad55", the derived GridFTP URL
-    of the user's "my-workspace" file will be
-    <i>gsiftp://repository.cloudurl.edu:2811//cloud/a9bad55/my-workspace</i>
-</p>
 
 <p class="indent">
     <i>
@@ -363,11 +330,6 @@ HASH: a9bad55</pre>
         file path and see what the derived URL is.  See the --extrahelp
         description of the --print-file-URL option.
     </i>
-</p>
-
-<p>
-    <b>As of TP2.2, you can auto-create the user directories using the
-    <a href="#cloud-admin">cloud-admin</a> program.</b>
 </p>
 
 <a name="runtime"> </a>
@@ -446,14 +408,8 @@ HASH: a9bad55</pre>
     </li>
     <li>
         <p>
-            Create a <i>/cloud</i> directory on the repository node.
-        </p>
-    </li>
-    <li>
-        <p>
-            For each user, take the hash of their DN (using --hash-print)
-            and create a directory for them under the <i>/cloud</i> base
-            directory.
+            Create a <i>Repo</i> base bucket on the repository node.
+            This should be done by the Nimbus installer.
         </p>
     </li>
     
@@ -496,7 +452,7 @@ HASH: a9bad55</pre>
             <i>../lib/certs</i> is set as a directory to add to the trusted
             X509 certificate directories for identity validations (the client
             verifies it is talking to the right servers).  Adding the CA cert(s)
-            of the workspace service and GridFTP host certificates to this
+            of the workspace service certificates to this
             directory ensures that the user will not run into CA (trusted
             certificates) problems.
         </li>
@@ -555,8 +511,12 @@ HASH: a9bad55</pre>
     <li>ssh.pubkey (Path to SSH public key to log in with)</li>
     <li>vws.factory (Host+port of Virtal Workspace Service)</li>
     <li>vws.factory.identity (Virtal Workspace Service X509 identity)</li>
-    <li>vws.repository (Host+port of image repository)</li>
-    <li>vws.repository.identity (Image repository X509 identity)</li>
+    <li>vws.repository (Host+port of cumulus image repository)</li>
+    <li>vws.repository.type=cumulus (currently cumulus is the only supported repository protocol</li>
+    <li>vws.repository.s3id (The users S3 ID)</li>
+    <li>vws.repository.s3key (The users S3 secret key)</li>
+    <li>vws.repository.s3bucket (The bucket where the system stores images)</li>
+    <li>vws.repository.s3basekey (The basename of all images in the bucket)</li>
 </ul>
 
 <p>
@@ -595,61 +555,89 @@ HASH: a9bad55</pre>
 </p>
 
 <p>
-    For the repository node you currently need
-    <a href="http://www.gridftp.org">GridFTP</a> to handle remote transfers.
-    Each cloud user's DN must be in the GridFTP grid-mapfile (an access control
-    list that also maps each DN to a specific unix account).  In order to
-    prevent users from maliciously overwriting each others files when talking
-    to GridFTP directly, currently each cloud user must be mapped to a unique
-    unix account which is part of a unique unix group on the repository node.
-</p>
-
-<p>    
-    See <a href="http://lists.globus.org/pipermail/workspace-user/2010-March/001181.html">this
-	thread</a> for notes about GridFTP permission schemes.
+    For the repository node you currently need Cumulus <!HREF>
+    to handle remote transfers.
+    Each cloud must have a S3 ID and secret key.  Both of these are 
+    created by default when the program nimbus-new-user is run.
 </p>
 
 <p>
-    Say that the base directory on the repository node is "/cloud", you will
-    need to create a directory for each DN based on the hash.  It is recommended that you use
-	the cloud-admin program for this (see next section).
+    Say that the base bucket on the repository node is "Repo".  Each image
+    will be placed in that bucket with a name (called an <i>object key</i> 
+    in S3 terms).  The name is based of the users S3 ID, the configured
+    basekey, and the image name the user selected in the following way:
+</p>
+<p>
+    base key + "/" + ID + "/" + image name 
 </p>
 
 
-<a name="cloud-admin"> </a>
-<h2>Cloud admin program _NAMELINK(cloud-admin)</h2>
+<a name="user-management"> </a>
+<h2>user Management _NAMELINK(user-management)</h2>
 
 <p>
-    As of TP2.2, there is a program installed here:
-    <i>$GLOBUS_LOCATION/share/nimbus-autoconfig/cloud-admin.sh</i>
-</p>
-<p>
-    This program can add new users for you with one command, including creating
-    the directories with the right hash names.
-    During its first "add-dn" invocation, you can set up many
-    default choices including what "sample images" get soft linked to the new
-    directory, etc.
-</p>
-<p>
-    Here are the current options:
+    In order to manage Nimbus user more easily a set of command line tools 
+    have been created.
 </p>
 
 <div class="screen">
-<pre>--add-dn "/CN=Some DN"       Adds new DN (interactive)
+<UL>
+    <LI>nimbus-new-user</LI>
+    <LI>nimbus-list-users</LI>
+    <LI>nimbus-edit-user</LI>
+    <LI>nimbus-remove-user</LI>
+</UL>
 
---del-dn "/CN=Some DN"       Deletes a DN (interactive)
+<p>
+All of the tools take as a single mandatory argument an email address, with
+the slight exception of <i>nimbus-list-users</i>.  nimbus-list-users allows
+an administrator to query for users on their systems therefore it takes
+as an argument a query pattern.  For example, if you wanted to look up
+all the users with email addresses at gmail.com you would run:
+</p>
 
---find-dn "/CN=Some DN"      Checks for a DN
+<pre>
+% nimbus-list-users %@gmail.com
+</pre>
 
---hash-dn "/CN=Some DN"      Outputs cloud hash for a DN
+<p>
+All of the command line tools take the argument --help and further information
+can be found there.  For didactic purposes an example of a common session in which a 
+new user is created, changes, listed and removed follows:
+</p>
 
---find-hash 1234abcd         Looks in policies for a DN with this hash
+<pre>
+$ ./bin/nimbus-new-user user1@nimbus.test
+cert            : /home/bresnaha/NIM/var/ca/tmpm3s0Vccert/usercert.pem
+key             : /home/bresnaha/NIM/var/ca/tmpm3s0Vccert/userkey.pem
+dn              : /O=Auto/OU=a645a24d-6183-4bbd-9537-b7260749c716/CN=user1@nimbus.test
+canonical id    : aa55655a-8552-11df-a58d-001de0a80259
+access id       : p3BR1WQTpio8JShc8YD7S
+access secret   : LRY6lMgIFE5BioK5XRu7eZKecBDHjB35PVOqAmCLDm
+url             : None
+web id          : None
+cloud properties : /home/bresnaha/NIM/var/ca/tmpm3s0Vccert/cloud.properties
+$
 
---all-dns                    Prints all active DNs
+$ ./bin/nimbus-edit-user -p NewPassWord user1@nimbus.testdn              : /O=Auto/OU=a645a24d-6183-4bbd-9537-b7260749c716/CN=user1@nimbus.test
+canonical id    : aa55655a-8552-11df-a58d-001de0a80259
+access id       : p3BR1WQTpio8JShc8YD7S
+access secret   : NewPassWord
+$
 
---enable-groupauthz          Enables the groupauthz plugin
+$ ./bin/nimbus-list-users %@nimbus.test
+dn              : /O=Auto/OU=a645a24d-6183-4bbd-9537-b7260749c716/CN=user1@nimbus.test
+canonical id    : aa55655a-8552-11df-a58d-001de0a80259
+access id       : p3BR1WQTpio8JShc8YD7S
+access secret   : NewPassWord
+display name    : user1@nimbus.test
+$
 
---disable-groupauthz         Disables the groupauthz plugin</pre>
+$ ./bin/nimbus-remove-user user1@nimbus.test
+$
+
+
+</pre>
 </div>
 
 <a name="configs"> </a>
