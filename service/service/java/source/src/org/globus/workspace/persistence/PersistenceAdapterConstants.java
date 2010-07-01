@@ -33,11 +33,11 @@ public interface PersistenceAdapterConstants {
     public static final String SQL_SELECT_ALL_RESOURCE_POOLS =
             "SELECT * FROM resourcepools";
     
-//    public static final String SQL_SELECT_TOTAL_AVAILABLE_MEMORY =
-//        "SELECT SUM(available_memory) FROM resourcepool_entries";
+    public static final String SQL_SELECT_MULTIPLE_OF_AVAILABLE_MEMORY =
+        "SELECT SUM(available_memory - MOD(CAST (available_memory AS INT), ?)) FROM resourcepool_entries";    
     
     public static final String SQL_SELECT_TOTAL_AVAILABLE_MEMORY =
-        "SELECT SUM(available_memory - MOD(CAST (available_memory AS INT), ?)) FROM resourcepool_entries";    
+        "SELECT SUM(available_memory) FROM resourcepool_entries";
     
     public static final String SQL_SELECT_TOTAL_MAX_MEMORY =
         "SELECT SUM(maximum_memory) FROM resourcepool_entries";
@@ -243,6 +243,7 @@ public interface PersistenceAdapterConstants {
                                     SQL_SELECT_ALL_VMS_IN_ENSEMBLE,
                                     SQL_SELECT_ALL_VMS_BY_OWNER,
                                     SQL_SELECT_AVAILABLE_ENTRIES,
+                                    SQL_SELECT_MULTIPLE_OF_AVAILABLE_MEMORY,
                                     SQL_SELECT_TOTAL_AVAILABLE_MEMORY,
                                     SQL_SELECT_TOTAL_MAX_MEMORY,
                                     SQL_SELECT_TOTAL_PREEMPTABLE_MEMORY,

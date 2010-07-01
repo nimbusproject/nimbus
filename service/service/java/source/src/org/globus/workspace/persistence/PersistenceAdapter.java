@@ -202,6 +202,10 @@ public interface PersistenceAdapter {
     
             throws WorkspaceDatabaseException;
     
+    public Integer getTotalAvailableMemory()
+    
+            throws WorkspaceDatabaseException;    
+    
     public Integer getTotalAvailableMemory(Integer multipleOf)
     
             throws WorkspaceDatabaseException;

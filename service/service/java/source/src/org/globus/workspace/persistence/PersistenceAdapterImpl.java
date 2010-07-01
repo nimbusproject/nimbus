@@ -2421,7 +2421,7 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
         try {
             c = getConnection();
 
-            pstmt = c.prepareStatement(SQL_SELECT_TOTAL_AVAILABLE_MEMORY);
+            pstmt = c.prepareStatement(SQL_SELECT_MULTIPLE_OF_AVAILABLE_MEMORY);
             pstmt.setInt(1, multipleOf);
             rs = pstmt.executeQuery();
             
@@ -2463,7 +2463,20 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
         return total;
     }
 
+    public Integer getTotalAvailableMemory() throws WorkspaceDatabaseException {
+        if (this.dbTrace) {
+            logger.trace("getTotalAvailableMemory()");
+        }
+        
+        Integer total = getTotalMemory(SQL_SELECT_TOTAL_AVAILABLE_MEMORY);
+        
+        if (this.dbTrace) {
+            logger.trace("getTotalAvailableMemory(): total max memory = " + total);
+        }
 
+        return total;
+    }
+    
     public Integer getTotalMaxMemory() throws WorkspaceDatabaseException {
         if (this.dbTrace) {
             logger.trace("getTotalMaxMemory()");
