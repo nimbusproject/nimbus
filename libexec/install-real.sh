@@ -49,11 +49,12 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-$REPOCMD2
+$REPOCMD2 >/dev/null
 if [ $? -ne 0 ]; then
     echo "Could not create Cumulus repository."
     exit 1
 fi
+echo "Created repo admin."
 
 $REPOCMD3
 if [ $? -ne 0 ]; then

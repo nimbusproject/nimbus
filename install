@@ -2,7 +2,7 @@
 
 FORCE_FRESH_INSTALL="yes"
 
-NIMBUS_SRC_REL="`dirname $0`/."
+NIMBUS_SRC_REL="`dirname $0`"
 NIMBUS_SRC=`cd $NIMBUS_SRC_REL; pwd`
 
 if [ "X$1" = "X" ]; then
@@ -73,9 +73,11 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-echo "=====================================" | tee -a $NIMBUS_HOME/install.log
-echo "Making the Python virtual env" | tee -a $NIMBUS_HOME/install.log
-echo "=====================================" | tee -a $NIMBUS_HOME/install.log
+echo ""
+echo "-----------------------------------------------------------------" | tee -a $NIMBUS_HOME/install.log
+echo "Making the Python virtual environment" | tee -a $NIMBUS_HOME/install.log
+echo "-----------------------------------------------------------------" | tee -a $NIMBUS_HOME/install.log
+echo ""
 
 pyve_path=$NIMBUS_HOME/ve
 echo "Installing from $NIMBUS_SRC"
@@ -101,10 +103,10 @@ if [ ! -f $CUMULUS_ENV ]; then
     exit 1
 fi
 
+echo ""
 echo "-----------------------------------------------------------------"
 echo " Configuring installed services"
 echo "-----------------------------------------------------------------"
-echo ""
 
 CONFIG_SCRIPT="$NIMBUS_HOME/bin/nimbus-configure"
 

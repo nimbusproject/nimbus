@@ -36,9 +36,8 @@ if [ "X$2" == "X" ]; then
         mv $installdir $bkup_dir
     fi 
 
-    echo "====================================="
-    echo "Making the python virtual env for cumulus"
-    echo "====================================="
+    echo "Making the Python virtual environment."
+    echo ""
     $PYTHON $source_dir/virtualenv.py -p $PYTHON $installdir
     if [ $? -ne 0 ]; then
         echo "The virtural env installation failed"
@@ -50,9 +49,8 @@ if [ "X$2" == "X" ]; then
     PIP=$installdir/bin/pip
 else
     use_py=$2
-    echo "====================================="
-    echo "Using the provided python $use_py"
-    echo "====================================="
+    echo "Using provided Python environment: $use_py"
+    echo ""
 
     PYVEDIR=$use_py
     PYVE=$use_py/bin/python
@@ -95,16 +93,18 @@ if [ $? -ne 0 ]; then
     echo "Could not change to the deps directory"
     exit 1
 fi
-pwd
+
 ./get-em.sh
 if [ $? -ne 0 ]; then
     echo "get-em failed"
     exit 1
 fi
 
-echo "====================================="
-echo "Installing the dependencies"
-echo "====================================="
+echo ""
+echo "-----------------------------------------------------------------"
+echo "Installing Cumulus dependencies"
+echo "-----------------------------------------------------------------"
+echo ""
 # install deps
 cd $source_dir
 $PIP install  --requirement=reqs.txt
@@ -113,9 +113,11 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-echo "====================================="
+echo ""
+echo "-----------------------------------------------------------------"
 echo "Configuring the environment"
-echo "====================================="
+echo "-----------------------------------------------------------------"
+echo ""
 cd $source_dir/conf
 ./configure --prefix=$installdir  --with-ve=$PYVEDIR
 if [ $? -ne 0 ]; then
@@ -128,9 +130,11 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-echo "====================================="
-echo "Final copies"
-echo "====================================="
+echo ""
+echo "-----------------------------------------------------------------"
+echo "Finalizing the Cumulus install"
+echo "-----------------------------------------------------------------"
+echo ""
 cd $source_dir
 cp -r $source_dir/tests $installdir
 cp -r $source_dir/docs $installdir
