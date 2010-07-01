@@ -3,7 +3,7 @@ Ant build and deploy scripts:
 _________________________________________________________________________
 
 These scripts are for building and deploying into an existing Globus
-container. Most users will want to use the bin/install script.
+container. Most users will want to use the ./install script.
 
 * all-build-and-install.sh - The main installation script
 * clients-only-build-and-install.sh - Main client-only installation script

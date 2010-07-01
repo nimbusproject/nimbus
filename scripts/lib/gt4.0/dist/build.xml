@@ -76,10 +76,6 @@
             <fileset dir="${nimbus.basedir}/cumulus"/>
         </copy>
 
-        <copy todir="${distbuild.dir}/${nimbus.main}/bin">
-            <fileset dir="${nimbus.basedir}/bin"/>
-        </copy>
-
         <copy todir="${distbuild.dir}/${nimbus.main}/libexec">
             <fileset dir="${nimbus.basedir}/libexec"/>
         </copy>
@@ -91,9 +87,6 @@
         <chmod perm="755">
             <fileset dir="${distbuild.dir}/${nimbus.main}/scripts">
                 <include name="*.sh"/>
-            </fileset>
-            <fileset dir="${nimbus.basedir}/bin">
-                <include name="*"/>
             </fileset>
             <fileset dir="${nimbus.basedir}/home/bin">
                 <include name="*"/>
@@ -152,8 +145,6 @@
             <include name="${nimbus.main}/*.*"/>
             <include name="${nimbus.main}/scripts/**"/>
             <exclude name="${nimbus.main}/scripts/*sh" />
-            <include name="${nimbus.main}/bin/**"/>
-            <exclude name="${nimbus.main}/bin/*"/>
             <include name="${nimbus.main}/authzdb/**"/>
             <include name="${nimbus.main}/autocommon/**"/>
             <include name="${nimbus.main}/autoconfiguration/**"/>
@@ -181,7 +172,6 @@
 
             <tarfileset dir="${distbuild.dir}" mode="755">
                 <include name="${nimbus.main}/scripts/*sh" />
-                <include name="${nimbus.main}/bin/*" />
                 <include name="${nimbus.main}/cumulus/**" />
                 <include name="${nimbus.main}/install" />
                 <include name="${nimbus.main}/home/bin/*" />

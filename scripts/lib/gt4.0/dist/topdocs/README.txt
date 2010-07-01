@@ -9,7 +9,7 @@ Documentation is available at:
 
 To install, run:
     
-    bin/install /path/to/destination
+    ./install /path/to/destination
 
 Subscribe to the mailing list for support:
     http://lists.globus.org/mailman/listinfo/workspace-user
