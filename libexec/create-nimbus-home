@@ -10,7 +10,7 @@ CONTAINER_DIRNAME="services"
 NIMBUS_SRC_REL="`dirname $0`/.."
 NIMBUS_SRC=`cd $NIMBUS_SRC_REL; pwd`
 
-TMPDIR="$NIMBUS_SRC/bin/tmp"
+TMPDIR="$NIMBUS_SRC/tmp"
 
 if [ ! -d $TMPDIR ]; then
     mkdir $TMPDIR
