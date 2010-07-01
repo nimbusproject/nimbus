@@ -78,6 +78,8 @@ if [ $? -ne 0 ]; then
     echo "Failed to install cumulus"
     exit 1
 fi
+rm -rf $NIMBUS_HOME/cumulus/log
+ln -s $NIMBUS_HOME/var $NIMBUS_HOME/cumulus/log
 
 echo "Deploying skeleton directory structure.."
 cp -fr $NIMBUS_SRC/home/* $NIMBUS_HOME/
