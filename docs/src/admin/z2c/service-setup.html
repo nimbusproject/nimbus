@@ -21,7 +21,60 @@ _NIMBUS_2_5_DEPRECATED
     enable VMMs, connect them with the central service, and have a
     working cloud setup.
 </p>
+<h3>Create User Account</h3>
+<p>
+    The first step is to create a separate user account under which to
+    install and run the Nimbus services. It is not recommended to use
+    the root account. Because you will later be configuring password-less
+    SSH keys between this account and your hypervisor nodes, it is best
+    to use a dedicated account for these services.
+</p>
+<p>
+    In this guide, we will be calling the user
+    <span class="pre">nimbus</span>, but you can use anything you like.
+</p>
+<h3>Download and Install</h3>
+<p>
+    As the new <span class="pre">nimbus</span> user, fetch and unpack
+    the latest service distribution.
+</p>
 
+<pre><div class="screen">
+$ wget http://www.nimbusproject.org/downloads/nimbus-2.5-src.tar.gz
+$ tar xfz nimbus-2.5-src.tar.gz
+$ cd nimbus-2.5-src/
+</div></pre>
+
+<p>
+    You must now choose an installation directory. It could be within
+    the <span class="pre">nimbus</span> user home directory, or something
+    like /opt/nimbus. If the directory exists, it must be empty and writable.
+    If it does not exist, the parent directory must be writable.
+</p>
+
+<p>
+    Throughout this guide, we will refer to this installation directory as
+    <span class="pre">$NIMBUS_HOME</span>. To install, run this command from
+    the Nimbus source directory (specifying your chosen destination):
+</p>
+<pre><div class="screen">
+$ ./install $NIMBUS_HOME
+</div></pre>
+
+<div class="note">
+    If you need to specify a non default Python, you can do so by setting the
+    <span class="pre">PYTHON</span> environment variable. For example if you
+    are using RHEL5 and cannot upgrade the system Python to 2.5+, you can
+    install Python separately and specify
+    <span class="pre">PYTHON=/usr/local/bin/python2.5</span> for installation.
+</div>
+
+<p>
+    The installer performs several steps:
+</p>
+<ul>
+    <li>TODO</li>
+</ul>
 
 _NIMBUS_CENTER2_COLUMN_END
 _NIMBUS_FOOTER1

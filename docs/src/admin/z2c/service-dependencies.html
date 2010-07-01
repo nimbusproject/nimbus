@@ -11,9 +11,58 @@ _NIMBUS_2_5_DEPRECATED
 <h2>Service Dependencies</h2>
 
 <p>
-    On this page, you will install any missing dependencies for the
-    service node.
+    The Nimbus service node interacts with clients and manages backend hypervisor nodes. We strive to make it as simple
+    as possible to install and configure, but there are a few system dependencies and requirements you will need.
 </p>
+
+
+<h3>Sun Java 1.5 or later</h3>
+<p>
+    The <span class="pre">java</span> command should be on your path. You can check your
+    Java version with this command:
+</p>
+<pre><div class="screen">
+$ java -version
+</div></pre>
+        
+<p>
+    Note that OpenJDK is not supported.
+</p>
+
+<h3>Python 2.5 or later</h3>
+<p>
+    sqlite3, openssl, blah, blah, blah TODO
+</p>
+        
+<h3>Apache Ant 1.6.2 or later</h3>
+<p>
+    You must also have the <span class="pre">propertyfile</span> task available which
+    is usually installed separately from Ant itself. On Redhat-compatible systems this is often a package called
+    <span class="pre">ant-nodeps</span>. On Debian/Ubuntu the package is <span class="pre">ant-optional</span>. You can
+    check your ant installation:
+</p>
+<pre><div class="screen">
+$ ant -diagnostics
+
+------- Ant diagnostics report -------
+Apache Ant version 1.6.5
+
+-------------------------------------------
+ Implementation Version
+-------------------------------------------
+core tasks     : 1.6.5
+optional tasks : 1.6.5
+...
+</div></pre>
+<p>
+    If the "optional tasks" line does not say "not available", you should have everything needed.
+</p>
+
+<p>
+    If you have all of these dependencies, you can safely move on to the next section,
+    <a href="service-setup.html">Service Installation</a>.
+</p>
+
 
 
 
