@@ -29,7 +29,7 @@
     
     <h3>Your credentials</h3>
     
-    {% if cert_present or key_present or access_present %}
+    {% if cert_present or key_present or access_present or props_present %}
     <div id="credentials_container">
         <div class="credentials_box">
             <h4>X.509 certificate</h4>
@@ -89,15 +89,42 @@
             {% endif %}
         </div>
         
+        {% if props_present %}
+        <div class="credentials_box">
+            <h4>The cloud.properties file you should use</h4>
+            <p>
+                This cloud.properties file has all of the customizations
+                necessary to get running on this cloud.  It includes your
+                unique access credential for using the image repository, so
+                protect the file accordingly.
+            </p>
+            <p>
+                Copy this to the "conf/cloud.properties" file in your cloud
+                client (or name it something different and use the --conf
+                argument).
+            </p>
+            <div class="lrow">
+                <span class="flabel">cloud.properties</span>
+                <a href="cloud.properties">cloud.properties</a>
+            </div>
+        </div>
+        {% endif %}
 
         {% if access_present %}
         <div class="credentials_box">
             <h4>Access token</h4>
             <p>
-                Access tokens are used for the Nimbus EC2 Query API interface.
+                Access tokens are used for the Nimbus EC2 Query API interface
+                and for Cumulus/S3 repository.
                 For information on using these tokens, check the
                 <a href="http://www.nimbusproject.org/docs/current/elclients.html#boto">documentation</a>.
             </p>
+            {% if props_present %}
+            <p>
+                <b>The cloud.properties file (just above) also contains these
+                credentials.</b>
+            </p>
+            {% endif %}
             <div class="lrow" id="accesskey">
                 <span class="flabel">Key</span>
                 <span class="copybox">{{ access_key }}</span>

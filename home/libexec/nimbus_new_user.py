@@ -295,7 +295,7 @@ def do_web_bidnes(o):
         print "\nERROR linking with web application (have you ever run web/bin/run-standalone-ssl.sh which sets things up?)\n"
         raise
     
-    (errmsg, url) = create_web_user.create_web_user(o.web_id, o.emailaddr, o.cert, o.key, o.access_id, o.access_secret)
+    (errmsg, url) = create_web_user.create_web_user(o.web_id, o.emailaddr, o.cert, o.key, o.access_id, o.access_secret, o.cloud_properties)
     
     if errmsg:
         raise CLIError('EUSER', "Problem adding user to webapp: %s" % (errmsg))

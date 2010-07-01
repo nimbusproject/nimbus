@@ -99,6 +99,7 @@ def profile(request):
     cert_present = False
     key_present = False
     query_present = False
+    props_present = False
 
     up = user.get_profile()
     if up.cert:
@@ -107,12 +108,15 @@ def profile(request):
         key_present = True
     if up.query_id and up.query_secret:
         query_present = True
+    if up.cloudprop_file:
+        props_present = True
     
     templateparams = {'message': message, 
                       'user': user,
                       'cert_present': cert_present,
                       'key_present': key_present,
                       'access_present': query_present,
+                      'props_present': props_present,
                       'access_key': up.query_id,
                       'access_secret': up.query_secret
                      }
@@ -126,6 +130,16 @@ def download_cert(request):
         resp.status_code = 404
         return resp
     resp = HttpResponse(up.cert, mimetype="application/octet-stream")
+    return resp
+
+@login_required
+def download_propsfile(request):
+    up = request.user.get_profile()
+    if not up.cert:
+        resp = HttpResponse("Your have no cloud.properties on file.")
+        resp.status_code = 404
+        return resp
+    resp = HttpResponse(up.cloudprop_file, mimetype="application/octet-stream")
     return resp
     
 @login_required
