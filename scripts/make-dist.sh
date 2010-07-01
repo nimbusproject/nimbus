@@ -1,5 +1,11 @@
 #!/bin/bash
 
+if ([ "X$1" == "X--help" ] || [ "X$1" == "X-h" ]); then
+    echo "make-dist.sh <directory where the resulting tarballs end up> [<git repository>]"
+    exit 0
+fi
+
+
 dest_dir=$1
 co_dir=`mktemp -d -t tmp.XXXXXXXXXX`
 
