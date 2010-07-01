@@ -43,11 +43,16 @@ public class DefaultSpotRequest implements _SpotRequest {
     private String sshKeyName;
     private Double spotPrice;
     private String[] vmIds;
+    private Integer instanceCount;
     
     // -------------------------------------------------------------------------
     // implements org.nimbustools.api.repr.RequestSIResult
     // -------------------------------------------------------------------------       
     
+    public Integer getInstanceCount() {
+        return instanceCount;
+    }
+
     public String getRequestID() {
         return requestId;
     }
@@ -113,6 +118,10 @@ public class DefaultSpotRequest implements _SpotRequest {
     // implements org.nimbustools.api._repr._RequestSIResult
     // -------------------------------------------------------------------------
 
+    public void setInstanceCount(Integer instanceCount) {
+        this.instanceCount = instanceCount;
+    }    
+    
     public void setPersistent(boolean persistent) {
         this.persistent = persistent;
     }

@@ -241,6 +241,7 @@ public class DataConvert implements WorkspaceConstants {
         
         final _SpotRequest result = new DefaultSpotRequest();
 
+        result.setInstanceCount(siRequest.getRequestedInstances());
         result.setCreationTime(siRequest.getCreationTime());
         result.setCreator(siRequest.getCaller());
         result.setGroupID(siRequest.getGroupID());

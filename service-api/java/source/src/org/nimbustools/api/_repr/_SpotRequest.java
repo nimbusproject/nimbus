@@ -32,6 +32,7 @@ public interface _SpotRequest extends SpotRequest {
     public void setState(SIRequestState state);
     public void setCreationTime(Calendar date);
     public void setVMIds(String[] ids);
+    public void setInstanceCount(Integer instanceCount);
     
     public void setVMFiles(VMFile[] files);
     public void setSshKeyName(String sshKeyName);

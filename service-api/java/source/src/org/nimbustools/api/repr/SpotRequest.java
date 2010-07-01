@@ -26,6 +26,7 @@ import org.nimbustools.api.repr.vm.VMFile;
 public interface SpotRequest {
 
     public String getRequestID();
+    public Integer getInstanceCount();
     public Double getSpotPrice();
     public boolean isPersistent();    
     public SIRequestState getState();
