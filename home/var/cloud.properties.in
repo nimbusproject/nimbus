@@ -35,7 +35,7 @@ vws.factory=@HOST@:8443
 # Default settings for this Nimbus cloud
 ###########################################################################
 
-vws.memory.request=200
+vws.memory.request=256
 vws.cores.request=1
 
 
