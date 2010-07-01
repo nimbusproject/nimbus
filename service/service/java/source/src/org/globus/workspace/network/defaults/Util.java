@@ -353,6 +353,10 @@ public class Util {
             // with.  But the in-use flag MUST match the old one.
             entry.setInUse(oldentry.isInUse());
 
+            if (!entry.isExplicitMac()) {
+                entry.setMac(oldentry.getMac());
+            }
+
             if (entry.isInUse()) {
                 logger.debug("Network '" + assocName + "', ip " +
                         entry.getIpAddress() + " is currently in use.");
@@ -417,6 +421,14 @@ public class Util {
                        "broadcast",
                        entry.getBroadcast(),
                        oldentry.getBroadcast())) {
+            same = false;
+            buf.append("; ");
+        }
+
+        if (entry.isExplicitMac() &&
+                diffErator(buf, "MAC",
+                        entry.getMac(),
+                        oldentry.getMac())) {
             same = false;
             buf.append("; ");
         }
