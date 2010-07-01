@@ -95,24 +95,28 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
         }        
         changePriceAndReallocateRequests();
     }
-    
-    @Override
+
     public SIRequest cancelRequest(String reqID) throws DoesNotExistException {
         logger.info(Lager.ev(-1) + "[Spot Instances] Cancelling request with id: " + reqID + ".");                
         SIRequest siRequest = getRequest(reqID, false);
-        siRequest.cancelRequest();
-        if(siRequest.getStatus().isActive()){
+
+        SIRequestStatus prevStatus = siRequest.getStatus();
+        changeStatus(siRequest, SIRequestStatus.CANCELLED);
+        if(prevStatus.isActive()){
             preempt(siRequest, siRequest.getAllocatedInstances());
         }
+
         return siRequest;
     }    
-    
+
     public SIRequest getRequest(String id) throws DoesNotExistException {
         return this.getRequest(id, true);
     }    
-    
+
     protected SIRequest getRequest(String id, boolean log) throws DoesNotExistException {
-        logger.info(Lager.ev(-1) + "[Spot Instances] Retrieving request with id: " + id + ".");                
+        if(log){
+            logger.info(Lager.ev(-1) + "[Spot Instances] Retrieving request with id: " + id + ".");
+        } 
         SIRequest siRequest = allRequests.get(id);
         if(siRequest != null){
             return siRequest;
@@ -136,42 +140,23 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
         return this.currentPrice;
     }    
 
-//    public SIRequest removeRequest(String requestID){
-//        SIRequest request = allRequests.get(requestID);
-//        if(request != null){
-//            if (this.lager.eventLog) {
-//                logger.info(Lager.ev(-1) + "[Spot Instances] REQUEST REMOVED: " + request.toString() + ". Changing price and reallocating requests.");
-//            }        
-//            if(request.getStatus().isActive()){
-//                //Pre-empt active VMs
-//                this.changeAllocation(request, 0);
-//            }
-//            changePriceAndReallocateRequests();
-//        }
-//        return request;
-//    }    
-
     protected synchronized void changePriceAndReallocateRequests(){
+        changePrice();
+
+        reallocateRequests();
+
+        if(availableResources == 0){
+            changePrice();
+        }
+    }
+
+    private void changePrice() {
         Double newPrice = pricingModel.getNextPrice(availableResources, getAliveRequests(), currentPrice);
         if(!newPrice.equals(this.currentPrice)){
             if (this.lager.eventLog) {
                 logger.info(Lager.ev(-1) + "[Spot Instances] PRICE CHANGED. OLD PRICE = " + this.currentPrice + ". NEW PRICE = " + newPrice);
             }
             this.currentPrice = newPrice;
-        }
-        
-        //TODO Put this call in a separate thread to avoid blocking
-        //TODO Create timer schema to avoid multiple calls to this method in a small time frame
-        reallocateRequests();
-        
-        if(availableResources == 0){
-            newPrice = pricingModel.getNextPrice(availableResources, getAliveRequests(), currentPrice);
-            if(!newPrice.equals(this.currentPrice)){
-                if (this.lager.eventLog) {
-                    logger.info(Lager.ev(-1) + "[Spot Instances] PRICE CHANGED. OLD PRICE = " + this.currentPrice + ". NEW PRICE = " + newPrice);
-                }
-                this.currentPrice = newPrice;
-            }
         }
     }
 
@@ -399,38 +384,75 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
         };
     }    
 
-    protected void preempt(SIRequest siRequest, int quantity) {
-        if (this.lager.eventLog) {
-            logger.info(Lager.ev(-1) + "[Spot Instances] Pre-empting " + quantity + " VMs for request: " + siRequest.getId());
+    protected void preempt(SIRequest siRequest, int quantity) { 
+        
+        boolean destroyGroup = false;
+        
+        if(siRequest.getAllocatedInstances() == quantity){
+            if(siRequest.getStatus().isCancelled() || siRequest.getStatus().isFailed()){
+                destroyGroup = true;
+            } else if(!siRequest.isPersistent() && (!siRequest.needsMoreInstances() || currentPrice > siRequest.getMaxBid())){
+                destroyGroup = true;
+                changeStatus(siRequest, SIRequestStatus.CLOSED);
+            } else {
+                changeStatus(siRequest, SIRequestStatus.OPEN);
+            }
         }
         
-        SIRequestStatus oldStatus = siRequest.getStatus();        
-        
-        int[] allocatedVMs = null;
-        try {
-            allocatedVMs = siRequest.getAllocatedVMs(quantity);
-        } catch (SIRequestException e) {
-            logger.fatal("[Spot Instances] " + e.getMessage(), e);
-            return;
+        try{
+            if(destroyGroup && siRequest.getRequestedInstances() > 1){
+                if (this.lager.eventLog) {
+                    logger.info(Lager.ev(-1) + "[Spot Instances] All VMs from SI request '" + siRequest.getId() + "' will be destroyed. Destroying group: " + siRequest.getGroupID());
+                }
+                siRequest.preemptAll();
+                ghome.destroy(siRequest.getGroupID());
+            } else {
+                int[] preemptionList = siRequest.getAllocatedVMs(quantity);
+
+                if (this.lager.eventLog) {
+                    String logStr = Lager.ev(-1) + "[Spot Instances] Pre-empting following VMs for request " + siRequest.getId() + ": ";
+                    for (int i = 0; i < preemptionList.length; i++) {
+                        logStr += preemptionList[i] + " ";
+                    }
+                    logger.info(logStr.trim());
+                }
+
+                siRequest.preempt(preemptionList);
+
+                final String sourceStr = "via siManager-preempt, siRequest " +
+                "id = '" + siRequest.getId() + "'";
+                String errorStr = home.destroyMultiple(preemptionList, sourceStr);
+                if(errorStr != null && !errorStr.isEmpty()){
+                    failRequest("pre-empting", siRequest, errorStr, null);
+                }
+            }            
+        } catch(Exception e){
+            failRequest("pre-empting", siRequest, e.getMessage(), e);
         }
-        
-        //FIXME: temporary, just for testing
-        for (int i = 0; i < allocatedVMs.length; i++) {
-            siRequest.finishVM(allocatedVMs[i], this.currentPrice);
+    }
+
+    private void failRequest(String action, SIRequest siRequest, String errorStr, Throwable problem) {
+        logger.warn(Lager.ev(-1) + "[Spot Instances] Error while " + action + " VMs for request: " +
+                siRequest.getId() + ". Setting state to FAILED. Problem: " +
+                errorStr);
+        changeStatus(siRequest, SIRequestStatus.FAILED);
+        if(problem != null){
+            siRequest.setProblem(problem);
         }
-        
-        if (!oldStatus.equals(siRequest.getStatus()) && this.lager.eventLog) {
-            logger.info(Lager.ev(-1) + "[Spot Instances] Request '" + siRequest.getId() + "' changed status from " + oldStatus + " to " + siRequest.getStatus());
-        }           
     }
 
     protected void allocate(SIRequest siRequest, Integer quantity) {
+
+        if(quantity < 1){
+            logger.error(Lager.ev(-1) + "[Spot Instances] Number of instances to allocate has to be larger than 0. " +
+            		                    "Requested quantity: " + quantity);
+            return;
+        }
+
         if (this.lager.eventLog) {
             logger.info(Lager.ev(-1) + "[Spot Instances] Allocating " + quantity + " VMs for request: " + siRequest.getId());
         }
-        
-        SIRequestStatus oldStatus = siRequest.getStatus();
-        
+
         VirtualMachine[] unallocatedVMs = null;
         try {
             unallocatedVMs = siRequest.getUnallocatedVMs(quantity);
@@ -445,14 +467,21 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
                 siRequest.addAllocatedVM(resource.getID());
             }
         } catch (Exception e) {
-            siRequest.setStatus(SIRequestStatus.FAILED);
-            siRequest.setProblem(e);
-            logger.warn(Lager.ev(-1) + "[Spot Instances] Error while allocating VMs for request: " + siRequest.getId() + ". Setting state to FAILED. Problem: " + e.getMessage());
+            failRequest("allocating", siRequest, e.getMessage(), e);
+            return;
         }
         
-        if (!oldStatus.equals(siRequest.getStatus()) && this.lager.eventLog) {
-            logger.info(Lager.ev(-1) + "[Spot Instances] Request " + siRequest.getId() + " changed status from " + oldStatus + " to " + siRequest.getStatus());
-        }        
+        if(siRequest.getStatus().isOpen()){
+            changeStatus(siRequest, SIRequestStatus.ACTIVE);
+        }
+    }
+
+    private void changeStatus(SIRequest siRequest, SIRequestStatus newStatus) {
+        SIRequestStatus oldStatus = siRequest.getStatus();
+        boolean changed = siRequest.setStatus(newStatus);
+        if (changed && this.lager.eventLog) {
+            logger.info(Lager.ev(-1) + "[Spot Instances] Request " + siRequest.getId() + " changed status from " + oldStatus + " to " + newStatus);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -464,8 +493,8 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
         if (this.lager.eventLog) {
             logger.info(Lager.ev(-1) + "[Spot Instances] Calculating available SI resources..");
         }        
-        
-        Integer resourceQuantity = 0;
+
+        Integer siMem;
         
         try {
             Integer availableMem = persistence.getTotalAvailableMemory(INSTANCE_MEM);
@@ -478,14 +507,13 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
             Integer reservedNonPreempMem = (int)Math.round((1-MAX_NON_PREEMP_UTILIZATION)*usedNonPreemptableMem/MAX_NON_PREEMP_UTILIZATION);
             reservedNonPreempMem = Math.max(reservedNonPreempMem, MINIMUM_RESERVED_MEMORY);
             
-            Integer siMem;
             if(availableMem >= reservedNonPreempMem){
                 siMem = (availableMem - reservedNonPreempMem) + usedPreemptableMem;
             } else {
                 if (this.lager.eventLog) {
                     logger.info(Lager.ev(-1) + "[Spot Instances] Not enough available memory for Spot Instances. Trying to satisfy currently active requests.");
-                }                
-                siMem = Math.max(usedPreemptableMem-reservedNonPreempMem, 0);
+                }
+                siMem = Math.max((availableMem+usedPreemptableMem)-reservedNonPreempMem, 0);
             }
             
             if (this.lager.eventLog) {
@@ -495,22 +523,23 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
                 logger.info(Lager.ev(-1) + "[Spot Instances] Reserved non pre-emptable memory: " + reservedNonPreempMem + "MB");
                 logger.info(Lager.ev(-1) + "[Spot Instances] Used pre-emptable memory: " + usedPreemptableMem + "MB");                
                 logger.info(Lager.ev(-1) + "[Spot Instances] Calculated memory for SI requests: " + siMem + "MB");
-            }            
-            
-            resourceQuantity = siMem/INSTANCE_MEM;
-            
+            }
         } catch (WorkspaceDatabaseException e) {
-            e.printStackTrace();
+            logger.error(Lager.ev(-1) + "[Spot Instances] Error while calculating available resources: " + e.getMessage());
+            return;
         }
         
-        if (this.lager.eventLog) {
-            logger.info(Lager.ev(-1) + "[Spot Instances] Available basic SI instances (128MB RAM): " + resourceQuantity);
-        }        
-
-        setAvailableResources(resourceQuantity);
+        setAvailableResources(siMem);
     }
 
-    protected void setAvailableResources(Integer resourceQuantity){
+    protected void setAvailableResources(Integer availableMemory){
+
+        if(availableMemory == null || availableMemory < 0){
+            return;
+        }
+
+        Integer resourceQuantity = availableMemory/INSTANCE_MEM;
+
         if(resourceQuantity != availableResources){
             if (this.lager.eventLog) {
                 logger.info(Lager.ev(-1) + "[Spot Instances] RESOURCE QUANTITY CHANGED. OLD AVAILABLE RESOURCES = " + availableResources + ". NEW AVAILABLE RESOURCES = " + resourceQuantity);
@@ -530,9 +559,14 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
             if(siRequest != null){
                 if (this.lager.eventLog) {
                     logger.info(Lager.ev(-1) + "[Spot Instances] VM '" + vmid + "' from request '" + siRequest.getId() + "' finished. Changing price and reallocating requests.");
-                }                
-                siRequest.finishVM(vmid, this.currentPrice);
-                this.changePriceAndReallocateRequests();
+                }
+
+                if(!siRequest.finishVM(vmid)){
+                    //Will just change price and reallocate requests
+                    //if this was not a pre-emption
+                    this.changePriceAndReallocateRequests();
+                }
+                
             } else {
                 if (this.lager.eventLog) {
                     logger.info(Lager.ev(-1) + "[Spot Instances] A non-preemptable VM was destroyed. Recalculating available resources.");
@@ -551,6 +585,33 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
             this.calculateAvailableResources();
         }
     }
+    
+    // -------------------------------------------------------------------------
+    // Implements org.globus.workspace.scheduler.defaults.PreemptableSpaceManager
+    // -------------------------------------------------------------------------       
+    
+    public void start() {
+        this.calculateAvailableResources();
+    }    
+    
+    public void freeSpace(Integer memoryToFree) {
+        Integer usedMemory = availableResources*INSTANCE_MEM;
+
+        if (this.lager.eventLog) {
+            logger.info(Lager.ev(-1) + "[Spot Instances] " + memoryToFree + 
+                    "MB RAM have to be freed to give space to higher priority requests");
+        }
+
+        if(memoryToFree > usedMemory){
+            logger.warn(Lager.ev(-1) + "[Spot Instances] Spot Instances requests are consuming " + usedMemory + 
+                    "MB RAM , but SIManager was requested to free " + memoryToFree + "MB RAM. " +
+                            "Freeing just " + usedMemory + ".");            
+            memoryToFree = usedMemory;
+        }
+
+        Integer availableMemory = usedMemory - memoryToFree;
+        setAvailableResources(availableMemory); 
+    }    
     
     // -------------------------------------------------------------------------
     // UTILS
@@ -619,4 +680,5 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
     public Integer getAvailableResources() {
         return availableResources;
     }
+
 }

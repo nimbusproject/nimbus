@@ -31,6 +31,7 @@ public class SIRequest implements Comparable<SIRequest>{
 
     private LinkedHashSet<Integer> allocatedVMs = new LinkedHashSet<Integer>();
     private LinkedHashSet<Integer> finishedVMs = new LinkedHashSet<Integer>();
+    private LinkedHashSet<Integer> toBePreempted = new LinkedHashSet<Integer>();
     private Calendar creationTime;
 
     public SIRequest(String id, Double highestPrice, Integer requestedInstances) {
@@ -87,7 +88,6 @@ public class SIRequest implements Comparable<SIRequest>{
 
     public void addAllocatedVM(int createdId) {
         this.allocatedVMs.add(createdId);
-        this.setStatus(SIRequestStatus.ACTIVE);
     }
     
     public Integer getUnallocatedInstances(){
@@ -114,10 +114,12 @@ public class SIRequest implements Comparable<SIRequest>{
         return status;
     }
 
-    public void setStatus(SIRequestStatus status) {
+    public boolean setStatus(SIRequestStatus status) {
         if(this.status.isAlive()){
             this.status = status;
+            return true;
         }
+        return false;
     }
 
     @Override
@@ -172,7 +174,7 @@ public class SIRequest implements Comparable<SIRequest>{
                 + ", caller=" + caller + "]";
     }
 
-    public void finishVM(int vmid, Double spotPrice) {
+    public boolean finishVM(int vmid) {
         if(this.allocatedVMs.remove(vmid)){
             if(this.persistent){
                 //If the request is persistent, it is going to be considered again
@@ -194,20 +196,8 @@ public class SIRequest implements Comparable<SIRequest>{
             }
             
             finishedVMs.add(vmid);
-            if(status.isAlive()){
-                changeStatus(spotPrice);
-            }
         }
-    }
-
-    private void changeStatus(Double spotPrice) {
-        if(spotPrice != null && this.allocatedVMs.isEmpty()){
-            if(!this.persistent && (!needsMoreInstances() || spotPrice > this.maxBid)){
-                this.setStatus(SIRequestStatus.CLOSED);
-            } else {
-                this.setStatus(SIRequestStatus.OPEN);
-            }
-        }
+        return toBePreempted.remove(vmid);
     }
     
     public VirtualMachine[] getUnallocatedVMs(int quantity) throws SIRequestException{
@@ -251,10 +241,19 @@ public class SIRequest implements Comparable<SIRequest>{
         return this.creationTime;
     }
 
-    public void cancelRequest() {
-        for (Integer id : allocatedVMs) {
-            finishVM(id, null);
+    public Integer getRequestedInstances() {
+        return this.requestedInstances;
+    }
+
+    public void preemptAll() {
+        for (int i : allocatedVMs) {
+            toBePreempted.add(i);
         }
-        this.setStatus(SIRequestStatus.CANCELLED);
-    }    
+    }
+    
+    public void preempt(int[] preemptionList) {
+        for (int i : preemptionList) {
+            toBePreempted.add(i);
+        }
+    }
 }
