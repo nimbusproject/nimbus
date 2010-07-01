@@ -24,7 +24,8 @@
 
         <!-- set after object creation time to avoid circular dep with home -->
         <property name="home" ref="nimbus-rm.home.instance" />
-        <property name="vmmpoolDirectoryResource"
+        <property name="preempManager" ref="nimbus-rm.spotinstances.manager" />
+	<property name="vmmpoolDirectoryResource"
                   value="$COMMON{conf.dir}/vmm-pools" />
         <property name="selectionStrategy"
                   value="round-robin" />

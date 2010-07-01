@@ -518,9 +518,6 @@
 
         <constructor-arg ref="nimbus-rm.LockManager" />
 
-        <!-- definition of this bean is in "resource-locator-ACTIVE.xml" -->
-        <constructor-arg ref="nimbus-rm.scheduler.SlotManagement" />
-
         <constructor-arg ref="other.MainDataSource" />
         <constructor-arg ref="other.timerManager" />
         <constructor-arg ref="nimbus-rm.service.binding.GlobalPolicies" />
@@ -529,10 +526,11 @@
 
         <!-- set after object creation time to avoid circular dep with home -->
         <property name="home" ref="nimbus-rm.home.instance" />
-
-        <!-- set after object creation time to avoid circular dep -->
         <property name="siManager"
                    ref="nimbus-rm.spotinstances.manager" /> 
+        <!-- definition of this bean is in "resource-locator-ACTIVE.xml" -->
+        <property name="slotManager" 
+        		   ref="nimbus-rm.scheduler.SlotManagement" />                   
     </bean>
 
     <!-- ===================================================================
@@ -540,8 +538,7 @@
          =================================================================== -->
 
     <bean id="nimbus-rm.spotinstances.manager"
-          class="org.globus.workspace.spotinstances.SpotInstancesManagerImpl"
-          init-method="calculateAvailableResources">
+          class="org.globus.workspace.spotinstances.SpotInstancesManagerImpl">
 
         <constructor-arg ref="nimbus-rm.persistence.PersistenceAdapter" />
         <constructor-arg ref="nimbus-rm.loglevels" />
