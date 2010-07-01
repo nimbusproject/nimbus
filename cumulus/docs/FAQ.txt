@@ -7,7 +7,7 @@ features are added, such as file system usage quotas.
 What clients can I use with Cumulus?
 ------------------------------------
 Cumulus is compliant with the S3 REST network API, therefore clients
-that work against the amazon S3 REST api should work with Cumulus.  Some
+that work against the S3 REST API should work with Cumulus.  Some
 of the more popular ones are boto and s3cmd.
 
 How are Nimbus and Cumulus related?

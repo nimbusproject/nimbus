@@ -750,6 +750,121 @@ _NIMBUS_2_5_DEPRECATED
             and starting the application are in <a href="admin/reference.html#nimbusweb-config">this
             section</a> of the <a href="admin/index.html">administrator guide</a>.
         </p>
+
+    </li>
+
+    <li>
+        <p>
+            <a name="cumulus"> </a>
+            <b>What is Cumulus? <span class="namelink"><a href="#cumulus">(#)</a></span></b>
+        </p>
+
+        <p>
+Cumulus is an open source implementation of the S3 REST API.  Some features
+such as versioning and COPY are not yet implemented, but some additional
+features are added, such as file system usage quotas.
+        </p>
+    </li>
+    <li>
+        <p>
+            <a name="cumulusclients"> </a>
+            <b>What clients can I use with Cumulus? <span class="namelink"><a href="#cumulusclients">(#)</a></span></b>
+        </p>
+
+        <p>
+Cumulus is compliant with the S3 REST network API, therefore clients
+that work against the S3 REST API should work with Cumulus.  Some
+of the more popular ones are boto and s3cmd.
+        </p>
+    </li>
+
+    <li>
+        <p>
+            <a name="cumulusnimbus"> </a>
+            <b>How are Nimbus and Cumulus related?<span class="namelink"><a href="#cumulusnimbus">(#)</a></span></b>
+        </p>
+        
+        <p> 
+Cumulus is the front end to the Nimbus VM image repository.  In order to
+boot an image on a given Nimbus cloud, that image must first be put into
+that same clouds Cumulus repository (advanced use cases can by pass this).
+        </p> 
+    </li>
+
+    <li>
+        <p>
+            <a name="cumulusnonimbus"> </a>
+            <b>Can Cumulus be installed without Nimbus?<span class="namelink"><a href="#cumulusnonimbus">(#)</a></span></b>
+        </p>
+
+        <p>
+Cumulus is the front end to the Nimbus VM image repository.  In order to
+boot an image on a given Nimbus cloud, that image must first be put into
+that same clouds Cumulus repository (advanced use cases can by pass this).
+        </p>
+    </li>
+
+    <li>
+        <p>
+            <a name="nimbusnocumulus"> </a>
+            <b>Can Nimbus be installed without Cumulus?<span class="namelink"><a href="#nimbusnocumulus">(#)</a></span></b>
+        </p>
+
+        <p>
+No.  Nimbus version 2.5 and higher is packaged with Cumulus and so Nimbus
+is intimately
+aware of Cumulus.  Nimbus must be installed with the version of Cumulus with
+which it is packages.
+        </p>
+    </li>
+
+    <li>
+        <p>
+            <a name="cumulusprop"> </a>
+            <b>Does the Nimbus IaaS system use Cumulus for image propagation?<span class="namelink"><a href="#cumulusprop">(#)</a></span></b>
+        </p>
+
+        <p>
+Not necessarily.  While Cumulus is the primary interface for transfer
+images in and out of the cloud, it is not the mechanism by which images
+are propagated from the repository to the virtual machine monitors.
+Propagation is done in a variety of different ways, many of which we
+are still developing and researching in order to find the best solution
+for scientific users.
+        </p>
+    </li>
+
+    <li>
+        <p>
+            <a name="cumulusreliable"> </a>
+            <b>How reliable is Cumulus?<span class="namelink"><a href="#cumulusreliable">(#)</a></span></b>
+        </p>
+
+        <p>
+The reliability of Cumulus depends greatly on the storage system that is
+backing it.  Many providers will have the resources in terms of disk space
+and storage servers to give their users uber high levels of reliability.
+Other providers may not have these resources but still wish to be protocol
+compliant with S3.  Cumulus supports both classes of users with different
+backend storage plugins.
+        </p>
+    </li>
+
+    <li>
+        <p>
+            <a name="cumulusbackend"> </a>
+            <b>How reliable is Cumulus?<span class="namelink"><a href="#cumulusbackend">(#)</a></span></b>
+        </p>
+
+        <p>
+In the first release of Cumulus we are only providing a posix filesystem
+backend storage system.  However this is a very powerful plugin.  It
+can be used against a variety of storage systems including PVFS, GFS, and
+HDFS (under a FUSE module).  We have prototyped HDFS and BlobSeer plugins
+and we will be releasing them soon.
+        </p>
+    </li>
+
         <p>
             Existing features:
         </p>
