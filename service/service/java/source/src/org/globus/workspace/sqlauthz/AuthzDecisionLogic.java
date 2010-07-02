@@ -90,7 +90,7 @@ public class AuthzDecisionLogic extends DecisionLogic
             }
 
             String dataKey = this.authDB.getDataKey(fileIds[1]);
-            String rc = this.getRepoScheme() + "://" + this.getRepoHost() + "/" + dataKey;
+            String rc = this.getRepoScheme() + this.getRepoHost() + "/" + dataKey;
 
             logger.debug("converted " + objectName + " to " + rc);
 
