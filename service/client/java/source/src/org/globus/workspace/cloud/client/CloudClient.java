@@ -485,6 +485,11 @@ public class CloudClient {
 
     void parameterCheck_securityPrint() throws ParameterProblem {
         CloudClientUtil.checkGSICredential("Security printing");
+        try {
+            getProxyBeingUsed();
+        } catch (Exception e) {
+            throw new ParameterProblem(e.getMessage());
+        }
     }
 
     void parameterCheck_servicePrint() throws ParameterProblem {
