@@ -11,14 +11,566 @@ _NIMBUS_2_5_DEPRECATED
 
 <p>
     On this page, you will install the Nimbus VMM software
-    (<i>workspace-control</i>) and any of its dependencies
+    <tt class="literal">workspace-control</tt> and any of its dependencies
     (including Xen or KVM as well as libvirt, if these are not present
     already).
 </p>
 <p>
-    workspace-control contains scripts that will help you test that
-    your Xen/KVM/libvirt installation will work with the programmatic
-    access patterns that Nimbus uses.
+    <tt class="literal">workspace-control</tt> contains scripts that will help you test that your Xen/KVM/libvirt installation will work with the programmatic access patterns that Nimbus uses.
+</p>
+<p>
+    You should use one VMM node for this exercise.  When things are working end to end, you can propagate the configuration and dependencies to all of the other nodes on your cluster (assuming that they are roughly homogeneous).
+</p>
+
+<h3>Dependencies</h3>
+<p>
+    Before automating a VMM node with Nimbus software, it needs to be a VMM node and that means installing other software.
+</p>
+<p>
+    The first thing we need to do is make sure that all the virtualization and networking dependencies are present.
+</p>
+<p>
+    The workspace service currently manages <a href="http://www.xen.org">Xen</a>
+    or <a href="http://www.linux-kvm.org">KVM</a> VMs.  It interfaces with both
+    of these systems using a library called 
+    <a href="http://libvirt.org/">libvirt</a>.
+</p>
+<p>
+    This guide currently assumes you want to install with Xen.  There are some setup differences using KVM, and these will be enumerated in the near future.
+</p>
+<div class="note">
+    You need to get a basic VM running with <b>bridged networking</b>.  Using NAT networking for guest VMs will not be sufficient.
+</div>
+
+<h3>Basic Dependencies</h3>
+
+<p>
+  Install Xen 3.x using your Linux distribution's package management tools and user guides.
+</p>
+
+<p>
+  Install <a href="http://ebtables.sourceforge.net/">ebtables</a> using your Linux distribution's package management tools. 
+</p>
+<div class="note">
+  ebtables requires kernel support in dom0, the default Xen kernel includes this support.  If your domain 0 kernel does not include these for some reason, the options to enable are under <tt class="literal">Networking :: Networking options :: Network packet filtering :: Bridge Netfilter Configuration :: Ethernet Bridge Tables</tt>
+</div>
+
+<p>
+  Install libvirt version 0.7 or higher using your Linux distribution's package management tools and user guides.
+</p>
+
+<div class="note">
+  There are differences in lower libvirt versions that have caused problems for some Nimbus users.  If you take a chance with this and see an error about "createXML", you've probably got a very old version.
+</div>
+
+<div class="note">
+  An important step is to make sure that your libvirt installation supports the libvirt "python bindings".  This is how the Nimbus software actually interacts with libvirt.  In some cases, the bindings (which come with a normal libvirt installation) are not installed.  On some systems you need to trigger this to be there by installing the "python-dev" package before installing libvirt.  In order to check you have the right install, Nimbus includes a script in the workspace-control download which you will run later (discussed below).
+</div>
+
+<p>
+  Make sure you have Python 2.4 or higher (but not Python 3.x).
+</p>
+
+<p>
+  If your Linux distribution doesn't support these packages well, you can try installing from source or binary, starting at <a href="http://libvirt.org/">libvirt.org</a> (and either <a href="http://xen.org/">xen.org</a> or <a href="http://www.linux-kvm.org">linux-kvm.org</a>) and
+  <a href="http://ebtables.sourceforge.net/" target="_top">ebtables</a>.
+</p>
+
+<p>
+  If your Linux distribution has a nice guide for initial testing of Xen/KVM, it would be good to follow that advice to weed out any major problems using a known and controlled environment.
+</p>
+
+<p>
+  Our next step in this guide will be to create a unix account for workspace-control and then install it.  This will give us access to some scripts we can use to further verify the system is ready to be automated with Nimbus.
+</p>
+
+<h3>Choose/Create Privileged User Account</h3>
+<p>
+    There are two system accounts needed on the VMMs.
+</p>
+<ul>
+    <li>
+        <p>
+            <b>privileged account</b> - Pick an account to make privileged (using the sudo program).
+        </p>
+        <p>
+            In this guide (especially in the command samples) we will refer
+            to an account of this type named <tt class="literal">nimbus</tt> with terminal
+            prompts like "<b>nimbus $</b>"
+        </p>
+		<p>
+			Note: this is not a privileged account in the sense that root is a
+			privileged account.  <i>This is a regular account</i> that you will
+			give powers to during the setup process.  It is an account that
+			will be privileged because it will have control over the hypervisor.
+		</p>
+    </li>
+    <li>
+        <p>
+            <b>superuser account</b> - The root account is necessary to install
+            dependencies on the VMM nodes (Xen/KVM, ebtables, etc.) and also to
+            install the Nimbus agent that lives on the VMM nodes (workspace
+            control).
+        </p>
+        <p>
+            In this guide (especially in the command samples) we will refer
+            to an account of this type named <tt class="literal">root</tt> with terminal
+            prompts like "<b>root #</b>"
+        </p>
+        <p>
+            Note that root is not needed on the service node, just here on the VMM.
+        </p>
+    </li>
+</ul>
+
+<h3>Install workspace-control</h3>
+
+<p>
+  OK, you've got your non-root user <tt class="literal">nimbus</tt> created, we will now download the VMM control package to the machine. 
+</p>
+
+<p>
+    Download the "Control Agents" tar file from the download page, and untar it. This archive contains both <tt class="literal">workspace-control</tt> and the <tt class="literal">workspace pilot</tt>. For this configuration we are using <tt class="literal">workspace-control</tt>.  You need to copy it to the <tt class="literal">/opt/nimbus</tt> destination directory like so:
+</p>
+
+<div class="panel"><pre>
+root # wget http://www.nimbusproject.org/downloads/nimbus-controls-2.5.tar.gz
+root # tar xfz nimbus-controls-2.5.tar.gz
+root # mv nimbus-controls-2.5/workspace-control/ /opt/nimbus
+</pre></div>
+
+<p>
+  Make sure the directory hierarchy is as the default configurations -- and this guide -- expect.
+</p>
+
+<div class="panel"><pre>
+root # [ -f /opt/nimbus/bin/workspace-control.sh ] && echo "Correct."
+Correct.
+</pre></div>
+
+<p>
+  Now make sure the permissions are set up for running via sudo safely.  Note the <tt class="literal">chown -R nimbus</tt> part, this is crucial for letting <tt class="literal">workspace-control</tt> do a lot of its work as the non-root user <tt class="literal">nimbus</tt> (only calling out to root via sudo to perform specific priviliged tasks).
+</p>
+
+<div class="panel"><pre>
+root # cd /opt/nimbus
+root # chown -R root bin etc lib libexec src
+root # chown -R nimbus var
+root # find . -type d -exec chmod 775 {} \;
+root # find . -type f -exec chmod 664 {} \;
+root # find bin sbin libexec -iname "*sh" -exec chmod 755 {} \;
+</pre></div>
+
+<h3>Test the basic dependencies</h3>
+
+<p>
+  Before moving on with a VM launching test, first we should confirm the basic assumptions about the environment.  The workspace-control package contains a script that will examine the system.
+</p>
+
+<p>
+  Run the following command:
+</p>
+
+<div class="panel"><pre>
+nimbus $ ./sbin/test-dependencies.sh
+</pre></div>
+
+<p>
+    If this script reports you have a problem, look into your distribution's
+    libvirt support (especially the python bindings that were discussed earlier) and don't hesitate to contact the
+    <a href="_NIMBUS_WEBSITE/contact/">workspace-user</a> mailing list with
+    problems.
+</p>
+
+<h3>Pick the kernel to use</h3>
+
+<p>
+  Pick a kernel in /boot that was installed with Xen to use for guest VMs.  Let's say for example you find <tt class="literal">/boot/vmlinuz-2.6.16.29-xen</tt> was installed along with Xen.
+</p>
+
+<p>
+  It may have a matching initrd file, for example <tt class="literal">/boot/initrd-2.6.16.29-xen</tt>
+</p>
+
+<p>
+  In this case you would run:
+</p>
+
+<div class="panel"><pre>
+root # cp /boot/vmlinuz-2.6.16.29-xen /opt/nimbus/var/workspace-control/kernels/default
+root # cp /boot/initrd-2.6.16.29-xen /opt/nimbus/var/workspace-control/kernels/default-initrd
+</pre></div>
+
+<p>
+  Now you have created a kernel called <tt class="literal">default</tt> that workspace-control will launch paravirtualized VMs with.  The default kernel and initrd to use for VMs is controlled by the <tt class="literal">authz_kernels</tt> configuration in <tt class="literal">/opt/nimbus/etc/workspace-control/kernels.conf</tt>
+</p>
+
+<h3>Obtain the sample image</h3>
+
+<p>
+  A sample image has been prepared for testing.  This is a basic VM that the Nimbus developers are familiar with, meaning it will be easier to get support help using this VM.
+</p>
+
+<div class="panel"><pre>
+nimbus $ cd /tmp
+nimbus $ wget http://www.nimbusproject.org/downloads/nimbus-z2c.gz
+nimbus $ md5sum nimbus-z2c.gz
+d41d8cd98f00b204e9800998ecf8427e  nimbus-z2c.gz
+nimbus $ gunzip nimbus-z2c.gz
+</pre></div>
+
+<p>
+  It is a VM with XXX installed.  It runs an SSH server when it boots.  If you have console access to it, you will be able to log in to it using the <tt class="literal">root</tt> account with password <tt class="literal">root</tt>.
+</p>
+
+<h3>Configure default bridge</h3>
+
+<p>
+  You set up Xen to use bridged networking, now it is time to check what the actual name of the bridge will be that the guest VM network card uses to get traffic to the LAN.
+</p>
+
+<p>
+  Using the <tt class="literal">brctl</tt> tool, you will see something like this in the list of bridges on the VMM system.
+</p>
+
+<div class="panel"><pre>
+root # brctl show
+bridge name     bridge id               STP enabled     interfaces
+xenbr0          8000.feffffffffff       no              peth0
+                                                        vif0.0
+</pre></div>
+
+<p>
+  The <tt class="literal">vif</tt> (virtual interface) for domain 0 is <tt class="literal">vif0.0 </tt> and it is bridged to <tt class="literal">xenbr0</tt>.  The guest VMs will by default be bridged in the same way.
+</p>
+
+<p>
+  This exact situation is common and happens to be the default bridge configuration in workspace-control's <tt class="literal">/opt/nimbus/etc/workspace-control/networks.conf</tt> file.
+</p>
+
+<p>
+  Notice <tt class="literal">default: xenbr0</tt> in the <tt class="literal">[defaultbridge]</tt> section of that configuration file.  The value here needs to be the bridge that VM traffic will be bridged to.  In this case, the <tt class="literal">xenbr0</tt> bridge.
+</p>
+
+
+<h3>Configure sudo and ebtables script</h3>
+
+<p>
+  Before we can do a live test, we need to configure workspace-control to use sudo privileged properly.
+</p>
+
+<p>
+  Using the visudo command, add the sudo policies printed out by the installer to the /etc/sudoers file. These policies should look something like this.
+</p>
+
+<div class="panel"><pre>
+nimbus ALL=(root) NOPASSWD: /opt/nimbus/libexec/workspace-control/mount-alter.sh
+nimbus ALL=(root) NOPASSWD: /opt/nimbus/libexec/workspace-control/xen-ebtables-config.sh
+</pre></div>
+
+<p>
+  These policies reflect the user that will be running workspace-control (nimbus) and the correct full paths to the libexec tools.  See <tt class="literal">/opt/nimbus/etc/workspace-control/sudo.conf</tt> for all the details.
+</p>
+
+<p>
+  Make sure the sudo rules work without a password as the <b>nimbus</b> user.
+</p>
+
+<div class="panel"><pre>
+nimbus $ /usr/bin/sudo /opt/nimbus/libexec/workspace-control/xen-ebtables-config.sh
+ERROR: requires at least 2 arguments, syntax: add|rem <vifname> [<dhcpif>  <macaddr> <ipaddr>]
+</pre></div>
+
+<p>
+  Seeing "ERROR" is a good thing here.  If you see a password prompt, type in the <tt class="literal">nimbus</tt> user's password which hopefully is a "first time use" warning from sudo.  Then try again, the goal is to perform this command from the nimbus account without needing any password.
+</p>
+
+<p>
+  You may need to comment out any "requiretty" setting in the sudoers policy, like so:
+</p>
+
+<div class="panel"><pre>
+#Defaults    requiretty
+</pre></div>
+
+<p>
+  The commands run via sudo are not using a terminal and so if you have "requiretty" enabled, this can cause a failure.
+</p>
+
+
+<h3>Obtain the workspace-control network sample</h3>
+
+<p>
+  In the previous section, you configured DHCPd and the network addresses to give to guest VMs. 
+</p>
+
+<p>
+  The container wrote out the <tt class="literal">dhcpd.entries</tt> file that will be used for the DHCPd server configuration.  In the same directory a sample file for workspace-control was written out, we will use this to test a VM launch via libvirt with your DHCPd server running.  The file you need to obtain is called <tt class="literal">control.netsample.txt</tt> 
+</p>
+
+<p>
+  Transfer this file to the VMM node: <tt class="literal">$NIMBUS_HOME/services/var/nimbus/control.netsample.txt</tt>
+</p>
+
+<p>
+  We will use it in the next step.
+</p>
+
+<h3>Test VM creation with a generated libvirt config</h3>
+
+<p>
+  Once you have obtained the <tt class="literal">control.netsample.txt</tt> file, have the kernel configured and have the default bridge configured, you are ready to try starting the test VM using a libvirt configuration file.
+</p>
+
+<p>
+  This is not just any libvirt configuration file, but one representing exactly the configuration that the workspace-control tool will use to launch VMs on your system automatically.
+</p>
+
+<p>
+  A script called <tt class="literal">libvirt-xml.sh</tt> lives in <tt class="literal">/opt/nimbus/sbin</tt> that will generate XML that we can use to launch VMs using the libvirt commandline tool called <tt class="literal">virsh</tt>
+</p>
+
+<p>
+  It takes a few arguments:
+</p>
+<div class="panel"><pre>
+nimbus $ cd /opt/nimbus
+nimbus $ ./sbin/libvirt-xml.sh -h
+Usage: see help (-h).
+
+Options:
+  --version         show program's version number and exit
+  -h, --help        show this help message and exit
+  --image=PATH      VM image file to test
+  --netsample=PATH  Net sample file obtained from Nimbus service node
+  --memory=INT      Amount of MB RAM to assign
+  --mountpoint=id   Mountpoint like 'sda1' to mount image to
+</pre></div>
+
+<p>
+  That image we downloaded is at <tt class="literal">/tmp/nimbus-z2c</tt>, that will be the value for the <tt class="literal">--image</tt> flag.
+</p>
+
+<p>
+  The <tt class="literal">--memory</tt> value will be something easily doable by your system, e.g. 256
+</p>
+
+<p>
+  The <tt class="literal">--mountpoint</tt> value will be <tt class="literal">sda1</tt> for the nimbus-z2c image.
+</p>
+
+<p>
+  That leaves the <tt class="literal">--netsample</tt> flag.  The value for this will be the path to the <tt class="literal">control.netsample.txt</tt> file we just obtained in the last step.
+</p>
+
+<p>
+  Run the following:
+</p>
+
+<div class="panel"><pre>
+nimbus $ ./sbin/libvirt-xml.sh  --image /tmp/nimbus-z2c --netsample /tmp/control.netsample.txt --memory 256 --mountpoint sda1
+</pre></div>
+
+<p>
+  On stdout, you will see an XML document printed.
+</p>
+
+<p>
+  Now run the following script to reset things:
+</p>
+
+<div class="panel"><pre>
+nimbus $ ./sbin/destroy-control-test.sh
+</pre></div>
+
+<p>
+  This may need to be repeated to solve any problems that are being mentioned.
+</p>
+
+<div class="note">
+  The output on stderr that looks like "libvir: Test error : Domain not found" is normal.  This is an artifact of the tools scanning for information.
+</pre>
+
+<p>
+  Having a problem?  If the problem is not obvious from the output, the error and debug logs can be found like so:
+</p>
+
+<div class="panel"><pre>
+nimbus $ ./sbin/cat-latest-logfile.sh
+</pre></div>
+
+<p>
+  If putting the culprit error into a search engine does not produce any obvious answers, don't hesitate to contact the <a href="_NIMBUS_WEBSITE/contact/">workspace-user</a> mailing list.  Describe your situation and any errors you are seeing.  Attaching this debug log can often be helpful and reduce the amount of emails that need to occur.
+</p>
+
+<p>
+  Once you have the XML getting printed, capture it to a file:
+</p>
+<div class="panel"><pre>
+nimbus $ ./sbin/libvirt-xml.sh --image /tmp/nimbus-z2c --netsample /tmp/control.netsample.txt --memory 256 --mountpoint sda1 > /tmp/z2c.xml
+</pre></div>
+
+<div class="note">
+Trying libvirt-xml.sh but seeing an error like "The persistence file already exists"?  This means you need to run that script: ./sbin/destroy-control-test.sh
+</div>
+
+<p>
+  Make sure the <tt class="literal">/tmp/z2c.xml</tt> file is what we expect.  It should start with lines like this:
+</p>
+<div class="panel"><pre>
+&lt;?xml version="1.0" encoding="UTF-8" standalone="no" ?&gt;
+&lt;domain type='test'&gt;
+    &lt;name&gt;control-test&lt;/name&gt;
+</pre></div>
+
+<p>
+  OK!  Now <b>as the nimbus user</b> run the virsh command to boot up the VM.
+</p>
+
+<div class="panel"><pre>
+nimbus $ virsh -c "xen:///" create /tmp/z2c.xml
+</pre></div>
+
+<p>
+  You will very likely hit an error about failing to connect to the hypervisor. 
+</p>
+
+<p>
+  Why?  Because you are not root.
+</p>
+
+<p>
+  The solution is to set the domain socket with certain permissions:
+</p>
+
+<p>
+  The libvirt pages state to enable this configuration is required "that the UNIX socket interface be enabled in the /etc/xen/xend-config.sxp  configuration file. Specifically the config settings (xend-unix-server yes). This path is usually restricted to only allow the root user access."
+</p>
+
+<p>
+  In the <tt class="literal">/etc/xen/xend-config.sxp</tt> file, activate the <tt class="literal">xend-unix-server</tt> configuration by including <tt class="literal">yes</tt>.  Then uncomment the <tt class="literal">xend-unix-path</tt> setting and note the value (for example <tt class="literal">/var/lib/xend/xend-socket</tt>).
+</p>
+
+<p>
+  As root, allow the nimbus user to access Xen.
+</p>
+<p>
+  Make the nimbus user a member of the root group:
+</p>
+<div class="panel"><pre>
+root # usermod -a -G root nimbus
+</pre></div>
+
+<p>
+  Make the Xen domain socket available to the root group:
+</p>
+<p>
+root # chown :root /var/lib/xend/xend-socket
+root # chmod g+rwx /var/lib/xend/xend-socket
+</p>
+
+<p>
+  Try again:
+</p>
+ 
+<div class="panel"><pre>
+nimbus $ virsh -c "xen:///" create /tmp/z2c.xml
+</pre></div>
+
+<p>
+  Now the VM will boot.  If it gets the correct network address from DHCP you should be able to ping it and even log in over SSH.
+</p>
+
+<p>
+  First find the IP address we are expecting it to get:
+</p>
+
+<div class="panel"><pre>
+nimbus $ grep ip /tmp/control.netsample.txt | awk '{print $2}'
+</pre></div>
+
+<p>
+  Then give it a ping:
+</p>
+
+<div class="panel"><pre>
+nimbus $ ping -c 1 192.168.0.2
+</pre></div>
+
+<p>
+  If this does not work, the next step will be to log in via the console and troubleshoot what happened.  You can log in using console to the nimbus-z2c image using the <tt class="literal">root</tt> account with password <tt class="literal">root</tt>
+</p>
+
+<div class="panel"><pre>
+nimbus $ virsh -c "xen:///" console control-test
+</pre></div>
+
+<p>
+  Does it not get an IP address from DHCPd?  Is DHCPd running?
+</p>
+
+<p>
+  Did it get some other IP address from DHCPd?  Your DHCPd may be misconfigured, perhaps it is not giving specific MAC addresses specific IP addresses.  Perhaps you did not load it with the current dhcpd.leases entries from Nimbus.
+</p>
+
+<p>
+  Seeing an error from a component, for example in the libvirt logs?  If putting the error into a search engine does not produce any obvious answers, don't hesitate to contact the <a href="_NIMBUS_WEBSITE/contact/">workspace-user</a> mailing list.  Describe your situation and any errors you are seeing.
+</p>
+
+<p>
+  When all is well, you should be able to log in as root over SSH.  Trying this from <b>off</b> the node is the best final test.
+</p>
+
+<div class="panel"><pre>
+ssh root@192.168.0.2
+</pre></div>
+
+
+<h3>Final test: VM creation using workspace-control</h3>
+
+
+<p>
+  The final test will be to launch the same file with the same parameters, but using <tt class="literal">workspace-control.sh</tt> directly just as the service will.
+</p>
+
+<p>
+  If you have a <tt class="literal">control-test</tt> VM running at the moment, shut it down using the kill script:
+</p>
+
+<div class="panel"><pre>
+./sbin/destroy-control-test.sh
+</pre></div>
+
+<p>
+  Gather the same arguments you used for <tt class="literal">./sbin/libvirt-xml.sh</tt> 
+</p>
+
+<div class="panel"><pre>
+$ ./sbin/control-test.sh --image /tmp/nimbus-z2c --netsample /tmp/control.netsample.txt --memory 256 --mountpoint sda1
+
+$ echo $?
+0
+</p>
+
+
+<p>
+  <b>If the exit code is zero, we are good to go</b>.  SSH again to test for sure.  Run the destruction script and you can move along to the next section in this guide.
+</p>
+
+<div class="panel"><pre>
+./sbin/destroy-control-test.sh
+</pre></div>
+
+<p>
+  Having a problem?  If the problem is not obvious from the output (this is not a program usually oriented towards humans), the error and debug logs can be found like so:
+</p>
+
+<div class="panel"><pre>
+nimbus $ ./sbin/cat-latest-logfile.sh
+</pre></div>
+
+<p>
+  If putting the culprit error into a search engine does not produce any obvious answers, don't hesitate to contact the <a href="_NIMBUS_WEBSITE/contact/">workspace-user</a> mailing list.  Describe your situation and any errors you are seeing.  Attaching this debug log can often be helpful and reduce the amount of emails that need to occur.
 </p>
 
 

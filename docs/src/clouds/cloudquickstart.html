@@ -102,11 +102,17 @@ _EXAMPLE_CMD_END
 <p>
     <i>Not enabled on a cloud yet?</i>
 </p>
+
 <p class="indent">
-    If you have not yet given your DN to the cloud administrators, this
-    would be a good time to do so -- just send the text printed after
-    'Identity:' in the output of the
-    <i>./bin/cloud-client.sh --security</i> command.
+    You need to look at the instructions published for each cloud.  Many clouds will give you access and provide you with the proper credentials and cloud.properties file.
+</p>
+
+<p class="indent">
+    For clouds running the newest versions of Nimbus (2.5+ with the Cumulus image repository), you will need to have the image repository credentials in your cloud.properties file and you will need to use cloud client #16 or later.  The administrator should have provided you with this file.
+</p>
+
+<p class="indent">
+    Backwards compatibility note: cloud client #16 or later will however work with clouds running older Nimbus software.  Again the cloud's website and/or administrator should very clearly state to you where you need to get credentials and the proper cloud.properties file.
 </p>
 
 <p>
