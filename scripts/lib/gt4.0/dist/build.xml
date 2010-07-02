@@ -79,6 +79,10 @@
         <copy todir="${distbuild.dir}/${nimbus.main}/libexec">
             <fileset dir="${nimbus.basedir}/libexec"/>
         </copy>
+        
+        <copy todir="${distbuild.dir}/${nimbus.main}/tmp">
+            <fileset dir="${nimbus.basedir}/tmp"/>
+        </copy>
 
         <copy todir="${distbuild.dir}/${nimbus.main}/">
             <fileset dir="topdocs"/>
@@ -160,6 +164,7 @@
             <include name="${nimbus.main}/plugins/**"/>
             <include name="${nimbus.main}/service/**"/>
             <include name="${nimbus.main}/service-api/**"/>
+            <include name="${nimbus.main}/tmp/**"/>
             <include name="${nimbus.main}/web/**"/>
             <exclude name="${nimbus.main}/web/bin/*"/>
             <exclude name="${nimbus.main}/web/sbin/*"/>
