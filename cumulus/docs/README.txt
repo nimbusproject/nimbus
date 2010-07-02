@@ -44,9 +44,9 @@ system:
 Configuration
 -------------
 
-From the distribution base directory run the program ./install [<target 
-directory>].  If no target is specified it will install to the same 
-directory.  This program will create an environment setup script call 
+From the distribution base directory run the program ./cumulus-install.sh <target 
+directory>.  
+This program will create an environment setup script call 
 'env.sh'.  At times this script may need to be sourced to have more 
 convenient access to commands.  install.sh also creates a configuration 
 file at ~/.nimbus/cumulus.ini
