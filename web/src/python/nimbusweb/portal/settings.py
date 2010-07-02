@@ -114,8 +114,7 @@ TEMPLATE_DEBUG = DEBUG
 try:
     from generated_settings import *
 except ImportError:
-    print >>sys.stderr, "WARN: Could not import generated_settings ?"
-    pass
+    raise Exception("Could not import generated_settings. Was the web application configured?")
 
 # generated_secrets.py is created and replaced at will by the 
 # "sbin/new-conf.sh" script under the Nimbus web directory.  Typically
@@ -123,5 +122,4 @@ except ImportError:
 try:
     from generated_secrets import *
 except ImportError:
-    print >>sys.stderr, "WARN: Could not import generated_secrets ?"
-    pass
+    raise Exception("Could not import generated_secrets. Was the web application configured?")
