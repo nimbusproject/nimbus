@@ -197,8 +197,8 @@ nimbus $ ./sbin/test-dependencies.sh
 </p>
 
 <div class="panel"><pre>
-root # cp /boot/vmlinuz-2.6.16.29-xen /opt/nimbus/var/workspace-control/kernels/default
-root # cp /boot/initrd-2.6.16.29-xen /opt/nimbus/var/workspace-control/kernels/default-initrd
+cp /boot/vmlinuz-2.6.16.29-xen /opt/nimbus/var/workspace-control/kernels/default
+cp /boot/initrd-2.6.16.29-xen /opt/nimbus/var/workspace-control/kernels/default-initrd
 </pre></div>
 
 <p>
@@ -342,7 +342,7 @@ Options:
   --version         show program's version number and exit
   -h, --help        show this help message and exit
   --image=PATH      VM image file to test
-  --netsample=PATH  Net sample file obtained from Nimbus service node
+  --netsample=PATH  Net sample file obtained from service node
   --memory=INT      Amount of MB RAM to assign
   --mountpoint=id   Mountpoint like 'sda1' to mount image to
 </pre></div>
@@ -368,7 +368,8 @@ Options:
 </p>
 
 <div class="panel"><pre>
-nimbus $ ./sbin/libvirt-xml.sh  --image /tmp/nimbus-z2c --netsample /tmp/control.netsample.txt --memory 256 --mountpoint sda1
+nimbus $ ./sbin/libvirt-xml.sh  --image /tmp/nimbus-z2c --netsample \
+/tmp/control.netsample.txt --memory 256 --mountpoint sda1
 </pre></div>
 
 <p>
@@ -407,7 +408,8 @@ nimbus $ ./sbin/cat-latest-logfile.sh
   Once you have the XML getting printed, capture it to a file:
 </p>
 <div class="panel"><pre>
-nimbus $ ./sbin/libvirt-xml.sh --image /tmp/nimbus-z2c --netsample /tmp/control.netsample.txt --memory 256 --mountpoint sda1 > /tmp/z2c.xml
+nimbus $ ./sbin/libvirt-xml.sh --image /tmp/nimbus-z2c --netsample \
+/tmp/control.netsample.txt --memory 256 --mountpoint sda1 > /tmp/z2c.xml
 </pre></div>
 
 <div class="note">
@@ -546,11 +548,12 @@ ssh root@192.168.0.2
 </p>
 
 <div class="panel"><pre>
-$ ./sbin/control-test.sh --image /tmp/nimbus-z2c --netsample /tmp/control.netsample.txt --memory 256 --mountpoint sda1
+$ ./sbin/control-test.sh --image /tmp/nimbus-z2c --netsample \
+/tmp/control.netsample.txt --memory 256 --mountpoint sda1
 
 $ echo $?
 0
-</p>
+</pre></div>
 
 
 <p>
