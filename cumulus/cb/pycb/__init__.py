@@ -48,7 +48,6 @@ class CBConfig(object):
     def __init__(self):
         self.default_settings()
         self.load_settings()
-        self.setup_logger()
 
         config_error = False
         if self.auth == None:
@@ -74,6 +73,8 @@ The search path for cumulus.ini is:
     cumulus.ini
     env 'CUMULUS_SETTINGS_FILE
 """
+
+        self.setup_logger()
 
     def setup_logger(self):
         global logger
