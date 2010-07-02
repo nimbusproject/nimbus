@@ -197,8 +197,9 @@ nimbus $ ./sbin/test-dependencies.sh
 </p>
 
 <div class="panel"><pre>
-cp /boot/vmlinuz-2.6.16.29-xen /opt/nimbus/var/workspace-control/kernels/default
-cp /boot/initrd-2.6.16.29-xen /opt/nimbus/var/workspace-control/kernels/default-initrd
+nimbus $ TARGETDIR=/opt/nimbus/var/workspace-control/kernels/
+nimbus $ cp /boot/vmlinuz-2.6.16.29-xen $TARGETDIR/default
+nimbus $ cp /boot/initrd-2.6.16.29-xen TARGETDIR/default-initrd
 </pre></div>
 
 <p>
