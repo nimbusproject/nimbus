@@ -8,6 +8,8 @@ will need to run this script:
 
   bash ./builder/get-wscore.sh
 
+But only if the Nimbus installer hasn't put the wscore tarball into ../tmp/ already.  If so, then the next script (./builder/dist.sh) will pick up that instead.
+
 That script will retrieve the necessary wscore binary tarball and place it in the same directory
 as this README file.
 

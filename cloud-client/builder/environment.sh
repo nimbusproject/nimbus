@@ -26,6 +26,7 @@ export CLCLBUILDER_WSCORE_DIRNAME="ws-core-4.0.8"
 # #########################################################
 
 export CLCLBUILDER_TARBALL_DEST="$CLCLBUILDER_BASEDIR/$CLCLBUILDER_WSCORE_TARNAME"
+export CLCLBUILDER_TARBALL_DEST2="$CLCLBUILDER_BASEDIR/../tmp/$CLCLBUILDER_WSCORE_TARNAME"
 
 # #########################################################
 
