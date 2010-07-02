@@ -1,6 +1,9 @@
 #!/bin/bash
 
-export NIMBUS_HOME=/home/bresnaha/NIM
+NIMBUS_HOME_REL="`dirname $0`/.."
+NIMBUS_HOME=`cd $NIMBUS_HOME_REL; pwd`
+export NIMBUS_HOME
+
 PYTHON_EXE="/usr/bin/env python -Wignore::DeprecationWarning"
 
 NIMBUS_WEBDIR="$NIMBUS_HOME/web"
@@ -12,9 +15,11 @@ source $NIMBUS_HOME/cumulus/env.sh
 PYTHONPATH="${PYTHONPATH}:$NIMBUS_PYSRC:$NIMBUS_PYLIB:$PYTHONPATH:$NIMBUS_HOME/sbin:${PYTHONPATH}"
 export PYTHONPATH
 
-echo $PYTHONPATH
+DJANGO_SETTINGS_MODULE="nimbusweb.portal.settings"
+export DJANGO_SETTINGS_MODULE
 
+cd $NIMBUS_HOME/
+./bin/nimbusctl restart
 
-cd /home/bresnaha/Dev/Nimbus/nimbus/tests
-${CUMULUS_VE_HOME}/bin/nosetests user_tests.py
-
+cd $NIMBUS_HOME/libexec
+nosetests ../tests/user_tests.py ../tests/ec2_test.py
