@@ -150,6 +150,7 @@ class Disk:
         self.driver = None
         
         # <source file='/path/to/some.img'/>
+        # <source dev='/dev/sdx1'/>
         self.source = None
         
         # <target dev='sda1'/>
@@ -167,7 +168,10 @@ class Disk:
             if self.driver == "tap:aio":
                 x.write(L(3, "<driver name='tap' type='aio' />"))
         
-        x.write(L(3, "<source file='%s' />" % self.source))
+        if self._type == "block":
+            x.write(L(3, "<source dev='%s' />" % self.source))
+        else:
+            x.write(L(3, "<source file='%s' />" % self.source))
         x.write(L(3, "<target dev='%s' />" % self.target))
         if self.readonly:
             x.write(L(3, "<readonly/>"))
