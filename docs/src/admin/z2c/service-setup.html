@@ -202,16 +202,68 @@ $ tar xfz nimbus-cloud-client-016.tar.gz
     any credentials you already have in <tt class="literal">~/.globus/</tt>.
 </p>
 <pre class="panel">
-$ cp newuser/cloud.properties nimbus-cloud-client-016/conf/
+$ cp /tmp/newuser/cloud.properties nimbus-cloud-client/conf/
 </pre>
 <pre class="panel">
 $ mkdir ~/.globus/
 </pre>
 <pre class="panel">
-$ cp newuser/*.pem ~/.globus/
+$ cp /tmp/newuser/*.pem ~/.globus/
+</pre>
+
+<p>
+    Naturally, if you are testing the client on a different system than the service installation,
+    you'll need to use <tt class="literal">scp</tt> or similar to copy these files. 
+</p>
+
+<p>
+    You also need to grab a few more files from the Nimbus service installation and drop
+    them into the client. These are the internal CA certificates and enable the client to
+    trust the client. The needed files are in
+    <tt class="literal">$NIMBUS_HOME/var/ca/trusted-certs/</tt>.
+</p>
+<pre class="panel">
+$ cp $NIMBUS_HOME/var/ca/trusted-certs/* nimbus-cloud-client/lib/certs/
 </pre>
 
 <h3>Try it out!</h3>
+<p>
+    Now we have what should be a working client and are ready to test the service. The first step
+    is to initialize the grid proxy.
+</p>
+<pre class="panel">
+$ cd nimbus-cloud-client/
+</pre>
+<pre class="panel">
+$ ./bin/grid-proxy-init.sh
+</pre>
+<p>
+    Next we will attempt to query the service. This command shows the running VMs that you own.
+    Of course you do not have any at this point, but this can help to diagnose any configuration
+    or security problems.
+</p>
+<pre class="panel">
+$ ./bin/cloud-client.sh --status
+
+Querying for ALL instances.
+
+There's nothing running on this cloud that you own.
+</pre>
+<p>
+    If you see this message, all is well. You've successfully queried the running Nimbus service!
+    The next step is to query Cumulus and list the available images you have to run. Again, of
+    course you will have none.
+</p>
+<pre class="panel">
+$ bin/cloud-client.sh --list
+
+No files.
+</pre>
+<p>
+    If that command succeeded, then all of the Nimbus services are operational. We will come back
+    to this client later and use it to transfer and start real VMs. But for now, let's turn attention
+    back to the service node to <a href="networking-setup.html">Install DHCPd and Configure Networking</a>.
+</p>
 
 
 

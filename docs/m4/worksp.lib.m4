@@ -98,6 +98,7 @@ m4_define([[[_NIMBUS_HEADER',
 <link rel="stylesheet" type="text/css" href="/css/reset-fonts-grids.css">
 <link rel="stylesheet" type="text/css" href="/css/base.css">
 <link rel="stylesheet" type="text/css" href="/css/nimbus.css">
+<link rel="stylesheet" type="text/css" href="/css/doc.css">
 <link rel="alternate"
       type="application/rss+xml" 
       title="RSS 2.0" href="http://www.nimbusproject.org/news/rss/" />
