@@ -197,9 +197,9 @@ nimbus $ ./sbin/test-dependencies.sh
 </p>
 
 <div class="panel"><pre>
-nimbus $ TARGETDIR=/opt/nimbus/var/workspace-control/kernels/
+nimbus $ TARGETDIR=/opt/nimbus/var/workspace-control/kernels
 nimbus $ cp /boot/vmlinuz-2.6.16.29-xen $TARGETDIR/default
-nimbus $ cp /boot/initrd-2.6.16.29-xen TARGETDIR/default-initrd
+nimbus $ cp /boot/initrd-2.6.16.29-xen $TARGETDIR/default-initrd
 </pre></div>
 
 <p>
@@ -261,16 +261,8 @@ xenbr0          8000.feffffffffff       no              peth0
 </p>
 
 <p>
-  Using the visudo command, add the sudo policies printed out by the installer to the /etc/sudoers file. These policies should look something like this.
-</p>
-
-<div class="panel"><pre>
-nimbus ALL=(root) NOPASSWD: /opt/nimbus/libexec/workspace-control/mount-alter.sh
-nimbus ALL=(root) NOPASSWD: /opt/nimbus/libexec/workspace-control/xen-ebtables-config.sh
-</pre></div>
-
-<p>
-  These policies reflect the user that will be running workspace-control (nimbus) and the correct full paths to the libexec tools.  See <tt class="literal">/opt/nimbus/etc/workspace-control/sudo.conf</tt> for all the details.
+  Using the visudo command, add the necessary sudo policies.
+  These policies reflect need to use the user that will be running workspace-control ("nimbus") and the correct full paths to the libexec tools.  See <tt class="literal">/opt/nimbus/etc/workspace-control/sudo.conf</tt> for all the details and sample rules.
 </p>
 
 <p>
