@@ -30,7 +30,7 @@ from optparse import SUPPRESS_HELP
 
 g_report_options = ["cert", "key", "dn", "canonical_id", "access_id", "access_secret", "url", "web_id", "cloud_properties"]
 
-DEBUG = True
+DEBUG = False
 
 def get_nimbus_home():
     """Determines home directory of Nimbus install we are using.
