@@ -59,12 +59,19 @@ def _create_validation(p, c, local_file_set, vmname):
         
     return (tmplease_exe, sudo_path, vmpartition, fail_if_present)
 
-def teardown(p, c, vmname):
+def is_enabled(p, c):
+    enabled = False
     tmplease_enabled = p.get_conf_or_none("tmplease", "enabled")
-    if not tmplease_enabled:
+    if tmplease_enabled and tmplease_enabled.strip().lower() == "true":
+        enabled = True
+    if not enabled:
         c.log.debug("no tmplease configuration (images.conf), physical partition leasing disabled")
-        
-        # DONE
+        return False
+    return True
+
+def teardown(p, c, vmname):
+    
+    if not is_enabled(p, c):
         return
         
     (tmplease_exe, sudo_path) = _common_validation(p, c)
@@ -84,12 +91,8 @@ def teardown(p, c, vmname):
     
 def setup(p, c, local_file_set, vmname):
     
-    tmplease_enabled = p.get_conf_or_none("tmplease", "enabled")
-    if not tmplease_enabled:
-        c.log.debug("no tmplease configuration (images.conf), physical partition leasing disabled")
-        
-        # DONE
-        return
+    if not is_enabled(p, c):
+        return local_file_set
         
     (tmplease_exe, sudo_path, vmpartition, fail_if_present) = \
             _create_validation(p, c, local_file_set, vmname)
@@ -106,13 +109,13 @@ def setup(p, c, local_file_set, vmname):
             c.log.warn("There is a mountpoint in the deployment ('%s') that matches the partition that temp space will be mounted to." % vmpartition)
             
             # DONE
-            return
+            return local_file_set
             
     cmd = "%s %s add %s" % (sudo_path, tmplease_exe, vmname)
     c.log.debug("command = '%s'" % cmd)
     if c.dryrun:
         c.log.debug("(dryrun, didn't run that)")
-        return
+        return local_file_set
 
     ret,output = getstatusoutput(cmd)
     if ret:
