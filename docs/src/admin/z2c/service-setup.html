@@ -105,7 +105,34 @@ $ ./install $NIMBUS_HOME
     <p class="note-title">Service ports</p>
     <p>
         Nimbus requires several network ports. We have chosen some sensible defaults,
-        but you may adjust them if needed. TODO...
+        but you may adjust them if needed. The initial default set is:
+        <UL>
+            <LI>Cumulus : 8888</LI>
+            <LI>Nimbus Service interface : 8443</LI>This is used by the cloud-client
+            <LI>EC2 compatible REST Interface: 8444</LI>
+        </UL>
+
+    </p>
+    <B>Changing the Cumulus port</b>
+    <p>
+        The configuration options for Cumulus can be found in 
+        $HOME/.nimbus/cumulus.ini.  Under the heading [cb] there is a port =
+        entry.  Change that value and restart Cumulus with the <i>nimbusctl</i>
+        program.
+        <pre>
+[cb]
+
+installdir = &lt;nimbus home&gt;
+port = 8888
+hostname = &lt;hostname&gt;
+        </pre>
+
+        <i>note:</i>
+        If this change is made after you have distributed a cloud.properties
+        file to users then you will need to instruct your cloud-client users
+        to change the value vws.repository=<hostname>:<port> in their local
+        cloud.properties file.
+
     </p>
 </div>
 
@@ -159,7 +186,7 @@ cert            : /tmp/newuser/usercert.pem
 key             : /tmp/newuser/userkey.pem
 dn              : /O=Auto/OU=97e51165-cdb4-4376-b2ed-146f0cf67fbe/CN=someone@someplace.com
 canonical id    : d5170810-85f8-11df-86fa-001641156eb6
-access id       : pLG5Rexcj6uFQBH3exGM5
+access id       : pig5Rexcj6uFQBH3exGM5
 access secret   : uQA6LqXSVNFwubQ505II1kqeLMEsEXGd1oXGNjwp0G
 url             : None
 web id          : None
