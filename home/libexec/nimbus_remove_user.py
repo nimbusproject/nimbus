@@ -116,7 +116,7 @@ def delete_user(o):
             print "WARNING %s" % (ex)
 
     user.destroy_brutally()
-    
+    db.commit()
 
 def main(argv=sys.argv[1:]):
 
