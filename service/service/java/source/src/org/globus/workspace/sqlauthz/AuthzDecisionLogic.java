@@ -180,8 +180,6 @@ public class AuthzDecisionLogic extends DecisionLogic
         boolean different_target = false;
         String unPropImageName = null;
 
-        logger.debug("BuzzTrol checkImages entered'");                
-
         for (int i = 0; i < parts.length; i++)
         {
             if (!parts[i].isPropRequired() && !parts[i].isUnPropRequired())
