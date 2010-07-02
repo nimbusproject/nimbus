@@ -43,12 +43,13 @@ system:
 
 Configuration
 -------------
-From the distribution base directory run the program 
-./install [<target directory>].  If no target is specified it will install
-to the same directory.  This program will create an environment setup 
-script call 'env.sh'.  At times this script may need to be sourced to
-have more convenient access to commands.  install.sh also creates
-a configuration file at ~/.nimbus/cumulus.ini
+
+From the distribution base directory run the program ./install [<target 
+directory>].  If no target is specified it will install to the same 
+directory.  This program will create an environment setup script call 
+'env.sh'.  At times this script may need to be sourced to have more 
+convenient access to commands.  install.sh also creates a configuration 
+file at ~/.nimbus/cumulus.ini
 
 When the server is run it expects to find the file cumulus.ini in either:
 
@@ -57,63 +58,65 @@ When the server is run it expects to find the file cumulus.ini in either:
      3) the same directory from which the program was launched
      4)  file pointed to by the environment variable CUMULUS_SETTINGS_FILE
 
-This file is generated when the install.sh script is run, but it can 
-be modified by the admin later.  
+This file is generated when the install.sh script is run, but it can be 
+modified by the admin later.
 
 Repository Location
 -------------------
 
-In the current implementation user files are stored on a locally mounted
+In the current implementation user files are stored on a locally mounted 
 file system.  The reliability and performance of cumulus will thus be 
 limited by the reliabilty and performance of that file system.  Because 
-of this cumulus administrators will often want to specify a location for
+of this cumulus administrators will often want to specify a location for 
 the repository.
 
-Within the cumulus.ini file three is the [posix]:directory directive.
-This is the directory in which all of the files in the CB 
-repository will be stored.  The names of the files in that directory 
-will be obfuscated based on the bucket/key name.  In order to discover 
-what file belongs to what bucket/key you must use go through the security
-module.  If the authz module is in use there are a series of tools under
-the bin directory which start with cloudfs-* that can help with this.  
-In most cases there will be no need for a system administrator to use
-these tools and they are provided for expert usage for problimatic
-situations.
+Within the cumulus.ini file there is the [posix]:directory directive. 
+This is the directory in which all of the files in the CB repository 
+will be stored.  The names of the files in that directory will be 
+obfuscated based on the bucket/key name.  In order to discover what file 
+belongs to what bucket/key you must use go through the security module.  
+If the authz module is in use there are a series of tools under the bin 
+directory which start with cloudfs-* that can help with this.  In most 
+cases there will be no need for a system administrator to use these 
+tools and they are provided for expert usage for problimatic situations.
 
 User Management
 ===============
 
+NOTE: These tools are for use with cumulus only installations.  For 
+information on managing users with a full Nimbus installation see 
+http://www.nimbusproject.org
+
 There are three tools that are included with cumulus that allow an 
-administrator to create, remove, and see a listing of the current users.
+administrator to create, remove, and see a listing of the current users. 
 The tools are under the bin/ directory:
 
-    cumulus-add-user.sh
-    cumulus-list-users.sh
-    cumulus-remove-user.sh
+    cumulus-add-user
+    cumulus-list-users
+    cumulus-remove-user
 
 Each tool has a good usage description via --help and do what would be 
-expected of them based on their names.  List user allows an admin to
-query the system for user information.  The --report options can be used
-in conjunction with the -b option for scripts.  
+expected of them based on their names.  List user allows an admin to 
+query the system for user information.  The --report options can be used 
+in conjunction with the -b option for scripts.
 
-As an exmple of cumulus-list-users.sh, lets review a situation where an
-an admin recalls
-that a user has a friendly name that starts with a 'b' but they do not
-know the entire name.  The admin needs to get the S3 ID and password 
-for that user.  For that job cumulus-list-users.sh would be used in the
-following way:
+As an exmple of cumulus-list-users, lets review a situation where an an 
+admin recalls that a user has a friendly name that starts with a 'b' but 
+they do not know the entire name.  The admin needs to get the S3 ID and 
+password for that user.  For that job cumulus-list-users.sh would be 
+used in the following way:
 
-    % ./bin/cumulus-list-users.sh n\*
+    % ./bin/cumulus-list-users n\*
     friendly        : nimbusadmin@nimbusproject.org
     ID              : eqe0YoRAs2GT1sDvPZKAU
     password        : S9Ii7QqcCQxDecrezMn6o5frSFvXhThYWmCE4S7nAf
     quota           : None
     canonical_id    : 048db304-6b4c-11df-897b-001de0a80259
 
-perhaps that is too much noise for the admin and they only want to see
+perhaps that is too much noise for the admin and they only want to see 
 ID and password in a comma separate format:
 
-    % ./bin/cumulus-list-users.sh -r ID,password -b b\*
+    % ./bin/cumulus-list-users -r ID,password -b b\*
     eqe0YoRAs2GT1sDvPZKAU,S9Ii7QqcCQxDecrezMn6o5frSFvXhThYWmCE4S7nAf
 
 Running the server:
@@ -121,12 +124,12 @@ Running the server:
 
 Running the cumulus server is very easy:
 
-% ./bin/cumulus.sh
+% ./bin/cumulus
 
-If you wish to make a daemon process out of it you can do so around this
-program.  The program nimbusctl (provided with a full Nimbus distribution)
-can be looked to as an example.  Customization to the server are done in
-the cumulus.ini file (as explained above).
+If you wish to make a daemon process out of it you can do so around this 
+program.  The program nimbusctl (provided with a full Nimbus 
+distribution) can be looked to as an example.  Customization to the 
+server are done in the cumulus.ini file (as explained above).
 
 HTTPS
 -----

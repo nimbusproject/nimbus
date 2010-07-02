@@ -39,12 +39,12 @@ for scientific users.
 
 How reliable is Cumulus?
 ------------------------
-The reliability of Cumulus depends greatly on the storage system that is
-backing it.  Many providers will have the resources in terms of disk space 
-and storage servers to give their users uber high levels of reliability.
-Other providers may not have these resources but still wish to be protocol
-compliant with S3.  Cumulus supports both classes of users with different
-backend storage plugins. 
+The reliability of Cumulus depends entirely on the storage system that 
+is backing it. In order to achieve S3 levels of reliability you need S3 
+levels of hardware investment but with our system even small providers 
+can still be S3 protocol compliant while making an independent choice on 
+cost/reliability.
+
 
 What type of storage system backs the Cumulus repository?
 ---------------------------------------------------------
