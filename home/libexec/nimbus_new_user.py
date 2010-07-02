@@ -252,9 +252,11 @@ def create_user(o, db):
 
         user = User(db, friendly=o.emailaddr)
         o.canonical_id = user.get_id()
-        if not o.noaccess and o.access_id == None:
-            o.access_id = pynimbusauthz.random_string_gen(21)
-            o.access_secret = pynimbusauthz.random_string_gen(42)
+        if not o.noaccess:
+            if o.access_id == None:
+                o.access_id = pynimbusauthz.random_string_gen(21)
+                o.access_secret = pynimbusauthz.random_string_gen(42)
+
             # add to db
             ua1 = user.create_alias(o.access_id, pynimbusauthz.alias_type_s3, o.emailaddr, alias_data=o.access_secret)
 
