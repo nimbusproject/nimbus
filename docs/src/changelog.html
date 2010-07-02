@@ -23,7 +23,7 @@ _NIMBUS_2_5_DEPRECATED
 <ul>
     <li>
         <p>
-            We are happy to announce the first version of Cumulus!
+            <i>We are happy to announce the first version of Cumulus!</i>
         </p>
         <p>
             Cumulus is storage cloud implementation: it allows remote users to store objects on a storage cloud.  Cumulus is compatible with the Amazon Web Services S3 REST API (with small exceptions) and it works seamlessy with clients such as s3cmd and boto. In addition, it also offers extra functionality, specifically  disk quota enforcement.  Cumulus replaces the current GridFTP-based upload and download of VM images: it integrates tightly in a Nimbus installation as the VM image repository solution. It can be also installed on its own to manage a storage cloud.
@@ -35,7 +35,7 @@ _NIMBUS_2_5_DEPRECATED
     
     <li>
         <p>
-            Zero To Cloud installation process
+            <i>Zero To Cloud installation process</i>
         </p>
         <p>
             Besides being the first Cumulus release, the other major event of 2.5 is the first release of the "Zero To Cloud" installation process.
@@ -45,37 +45,53 @@ _NIMBUS_2_5_DEPRECATED
         </p>
         <ul>
             <li>
-                A new user management system: users can be added and managed quickly.  By default, their credentials are created on the fly.
+                <p>
+                A new user management system: users can be added and managed quickly.  Their credentials are created on the fly (not necessary).
+                </p>
             </li>
             <li>
+                <p>
                 Tight user integration with Cumulus: user management includes user setup with the image repository as well as the IaaS services.
+                </p>
             </li>
             <li>
+                <p>
+                Tight integration between the user management tools and the web application.  This allows administrators to add a user and quickly receive the secure URL to ask the user to visit to pick up his credentials and cloud.properties file.  
+                </p>
+            </li>
+            <li>
+                <p>
                 No unix account separation or root needed for Cumulus -- installation is easier because the IaaS central services and Cumulus can live in the same, non-root unix account.
+                </p>
             </li>
             <li>
+                <p>
                 The IaaS service is able to consult information in a database about files the remote user wants to launch.  When the "outside" namespace of the file is Cumulus based, there is a translation to an "inside" path.  This mechanism is now used to encapsulate propagation mechanisms, allowing for an easy way to introduce new propagation methods. 
+                </p>
             </li>
         </ul>
         
         <p>
-            All of this combined to allow us to, among other things, build a new installation program for Nimbus.  You can now tend to the central service node installation separately and very quickly.  Further, you install in a "fake" mode that doesn't actually invoke hypervisor machines yet.  Doing all of this allows you to know that this part of the equation is configured and works (including security).
+            All of this combined to allow us to, among other things, provide a new installation process for Nimbus.  You can now tend to the central service node installation separately and very quickly.  Further, you install in a "fake" mode that doesn't actually invoke hypervisor machines yet.  Doing all of this allows you to know that the central services are configured and working (including security).
         </p>
     </li>
     <li>
         <p>
-            New scheduling options.  The VMM selection process can now be driven by configuration:
+            <i>New scheduling options</i>
         </p>
         <p>
-            1. A "round-robin" configuration that looks for matching nodes (enough space to run, appropriate network support, etc.) with the highest percentage of free space.  If there are many equally free nodes it will pick randomly from those.  As should be clear, this favors entirely empty nodes first.
+            The VMM selection process can now be driven by configuration:
         </p>
         <p>
-            2. A "greedy" configuration that looks for matching nodes (enough space to run, appropriate network support, etc.) with the lowest percentage of free space.  If there are  many "equally unfree" nodes, it will pick randomly from those.
+            1. A <b>round-robin</b> configuration that looks for matching nodes (enough space to run, appropriate network support, etc.) with the highest percentage of free space.  If there are many equally free nodes it will pick randomly from those.  As should be clear, this favors entirely empty nodes first.
+        </p>
+        <p>
+            2. A <b>greedy</b> configuration that looks for matching nodes (enough space to run, appropriate network support, etc.) with the lowest percentage of free space.  If there are  many "equally unfree" nodes, it will pick randomly from those.
         </p>
     </li>
     <li>
         <p>
-            Integration with a central, site DHCPd
+            <i>Integration with a central, site DHCPd</i>
         </p>
         <p>
             Instead of hosting a private DHPCd for each VMM, Nimbus now supports (by default) editing a lease file for a central DHCPd on the LAN. 
@@ -89,10 +105,10 @@ _NIMBUS_2_5_DEPRECATED
     </li>
     <li>
         <p>
-            New alternative propagation methods
+            <i>New alternative propagation methods</i>
         </p>
         <p>
-            There are two new contributed propagation drivers: HTTP and HDFS.  These are for use outside of the cloud client currently, you need to configure Nimbus to allow for non-Cumulus-based image locations.
+            There are two new contributed propagation drivers for getting VM images to the hypervisor nodes: HTTP and HDFS.  These are for use outside of the cloud client currently, you need to configure Nimbus to allow for non-Cumulus-based image locations.
         </p>
         <p>
             These are for use on sites where the remote user knows more about image locations than the Cumulus name for it.  The HTTP driver is also good for having a central image repository (you can specify trusted hosts to pull from).
@@ -100,7 +116,7 @@ _NIMBUS_2_5_DEPRECATED
     </li>
     <li>
         <p>
-            Better performing blankspace: physical partition leases
+            <i>Better performing blankspace: physical partition leases</i>
         </p>
         <p>
             In order to support  very large temporary space partitions for VMs, and fast access to them,  allow the administrator to configure a list of physical partitions to lease out to incoming Nimbus VMs on each node (formatted for each use).
@@ -109,7 +125,7 @@ _NIMBUS_2_5_DEPRECATED
     
     <li>
         <p>
-            Support for user-requested number of cores.
+            <i>Support for user-requested number of cores</i>
         </p>
         <p>
             This contributed feature allows remote users to specify the number of cores the VM(s) should have.  The authorization policies now support this as well, allowing administrators to specify the maximum allowed for each user/group.
@@ -117,17 +133,26 @@ _NIMBUS_2_5_DEPRECATED
     </li>
     <li>
         <p>
-            New service node dependency requirements, see the Cumulus section for specifics.
+            <i>New service node dependency requirements</i>
+        </p>
+        <p>
+            See the Cumulus section for specifics.
         </p>
     </li>
     <li>
         <p>
-            Bug fixes, see each section below for specifics.
+            <i>Bug fixes and smaller enhancements</i>
+        </p>
+        <p>
+            See each section below for specifics.
         </p>
     </li>
     <li>
         <p>
-            For developers: highlights include a new internal testing framework for the RM API and tight integration with IntelliJ IDEA if you use that IDE. 
+            <i>For developers</i>
+        </p>
+        <p>
+            Highlights for software developers include a new internal testing framework for the RM API and tight integration with IntelliJ IDEA if you use that IDE. 
         </p>
     </li>
 </ul>
