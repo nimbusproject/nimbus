@@ -18,12 +18,12 @@ _NIMBUS_2_5_DEPRECATED
 
 <h3>Sun Java 1.5 or later</h3>
 <p>
-    The <span class="pre">java</span> command should be on your path. You can check your
+    The <tt class="literal">java</tt> command should be on your path. You can check your
     Java version with this command:
 </p>
-<pre><div class="screen">
+<pre class="panel">
 $ java -version
-</div></pre>
+</pre>
         
 <p>
     Note that OpenJDK is not supported.
@@ -31,17 +31,31 @@ $ java -version
 
 <h3>Python 2.5 or later</h3>
 <p>
-    sqlite3, openssl, blah, blah, blah TODO
+    Your Python must have support for <tt class="literal">sqlite 2</tt>, which is often installed separately, in a
+    package called <tt class="literal">python-sqlite2</tt> (Redhat) or <tt class="literal">python-pysqlite2</tt>
+    (Debian). The versioning is confusing for this package
+    and the module we actually need is called <tt class="literal">sqlite3</tt>, so the best way to check for availability
+    is with this command. if you don't get an error, you are in good shape.
 </p>
+<pre class="panel">
+$ python -c "import sqlite3"
+</pre>
+<p>
+    Cumulus is bundled with several other Python dependencies, some of which require building from source (C). This
+    requires <tt class="literal">gcc</tt>. If you cannot install gcc, you can get around this requirement by directly
+    installing these Python packages to your system: <tt class="literal">pyopenssl</tt> and
+    <tt class="literal">Twisted 10.0.0</tt>.
+</p>
+
         
 <h3>Apache Ant 1.6.2 or later</h3>
 <p>
-    You must also have the <span class="pre">propertyfile</span> task available which
+    You must also have the <tt class="literal">propertyfile</tt> task available which
     is usually installed separately from Ant itself. On Redhat-compatible systems this is often a package called
-    <span class="pre">ant-nodeps</span>. On Debian/Ubuntu the package is <span class="pre">ant-optional</span>. You can
+    <tt class="literal">ant-nodeps</tt>. On Debian/Ubuntu the package is <tt class="literal">ant-optional</tt>. You can
     check your ant installation:
 </p>
-<pre><div class="screen">
+<pre class="panel">
 $ ant -diagnostics
 
 ------- Ant diagnostics report -------
@@ -53,7 +67,7 @@ Apache Ant version 1.6.5
 core tasks     : 1.6.5
 optional tasks : 1.6.5
 ...
-</div></pre>
+</pre>
 <p>
     If the "optional tasks" line does not say "not available", you should have everything needed.
 </p>
