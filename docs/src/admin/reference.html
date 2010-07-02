@@ -95,6 +95,9 @@ _NIMBUS_2_5_DEPRECATED
             <li>
                 <a href="#https">Using HTTPS</a>
             </li>
+            <li>
+                <a href="#quotas">Disk Usage Quota</a>
+            </li>
         </ul>
     </li>
 
@@ -1267,6 +1270,26 @@ enabled=True
 key=/home/nimbus/var/hostkey.pem
 cert=/home/nimbus/var/hostcert.pem
 </pre>
+
+<a name="quotas"> </a>
+<h3>Disk Usage Quotas _NAMELINK(quotas)</h3>
+<p>
+Cumulus allows administrators to set disk space limits on a per user basis.
+By default users are created with unlimited space.  To set a disk quota 
+limit use the program <tt class="literal">NIMBUS_HOME/ve/bin/cumulus-quota</tt>
+Here is an example that will set the user user1@nimbusproject.org to a 
+100 byte limit:
+</p>
+<pre class="panel">
+$ ./ve/bin/cumulus-quota user1@nimbusproject.org 100
+$ ./ve/bin/cumulus-list-users user1@nimbusproject.org
+friendly        : user1@nimbusproject.org
+ID              : Ar2yXcfdhImjMNeWGUHJZ
+password        : ddOWFSC5rol9L6Tk14hA0QeS7valQdy38xeVvkFZwq
+quota           : 100
+canonical id    : 21161ebe-862a-11df-a9ca-001de0a80259
+</pre>
+
 
 <br />
 <br />
