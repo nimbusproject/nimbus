@@ -13,3 +13,39 @@
 {
   color: gray;
 }
+
+.panel
+{
+    background-color:#EEEEEE;
+    border:thin solid black;
+    font-family:monospace;
+    font-size:0.9em;
+    margin-bottom:1.1em;
+    margin-top:0.5em;
+    padding:0.7em;
+    white-space:pre;
+}
+
+.note
+{
+    border:thin solid #999999;
+    padding-top: 0.8em;
+    padding-right: 1em;
+    padding-bottom: 0.8em;
+    padding-left: 1em;
+    margin-top: 2em;
+    margin-bottom: 2em;
+    background-color: #e1e9f8;
+}
+p.note-title
+{
+    margin-top: 0pt;
+    margin-left: 0pt;
+    font-weight: bold;
+}
+
+h1, h2, h3
+{
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+}

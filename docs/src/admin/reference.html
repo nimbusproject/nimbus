@@ -280,6 +280,41 @@ Generated query credentials for user:
 
 <br />
 
+
+<a name="cumulus-port"> </a>
+<h2>Changing the service port of Cumulus <span class="namelink"><a href="#cumulus-port">(#)</a></span>
+</h2>
+
+<p>
+    The configuration options for Cumulus can be found in
+    <tt class="literal">$NIMBUS_HOME/cumulus/etc/cumulus.ini</tt>.
+    Under the heading <tt class="literal">[cb]</tt> there is a <tt class="literal">port</tt>
+    entry.  Change that value and restart Cumulus with the <tt class="literal">nimbusctl</tt>
+    program.
+</p>
+<pre class="panel">
+[cb]
+
+installdir = &lt;nimbus home&gt;
+port = 8888
+hostname = &lt;hostname&gt;
+</pre>
+
+<p>
+    <i>note:</i>
+    If this change is made after you have distributed a cloud.properties
+    file to users then you will need to instruct your cloud-client users
+    to change the value <tt class="literal">vws.repository=&lt;hostname&gt;:&lt;port&gt;</tt>
+    in their local cloud.properties file.
+
+</p>
+
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+
+<br />
+
 <a name="nimbusweb-config"> </a>
 <h2>Configuring the Nimbus Web interface <span class="namelink"><a href="#nimbusweb-config">(#)</a></span>
 </h2>
