@@ -198,9 +198,6 @@ _NIMBUS_2_5_DEPRECATED
                 </p>
             </li>
         </ul>
-        <p>
-            
-        </p>
     </li>
 </ul>
 
@@ -208,27 +205,197 @@ _NIMBUS_2_5_DEPRECATED
 <ul>
     <li>
         <p>
-            <i></i>
+            <i>A new user management system</i>
         </p>
         <p>
-            
+            The tight integration with Cumulus and a new authorization database have resulted in a way to create a cohesive "user system" for Nimbus clouds that allows the administrator to quickly add, delete, and edit user.  In $NIMBUS_HOME/bin, you will find several new programs, including:
+        </p>
+        <ul>
+            <li>nimbus-new-user</li>
+            <li>nimbus-edit-user</li>
+            <li>nimbus-list-users</li>
+            <li>nimbus-remove-user</li>
+        </ul>
+        <p>
+            Each of these commands work well from the terminal but also include options to make it easy to do a wide array of tasks from scripts.
+        </p>
+        <p>
+            In the case of the EC2 Query protocol, the credentials are no longer checked against a text file full of keys, they now integrate with this database.
+        </p>
+        <p>
+            In order to continue supporting X509 certificates, a map file is still populated with certificate names ("DN"s), but these new commandline utilities should be the thing editing those files in order to keep them in sync.
         </p>
     </li>
     <li>
         <p>
-            <i></i>
+            <i>nimbus-new-user program</i>
         </p>
         <p>
-            
+            The nimbus-new-user program is a particular highlight, it replaces the "cloud-admin.sh" program.
+        </p>
+        <p>
+            Right out of the box you can use this to generate new users.  It will produce a X509 certificate/key, query ID/key (for use with Cumulus and EC2 Query interfaces), and the cloud.properties file that the user should use.  It allows you to specify the set of authorization/credits rules to apply.  It also integrates with the Nimbus web application if you choose: it will produce a special single-use URL that you can email to new users to pick up the newly created credentials and the user-specific <i>cloud.properties</i> file.
+        </p>
+        <p>
+            There is sample help output and sample usages output in the comments of <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7035">Enhancement 7035 - new create-user process</a>  
         </p>
     </li>
     <li>
         <p>
-            <i></i>
+            <i>Web application enhancement</i>
         </p>
         <p>
-            
+            The web application contains an update to allow it to integrate with the nimbus-new-user program as well as distribute the personalized cloud.properties file that nimbus-new-user can produce.
         </p>
+    </li>
+    <li>
+        <p>
+            <i>Support for user-requested number of cores.</i>
+        </p>
+        <p>
+            This can be limited by the administrator using the group authorization system.
+        </p>
+        <p>
+            See <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=6999">Enhancement 6999 - Integrate multi-core support and add authorization handling for it</a>
+        </p>
+        
+        <p>
+            And the cloud.properties file you distribute to cloud users can now contain the suggested number as of cloud client #16 (<a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7062">Enhancement 7062</a>).
+        </p>
+
+        <p>
+            <b>Contributed by Patrick Armstrong, University of Victoria</b>
+        </p>
+    </li>
+    <li>
+        <p>
+            <i>A new propagation namespace system</i>
+        </p>
+        <p>
+          The service will treat image URIs as an "external" namespace that are authorized via the new authorization database.  They are translated into an internal representation that allows propagation to actually occur (and means that propagation mechanisms can now be entirely pluggable).
+        </p>
+        <p>
+            Some propagation drivers may bypass this namespace if you allow, such as the new HTTP and HDFS mechanisms (see the workspace-control section below).
+        </p>
+    </li>
+    <li>
+        <p>
+            <i>New scheduling options</i>
+        </p>
+        <p>
+            The VMM selection can now happen in one of two ways, driven by configuration:
+        </p>
+        <p>
+            1. A <i>round-robin</i> configuration in resource-locator-ACTIVE.xml (this is the default  mode).  This looks for matching nodes (enough space to run, appropriate  network support, etc.) with the highest percentage of free space.  If  there are many equally free nodes it will pick randomly from those.  As  should be clear, this favors entirely empty nodes first.
+        </p>
+        <p>
+            2. A <i>greedy</i> configuration in resource-locator-ACTIVE.xml.  This looks for matching  nodes (enough space to run, appropriate network support, etc.) with the  lowest percentage of free space.  If there are many equally unfree nodes  it will pick randomly from those.
+        </p>
+        <p>
+            See: <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7012">Enhancement 7012 - Better round-robin scheduling of multiple VMs per node</a> 
+        </p>
+    </li>
+    <li>
+        <p>
+            <i>Integration with site DHCPd</i>
+        </p>
+        <p>
+            Instead of hosting a private DHPCd for each VMM, Nimbus now supports (by default) editing a lease file for a central DHCPd on the LAN. 
+        </p>
+        <p>
+            This makes it easier for many to integrate with existing infrastructure.  You will configure the DHCP server to respond to specific MAC addresses with specific IP addresses.  Each time you change your network pool in Nimbus, you must update the DHCPd at the same time with the new information.
+        </p>
+        <p>
+            The old way is still supported as an advanced configuration.
+        </p>
+        <p>
+            See: <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7066">Enhancement 7066 - Allow  VMs to use site DHCP server</a>
+        </p>
+    </li>
+    <li>
+        <p>
+            <i>For developers</i>
+        </p>
+        <p>
+            There is a new internal testing framework for the RM API and there is also now tight integration with IntelliJ IDEA if you have access to that. 
+        </p>
+        <p>
+            See: <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7045">Enhancement 7045 -  Make Nimbus services installation portable</a>
+        </p>
+        <p>
+            And: <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7046">Enhancement 7046 -  Add test suite infrastructure</a>
+        </p>
+        <p>
+            The testing framework also includes enhancements to use Spring <i>@DirtiesContext</i> <b>contributed by Paulo Ricardo Motta Gomes, Google Summer of Code</b>.
+        </p>
+    </li>
+    <li>
+        <p>
+            <i>New options for pilot based scheduling</i>
+        </p>
+        <p>
+            The pilot module now sends memory requested through to the batch system (Torque), rather than ignoring it. Administrators need this information to be accurate for accounting purposes.
+        </p>
+        <p>
+            The pilot module now sends extra account information through to the batch system. This effectively adds "-A /remote/user/dn" to the submission. Administrators want this information for accounting purposes.  The "-A" flag is part of the PBS standard and it is up to the implementation/configuration to ignore the information or do something with it such as accounting.
+        </p>
+        <p>
+            <b>Contributed by Patrick Armstrong, University of  Victoria</b>
+        </p>
+    </li>
+
+    <li>
+        <p>
+            <i>Better event logging</i>
+        </p>
+        <p>
+            The service now logs more information to the logs and to the "accounting-events.txt" file.
+        </p>
+        <p>
+            See: <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7043">Enhancement 7043 - add more information to event log files (might break anything parsing them)</a>
+        </p>
+        <p>
+            <b>Collaboration with Patrick Armstrong, University of  Victoria</b>
+        </p>
+    </li>
+    
+    <li>
+        <p>
+            <i>Bug Fixes</i>
+        </p>
+        <ul>
+            <li>
+                <p>
+                    <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=6998">Bug 6998 - VM request fails when there  is no customization task with reference client</a>
+                </p>
+            </li>
+            <li>
+                <p>
+                    <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7015">Bug 7015 - Confusing error message: No resource pool has an applicable entry</a>
+                </p>
+                <p>
+                    <b>Contributed by Paulo Ricardo Motta Gomes, Google Summer of Code</b>
+                </p>
+            </li>
+            <li>
+                <p>
+                    <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7016">Bug 7016 - Error when there is no DNS setting</a>
+                </p>
+            </li>
+            <li>
+                <p>
+                    <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7019">Bug 7019 - jars missing from lib/services</a>
+                </p>
+                <p>
+                    <b>Contributed by Paulo Ricardo Motta Gomes, Google Summer of Code</b>
+                </p>
+            </li>
+            <li>
+                <p>
+                    <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7067">Bug 7067 - MAC addresses regenerated at every service start</a>
+                </p>
+            </li>
+        </ul>
     </li>
 </ul>
 
