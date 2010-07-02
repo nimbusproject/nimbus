@@ -199,13 +199,13 @@ class TestUsers(unittest.TestCase):
         os.unlink(outFileName)
 
     def test_db_commit_user(self):
+        # insert a new user with an error
         friendly_name = self.get_user_name(friendly_name="test1@nimbus.test")
-        rc = nimbus_new_user.main(["-W", friendly_name])
-        self.assertEqual(rc, 0, "should be 0 %d" % (rc))
-        friendly_name = self.get_user_name(friendly_name="test1@nimbus22.test")
-        rc = nimbus_new_user.main(["-W", friendly_name])
+        rc = nimbus_new_user.main(["--cert", "none", "--key", "none", friendly_name])
         self.assertNotEqual(rc, 0, "we expect this one to fail %d" % (rc))
-        friendly_name = self.get_user_name(friendly_name="test1@nimbus22.test")
-        rc = nimbus_new_user.main(["-W", "-w", "NewName", friendly_name])
+
+        # insert the user without the error to make sure the previous was rolled back
+        friendly_name = self.get_user_name(friendly_name="test1@nimbus.test")
+        rc = nimbus_new_user.main([friendly_name])
         self.assertEqual(rc, 0, "but then this clarification should succeed %d" % (rc))
 

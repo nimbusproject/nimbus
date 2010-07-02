@@ -31,7 +31,6 @@ class TestEC2List(unittest.TestCase):
             newpasswd = newpasswd + random.choice(chars)
         return newpasswd
 
-
     def setUp(self):
         host = 'localhost'
         cumport = 8888
@@ -67,10 +66,10 @@ class TestEC2List(unittest.TestCase):
             self.db.close()
 
 
-#    def test_ec2_list_empty(self):
+    def test_ec2_list_empty(self):
 
-#        images = self.ec2conn.get_all_images()
-#        self.assertEqual(len(images), 0, "should be no images listed %d" % len(images))
+        images = self.ec2conn.get_all_images()
+        self.assertEqual(len(images), 0, "should be no images listed %d" % len(images))
 
     def test_ec2_list_upload(self):
         # obviously this will not work if the default name changes
