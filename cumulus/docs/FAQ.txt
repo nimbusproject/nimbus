@@ -28,7 +28,7 @@ No.  Nimbus version 2.5 and higher is packaged with Cumulus and is intimately
 aware of it.  Nimbus must be installed with the version of Cumulus with 
 which it is packages.
 
-Does the Nimbus IaaS system use Cumulus for image propagation?
+Does the Nimbus IaaS system directly use Cumulus for image propagation?
 --------------------------------------------------------------
 Not necessarily.  While Cumulus is the primary interface for transfer
 images in and out of the cloud, it is not the mechanism by which images

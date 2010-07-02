@@ -798,9 +798,9 @@ that same clouds Cumulus repository (advanced use cases can by pass this).
         </p>
 
         <p>
-Cumulus is the front end to the Nimbus VM image repository.  In order to
-boot an image on a given Nimbus cloud, that image must first be put into
-that same clouds Cumulus repository (advanced use cases can by pass this).
+Yes.  Cumulus does not rely on any higher level Nimbus libraries and thus
+users who wish to install it as a stand alone front end to their storage
+system may do so.
         </p>
     </li>
 
@@ -821,11 +821,11 @@ which it is packages.
     <li>
         <p>
             <a name="cumulusprop"> </a>
-            <b>Does the Nimbus IaaS system use Cumulus for image propagation?<span class="namelink"><a href="#cumulusprop">(#)</a></span></b>
+            <b>Does the Nimbus IaaS system directly use Cumulus for image propagation?<span class="namelink"><a href="#cumulusprop">(#)</a></span></b>
         </p>
 
         <p>
-Not necessarily.  While Cumulus is the primary interface for transfer
+No.  While Cumulus is the primary interface for transfer
 images in and out of the cloud, it is not the mechanism by which images
 are propagated from the repository to the virtual machine monitors.
 Propagation is done in a variety of different ways, many of which we
@@ -841,7 +841,7 @@ for scientific users.
         </p>
 
         <p>
-The reliability of Cumulus depends greatly on the storage system that is
+The reliability of Cumulus depends entirely on the storage system that is
 backing it.  Many providers will have the resources in terms of disk space
 and storage servers to give their users uber high levels of reliability.
 Other providers may not have these resources but still wish to be protocol
