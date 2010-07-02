@@ -32,7 +32,10 @@ git clone $repo
 cd nimbus/cumulus/deps
 ./get-em.sh
 cd $co_dir/nimbus
+#./cloud-client/builder/get-wscore.sh
+ant -f scripts/lib/gt4.0/dist/build.xml clean-local
 ant -f scripts/lib/gt4.0/dist/build.xml create-dist
+
 
 ls scripts/lib/gt4.0/dist/result/
 cp scripts/lib/gt4.0/dist/result/*.tar.gz $dest_dir
