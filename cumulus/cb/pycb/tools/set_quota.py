@@ -14,6 +14,7 @@ import pycb.cbPosixSecurity
 from pycb.tools.cbToolsException import cbToolsException
 from pynimbusauthz.cmd_opts import cbOpts
 from pynimbusauthz.user import User
+import pynimbusauthz
 
 def setup_options(argv):
 
@@ -25,6 +26,22 @@ Sets a quota for the given cumulus user
     (o, args) = pynimbusauthz.parse_args(parser, all_opts, argv)
 
     return (o, args)
+
+def pretty_parse(num_str):
+
+    end = num_str[-1:len(num_str)]
+    if end.isdigit():
+        return int(num_str)
+
+    t = {}
+    t["K"] = 1024
+    t["M"] = 1024*1024
+    t["G"] = 1024*1024*1024
+    t["T"] = 1024*1024*1024*1024
+
+    b = int(num_str[0:-1])
+    rc = b * t[end]
+    return rc
 
 def main_trap(argv=sys.argv[1:]):
 
@@ -41,8 +58,10 @@ def main_trap(argv=sys.argv[1:]):
         q = User.UNLIMITED
     else:
         try:
-            q = int(qstr)
+            q = pretty_parse(qstr)
+            print q
         except:
+            traceback.print_exc(file=sys.stdout)
             raise cbToolsException('CMDLINE', ("The quota must be an integer > 0 or the string UNLIMITED"))
 
         if q < 1:
