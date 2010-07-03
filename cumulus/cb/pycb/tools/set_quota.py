@@ -35,9 +35,13 @@ def pretty_parse(num_str):
 
     t = {}
     t["K"] = 1024
+    t["k"] = 1024
     t["M"] = 1024*1024
+    t["m"] = 1024*1024
     t["G"] = 1024*1024*1024
+    t["g"] = 1024*1024*1024
     t["T"] = 1024*1024*1024*1024
+    t["t"] = 1024*1024*1024*1024
 
     b = int(num_str[0:-1])
     rc = b * t[end]
@@ -59,7 +63,6 @@ def main_trap(argv=sys.argv[1:]):
     else:
         try:
             q = pretty_parse(qstr)
-            print q
         except:
             traceback.print_exc(file=sys.stdout)
             raise cbToolsException('CMDLINE', ("The quota must be an integer > 0 or the string UNLIMITED"))
