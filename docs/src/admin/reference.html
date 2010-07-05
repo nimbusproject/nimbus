@@ -93,10 +93,10 @@ _NIMBUS_2_5_DEPRECATED
                 <a href="#s3cmd">Using the s3cmd client</a>
             </li>
             <li>
-                <a href="#https">Using HTTPS</a>
+                <a href="#cumulus-https">Using HTTPS</a>
             </li>
             <li>
-                <a href="#quotas">Disk Usage Quota</a>
+                <a href="#cumulus-quotas">Disk Usage Quota</a>
             </li>
         </ul>
     </li>
@@ -1240,7 +1240,7 @@ will instantiate a boto S3Connection for use with CB:
 </pre>
 
 <a name="s3cmd"> </a>
-<h3>Using the s3cmd client _NAMELINK(boto)</h3>
+<h3>Using the s3cmd client _NAMELINK(s3cmd)</h3>
 <p>
 Once you have the s3cmd successfully installed and configured you must
 modify the file: $HOME/.s3cfg in order to direct it at this server.
@@ -1253,8 +1253,8 @@ Make sure the following key value pairs reflect the following changes:
     host_bucket = &lt;hostname of server&gt;
     use_https = False
 </pre>
-<a name="https"> </a>
-<h3>Using HTTPS with Cumulus _NAMELINK(boto)</h3>
+<a name="cumulus-https"> </a>
+<h3>Using HTTPS with Cumulus _NAMELINK(cumulus-https)</h3>
 <p>
 In order to use a secure https connection with cumulus you must edit the 
 cumulus.ini file and provide it with a certificate and key pair.  In
@@ -1271,8 +1271,8 @@ key=/home/nimbus/var/hostkey.pem
 cert=/home/nimbus/var/hostcert.pem
 </pre>
 
-<a name="quotas"> </a>
-<h3>Disk Usage Quotas _NAMELINK(quotas)</h3>
+<a name="cumulus-quotas"> </a>
+<h3>Disk Usage Quotas _NAMELINK(cumulus-quotas)</h3>
 <p>
 Cumulus allows administrators to set disk space limits on a per user basis.
 By default users are created with unlimited space.  To set a disk quota 
