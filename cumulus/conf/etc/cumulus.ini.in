@@ -9,10 +9,11 @@ calcMD5=True
 [backend]
 type=posix
 data_dir=@INSTALLDIR@/posixdata
+block_size=524288
 [security]
 type=authz
 security_dir=@INSTALLDIR@/posixauth
-authzdb=@INSTALLDIR@/etc/authz.db
+authzdb=@AUTHZDB@
 
 
 [log]

@@ -37,9 +37,7 @@ class TestBucketsWithBoto(unittest.TestCase):
     def clean_all(self, id, pw):
         print "clean %s : %s" % (id, pw)
         conn5 = pycb.test_common.cb_get_conn(self.host, self.port, id, pw)
-        print "hi 1"
         nbs = conn5.get_all_buckets()
-        print "hi 2"
         for b in nbs:
             rs = b.list()
             for key in rs:

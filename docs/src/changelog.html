@@ -15,6 +15,539 @@ _NIMBUS_2_5_DEPRECATED
 <a href="http://github.com/nimbusproject/nimbus/raw/master/cloud-client/nimbus-cloud-client-src/CHANGES.txt">here.</a>
 </p>
 
+<a name="2.5"> </a>
+
+<h3>2.5RC1</h3>
+
+<i>Summary</i>
+<ul>
+    <li>
+        <p>
+            <i>We are happy to announce the first version of Cumulus!</i>
+        </p>
+        <p>
+            Cumulus is storage cloud implementation: it allows remote users to store objects on a storage cloud.  Cumulus is compatible with the Amazon Web Services S3 REST API (with small exceptions) and it works seamlessy with clients such as s3cmd and boto. In addition, it also offers extra functionality, specifically  disk quota enforcement.  Cumulus replaces the current GridFTP-based upload and download of VM images: it integrates tightly in a Nimbus installation as the VM image repository solution. It can be also installed on its own to manage a storage cloud.
+        </p>
+        <p>
+            Read more below in the Cumulus section of the changelog.
+        </p>
+    </li>
+    
+    <li>
+        <p>
+            <i>Zero To Cloud installation process</i>
+        </p>
+        <p>
+            Besides being the first Cumulus release, the other major event of 2.5 is the first release of the "Zero To Cloud" installation process.
+        </p>
+        <p>
+            Many of the changes in this release work together with the goal of providing a seamless installation process.  Read more below about each new feature, highlights include:
+        </p>
+        <ul>
+            <li>
+                <p>
+                A new user management system: users can be added and managed quickly.  Their credentials are created on the fly (not necessary).
+                </p>
+            </li>
+            <li>
+                <p>
+                Tight user integration with Cumulus: user management includes user setup with the image repository as well as the IaaS services.
+                </p>
+            </li>
+            <li>
+                <p>
+                Tight integration between the user management tools and the web application.  This allows administrators to add a user and quickly receive the secure URL to ask the user to visit to pick up his credentials and cloud.properties file.  
+                </p>
+            </li>
+            <li>
+                <p>
+                No unix account separation or root needed for Cumulus -- installation is easier because the IaaS central services and Cumulus can live in the same, non-root unix account.
+                </p>
+            </li>
+            <li>
+                <p>
+                The IaaS service is able to consult information in a database about files the remote user wants to launch.  When the "outside" namespace of the file is Cumulus based, there is a translation to an "inside" path.  This mechanism is now used to encapsulate propagation mechanisms, allowing for an easy way to introduce new propagation methods. 
+                </p>
+            </li>
+        </ul>
+        
+        <p>
+            All of this combined to allow us to, among other things, provide a new installation process for Nimbus.  You can now tend to the central service node installation separately and very quickly.  Further, you install in a "fake" mode that doesn't actually invoke hypervisor machines yet.  Doing all of this allows you to know that the central services are configured and working (including security).
+        </p>
+    </li>
+    <li>
+        <p>
+            <i>New scheduling options</i>
+        </p>
+        <p>
+            The VMM selection process can now be driven by configuration:
+        </p>
+        <p>
+            1. A <i>round-robin</i> configuration that looks for matching nodes (enough space to run, appropriate network support, etc.) with the highest percentage of free space.  If there are many equally free nodes it will pick randomly from those.  As should be clear, this favors entirely empty nodes first.
+        </p>
+        <p>
+            2. A <i>greedy</i> configuration that looks for matching nodes (enough space to run, appropriate network support, etc.) with the lowest percentage of free space.  If there are  many "equally unfree" nodes, it will pick randomly from those.
+        </p>
+    </li>
+    <li>
+        <p>
+            <i>Integration with a central, site DHCPd</i>
+        </p>
+        <p>
+            Instead of hosting a private DHPCd for each VMM, Nimbus now supports (by default) editing a lease file for a central DHCPd on the LAN. 
+        </p>
+        <p>
+            This makes it easier for many to integrate with existing infrastructure.  You will configure the DHCP server to respond to specific MAC addresses with specific IP addresses.  Each time you change your network pool in Nimbus, you must update the DHCPd at the same time with the new information.
+        </p>
+        <p>
+            The old way is still supported as an advanced configuration.
+        </p>
+    </li>
+    <li>
+        <p>
+            <i>New alternative propagation methods</i>
+        </p>
+        <p>
+            There are two new contributed propagation drivers for getting VM images to the hypervisor nodes: HTTP and HDFS.  These are for use outside of the cloud client currently, you need to configure Nimbus to allow for non-Cumulus-based image locations.
+        </p>
+        <p>
+            These are for use on sites where the remote user knows more about image locations than the Cumulus name for it.  The HTTP driver is also good for having a central image repository (you can specify trusted hosts to pull from).
+        </p>
+    </li>
+    <li>
+        <p>
+            <i>Better performing blankspace: physical partition leases</i>
+        </p>
+        <p>
+            In order to support  very large temporary space partitions for VMs, and fast access to them,  allow the administrator to configure a list of physical partitions to lease out to incoming Nimbus VMs on each node (formatted for each use).
+        </p>
+    </li>
+    
+    <li>
+        <p>
+            <i>Support for user-requested number of cores</i>
+        </p>
+        <p>
+            This contributed feature allows remote users to specify the number of cores the VM(s) should have.  The authorization policies now support this as well, allowing administrators to specify the maximum allowed for each user/group.
+        </p>
+    </li>
+    <li>
+        <p>
+            <i>New service node dependency requirements</i>
+        </p>
+        <p>
+            See the Cumulus section for specifics.
+        </p>
+    </li>
+    <li>
+        <p>
+            <i>Bug fixes and smaller enhancements</i>
+        </p>
+        <p>
+            See each section below for specifics.
+        </p>
+    </li>
+    <li>
+        <p>
+            <i>For developers</i>
+        </p>
+        <p>
+            Highlights for software developers include a new internal testing framework for the RM API and tight integration with IntelliJ IDEA if you use that IDE. 
+        </p>
+    </li>
+</ul>
+
+<i>Installer</i>
+<ul>
+    <li>
+        <p>
+            <i>Zero To Cloud Guide</i>
+        </p>
+        <p>
+            An administrator can now follow <a href="admin/z2c/index.html">one installation document</a> step by step and achieve a setup that works for the cloud-client program.
+        </p>
+    </li>
+    <li>
+        <p>
+            <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7018">Enhancement 7018 - Installation produces a log file</a>
+        </p>
+    </li>
+    <li>
+        <p>
+            <i>Bug Fixes</i>
+        </p>
+        <ul>
+            <li>
+                <p>
+                    <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7020">Bug 7020 - installer has scary warnings  that don't have an effect</a> (boo!)
+                </p>
+            </li>
+            <li>
+                <p>
+                    <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7030">Bug 7030 - nimbusctl should wait longer to check process</a>
+                </p>
+            </li>
+            <li>
+                <p>
+                    <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7031">Bug 7031 - installer has erroneous  warnings about wsdd files not being found</a>
+                </p>
+            </li>
+            <li>
+                <p>
+                    <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7041">Bug 7041 - ./install should warn if user is root</a>
+                </p>
+            </li>
+        </ul>
+    </li>
+</ul>
+
+<i>IaaS Services</i>
+<ul>
+    <li>
+        <p>
+            <i>A new user management system</i>
+        </p>
+        <p>
+            The tight integration with Cumulus and a new authorization database have resulted in a way to create a cohesive "user system" for Nimbus clouds that allows the administrator to quickly add, delete, and edit user.  In $NIMBUS_HOME/bin, you will find several new programs, including:
+        </p>
+        <ul>
+            <li>nimbus-new-user</li>
+            <li>nimbus-edit-user</li>
+            <li>nimbus-list-users</li>
+            <li>nimbus-remove-user</li>
+        </ul>
+        <p>
+            Each of these commands work well from the terminal but also include options to make it easy to do a wide array of tasks from scripts.
+        </p>
+        <p>
+            In the case of the EC2 Query protocol, the credentials are no longer checked against a text file full of keys, they now integrate with this database.
+        </p>
+        <p>
+            In order to continue supporting X509 certificates, a map file is still populated with certificate names ("DN"s), but these new commandline utilities should be the thing editing those files in order to keep them in sync.
+        </p>
+    </li>
+    <li>
+        <p>
+            <i>nimbus-new-user program</i>
+        </p>
+        <p>
+            The nimbus-new-user program is a particular highlight, it replaces the "cloud-admin.sh" program.
+        </p>
+        <p>
+            Right out of the box you can use this to generate new users.  It will produce a X509 certificate/key, query ID/key (for use with Cumulus and EC2 Query interfaces), and the cloud.properties file that the user should use.  It allows you to specify the set of authorization/credits rules to apply.  It also integrates with the Nimbus web application if you choose: it will produce a special single-use URL that you can email to new users to pick up the newly created credentials and the user-specific <i>cloud.properties</i> file.
+        </p>
+        <p>
+            There is sample help output and sample usages output in the comments of <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7035">Enhancement 7035 - new create-user process</a>  
+        </p>
+    </li>
+    <li>
+        <p>
+            <i>Web application enhancement</i>
+        </p>
+        <p>
+            The web application contains an update to allow it to integrate with the nimbus-new-user program as well as distribute the personalized cloud.properties file that nimbus-new-user can produce.
+        </p>
+    </li>
+    <li>
+        <p>
+            <i>Support for user-requested number of cores.</i>
+        </p>
+        <p>
+            This can be limited by the administrator using the group authorization system.
+        </p>
+        <p>
+            See <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=6999">Enhancement 6999 - Integrate multi-core support and add authorization handling for it</a>
+        </p>
+        
+        <p>
+            And the cloud.properties file you distribute to cloud users can now contain the suggested number as of cloud client #16 (<a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7062">Enhancement 7062</a>).
+        </p>
+
+        <p>
+            <b>Contributed by Patrick Armstrong, University of Victoria</b>
+        </p>
+    </li>
+    <li>
+        <p>
+            <i>A new propagation namespace system</i>
+        </p>
+        <p>
+          The service will treat image URIs as an "external" namespace that are authorized via the new authorization database.  They are translated into an internal representation that allows propagation to actually occur (and means that propagation mechanisms can now be entirely pluggable).
+        </p>
+        <p>
+            Some propagation drivers may bypass this namespace if you allow, such as the new HTTP and HDFS mechanisms (see the workspace-control section below).
+        </p>
+    </li>
+    <li>
+        <p>
+            <i>New scheduling options</i>
+        </p>
+        <p>
+            The VMM selection can now happen in one of two ways, driven by configuration:
+        </p>
+        <p>
+            1. A <i>round-robin</i> configuration in resource-locator-ACTIVE.xml (this is the default  mode).  This looks for matching nodes (enough space to run, appropriate  network support, etc.) with the highest percentage of free space.  If  there are many equally free nodes it will pick randomly from those.  As  should be clear, this favors entirely empty nodes first.
+        </p>
+        <p>
+            2. A <i>greedy</i> configuration in resource-locator-ACTIVE.xml.  This looks for matching  nodes (enough space to run, appropriate network support, etc.) with the  lowest percentage of free space.  If there are many equally unfree nodes  it will pick randomly from those.
+        </p>
+        <p>
+            See: <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7012">Enhancement 7012 - Better round-robin scheduling of multiple VMs per node</a> 
+        </p>
+    </li>
+    <li>
+        <p>
+            <i>Integration with site DHCPd</i>
+        </p>
+        <p>
+            Instead of hosting a private DHPCd for each VMM, Nimbus now supports (by default) editing a lease file for a central DHCPd on the LAN. 
+        </p>
+        <p>
+            This makes it easier for many to integrate with existing infrastructure.  You will configure the DHCP server to respond to specific MAC addresses with specific IP addresses.  Each time you change your network pool in Nimbus, you must update the DHCPd at the same time with the new information.
+        </p>
+        <p>
+            The old way is still supported as an advanced configuration.
+        </p>
+        <p>
+            See: <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7066">Enhancement 7066 - Allow  VMs to use site DHCP server</a>
+        </p>
+    </li>
+    <li>
+        <p>
+            <i>For developers</i>
+        </p>
+        <p>
+            There is a new internal testing framework for the RM API and there is also now tight integration with IntelliJ IDEA if you have access to that. 
+        </p>
+        <p>
+            See: <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7045">Enhancement 7045 -  Make Nimbus services installation portable</a>
+        </p>
+        <p>
+            And: <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7046">Enhancement 7046 -  Add test suite infrastructure</a>
+        </p>
+        <p>
+            The testing framework also includes enhancements to use Spring <i>@DirtiesContext</i> <b>contributed by Paulo Ricardo Motta Gomes, Google Summer of Code</b>.
+        </p>
+    </li>
+    <li>
+        <p>
+            <i>New options for pilot based scheduling</i>
+        </p>
+        <p>
+            The pilot module now sends memory requested through to the batch system (Torque), rather than ignoring it. Administrators need this information to be accurate for accounting purposes.
+        </p>
+        <p>
+            The pilot module now sends extra account information through to the batch system. This effectively adds "-A /remote/user/dn" to the submission. Administrators want this information for accounting purposes.  The "-A" flag is part of the PBS standard and it is up to the implementation/configuration to ignore the information or do something with it such as accounting.
+        </p>
+        <p>
+            <b>Contributed by Patrick Armstrong, University of  Victoria</b>
+        </p>
+    </li>
+
+    <li>
+        <p>
+            <i>Better event logging</i>
+        </p>
+        <p>
+            The service now logs more information to the logs and to the "accounting-events.txt" file.
+        </p>
+        <p>
+            See: <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7043">Enhancement 7043 - add more information to event log files (might break anything parsing them)</a>
+        </p>
+        <p>
+            <b>Collaboration with Patrick Armstrong, University of  Victoria</b>
+        </p>
+    </li>
+    
+    <li>
+        <p>
+            <i>Bug Fixes</i>
+        </p>
+        <ul>
+            <li>
+                <p>
+                    <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=6998">Bug 6998 - VM request fails when there  is no customization task with reference client</a>
+                </p>
+            </li>
+            <li>
+                <p>
+                    <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7015">Bug 7015 - Confusing error message: No resource pool has an applicable entry</a>
+                </p>
+                <p>
+                    <b>Contributed by Paulo Ricardo Motta Gomes, Google Summer of Code</b>
+                </p>
+            </li>
+            <li>
+                <p>
+                    <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7016">Bug 7016 - Error when there is no DNS setting</a>
+                </p>
+            </li>
+            <li>
+                <p>
+                    <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7019">Bug 7019 - jars missing from lib/services</a>
+                </p>
+                <p>
+                    <b>Contributed by Paulo Ricardo Motta Gomes, Google Summer of Code</b>
+                </p>
+            </li>
+            <li>
+                <p>
+                    <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7067">Bug 7067 - MAC addresses regenerated at every service start</a>
+                </p>
+            </li>
+        </ul>
+    </li>
+</ul>
+
+
+<i>Cumulus</i>
+<ul>
+    <li>
+        <p>
+            <i></i>
+        </p>
+        <p>
+            
+        </p>
+    </li>
+    <li>
+        <p>
+            <i></i>
+        </p>
+        <p>
+            
+        </p>
+    </li>
+    <li>
+        <p>
+            <i></i>
+        </p>
+        <p>
+            
+        </p>
+    </li>
+</ul>
+
+
+<i>Context Broker</i>
+<ul>
+    <li>
+        <p>
+            <i></i>
+        </p>
+        <p>
+            
+        </p>
+    </li>
+    <li>
+        <p>
+            <i></i>
+        </p>
+        <p>
+            
+        </p>
+    </li>
+    <li>
+        <p>
+            <i></i>
+        </p>
+        <p>
+            
+        </p>
+    </li>
+</ul>
+
+
+<i>workspace-control</i>
+<ul>
+    <li>
+        <p>
+            <i></i>
+        </p>
+        <p>
+            
+        </p>
+    </li>
+    <li>
+        <p>
+            <i></i>
+        </p>
+        <p>
+            
+        </p>
+    </li>
+    <li>
+        <p>
+            <i></i>
+        </p>
+        <p>
+            
+        </p>
+    </li>
+</ul>
+
+
+<i>Cloud Client</i>
+<ul>
+    <li>
+        <p>
+            <i></i>
+        </p>
+        <p>
+            
+        </p>
+    </li>
+    <li>
+        <p>
+            <i></i>
+        </p>
+        <p>
+            
+        </p>
+    </li>
+    <li>
+        <p>
+            <i></i>
+        </p>
+        <p>
+            
+        </p>
+    </li>
+</ul>
+
+
+<i>Reference</i>
+<ul>
+    <li>
+        <p>
+            <i></i>
+        </p>
+        <p>
+            
+        </p>
+    </li>
+    <li>
+        <p>
+            <i></i>
+        </p>
+        <p>
+            
+        </p>
+    </li>
+    <li>
+        <p>
+            <i></i>
+        </p>
+        <p>
+            
+        </p>
+    </li>
+</ul>
+
+
+
+
+
 <a name="2.4"> </a>
 
 <h3>2.4</h3>

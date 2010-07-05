@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import ConfigParser
 import optparse
 import os
 import sys
@@ -99,17 +100,36 @@ class NetEntry:
         else:
             return "null"
 
+def _get_net_item(config, key):
+    try:
+        item = config.get("netsample", key)
+        return item
+    except:
+        return None
+
 def get_net_entry(path):
-    # TODO: parse file...
+    
+    config = ConfigParser.SafeConfigParser()
+    config.read(path)
+    
+    """
+    [netsample]
+    netname: public
+    mac: A2:AA:BB:CA:5B:C8
+    ip: 192.168.0.2
+    hostname: pub02
+    gateway: 192.168.0.1
+    dns: 192.168.0.1
+    """
     ne = NetEntry()
-    ne.netname = "public"
-    ne.mac = "A2:AA:BB:62:9B:0B"
-    ne.ip = "192.168.0.32"
-    ne.gateway = "192.168.0.1"
-    ne.broadcast = "192.168.0.255"
-    ne.netmask = "255.255.255.0"
-    ne.dns = "192.168.0.1"
-    ne.hostname = "example.com"
+    ne.netname = _get_net_item(config, "netname")
+    ne.mac = _get_net_item(config, "mac")
+    ne.ip = _get_net_item(config, "ip")
+    ne.gateway = _get_net_item(config, "gateway")
+    ne.broadcast = _get_net_item(config, "broadcast")
+    ne.netmask = _get_net_item(config, "netmask")
+    ne.dns = config.get("netsample", "dns")
+    ne.hostname = config.get("netsample", "hostname")
     return ne
 
 def main(argv=None):

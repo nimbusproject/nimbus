@@ -71,6 +71,30 @@ _NIMBUS_2_5_DEPRECATED
         <a href="#nimbusweb">What is Nimbus Web</a>?
     </li>
     <li>
+        <a href="#cumulus">What is Cumulus</a>?
+    </li>
+    <li>
+        <a href="#cumulusclients">What clients can I use with Cumulus</a>?
+    </li>
+    <li>
+        <a href="#cumulusnimbus">How are Nimbus and Cumulus related</a>?
+    </li>
+    <li>
+        <a href="#cumulusnonimbus">Can Cumulus be installed without Nimbus</a>?
+    </li>
+    <li>
+        <a href="#nimbusnocumulus">Can Nimbus be installed without Cumulus</a>?
+    </li>
+    <li>
+        <a href="#cumulusprop">Does the Nimbus IaaS system directly use Cumulus for image propagation</a>?
+    </li>
+    <li>
+        <a href="#cumulusreliable">How reliable is Cumulus</a>?
+    </li>
+    <li>
+        <a href="#cumulusbackend">What type of storage system backs the Cumulus repository</a>?
+    </li>
+    <li>
         <a href="#license">How is the software licensed</a>?
     </li>
 </ul>
@@ -189,6 +213,11 @@ _NIMBUS_2_5_DEPRECATED
             </li>
             <li>
                 <p>
+                    <a href="#cumulus">Cumulus</a> is an open source implementation of the Amazon S3 REST API.  It is used as the Nimbus repository solution and can also be installed standalone.
+                </p>
+            </li>
+            <li>
+                <p>
                     The <a href="#rm-api">RM API</a> bridge between
                     remote protocols/security and specific site manager
                     implementations.
@@ -241,13 +270,10 @@ _NIMBUS_2_5_DEPRECATED
                     to turn around and secure remote resources from off-site.
                 </p>
             </li>
-
+            
         </ul>
         </div>
 
-        <img src="img/nimbus-components.png"
-             alt="component overview pic" />
-        
         <p>
             The components are lightweight and self-contained so that they
             can be selected and composed in a variety of ways.  For example,
@@ -750,21 +776,130 @@ _NIMBUS_2_5_DEPRECATED
             and starting the application are in <a href="admin/reference.html#nimbusweb-config">this
             section</a> of the <a href="admin/index.html">administrator guide</a>.
         </p>
+        
         <p>
             Existing features:
         </p>
         <ul>
             <li>User X509 certificate management and distribution</li>
+            <li>Query interface authentication token management</li>
+            <li>Cloud configuration functionality</li>
         </ul>
         <p>
             Forthcoming features:
         </p>
         <ul>
-            <li>Query interface authentication token management</li>
-            <li>Cloud configuration functionality</li>
-            <li>Nimbus installation helper</li>
             <li>Visualization of cloud usage data</li>
         </ul>
+
+    </li>
+
+    <li>
+        <p>
+            <a name="cumulus"> </a>
+            <b>What is Cumulus? <span class="namelink"><a href="#cumulus">(#)</a></span></b>
+        </p>
+
+        <p>
+Cumulus is an open source implementation of the S3 REST API.  Some features
+such as versioning and COPY are not yet implemented, but some additional
+features are added, such as file system usage quotas.
+        </p>
+    </li>
+    <li>
+        <p>
+            <a name="cumulusclients"> </a>
+            <b>What clients can I use with Cumulus? <span class="namelink"><a href="#cumulusclients">(#)</a></span></b>
+        </p>
+
+        <p>
+Cumulus is compliant with the S3 REST network API, therefore clients
+that work against the S3 REST API should work with Cumulus.  Some
+of the more popular ones are boto and s3cmd.
+        </p>
+    </li>
+
+    <li>
+        <p>
+            <a name="cumulusnimbus"> </a>
+            <b>How are Nimbus and Cumulus related?<span class="namelink"><a href="#cumulusnimbus">(#)</a></span></b>
+        </p>
+        
+        <p> 
+Cumulus is the front end to the Nimbus VM image repository.  In order to
+boot an image on a given Nimbus cloud, that image must first be put into
+that same clouds Cumulus repository (advanced use cases can by pass this).
+        </p> 
+    </li>
+
+    <li>
+        <p>
+            <a name="cumulusnonimbus"> </a>
+            <b>Can Cumulus be installed without Nimbus?<span class="namelink"><a href="#cumulusnonimbus">(#)</a></span></b>
+        </p>
+
+        <p>
+Yes.  Cumulus does not rely on any higher level Nimbus libraries and thus
+users who wish to install it as a stand alone front end to their storage
+system may do so.
+        </p>
+    </li>
+
+    <li>
+        <p>
+            <a name="nimbusnocumulus"> </a>
+            <b>Can Nimbus be installed without Cumulus?<span class="namelink"><a href="#nimbusnocumulus">(#)</a></span></b>
+        </p>
+
+        <p>
+No.  Nimbus version 2.5 and higher is packaged with Cumulus and so Nimbus
+is intimately
+aware of Cumulus.  Nimbus must be installed with the version of Cumulus with
+which it is packages.
+        </p>
+    </li>
+
+    <li>
+        <p>
+            <a name="cumulusprop"> </a>
+            <b>Does the Nimbus IaaS system directly use Cumulus for image propagation?<span class="namelink"><a href="#cumulusprop">(#)</a></span></b>
+        </p>
+
+        <p>
+No.  While Cumulus is the primary interface for transfer
+images in and out of the cloud, it is not the mechanism by which images
+are propagated from the repository to the virtual machine monitors.
+Propagation is done in a variety of different ways, many of which we
+are still developing and researching in order to find the best solution
+for scientific users.
+        </p>
+    </li>
+
+    <li>
+        <p>
+            <a name="cumulusreliable"> </a>
+            <b>How reliable is Cumulus?<span class="namelink"><a href="#cumulusreliable">(#)</a></span></b>
+        </p>
+
+        <p>
+The reliability of Cumulus depends entirely on the storage system that is backing it. In order to achieve S3 levels of reliability you need S3 levels of hardware investment but with our system even small providers can still be S3 protocol compliant while making an independent choice on cost/reliability.
+
+        </p>
+    </li>
+
+    <li>
+        <p>
+            <a name="cumulusbackend"> </a>
+            <b>What type of storage system backs the Cumulus repository?<span class="namelink"><a href="#cumulusbackend">(#)</a></span></b>
+        </p>
+
+        <p>
+In the first release of Cumulus we are only providing a posix filesystem
+backend storage system.  However this is a very powerful plugin.  It
+can be used against a variety of storage systems including PVFS, GFS, and
+HDFS (under a FUSE module).  We have prototyped HDFS and BlobSeer plugins
+and we will be releasing them soon.
+        </p>
     </li>
 
     <li>

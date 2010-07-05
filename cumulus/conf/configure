@@ -591,10 +591,11 @@ ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS
 LIBOBJS
+AUTHZDB
+PYVERSUB
 VEDIR
 HOSTNAME
 INSTALLDIR
-PYTHON
 SQLITE
 EGREP
 GREP
@@ -3862,7 +3863,6 @@ fi
 done
 
 
-
 # Extract the first word of "sqlite3", so it can be a program name with args.
 set dummy sqlite3; ac_word=$2
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
@@ -3907,50 +3907,6 @@ fi
 if test "$SQLITE" == no ; then
     as_fn_error "Cannot find sqlite3." "$LINENO" 5
 fi
-# Extract the first word of "python2.5", so it can be a program name with args.
-set dummy python2.5; ac_word=$2
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-$as_echo_n "checking for $ac_word... " >&6; }
-if test "${ac_cv_path_PYTHON+set}" = set; then :
-  $as_echo_n "(cached) " >&6
-else
-  case $PYTHON in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_PYTHON="$PYTHON" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
-    ac_cv_path_PYTHON="$as_dir/$ac_word$ac_exec_ext"
-    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-  test -z "$ac_cv_path_PYTHON" && ac_cv_path_PYTHON="no"
-  ;;
-esac
-fi
-PYTHON=$ac_cv_path_PYTHON
-if test -n "$PYTHON"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $PYTHON" >&5
-$as_echo "$PYTHON" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-
-
-if test "$PYTHON" == no ; then
-    as_fn_error "Cannot find python2.5." "$LINENO" 5
-fi
 
 
 # Check whether --with-ve was given.
@@ -3961,10 +3917,17 @@ else
 fi
 
 
+AUTHZDB=$prefix/etc/authz.db
+if test "X$CUMULUS_AUTHZDB" != "X" ; then
+    AUTHZDB=$CUMULUS_AUTHZDB
+fi
+
 VEDIR=$with_ve
+PYVERSUB=`$VEDIR/bin/python -c 'import sys; print "python%d.%d" % (sys.version_info[0], sys.version_info[1]); sys.exit(0);'`
 # must verify cumulus and pynimbusauthz are installed
 HOSTNAME=`hostname`
 INSTALLDIR=$prefix
+
 
 
 

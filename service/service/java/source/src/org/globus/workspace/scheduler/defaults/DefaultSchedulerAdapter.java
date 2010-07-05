@@ -229,7 +229,8 @@ public class DefaultSchedulerAdapter implements Scheduler {
                                 int numNodes,
                                 String groupid,
                                 String coschedid,
-                                boolean preemptable)
+                                boolean preemptable,
+								String creatorDN)
 
             throws SchedulingException,
                    ResourceRequestDeniedException {
@@ -262,7 +263,7 @@ public class DefaultSchedulerAdapter implements Scheduler {
         this.creationPending.pending(ids);
 
         final NodeRequest req =
-                new NodeRequest(ids, memory, duration, assocs, groupid);
+                new NodeRequest(ids, memory, duration, assocs, groupid, creatorDN);
 
         try {
 

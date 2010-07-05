@@ -1,0 +1,57 @@
+What is Cumulus?
+----------------
+Cumulus is an open source implementation of the S3 REST API.  Some features
+such as versioning and COPY are not yet implemented, but some additional
+features are added, such as file system usage quotas.
+
+What clients can I use with Cumulus?
+------------------------------------
+Cumulus is compliant with the S3 REST network API, therefore clients
+that work against the S3 REST API should work with Cumulus.  Some
+of the more popular ones are boto and s3cmd.
+
+How are Nimbus and Cumulus related?
+-----------------------------------
+Cumulus is the front end to the Nimbus VM image repository.  In order to
+boot an image on a given Nimbus cloud, that image must first be put into
+that same clouds Cumulus repository (advanced use cases can by pass this).
+
+Can Cumulus be installed without Nimbus?
+----------------------------------------
+Yes.  Cumulus does not rely on any higher level Nimbus libraries and thus 
+users who wish to install it as a stand alone front end to their storage
+system may do so.
+
+Can Nimbus be installed without Cumulus?
+----------------------------------------
+No.  Nimbus version 2.5 and higher is packaged with Cumulus and is intimately
+aware of it.  Nimbus must be installed with the version of Cumulus with 
+which it is packages.
+
+Does the Nimbus IaaS system directly use Cumulus for image propagation?
+--------------------------------------------------------------
+Not necessarily.  While Cumulus is the primary interface for transfer
+images in and out of the cloud, it is not the mechanism by which images
+are propagated from the repository to the virtual machine monitors.
+Propagation is done in a variety of different ways, many of which we
+are still developing and researching in order to find the best solution
+for scientific users.
+
+How reliable is Cumulus?
+------------------------
+The reliability of Cumulus depends entirely on the storage system that 
+is backing it. In order to achieve S3 levels of reliability you need S3 
+levels of hardware investment but with our system even small providers 
+can still be S3 protocol compliant while making an independent choice on 
+cost/reliability.
+
+
+What type of storage system backs the Cumulus repository?
+---------------------------------------------------------
+In the first release of Cumulus we are only providing a posix filesystem
+backend storage system.  However this is a very powerful plugin.  It 
+can be used against a variety of storage systems including PVFS, GFS, and
+HDFS (under a FUSE module).  We have prototyped HDFS and BlobSeer plugins
+and we will be releasing them soon.
+
+

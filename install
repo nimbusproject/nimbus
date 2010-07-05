@@ -1,9 +1,8 @@
 #!/bin/bash
 
 FORCE_FRESH_INSTALL="yes"
-NIMBUS_ALLOW_ROOT_INSTALL="no"
 
-NIMBUS_SRC_REL="`dirname $0`/.."
+NIMBUS_SRC_REL="`dirname $0`"
 NIMBUS_SRC=`cd $NIMBUS_SRC_REL; pwd`
 
 if [ "X$1" = "X" ]; then
@@ -62,29 +61,35 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-PYTHON_EXE=`which python`
+if [ "X$PYTHON" = "X" ]; then
+    PYTHON_EXE=`which python`
+else
+    PYTHON_EXE="$PYTHON"
+fi
 # returns 0 if Python 2.5+
 $PYTHON_EXE -c "import sys; sys.exit(sys.version_info < (2,5))"
 if [ $? -ne 0 ]; then
-    echo "ERROR: Your system must have Python version 2.5 or later."
+    echo "ERROR: The central Nimbus node must have Python version 2.5 or later (VMM nodes can have 2.4+)."
     exit 1
 fi
 
-echo "=====================================" | tee -a $NIMBUS_HOME/install.log
-echo "Making the Python virtual env" | tee -a $NIMBUS_HOME/install.log
-echo "=====================================" | tee -a $NIMBUS_HOME/install.log
+echo ""
+echo "-----------------------------------------------------------------" | tee -a $NIMBUS_HOME/install.log
+echo "Making the Python virtual environment" | tee -a $NIMBUS_HOME/install.log
+echo "-----------------------------------------------------------------" | tee -a $NIMBUS_HOME/install.log
+echo ""
 
 pyve_path=$NIMBUS_HOME/ve
 echo "Installing from $NIMBUS_SRC"
 
+cp $NIMBUS_SRC/cumulus/*.egg .
 $PYTHON_EXE $NIMBUS_SRC/cumulus/virtualenv.py -p $PYTHON_EXE $pyve_path | tee -a $NIMBUS_HOME/install.log
 if [ $PIPESTATUS -ne 0 ]; then
     echo "ERROR: python virtualenv installation failed."
     exit 1
 fi
-PYVE=$pyve/bin/python
 
-$NIMBUS_SRC/bin/create-nimbus-home $NIMBUS_HOME 2>&1 | tee -a $NIMBUS_HOME/install.log
+$NIMBUS_SRC/libexec/create-nimbus-home $NIMBUS_HOME 2>&1 | tee -a $NIMBUS_HOME/install.log
 
 # need PIPESTATUS because tee is not the exit code this needs to check
 if [ $PIPESTATUS -ne 0 ]; then
@@ -98,10 +103,10 @@ if [ ! -f $CUMULUS_ENV ]; then
     exit 1
 fi
 
+echo ""
 echo "-----------------------------------------------------------------"
 echo " Configuring installed services"
 echo "-----------------------------------------------------------------"
-echo ""
 
 CONFIG_SCRIPT="$NIMBUS_HOME/bin/nimbus-configure"
 
@@ -121,6 +126,6 @@ if [ $? -ne 0 ]; then
 fi
 
 
-$NIMBUS_SRC/bin/install-real.sh  "${@}" 2>&1 | tee -a $NIMBUS_HOME/install.log
+$NIMBUS_SRC/libexec/install-real.sh  "${@}" 2>&1 | tee -a $NIMBUS_HOME/install.log
 # need PIPESTATUS because tee is not the exit code of interest
 exit $PIPESTATUS

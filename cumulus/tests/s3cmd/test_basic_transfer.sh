@@ -16,7 +16,7 @@ if [ "X$x" == "X" ]; then
     exit 1
 fi
 
-f=`mktemp`
+f=`mktemp -t tmp.XXXXXXXXXX`
 s3cmd --force get s3://$bucket_name/$fname $f
 diff -q /etc/group $f
 if [ "X$?" != "X0" ]; then

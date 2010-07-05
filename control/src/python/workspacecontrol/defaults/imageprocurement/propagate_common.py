@@ -15,6 +15,8 @@ from propagate_adapter import PropagationAdapter
 # keywords for 'adapters' dict as well as the expected URL schemes
 PROP_ADAPTER_SCP = "scp"
 PROP_ADAPTER_GUC = "gsiftp"
+PROP_ADAPTER_HDFS = "hdfs"
+PROP_ADAPTER_HTTP = "http"
 
 class DefaultImageProcurement:
     """ImageProcurement is the wcmodule responsible for making files accessible
@@ -71,7 +73,22 @@ class DefaultImageProcurement:
                 msg = "GridFTP configuration present (propagation->guc) but cannot load a suitable GridFTP implementation in the code"
                 self.c.log.exception(msg + ": ")
                 raise InvalidConfig(msg)
-            
+        
+        hdfs_path = self.p.get_conf_or_none("propagation", "hdfs")
+        if hdfs_path:
+            try:
+                import propagate_hdfs
+                self.adapters[PROP_ADAPTER_HDFS] = propagate_hdfs.propadapter(self.p, self.c)
+            except:
+                msg = "HDFS configuration present (propagation->hdfs) but cannot load a suitable HDFS implimentation in the code"
+                self.c.log.exception(msg + ": ")
+                raise InvalidConfig(msg)    
+        
+        http_enabled = self.p.get_conf_or_none("propagation", "http")
+        if http_enabled and http_enabled.strip().lower() == "true":
+            import propagate_http
+            self.adapters[PROP_ADAPTER_HTTP] = propagate_http.propadapter(self.p, self.c)
+
         if len(self.adapters) == 0:
             self.c.log.warn("There are no propagation adapters configured, propagation is disabled")
             return
@@ -533,6 +550,7 @@ class DefaultImageProcurement:
         lf.rootdisk = False # not set in this method
         lf.editable = True
         lf.read_write = True
+        lf.physical = False
         
         # if 'ro' is not a field, assumed to be 'rw'
         parts = imgstr.split(';')
@@ -742,4 +760,4 @@ class DefaultImageProcurement:
                 old = lf._unpropagation_target
                 lf._unpropagation_target = unproptargets[counter]
                 self.c.log.debug("old unpropagation target '%s' is now '%s'" % (old, lf._unpropagation_target))
-        
+

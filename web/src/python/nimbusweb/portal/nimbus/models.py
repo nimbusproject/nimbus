@@ -27,6 +27,7 @@ class UserProfile(models.Model):
     certkey_time = models.DateTimeField(auto_now=False, null=True)
     query_id = models.TextField(null=True)
     query_secret = models.TextField(null=True)
+    cloudprop_file = models.TextField(null=True)
     nimbus_userid = models.TextField(null=True)
     
 

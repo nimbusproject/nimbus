@@ -35,3 +35,8 @@ class ILocalFile(workspacecontrol.api.IWCObject):
     the mount + edit + umount technique).  This might not be true for some 
     files, for example iscsi imports that only appear as a local file/directory.
     """)
+    
+    physical = zope.interface.Attribute(
+    """physical is True when this file is a local partition that will be 
+    mounted.
+    """)

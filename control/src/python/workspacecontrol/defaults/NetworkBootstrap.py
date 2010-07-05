@@ -31,6 +31,15 @@ class DefaultNetworkBootstrap:
          self.vifdict = {}
          
     def validate(self):
+
+        localdhcp = self.p.get_conf_or_none("dhcp", "localdhcp")
+        self.localdhcp = bool(localdhcp and localdhcp.lower() != 'false')
+
+        # when localdhcp is off, the rest of the module is basically a no-op
+
+        if not self.localdhcp:
+            self.c.log.warn("local DHCP is disabled. DHCP requests will hit your site DHCP server")
+            return
         
         self.dhcpconfig = self.p.get_conf_or_none("dhcp", "dhcpconfig")
         if not self.dhcpconfig:
@@ -89,10 +98,13 @@ class DefaultNetworkBootstrap:
         nic_set -- instance of NICSet
         """
         
+        if not self.localdhcp:
+            return
+            
         # disabled
         if not self.dhcpconfig:
             return
-            
+
         for nic in nic_set.niclist():
             
             # 1. choose the DHCP vif if not present
@@ -167,6 +179,9 @@ class DefaultNetworkBootstrap:
         nic_set -- instance of NICSet
         """
         
+        if not self.localdhcp:
+            return
+            
         # disabled
         if not self.dhcpconfig:
             return

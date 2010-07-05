@@ -20,7 +20,6 @@ import org.globus.workspace.client_core.ParameterProblem;
 import org.globus.workspace.client_core.ExecutionProblem;
 import org.globus.workspace.cloud.client.Props;
 import org.globus.workspace.cloud.client.AllArgs;
-import org.globus.workspace.cloud.client.cluster.ClusterUtil;
 import org.globus.workspace.cloud.client.util.MetadataXMLUtil;
 import org.globus.workspace.cloud.client.util.CloudClientUtil;
 import org.globus.workspace.cloud.client.util.DeploymentXMLUtil;
@@ -105,6 +104,7 @@ public class Cloud {
     private String targetBaseDirectory;
     private boolean propagationKeepPort;
     private int memory;
+    private int cores = -1;
     private int pollTime;
     private String brokerPublicNicPrefix;
     private String brokerLocalNicPrefix;
@@ -145,6 +145,15 @@ public class Cloud {
         final String memoryStr =
             getRequiredProp(props, Props.KEY_MEMORY_REQ);
         this.memory = Integer.parseInt(memoryStr);
+
+        final String coresStr = props.getProperty(Props.KEY_CORES_REQ);
+        if (coresStr != null) {
+            this.cores = Integer.parseInt(coresStr);
+            if (this.cores < 1) {
+                throw new ParameterProblem("Invalid core # requested in the " +
+                        "properties of cloud '"+this.name+"'");
+            }
+        }
 
         final String pollStr =
             getRequiredProp(props, Props.KEY_POLL_INTERVAL);
@@ -248,6 +257,7 @@ public class Cloud {
         return DeploymentXMLUtil.constructDeployment(
             durationMinutes,
             this.memory,
+            this.cores,
             null, // we aren't supporting new prop targets yet in this client
             member.getInstanceCount()
         );

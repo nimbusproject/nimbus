@@ -19,7 +19,12 @@ package org.globus.workspace.xen;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.globus.workspace.*;
+import org.globus.workspace.Lager;
+import org.globus.workspace.RepoFileSystemAdaptor;
+import org.globus.workspace.ReturnException;
+import org.globus.workspace.WorkspaceConstants;
+import org.globus.workspace.WorkspaceException;
+import org.globus.workspace.WorkspaceUtil;
 import org.globus.workspace.cmdutils.SSHUtil;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.globus.workspace.service.binding.vm.VirtualMachineDeployment;

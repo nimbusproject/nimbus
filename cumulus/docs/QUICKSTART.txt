@@ -1,24 +1,30 @@
 Cumulus Quickstart
 ==================
 
+NOTE: This document is for use with Cumulus only installations.  For 
+information on using Cumulus with a full Nimbus install please see
+http://www.nimbusproject.org
+
+
 1) Install the software:
 
-    % ./cumulus-install.sh <path to installation location>
+    % ./cumulus-install.sh <path to installation location> [<path to a python install>]
 
-Optionally you may provide a path where the software will be installed.  If
-no path is provided the source directory is used.
+Optionally you may provide a path to a python installation.  Typically this is
+the directory that contains ./bin/python (not the bin directory itself).
+If this path is not provided a python virtual environment will be created.
 
 2) Inspect the configuration settings in ~/.nimbus/cumulus.ini
 
 3) Change to the install directory and start the server
 
-    % ./bin/cumulus.sh
+    % ./bin/cumulus
 
 This will start the cumulus server with the options in ~/.nimbus/cumulus.ini
 
 4) Create a new user
 
-    % ./cumulus-add-user.sh <email address or display name>
+    % ./bin/cumulus-add-user <email address or display name>
     ID              : eqe0YoRAs2GT1sDvPZKAU
     password        : S9Ii7QqcCQxDecrezMn6o5frSFvXhThYWmCE4S7nAf
     quota           : None

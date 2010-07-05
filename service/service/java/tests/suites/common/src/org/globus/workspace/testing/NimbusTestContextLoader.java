@@ -26,7 +26,6 @@ public class NimbusTestContextLoader extends AbstractContextLoader {
         return "-main.xml";
     }
 
-    @Override
     public ApplicationContext loadContext(String... confDirs) throws Exception {
         
         return new NimbusFileSystemXmlApplicationContext(confDirs);

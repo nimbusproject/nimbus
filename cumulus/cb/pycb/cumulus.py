@@ -54,12 +54,11 @@ def createPath(headers, path):
     if len(h_a) > 0:
         host = h_a[0]
 
-    if host == pycb.config.hostname:
-        return path
+#    if host == pycb.config.hostname:
+#        return path
 
-    b = host.split('.', 1)[0]
-
-    path = '/' + b + path
+#    b = host.split('.', 1)[0]
+#    path = '/' + b + path
 
     return path
 
@@ -286,7 +285,11 @@ class CumulusRunner(object):
 def main(argv=sys.argv[0:]):
     pycb.config.parse_cmdline(argv)
 
-    cumulus = CumulusRunner()
+    try:
+        cumulus = CumulusRunner()
+    except Exception, ex:
+        pycb.log(logging.ERROR, "error starting the server, check that the port is not already taken: %s" % (str(ex)), tb=traceback)
+        raise ex
     pycb.log(logging.INFO, "listening at %s" % (str(cumulus.getListener())))
     cumulus.run()
     return 0

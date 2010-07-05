@@ -15,7 +15,7 @@ http://www.nimbusproject.org/docs/
 
 Run this command to build, install, and configure Nimbus to a specified path:
 
-    ./bin/install /path/to/destination
+    ./install /path/to/destination
 
 Advanced users may also want to build and deploy to an existing GT4.0 
 container. Refer to the readme and scripts in the `scripts/` directory 

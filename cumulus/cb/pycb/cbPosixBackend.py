@@ -12,6 +12,7 @@ import tempfile
 import hashlib
 import traceback
 import time
+import pycb
 
 class cbPosixBackend(object):
 
@@ -108,7 +109,7 @@ class cbPosixData(object):
         self.fname = data_key
         self.metafname = data_key + ".meta"
         self.data_key = data_key
-        self.blockSize = 1024*512
+        self.blockSize = pycb.config.block_size
         self.hashValue = None
         self.delete_on_close = False
         self.md5er = hashlib.md5()

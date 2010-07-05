@@ -75,6 +75,33 @@ _NIMBUS_2_5_DEPRECATED
         </p>
     </li>
 
+    <li>
+        <p>
+            <a href="#cumulus">Cumulus</a>
+        </p>
+        <ul>
+            <li>
+                <a href="#cumulus-config">Configuration</a>
+            </li>
+            <li>
+                <a href="#repository-location">Repository Location</a>
+            </li>
+            <li>
+                <a href="#boto">Using the boto client</a>
+            </li>
+            <li>
+                <a href="#s3cmd">Using the s3cmd client</a>
+            </li>
+            <li>
+                <a href="#https">Using HTTPS</a>
+            </li>
+            <li>
+                <a href="#quotas">Disk Usage Quota</a>
+            </li>
+        </ul>
+    </li>
+
+
 </ul>
 
 <!-- *********************************************************************** -->
@@ -272,6 +299,41 @@ Generated query credentials for user:
     can paste a user's credentials into the app and the user can retrieve them
     with their username and password. In the near future this functionality will be
     greatly expanded to allow management of tokens directly in this interface.
+</p>
+
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+
+<br />
+
+
+<a name="cumulus-port"> </a>
+<h2>Changing the service port of Cumulus <span class="namelink"><a href="#cumulus-port">(#)</a></span>
+</h2>
+
+<p>
+    The configuration options for Cumulus can be found in
+    <tt class="literal">$NIMBUS_HOME/cumulus/etc/cumulus.ini</tt>.
+    Under the heading <tt class="literal">[cb]</tt> there is a <tt class="literal">port</tt>
+    entry.  Change that value and restart Cumulus with the <tt class="literal">nimbusctl</tt>
+    program.
+</p>
+<pre class="panel">
+[cb]
+
+installdir = &lt;nimbus home&gt;
+port = 8888
+hostname = &lt;hostname&gt;
+</pre>
+
+<p>
+    <i>note:</i>
+    If this change is made after you have distributed a cloud.properties
+    file to users then you will need to instruct your cloud-client users
+    to change the value <tt class="literal">vws.repository=&lt;hostname&gt;:&lt;port&gt;</tt>
+    in their local cloud.properties file.
+
 </p>
 
 <!-- *********************************************************************** -->
@@ -1102,6 +1164,132 @@ fakepub1 192.168.0.3 192.168.0.1 192.168.0.255 255.255.255.0</pre>
     </li>
 </ol>
         
+<a name="cumulus"> </a>
+<h2>Cumulus _NAMELINK(cumulus)</h2>
+<p>
+    <a href="../faq.html#cumulus">Cumulus</a> is the S3 compliant repository 
+    management service for Nimbus.
+</p>
+<p>
+Cumulus is an open source implementation of the Amazon S3 REST API.  It
+is packaged with the Nimbus
+however it can be used without nimbus as well.  Cumulus allows
+you to server files to users via a known and adopted REST API. Your
+clients will be able to access your data storaging service with the
+Amazon S3 clients they already use.
+
+</p>
+
+<a name="cumulus-config"> </a>
+<h3>Cumulus Configuration _NAMELINK(cumulus-config)</h3>
+<p>
+When the server is run it expects to find a configuration file (typically
+called cumulus.ini) in one or all of the following locations:
+
+    <ol>
+        <li>/etc/nimbus/cumulus.ini</li>
+        <li>~/.nimbus/cumulus.ini</li>
+        <li>the same directory from which the program was launched</li>
+        <li>file pointed to by the environment variable CUMULUS_SETTINGS_FILE</li>
+    </ol>
+
+Each file in the path is read in (provided it exists).  The values found 
+in each file override the values found in the previous file.
+
+</p>
+
+
+<a name="repository-location"> </a>
+<h3>Repository Location _NAMELINK(repository-location)</h3>
+<p>
+The backend storage system in cumulus has been created with a modular 
+interface that will allow us to add more
+sophisticated plugins in the future.  Thus giving the administrator 
+many powerful options.
+In the current implementation there is a single storage module which stores 
+user files a mounted file system.  
+The reliability and performance of cumulus will thus be
+limited by the reliability and performance of that file system.  Because
+of this cumulus administrators will often want to specify a location for
+the repository.
+</p>
+<p>
+Within the cumulus.ini file there is the [posix]:directory directive.
+This is the directory in which all of the files in the Cumulus repository
+will be stored.  The names of the files in that directory will be
+obfuscated based on the bucket/key name.  In order to discover what file
+belongs to what bucket/key you must use the user management tools (included
+with the Cumulus installation)
+There are a series of tools under the bin
+directory which start with nimbusauthz-* that can help with this.  In most
+cases there will be no need for a system administrator to use these
+tools and they are provided for expert usage for problematic situations.
+</p>
+
+<a name="boto"> </a>
+<h3>Using the boto client _NAMELINK(boto)</h3>
+<p>
+To use boto it is important to disable virtual host based buckets and
+to point the client at the right server.  here is example code that
+will instantiate a boto S3Connection for use with CB:
+</p>
+<pre class="panel">
+    cf = OrdinaryCallingFormat()
+    hostname = "somehost.com"
+    conn = S3Connection(id, pw, host=hostname, port=80, is_secure=False, calling_format=cf)
+</pre>
+
+<a name="s3cmd"> </a>
+<h3>Using the s3cmd client _NAMELINK(boto)</h3>
+<p>
+Once you have the s3cmd successfully installed and configured you must
+modify the file: $HOME/.s3cfg in order to direct it at this server.
+Make sure the following key value pairs reflect the following changes:
+</p>
+<pre class="panel">
+    access_key = &lt;access id&gt;
+    secret_key = &lt;access secret&gt;
+    host_base = &lt;hostname of service&gt;
+    host_bucket = &lt;hostname of server&gt;
+    use_https = False
+</pre>
+<a name="https"> </a>
+<h3>Using HTTPS with Cumulus _NAMELINK(boto)</h3>
+<p>
+In order to use a secure https connection with cumulus you must edit the 
+cumulus.ini file and provide it with a certificate and key pair.  In
+a typical nimbus installation these are generated for you and placed at:
+
+<tt class="literal">$NIMBUS_HOME/var/hostcert.pem</tt>
+<tt class="literal">$NIMBUS_HOME/var/hostkey.pem</tt>
+
+To add them to the cumulus.ini file add the following lines:
+<pre class="panel">
+[https]
+enabled=True
+key=/home/nimbus/var/hostkey.pem
+cert=/home/nimbus/var/hostcert.pem
+</pre>
+
+<a name="quotas"> </a>
+<h3>Disk Usage Quotas _NAMELINK(quotas)</h3>
+<p>
+Cumulus allows administrators to set disk space limits on a per user basis.
+By default users are created with unlimited space.  To set a disk quota 
+limit use the program <tt class="literal">NIMBUS_HOME/ve/bin/cumulus-quota</tt>
+Here is an example that will set the user user1@nimbusproject.org to a 
+100 byte limit:
+</p>
+<pre class="panel">
+$ ./ve/bin/cumulus-quota user1@nimbusproject.org 100
+$ ./ve/bin/cumulus-list-users user1@nimbusproject.org
+friendly        : user1@nimbusproject.org
+ID              : Ar2yXcfdhImjMNeWGUHJZ
+password        : ddOWFSC5rol9L6Tk14hA0QeS7valQdy38xeVvkFZwq
+quota           : 100
+canonical id    : 21161ebe-862a-11df-a9ca-001de0a80259
+</pre>
+
 
 <br />
 <br />

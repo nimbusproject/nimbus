@@ -15,7 +15,6 @@ import pycb
 import pycb.tools
 import pynimbusauthz
 import tempfile
-import traceback
 import filecmp
 from pynimbusauthz.cmd_opts import cbOpts
 from pynimbusauthz.db import DB
@@ -50,9 +49,9 @@ def get_nimbus_home():
 def setup_options(argv):
 
     u = """[options] <email pattern>
-Create/edit a nimbus user
+List a Nimbus user
 
-User % for a wild card
+Use % for a wild card
     """
     (parser, all_opts) = pynimbusauthz.get_default_options(u)
 
@@ -65,7 +64,6 @@ User % for a wild card
 
     # def verify_opts(o, args, parser):
     if len(args) != 1:
-        raise CLIError('ECMDLINE', "You must provide exactly 1 argument: %d" % (len(args)))
         pynimbusauthz.parse_args(parser, [], ["--help"])
 
     return (o, args, parser)

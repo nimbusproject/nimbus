@@ -1,8 +1,8 @@
 #!/usr/bin/python
 
 """
-Creates a new nimbus users.  It will create all needed user aliases (cumulus,
-x509, and web loging id)
+Creates new Nimbus users.  It will create all needed user aliases (Cumulus,
+x509, and web login id)
 """
 from nimbusweb.setup import autoca
 import string
@@ -10,6 +10,7 @@ import random
 import os
 import sys
 import sys
+import ConfigParser
 from ConfigParser import SafeConfigParser
 import time
 import pycb
@@ -27,8 +28,9 @@ from nimbusweb.setup.setuperrors import *
 from nimbusweb.setup.groupauthz import *
 from optparse import SUPPRESS_HELP
 
-g_report_options = ["cert", "key", "dn", "canonical_id", "access_id", "access_secret", "url", "web_id"]
+g_report_options = ["cert", "key", "dn", "canonical_id", "access_id", "access_secret", "url", "web_id", "cloud_properties"]
 
+DEBUG = False
 
 def get_nimbus_home():
     """Determines home directory of Nimbus install we are using.
@@ -72,7 +74,7 @@ def generate_cert(o):
     try:
         cadir = config.get('nimbussetup', 'ca.dir')
         cadir = os.path.join(nimbus_home, cadir)
-    except NoOptionError:
+    except ConfigParser.NoOptionError:
         raise CLIError('ENIMBUSHOME', 
                 "Config file '%s' does not contain ca.dir" %
                 configpath)
@@ -99,6 +101,48 @@ def generate_cert(o):
 
     return (certpath, keypath)
 
+def cloud_props(o):
+
+    if o.nocloud_properties:
+        return
+
+    nimbus_home = get_nimbus_home()
+    configpath = os.path.join(nimbus_home, 'nimbus-setup.conf')
+    config = SafeConfigParser()
+    if not config.read(configpath):
+        raise CLIError('ENIMBUSHOME',
+                "Failed to read config from '%s'. Has Nimbus been configured?"
+                % configpath)
+    try:
+        cert_file = config.get('nimbussetup', 'hostcert')
+        cert_file = os.path.join(nimbus_home, cert_file)
+        factory_id = get_dn(cert_file)
+        hostname = config.get('nimbussetup', 'hostname')
+        template_file = os.path.join(nimbus_home, "var/cloud.properties.in")
+    except ConfigParser.NoOptionError:
+        raise CLIError('ENIMBUSHOME',
+                "Config file '%s' does not contain the needed values" %
+                configpath)
+
+    string_subs = {}
+    string_subs['@FACTORY_DN@'] = factory_id
+    string_subs['@HOST@'] = hostname
+    string_subs['@CUMULUS_ID@'] = o.access_id
+    string_subs['@CUMULUS_SECRET@'] = o.access_secret
+
+    # start the sed
+    o.cloud_properties = o.dest + "/cloud.properties"
+    fin = open(template_file, "r")
+    fout = open(o.cloud_properties, "w")
+    for l in fin.readlines():
+        for k in string_subs:
+            v = string_subs[k]
+            if v == None:
+                v = ""
+            l = l.replace(k, v)
+        fout.write(l)
+    fin.close()
+    fout.close()
 
 def setup_options(argv):
 
@@ -125,7 +169,9 @@ Create/edit a nimbus user
     all_opts.append(opt)
     opt = cbOpts("web_id", "w", "Set the web user name.  If not set and a web user is desired a username will be created from the email address.", None)
     all_opts.append(opt)
-    opt = cbOpts("noweb", "W", "Do not put stuff into webapp sqlite", False, flag=True)
+    opt = cbOpts("web", "W", "Insert user into webapp for key(s) pickup", False, flag=True)
+    all_opts.append(opt)
+    opt = cbOpts("nocloud_properties", "P", "Do not make the cloud.properties file", False, flag=False)
     all_opts.append(opt)
     opt = cbOpts("nocert", "C", "Do not add a DN", False, flag=True)
     all_opts.append(opt)
@@ -146,7 +192,7 @@ Create/edit a nimbus user
         raise CLIError('ECMDLINE', "key and cert must be used together %s %s" % (str(o.cert), str(o.key)))
     if o.access_id == None and o.access_secret != None or o.access_id != None and o.access_secret == None:
         raise CLIError('ECMDLINE', "secret and access-id must be used together")
-    if o.noweb and o.nocert and o.noaccess:
+    if not o.web and o.nocert and o.noaccess:
         raise CLIError('ECMDLINE', "you must want this tool to do something")
     if o.dest == None:
         nh = get_nimbus_home() + "/var/ca/"
@@ -169,6 +215,7 @@ Create/edit a nimbus user
 
     o.canonical_id = None
     o.url = None
+    o.cloud_properties = None
 
     return (o, args, parser)
 
@@ -205,9 +252,11 @@ def create_user(o, db):
 
         user = User(db, friendly=o.emailaddr)
         o.canonical_id = user.get_id()
-        if not o.noaccess and o.access_id == None:
-            o.access_id = pynimbusauthz.random_string_gen(21)
-            o.access_secret = pynimbusauthz.random_string_gen(42)
+        if not o.noaccess:
+            if o.access_id == None:
+                o.access_id = pynimbusauthz.random_string_gen(21)
+                o.access_secret = pynimbusauthz.random_string_gen(42)
+
             # add to db
             ua1 = user.create_alias(o.access_id, pynimbusauthz.alias_type_s3, o.emailaddr, alias_data=o.access_secret)
 
@@ -224,34 +273,54 @@ def create_user(o, db):
             # add dn to gridmap
             add_gridmap(o)
 
-        if not o.noweb:
+        cloud_props(o)
+        if o.web:
             if o.web_id == None:
-                o.web_id = o.emailaddr.__hash__()
-            do_web_bidnes(o)
-            pass
+                o.web_id = o.emailaddr.split("@")[0]
+            o.url = do_web_bidnes(o)
+
         do_group_bidnes(o)
 
         db.commit()
     except Exception, ex1:
         db.rollback()
-        traceback.print_exc(file=sys.stdout)
+        if DEBUG:
+            traceback.print_exc(file=sys.stdout)
         raise ex1
 
 def do_web_bidnes(o):
-    pass
+    
+    # import this here because otherwise errors will be thrown when
+    # the settings.py is imported (transitively).  Web is disabled by 
+    # default in a Nimbus install, we should keep the experience cleanest
+    # for new admins.
+    try:
+        import nimbusweb.portal.nimbus.create_web_user as create_web_user
+    except Exception, e:
+        msg = "\nERROR linking with web application (have you ever sets up the web application?)\n"
+        msg += "\nSee: http://www.nimbusproject.org/docs/current/admin/reference.html#nimbusweb-usage\n"
+        msg += "\n%s\n" % e
+        raise CLIError('EUSER', "%s" % msg)
+    
+    (errmsg, url) = create_web_user.create_web_user(o.web_id, o.emailaddr, o.cert, o.key, o.access_id, o.access_secret, o.cloud_properties)
+    
+    if errmsg:
+        raise CLIError('EUSER', "Problem adding user to webapp: %s" % (errmsg))
+    elif url:
+        return url
+    else:
+        raise CLIError('EUSER', "Problem adding user to webapp, nothing returned?")
 
 def do_group_bidnes(o):
     if o.dn == None:
         return
     
     nh = get_nimbus_home()
-    groupauthz_dir = os.path.join(nh, "/services/etc/nimbus/workspace-service/group-authz/")
+    groupauthz_dir = os.path.join(nh, "services/etc/nimbus/workspace-service/group-authz/")
     try:
         add_member(groupauthz_dir, o.dn)
     except Exception, ex:
         print "WARNING %s" % (ex)
-
-
 
 def report_results(o, db):
     user = User.get_user_by_friendly(db, o.emailaddr)
@@ -280,6 +349,7 @@ def main(argv=sys.argv[1:]):
         o.emailaddr = args[0]
         create_user(o, db)
         report_results(o, db)
+        db.close()
     except CLIError, clie:
         print clie
         return clie.get_rc()

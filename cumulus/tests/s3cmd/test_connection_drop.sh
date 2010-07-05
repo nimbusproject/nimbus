@@ -4,8 +4,7 @@ bucket_name=CumulusTest$RANDOM
 fname=GRP$RANDOM
 s3cmd mb s3://$bucket_name
 
-# make a big enough file
-f=`mktemp`
+f=`mktemp -t tmp.XXXXXXXXXX`
 dd if=/dev/zero of=$f count=1024 bs=102400
 
 s3cmd put $f s3://$bucket_name/$fname &

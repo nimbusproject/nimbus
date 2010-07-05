@@ -1,0 +1,273 @@
+m4_include(/mcs/m4/worksp.lib.m4)
+_NIMBUS_HEADER(2.5RC1 Zero To Cloud Guide)
+_NIMBUS_HEADER2(n,n,y,n,n,n,n)
+_NIMBUS_LEFT2_COLUMN
+_NIMBUS_LEFT2_Z2C_SIDEBAR(y)
+_NIMBUS_LEFT2_COLUMN_END
+_NIMBUS_CENTER2_COLUMN
+_NIMBUS_2_5_DEPRECATED
+
+
+<h2>Service Installation</h2>
+
+<p>
+    On this page, you will install the Nimbus central services and
+    image repository (<i>Cumulus</i>), and use a cloud
+    client to access your cloud as a remote client.
+</p>
+<p>
+    This will however only work in "fake mode" which means that the
+    service is only pretending to start VMs.  In later steps you will
+    enable VMMs, connect them with the central service, and have a
+    working cloud setup.
+</p>
+
+
+<h3>Create nimbus user</h3>
+<p>
+    The first step is to create a separate unix account under which to
+    install and run the Nimbus services. It is not recommended to use
+    the root account. Because you will later be configuring password-less
+    SSH keys between this account and your hypervisor nodes, it is best
+    to use a dedicated account for these services.
+</p>
+<p>
+    In this guide, we will be calling the user
+    <tt class="literal">nimbus</tt>, but you can use anything you like.
+</p>
+
+
+<h3>Download and install</h3>
+<p>
+    As the new <tt class="literal">nimbus</tt> user, fetch and unpack
+    the latest service distribution.
+</p>
+
+<pre class="panel">
+$ wget http://www.nimbusproject.org/downloads/nimbus-2.5-src.tar.gz
+</pre>
+<pre class="panel">
+$ tar xfz nimbus-2.5-src.tar.gz
+</pre>
+<pre class="panel">
+$ cd nimbus-2.5-src/
+</pre>
+
+<p>
+    You must now choose an installation directory. It could be within
+    the <tt class="literal">nimbus</tt> user home directory, or something
+    like /opt/nimbus. If the directory exists, it must be empty and writable.
+    If it does not exist, the parent directory must be writable.
+</p>
+
+<p>
+    Throughout this guide, we will refer to this installation directory as
+    <tt class="literal">$NIMBUS_HOME</tt>. To install, run this command from
+    the Nimbus source directory (specifying your chosen destination).
+</p>
+<pre class="panel">
+$ ./install $NIMBUS_HOME
+</pre>
+
+<div class="note">
+    <p class="note-title">Alternate Python</p>
+    <p>
+        If you need to specify a non default Python, you can do so by setting the
+        <tt class="literal">PYTHON</tt> environment variable. For example if you
+        are using RHEL5 and cannot upgrade the system Python to 2.5+, you can
+        install Python separately and specify
+        <tt class="literal">PYTHON=/usr/local/bin/python2.5</tt> for installation.
+    </p>
+</div>
+
+<p>
+    The installer performs several steps:
+</p>
+<ul>
+    <li>
+        Installs Cumulus and dependencies to a Python
+        <a href="http://pypi.python.org/pypi/virtualenv">virtualenv</a>
+    </li>
+    <li>Builds and installs Nimbus services</li>
+    <li>Creates initial databases</li>
+    <li>Runs interactive configuration program to gather basic information</li>
+    <li>Generates internal Certificate Authority for host certificates</li>
+</ul>
+
+<p>
+    After the install completes, you should have a Nimbus system set up with
+    security, web services, and sensible configuration defaults. However the
+    service is running in "fake" mode, where no VMs are actually started. This
+    is a great opportunity to test the service and Cumulus installs before we
+    move on to VMM and network setup.
+</p>
+<div class="note">
+    <p class="note-title">Service ports</p>
+    <p>
+        Nimbus requires several network ports. We have chosen some sensible defaults,
+        but you may adjust them if needed. The initial default set is:
+    </p>
+        <UL>
+            <LI>Cumulus : 8888</LI>
+            <LI>Nimbus Service interface : 8443</LI>This is used by the cloud-client
+            <LI>EC2 compatible REST Interface: 8444</LI>
+        </UL>
+</div>
+
+
+<h3>Start services</h3>
+<p>
+    Now that the services are installed, you can try to start them for the first
+    time. First, change to the installation directory and take a look at what is
+    in the <tt class="literal">bin/</tt> directory.  
+</p>
+<pre class="panel">
+$ cd $NIMBUS_HOME
+</pre>
+<pre class="panel">
+$ ls bin/
+nimbus-configure    nimbus-new-cert     nimbusctl
+nimbus-edit-user    nimbus-new-user
+nimbus-list-users   nimbus-remove-user
+</pre>
+
+<p>
+    There are several useful commands available which we will get to in time, but
+    for now we want to use the <tt class="literal">nimbusctl</tt> command to start
+    the Nimbus services.
+</p>
+<pre class="panel">
+$ ./bin/nimbusctl start
+Launching Nimbus services...   OK
+Launching Cumulus services...  OK
+</pre>
+
+<p>
+    If one or both services fail to start, you should take a look at the appropriate
+    log file. For Nimbus services, check <tt class="literal">var/services.log</tt>.
+    For Cumulus, look in <tt class="literal">cumulus/log/cumulus.log</tt>.
+</p>
+
+<h3>Create first user</h3>
+<p>
+    Now that Nimbus is installed and running, we can move on to testing with a real
+    client. But first, we need to create a user account to test with. We will do this
+    with the <tt class="literal">nimbus-new-user</tt> tool. It has many options which
+    you will want to explore later. But for now we should just use the defaults,
+    specifying an email address to associate with the account as well as a temporary
+    directory in which to place credentials.
+</p>
+<pre class="panel">
+$ ./bin/nimbus-new-user -d /tmp/newuser someone@someplace.com
+
+cert            : /tmp/newuser/usercert.pem
+key             : /tmp/newuser/userkey.pem
+dn              : /O=Auto/OU=NimbusTestCA/CN=someone@someplace.com
+canonical id    : d5170810-85f8-11df-86fa-001641156eb6
+access id       : pig5Rexcj6uFQBH3exGM5
+access secret   : uQA6LqXSVNFwubQ505II1kqeLMEsEXGd1oXGNjwp0G
+url             : None
+web id          : None
+cloud properties : /tmp/newuser/cloud.properties
+</pre>
+<p>
+    The script outputs a lot of information about the new user, but you only need the
+    files generated to your specified output directory. Hold on to these files, you
+    will need them momentarily, after you install the cloud client.
+</p>
+
+
+<h3>Install cloud client and credentials</h3>
+<p>
+    We will test our services using the Nimbus cloud client. You can do so from the same
+    system you are installing on, but you may want to use a separate system so you can
+    verify that networking is working correctly. Grab the latest cloud client from the
+    Nimbus <a href="http://www.nimbusproject.org/downloads/">downloads page</a>
+    (version must be >= 16).
+</p>
+<pre class="panel">
+$ wget http://www.nimbusproject.org/downloads/nimbus-cloud-client-016.tar.gz
+</pre>
+<pre class="panel">
+$ tar xfz nimbus-cloud-client-016.tar.gz
+</pre>
+
+<p>
+    Now you need to install the files produced earlier by
+    <tt class="literal">nimbus-new-user</tt>. The <tt class="literal">cloud.properties</tt>
+    file needs to be placed into the extracted cloud client's <tt class="literal">conf/</tt>
+    directory. The <tt class="literal">usercert.pem</tt> and
+    <tt class="literal">userkey.pem</tt> files need to be installed into
+    <tt class="literal">~/.globus/</tt> in your home directory. Be careful not to overwrite
+    any credentials you already have in <tt class="literal">~/.globus/</tt>.
+</p>
+<pre class="panel">
+$ cp /tmp/newuser/cloud.properties nimbus-cloud-client/conf/
+</pre>
+<pre class="panel">
+$ mkdir ~/.globus/
+</pre>
+<pre class="panel">
+$ cp /tmp/newuser/*.pem ~/.globus/
+</pre>
+
+<p>
+    Naturally, if you are testing the client on a different system than the service installation,
+    you'll need to use <tt class="literal">scp</tt> or similar to copy these files. 
+</p>
+
+<p>
+    You also need to grab a few more files from the Nimbus service installation and drop
+    them into the client. These are the internal CA certificates and enable the client to
+    trust the client. The needed files are in
+    <tt class="literal">$NIMBUS_HOME/var/ca/trusted-certs/</tt>.
+</p>
+<pre class="panel">
+$ cp $NIMBUS_HOME/var/ca/trusted-certs/* nimbus-cloud-client/lib/certs/
+</pre>
+
+<h3>Try it out!</h3>
+<p>
+    Now we have what should be a working client and are ready to test the service. The first step
+    is to initialize the grid proxy.
+</p>
+<pre class="panel">
+$ cd nimbus-cloud-client/
+</pre>
+<pre class="panel">
+$ ./bin/grid-proxy-init.sh
+</pre>
+<p>
+    Next we will attempt to query the service. This command shows the running VMs that you own.
+    Of course you do not have any at this point, but this can help to diagnose any configuration
+    or security problems.
+</p>
+<pre class="panel">
+$ ./bin/cloud-client.sh --status
+
+Querying for ALL instances.
+
+There's nothing running on this cloud that you own.
+</pre>
+<p>
+    If you see this message, all is well. You've successfully queried the running Nimbus service!
+    The next step is to query Cumulus and list the available images you have to run. Again, of
+    course you will have none.
+</p>
+<pre class="panel">
+$ bin/cloud-client.sh --list
+
+No files.
+</pre>
+<p>
+    If that command succeeded, then all of the Nimbus services are operational. We will come back
+    to this client later and use it to transfer and start real VMs. But for now, let's turn attention
+    back to the service node to <a href="networking-setup.html">Install DHCPd and Configure Networking</a>.
+</p>
+
+
+
+_NIMBUS_CENTER2_COLUMN_END
+_NIMBUS_FOOTER1
+_NIMBUS_FOOTER2
+_NIMBUS_FOOTER3

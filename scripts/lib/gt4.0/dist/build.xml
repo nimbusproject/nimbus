@@ -69,8 +69,19 @@
             </fileset>
         </copy>
 
-        <copy todir="${distbuild.dir}/${nimbus.main}/bin">
-            <fileset dir="${nimbus.basedir}/bin"/>
+        <copy tofile="${distbuild.dir}/${nimbus.main}/install"
+            file="${nimbus.basedir}/install"/>
+
+        <copy todir="${distbuild.dir}/${nimbus.main}/cumulus">
+            <fileset dir="${nimbus.basedir}/cumulus"/>
+        </copy>
+
+        <copy todir="${distbuild.dir}/${nimbus.main}/libexec">
+            <fileset dir="${nimbus.basedir}/libexec"/>
+        </copy>
+        
+        <copy todir="${distbuild.dir}/${nimbus.main}/tmp">
+            <fileset dir="${nimbus.basedir}/tmp"/>
         </copy>
 
         <copy todir="${distbuild.dir}/${nimbus.main}/">
@@ -81,13 +92,13 @@
             <fileset dir="${distbuild.dir}/${nimbus.main}/scripts">
                 <include name="*.sh"/>
             </fileset>
-            <fileset dir="${nimbus.basedir}/bin">
-                <include name="*"/>
-            </fileset>
             <fileset dir="${nimbus.basedir}/home/bin">
                 <include name="*"/>
             </fileset>
-            <fileset dir="${nimbus.basedir}/home/sbin">
+            <fileset dir="${nimbus.basedir}/libexec">
+                <include name="*"/>
+            </fileset>
+            <fileset dir="${nimbus.basedir}/home/libexec">
                 <include name="*"/>
             </fileset>
             <fileset dir="${nimbus.basedir}/web/bin">
@@ -124,9 +135,6 @@
         <copy todir="${distbuild.dir}/${nimbus.main}/monitoring">
             <fileset dir="${nimbus.basedir}/monitoring"/>
         </copy>
-        <copy todir="${distbuild.dir}/${nimbus.main}/plugins">
-            <fileset dir="${nimbus.basedir}/plugins"/>
-        </copy>
         <copy todir="${distbuild.dir}/${nimbus.main}/service">
             <fileset dir="${nimbus.basedir}/service"/>
         </copy>
@@ -141,8 +149,6 @@
             <include name="${nimbus.main}/*.*"/>
             <include name="${nimbus.main}/scripts/**"/>
             <exclude name="${nimbus.main}/scripts/*sh" />
-            <include name="${nimbus.main}/bin/**"/>
-            <exclude name="${nimbus.main}/bin/*"/>
             <include name="${nimbus.main}/authzdb/**"/>
             <include name="${nimbus.main}/autocommon/**"/>
             <include name="${nimbus.main}/autoconfiguration/**"/>
@@ -158,6 +164,7 @@
             <include name="${nimbus.main}/plugins/**"/>
             <include name="${nimbus.main}/service/**"/>
             <include name="${nimbus.main}/service-api/**"/>
+            <include name="${nimbus.main}/tmp/**"/>
             <include name="${nimbus.main}/web/**"/>
             <exclude name="${nimbus.main}/web/bin/*"/>
             <exclude name="${nimbus.main}/web/sbin/*"/>
@@ -170,11 +177,13 @@
 
             <tarfileset dir="${distbuild.dir}" mode="755">
                 <include name="${nimbus.main}/scripts/*sh" />
-                <include name="${nimbus.main}/bin/*" />
+                <include name="${nimbus.main}/cumulus/**" />
+                <include name="${nimbus.main}/install" />
                 <include name="${nimbus.main}/home/bin/*" />
                 <include name="${nimbus.main}/home/sbin/*" />
                 <include name="${nimbus.main}/web/bin/*" />
                 <include name="${nimbus.main}/web/sbin/*" />
+                <include name="${nimbus.main}/libexec/**"/>
             </tarfileset>
             <tarfileset dir="${distbuild.dir}">
                 <patternset refid="service-src-fileset"/>

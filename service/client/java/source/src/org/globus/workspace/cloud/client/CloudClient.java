@@ -485,6 +485,11 @@ public class CloudClient {
 
     void parameterCheck_securityPrint() throws ParameterProblem {
         CloudClientUtil.checkGSICredential("Security printing");
+        try {
+            getProxyBeingUsed();
+        } catch (Exception e) {
+            throw new ParameterProblem(e.getMessage());
+        }
     }
 
     void parameterCheck_servicePrint() throws ParameterProblem {
@@ -1498,6 +1503,7 @@ public class CloudClient {
         final WorkspaceDeployment_Type deploymentRequest =
                 DeploymentXMLUtil.constructDeployment(this.args.getDurationMinutes(),
                                                       this.args.getMemory(),
+                                                      this.args.getCores(),
                                                       this.newUnpropTargetURL);
 
         this.executeUtil.startOneWorkspace(this.workspaceFactoryURL,
@@ -1575,6 +1581,7 @@ public class CloudClient {
             deploymentRequests[i] =
                 DeploymentXMLUtil.constructDeployment(this.args.getDurationMinutes(),
                                                       this.args.getMemory(),
+                                                      this.args.getCores(),
                                                       this.newUnpropTargetURL,
                                                       member.getQuantity());
 

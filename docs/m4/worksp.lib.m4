@@ -98,6 +98,7 @@ m4_define([[[_NIMBUS_HEADER',
 <link rel="stylesheet" type="text/css" href="/css/reset-fonts-grids.css">
 <link rel="stylesheet" type="text/css" href="/css/base.css">
 <link rel="stylesheet" type="text/css" href="/css/nimbus.css">
+<link rel="stylesheet" type="text/css" href="/css/doc.css">
 <link rel="alternate"
       type="application/rss+xml" 
       title="RSS 2.0" href="http://www.nimbusproject.org/news/rss/" />
@@ -381,6 +382,17 @@ m4_define([[[_NIMBUS_LEFT2_ADMIN2_SIDEBAR',
         </li>
         <li>
           <a href="cloud.html" title="Cloud Guide" class="y">Cloud Guide</a>
+        </li>
+    </ul>
+</div>
+
+)m4_dnl
+m4_define([[[_NIMBUS_LEFT2_Z2C_SIDEBAR',
+
+<div id="sidebarmenu">
+    <ul>
+        <li>
+          <a href="index.html" title="Z2C" class="$1">Zero to Cloud Guide</a>
         </li>
     </ul>
 </div>

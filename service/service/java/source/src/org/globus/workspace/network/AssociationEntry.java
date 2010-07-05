@@ -25,6 +25,7 @@ public class AssociationEntry {
     private String subnetMask;
     private String gateway;
     private boolean inUse;
+    private boolean explicitMac;
 
     public AssociationEntry(String ipAddress,
                             String macAddress,
@@ -109,11 +110,20 @@ public class AssociationEntry {
         this.gateway = gateway;
     }
 
+    public boolean isExplicitMac() {
+        return explicitMac;
+    }
+
+    public void setExplicitMac(boolean explicitMac) {
+        this.explicitMac = explicitMac;
+    }
+
     public String toString() {
         return "\nEntry{" +
                 "hostname='" + this.hostname + '\'' +
                 ", ipAddress='" + this.ipAddress + '\'' +
                 ", mac='" + this.mac + '\'' +
+                (this.explicitMac ? "(explicit)" : "") +
                 ", gateway='" + this.gateway + '\'' +
                 ", broadcast='" + this.broadcast + '\'' +
                 ", subnetMask='" + this.subnetMask + '\'' +

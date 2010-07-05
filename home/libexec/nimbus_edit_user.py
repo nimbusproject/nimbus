@@ -16,7 +16,6 @@ import pycb
 import pycb.tools
 import pynimbusauthz
 import tempfile
-import traceback
 import filecmp
 from pynimbusauthz.cmd_opts import cbOpts
 from pynimbusauthz.db import DB
@@ -26,7 +25,7 @@ import shlex
 from nimbusweb.setup.setuperrors import *
 from optparse import SUPPRESS_HELP
 
-g_report_options = ["cert", "key", "dn", "canonical_id", "access_id", "access_secret", "url", "web_id"]
+g_report_options = ["dn", "canonical_id", "access_id", "access_secret"]
 
 
 def get_nimbus_home():
@@ -174,7 +173,9 @@ def edit_user(o, db):
         remove_gridmap(old_dn)
         add_gridmap(o)
         dnu.set_name(o.dn.strip())
-        groupauthz_dir = os.path.join(nh, "/services/etc/nimbus/workspace-service/group-authz/")
+        
+        nh = get_nimbus_home()
+        groupauthz_dir = os.path.join(nh, "services/etc/nimbus/workspace-service/group-authz/")
 
         try:
             remove_member(groupauthz_dir, old_dn)

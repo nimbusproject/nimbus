@@ -2,7 +2,7 @@ if [ ! "X$CLCLBUILDER_ENVIRONMENT_DEFINED" = "X" ]; then
   return 0
 fi
 
-export CLCLBUILDER_RELEASE_NAME="nimbus-cloud-client-015"
+export CLCLBUILDER_RELEASE_NAME="nimbus-cloud-client-016"
 
 # #########################################################
 
@@ -26,6 +26,7 @@ export CLCLBUILDER_WSCORE_DIRNAME="ws-core-4.0.8"
 # #########################################################
 
 export CLCLBUILDER_TARBALL_DEST="$CLCLBUILDER_BASEDIR/$CLCLBUILDER_WSCORE_TARNAME"
+export CLCLBUILDER_TARBALL_DEST2="$CLCLBUILDER_BASEDIR/../tmp/$CLCLBUILDER_WSCORE_TARNAME"
 
 # #########################################################
 

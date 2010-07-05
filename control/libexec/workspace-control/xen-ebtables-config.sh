@@ -70,7 +70,7 @@ fi
 #############
 
 if [ $# -lt 2 ]; then
-  echo "ERROR: requires at least 2 arguments, syntax: add|rem <vifname> [<dhcpif>  <macaddr> <ipaddr>]"
+  echo "ERROR: requires at least 2 arguments, syntax: add|rem <vifname> [<macaddr> <ipaddr> [<dhcpif>]]"
   exit 1
 fi
 
@@ -85,16 +85,16 @@ if [ "$ADDREM" != "add" ] && [ "$ADDREM" != "rem" ]; then
 fi
 
 if [ "$ADDREM" = "add" ]; then
-  if [ $# -ne 5 ]; then
-    echo "ERROR: add requires 5 arguments: add <vifname> <dhcpif> <macaddr> <ipaddr>"
+  if [ $# -ne 4 ] && [ $# -ne 5  ]; then
+    echo "ERROR: add requires 4 or 5 arguments: add <vifname> <macaddr> <ipaddr> [<dhcpif>]"
     exit 1
   else
-    DHCPIF=$3
-    echo "      dhcpif: $DHCPIF"
-    MACADDR=$4
+    MACADDR=$3
     echo "     macaddr: $MACADDR"
-    IPADDR=$5
+    IPADDR=$4
     echo "      ipaddr: $IPADDR"
+    DHCPIF=$5
+    echo "      dhcpif: $DHCPIF"
   fi
 fi
 
@@ -168,7 +168,13 @@ function init_vifname_chain() {
   fi
 
   # If this is a DHCP request, send it to the right handler
-  $EBTABLES -A $VIFNAME -p IPv4 --ip-proto 17 --ip-dport 67 -j DHCP-$DHCPIF
+  # if dhcpif was specified, expect a chain to exist and send it there
+  # otherwise, general accept to the normal bridge
+  if [ "X$DHCPIF" != "X" ]; then
+      $EBTABLES -A $VIFNAME -p IPv4 --ip-proto 17 --ip-dport 67 -j DHCP-$DHCPIF
+  else
+      $EBTABLES -A $VIFNAME -p IPv4 --ip-proto 17 --ip-dport 67 -j ACCEPT
+  fi
   if [ $? -ne 0 ]; then
     echo "ERROR: could not set DHCP policy for $VIFNAME chain"
     return 1
@@ -236,13 +242,15 @@ fi
 
 if [ "$ADDREM" = "add" ]; then
 
-  # error 1 is ignored, DHCPIF chain in place already (could write
-  # func to test for that).  If there is a general ebtables problem
-  # func after this will also fail.
-  init_dhcpif_chain
-  if [ $? -eq 2 ]; then
-    echo "ERROR: could not create $DHCPIF chain"
-    exit 1
+  if [ "X$DHCPIF" != "X" ]; then
+    # error 1 is ignored, DHCPIF chain in place already (could write
+    # func to test for that).  If there is a general ebtables problem
+    # func after this will also fail.
+    init_dhcpif_chain
+    if [ $? -eq 2 ]; then
+      echo "ERROR: could not create $DHCPIF chain"
+      exit 1
+    fi
   fi
 
   init_vifname_chain

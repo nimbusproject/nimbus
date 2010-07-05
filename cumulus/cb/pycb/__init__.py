@@ -48,7 +48,6 @@ class CBConfig(object):
     def __init__(self):
         self.default_settings()
         self.load_settings()
-        self.setup_logger()
 
         config_error = False
         if self.auth == None:
@@ -74,6 +73,8 @@ The search path for cumulus.ini is:
     cumulus.ini
     env 'CUMULUS_SETTINGS_FILE
 """
+
+        self.setup_logger()
 
     def setup_logger(self):
         global logger
@@ -102,6 +103,7 @@ The search path for cumulus.ini is:
         self.https_key = None
         self.https_cert = None
         self.use_https = False
+        self.block_size = 1024*512
 
     def get_contact(self):
         return (self.hostname, self.port)
@@ -147,6 +149,7 @@ The search path for cumulus.ini is:
                 if backend == "posix":
                     posix_dir = s.get("backend", "data_dir")
                     self.bucket = cbPosixBackend(posix_dir)
+                    block_size = s.get("backend", "block_size")
             except:
                 pass
 
@@ -158,7 +161,6 @@ The search path for cumulus.ini is:
                     self.auth = cbPosixSec(posix_dir)
                 elif sec == "authz":
                     self.authzdb = s.get("security", "authzdb")
-                    print self.authzdb
                     self.auth = cbAuthzSec(self.authzdb)
                 else:
                     self.auth_error = self.auth_error + "no type %s" % (sec)

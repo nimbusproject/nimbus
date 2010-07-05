@@ -188,6 +188,24 @@ public class WSUtils {
                                 InitialState_Type requestState,
                                 ShutdownMechanism_Type shutdownMechanism,
                                 URI newPropagationTargetURI) {
+        final int cores = -1;
+        return constructDeploymentType(durationMinutes,
+                                       memoryMegabytes,
+                                       numNodes,
+                                       requestState,
+                                       shutdownMechanism,
+                                       newPropagationTargetURI,
+                                       cores);
+    }
+
+    public static WorkspaceDeployment_Type constructDeploymentType(
+                                int durationMinutes,
+                                int memoryMegabytes,
+                                int numNodes,
+                                InitialState_Type requestState,
+                                ShutdownMechanism_Type shutdownMechanism,
+                                URI newPropagationTargetURI,
+                                int cores) {
 
         final WorkspaceDeployment_Type dep = new WorkspaceDeployment_Type();
 
@@ -195,6 +213,7 @@ public class WSUtils {
 
         final ResourceAllocation_Type resAlloc = new ResourceAllocation_Type();
         setMemory(memoryMegabytes, resAlloc);
+        setCores(cores, resAlloc);
         dep.setResourceAllocation(resAlloc);
 
         dep.setNodeNumber((short)numNodes);
@@ -237,6 +256,23 @@ public class WSUtils {
         resAlloc.setIndividualPhysicalMemory(memRange);
     }
 
+    public static void setCores(int cores,
+                                ResourceAllocation_Type resAlloc) {
+
+        if (resAlloc == null) {
+            throw new IllegalArgumentException("resAlloc may not be null");
+        }
+
+        // below 1 signals to use default which is picked by the target cloud (the old behavior)
+        if (cores < 1) {
+            return;
+        }
+
+        final Exact_Type[] exactCoresAlloc = {new Exact_Type(cores)};
+        final RangeValue_Type coresRange = new RangeValue_Type();
+        coresRange.setExact(exactCoresAlloc);
+        resAlloc.setIndividualCPUCount(coresRange);
+    }
 
     public static ClientSecurityDescriptor getClientSecDesc(
                                                        Object mech,

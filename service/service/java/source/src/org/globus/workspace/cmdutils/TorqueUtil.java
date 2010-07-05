@@ -55,6 +55,7 @@ public class TorqueUtil {
      * @param destination if not null, destination (like a queue name) is sent,
      *        For Torque 2.1.8 this should be one of three forms: "queue",
      *        "@server", or "queue@server"
+     * @param memoryMB memory to request
      * @param nodenum nodes to request
      * @param ppn processors per node
      * @param walltimeSeconds requested walltime
@@ -68,18 +69,27 @@ public class TorqueUtil {
      * @param reRunnable job can survive restarts?
      * @param mail if mail is true, MAIL_AT_EXIT and MAIL_AT_ABORT will be set,
      *             otherwise NO_MAIL will be set
+     * @param account string to apply to job
      * @return ArrayList of cmdline tokens
      * @throws org.globus.workspace.WorkspaceException problem with parameters or initialization
      */
     public ArrayList constructQsub(String destination,
+                                   int memoryMB,
                                    int nodenum,
                                    int ppn,
                                    long walltimeSeconds,
                                    String extraProperties,
                                    String stdoutPath,
                                    boolean reRunnable,
-                                   boolean mail)
+                                   boolean mail,
+                                   String account)
             throws WorkspaceException {
+
+        if (memoryMB < 1) {
+            final String err = "invalid memory " +
+                    "request: " + Integer.toString(memoryMB);
+            throw new WorkspaceException(err);
+        }
 
         if (ppn < 1) {
             final String err = "invalid processors per node " +
@@ -131,9 +141,17 @@ public class TorqueUtil {
         cmd.add("-l");
         cmd.add("walltime=" + walltimeFromSeconds(walltimeSeconds));
 
+        cmd.add("-l");
+        cmd.add("mem=" + Integer.toString(memoryMB) + "mb");
+
         if (stdoutPath != null) {
             cmd.add("-o");
             cmd.add(stdoutPath);
+        }
+
+        if (account != null) {
+            cmd.add("-A");
+            cmd.add(account);
         }
 
         return cmd;

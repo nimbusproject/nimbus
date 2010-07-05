@@ -23,9 +23,12 @@ import pycb.tools.set_quota
 class TestAddUsers(unittest.TestCase):
 
     def setUp(self):
+        self.user_name = "test@nosetests.nimbus.org"
+        pycb.tools.remove_user.main(["-a", self.user_name])
         pass
 
     def tearDown(self):
+        pycb.tools.remove_user.main(["-a", self.user_name])
         pass
 
     def find_in_file(self, fname, needle):
@@ -43,9 +46,9 @@ class TestAddUsers(unittest.TestCase):
         return found
 
     def test_new_user(self):
-        rc = pycb.tools.add_user.main(["test@nosetests.nimbus.org"])
+        rc = pycb.tools.add_user.main([self.user_name])
         self.assertEqual(rc, 0, "rc = %d" % (rc))
-        rc = pycb.tools.remove_user.main(["-a", "test@nosetests.nimbus.org"])
+        rc = pycb.tools.remove_user.main(["-a", self.user_name])
         self.assertEqual(rc, 0, "rc = %d" % (rc))
 
     def test_list_user(self):

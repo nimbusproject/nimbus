@@ -58,6 +58,12 @@ You can put the correct settings there or override them all via commandline
 (see --extrahelp).  Or use different configuration files by using the --conf
 option to specify an alternate.
 
+Note that with clouds using Nimbus 2.5 and later, there is a repository ID and
+symmetric key that you will need as well.  This is a cloud specific, consult
+your cloud documentation first.  Again if you received this tarball from the
+cloud administrator or cloud web application, you probably have the proper
+configuration file already.
+
 There is also a "conf/clouds/" directory that is used by the meta-cloud-client.
 Each file in this directory contains the settings for a single cloud and is
 identified by its filename. So the sample "conf/clouds/nimbus.properties" file
@@ -72,6 +78,7 @@ Uploading A Workspace To The Cloud
 
    a.  DHCP broadcast at boot
    b.  Partition file that is mounted to /dev/sda1
+       (NOTE: on the Teraport cloud this may need to be /dev/xvda1 instead by default)
    c.  Running SSHd so that you can login.  Your SSH key will be written
        to /root/.ssh/authorized_keys on the VM before it is booted (see
        below for how to pick which key this is).

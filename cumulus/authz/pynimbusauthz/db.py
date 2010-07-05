@@ -26,11 +26,11 @@ class DB(object):
             self.con = sqlite3.connect(con_str)
         else:
             self.con = con
+        #self.con.isolation_level = "EXCLUSIVE"
 
     def _run_no_fetch(self, s, data):
         c = self.con.cursor()
         c.execute(s, data)
-        self.con.commit()
         c.close()
 
     def _run_fetch_iterator(self, s, data, convert_func, args=None):

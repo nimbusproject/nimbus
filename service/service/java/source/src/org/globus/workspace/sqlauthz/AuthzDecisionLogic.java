@@ -90,7 +90,7 @@ public class AuthzDecisionLogic extends DecisionLogic
             }
 
             String dataKey = this.authDB.getDataKey(fileIds[1]);
-            String rc = this.getRepoScheme() + "://" + this.getRepoHost() + "/" + dataKey;
+            String rc = this.getRepoScheme() + this.getRepoHost() + "/" + dataKey;
 
             logger.debug("converted " + objectName + " to " + rc);
 
@@ -179,8 +179,6 @@ public class AuthzDecisionLogic extends DecisionLogic
     {
         boolean different_target = false;
         String unPropImageName = null;
-
-        logger.debug("BuzzTrol checkImages entered'");                
 
         for (int i = 0; i < parts.length; i++)
         {

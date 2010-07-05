@@ -254,9 +254,9 @@ class CloudProgressPrinter
         }
 
         String bar = this.makeBar(sent, total);
-        this.pr.print("\r");
-        this.pr.print(bar);
-        this.pr.flush();
+        System.out.print("\r");
+        System.out.print(bar);
+        System.out.flush();
     }
 }
 
@@ -369,7 +369,6 @@ public class CumulusTask
             } else if (debug != null) {
                 pr = debug;
             }
-            this.makeBucket(s3Service, pr, baseBucketName);
             String key = this.makeKey(vmName, null);
 
             File file = new File(localfile);

@@ -24,6 +24,7 @@ public class NodeRequest {
     private int[] ids = null;
     private String[] neededAssociations = null;
     private String groupid = null;
+    private String creatorDN = null;
 
     public NodeRequest(int memory,
                        int duration) {
@@ -42,12 +43,14 @@ public class NodeRequest {
                        int memory,
                        int duration,
                        String[] neededAssociations,
-                       String groupid) {
+                       String groupid,
+                       String creatorDN) {
         this(memory, duration);
 
         this.ids = ids;
         this.neededAssociations = neededAssociations;
         this.groupid = groupid;
+        this.creatorDN = creatorDN;
     }
 
     public int[] getIds() {
@@ -107,5 +110,13 @@ public class NodeRequest {
 
     public void setGroupid(String groupid) {
         this.groupid = groupid;
+    }
+
+    public String getCreatorDN() {
+        return this.creatorDN;
+    }
+
+    public void setCreatorDN(String creatorDN) {
+        this.creatorDN = creatorDN;
     }
 }

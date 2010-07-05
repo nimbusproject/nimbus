@@ -106,6 +106,7 @@ public class AllArgs {
     private String kernel;
     private String localfile;
     private int memory;
+    private int cores = -1;
     private String name;
     private String newname;
     private boolean noContextLock;
@@ -153,6 +154,9 @@ public class AllArgs {
 
     // set if something has already configured memory
     private boolean memoryConfigured;
+
+    // set if something has already configured cores
+    private boolean coresConfigured;
 
     // set if something has already configured propagationKeepPort
     private boolean propagationKeepPortConfigured;
@@ -646,8 +650,10 @@ public class AllArgs {
         if (this.xferS3Key == null) {
             this.xferS3Key =
                     CloudClientUtil.getProp(props, Props.KEY_S3_KEY);
+
+            // don't want keys all over the debug logs in the history directory
             this.gotProp(Props.KEY_S3_KEY,
-                         this.xferS3Key,
+                         "[REDACTED]",
                          sourceName);
         }
 
@@ -701,6 +707,25 @@ public class AllArgs {
                             ") is invalid (less than one)");
                 }
                 this.memoryConfigured = true;
+                this.gotProp(Props.KEY_MEMORY_REQ,
+                             Integer.toString(this.memory),
+                             sourceName);
+            }
+        }
+
+        if (!this.coresConfigured) {
+            final String corenum =
+                    CloudClientUtil.getProp(props, Props.KEY_CORES_REQ);
+            if (corenum != null) {
+                this.cores = Integer.parseInt(corenum);
+                if (this.cores < 1) {
+                    throw new ParameterProblem("Configured cores (" + corenum +
+                            ") is invalid (less than one)");
+                }
+                this.coresConfigured = true;
+                this.gotProp(Props.KEY_CORES_REQ,
+                             Integer.toString(this.cores),
+                             sourceName);
             }
         }
 
@@ -1091,6 +1116,14 @@ public class AllArgs {
 
     public void setMemory(int memory) {
         this.memory = memory;
+    }
+
+    public int getCores() {
+        return cores;
+    }
+
+    public void setCores(int cores) {
+        this.cores = cores;
     }
 
     public String getName() {

@@ -49,11 +49,12 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-$REPOCMD2
+$REPOCMD2 >/dev/null
 if [ $? -ne 0 ]; then
     echo "Could not create Cumulus repository."
     exit 1
 fi
+echo "Created repo admin."
 
 $REPOCMD3
 if [ $? -ne 0 ]; then
@@ -73,7 +74,7 @@ echo "        $NIMBUS_HOME/services/share/nimbus-autoconfig/autoconfig.sh"
 echo ""
 
 echo "Refer to the Administrator Guide for details:"
-echo "    http://www.nimbusproject.org/docs/"
+echo "    http://www.nimbusproject.org/docs/2.5/admin/"
 echo ""
 echo "You can start/stop Nimbus services with the nimbusctl command. e.g:"
 echo "    $NIMBUS_HOME/bin/nimbusctl start"

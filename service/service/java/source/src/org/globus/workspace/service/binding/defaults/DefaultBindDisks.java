@@ -154,12 +154,35 @@ public class DefaultBindDisks implements BindDisks {
 
         final String rootDiskScheme = uri.getScheme();
         final boolean local = "file".equals(rootDiskScheme);
+        final boolean http = "http".equals(rootDiskScheme);
 
         if (!propagationEnabled && !local) {
             final String err = "cannot propagate: supplied image '" +
                     uri.toASCIIString() + "' is not specified with " +
                     "file:// and propagation is disabled";
             throw new CreationException(err);
+        }
+
+        if (propagationEnabled && http) {
+            boolean foundHost = false;
+
+            String[] allowedHosts = this.globals.getAllowedHttpHosts();
+            for (String allowedHost : allowedHosts) {
+                //convert glob to regex
+                allowedHost = allowedHost.trim();
+                allowedHost = allowedHost.replaceAll("\\.", "\\\\\\.");
+                allowedHost = allowedHost.replaceAll("\\*", "\\.\\*");
+
+                if (uri.getHost().matches(allowedHost)) {
+                    foundHost = true;
+                }
+            }
+
+            if (!foundHost) {
+                final String err = "cannot propagate: supplied image '" +
+                    uri.toASCIIString() + "' is not in allowed.http.hosts";
+                throw new CreationException(err);
+            }
         }
 
         final VirtualMachinePartition partition = new VirtualMachinePartition();

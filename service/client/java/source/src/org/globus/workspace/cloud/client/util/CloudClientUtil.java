@@ -819,12 +819,7 @@ public class CloudClientUtil {
 
             String msg = actionTxt + " requires credential";
 
-            if (tail != null) {
-                msg += tail;
-                msg += "\nSee:\n";
-            } else {
-                msg += ", see:\n";
-            }
+            msg += ", see:\n";
             msg += "  - " + credURL + "\n";
             msg += "  - README.txt\n";
             msg += "  - ./bin/grid-proxy-init.sh";

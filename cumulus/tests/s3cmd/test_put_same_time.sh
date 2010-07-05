@@ -2,12 +2,12 @@
 
 bucket_name=CumulusTest$RANDOM
 fname=GRP$RANDOM
-src_f1=`mktemp`
-src_f2=`mktemp`
-dst_f=`mktemp`
+src_f1=`mktemp -t tmp.XXXXXXXXXX`
+src_f2=`mktemp -t tmp.XXXXXXXXXX`
+dst_f=`mktemp -t tmp.XXXXXXXXXX`
 
 # just run it a few times for races
-for i in `seq 1 4`
+for ((i=1; i <= 4; i++))
 do
     dd if=/dev/urandom of=$src_f1 count=1024 bs=1024
     dd if=/dev/urandom of=$src_f2 count=1024 bs=1024

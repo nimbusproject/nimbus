@@ -52,6 +52,7 @@ class TestListUserCli(unittest.TestCase):
         uu = str(uuid.uuid1())
         user = User(self.db, uu, create=True)
         #  add a few alias
+        self.db.commit()
         alias_a = []
         for i in range(0, 10):
             aname = str(uuid.uuid1())
@@ -59,7 +60,6 @@ class TestListUserCli(unittest.TestCase):
             rc = pynimbusauthz.add_user.main(["-a", aname, uu])
             self.assertEqual(rc, 0, "CLI should return success")
 
-        self.db.commit()
         rc = pynimbusauthz.list_user.main(["-a", "-O", self.outFileName])
         self.assertEqual(rc, 0, "CLI should return success")
         rc = self.find_out_string(uu)
@@ -71,6 +71,7 @@ class TestListUserCli(unittest.TestCase):
     def test_find_by_alias(self):
         uu = str(uuid.uuid1())
         user = User(self.db, uu, create=True)
+        self.db.commit()
         #  add a few alias
         alias_a = []
         for i in range(0, 10):
@@ -79,7 +80,6 @@ class TestListUserCli(unittest.TestCase):
             rc = pynimbusauthz.add_user.main(["-a", aname, uu])
             self.assertEqual(rc, 0, "CLI should return success")
 
-        self.db.commit()
         rc = pynimbusauthz.list_user.main(["-s", "-O", self.outFileName, alias_a[0]])
         self.assertEqual(rc, 0, "CLI should return success")
         rc = self.find_out_string(uu)

@@ -43,6 +43,7 @@ public interface Scheduler extends StateChangeInterested{
      * @param numNodes number needed
      * @param groupid group ID, can be null
      * @param coschedid co-scheduling ID, can be null
+     * @param creatorDN creator's identifying DN, can be null
      * @return reservation never null
      * @throws ResourceRequestDeniedException will not grant
      * @throws SchedulingException internal problem
@@ -53,7 +54,8 @@ public interface Scheduler extends StateChangeInterested{
                                 int numNodes,
                                 String groupid,
                                 String coschedid,
-                                boolean preemptable)
+                                boolean preemptable,
+                                String creatorDN)
                 
             throws SchedulingException,
                    ResourceRequestDeniedException;

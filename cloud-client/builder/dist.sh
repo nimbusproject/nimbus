@@ -8,8 +8,13 @@ fi
 source $THISDIR/environment.sh
 
 if [ ! -f $CLCLBUILDER_TARBALL_DEST ]; then
-  echo "Cannot find the wscore binary tarball.  Did you download it?  See README file."
-  exit 1
+    
+    if [ ! -f $CLCLBUILDER_TARBALL_DEST2 ]; then
+        echo "Cannot find the wscore binary tarball.  Did you download it?  See README file."
+        exit 1
+    else
+        CLCLBUILDER_TARBALL_DEST="$CLCLBUILDER_TARBALL_DEST2"
+    fi
 fi
 
 CHECKSUM=`md5sum $CLCLBUILDER_TARBALL_DEST`

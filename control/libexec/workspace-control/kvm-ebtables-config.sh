@@ -63,7 +63,7 @@ fi
 #############
 
 if [ $# -lt 2 ]; then
-  echo "ERROR: requires at least 2 arguments, syntax: add|rem <vifname> [<dhcpif>  <macaddr> <ipaddr>]"
+  echo "ERROR: requires at least 2 arguments, syntax: add|rem <vifname> [ <macaddr> <ipaddr> <dhcpif> ]"
   exit 1
 fi
 
@@ -78,16 +78,16 @@ if [ "$ADDREM" != "add" ] && [ "$ADDREM" != "rem" ]; then
 fi
 
 if [ "$ADDREM" = "add" ]; then
-  if [ $# -ne 5 ]; then
-    echo "ERROR: add requires 5 arguments: add <vifname> <dhcpif> <macaddr> <ipaddr>"
+  if [ $# -ne 4 ] && [ $# -ne 5 ]; then
+    echo "ERROR: add requires 4 or 5 arguments: add <vifname> <macaddr> <ipaddr> [<dhcpif>]" 
     exit 1
   else
-    DHCPIF=$3
-    echo "     dhcpif (ignored): $DHCPIF"
-    MACADDR=$4
+    MACADDR=$3
     echo "     macaddr: $MACADDR"
-    IPADDR=$5
+    IPADDR=$4
     echo "      ipaddr: $IPADDR"
+    DHCPIF=$5
+    echo "     dhcpif (ignored): $DHCPIF"
   fi
 fi
 
