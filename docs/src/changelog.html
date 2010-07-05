@@ -26,7 +26,10 @@ _NIMBUS_2_5_DEPRECATED
             <i>We are happy to announce the first version of Cumulus!</i>
         </p>
         <p>
-            Cumulus is storage cloud implementation: it allows remote users to store objects on a storage cloud.  Cumulus is compatible with the Amazon Web Services S3 REST API (with small exceptions) and it works seamlessy with clients such as s3cmd and boto. In addition, it also offers extra functionality, specifically  disk quota enforcement.  Cumulus replaces the current GridFTP-based upload and download of VM images: it integrates tightly in a Nimbus installation as the VM image repository solution. It can be also installed on its own to manage a storage cloud.
+            Cumulus is a storage software for clouds.  It is compatible with the Amazon Web Services S3 REST API (with small exceptions) and it works seamlessy with S3 clients such as s3cmd and boto. In addition, it offers extra functionality, specifically disk quota enforcement. 
+        </p>
+        <p>
+            Cumulus replaces the current GridFTP-based upload and download of VM images: it integrates tightly in a Nimbus installation as the VM image repository solution.  And it can be also installed on its own to manage a storage cloud: a Nimbus IaaS installation needs Cumulus but not vice versa.
         </p>
         <p>
             Read more below in the Cumulus section of the changelog.
@@ -41,12 +44,15 @@ _NIMBUS_2_5_DEPRECATED
             Besides being the first Cumulus release, the other major event of 2.5 is the first release of the "Zero To Cloud" installation process.
         </p>
         <p>
-            Many of the changes in this release work together with the goal of providing a seamless installation process.  Read more below about each new feature, highlights include:
+            Many of the new programs and enhancements in this release work together with the goal of providing a seamless installation process.  Read more in the changelog below about each new feature, highlights include:
         </p>
         <ul>
             <li>
                 <p>
-                A new user management system: users can be added and managed quickly.  Their credentials are created on the fly (not necessary).
+                A new user management system: users can be added and managed quickly.  Their credentials are created on the fly (but there is still an alternative path for coexistence with your own credential system).
+                </p>
+                <p>
+                All of the new user management tools include a machine parsable mode that makes them easy to incorporate into your own scripts.
                 </p>
             </li>
             <li>
@@ -56,37 +62,23 @@ _NIMBUS_2_5_DEPRECATED
             </li>
             <li>
                 <p>
-                Tight integration between the user management tools and the web application.  This allows administrators to add a user and quickly receive the secure URL to ask the user to visit to pick up his credentials and cloud.properties file.  
+                Tight integration between the user management tools and the web application.  This allows administrators to add a user and instantly receive the secure URL that the new user will visit to pick up his credentials and cloud.properties file.
                 </p>
             </li>
             <li>
                 <p>
-                No unix account separation or root needed for Cumulus -- installation is easier because the IaaS central services and Cumulus can live in the same, non-root unix account.
+                No unix account separation or root account needed for Cumulus -- installation is easier because the IaaS central services and Cumulus can live in the same, non-root unix account.
                 </p>
             </li>
             <li>
                 <p>
-                The IaaS service is able to consult information in a database about files the remote user wants to launch.  When the "outside" namespace of the file is Cumulus based, there is a translation to an "inside" path.  This mechanism is now used to encapsulate propagation mechanisms, allowing for an easy way to introduce new propagation methods. 
+                The IaaS services are able to consult information in a database about files the remote user wants to launch.  When the "outside" namespace of the file is Cumulus based, there is a translation to an "inside" location and mechanism.  This technique is now used to encapsulate propagation mechanisms, allowing for an easy way to introduce new propagation methods. 
                 </p>
             </li>
         </ul>
         
         <p>
-            All of this combined to allow us to, among other things, provide a new installation process for Nimbus.  You can now tend to the central service node installation separately and very quickly.  Further, you install in a "fake" mode that doesn't actually invoke hypervisor machines yet.  Doing all of this allows you to know that the central services are configured and working (including security).
-        </p>
-    </li>
-    <li>
-        <p>
-            <i>New scheduling options</i>
-        </p>
-        <p>
-            The VMM selection process can now be driven by configuration:
-        </p>
-        <p>
-            1. A <i>round-robin</i> configuration that looks for matching nodes (enough space to run, appropriate network support, etc.) with the highest percentage of free space.  If there are many equally free nodes it will pick randomly from those.  As should be clear, this favors entirely empty nodes first.
-        </p>
-        <p>
-            2. A <i>greedy</i> configuration that looks for matching nodes (enough space to run, appropriate network support, etc.) with the lowest percentage of free space.  If there are  many "equally unfree" nodes, it will pick randomly from those.
+            All of this combined to allow us to, among other things, provide a new installation process for Nimbus.  You can now tend to the central service node installation separately and very quickly.  Further, you install in a "fake" mode that doesn't actually invoke hypervisor machines yet.  Doing all of this allows you to know that the central services are configured and working (including security), leaving VMM related matters to be tackled separately.
         </p>
     </li>
     <li>
@@ -94,13 +86,26 @@ _NIMBUS_2_5_DEPRECATED
             <i>Integration with a central, site DHCPd</i>
         </p>
         <p>
-            Instead of hosting a private DHPCd for each VMM, Nimbus now supports (by default) editing a lease file for a central DHCPd on the LAN. 
+            Instead of hosting a private DHPCd for each VMM, Nimbus now supports (by default) editing a lease file for a central DHCPd on the LAN. This makes it easier to install and integrate with existing infrastructure.  The old method is supported as an advanced configuration.  Details below in the IaaS Services section.
+        </p>
+    </li>
+    <li>
+        <p>
+            <i>New scheduling options</i>
         </p>
         <p>
-            This makes it easier for many to integrate with existing infrastructure.  You will configure the DHCP server to respond to specific MAC addresses with specific IP addresses.  Each time you change your network pool in Nimbus, you must update the DHCPd at the same time with the new information.
+            When using the default scheduler, the VMM selection process is now more configurable:
         </p>
         <p>
-            The old way is still supported as an advanced configuration.
+            There is a <i>round-robin</i> configuration that looks for available nodes with the highest percentage of free RAM.  And a <i>greedy</i> configuration that looks for available nodes with the lowest percentage of free RAM.  Details below.
+        </p>
+    </li>
+    <li>
+        <p>
+            <i>New options for pilot based scheduling</i>
+        </p>
+        <p>
+            The pilot module now sends more information to the local resource manager (such as Torque).  This is for accounting and potentially authorization purposes, you can now more easily track remote users and more information about the launch via the resource manager itself.
         </p>
     </li>
     <li>
@@ -108,7 +113,7 @@ _NIMBUS_2_5_DEPRECATED
             <i>New alternative propagation methods</i>
         </p>
         <p>
-            There are two new contributed propagation drivers for getting VM images to the hypervisor nodes: HTTP and HDFS.  These are for use outside of the cloud client currently, you need to configure Nimbus to allow for non-Cumulus-based image locations.
+            There are two new contributed propagation drivers for getting VM images to the hypervisor nodes: HTTP and HDFS.  These are for use outside of the cloud client currently, and you need to configure Nimbus to allow for non-Cumulus-based image locations.
         </p>
         <p>
             These are for use on sites where the remote user knows more about image locations than the Cumulus name for it.  The HTTP driver is also good for having a central image repository (you can specify trusted hosts to pull from).
@@ -119,7 +124,7 @@ _NIMBUS_2_5_DEPRECATED
             <i>Better performing blankspace: physical partition leases</i>
         </p>
         <p>
-            In order to support  very large temporary space partitions for VMs, and fast access to them,  allow the administrator to configure a list of physical partitions to lease out to incoming Nimbus VMs on each node (formatted for each use).
+            In order to support very large temporary space partitions for VMs, and fast access to them, Nimbus now allows you to configure a list of physical partitions to lease out to incoming Nimbus VMs on each node (formatted for each use).
         </p>
     </li>
     
@@ -128,7 +133,7 @@ _NIMBUS_2_5_DEPRECATED
             <i>Support for user-requested number of cores</i>
         </p>
         <p>
-            This contributed feature allows remote users to specify the number of cores the VM(s) should have.  The authorization policies now support this as well, allowing administrators to specify the maximum allowed for each user/group.
+            Nimbus now allows remote users to specify the number of cores the VM(s) should have.  The authorization policies now support this as well, allowing administrators to specify the maximum allowed for each user/group.
         </p>
     </li>
     <li>
@@ -164,7 +169,12 @@ _NIMBUS_2_5_DEPRECATED
             <i>Zero To Cloud Guide</i>
         </p>
         <p>
-            An administrator can now follow <a href="admin/z2c/index.html">one installation document</a> step by step and achieve a setup that works for the cloud-client program.
+            You can now follow <a href="admin/z2c/index.html">one installation document</a> step by step and achieve a setup that works for the cloud-client program.
+        </p>
+    </li>
+    <li>
+        <p>
+            Now installs and configures Cumulus.
         </p>
     </li>
     <li>
@@ -179,7 +189,7 @@ _NIMBUS_2_5_DEPRECATED
         <ul>
             <li>
                 <p>
-                    <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7020">Bug 7020 - installer has scary warnings  that don't have an effect</a> (boo!)
+                    <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7020">Bug 7020 - installer has scary warnings  that don't have an effect</a> (boo)
                 </p>
             </li>
             <li>
@@ -208,7 +218,7 @@ _NIMBUS_2_5_DEPRECATED
             <i>A new user management system</i>
         </p>
         <p>
-            The tight integration with Cumulus and a new authorization database have resulted in a way to create a cohesive "user system" for Nimbus clouds that allows the administrator to quickly add, delete, and edit user.  In $NIMBUS_HOME/bin, you will find several new programs, including:
+            The tight integration with Cumulus and a new authorization database have resulted in a way to create a cohesive "user system" for Nimbus clouds that allows the administrator to quickly add, delete, and edit users.  In $NIMBUS_HOME/bin, you will find several new programs, including:
         </p>
         <ul>
             <li>nimbus-new-user</li>
@@ -220,10 +230,10 @@ _NIMBUS_2_5_DEPRECATED
             Each of these commands work well from the terminal but also include options to make it easy to do a wide array of tasks from scripts.
         </p>
         <p>
-            In the case of the EC2 Query protocol, the credentials are no longer checked against a text file full of keys, they now integrate with this database.
+            In the case of the EC2 Query protocol, the credentials are no longer checked against a text file full of keys, they now integrate with these tools, it is all database driven.
         </p>
         <p>
-            In order to continue supporting X509 certificates, a map file is still populated with certificate names ("DN"s), but these new commandline utilities should be the thing editing those files in order to keep them in sync.
+            In order to continue supporting X509 certificates, a map file is still populated with certificate names ("DN"s), but these new commandline utilities should be the thing editing those files in order to keep them in sync.  You should use these tools for all user management now.
         </p>
     </li>
     <li>
@@ -246,6 +256,12 @@ _NIMBUS_2_5_DEPRECATED
         </p>
         <p>
             The web application contains an update to allow it to integrate with the nimbus-new-user program as well as distribute the personalized cloud.properties file that nimbus-new-user can produce.
+        </p>
+        <p>
+            Once you configure the web application (it is not enabled by default), nimbus-new-user can automatically set up a pickup URL for new users.  This is a short-lived, obscure URL that you can share with new users to pickup their new credentials (this can be for either X509 or query tokens or both).
+        </p>
+        <p>
+            Because the nimbus-new-user tool can be put into a machine parsable mode, the URL can be incorporated programmatically into a script you write to send a welcome email.
         </p>
     </li>
     <li>
@@ -283,13 +299,13 @@ _NIMBUS_2_5_DEPRECATED
             <i>New scheduling options</i>
         </p>
         <p>
-            The VMM selection can now happen in one of two ways, driven by configuration:
+            When using the default scheduler, the VMM selection can now happen in one of two ways, driven by configuration:
         </p>
         <p>
-            1. A <i>round-robin</i> configuration in resource-locator-ACTIVE.xml (this is the default  mode).  This looks for matching nodes (enough space to run, appropriate  network support, etc.) with the highest percentage of free space.  If  there are many equally free nodes it will pick randomly from those.  As  should be clear, this favors entirely empty nodes first.
+            1. A <i>round-robin</i> configuration in resource-locator-ACTIVE.xml (this is the default  mode).  This looks for matching nodes (enough space to run, appropriate  network support, etc.) with the highest percentage of free RAM.  If  there are many equally free nodes it will pick randomly from those.  As  should be clear, this favors entirely empty nodes first.
         </p>
         <p>
-            2. A <i>greedy</i> configuration in resource-locator-ACTIVE.xml.  This looks for matching  nodes (enough space to run, appropriate network support, etc.) with the  lowest percentage of free space.  If there are many equally unfree nodes  it will pick randomly from those.
+            2. A <i>greedy</i> configuration in resource-locator-ACTIVE.xml.  This looks for matching  nodes (enough space to run, appropriate network support, etc.) with the lowest percentage of free RAM.  If there are many equally unfree nodes it will pick randomly from those.
         </p>
         <p>
             See: <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7012">Enhancement 7012 - Better round-robin scheduling of multiple VMs per node</a> 
@@ -297,16 +313,33 @@ _NIMBUS_2_5_DEPRECATED
     </li>
     <li>
         <p>
+            <i>New options for pilot based scheduling</i>
+        </p>
+        <p>
+            The pilot module now sends more information to the local resource manager (such as Torque).  This is for accounting and potentially authorization purposes, you can now more easily track remote users and more information about the launch via the resource manager itself.
+        </p>
+        <p>
+            Extra launch information: the pilot module sends the memory request for the VMs, administrators can use this information for accounting purposes.
+        </p>
+        <p>
+            Extra account information: the pilot module adds "-A /remote/user/dn" to the submission which allows administrators to use this information for accounting purposes.  The "-A" flag is part of the PBS standard and it is up to the implementation/configuration to ignore the information or do something with it such as accounting.
+        </p>
+        <p>
+            <b>Contributed by Patrick Armstrong, University of  Victoria</b>
+        </p>
+    </li>
+    <li>
+        <p>
             <i>Integration with site DHCPd</i>
         </p>
         <p>
-            Instead of hosting a private DHPCd for each VMM, Nimbus now supports (by default) editing a lease file for a central DHCPd on the LAN. 
+            Instead of hosting a private DHPCd for each VMM, Nimbus now supports (by default) editing a lease file for a central DHCPd on the LAN. This makes it easier for many administrators to integrate with existing infrastructure (and in most cases speeds up the installation).
+        </p>
+        <p> 
+            You will configure the DHCP server to respond to specific MAC addresses with specific IP addresses.  Each time you change your network pool in Nimbus, you must update the DHCPd at the same time with the new information.
         </p>
         <p>
-            This makes it easier for many to integrate with existing infrastructure.  You will configure the DHCP server to respond to specific MAC addresses with specific IP addresses.  Each time you change your network pool in Nimbus, you must update the DHCPd at the same time with the new information.
-        </p>
-        <p>
-            The old way is still supported as an advanced configuration.
+            The old method of having a DHCPd run on each VMM is still supported as an advanced configuration.
         </p>
         <p>
             See: <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7066">Enhancement 7066 - Allow  VMs to use site DHCP server</a>
@@ -327,20 +360,6 @@ _NIMBUS_2_5_DEPRECATED
         </p>
         <p>
             The testing framework also includes enhancements to use Spring <i>@DirtiesContext</i> <b>contributed by Paulo Ricardo Motta Gomes, Google Summer of Code</b>.
-        </p>
-    </li>
-    <li>
-        <p>
-            <i>New options for pilot based scheduling</i>
-        </p>
-        <p>
-            The pilot module now sends memory requested through to the batch system (Torque), rather than ignoring it. Administrators need this information to be accurate for accounting purposes.
-        </p>
-        <p>
-            The pilot module now sends extra account information through to the batch system. This effectively adds "-A /remote/user/dn" to the submission. Administrators want this information for accounting purposes.  The "-A" flag is part of the PBS standard and it is up to the implementation/configuration to ignore the information or do something with it such as accounting.
-        </p>
-        <p>
-            <b>Contributed by Patrick Armstrong, University of  Victoria</b>
         </p>
     </li>
 
@@ -372,9 +391,7 @@ _NIMBUS_2_5_DEPRECATED
             <li>
                 <p>
                     <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7015">Bug 7015 - Confusing error message: No resource pool has an applicable entry</a>
-                </p>
-                <p>
-                    <b>Contributed by Paulo Ricardo Motta Gomes, Google Summer of Code</b>
+                    <br><b>Contributed by Paulo Ricardo Motta Gomes, Google Summer of Code</b>
                 </p>
             </li>
             <li>
@@ -385,9 +402,7 @@ _NIMBUS_2_5_DEPRECATED
             <li>
                 <p>
                     <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7019">Bug 7019 - jars missing from lib/services</a>
-                </p>
-                <p>
-                    <b>Contributed by Paulo Ricardo Motta Gomes, Google Summer of Code</b>
+                    <br><b>Contributed by Paulo Ricardo Motta Gomes, Google Summer of Code</b>
                 </p>
             </li>
             <li>
