@@ -103,6 +103,7 @@ The search path for cumulus.ini is:
         self.https_key = None
         self.https_cert = None
         self.use_https = False
+        self.block_size = 1024*512
 
     def get_contact(self):
         return (self.hostname, self.port)
@@ -148,6 +149,7 @@ The search path for cumulus.ini is:
                 if backend == "posix":
                     posix_dir = s.get("backend", "data_dir")
                     self.bucket = cbPosixBackend(posix_dir)
+                    block_size = s.get("backend", "block_size")
             except:
                 pass
 
