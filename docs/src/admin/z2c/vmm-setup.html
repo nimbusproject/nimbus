@@ -459,10 +459,10 @@ root # usermod -a -G root nimbus
 <p>
   Make the Xen domain socket available to the root group:
 </p>
-<p>
+<div class="panel"><pre>
 root # chown :root /var/lib/xend/xend-socket
 root # chmod g+rwx /var/lib/xend/xend-socket
-</p>
+</pre></div>
 
 <p>
   Try again:
