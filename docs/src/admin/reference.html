@@ -522,7 +522,7 @@ Running: 'vm-023'
             file</a> changed to reflect the correct URLs and identities.
         </p>
         <p>
-            It is best to distribute a unique cloud.properties for each user with the Cumulus credentials in the file already, this is easily set up when using the nimbus-new-user program and the Nimbus web application.  See the <a href="TODO">user management</a> section for details.
+            It is best to distribute a unique cloud.properties for each user with the Cumulus credentials in the file already, this is easily set up when using the nimbus-new-user program and the Nimbus web application.  See the <a href="#user-management">user management</a> section for details.
         </p>
     </li>
     <li>
@@ -704,7 +704,6 @@ vws.depreq.fileName=deprequest.xml
     have been created.
 </p>
 
-<div class="screen">
 <UL>
     <LI>nimbus-new-user</LI>
     <LI>nimbus-list-users</LI>
@@ -730,6 +729,7 @@ can be found there.  For didactic purposes an example of a common session in whi
 new user is created, changes, listed and removed follows:
 </p>
 
+<div class="screen">
 <pre>
 $ ./bin/nimbus-new-user user1@nimbus.test
 cert            : /home/bresnaha/NIM/var/ca/tmpm3s0Vccert/usercert.pem
@@ -743,7 +743,8 @@ web id          : None
 cloud properties : /home/bresnaha/NIM/var/ca/tmpm3s0Vccert/cloud.properties
 $
 
-$ ./bin/nimbus-edit-user -p NewPassWord user1@nimbus.testdn              : /O=Auto/OU=a645a24d-6183-4bbd-9537-b7260749c716/CN=user1@nimbus.test
+$ ./bin/nimbus-edit-user -p NewPassWord user1@nimbus.test
+dn              : /O=Auto/OU=a645a24d-6183-4bbd-9537-b7260749c716/CN=user1@nimbus.test
 canonical id    : aa55655a-8552-11df-a58d-001de0a80259
 access id       : p3BR1WQTpio8JShc8YD7S
 access secret   : NewPassWord
@@ -759,8 +760,6 @@ $
 
 $ ./bin/nimbus-remove-user user1@nimbus.test
 $
-
-
 </pre>
 </div>
 
@@ -916,7 +915,7 @@ and compares its result with the one included in the request.
 <!-- mention any safeguards against replay attacks? -->
 
 <p>
-    There is support for creating query credentials in the nimbus-new-user program, for more information see the <a href="TODO">user management</a> section.
+    There is support for creating query credentials in the nimbus-new-user program, for more information see the <a href="#user-management">user management</a> section.
 </p>
 
 <p>
@@ -987,7 +986,7 @@ hostname = &lt;hostname&gt;
 </p>
 
 <p>
-    Once the web application has been configured, you can start to use it with the nimbus-new-user program (see the help output), see the <a href="TODO">user management</a> section.
+    Once the web application has been configured, you can start to use it with the nimbus-new-user program (see the help output), see the <a href="#user-management">user management</a> section.
 </p>
 
 <!-- *********************************************************************** -->
@@ -1008,7 +1007,7 @@ hostname = &lt;hostname&gt;
     Previously this was a tedious process that was difficult to do in a secure way that was also user friendly. Nimbus Web allows an admin to upload credentials for a user and then send them a custom URL which invites them to create an account.
 </p>
 <p>
-    Once the web application has been configured, you can start to use it with the nimbus-new-user program (see the help output, -W flag), which allows you to very quickly add a user to the system and get the URL to distribute in your welcome email.  The <a href="TODO">user management</a> tools provide machine parsable output options that make it easy to incorporate into scripts as well (perhaps you would like to go further and create those emails entirely programmatically).
+    Once the web application has been configured, you can start to use it with the nimbus-new-user program (see the help output, -W flag), which allows you to very quickly add a user to the system and get the URL to distribute in your welcome email.  The <a href="#user-management">user management</a> tools provide machine parsable output options that make it easy to incorporate into scripts as well (perhaps you would like to go further and create those emails entirely programmatically).
 </p>
 <p>
     To get started, log into the web interface as a superuser and go to the
