@@ -234,7 +234,7 @@ public class AuthzDecisionLogic extends DecisionLogic
         String                          userId,
         boolean                         write,
         long                            expectedSize)
-            throws AuthorizationException, WorkspaceDatabaseException
+            throws AuthorizationException, ResourceRequestDeniedException, WorkspaceDatabaseException
     {
         int    fileId;
         String [] urlParts = this.parseUrl(url);
@@ -263,7 +263,7 @@ public class AuthzDecisionLogic extends DecisionLogic
 
                 if(fileIds[0] < 0)
                 {
-                    throw new AuthorizationException("The bucket name " + bucketName + " was not found.");
+                    throw new ResourceRequestDeniedException("The bucket name " + bucketName + " was not found.");
                 }
                 String perms = "";
                 if(fileIds[1] < 0 && write)
@@ -275,13 +275,13 @@ public class AuthzDecisionLogic extends DecisionLogic
                 perms = authDB.getPermissions(fileIds[1], canUser);
                 if(fileIds[1] < 0)
                 {
-                    throw new AuthorizationException("the object " + objectName + " was not found.");
+                    throw new ResourceRequestDeniedException("the object " + objectName + " was not found.");
                 }
                 
                 int ndx = perms.indexOf('r');
                 if(ndx < 0)
                 {
-                    throw new AuthorizationException("user " + userId + " canonical ID " + canUser + " does not have read access to " + url);
+                    throw new ResourceRequestDeniedException("user " + userId + " canonical ID " + canUser + " does not have read access to " + url);
                 }
                 long size = authDB.getFileSize(fileIds[1]);
                 if(write)
@@ -289,7 +289,7 @@ public class AuthzDecisionLogic extends DecisionLogic
                     ndx = perms.indexOf('w');
                     if(ndx < 0)
                     {
-                        throw new AuthorizationException("user " + userId + " does not have write access to " + url);
+                        throw new ResourceRequestDeniedException("user " + userId + " does not have write access to " + url);
                     }
 
                     // expected size is only zero when replacing the original file.  in this case we assume it will
@@ -302,7 +302,7 @@ public class AuthzDecisionLogic extends DecisionLogic
                         boolean quota = authDB.canStore(canFitSize, canUser, schemeType);
                         if(!quota)
                         {
-                            throw new AuthorizationException("You do not have enough storage space for the new image.  Please free up some storage and try again");
+                            throw new ResourceRequestDeniedException("You do not have enough storage space for the new image.  Please free up some storage and try again");
                         }
                     }
                 }
@@ -321,7 +321,7 @@ public class AuthzDecisionLogic extends DecisionLogic
         }
         else
         {
-            throw new AuthorizationException("scheme of: " + scheme + " is not supported.");
+            throw new ResourceRequestDeniedException("scheme of: " + scheme + " is not supported.");
         }
     }
 
