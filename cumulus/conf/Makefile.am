@@ -36,5 +36,6 @@ install: predest
 	cp -r $(cumulus_src_dir)/etc $(cumulus_dst_dir)
 	cp -r $(cumulus_src_dir)/etc/env.sh $(cumulus_dst_dir)
 	$(SQLITE) $(AUTHZDB) < $(cumulus_src_dir)/etc/acl.sql
+	chmod 600 $(AUTHZDB)
 	echo "done"
 
