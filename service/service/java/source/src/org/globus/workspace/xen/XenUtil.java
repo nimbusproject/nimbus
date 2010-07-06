@@ -254,7 +254,7 @@ public class XenUtil implements WorkspaceConstants {
     }
 
 
-    private static String convertToAlreadyPropigated(String name)
+    private static String convertToAlreadyPropagated(String name)
             throws WorkspaceException {
 
         String img = name;
@@ -265,7 +265,7 @@ public class XenUtil implements WorkspaceConstants {
 
         if(ndx > 0)
         {
-            img = img.substring(ndx);
+            img = img.substring(ndx+1);
         }
         return "file://" + img;
     }
@@ -367,7 +367,6 @@ public class XenUtil implements WorkspaceConstants {
         if (rootdisk != null) {
             
             String rootImageURI = rootdisk.getImage();
-            convertToAlreadyPropigated(rootImageURI);
 
             // We know that if Propagate was required and notificationInfo
             // is null that this is a create command following a successful
@@ -378,24 +377,7 @@ public class XenUtil implements WorkspaceConstants {
             // secureimage directory to be consulted first
 
             if (vm.isPropagateRequired() && notificationInfo == null) {
-                // search in reverse for last / character
-                char[] imageChars = rootImageURI.toCharArray();
-                int i;
-                for (i = imageChars.length-1; i >= 0; i--) {
-                    if (imageChars[i] == '/') {
-                        break;
-                    }
-                }
-
-                if (i == 0) {
-                    throw new WorkspaceException("image URL had no scheme, en?");
-                }
-
-                if (i == imageChars.length-1) {
-                    throw new WorkspaceException("image URL ended in '/' ??");
-                }
-
-                final String newURI = "file://" + rootImageURI.substring(i+1);
+                final String newURI = convertToAlreadyPropagated(rootImageURI);
 
                 logger.debug("turned '" + rootImageURI + "' into '" +
                             newURI + "' because file was already propagated");
