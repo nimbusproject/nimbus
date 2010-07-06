@@ -138,6 +138,9 @@ _NIMBUS_2_5_DEPRECATED
             <li>
                 <a href="#cumulus-quotas">Disk Usage Quota</a>
             </li>
+            <li>
+                <a href="#cumulusnimbusconfig">Configuring Cumulus Options in Nimbus</a>
+            </li>
         </ul>
     </li>
 
@@ -1912,6 +1915,37 @@ quota           : 100
 canonical id    : 21161ebe-862a-11df-a9ca-001de0a80259
 </pre>
 
+<a name="cumulusnimbusconfig"> </a>
+<h3>Configuring Cumulus Options in Nimbus _NAMELINK(cumulusnimbusconfig)</h3>
+
+<p>
+
+There are a few variables that Nimbus relies on to find information 
+about its co-located Cumulus server.  These variables are found in
+the file: 
+<tt class="literal">./services/etc/nimbus/workspace-service/cumulus.conf</tt>.
+They are normally written automatically by the nimbus-configure program 
+but if an administrator makes some manual changes to their Nimbus installation
+some of these variables may been to be changed as well.
+
+<ul>
+    <li><tt class="literal">cumulus.authz.db</tt></li>
+    The cumulus authz database.  By default it is an sqlite database and
+    is located at $NIMBUS_HOME/cumulus/etc/authz.db
+
+    <li><tt class="literal">cumulus.repo.dir</tt></li>
+    The location of the cumulus posix backend file repository.  By default
+    this is $NIMBUS_HOME/cumulus/posixdata.  Quite often users will want
+    to change this to a more favorable location.  Likely one with more
+    disk space or faster disks.
+
+    <li><tt class="literal">cumulus.repo.bucket</tt></li>
+    The cumulus bucket in which all cloud client images are stored.
+
+    <li><tt class="literal">cumulus.repo.prefix</tt></li>
+    The prefix iwith which all image names are prepended.
+
+</ul>
 
 <br />
 <br />
