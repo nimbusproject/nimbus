@@ -30,7 +30,6 @@ import org.apache.commons.logging.LogFactory;
 import org.globus.workspace.Lager;
 import org.globus.workspace.ProgrammingError;
 import org.globus.workspace.persistence.PersistenceAdapter;
-import org.globus.workspace.persistence.WorkspaceDatabaseException;
 import org.globus.workspace.scheduler.Reservation;
 import org.globus.workspace.scheduler.Scheduler;
 import org.globus.workspace.service.InstanceResource;

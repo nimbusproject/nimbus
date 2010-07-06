@@ -296,9 +296,9 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
      * 
      * If 6 machines needs to be pre-empted, the pre-emptions will be:
      * 
-     * Req A: 2 pre-emptions (33.33%)
-     * Req B: 1 pre-emption (11.11%)
-     * Req C: 3 pre-emptions (55.55%)
+     * Req A: 2 pre-emptions (~33.33%)
+     * Req B: 1 pre-emption (~11.11%)
+     * Req C: 3 pre-emptions (~55.55%)
      * 
      * @param activeRequests ACTIVE requests with bid equal to the current spot price
      * @param needToPreempt the number of VMs that needs to be pre-empted
@@ -385,22 +385,13 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
     }    
 
     protected void preempt(SIRequest siRequest, int quantity) { 
-        
-        boolean destroyGroup = false;
-        
+                
         if(siRequest.getAllocatedInstances() == quantity){
-            if(siRequest.getStatus().isCancelled() || siRequest.getStatus().isFailed()){
-                destroyGroup = true;
-            } else if(!siRequest.isPersistent() && (!siRequest.needsMoreInstances() || currentPrice > siRequest.getMaxBid())){
-                destroyGroup = true;
-                changeStatus(siRequest, SIRequestStatus.CLOSED);
-            } else {
-                changeStatus(siRequest, SIRequestStatus.OPEN);
-            }
+            allVMsFinished(siRequest);
         }
         
         try{
-            if(destroyGroup && siRequest.getRequestedInstances() > 1){
+            if(siRequest.getRequestedInstances() > 1 && !siRequest.getStatus().isAlive()){
                 if (this.lager.eventLog) {
                     logger.info(Lager.ev(-1) + "[Spot Instances] All VMs from SI request '" + siRequest.getId() + "' will be destroyed. Destroying group: " + siRequest.getGroupID());
                 }
@@ -431,6 +422,14 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
         }
     }
 
+    private void allVMsFinished(SIRequest siRequest){
+        if(!siRequest.isPersistent() && (!siRequest.needsMoreInstances() || currentPrice > siRequest.getMaxBid())){
+            changeStatus(siRequest, SIRequestStatus.CLOSED);
+        } else {
+            changeStatus(siRequest, SIRequestStatus.OPEN);
+        }
+    }
+    
     private void failRequest(String action, SIRequest siRequest, String errorStr, Throwable problem) {
         logger.warn(Lager.ev(-1) + "[Spot Instances] Error while " + action + " VMs for request: " +
                 siRequest.getId() + ". Setting state to FAILED. Problem: " +
@@ -558,10 +557,13 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
             SIRequest siRequest = this.getSIRequest(vmid);
             if(siRequest != null){
                 if (this.lager.eventLog) {
-                    logger.info(Lager.ev(-1) + "[Spot Instances] VM '" + vmid + "' from request '" + siRequest.getId() + "' finished. Changing price and reallocating requests.");
+                    logger.info(Lager.ev(-1) + "[Spot Instances] VM '" + vmid + "' from request '" + siRequest.getId() + "' finished.");
                 }
 
                 if(!siRequest.finishVM(vmid)){
+                    if(siRequest.getAllocatedInstances().equals(0)){
+                        allVMsFinished(siRequest);
+                    }
                     //Will just change price and reallocate requests
                     //if this was not a pre-emption
                     this.changePriceAndReallocateRequests();
