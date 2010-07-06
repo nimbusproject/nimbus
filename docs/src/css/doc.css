@@ -16,8 +16,8 @@
 
 .panel
 {
-    background-color:#EEEEEE;
-    border:thin solid black;
+    background-color:#f8f8ff;
+    border:thin solid #dedede;
     font-family:monospace;
     font-size:0.9em;
     margin-bottom:1.1em;
@@ -28,14 +28,18 @@
 
 .note
 {
-    border:thin solid #999999;
+    border:thin solid #dedede;
     padding-top: 0.8em;
     padding-right: 1em;
     padding-bottom: 0.8em;
-    padding-left: 1em;
+    padding-left: 58px;
     margin-top: 2em;
     margin-bottom: 2em;
-    background-color: #e1e9f8;
+     
+    background-image: url("../clouds/img/note.png");
+    background-repeat: no-repeat;
+    background-attachment: scroll;
+    background-position: 5px 5px;
 }
 p.note-title
 {
