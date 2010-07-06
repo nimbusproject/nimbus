@@ -16,54 +16,27 @@
 
 package org.globus.workspace.cloud.client.util;
 
-import org.globus.ftp.GridFTPClient;
-import org.globus.ftp.Session;
-import org.globus.ftp.MlsxEntry;
-import org.globus.ftp.exception.ServerException;
-import org.globus.util.GlobusURL;
-import org.globus.gsi.gssapi.auth.HostAuthorization;
-import org.globus.gsi.gssapi.auth.IdentityAuthorization;
-import org.globus.gsi.gssapi.auth.Authorization;
-import org.globus.workspace.client_core.ExecutionProblem;
-import org.globus.workspace.cloud.client.tasks.CopyTask;
-import org.globus.workspace.cloud.client.tasks.CopyWatchTask;
-import org.globus.io.urlcopy.UrlCopy;
-
-import java.io.PrintStream;
-import java.io.IOException;
-import java.util.Vector;
-import java.util.Date;
-import java.util.ArrayList;
-import java.io.File;
-import java.io.InputStream;
-import java.io.FileOutputStream;
-import java.util.Calendar;
-
-import edu.emory.mathcs.backport.java.util.concurrent.FutureTask;
-import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
-import edu.emory.mathcs.backport.java.util.concurrent.ExecutionException;
-import edu.emory.mathcs.backport.java.util.concurrent.TimeoutException;
-import edu.emory.mathcs.backport.java.util.concurrent.ExecutorService;
-import org.globus.workspace.client_core.ParameterProblem;
-
-import org.globus.workspace.common.SecurityUtil;
-import org.globus.workspace.cloud.client.AllArgs;
-import org.globus.workspace.cloud.client.Opts;
-import org.globus.workspace.client_core.ExecutionProblem;
-import org.globus.workspace.common.print.Print;
-import edu.emory.mathcs.backport.java.util.concurrent.ExecutorService;
-
-import org.jets3t.service.*;
-import org.jets3t.service.security.*;
-import org.jets3t.service.model.*;
-import org.jets3t.service.impl.rest.httpclient.RestS3Service;
-import org.jets3t.service.model.S3Object;
-import org.jets3t.service.S3ServiceException;
-
 import edu.emory.mathcs.backport.java.util.concurrent.Callable;
-import org.jets3t.service.utils.ObjectUtils;
+import org.globus.workspace.client_core.ExecutionProblem;
+import org.globus.workspace.cloud.client.AllArgs;
+import org.globus.workspace.common.print.Print;
+import org.jets3t.service.Jets3tProperties;
+import org.jets3t.service.S3Service;
+import org.jets3t.service.S3ServiceException;
+import org.jets3t.service.impl.rest.httpclient.RestS3Service;
 import org.jets3t.service.io.BytesProgressWatcher;
-import org.jets3t.service.utils.Mimetypes;;
+import org.jets3t.service.model.S3Object;
+import org.jets3t.service.security.AWSCredentials;
+import org.jets3t.service.utils.Mimetypes;
+import org.jets3t.service.utils.ObjectUtils;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 class CumulusInputStream
     extends InputStream
