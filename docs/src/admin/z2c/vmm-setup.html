@@ -24,10 +24,7 @@ _NIMBUS_2_5_DEPRECATED
 
 <h3>Dependencies</h3>
 <p>
-    Before automating a VMM node with Nimbus software, it needs to be a VMM node and that means installing other software.
-</p>
-<p>
-    The first thing we need to do is make sure that all the virtualization and networking dependencies are present.
+    Before automating a VMM node with Nimbus software, it needs to <b>be</b> a VMM node.  So the first thing we need to do is make sure that all the virtualization and networking dependencies are present.
 </p>
 <p>
     The workspace service currently manages <a href="http://www.xen.org">Xen</a>
@@ -39,7 +36,9 @@ _NIMBUS_2_5_DEPRECATED
     This guide currently assumes you want to install with Xen.  There are some setup differences using KVM, and these will be enumerated in the near future.
 </p>
 <div class="note">
-    You need to get a basic VM running with <b>bridged networking</b>.  Using NAT networking for guest VMs will not be sufficient.
+    <p class="note-title">Bridged networking</p>
+
+    <p>You need to get a basic VM running with <b>bridged networking</b>.  Using NAT networking for guest VMs will not be sufficient.</p>
 </div>
 
 <h3>Basic Dependencies</h3>
@@ -52,7 +51,9 @@ _NIMBUS_2_5_DEPRECATED
   Install <a href="http://ebtables.sourceforge.net/">ebtables</a> using your Linux distribution's package management tools. 
 </p>
 <div class="note">
-  ebtables requires kernel support in dom0, the default Xen kernel includes this support.  If your domain 0 kernel does not include these for some reason, the options to enable are under <tt class="literal">Networking :: Networking options :: Network packet filtering :: Bridge Netfilter Configuration :: Ethernet Bridge Tables</tt>
+    <p class="note-title">ebtables in the host kernel</p>
+
+    <p>ebtables requires kernel support in dom0, the default Xen kernel includes this support.  If your domain 0 kernel does not include these for some reason, the options to enable are under <tt class="literal">Networking :: Networking options :: Network packet filtering :: Bridge Netfilter Configuration :: Ethernet Bridge Tables</tt></p>
 </div>
 
 <p>
@@ -60,11 +61,15 @@ _NIMBUS_2_5_DEPRECATED
 </p>
 
 <div class="note">
-  There are differences in lower libvirt versions that have caused problems for some Nimbus users.  If you take a chance with this and see an error about "createXML", you've probably got a very old version.
+    <p class="note-title">Older libvirt versions</p>
+    
+    <p>There are differences in lower libvirt versions that have caused problems for some Nimbus users.  If you take a chance with this and see an error about "createXML", you've probably got a very old version.</p>
 </div>
 
 <div class="note">
-  An important step is to make sure that your libvirt installation supports the libvirt "python bindings".  This is how the Nimbus software actually interacts with libvirt.  In some cases, the bindings (which come with a normal libvirt installation) are not installed.  On some systems you need to trigger this to be there by installing the "python-dev" package before installing libvirt.  In order to check you have the right install, Nimbus includes a script in the workspace-control download which you will run later (discussed below).
+    <p class="note-title">Python bindings for libvirt</p>
+    <p>An important step is to make sure that your libvirt installation supports the libvirt "python bindings".  This is how the Nimbus software actually interacts with libvirt.</p>
+    <p>In some cases, the bindings (which come with a normal libvirt installation) are not installed.  On some systems you need to trigger this to be there by installing the "python-dev" package before installing libvirt.  In order to check you have the right install, Nimbus includes a script in the workspace-control download which you will run later (discussed below).</p>
 </div>
 
 <p>
@@ -176,7 +181,12 @@ srwx------ 1 root root 0 Jul  1 21:28 /var/run/libvirt/libvirt-sock
 </p>
 
 <div class="note">
-  If this works for you, make sure your setup is not just letting you list VMs right now, that will happen if the permissions are <b>read-only</b> for group or world.  We will test a full VM creation later which would uncover this difference.  You need to make sure it is both readable and writable for the <tt class="literal">root</tt> group and that the <tt class="literal">nimbus</tt> user is part of that group.
+    <p class="note-title">Read-only libvirt gotcha</p>
+    <p>If this works for you, make sure your setup is not just letting you list VMs right now, that will happen if the permissions are <b>read-only</b> for group or world.</p>
+    
+    <p>You need to make sure it is both readable and writable for the <tt class="literal">root</tt> group and that the <tt class="literal">nimbus</tt> user is part of that group.</p>
+    
+    <p>Note that we will test a full VM creation later which would uncover this difference.</p>
 </div>
 
 <p>
@@ -292,13 +302,13 @@ nimbus $ ./sbin/test-dependencies.sh
 </p>
 
 <div class="panel"><pre>
-nimbus $ TARGETDIR=/opt/nimbus/var/workspace-control/kernels
-nimbus $ cp /boot/vmlinuz-2.6.16.29-xen $TARGETDIR/default
-nimbus $ cp /boot/initrd-2.6.16.29-xen $TARGETDIR/default-initrd
+nimbus $ KERNELDIR=/opt/nimbus/var/workspace-control/kernels
+nimbus $ cp /boot/vmlinuz-2.6.16.29-xen $KERNELDIR/default
+nimbus $ cp /boot/initrd-2.6.16.29-xen $KERNELDIR/default-initrd
 </pre></div>
 
 <p>
-  Now you have created a kernel called <tt class="literal">default</tt> that workspace-control will launch paravirtualized VMs with.  The default kernel and initrd to use for VMs is controlled by the <tt class="literal">authz_kernels</tt> configuration in <tt class="literal">/opt/nimbus/etc/workspace-control/kernels.conf</tt>
+  Now you have created a kernel called <tt class="literal">default</tt> that workspace-control will launch paravirtualized VMs with.  The default kernel and initrd to use for VMs is controlled by the <tt class="literal">authz_kernels</tt> configuration in <tt class="literal">/opt/nimbus/etc/workspace-control/kernels.conf</tt> (by default the authorized kernel is "default").
 </p>
 
 <h3>Obtain the sample image</h3>
@@ -370,7 +380,7 @@ ERROR: requires at least 2 arguments, syntax: add|rem <vifname> [<dhcpif>  <maca
 </pre></div>
 
 <p>
-  Seeing "ERROR" is a good thing here.  If you see a password prompt, type in the <tt class="literal">nimbus</tt> user's password which hopefully is a "first time use" warning from sudo.  Then try again, the goal is to perform this command from the nimbus account without needing any password.
+  Seeing "ERROR" is a good thing here.  If you see a password prompt, type in the <tt class="literal">nimbus</tt> user's password which hopefully is a "first time use" warning from sudo.  Then try again.  The goal is to perform this command from the nimbus account without needing any password.
 </p>
 
 <p>
@@ -389,19 +399,19 @@ ERROR: requires at least 2 arguments, syntax: add|rem <vifname> [<dhcpif>  <maca
 <h3>Obtain the workspace-control network sample</h3>
 
 <p>
-  In the previous section, you configured DHCPd and the network addresses to give to guest VMs. 
+  In a previous section of this guide, you configured DHCPd and the network addresses to give to guest VMs. 
 </p>
 
 <p>
-  The container wrote out the <tt class="literal">dhcpd.entries</tt> file that will be used for the DHCPd server configuration.  In the same directory a sample file for workspace-control was written out, we will use this to test a VM launch via libvirt with your DHCPd server running.  The file you need to obtain is called <tt class="literal">control.netsample.txt</tt> 
+  The central IaaS services container wrote out the <tt class="literal">dhcpd.entries</tt> file that will be used for the DHCPd server configuration.  In the same directory a sample file for workspace-control was written out, we will use this to test a VM launch via libvirt with your DHCPd server running.  The file you need to obtain is called <tt class="literal">control.netsample.txt</tt> 
 </p>
 
 <p>
-  Transfer this file to the VMM node: <tt class="literal">$NIMBUS_HOME/services/var/nimbus/control.netsample.txt</tt>
+  Transfer this file from the central node to anywhere on the VMM node: <tt class="literal">$NIMBUS_HOME/services/var/nimbus/control.netsample.txt</tt>
 </p>
 
 <p>
-  We will use it in the next step.
+  We will use it in the next step.  The example location on the VMM will be <tt class="literal">/tmp/control.netsample.txt</tt>.
 </p>
 
 <h3>Test VM creation with a generated libvirt config</h3>
@@ -440,7 +450,7 @@ Options:
 </p>
 
 <p>
-  The <tt class="literal">--memory</tt> value will be something easily doable by your system, e.g. 256
+  The <tt class="literal">--memory</tt> value will be something easily doable by your system, e.g. <tt class="literal">256</tt>.
 </p>
 
 <p>
@@ -473,7 +483,7 @@ nimbus $ ./sbin/destroy-control-test.sh
 </pre></div>
 
 <p>
-  This may need to be repeated to solve any problems that are being mentioned.
+  This may need to be repeated to solve any problems that are being mentioned.  Anytime you run <tt class="literal">libvirt-xml.sh</tt>, you should pair it with <tt class="literal">destroy-control-test.sh</tt> before trying again.
 </p>
 
 <div class="note">
@@ -489,7 +499,7 @@ nimbus $ ./sbin/cat-latest-logfile.sh
 </pre></div>
 
 <p>
-  If putting the culprit error into a search engine does not produce any obvious answers, don't hesitate to contact the <a href="_NIMBUS_WEBSITE/contact/">workspace-user</a> mailing list.  Describe your situation and any errors you are seeing.  Attaching this debug log can often be helpful and reduce the amount of emails that need to occur.
+  If putting the culprit error into a search engine does not produce any obvious answers, don't hesitate to contact the <a href="_NIMBUS_WEBSITE/contact/">workspace-user</a> mailing list.  Describe your situation and any errors you are seeing.  Attaching this debug log and including version information (of the VMM and libvirt and your OS) can often be helpful and reduce the amount of emails that need to occur.
 </p>
 
 <p>
@@ -501,7 +511,8 @@ nimbus $ ./sbin/libvirt-xml.sh --image /tmp/nimbus-z2c --netsample \
 </pre></div>
 
 <div class="note">
-Trying libvirt-xml.sh but seeing an error like "The persistence file already exists"?  This means you need to run that script: ./sbin/destroy-control-test.sh
+    <p class="note-title">Remember to keep destroying the control-test</p>
+    <p>Trying libvirt-xml.sh but seeing an error like "The persistence file already exists"?  This means you need to run that script: ./sbin/destroy-control-test.sh</p>
 </div>
 
 <p>
@@ -550,7 +561,8 @@ nimbus $ virsh -c 'xen+unix:///' console control-test
 </pre></div>
 
 <div class="note">
-You may need to be root to run a virsh <tt class="literal">console</tt> subcommand because the nimbus user may not have access to the <tt class="literal">/dev/pts</tt> device being used for console access.
+    <p class="note-title">Console permissions</p>
+    <p>You may need to be root to run a virsh <tt class="literal">console</tt> subcommand because the nimbus user may not have access to the <tt class="literal">/dev/pts</tt> device being used for console access.</p>
 </div>
 
 <p>
@@ -562,7 +574,7 @@ You may need to be root to run a virsh <tt class="literal">console</tt> subcomma
 </p>
 
 <p>
-  Seeing an error from a component, for example in the libvirt logs?  If putting the error into a search engine does not produce any obvious answers, don't hesitate to contact the <a href="_NIMBUS_WEBSITE/contact/">workspace-user</a> mailing list.  Describe your situation and any errors you are seeing.
+  Seeing an error from a component, for example in the libvirt logs?  If putting the error into a search engine does not produce any obvious answers, don't hesitate to contact the <a href="_NIMBUS_WEBSITE/contact/">workspace-user</a> mailing list.  Describe your situation and any errors you are seeing. Including version information (of the VMM and libvirt and your OS) can often be helpful and reduce the amount of emails that need to occur.
 </p>
 
 <p>
@@ -619,7 +631,7 @@ nimbus $ ./sbin/cat-latest-logfile.sh
 </pre></div>
 
 <p>
-  If putting the culprit error into a search engine does not produce any obvious answers, don't hesitate to contact the <a href="_NIMBUS_WEBSITE/contact/">workspace-user</a> mailing list.  Describe your situation and any errors you are seeing.  Attaching this debug log can often be helpful and reduce the amount of emails that need to occur.
+  If putting the culprit error into a search engine does not produce any obvious answers, don't hesitate to contact the <a href="_NIMBUS_WEBSITE/contact/">workspace-user</a> mailing list.  Describe your situation and any errors you are seeing.  Attaching this debug log and including version information (of the VMM and libvirt and your OS) can often be helpful and reduce the amount of emails that need to occur.
 </p>
 
 
