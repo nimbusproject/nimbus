@@ -177,7 +177,7 @@
 
             <tarfileset dir="${distbuild.dir}" mode="755">
                 <include name="${nimbus.main}/scripts/*sh" />
-                <include name="${nimbus.main}/cumulus/*sh" />
+                <include name="${nimbus.main}/cumulus/**" />
                 <include name="${nimbus.main}/install" />
                 <include name="${nimbus.main}/home/bin/*" />
                 <include name="${nimbus.main}/home/libexec/*" />
