@@ -56,8 +56,8 @@ $ cd nimbus-2.5-src/
 <p>
     You must now choose an installation directory. It could be within
     the <tt class="literal">nimbus</tt> user home directory, or something
-    like /opt/nimbus. If the directory exists, it must be empty and writable.
-    If it does not exist, the parent directory must be writable.
+    like /opt/nimbus. If the directory exists, it must be empty and writable by the <tt class="literal">nimbus</tt> user.
+    If it does not exist, the parent directory must be writable by the <tt class="literal">nimbus</tt> user.
 </p>
 
 <p>
@@ -88,7 +88,7 @@ $ ./install $NIMBUS_HOME
         Installs Cumulus and dependencies to a Python
         <a href="http://pypi.python.org/pypi/virtualenv">virtualenv</a>
     </li>
-    <li>Builds and installs Nimbus services</li>
+    <li>Builds and installs the central IaaS services</li>
     <li>Creates initial databases</li>
     <li>Runs interactive configuration program to gather basic information</li>
     <li>Generates internal Certificate Authority for host certificates</li>
@@ -112,6 +112,12 @@ $ ./install $NIMBUS_HOME
             <LI>Nimbus Service interface : 8443</LI>This is used by the cloud-client
             <LI>EC2 compatible REST Interface: 8444</LI>
         </UL>
+</div>
+<div class="note">
+    <p class="note-title">Certificates</p>
+    <p>
+        The installer generates a new X509 Certificate Authority and host certificate but you are not required to use these in production, it is possible to use your own credential system.  Setting this up is out of scope of this guide, you should wait until you have a working system before changing this.
+    </p>
 </div>
 
 
@@ -172,7 +178,7 @@ cloud properties : /tmp/newuser/cloud.properties
 </pre>
 <p>
     The script outputs a lot of information about the new user, but you only need the
-    files generated to your specified output directory. Hold on to these files, you
+    files that were generated and written to your specified output directory. Hold on to these files, you
     will need them momentarily, after you install the cloud client.
 </p>
 
@@ -192,6 +198,7 @@ $ wget http://www.nimbusproject.org/downloads/nimbus-cloud-client-016.tar.gz
 $ tar xfz nimbus-cloud-client-016.tar.gz
 </pre>
 
+<!-- maybe just direct to run grid-proxy-init later with specific -cert and -key options and forget about ~/.globus? -->
 <p>
     Now you need to install the files produced earlier by
     <tt class="literal">nimbus-new-user</tt>. The <tt class="literal">cloud.properties</tt>
@@ -219,7 +226,7 @@ $ cp /tmp/newuser/*.pem ~/.globus/
 <p>
     You also need to grab a few more files from the Nimbus service installation and drop
     them into the client. These are the internal CA certificates and enable the client to
-    trust the client. The needed files are in
+    trust the server. The needed files are in
     <tt class="literal">$NIMBUS_HOME/var/ca/trusted-certs/</tt>.
 </p>
 <pre class="panel">
