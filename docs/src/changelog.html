@@ -441,7 +441,7 @@ _NIMBUS_2_5_DEPRECATED
             [1] - SQLite should be included by default in any Python 2.5 installation but we've run into some distributions removing that.
         </p>
         <p>
-            [2] - gcc is not strictly required if you install packages to your Python site-packages: PyOpenSSL and Twisted 8.2+.  Otherwise the installer will do some Python->C bridge code compilation to get dependencies enabled.  The service installer does not run as root (and nothing on the service node needs root anymore), so in the case where you use gcc like this, those dependencies will be installed inside a virtual Python environment just for Cumulus code.
+            [2] - gcc is not strictly required if you install packages to your Python site-packages: pyOpenSSL and Twisted 8.2+.  Otherwise the installer will do some Python->C bridge code compilation to get dependencies enabled.  The service installer does not run as root (and nothing on the service node needs root anymore), so in the case where you use gcc like this, those dependencies will be installed inside a virtual Python environment just for Cumulus code.
         </p>
     </li>
     <li>
