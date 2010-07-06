@@ -34,6 +34,7 @@ import org.globus.workspace.client_core.ExecutionProblem;
 import org.globus.workspace.client_core.ParameterProblem;
 import org.globus.workspace.cloud.client.AllArgs;
 import org.globus.workspace.cloud.client.Opts;
+import org.globus.workspace.cloud.client.Props;
 import org.globus.workspace.cloud.client.tasks.CopyTask;
 import org.globus.workspace.cloud.client.tasks.CopyWatchTask;
 import org.globus.workspace.common.SecurityUtil;
@@ -79,6 +80,11 @@ public class GridFTPRepositoryUtil
         if (this.args.getTargetBaseDirectory() == null) {
             throw new ParameterProblem(action + " requires '" +
                                        Opts.TARGETDIR_OPT_STRING + "'");
+        }
+
+        if (this.args.getPropagationScheme() == null) {
+            throw new ParameterProblem(action + " with GridFTP requires '" +
+                    Props.KEY_PROPAGATION_KEEPPORT + "' property");
         }
 
         final String url;
@@ -592,7 +598,32 @@ public class GridFTPRepositoryUtil
         String                          imageName)
             throws ExecutionProblem 
     {
-        String url = "gridftp://" + this.args.getXferHostPort() + this.remoteUserBaseDir + "/" + imageName;
+
+        String imageURL = this.args.getPropagationScheme();
+        this.print.debugln("Given propagation scheme: '" + imageURL + "'");
+
+        imageURL += "://";
+        // a bit messy
+        if (this.args.isPropagationKeepPort()) {
+
+            imageURL += this.args.getXferHostPort();
+
+        } else {
+
+            final String[] parts = this.args.getXferHostPort().split(":");
+
+            if (parts.length != 2) {
+                throw new ExecutionProblem(
+                        "gridftp host + port has no port?");
+            }
+
+            imageURL += parts[0];
+
+            this.print.debugln("Stripped port from repository host+port");
+        }
+
+        String url = imageURL + this.remoteUserBaseDir + "/" + imageName;
+        this.print.debugln("New image URL: " + url);
         return url;
     }
 

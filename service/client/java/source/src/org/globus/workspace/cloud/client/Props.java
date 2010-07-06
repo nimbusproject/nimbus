@@ -75,6 +75,10 @@ public class Props {
     public static final String
             KEY_PROPAGATION_KEEPPORT = "vws.propagation.keepport";
 
+    // for backwards compatibility
+    public static final String
+            KEY_PROPAGATION_SCHEME = "vws.propagation.scheme";
+
     // ----
 
     public static final String

@@ -113,6 +113,7 @@ public class AllArgs {
     private boolean useNotifications;
     private int pollMs;
     private boolean propagationKeepPort = true;
+    private String propagationScheme;
     private String propertiesPath;
     private String sourcefile;
     private String sshfile;
@@ -802,6 +803,19 @@ public class AllArgs {
             }
         }
 
+        if (this.propagationScheme == null) {
+            final String scheme =
+                    CloudClientUtil.getProp(props,
+                                            Props.KEY_PROPAGATION_SCHEME);
+
+            if (scheme != null) {
+                this.propagationScheme = scheme;
+                this.gotProp(Props.KEY_PROPAGATION_SCHEME,
+                             scheme,
+                             sourceName);
+            }
+        }
+
         if (!this.timeoutMinutesConfigured) {
 
             final String timeoutString =
@@ -1188,6 +1202,14 @@ public class AllArgs {
 
     public void setPropagationKeepPort(boolean propagationKeepPort) {
         this.propagationKeepPort = propagationKeepPort;
+    }
+
+    public String getPropagationScheme() {
+        return propagationScheme;
+    }
+
+    public void setPropagationScheme(String propagationScheme) {
+        this.propagationScheme = propagationScheme;
     }
 
     public String getPropertiesPath() {
