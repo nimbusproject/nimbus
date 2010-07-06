@@ -96,6 +96,7 @@ public class CumulusRepository implements Repository {
         {
             throw new IllegalArgumentException("locator may not be null");
         }
+
         this.repr = locator.getReprFactory();
     }
 
@@ -120,7 +121,10 @@ public class CumulusRepository implements Repository {
         {
             throw new Exception("Missing the 'prefix' setting");
         }
-
+        if(this.rootFileMountAs == null)
+        {
+            throw new Exception("Missing the 'rootFileMountAs' setting");
+        }
 
         this.repo_id = this.authDB.getFileID(this.repoBucket, -1, AuthzDBAdapter.ALIAS_TYPE_S3);
         if(this.repo_id < 0)
@@ -201,7 +205,6 @@ public class CumulusRepository implements Repository {
                                          Caller caller)
             throws CannotTranslateException    
     {
-        String base = this.getImageLocation(caller);        
         final String ownerID = this.container.getOwnerID(caller);
         if (ownerID == null)
         {
@@ -225,7 +228,7 @@ public class CumulusRepository implements Repository {
         try
         {
             
-            String keyName = this.prefix + "/" + ownerID + imageID;
+            String keyName = this.prefix + "/" + ownerID + "/" + imageID;
             int object_id = this.authDB.getFileID(keyName, this.repo_id, AuthzDBAdapter.OBJECT_TYPE_S3);
             String datakey = this.authDB.getDataKey(object_id);
             String urlStr = "scp://" + this.cumulusHost + ":22" + datakey;
