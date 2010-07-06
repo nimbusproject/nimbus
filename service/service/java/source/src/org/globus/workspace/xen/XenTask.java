@@ -149,7 +149,7 @@ public abstract class XenTask implements WorkspaceRequest {
             }
 
             if (this.cmd != null) {
-                logger.debug("Command associated with fake '" + this.name +
+                logger.info("Command associated with fake '" + this.name +
                         "' is: " + WorkspaceUtil.printCmd(this.cmd));
             }
 
