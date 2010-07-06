@@ -52,6 +52,11 @@ _NIMBUS_2_5_DEPRECATED
     </li>
     <li>
         <p>
+            <a href="#group-authz">Per-user rights and allocations</a>
+        </p>
+    </li>
+    <li>
+        <p>
             <a href="#elastic">Enabling the EC2 SOAP frontend</a>
         </p>
     </li>
@@ -764,6 +769,29 @@ $
 </div>
 
 
+
+
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+
+
+<br />
+
+<a name="group-authz"> </a>
+<h2>Per-user rights and allocations _NAMELINK(group-authz)</h2>
+
+<p>
+    In the <i>services/etc/nimbus/workspace-service/group-authz/</i> directory are the default policies for each user.  You pick a pre-configured policy to apply to a new user.  The "groups" are not a shared allocation but rather each group is a policy that describes a "type" of user.
+</p>
+
+<p>
+    Todo: describe what can be tracked on a per-user basis
+</p>
+
+<p>
+    Todo: speak of nimbus-new-user integration
+</p>
 
 
 
