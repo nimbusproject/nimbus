@@ -22,6 +22,36 @@ _NIMBUS_2_5_DEPRECATED
     </li>
     <li>
         <p>
+            <a href="#cloud-overview">Cloud configuration overview</a>
+        </p>
+    </li>
+    <li>
+        <p>
+            <a href="#cloud-userexp">Cloud configuration user experience</a>
+        </p>
+    </li>
+    <li>
+        <p>
+            <a href="#cloud-assumptions">Cloud configuration assumptions and defaults</a>
+        </p>
+    </li>
+    <li>
+        <p>
+            <a href="#cloud-necessary">Cloud configuration, necessary configurations</a>
+        </p>
+    </li>
+    <li>
+        <p>
+            <a href="#cloud-properties">Cloud configuration property reference</a>
+        </p>
+    </li>
+    <li>
+        <p>
+            <a href="#user-management">User management</a>
+        </p>
+    </li>
+    <li>
+        <p>
             <a href="#elastic">Enabling the EC2 SOAP frontend</a>
         </p>
     </li>
@@ -93,10 +123,10 @@ _NIMBUS_2_5_DEPRECATED
                 <a href="#s3cmd">Using the s3cmd client</a>
             </li>
             <li>
-                <a href="#https">Using HTTPS</a>
+                <a href="#cumulus-https">Using HTTPS</a>
             </li>
             <li>
-                <a href="#quotas">Disk Usage Quota</a>
+                <a href="#cumulus-quotas">Disk Usage Quota</a>
             </li>
         </ul>
     </li>
@@ -120,6 +150,623 @@ _NIMBUS_2_5_DEPRECATED
 <p>
     See the <i>$NIMBUS_HOME/services/etc/nimbus/workspace-service</i> directory.
 </p>
+
+
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+<br />
+
+<a name="cloud-overview"> </a>
+<h2>Cloud configuration overview _NAMELINK(cloud-overview)</h2>
+
+<p>
+    The cloud configuration is a particular configuration of Nimbus that allows the cloud-client to operate out of the box.  It is what is set up when you are done with the <a href="z2c/index.html">Zero To Cloud Guide</a>.
+</p>
+
+<p>
+    This overview section and subsequent reference sections give a more in-depth explanation of how it works in order to provide context for administrators running Nimbus in production that want to customize settings or understand things in a more "under the hood" way for security/networking reasons.
+</p>
+
+<p>
+    <i>This is all information for <b>deployers</b> of the cloud configuration to learn about it and customize it.  This is
+    <b>not necessary for cloud users</b> to read and understand.</i>  If you
+    are a cloud user just looking to understand how to launch and manage VMs
+    on an existing cloud, start with the <a href="../clouds/">clouds</a> pages.
+</p>
+
+<p>
+    In the Nimbus 2.5 release the repository service (<a href="#cumulus">Cumulus</a>) and the IaaS services
+    MUST be on the same node, or at least must be installed on a filesystem
+    that they both can access.  In future releases this restriction will
+    be lifted.
+</p>
+
+<p>
+    The server addresses must be directly reachable from the Internet
+    or otherwise configured to deal with being NAT'd.  The IaaS services container can be setup for NAT or other port 
+    forwarding situations.  Cumulus should be NAT friendly so long as
+    its listening port (default 8888) is forwarded through the NAT.
+</p>
+
+<p>
+    To enable one-click clusters, you need to enable the context broker (see
+    <a href="#context-broker">this section</a> admin
+    guide).
+</p>
+
+
+<p>
+    <img src="../img/cloud-overview-rt.png" alt="workspace cloud configuration" />
+</p>
+<p>
+    The diagram above depicts the basic setup.
+</p>
+<ul>
+    <li>
+        A special workspace client called the "cloud-client" invokes operations
+        on the Iaas services and Cumulus server.  A number of defaults are assumed which makes this work out of the box (these defaults will be discussed
+        later).
+    </li>
+    <li>
+        Files are transferred from the cloud-client to a client-specific
+        storage system  on the repository node (manual or other types of 
+        S3 protocol 
+        based transfers are also possible for advanced users).
+    </li>
+    <li>
+        The service invokes commands on the VMMs to trigger file transfers
+        to/from the repository node, VM lifecycle events, and destruction/clean
+        up.
+    </li>
+    <li>
+        If the workspace state changes, the cloud-client will reflect this to
+        the screen (and log files) and depending on the change might also take
+        action in response.
+    </li>
+</ul>
+
+
+
+
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+<br />
+
+<a name="cloud-userexp"> </a>
+<h2>Cloud configuration user experience _NAMELINK(cloud-userexp)</h2>
+    
+<p>
+    Working backwards from the user's <i>cloud-client</i> experience is a
+    good way to understand how the service needs to be setup.
+</p>
+
+<p>
+    Here is an abbreviated depiction of a simple user interaction with a cloud,
+    to give you an idea if you've never used it.  This does not depict an
+    image transfer to the repository node but that is similarly brief.
+</p>
+
+<ol>
+    <li>
+        <p>
+            A grid credential is needed, there is an embedded
+            <i>grid-proxy-init</i> program if that is necessary.
+        </p>
+    </li>
+
+    <li>
+        <p>
+            You can list what's in your repository directory:
+        </p>
+
+<div class="screen">
+<b>$</b> ./bin/cloud-client.sh --list<br>
+</div>
+        <p>
+            Sample output:
+        </p>
+
+<div class="screen">
+<pre>[Image] 'base-cluster-01.gz'       Read only
+        Modified: Jul 06 @ 17:34   Size: 578818017 bytes (~552 MB)
+
+[Image] 'hello-cloud'              Read only
+        Modified: May 30 @ 14:16   Size: 524288000 bytes (~500 MB)
+
+[Image] 'hello-cluster'            Read only
+        Modified: Jun 30 @ 20:18   Size: 524288000 bytes (~500 MB)</pre>
+</div>
+
+
+    </li>
+
+    <li>
+        <p>
+            And pick one to run (ignore the 'cluster' images for now)
+        </p>
+
+<div class="screen">
+<b>$</b> ./bin/cloud-client.sh --run --name hello-cloud --hours 1<br>
+</div>
+        <p>
+            Sample output:
+        </p>
+
+<div class="screen"><pre>
+SSH public keyfile contained tilde:
+  - '~/.ssh/id_rsa.pub' --> '/home/guest/.ssh/id_rsa.pub'
+
+Launching workspace.
+
+Using workspace factory endpoint:
+    https://cloudurl.edu:8443/wsrf/services/WorkspaceFactoryService
+
+Creating workspace "vm-023"... done.
+
+       IP address: 123.123.123.123
+         Hostname: ahostname.cloudurl.edu
+       Start time: Fri Feb 29 09:36:39 CST 2008
+    Shutdown time: Fri Feb 29 10:36:39 CST 2008
+ Termination time: Fri Feb 29 10:46:39 CST 2008
+
+Waiting for updates.
+</pre></div>
+
+        <p>
+            Some time elapses as the image file is copied to the VMM node. Then
+            a running notification is printed:
+        </p>
+
+<div class="screen"><pre>
+State changed: Running
+
+Running: 'vm-023'
+</pre></div>
+    </li>
+
+    <li>
+        <p>
+            The client had picked up your default public SSH key and sent it to
+            be installed on the fly into the VM's <i>authorized_keys</i> policy
+            for the root account.  So after launching you can use the printed
+            hostname to log in as root:
+        </p>
+
+        <div class="screen">
+            <b>$</b> ssh root@ahostname.cloudurl.edu<br>
+        </div>
+    </li>
+</ol>
+
+<br />
+
+<p>
+    You can see an example of a cluster cloud-client deployment on the
+    <a href="../clouds/clusters.html">one-click clusters</a> page.
+</p>
+
+
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+<br />
+
+<a name="cloud-assumptions"> </a>
+<h2>Cloud configuration assumptions and defaults _NAMELINK(cloud-assumptions)</h2>
+    
+<p>
+    A number of things go into making the cloud client work out of the box,
+    but it is in large part accomplished by giving the user a downloadable
+    package with a number of default configurations.
+</p>
+
+<p>
+    These defaults limit functionality options in some cases, but that is the
+    idea: eliminate decisions that need to be made and set working defaults.
+    There are avenues left open for experienced users to do more
+    (for example, by overriding the defaults or even switching over to the
+    regular workspace client).
+</p>
+
+<p>
+    In the previous section, the first thing that probably stands out is that
+    there are no contact addresses being entered on the command line.
+</p>
+
+<p>
+    The service and repository URLs are derived from a properties file
+    that is included in the toplevel "conf" directory of the cloud-client
+    package.
+</p>
+
+<p class="indent">
+    <b>Note</b>: How properties files and commandline overrides work is covered
+    in a <a href="#cloud-props">later section</a> in detail, it is all designed to be
+    flexible under the covers.  If you don't want to follow the conventions
+    laid out in this current "assumptions" section, it will be important to
+    understand the later section to know how to change things for a good
+    client package or properties file(s) that your users can use.  Continue
+    reading this section first, though, to get the basic ideas.
+</p>
+
+<p>
+    There are three main groups of assumptions and defaults.  The first is the
+    contact and identity information of the workspace service
+    (see above for configuration sample where this are specified).
+    The other two groups make up the rest of this "Assumptions" section:
+</p>
+
+<ul>
+    <li><a href="#cloud-personaldir">Deriving per-user repository directories</a></li>
+    <li><a href="#cloud-runtime">Runtime assumptions</a></li>
+</ul>
+
+
+<a name="cloud-personaldir"> </a>
+<h3>Deriving per-user repository directories _NAMELINK(cloud-personaldir)</h3>
+
+<p>
+    For Cumulus S3 based commands (like <i>--list</i>, <i>--delete</i>, and
+    <i>--transfer</i>) the server to contact is based on the contact in
+    the cloud properties file.  The s3id and s3 secret to authenticate with
+    the Cumulus server is stored in the
+    cloud properties file. 
+</p>
+
+<p>
+    When you transfer a local file, the target of the transfer is the same
+    filename in your personal repository directory. When you refer to the name
+    of a workspace to run, this name must correspond to a filename in your
+    personal repository directory.
+</p>
+
+<p>
+    We know where the repository comes from but how is that directory derived?
+</p>
+
+<p>
+    There are two other components to derive the directory used: the configured
+    <i>base bucket property</i> and the <i>user S3 ID</i>.
+</p>
+<ul>
+    <li>
+        The configured <i>base directory property</i>.  The default
+        configuration for the base bucket on the repository node is
+        "<b>Repo</b>".  This value can be changed in the cloud.properties 
+        file so long as it matches the particular clouds setup.  It is
+        best to not alter this value.
+    </li>
+</ul>
+
+
+<p class="indent">
+    <i>
+        There is a cloud-client option to input any name or local
+        file path and see what the derived URL is.  See the --extrahelp
+        description of the --print-file-URL option.
+    </i>
+</p>
+
+<a name="cloud-runtime"> </a>
+<h3>Runtime assumptions _NAMELINK(cloud-runtime)</h3>
+
+<p>
+    The second set of assumptions to cover is how a given image file is going
+    to actually work.  There are many options that you can specify in regular
+    workspace requests.  For example, the memory size, the number of network 
+    interfaces to construct, the pool name(s) to lease network addresses from,
+    and the partition name the VM is expecting for the base partition.
+</p>
+
+<p>
+    Some fixed assumptions are made:
+</p>
+<ul>
+    <li>There can be only <b>one network interface</b></li>
+    <li>The network interface <b>is expecting its address via DHCP</b></li>
+    <li>
+        There can be only <i>one partition file</i>, for the root partition,
+        configured with an ext2/ext3 filesystem.  Other filesystems may not
+        work correctly (this has to do with the cloud's default kernel as well
+        as its ability to edit the image's files before boot).
+    </li>
+</ul>
+<p>
+    The rest of the launch request is filled by default configurations,
+    here they are:
+</p>
+<ul>
+    <li>Request <b>3584</b> MB of memory (this is usually overriden)</li>
+    <li>Request networking address from a pool named <b>public</b></li>
+    <li>Mount the partition to <b>sda1</b></li>
+</ul>
+
+
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+
+
+<br />
+
+<a name="cloud-necessary"> </a>
+<h2>Cloud configuration, necessary configurations _NAMELINK(cloud-necessary)</h2>
+
+<p>
+    The previous section summed up the defaults and main assumptions.  Opting
+    to follow these conventions in your cloud leads to these configuration
+    conclusions:
+</p>
+
+<ul>
+    <li>
+        <p>
+            Install the workspace service in
+            <a href="../admin/reference.html#resource-pool-and-pilot">resource
+            pool mode</a>.
+        </p>
+    </li>
+    <li>
+        <p>
+            Configure an
+            <a href="../admin/quickstart.html#networks">network</a>
+            for addresses to lease from and call it "<b>public</b>".
+        </p>
+    </li>
+    <li>
+        <p>
+            Create a <i>cloud.properties</i> file for your cloud with
+            the values in this <a href="../examples/cloud.properties">example
+            file</a> changed to reflect the correct URLs and identities.
+        </p>
+        <p>
+            It is best to distribute a unique cloud.properties for each user with the Cumulus credentials in the file already, this is easily set up when using the nimbus-new-user program and the Nimbus web application.  See the <a href="#user-management">user management</a> section for details.
+        </p>
+    </li>
+    <li>
+        <p>
+            If you need to adjust the default memory request, add a line of
+            text like so to the <i>cloud.properties</i> file you will
+            distribute:  <b>vws.memory.request=256</b>
+        </p>
+    </li>
+    <li>
+        <p>
+            Create a <i>Repo</i> base bucket on the repository node.
+            This should be done by the Nimbus installer.
+        </p>
+    </li>
+    
+</ul>
+
+
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+
+
+<br />
+
+<a name="cloud-properties"> </a>
+<h2>Cloud configuration property reference _NAMELINK(cloud-properties)</h2>
+
+<p>
+    This section goes into more detail about the property file and commandline
+    configurations.  This is especially important to understand if you want
+    to diverge from the defaults above.
+</p>
+
+<div>
+
+    <img src="../img/cloud-client-layout.png"
+         alt="workspace cloud client layout"
+         class="floatright" />
+
+    <p>
+        All commands go through <i>cloud-client.sh</i> which in turn
+        invokes the actual cloud client program.  The cloud client is written
+        in Java and installed at <i>lib/globus/lib/workspace_client.jar</i>.
+    </p>
+    <p>
+        Before calling this program, the script sets up some things:
+    </p>
+
+    <ul>
+        <li>
+            <i>../conf/cloud.properties</i> is set as the user properties file
+        </li>
+        <li>
+            <i>../lib/globus</i> becomes the new GLOBUS_LOCATION (overriding
+            anything previously set)
+        </li>
+        <li>
+            <i>../lib/certs</i> is set as a directory to add to the trusted
+            X509 certificate directories for identity validations (the client
+            verifies it is talking to the right servers).  Adding the CA cert(s)
+            of the workspace service certificates to this
+            directory ensures that the user will not run into CA (trusted
+            certificates) problems.
+        </li>
+    </ul>
+<p>
+    The cloud client program respects settings from <b>three</b> different
+    places, listed here in the <b>order of precedence</b>:
+</p>
+<ul>
+    <li>
+        <p>
+            <b>Commandline arguments</b> - If the client uses one of the
+            optional flags listed in <i>./bin/cloud-client.sh --extrahelp</i>,
+            these values are used.  Many things can be overriden this way,
+            including the service contacts.
+        </p>
+    </li>
+    <li>
+        <p>
+            <b>User properties file</b> - An example of this is distributed with the cloud client.
+        </p>
+        <p>            
+            Note that you can include different properties files and have your
+            users switch between clouds using
+            <i>./bin/cloud-client.sh --conf ./conf/some-file</i>.
+        </p>
+        <p>
+            If no <i>--conf</i> argument is supplied, the default file
+            <i>cloud.properties</i> needs to exist.  If you need to change
+            this in your client distribution for cosmetic reasons, you can
+            do so by editing the one relevant line at the top of
+            <i>./bin/cloud-client.sh</i>
+        </p>
+    </li>
+    <li>
+        <p>
+            <b>Embedded properties file</b> - A properties file lives inside
+            the workspace client jar (which is installed into
+            <i>lib/globus/lib/workspace_client.jar</i>).  This controls all
+            the remaining configurations.
+        </p>
+    </li>
+</ul>
+</div>
+
+<p>
+    There are (intentionally) <b>no fallback settings</b> for many of the properties:
+</p>
+
+<ul>
+    <li>ssh.pubkey (Path to SSH public key to log in with)</li>
+    <li>vws.factory (Host+port of Virtal Workspace Service)</li>
+    <li>vws.factory.identity (Virtal Workspace Service X509 identity)</li>
+    <li>vws.repository (Host+port of cumulus image repository)</li>
+    <li>vws.repository.type=cumulus (currently cumulus is the only supported repository protocol</li>
+    <li>vws.repository.s3id (The users S3 ID)</li>
+    <li>vws.repository.s3key (The users S3 secret key)</li>
+    <li>vws.repository.s3bucket (The bucket where the system stores images)</li>
+    <li>vws.repository.s3basekey (The basename of all images in the bucket)</li>
+</ul>
+
+
+<p>
+    These are the embedded properties that are shipped with the cloud client,
+    they can also exist in the cloud properties files to override the defaults:
+</p>
+
+<pre>
+# Default ms between polls
+vws.poll.interval=2000
+
+# Default client behavior is to poll, not use asynchronous notifications
+vws.usenotifications=false
+
+# Default memory request
+vws.memory.request=3584
+
+# Image repository base directory (only used for older GridFTP based clouds)
+vws.repository.basedir=/cloud/
+
+# CA hash of target cloud (only used for advice in --security)
+vws.cahash=6045a439
+
+# propagation setup for cloud (only used for older GridFTP based clouds)
+vws.propagation.scheme=scp
+vws.propagation.keepport=false
+
+# Metadata defaults
+vws.metadata.association=public
+vws.metadata.mountAs=sda1
+vws.metadata.nicName=eth0
+vws.metadata.cpuType=x86
+vws.metadata.vmmType=Xen
+vws.metadata.vmmVersion=3
+
+# Filename defaults for history directory
+vws.metadata.fileName=metadata.xml
+vws.depreq.fileName=deprequest.xml
+</pre>
+
+
+
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+
+
+<br />
+
+<a name="user-management"> </a>
+<h2>User management _NAMELINK(user-management)</h2>
+
+
+<p>
+    In order to manage Nimbus user more easily a set of command line tools 
+    have been created.
+</p>
+
+<UL>
+    <LI>nimbus-new-user</LI>
+    <LI>nimbus-list-users</LI>
+    <LI>nimbus-edit-user</LI>
+    <LI>nimbus-remove-user</LI>
+</UL>
+
+<p>
+All of the tools take as a single mandatory argument an email address, with
+the slight exception of <i>nimbus-list-users</i>.  nimbus-list-users allows
+an administrator to query for users on their systems therefore it takes
+as an argument a query pattern.  For example, if you wanted to look up
+all the users with email addresses at gmail.com you would run:
+</p>
+
+<pre>
+% nimbus-list-users %@gmail.com
+</pre>
+
+<p>
+All of the command line tools take the argument --help and further information
+can be found there.  For didactic purposes an example of a common session in which a 
+new user is created, changes, listed and removed follows:
+</p>
+
+<div class="screen">
+<pre>
+$ ./bin/nimbus-new-user user1@nimbus.test
+cert            : /home/bresnaha/NIM/var/ca/tmpm3s0Vccert/usercert.pem
+key             : /home/bresnaha/NIM/var/ca/tmpm3s0Vccert/userkey.pem
+dn              : /O=Auto/OU=a645a24d-6183-4bbd-9537-b7260749c716/CN=user1@nimbus.test
+canonical id    : aa55655a-8552-11df-a58d-001de0a80259
+access id       : p3BR1WQTpio8JShc8YD7S
+access secret   : LRY6lMgIFE5BioK5XRu7eZKecBDHjB35PVOqAmCLDm
+url             : None
+web id          : None
+cloud properties : /home/bresnaha/NIM/var/ca/tmpm3s0Vccert/cloud.properties
+$
+
+$ ./bin/nimbus-edit-user -p NewPassWord user1@nimbus.test
+dn              : /O=Auto/OU=a645a24d-6183-4bbd-9537-b7260749c716/CN=user1@nimbus.test
+canonical id    : aa55655a-8552-11df-a58d-001de0a80259
+access id       : p3BR1WQTpio8JShc8YD7S
+access secret   : NewPassWord
+$
+
+$ ./bin/nimbus-list-users %@nimbus.test
+dn              : /O=Auto/OU=a645a24d-6183-4bbd-9537-b7260749c716/CN=user1@nimbus.test
+canonical id    : aa55655a-8552-11df-a58d-001de0a80259
+access id       : p3BR1WQTpio8JShc8YD7S
+access secret   : NewPassWord
+display name    : user1@nimbus.test
+$
+
+$ ./bin/nimbus-remove-user user1@nimbus.test
+$
+</pre>
+</div>
+
+
+
+
+
 
 <!-- *********************************************************************** -->
 <!-- *********************************************************************** -->
@@ -172,6 +819,8 @@ https://10.20.0.1:8443/wsrf/services/ElasticNimbusService
         </p>
     </li>
 </ul>
+
+<!-- the following is not relevant anymore ? -->
 
 <p>
     There is a sample container <i>server-config.wsdd</i> configuration
@@ -239,6 +888,8 @@ _EXAMPLE_CMD_END
 
 <a name="query"> </a>
 <h2>Configuring the EC2 Query frontend _NAMELINK(query)</h2>
+
+<!-- could have a "ports" section somewhere that this refers to, instead of littering default port configs around the docs which may get messy and incaccurate -->
 <p>
 The EC2 Query frontend supports the same operations as the SOAP frontend.
 However, it does not run in the same container. It listens on HTTPS using Jetty.
@@ -261,44 +912,15 @@ request and attaching them. The service performs this same signature process
 and compares its result with the one included in the request.
 </p>
 
+<!-- mention any safeguards against replay attacks? -->
+
 <p>
-For the initial release of the Query frontend, Nimbus users are mapped to
-Query credentials in a flat text file. By default, this file is located at
-<i>$GLOBUS_LOCATION/etc/nimbus/query/users.txt</i> but it may be placed
-elsewhere by altering the <i>query.usermap.path</i> configuration value in
-<i>query.conf</i>. This file must be manually managed but in the near future
-it will be tied into the administrative web application. Changes to this file
-do not require a container restart.
+    There is support for creating query credentials in the nimbus-new-user program, for more information see the <a href="#user-management">user management</a> section.
 </p>
 
 <p>
-    To ease the process of authorizing users for the Query interface during the
-    period before support is added to the administrative web application, we have
-    added a utility to the <i>cloud-admin.sh</i> tool. This utility generates
-    a secret key for a user and adds an entry to the <i>users.txt</i> file.
-</p>
-
-<div class="screen"><pre>
-# <b>./cloud-admin.sh --add-query-dn "/O=Grid/OU=GlobusTest/OU=uchicago.edu/CN=Some User"</b>
-Generated query credentials for user:
-	Access ID: b9747c9a
-	Secret key: vay/1xelRSr9Koq2MX09S+SvD3vrSQIsmfO4Cq16fZY=
-*Securely* distribute these tokens to the user.
-
-</pre></div>
-
-<p>
-    This utility is by no means a complete administrative tool for query users.
-    For all other management, you'll need to edit the <i>users.txt</i> file
-    directly.
-</p>
-
-<p>
-    In addition to this utility, there is basic support for distributing query tokens
-    via the <a href="../faq.html#nimbusweb">Nimbus Web</a> application. The admin
-    can paste a user's credentials into the app and the user can retrieve them
-    with their username and password. In the near future this functionality will be
-    greatly expanded to allow management of tokens directly in this interface.
+    There is support for distributing query tokens
+    via the <a href="../faq.html#nimbusweb">Nimbus Web</a> application.
 </p>
 
 <!-- *********************************************************************** -->
@@ -307,6 +929,7 @@ Generated query credentials for user:
 
 <br />
 
+<!-- again, ports section? -->
 
 <a name="cumulus-port"> </a>
 <h2>Changing the service port of Cumulus <span class="namelink"><a href="#cumulus-port">(#)</a></span>
@@ -354,10 +977,16 @@ hostname = &lt;hostname&gt;
     <i>nimbus-configure</i> to propagate the change. Now you can use <i>nimbusctl</i>
     to start/stop the web application.
 </p>
+
+<!-- ports section... -->
 <p>
     By default, the web application listens on port 1443. This and other configuration
     options are location in the <i>$NIMBUS_HOME/web/nimbusweb.conf</i> file. Changes to
     this file require a restart of the service.
+</p>
+
+<p>
+    Once the web application has been configured, you can start to use it with the nimbus-new-user program (see the help output), see the <a href="#user-management">user management</a> section.
 </p>
 
 <!-- *********************************************************************** -->
@@ -371,33 +1000,23 @@ hostname = &lt;hostname&gt;
 </h2>
 
 <p>
-    While the Nimbus Web application is still under heavy development, its current
-    functionality is useful enough to release in its early form. In the 2.4 release,
-    Nimbus Web provides basic facilities for distributing new X509 credentials and EC2 query tokens to users.
-    Previously this was a tedious process that was difficult to do in a secure way
-    that was also user friendly. Nimbus Web allows an admin to upload credentials
-    for a user and then send them a custom URL which invites them to create an
-    account.
+    The Nimbus web application provides basic facilities for distributing new X509 credentials, EC2 query tokens, and cloud.properties files to users.
+    
+</p>
+<p>
+    Previously this was a tedious process that was difficult to do in a secure way that was also user friendly. Nimbus Web allows an admin to upload credentials for a user and then send them a custom URL which invites them to create an account.
+</p>
+<p>
+    Once the web application has been configured, you can start to use it with the nimbus-new-user program (see the help output, -W flag), which allows you to very quickly add a user to the system and get the URL to distribute in your welcome email.  The <a href="#user-management">user management</a> tools provide machine parsable output options that make it easy to incorporate into scripts as well (perhaps you would like to go further and create those emails entirely programmatically).
 </p>
 <p>
     To get started, log into the web interface as a superuser and go to the
     <i>Administrative Panel</i>. This page has a section for creating users
-    as well as viewing pending and existing users. The initial release does not
-    have embedded CA functionality (it is being planned). You must use an
-    external CA to generate the user credentials and there is no way to 
-    distribute a password so the key should be passwordless. You must also 
-    manually authorize the new user for the
-    Nimbus service (it is recommended that you use the cloud-admin tool for 
-    quickly adding new users).
+    as well as viewing pending and existing users.  The best way to do this is by using the nimbus-new-user tool, but this option is available for you to create accounts manually.
 </p>
 
 <p>
-    Create a new user by filling in the appropriate fields and uploading an X509
-    certificate and key for the user. Note that the application expects plain
-    text files, so depending on your browser you may need to rename files to have
-    a .txt extension before you can upload them. Once the new account is created,
-    you will be provided with a custom URL. You must paste this URL into an email
-    to the user along with usage instructions.
+    If you go the manual route: fill in the appropriate fields and upload an X509 certificate and (passwordless) key for the user. Note that the application expects plain text files, so depending on your browser you may need to rename files to have a .txt extension before you can upload them. Once the new account is created, you will be provided with a custom URL. You must paste this URL into an email to the user along with usage instructions.
 </p>
 
 <p>
@@ -419,7 +1038,7 @@ hostname = &lt;hostname&gt;
         hours (default: 12).
     </li>
     <li>
-        <b>The user private key can be downloaded once and only once</b>.
+        <b>The user's X509 private key can be downloaded once and only once</b>.
         After this download occurs,
         the key will be deleted from the server altogether. In an ideal security system,
         no person or system will ever be in possession of a private key, except for the
@@ -429,6 +1048,9 @@ hostname = &lt;hostname&gt;
     <li>
         When a URL token is accessed or a private key is downloaded, the time and IP address of
         this access is logged and displayed in the administrative panel. 
+    </li>
+    <li>
+        The nimbus-new-user tool can create a custom cloud.properties file to use with your cloud.  This will have all the right configurations as well as the user's query credentials in the "vws.repository.s3id" and "vws.repository.s3key" fields for using Cumulus.
     </li>
 </ul>
       
@@ -507,7 +1129,7 @@ hostname = &lt;hostname&gt;
     What follows is the instructions for setting up a container as they existed
     before the auto-configuration program or the installer came into being (see
     <a href="quickstart.html#part-IIb">here</a> for
-    information about the auto-configuration program).
+    information about the auto-configuration program).  We are leaving in the docs because it provides some insight, especially for administrators that are preparing programmatic node configurations for their clusters (using systems such as Chef).
 </p>
 
 <hr />
@@ -519,7 +1141,7 @@ hostname = &lt;hostname&gt;
 </p>
 
 _EXAMPLE_CMD_BEGIN
-cd $GLOBUS_LOCATION/etc/nimbus/workspace-service
+cd $NIMBUS_HOME/services/etc/nimbus/workspace-service
 _EXAMPLE_CMD_END
 
 
@@ -558,7 +1180,7 @@ service.sshd.contact.string=REPLACE_WITH_SERVICE_NODE_HOSTNAME:22</pre>
 </p>
 
 _EXAMPLE_CMD_BEGIN
-cd $GLOBUS_LOCATION/etc/nimbus/workspace-service/vmm-pools
+cd $NIMBUS_HOME/services/etc/nimbus/workspace-service/vmm-pools
 _EXAMPLE_CMD_END
 
 <p>
@@ -597,7 +1219,7 @@ nimbus@some-vmm-node $ ...</pre>
 </p>
 
 _EXAMPLE_CMD_BEGIN
-cd $GLOBUS_LOCATION/etc/nimbus/workspace-service/network-pools/
+cd $NIMBUS_HOME/services/etc/nimbus/workspace-service/network-pools/
 _EXAMPLE_CMD_END
 
 <p>
@@ -607,7 +1229,10 @@ _EXAMPLE_CMD_END
 <p>
     You can name these files anything you want.  The file names will be the
     names of the networks that are offered to clients.  It's a convention to
-    provide "public" and "private" but these can be anything.
+    provide "public" and "private" but these can be anything.  If you do change
+    this, the cloud client configuration for what network(s) to request will
+    need to be overriden in the cloud.properties file that you distribute to
+    users.
 </p>
 
 <p>
@@ -628,6 +1253,9 @@ _EXAMPLE_CMD_END
 fakepub1 192.168.0.3 192.168.0.1 192.168.0.255 255.255.255.0</pre>
 </div>
 
+<p>
+    It is possible to force specific MAC addresses for each IP address, see the file for syntax details.  Usually the service will pick these for you from a pool of MAC addresses starting with a prefix that is configured in the "$NIMBUS_HOME/services/etc/nimbus/workspace-service/network.conf" file.
+</p>
 
 
 
@@ -659,10 +1287,10 @@ fakepub1 192.168.0.3 192.168.0.1 192.168.0.255 255.255.255.0</pre>
     is no longer available to the workspace service. 
 </p>
 <p>
-    The "etc/nimbus/workspace-service/other/<b>resource-locator-ACTIVE.xml</b>"
+    The "services/etc/nimbus/workspace-service/other/<b>resource-locator-ACTIVE.xml</b>"
     file dictates what mode is in use (container restart required if this
     changes).  See the available
-    "etc/nimbus/workspace-service/other/<b>resource-locator-*</b>" files.
+    "services/etc/nimbus/workspace-service/other/<b>resource-locator-*</b>" files.
 </p>
 
 <a name="resource-pool"> </a>
@@ -673,15 +1301,15 @@ fakepub1 192.168.0.3 192.168.0.1 192.168.0.255 255.255.255.0</pre>
 
 <p>
     A directory of files is located at
-    "etc/nimbus/workspace-service/<b>vmm-pools</b>/"
+    "services/etc/nimbus/workspace-service/<b>vmm-pools</b>/"
 </p>
 <p>
-   The pool file format is currently very simple: for each node in the pool,
+   The pool file format is currently simple: for each node in the pool,
    list the hostname and the amount of RAM it can spare for running guest VMs.
 </p>
 <p>
    Optionally, you can also specify that certain hosts can only
-   support a subset of the available networking associations (see the
+   support a subset of the available networks (see the
    file comments for syntax).
 </p>
 <p>
@@ -784,13 +1412,13 @@ fakepub1 192.168.0.3 192.168.0.1 192.168.0.255 255.255.255.0</pre>
     <li>
         <p>
             Copy the
-            "etc/nimbus/workspace-service/other/<b>resource-locator-pilot.xml</b>"
+            "services/etc/nimbus/workspace-service/other/<b>resource-locator-pilot.xml</b>"
             to
-            "etc/nimbus/workspace-service/other/<b>resource-locator-ACTIVE.xml</b>"
+            "services/etc/nimbus/workspace-service/other/<b>resource-locator-ACTIVE.xml</b>"
         </p>
 
         <p>
-            The configuration comments in "etc/nimbus/workspace-service/<b>pilot.conf</b>"
+            The configuration comments in "services/etc/nimbus/workspace-service/<b>pilot.conf</b>"
             should be self explanatory.  There are a few to highlight here
             (and note that advanced configs are in <b>resource-locator-ACTIVE.xml</b>).
         </p>
@@ -815,7 +1443,7 @@ fakepub1 192.168.0.3 192.168.0.1 192.168.0.255 255.255.255.0</pre>
 
                 <p>
                     Note the <b>accountsPath</b> setting.
-                    Navigate to that file ("etc/nimbus/workspace_service/<b>pilot-authz.conf</b>"
+                    Navigate to that file ("services/etc/nimbus/workspace_service/<b>pilot-authz.conf</b>"
                     by default) and change the shared secret to something
                     not dictionary based and 15 or more characters.
                     A script in that directory will produce suggestions.
@@ -1017,71 +1645,14 @@ fakepub1 192.168.0.3 192.168.0.1 192.168.0.255 255.255.255.0</pre>
 <!-- *********************************************************************** -->
 
 
-
 <br />
-
 
 <a name="backend-config-invm-networking"> </a>
 <h2>Network configuration details _NAMELINK(backend-config-invm-networking)</h2>
 <p>
-    For the Workspace backend to support networking information delivery to
-    VMs, you are required to install DHCP and ebtables on each hypervisor
-    node. When networking information in a workspace needs to change at
-    its startup (which is typical upon deployment), workspace-control will
-    make a call via sudo to a program that adds a MAC address to IP mapping
-    into the local DHCP server for each of the workspace's NICs that need
-    to be configured. It will also adjust ebtables rules for each of the
-    workspace's NICs that need to be configured: these make sure the NICs
-    are using the proper MAC and IP address as well as directing DHCP
-    requests to the local DHCP server only.
+    As of Nimbus 2.5, the networking and DHCP situation has changed, this section is currently undergoing an overhaul.  Check back soon or contact the list.
 </p>
 
-<p>
-    To actually enact networking changes, the VM must set its own L3 networking
-    information (IP address, default gateway, etc) from inside the VM. Currently
-    we only support delivery of the information via DHCP. Booting into DHCP
-    client mode is well supported in virtually every operating system in
-    existence. Previously we passed information via kernel parameters which
-    required a special understanding inside the VM. The result of using DHCP
-    is that workspace images are easier to create and easier to maintain.
-</p>
-
-<p>
-    A DHCP server is required to run on each hypervisor node. The purpose of
-    this server is to respond to broadcast requests from workspace's that
-    are booting locally. Before starting a VM, if any of its NICs need to
-    be configured via DHCP, workspace-control will call out to "dhcp-config.sh"
-    via sudo, passing it a specific MAC address to IP mapping (as well as
-    other information to be passed to the VM such as hostname, dns servers,
-    broadcast address, default gateway, etc).
-</p>
-
-<ul>
-    <li>"Won't this interfere with my current DHCP server?" No.</li>
-    <li>"Will this cause unwanted packets on my physical LAN?" No.</li>
-    <li>"Will other workspaces be able to send broadcasts and get the wrong DHCP lease?" No.</li>
-</ul>
-
-<p>
-    In addition to a DHCP server, we also insert custom ebtables rules when the
-    workspace is deployed. These rules accomplish three things:
-</p>
-
-<ol>
-    <li>Only packets with the correct MAC address for this virtual interface
-        are permitted.</li>
-    <li>Broadcasted DHCP requests are only permitted to be bridged to the
-        correct virtual interface (configured in workspace-control's
-        configuration file).</li>
-    <li>Only packets with the correct IP address for this virtual
-        interface are permitted (as the NIC does not have an IP address yet
-        when making a DHCP request, the IP check only happens if it is not
-        a DHCP request.</li>
-</ol>
-<p>
-    A version of the workspace DHCP design document is available here:
-    <a href="../DHCP-TP1.2.2-draft2.pdf">pdf</a>.
-</p>
 
 <!-- *********************************************************************** -->
 <!-- *********************************************************************** -->
@@ -1147,7 +1718,7 @@ fakepub1 192.168.0.3 192.168.0.1 192.168.0.255 255.255.255.0</pre>
     </li>
     <li>
         <p>
-           Navigate to "<i>$GLOBUS_LOCATION/etc/nimbus-context-broker</i>"
+           Navigate to "<i>$NIMBUS_HOME/services/etc/nimbus-context-broker</i>"
            and adjust the "caCertPath" and "caKeyPath" parameters in the
            "<i>jndi-config.xml</i>" file to point to the CA certificate
             and key files you created in previous steps.
@@ -1175,7 +1746,7 @@ Cumulus is an open source implementation of the Amazon S3 REST API.  It
 is packaged with the Nimbus
 however it can be used without nimbus as well.  Cumulus allows
 you to server files to users via a known and adopted REST API. Your
-clients will be able to access your data storaging service with the
+clients will be able to access your data service with the
 Amazon S3 clients they already use.
 
 </p>
@@ -1183,7 +1754,7 @@ Amazon S3 clients they already use.
 <a name="cumulus-config"> </a>
 <h3>Cumulus Configuration _NAMELINK(cumulus-config)</h3>
 <p>
-When the server is run it expects to find a configuration file (typically
+When the Cumulus server is run it expects to find a configuration file (typically
 called cumulus.ini) in one or all of the following locations:
 
     <ol>
@@ -1194,7 +1765,7 @@ called cumulus.ini) in one or all of the following locations:
     </ol>
 
 Each file in the path is read in (provided it exists).  The values found 
-in each file override the values found in the previous file.
+in each file override the values found in the previous file in this list.
 
 </p>
 
@@ -1202,15 +1773,15 @@ in each file override the values found in the previous file.
 <a name="repository-location"> </a>
 <h3>Repository Location _NAMELINK(repository-location)</h3>
 <p>
-The backend storage system in cumulus has been created with a modular 
+The backend storage system in Cumulus has been created with a modular 
 interface that will allow us to add more
 sophisticated plugins in the future.  Thus giving the administrator 
 many powerful options.
 In the current implementation there is a single storage module which stores 
 user files a mounted file system.  
-The reliability and performance of cumulus will thus be
+The reliability and performance of Cumulus will thus be
 limited by the reliability and performance of that file system.  Because
-of this cumulus administrators will often want to specify a location for
+of this Cumulus administrators will often want to specify a location for
 the repository.
 </p>
 <p>
@@ -1240,7 +1811,7 @@ will instantiate a boto S3Connection for use with CB:
 </pre>
 
 <a name="s3cmd"> </a>
-<h3>Using the s3cmd client _NAMELINK(boto)</h3>
+<h3>Using the s3cmd client _NAMELINK(s3cmd)</h3>
 <p>
 Once you have the s3cmd successfully installed and configured you must
 modify the file: $HOME/.s3cfg in order to direct it at this server.
@@ -1253,8 +1824,8 @@ Make sure the following key value pairs reflect the following changes:
     host_bucket = &lt;hostname of server&gt;
     use_https = False
 </pre>
-<a name="https"> </a>
-<h3>Using HTTPS with Cumulus _NAMELINK(boto)</h3>
+<a name="cumulus-https"> </a>
+<h3>Using HTTPS with Cumulus _NAMELINK(cumulus-https)</h3>
 <p>
 In order to use a secure https connection with cumulus you must edit the 
 cumulus.ini file and provide it with a certificate and key pair.  In
@@ -1271,8 +1842,8 @@ key=/home/nimbus/var/hostkey.pem
 cert=/home/nimbus/var/hostcert.pem
 </pre>
 
-<a name="quotas"> </a>
-<h3>Disk Usage Quotas _NAMELINK(quotas)</h3>
+<a name="cumulus-quotas"> </a>
+<h3>Disk Usage Quotas _NAMELINK(cumulus-quotas)</h3>
 <p>
 Cumulus allows administrators to set disk space limits on a per user basis.
 By default users are created with unlimited space.  To set a disk quota 
