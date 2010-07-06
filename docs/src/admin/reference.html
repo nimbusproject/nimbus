@@ -282,6 +282,7 @@ and compares its result with the one included in the request.
 
 <br />
 
+<!-- again, ports section? -->
 
 <a name="cumulus-port"> </a>
 <h2>Changing the service port of Cumulus <span class="namelink"><a href="#cumulus-port">(#)</a></span>
@@ -329,10 +330,16 @@ hostname = &lt;hostname&gt;
     <i>nimbus-configure</i> to propagate the change. Now you can use <i>nimbusctl</i>
     to start/stop the web application.
 </p>
+
+<!-- ports section... -->
 <p>
     By default, the web application listens on port 1443. This and other configuration
     options are location in the <i>$NIMBUS_HOME/web/nimbusweb.conf</i> file. Changes to
     this file require a restart of the service.
+</p>
+
+<p>
+    Once the web application has been configured, you can start to use it with the nimbus-new-user program (see the help output), see the <a href="TODO">user management</a> section.
 </p>
 
 <!-- *********************************************************************** -->
@@ -346,33 +353,23 @@ hostname = &lt;hostname&gt;
 </h2>
 
 <p>
-    While the Nimbus Web application is still under heavy development, its current
-    functionality is useful enough to release in its early form. In the 2.4 release,
-    Nimbus Web provides basic facilities for distributing new X509 credentials and EC2 query tokens to users.
-    Previously this was a tedious process that was difficult to do in a secure way
-    that was also user friendly. Nimbus Web allows an admin to upload credentials
-    for a user and then send them a custom URL which invites them to create an
-    account.
+    The Nimbus web application provides basic facilities for distributing new X509 credentials, EC2 query tokens, and cloud.properties files to users.
+    
+</p>
+<p>
+    Previously this was a tedious process that was difficult to do in a secure way that was also user friendly. Nimbus Web allows an admin to upload credentials for a user and then send them a custom URL which invites them to create an account.
+</p>
+<p>
+    Once the web application has been configured, you can start to use it with the nimbus-new-user program (see the help output, -W flag), which allows you to very quickly add a user to the system and get the URL to distribute in your welcome email.  The <a href="TODO">user management</a> tools provide machine parsable output options that make it easy to incorporate into scripts as well (perhaps you would like to go further and create those emails entirely programmatically).
 </p>
 <p>
     To get started, log into the web interface as a superuser and go to the
     <i>Administrative Panel</i>. This page has a section for creating users
-    as well as viewing pending and existing users. The initial release does not
-    have embedded CA functionality (it is being planned). You must use an
-    external CA to generate the user credentials and there is no way to 
-    distribute a password so the key should be passwordless. You must also 
-    manually authorize the new user for the
-    Nimbus service (it is recommended that you use the cloud-admin tool for 
-    quickly adding new users).
+    as well as viewing pending and existing users.  The best way to do this is by using the nimbus-new-user tool, but this option is available for you to create accounts manually.
 </p>
 
 <p>
-    Create a new user by filling in the appropriate fields and uploading an X509
-    certificate and key for the user. Note that the application expects plain
-    text files, so depending on your browser you may need to rename files to have
-    a .txt extension before you can upload them. Once the new account is created,
-    you will be provided with a custom URL. You must paste this URL into an email
-    to the user along with usage instructions.
+    If you go the manual route: fill in the appropriate fields and upload an X509 certificate and (passwordless) key for the user. Note that the application expects plain text files, so depending on your browser you may need to rename files to have a .txt extension before you can upload them. Once the new account is created, you will be provided with a custom URL. You must paste this URL into an email to the user along with usage instructions.
 </p>
 
 <p>
@@ -394,7 +391,7 @@ hostname = &lt;hostname&gt;
         hours (default: 12).
     </li>
     <li>
-        <b>The user private key can be downloaded once and only once</b>.
+        <b>The user's X509 private key can be downloaded once and only once</b>.
         After this download occurs,
         the key will be deleted from the server altogether. In an ideal security system,
         no person or system will ever be in possession of a private key, except for the
@@ -404,6 +401,9 @@ hostname = &lt;hostname&gt;
     <li>
         When a URL token is accessed or a private key is downloaded, the time and IP address of
         this access is logged and displayed in the administrative panel. 
+    </li>
+    <li>
+        The nimbus-new-user tool can create a custom cloud.properties file to use with your cloud.  This will have all the right configurations as well as the user's query credentials in the "vws.repository.s3id" and "vws.repository.s3key" fields for using Cumulus.
     </li>
 </ul>
       
