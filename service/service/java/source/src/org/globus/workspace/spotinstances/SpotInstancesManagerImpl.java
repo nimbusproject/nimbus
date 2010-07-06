@@ -38,7 +38,7 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
     private static final Log logger =
         LogFactory.getLog(SpotInstancesManagerImpl.class.getName());
     
-    protected Integer availableResources;
+    protected Integer maximumInstances;
 
     protected Map<String, SIRequest> allRequests;
 
@@ -61,7 +61,7 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
         this.allRequests = new HashMap<String, SIRequest>();
         this.currentPrice = PricingModelConstants.MINIMUM_PRICE;
         this.pricingModel = new MaximizeUtilizationPricingModel();
-        this.availableResources = 0;
+        this.maximumInstances = 0;
 
         if (persistenceAdapterImpl == null) {
             throw new IllegalArgumentException("persistenceAdapterImpl may not be null");
@@ -145,13 +145,13 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
 
         reallocateRequests();
 
-        if(availableResources == 0){
+        if(maximumInstances == 0){
             changePrice();
         }
     }
 
     private void changePrice() {
-        Double newPrice = pricingModel.getNextPrice(availableResources, getAliveRequests(), currentPrice);
+        Double newPrice = pricingModel.getNextPrice(maximumInstances, getAliveRequests(), currentPrice);
         if(!newPrice.equals(this.currentPrice)){
             if (this.lager.eventLog) {
                 logger.info(Lager.ev(-1) + "[Spot Instances] PRICE CHANGED. OLD PRICE = " + this.currentPrice + ". NEW PRICE = " + newPrice);
@@ -175,7 +175,7 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
 
     private void preemptLowerBidRequests() {
         
-        this.currentPrice = pricingModel.getNextPrice(availableResources, getAliveRequests(), currentPrice);
+        this.currentPrice = pricingModel.getNextPrice(maximumInstances, getAliveRequests(), currentPrice);
         if (this.lager.eventLog) {
             logger.info(Lager.ev(-1) + "[Spot Instances] PRE-EMPTING LOWER BID REQUESTS.");
         } 
@@ -207,9 +207,9 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
             logger.info(Lager.ev(-1) + "[Spot Instances] ALLOCATING EQUAL BID REQUESTS.");
         }         
         
-        Integer greaterBidResources = getGreaterBidResourcesCount();
+        Integer greaterBidVMs = getGreaterBidInstancesCount();
 
-        Integer availableResources = this.availableResources - greaterBidResources;
+        Integer availableInstances = this.maximumInstances - greaterBidVMs;
 
         List<SIRequest> activeRequests = getEqualBidActiveRequests();
 
@@ -218,18 +218,18 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
             allocatedVMs += activeRequest.getAllocatedInstances();
         }
         
-        if(allocatedVMs <= availableResources){
-            availableResources -= allocatedVMs;
+        if(allocatedVMs <= availableInstances){
+            availableInstances -= allocatedVMs;
         } else {
-            Integer needToPreempt = allocatedVMs - availableResources;
+            Integer needToPreempt = allocatedVMs - availableInstances;
             if (this.lager.eventLog) {
-                logger.info(Lager.ev(-1) + "[Spot Instances] No more resources for equal bid requests. Pre-empting " + needToPreempt + " VMs.");   
+                logger.info(Lager.ev(-1) + "[Spot Instances] No more VMs for equal bid requests. Pre-empting " + needToPreempt + " VMs.");   
             }
             preemptProportionaly(activeRequests, needToPreempt, allocatedVMs);
             return;
         }
 
-        allocateEvenly(availableResources);
+        allocateEvenly(availableInstances);
     }
 
     /**
@@ -239,10 +239,10 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
      * until all requests are satisfied, or there are no available
      * resources to distribute.
      * 
-     * @param availableResources the number of VMs available
+     * @param availableInstances the number of VMs available
      *                           for allocation
      */
-    private void allocateEvenly(Integer availableResources) {
+    private void allocateEvenly(Integer availableInstances) {
         List<SIRequest> hungryRequests = getEqualBidHungryRequests();
         Collections.sort(hungryRequests, getAllocationComparator());
         
@@ -251,12 +251,12 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
             allocations.put(hungryRequest, 0);
         }
         
-        while(availableResources > 0 && !hungryRequests.isEmpty()){
-            Integer vmsPerRequest = Math.max(availableResources/hungryRequests.size(), 1);
+        while(availableInstances > 0 && !hungryRequests.isEmpty()){
+            Integer vmsPerRequest = Math.max(availableInstances/hungryRequests.size(), 1);
             
             Iterator<SIRequest> iterator = hungryRequests.iterator();
-            while(availableResources > 0 && iterator.hasNext()){
-                vmsPerRequest = Math.min(vmsPerRequest, availableResources);
+            while(availableInstances > 0 && iterator.hasNext()){
+                vmsPerRequest = Math.min(vmsPerRequest, availableInstances);
                 
                 SIRequest siRequest = (SIRequest) iterator.next();
                 Integer vmsToAllocate = allocations.get(siRequest);
@@ -264,13 +264,13 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
                 Integer stillNeeded = siRequest.getNeededInstances() - vmsToAllocate;
                 if(stillNeeded <= vmsPerRequest){
                     allocations.put(siRequest, vmsToAllocate+stillNeeded);
-                    availableResources -= stillNeeded;
+                    availableInstances -= stillNeeded;
                     iterator.remove();
                     continue;
                 }
                 
                 allocations.put(siRequest, vmsToAllocate+vmsPerRequest);
-                availableResources -= vmsPerRequest;
+                availableInstances -= vmsPerRequest;
             }
             
             for (Entry<SIRequest, Integer> allocationEntry : allocations.entrySet()) {
@@ -487,10 +487,10 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
     // DEFINE SPOT INSTANCES CAPACITY
     // -------------------------------------------------------------------------        
     
-    protected synchronized void calculateAvailableResources() {
+    protected synchronized void calculateMaximumInstances() {
         
         if (this.lager.eventLog) {
-            logger.info(Lager.ev(-1) + "[Spot Instances] Calculating available SI resources..");
+            logger.info(Lager.ev(-1) + "[Spot Instances] Calculating available SI instances..");
         }        
 
         Integer siMem;
@@ -524,26 +524,29 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
                 logger.info(Lager.ev(-1) + "[Spot Instances] Calculated memory for SI requests: " + siMem + "MB");
             }
         } catch (WorkspaceDatabaseException e) {
-            logger.error(Lager.ev(-1) + "[Spot Instances] Error while calculating available resources: " + e.getMessage());
+            changeMaximumInstances(0);
+            logger.error(Lager.ev(-1) + "[Spot Instances] Error while calculating maximum instances: " + e.getMessage());
             return;
         }
         
-        setAvailableResources(siMem);
+        //TODO 
+        
+        changeMaximumInstances(siMem);
     }
 
-    protected void setAvailableResources(Integer availableMemory){
+    protected void changeMaximumInstances(Integer availableMemory){
 
         if(availableMemory == null || availableMemory < 0){
             return;
         }
 
-        Integer resourceQuantity = availableMemory/INSTANCE_MEM;
+        Integer newMaxInstances = availableMemory/INSTANCE_MEM;
 
-        if(resourceQuantity != availableResources){
+        if(newMaxInstances != maximumInstances){
             if (this.lager.eventLog) {
-                logger.info(Lager.ev(-1) + "[Spot Instances] RESOURCE QUANTITY CHANGED. OLD AVAILABLE RESOURCES = " + availableResources + ". NEW AVAILABLE RESOURCES = " + resourceQuantity);
+                logger.info(Lager.ev(-1) + "[Spot Instances] Maximum instances changed. Previous maximum instances = " + maximumInstances + ". Current maximum instances = " + newMaxInstances);
             }            
-            availableResources = resourceQuantity;
+            this.maximumInstances = newMaxInstances;
             changePriceAndReallocateRequests();
         }
     }    
@@ -571,9 +574,9 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
                 
             } else {
                 if (this.lager.eventLog) {
-                    logger.info(Lager.ev(-1) + "[Spot Instances] A non-preemptable VM was destroyed. Recalculating available resources.");
+                    logger.info(Lager.ev(-1) + "[Spot Instances] A non-preemptable VM was destroyed. Recalculating maximum instances.");
                 }
-                this.calculateAvailableResources();
+                this.calculateMaximumInstances();
             }
         }
     }    
@@ -582,9 +585,9 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
         //assume just non-preemptable VM's are being notified here 
         if(state == WorkspaceConstants.STATE_FIRST_LEGAL){
             if (this.lager.eventLog) {
-                logger.info(Lager.ev(-1) + "[Spot Instances] " + vmids.length + " non-preemptable VMs created. Recalculating available resources.");
+                logger.info(Lager.ev(-1) + "[Spot Instances] " + vmids.length + " non-preemptable VMs created. Recalculating maximum instances.");
             }            
-            this.calculateAvailableResources();
+            this.calculateMaximumInstances();
         }
     }
     
@@ -593,11 +596,11 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
     // -------------------------------------------------------------------------       
     
     public void start() {
-        this.calculateAvailableResources();
+        this.calculateMaximumInstances();
     }    
     
     public void freeSpace(Integer memoryToFree) {
-        Integer usedMemory = availableResources*INSTANCE_MEM;
+        Integer usedMemory = maximumInstances*INSTANCE_MEM;
 
         if (this.lager.eventLog) {
             logger.info(Lager.ev(-1) + "[Spot Instances] " + memoryToFree + 
@@ -607,12 +610,12 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
         if(memoryToFree > usedMemory){
             logger.warn(Lager.ev(-1) + "[Spot Instances] Spot Instances requests are consuming " + usedMemory + 
                     "MB RAM , but SIManager was requested to free " + memoryToFree + "MB RAM. " +
-                            "Freeing just " + usedMemory + ".");            
+                            "Freeing " + usedMemory + "MB RAM.");            
             memoryToFree = usedMemory;
         }
 
         Integer availableMemory = usedMemory - memoryToFree;
-        setAvailableResources(availableMemory); 
+        changeMaximumInstances(availableMemory); 
     }    
     
     // -------------------------------------------------------------------------
@@ -643,16 +646,16 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
         return SIRequestUtils.filterAliveRequests(this.allRequests.values());
     }    
 
-    protected Integer getGreaterBidResourcesCount() {
+    protected Integer getGreaterBidInstancesCount() {
         Collection<SIRequest> priorityRequests = getHigherBidAliveRequests();
 
-        Integer resourceCount = 0;
+        Integer instanceCount = 0;
 
         for (SIRequest siRequest : priorityRequests) {
-            resourceCount += siRequest.getNeededInstances();
+            instanceCount += siRequest.getNeededInstances();
         }
 
-        return resourceCount;
+        return instanceCount;
     }    
     
     protected SIRequest getSIRequest(int vmid) {
@@ -679,8 +682,8 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
     // TEST UTILS
     // -------------------------------------------------------------------------
     
-    public Integer getAvailableResources() {
-        return availableResources;
+    public Integer getMaximumInstances() {
+        return maximumInstances;
     }
 
 }

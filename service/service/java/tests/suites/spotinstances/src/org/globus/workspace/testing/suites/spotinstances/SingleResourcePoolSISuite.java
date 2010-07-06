@@ -30,7 +30,6 @@ import org.nimbustools.api.repr.RequestSI;
 import org.nimbustools.api.repr.SpotRequest;
 import org.nimbustools.api.repr.si.SIRequestState;
 import org.nimbustools.api.services.rm.Manager;
-import org.nimbustools.messaging.gt4_0.generated.types.ShutdownEnumeration;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.testng.annotations.AfterSuite;
@@ -846,7 +845,7 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
     
     public int getAvailableResources(){
         SpotInstancesManagerImpl siManager = (SpotInstancesManagerImpl) applicationContext.getBean(SPOTINSTANCES_MANAGER_BEAN_NAME);
-        return siManager.getAvailableResources();
+        return siManager.getMaximumInstances();
     }
     
 }
