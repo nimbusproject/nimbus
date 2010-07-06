@@ -47,8 +47,16 @@ class cbPosixBackend(object):
     # 0 indicates success
     # 
     def put_object(self, bucketName, objectName):
-        objectName = self.hash_file(objectName)
-        (osf, x) = tempfile.mkstemp(dir=self.base_dir, prefix=bucketName, suffix=objectName)
+        # first make the bucket directory if it does not exist
+        bdir = self.base_dir + "/" + bucketName
+        try:
+            os.mkdir(bdir)
+        except OSError, ose:
+            if ose.errno != 17:
+                raise
+
+        objectName = objectName.replace("/", "__")
+        (osf, x) = tempfile.mkstemp(dir=bdir, prefix=objectName)
         os.close(osf)
         data_key = x.strip()
         obj = cbPosixData(data_key, "w+b")
