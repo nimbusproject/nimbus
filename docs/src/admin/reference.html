@@ -482,7 +482,7 @@ hostname = &lt;hostname&gt;
     What follows is the instructions for setting up a container as they existed
     before the auto-configuration program or the installer came into being (see
     <a href="quickstart.html#part-IIb">here</a> for
-    information about the auto-configuration program).
+    information about the auto-configuration program).  We are leaving in the docs because it provides some insight, especially for administrators that are preparing programmatic node configurations for their clusters (using systems such as Chef).
 </p>
 
 <hr />
@@ -494,7 +494,7 @@ hostname = &lt;hostname&gt;
 </p>
 
 _EXAMPLE_CMD_BEGIN
-cd $GLOBUS_LOCATION/etc/nimbus/workspace-service
+cd $NIMBUS_HOME/services/etc/nimbus/workspace-service
 _EXAMPLE_CMD_END
 
 
@@ -533,7 +533,7 @@ service.sshd.contact.string=REPLACE_WITH_SERVICE_NODE_HOSTNAME:22</pre>
 </p>
 
 _EXAMPLE_CMD_BEGIN
-cd $GLOBUS_LOCATION/etc/nimbus/workspace-service/vmm-pools
+cd $NIMBUS_HOME/services/etc/nimbus/workspace-service/vmm-pools
 _EXAMPLE_CMD_END
 
 <p>
@@ -572,7 +572,7 @@ nimbus@some-vmm-node $ ...</pre>
 </p>
 
 _EXAMPLE_CMD_BEGIN
-cd $GLOBUS_LOCATION/etc/nimbus/workspace-service/network-pools/
+cd $NIMBUS_HOME/services/etc/nimbus/workspace-service/network-pools/
 _EXAMPLE_CMD_END
 
 <p>
@@ -582,7 +582,10 @@ _EXAMPLE_CMD_END
 <p>
     You can name these files anything you want.  The file names will be the
     names of the networks that are offered to clients.  It's a convention to
-    provide "public" and "private" but these can be anything.
+    provide "public" and "private" but these can be anything.  If you do change
+    this, the cloud client configuration for what network(s) to request will
+    need to be overriden in the cloud.properties file that you distribute to
+    users.
 </p>
 
 <p>
@@ -603,6 +606,9 @@ _EXAMPLE_CMD_END
 fakepub1 192.168.0.3 192.168.0.1 192.168.0.255 255.255.255.0</pre>
 </div>
 
+<p>
+    It is possible to force specific MAC addresses for each IP address, see the file for syntax details.  Usually the service will pick these for you from a pool of MAC addresses starting with a prefix that is configured in the "$NIMBUS_HOME/services/etc/nimbus/workspace-service/network.conf" file.
+</p>
 
 
 
@@ -634,10 +640,10 @@ fakepub1 192.168.0.3 192.168.0.1 192.168.0.255 255.255.255.0</pre>
     is no longer available to the workspace service. 
 </p>
 <p>
-    The "etc/nimbus/workspace-service/other/<b>resource-locator-ACTIVE.xml</b>"
+    The "services/etc/nimbus/workspace-service/other/<b>resource-locator-ACTIVE.xml</b>"
     file dictates what mode is in use (container restart required if this
     changes).  See the available
-    "etc/nimbus/workspace-service/other/<b>resource-locator-*</b>" files.
+    "services/etc/nimbus/workspace-service/other/<b>resource-locator-*</b>" files.
 </p>
 
 <a name="resource-pool"> </a>
@@ -648,15 +654,15 @@ fakepub1 192.168.0.3 192.168.0.1 192.168.0.255 255.255.255.0</pre>
 
 <p>
     A directory of files is located at
-    "etc/nimbus/workspace-service/<b>vmm-pools</b>/"
+    "services/etc/nimbus/workspace-service/<b>vmm-pools</b>/"
 </p>
 <p>
-   The pool file format is currently very simple: for each node in the pool,
+   The pool file format is currently simple: for each node in the pool,
    list the hostname and the amount of RAM it can spare for running guest VMs.
 </p>
 <p>
    Optionally, you can also specify that certain hosts can only
-   support a subset of the available networking associations (see the
+   support a subset of the available networks (see the
    file comments for syntax).
 </p>
 <p>
@@ -759,13 +765,13 @@ fakepub1 192.168.0.3 192.168.0.1 192.168.0.255 255.255.255.0</pre>
     <li>
         <p>
             Copy the
-            "etc/nimbus/workspace-service/other/<b>resource-locator-pilot.xml</b>"
+            "services/etc/nimbus/workspace-service/other/<b>resource-locator-pilot.xml</b>"
             to
-            "etc/nimbus/workspace-service/other/<b>resource-locator-ACTIVE.xml</b>"
+            "services/etc/nimbus/workspace-service/other/<b>resource-locator-ACTIVE.xml</b>"
         </p>
 
         <p>
-            The configuration comments in "etc/nimbus/workspace-service/<b>pilot.conf</b>"
+            The configuration comments in "services/etc/nimbus/workspace-service/<b>pilot.conf</b>"
             should be self explanatory.  There are a few to highlight here
             (and note that advanced configs are in <b>resource-locator-ACTIVE.xml</b>).
         </p>
@@ -790,7 +796,7 @@ fakepub1 192.168.0.3 192.168.0.1 192.168.0.255 255.255.255.0</pre>
 
                 <p>
                     Note the <b>accountsPath</b> setting.
-                    Navigate to that file ("etc/nimbus/workspace_service/<b>pilot-authz.conf</b>"
+                    Navigate to that file ("services/etc/nimbus/workspace_service/<b>pilot-authz.conf</b>"
                     by default) and change the shared secret to something
                     not dictionary based and 15 or more characters.
                     A script in that directory will produce suggestions.
@@ -992,71 +998,14 @@ fakepub1 192.168.0.3 192.168.0.1 192.168.0.255 255.255.255.0</pre>
 <!-- *********************************************************************** -->
 
 
-
 <br />
-
 
 <a name="backend-config-invm-networking"> </a>
 <h2>Network configuration details _NAMELINK(backend-config-invm-networking)</h2>
 <p>
-    For the Workspace backend to support networking information delivery to
-    VMs, you are required to install DHCP and ebtables on each hypervisor
-    node. When networking information in a workspace needs to change at
-    its startup (which is typical upon deployment), workspace-control will
-    make a call via sudo to a program that adds a MAC address to IP mapping
-    into the local DHCP server for each of the workspace's NICs that need
-    to be configured. It will also adjust ebtables rules for each of the
-    workspace's NICs that need to be configured: these make sure the NICs
-    are using the proper MAC and IP address as well as directing DHCP
-    requests to the local DHCP server only.
+    As of Nimbus 2.5, the networking and DHCP situation has changed, this section is currently undergoing an overhaul.  Check back soon or contact the list.
 </p>
 
-<p>
-    To actually enact networking changes, the VM must set its own L3 networking
-    information (IP address, default gateway, etc) from inside the VM. Currently
-    we only support delivery of the information via DHCP. Booting into DHCP
-    client mode is well supported in virtually every operating system in
-    existence. Previously we passed information via kernel parameters which
-    required a special understanding inside the VM. The result of using DHCP
-    is that workspace images are easier to create and easier to maintain.
-</p>
-
-<p>
-    A DHCP server is required to run on each hypervisor node. The purpose of
-    this server is to respond to broadcast requests from workspace's that
-    are booting locally. Before starting a VM, if any of its NICs need to
-    be configured via DHCP, workspace-control will call out to "dhcp-config.sh"
-    via sudo, passing it a specific MAC address to IP mapping (as well as
-    other information to be passed to the VM such as hostname, dns servers,
-    broadcast address, default gateway, etc).
-</p>
-
-<ul>
-    <li>"Won't this interfere with my current DHCP server?" No.</li>
-    <li>"Will this cause unwanted packets on my physical LAN?" No.</li>
-    <li>"Will other workspaces be able to send broadcasts and get the wrong DHCP lease?" No.</li>
-</ul>
-
-<p>
-    In addition to a DHCP server, we also insert custom ebtables rules when the
-    workspace is deployed. These rules accomplish three things:
-</p>
-
-<ol>
-    <li>Only packets with the correct MAC address for this virtual interface
-        are permitted.</li>
-    <li>Broadcasted DHCP requests are only permitted to be bridged to the
-        correct virtual interface (configured in workspace-control's
-        configuration file).</li>
-    <li>Only packets with the correct IP address for this virtual
-        interface are permitted (as the NIC does not have an IP address yet
-        when making a DHCP request, the IP check only happens if it is not
-        a DHCP request.</li>
-</ol>
-<p>
-    A version of the workspace DHCP design document is available here:
-    <a href="../DHCP-TP1.2.2-draft2.pdf">pdf</a>.
-</p>
 
 <!-- *********************************************************************** -->
 <!-- *********************************************************************** -->
@@ -1122,7 +1071,7 @@ fakepub1 192.168.0.3 192.168.0.1 192.168.0.255 255.255.255.0</pre>
     </li>
     <li>
         <p>
-           Navigate to "<i>$GLOBUS_LOCATION/etc/nimbus-context-broker</i>"
+           Navigate to "<i>$NIMBUS_HOME/services/etc/nimbus-context-broker</i>"
            and adjust the "caCertPath" and "caKeyPath" parameters in the
            "<i>jndi-config.xml</i>" file to point to the CA certificate
             and key files you created in previous steps.
@@ -1150,7 +1099,7 @@ Cumulus is an open source implementation of the Amazon S3 REST API.  It
 is packaged with the Nimbus
 however it can be used without nimbus as well.  Cumulus allows
 you to server files to users via a known and adopted REST API. Your
-clients will be able to access your data storaging service with the
+clients will be able to access your data service with the
 Amazon S3 clients they already use.
 
 </p>
@@ -1158,7 +1107,7 @@ Amazon S3 clients they already use.
 <a name="cumulus-config"> </a>
 <h3>Cumulus Configuration _NAMELINK(cumulus-config)</h3>
 <p>
-When the server is run it expects to find a configuration file (typically
+When the Cumulus server is run it expects to find a configuration file (typically
 called cumulus.ini) in one or all of the following locations:
 
     <ol>
@@ -1169,7 +1118,7 @@ called cumulus.ini) in one or all of the following locations:
     </ol>
 
 Each file in the path is read in (provided it exists).  The values found 
-in each file override the values found in the previous file.
+in each file override the values found in the previous file in this list.
 
 </p>
 
@@ -1177,15 +1126,15 @@ in each file override the values found in the previous file.
 <a name="repository-location"> </a>
 <h3>Repository Location _NAMELINK(repository-location)</h3>
 <p>
-The backend storage system in cumulus has been created with a modular 
+The backend storage system in Cumulus has been created with a modular 
 interface that will allow us to add more
 sophisticated plugins in the future.  Thus giving the administrator 
 many powerful options.
 In the current implementation there is a single storage module which stores 
 user files a mounted file system.  
-The reliability and performance of cumulus will thus be
+The reliability and performance of Cumulus will thus be
 limited by the reliability and performance of that file system.  Because
-of this cumulus administrators will often want to specify a location for
+of this Cumulus administrators will often want to specify a location for
 the repository.
 </p>
 <p>
