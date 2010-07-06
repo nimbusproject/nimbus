@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cluster xmlns="http://www.globus.org/2008/06/workspace/metadata/logistics">
+  <workspace>
+
+    <!-- optional name -->  
+    <name>z2c-node</name>
+  
+    <!-- Image corresponds to file in cumulus --> 
+    <image>nimbus-z2c</image>
+    
+    <!-- 
+    How many to launch. By default, just one. If you want to try 
+    contextualizing with additional nodes, change this value. Nodes will
+    be configured to trust each other for host-based SSH.
+    --> 
+    <quantity>1</quantity>
+    
+    <nic wantlogin="true">public</nic>
+    <ctx>
+      <provides>
+          <identity />
+          <role>testrole1</role>
+      </provides>
+      <requires>
+          <identity />
+          <role name="testrole2" hostname="true" pubkey="true" />
+          <role name="testrole3" />
+      </requires>
+    </ctx>
+  </workspace>
+</cluster>
