@@ -191,8 +191,8 @@
 
         </tar>
 
-        <gzip src="${distbuild.dir}/${nimbus.main}.tar"
-              destfile="${dist.dir}/${nimbus.main}.${tgz.suffix}"/>
+        <gzip src="${distbuild.dir}/${nimbus.main}-${nimbus.version}-${source.suffix}.tar"
+              destfile="${dist.dir}/${nimbus.main}-${nimbus.version}-${source.suffix}.${tgz.suffix}"/>
         
         <delete file="${distbuild.dir}/${nimbus.main}.tar"/>
         
