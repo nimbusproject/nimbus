@@ -173,6 +173,8 @@ https://10.20.0.1:8443/wsrf/services/ElasticNimbusService
     </li>
 </ul>
 
+<!-- the following is not relevant anymore ? -->
+
 <p>
     There is a sample container <i>server-config.wsdd</i> configuration
     to compare against
@@ -239,6 +241,8 @@ _EXAMPLE_CMD_END
 
 <a name="query"> </a>
 <h2>Configuring the EC2 Query frontend _NAMELINK(query)</h2>
+
+<!-- could have a "ports" section somewhere that this refers to, instead of littering default port configs around the docs which may get messy and incaccurate -->
 <p>
 The EC2 Query frontend supports the same operations as the SOAP frontend.
 However, it does not run in the same container. It listens on HTTPS using Jetty.
@@ -261,44 +265,15 @@ request and attaching them. The service performs this same signature process
 and compares its result with the one included in the request.
 </p>
 
+<!-- mention any safeguards against replay attacks? -->
+
 <p>
-For the initial release of the Query frontend, Nimbus users are mapped to
-Query credentials in a flat text file. By default, this file is located at
-<i>$GLOBUS_LOCATION/etc/nimbus/query/users.txt</i> but it may be placed
-elsewhere by altering the <i>query.usermap.path</i> configuration value in
-<i>query.conf</i>. This file must be manually managed but in the near future
-it will be tied into the administrative web application. Changes to this file
-do not require a container restart.
+    There is support for creating query credentials in the nimbus-new-user program, for more information see the <a href="TODO">user management</a> section.
 </p>
 
 <p>
-    To ease the process of authorizing users for the Query interface during the
-    period before support is added to the administrative web application, we have
-    added a utility to the <i>cloud-admin.sh</i> tool. This utility generates
-    a secret key for a user and adds an entry to the <i>users.txt</i> file.
-</p>
-
-<div class="screen"><pre>
-# <b>./cloud-admin.sh --add-query-dn "/O=Grid/OU=GlobusTest/OU=uchicago.edu/CN=Some User"</b>
-Generated query credentials for user:
-	Access ID: b9747c9a
-	Secret key: vay/1xelRSr9Koq2MX09S+SvD3vrSQIsmfO4Cq16fZY=
-*Securely* distribute these tokens to the user.
-
-</pre></div>
-
-<p>
-    This utility is by no means a complete administrative tool for query users.
-    For all other management, you'll need to edit the <i>users.txt</i> file
-    directly.
-</p>
-
-<p>
-    In addition to this utility, there is basic support for distributing query tokens
-    via the <a href="../faq.html#nimbusweb">Nimbus Web</a> application. The admin
-    can paste a user's credentials into the app and the user can retrieve them
-    with their username and password. In the near future this functionality will be
-    greatly expanded to allow management of tokens directly in this interface.
+    There is support for distributing query tokens
+    via the <a href="../faq.html#nimbusweb">Nimbus Web</a> application.
 </p>
 
 <!-- *********************************************************************** -->
