@@ -118,21 +118,16 @@ public class ReprPopulator {
         // workspace-service is currently broken with superuser
         return this.repr._newCaller();
     }
-
-    public RequestSI getBasicRequestSI(String name, int numNodes, Double spotPrice, boolean persistent, int durationSeconds) throws Exception {
+    
+    public RequestSI getBasicRequestSI(String name, int numNodes, Double spotPrice, boolean persistent) throws Exception {
         final _RequestSI reqSI = new DefaultRequestSI();
         
-        populate(reqSI, durationSeconds, name, SIConstants.SI_TYPE_BASIC_MEM, numNodes, true);
+        populate(reqSI, 500, name, SIConstants.SI_TYPE_BASIC_MEM, numNodes, true);
         
         reqSI.setInstanceType(SIConstants.SI_TYPE_BASIC);
         reqSI.setSpotPrice(spotPrice);
         reqSI.setPersistent(persistent);
         
         return reqSI;
-    }
-    
-    public RequestSI getBasicRequestSI(String name, int numNodes, Double spotPrice, boolean persistent) throws Exception {
-        
-        return getBasicRequestSI(name, numNodes, spotPrice, persistent, 240);
     }    
 }
