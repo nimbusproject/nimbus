@@ -1,18 +1,20 @@
 nimbus-cloud-client-016
 -----------------------
 
-[*] Introduces Cumulus/S3 support.  See http:// ______ TODO
+[*] Introduces Cumulus/S3 support using the Jets3t library.
+    See http://www.nimbusproject.org/docs/2.5/changelog.html#2.5
 
-[*] When using Cumulus support, the credentials for this are in the cloud.properties
-    file directly, so it needs to be protected.
+[*] When using Cumulus support, the credentials for this are in the
+    cloud.properties file directly, so it needs to be protected.
 
-[*] Introduced default.properties which is a copy of distributed cloud.properties.
+[*] Introduced default.properties which is a copy of distributed
+    cloud.properties.
 
-[*] Removed Teraport-specific cloud.properties, the distributed cloud.properties
-    does not work with any cloud out of the box.
+[*] Removed Teraport-specific cloud.properties, the distributed
+    cloud.properties does not work with any cloud out of the box.
 
-[*] Added support for core count to cloud.properties, administrator would usually
-    recommend it.
+[*] Added support for core count to cloud.properties, administrator would
+    usually recommend the number to use.
     http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7062
 
 
