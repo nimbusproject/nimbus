@@ -51,6 +51,8 @@ _NIMBUS_2_5_DEPRECATED
                 <p>
                 A new user management system: users can be added and managed quickly.  Their credentials are created on the fly (but there is still an alternative path for coexistence with your own credential system).
                 </p>
+            </li>
+            <li>
                 <p>
                 All of the new user management tools include a machine parsable mode that makes them easy to incorporate into your own scripts.
                 </p>
@@ -72,7 +74,7 @@ _NIMBUS_2_5_DEPRECATED
             </li>
             <li>
                 <p>
-                The IaaS services are able to consult information in a database about files the remote user wants to launch.  When the "outside" namespace of the file is Cumulus based, there is a translation to an "inside" location and mechanism.  This technique is now used to encapsulate propagation mechanisms, allowing for an easy way to introduce new propagation methods. 
+                The IaaS services are able to consult information in a database about files the remote user wants to launch.  When the "outside" namespace of the file is Cumulus based, there is a translation to an "inside" location and mechanism.  This technique is now used to encapsulate propagation mechanisms, allowing for an easy way to introduce new and faster methods. 
                 </p>
             </li>
         </ul>
@@ -86,7 +88,7 @@ _NIMBUS_2_5_DEPRECATED
             <i>Integration with a central, site DHCPd</i>
         </p>
         <p>
-            Instead of hosting a private DHPCd for each VMM, Nimbus now supports (by default) editing a lease file for a central DHCPd on the LAN. This makes it easier to install and integrate with existing infrastructure.  The old method is supported as an advanced configuration.  Details below in the IaaS Services section.
+            Instead of hosting a private DHPCd for each VMM, Nimbus now supports (by default) editing a lease file for a central DHCPd on the LAN. This makes it easier to install and integrate with existing infrastructure.  The old method is supported as an advanced configuration.  Details below in the IaaS Services and workspace-control sections.
         </p>
     </li>
     <li>
@@ -230,7 +232,7 @@ _NIMBUS_2_5_DEPRECATED
             Each of these commands work well from the terminal but also include options to make it easy to do a wide array of tasks from scripts.
         </p>
         <p>
-            In the case of the EC2 Query protocol, the credentials are no longer checked against a text file full of keys, they now integrate with these tools, it is all database driven.
+            In the case of the EC2 Query protocol, the credentials are no longer checked against a text file full of keys: they now integrate with these tools, it is all database driven.
         </p>
         <p>
             In order to continue supporting X509 certificates, a map file is still populated with certificate names ("DN"s), but these new commandline utilities should be the thing editing those files in order to keep them in sync.  You should use these tools for all user management now.
@@ -419,26 +421,56 @@ _NIMBUS_2_5_DEPRECATED
 <ul>
     <li>
         <p>
-            <i></i>
+            <i>We are happy to announce the first version of Cumulus!</i>
         </p>
         <p>
-            
-        </p>
-    </li>
-    <li>
-        <p>
-            <i></i>
+            Cumulus is a storage software for clouds.  It is compatible with the Amazon Web Services S3 REST API (with small exceptions) and it works seamlessy with S3 clients such as s3cmd and boto. In addition, it offers extra functionality, specifically disk quota enforcement. 
         </p>
         <p>
-            
+            Cumulus replaces the current GridFTP-based upload and download of VM images: it integrates tightly in a Nimbus installation as the VM image repository solution.  And it can be also installed on its own to manage a storage cloud: a Nimbus IaaS installation needs Cumulus but not vice versa.
         </p>
     </li>
     <li>
         <p>
-            <i></i>
+            <i>Cumulus requirements</i>
         </p>
         <p>
-            
+            Cumulus requires Python 2.5+ (but not 3.x) with SQLite support [1] and gcc [2] on the central service node.
+        </p>
+        <p>
+            [1] - SQLite should be included by default in any Python 2.5 installation but we've run into some distributions removing that.
+        </p>
+        <p>
+            [2] - gcc is not strictly required if you install packages to your Python site-packages: PyOpenSSL and Twisted 8.2+.  Otherwise the installer will do some Python->C bridge code compilation to get dependencies enabled.  The service installer does not run as root (and nothing on the service node needs root anymore), so in the case where you use gcc like this, those dependencies will be installed inside a virtual Python environment just for Cumulus code.
+        </p>
+    </li>
+    <li>
+        <p>
+            <i>Support for quotas</i>
+        </p>
+        <p>
+            Cumulus allows administrators to set disk space limits on a per user basis. By default users are created with unlimited space. See the <a href="admin/reference.html#cumulus">quota documentation</a> for more information.
+        </p>
+    </li>
+    <li>
+        <p>
+            <i>GridFTP is not used with this release</i>
+        </p>
+        <p>
+            Cumulus is used instead.  The impact this will have on current cloud users is discussed in the <a href="http://lists.globus.org/pipermail/workspace-announce/2010-June/000020.html">email introducing Cumulus</a>.
+        </p>
+    </li>
+    <li>
+        <p>
+            Cumulus will fall under the same best-effort support policy as other Nimbus components.  As always, using the mailing lists is advised since you will get an opportunity for help from the community (this does happen and it is great to see).
+        </p>
+    </li>
+    <li>
+        <p>
+            <i>Learn more</i>
+        </p>
+        <p>
+            To learn about Cumulus in depth, see the Cumulus <a href="faq.html#cumulus">FAQ entries</a> and reference <a href="admin/reference.html#cumulus">documentation</a>.
         </p>
     </li>
 </ul>
@@ -448,27 +480,21 @@ _NIMBUS_2_5_DEPRECATED
 <ul>
     <li>
         <p>
-            <i></i>
+            <i>Bug Fixes</i>
         </p>
-        <p>
-            
-        </p>
-    </li>
-    <li>
-        <p>
-            <i></i>
-        </p>
-        <p>
-            
-        </p>
-    </li>
-    <li>
-        <p>
-            <i></i>
-        </p>
-        <p>
-            
-        </p>
+        <ul>
+            <li>
+                <p>
+                    <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7042">Bug 7042 - Context broker needs to create certificates with different serial number</a>
+                    <br><b>Contributed by Pierre Marie Pascal Lucien Riteau, University of Rennes 1</b>
+                </p>
+            </li>
+            <li>
+                <p>
+                    <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7061">Bug 7061 - Context broker fails to handle a retrieve situation</a>
+                </p>
+            </li>
+        </ul>
     </li>
 </ul>
 
@@ -477,27 +503,92 @@ _NIMBUS_2_5_DEPRECATED
 <ul>
     <li>
         <p>
-            <i></i>
+            <i>DHPCd changes</i>
         </p>
         <p>
-            
+            By default, workspace-control is now configured to use an off-node DHCPd server.  That server should be configured according to instructions using the <a href="admin/z2c/index.html">Zero To Cloud Guide</a>.
+        </p>
+        <p>
+            <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7066">Enhancement 7066 - Allow VMs to use site DHCP server</a>
+        </p>
+        <p>
+            In order to enable the old method of having a DHCPd run on each VMM, you need to carry out the advanced "localdhcp" configurations described in workspace-control's "etc/workspace-control/networks.conf" file.
         </p>
     </li>
     <li>
         <p>
-            <i></i>
+            <i>New alternative propagation methods</i>
         </p>
         <p>
-            
+            The contributed HTTP and HDFS propagation drivers currently integrate without the propagation namespace awareness: normally in the cloud configuration, remote users will specify a "cumulus://" URL which is translated to an internal propagation location and mechanism.
+        </p>
+        <p>
+           They are for use on sites where the remote user knows more about image locations than the Cumulus name for it.
+        </p>
+        <p>
+            These alternative propagation methods need to be manually enabled, consult workspace-control's "etc/workspace-control/propagation.conf" file.
         </p>
     </li>
     <li>
         <p>
-            <i></i>
+            <i>HTTP propagation driver</i>
         </p>
         <p>
-            
+            The HTTP driver is good for having a central image repository on the internet for image files, using this you will not need to get changes to images back to each cloud's repository.  
+       </p>
+        <p> 
+            Enable via workspace-control's "etc/workspace-control/propagation.conf" file.  And you can specify  trusted hosts to pull from, see the central Nimbus node's "services/etc/nimbus/workspace-service/global-policies.conf" file
         </p>
+        <p>
+            <b>Contributed by Patrick Armstrong, University of Victoria</b>
+        </p>
+    </li>
+    <li>
+        <p>
+            <i>HDFS propagation driver</i>
+        </p>
+        <p>
+            The HDFS propagation driver is good for sites experimenting with fast propagation techniques.  It requires a local HDFS installation as well as an installation of the client tools on each VMM.  See workspace-control's "etc/workspace-control/propagation.conf" file.
+        </p>
+        <p>
+            <b>Contributed by Matt Vliet, Google Summer of Code, University of Victoria</b>
+        </p>
+    </li>
+    <li>
+        <p>
+            <i>Better performing blankspace: physical partition leases</i>
+        </p>
+        <p>
+            In order to support very large temporary space partitions for VMs, and fast access to them, Nimbus now allows you to configure a list of physical partitions to lease out to incoming Nimbus VMs on each node.
+        </p>
+        <p>
+            This is an non-default and preliminary feature.
+        </p>
+        <p>
+            The partition will be presented to a configured "/dev" device inside every Nimbus VM that is started on the VMM node.  If there is a conflict with a mountpoint that the user's request contains, the administrator has a choice of rejecting the request or not providing the blankspace.
+        </p>
+  
+        <p>
+            <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7065">Enhancement 7065 - better performing blankspace: physical partition leases</a>
+        </p>
+    </li>
+    <li>
+        <p>
+            <i>Bug Fixes</i>
+        </p>
+        <ul>
+            <li>
+                <p>
+                    <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7051">Bug 7051 - tap:aio mode xml is wrong for libvirt</a>
+                    <br><b>Contributed by Pierre Marie Pascal Lucien Riteau, University of Rennes 1</b>
+                </p>
+            </li>
+            <li>
+                <p>
+                    <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7060">Bug 7060 - mount+alter needs locking</a>
+                </p>
+            </li>
+        </ul>
     </li>
 </ul>
 
@@ -506,61 +597,47 @@ _NIMBUS_2_5_DEPRECATED
 <ul>
     <li>
         <p>
-            <i></i>
+            <i>Nimbus 2.5 requires the newest cloud client</i>
         </p>
         <p>
-            
-        </p>
-    </li>
-    <li>
-        <p>
-            <i></i>
-        </p>
-        <p>
-            
+            The current cloud client as of this release is cloud-client-016. This service release will <b>not</b> work with previous cloud clients.
         </p>
     </li>
     <li>
         <p>
-            <i></i>
+            <i>Backwards compatible</i>
         </p>
         <p>
-            
+            Cloud client 16 introduces Cumulus support using the S3 library jets3t.  In order to maintain backwards compatibility, it is still compatible with older clouds that use GridFTP.
+        </p>
+        <p>
+            The new, default repository behavior is triggered when "vws.repository.type=cumulus" is present in the cloud.properties file.  This is a value that any Nimbus 2.5+ cloud should distribute in their cloud.properties file (start with the <a href="admin/z2c/index.html">Zero To Cloud Guide</a> to learn how to give out the right cloud.properties file).
+        </p>
+    </li>
+    <li>
+        <p>
+            Other enhancements can be viewed in the <a href="http://github.com/nimbusproject/nimbus/raw/master/cloud-client/nimbus-cloud-client-src/CHANGES.txt">cloud client changelog</a>.
         </p>
     </li>
 </ul>
 
 
-<i>Reference</i>
+<i>Additional Notes</i>
 <ul>
     <li>
         <p>
-            <i></i>
-        </p>
-        <p>
-            
+            <a href="http://bugzilla.mcs.anl.gov/globus/showdependencytree.cgi?id=7013&hide_resolved=0">Nimbus 2.5 release bug tracker</a>
         </p>
     </li>
     <li>
         <p>
-            <i></i>
+            <a href="http://github.com/nimbusproject/nimbus/compare/nimbus-release-2.4...master">All commits</a> between the "nimbus-release-2.4" tag and the current "master" branch in the Nimbus code repository.
         </p>
         <p>
-            
-        </p>
-    </li>
-    <li>
-        <p>
-            <i></i>
-        </p>
-        <p>
-            
+            This will change to the commits between 2.4 and 2.5 when the final release happens.
         </p>
     </li>
 </ul>
-
-
-
 
 
 <a name="2.4"> </a>
