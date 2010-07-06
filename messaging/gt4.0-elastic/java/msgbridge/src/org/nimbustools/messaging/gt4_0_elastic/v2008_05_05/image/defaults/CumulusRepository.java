@@ -232,6 +232,11 @@ public class CumulusRepository implements Repository {
             int object_id = this.authDB.getFileID(keyName, this.repo_id, AuthzDBAdapter.OBJECT_TYPE_S3);
             String canUser = authDB.getCanonicalUserIdFromDn(ownerID);
             String perms = this.authDB.getPermissions(object_id, canUser);
+            int ndx = perms.indexOf('r');
+            if(ndx < 0)
+            {
+                throw new AuthzDBException("User " + ownerID + " cannot access the image  " + imageID);
+            }
             String datakey = this.authDB.getDataKey(object_id);
             String urlStr = "scp://" + this.cumulusHost + ":22" + datakey;
 

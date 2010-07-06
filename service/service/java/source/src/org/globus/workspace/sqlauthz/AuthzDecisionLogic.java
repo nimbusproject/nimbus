@@ -208,14 +208,11 @@ public class AuthzDecisionLogic extends DecisionLogic
             logger.debug("Unprop image " + unPropImageName + " requested");
             try
             {
-                boolean check_write;
-                check_write = incomingImageName.equals(unPropImageName);
-                
-                // just authorize the image
-                long size = checkUrl(incomingImageName, dn, check_write, 0);
+                // see if we are allowed to read the image
+                long size = checkUrl(incomingImageName, dn, false, 0);
 
-                // if the names were different and we are unpropagating we need to check write on the new file
-                if(unPropImageName != null && !check_write)
+                // if unpropagting, see if we are allowed to write to the unprop name
+                if(unPropImageName != null)
                 {                    
                     checkUrl(unPropImageName, dn, true, size);
                 }
