@@ -56,7 +56,7 @@ class cbPosixBackend(object):
 
         fname = bucketName + "/" + objectName
         fname = fname.replace("/", "__")
-        (osf, x) = tempfile.mkstemp(dir=bdir, prefix=fname)
+        (osf, x) = tempfile.mkstemp(dir=bdir, suffix=fname)
         os.close(osf)
         data_key = x.strip()
         obj = cbPosixData(data_key, "w+b")
