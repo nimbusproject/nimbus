@@ -173,7 +173,7 @@
         <fixcrlf srcdir="${distbuild.dir}/${nimbus.main}" includes="**/*.java"
                tab="remove" tablength="4" eol="lf" javafiles="yes"/>
 
-        <tar destfile="${distbuild.dir}/${nimbus.main}-${nimbus.version}-${source.suffix}.tar" longfile="gnu">
+        <tar destfile="${distbuild.dir}/${nimbus.main}.tar" longfile="gnu">
 
             <tarfileset dir="${distbuild.dir}" mode="755">
                 <include name="${nimbus.main}/scripts/*sh" />
@@ -191,8 +191,8 @@
 
         </tar>
 
-        <gzip src="${distbuild.dir}/${nimbus.main}-${nimbus.version}-${source.suffix}.tar"
-              destfile="${dist.dir}/${nimbus.main}-${nimbus.version}-${source.suffix}.${tgz.suffix}"/>
+        <gzip src="${distbuild.dir}/${nimbus.main}.tar"
+              destfile="${dist.dir}/${nimbus.main}.${tgz.suffix}"/>
         
         <delete file="${distbuild.dir}/${nimbus.main}.tar"/>
         
