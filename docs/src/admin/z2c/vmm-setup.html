@@ -123,10 +123,105 @@ _NIMBUS_2_5_DEPRECATED
     </li>
 </ul>
 
+<h3>Set up libvirt permissions</h3>
+
+<p>
+  OK, you've got your non-root user <tt class="literal">nimbus</tt> created, now we need to allow it to control VMs using libvirt.
+</p>
+
+<p>
+  First, try out a libvirt command <b>as root</b> (it will not change anything if it succeeds or fails).
+</p>
+ 
+<div class="panel"><pre>
+root $ virsh -c 'xen+unix:///' list
+</pre></div>
+
+<div class="note">
+  Make sure this works as root before we try to enable the nimbus user to do this.
+</div>
+
+<p>
+  If that does not work, you will need to enable Xen to work with domain sockets. In the <tt class="literal">/etc/xen/xend-config.sxp</tt> file, activate the <tt class="literal">xend-unix-server</tt> configuration by including <tt class="literal">yes</tt>. Then uncomment the <tt class="literal">xend-unix-path</tt> setting and note the value (for example <tt class="literal">/var/lib/xend/xend-socket</tt>).  <i>Note that using Xen with the HTTP server method instead of this domain socket method is typically not secure</i>.
+</p>
+
+<p>
+  Once it works as root, try as the nimbus user:
+</p>
+
+<div class="panel"><pre>
+nimbus $ virsh -c 'xen+unix:///' list
+</pre></div>
+
+<p>
+  You may hit an error about failing to connect to the hypervisor. 
+</p>
+
+<div class="panel"><pre>
+nimbus $ virsh -c 'xen+unix:///' list
+error: unable to connect to '/var/run/libvirt/libvirt-sock': Permission denied
+error: failed to connect to the hypervisor
+</pre></div>
+
+<p>
+  Why?  Because you are not root.  Check out the permissions on <tt class="literal">/var/run/libvirt/libvirt-sock</tt>
+</p>
+<div class="panel"><pre>
+root $ ls -l /var/run/libvirt/libvirt-sock
+srwx------ 1 root root 0 Jul  1 21:28 /var/run/libvirt/libvirt-sock
+</pre></div>
+
+<p>
+  The solution is to set the domain socket with certain permissions.
+</p>
+
+<div class="note">
+  If this works for you, make sure your setup is not just letting you list VMs right now, that will happen if the permissions are <b>read-only</b> for group or world.  We will test a full VM creation later which would uncover this difference.  You need to make sure it is both readable and writable for the <tt class="literal">root</tt> group and that the <tt class="literal">nimbus</tt> user is part of that group.
+</div>
+
+<p>
+  First, make the nimbus user a member of the root group:
+</p>
+<div class="panel"><pre>
+root # usermod -a -G root nimbus
+</pre></div>
+
+<p>
+  Make the libvirt domain socket available for reading and writing by the root group by enabling the following configurations in <tt class="literal">/etc/libvirt/libvirtd.conf</tt>
+</p>
+
+<div class="panel"><pre>
+unix_sock_group = "root"
+unix_sock_ro_perms = "0770"
+unix_sock_rw_perms = "0770"
+unix_sock_dir = "/var/run/libvirt"
+</pre></div>
+
+<div class="note">
+  <tt class="literal">libvirtd</tt> needs to be restarted for any changes to take effect.  Validate your changes by checking the permissions with "ls" again.
+</div>
+
+<p>
+  Make sure the group change has taken effect with the nimbus user (using the "groups" command within the shell, you may need to relogin).
+</p>
+
+<p>
+  Try again:
+</p>
+ 
+<div class="panel"><pre>
+nimbus $ virsh -c 'xen+unix:///' list
+</pre></div>
+
+<p>
+    If you can still not do this basic list command as the nimbus user, look into your distribution's libvirt configurations and also don't hesitate to contact the     <a href="_NIMBUS_WEBSITE/contact/">workspace-user</a> mailing list with problems.
+</p>
+
+
 <h3>Install workspace-control</h3>
 
 <p>
-  OK, you've got your non-root user <tt class="literal">nimbus</tt> created, we will now download the VMM control package to the machine. 
+  We can now download the VMM control package to the machine. 
 </p>
 
 <p>
@@ -221,7 +316,7 @@ nimbus $ gunzip nimbus-z2c.gz
 </pre></div>
 
 <p>
-  It is a VM with XXX installed.  It runs an SSH server when it boots.  If you have console access to it, you will be able to log in to it using the <tt class="literal">root</tt> account with password <tt class="literal">root</tt>.
+  It is a VM with [TODO] installed.  It runs an SSH server when it boots.  If you have console access to it, you will be able to log in to it using the <tt class="literal">root</tt> account with password <tt class="literal">root</tt>.
 </p>
 
 <h3>Configure default bridge</h3>
@@ -423,53 +518,7 @@ Trying libvirt-xml.sh but seeing an error like "The persistence file already exi
 </p>
 
 <div class="panel"><pre>
-nimbus $ virsh -c "xen:///" create /tmp/z2c.xml
-</pre></div>
-
-<p>
-  You will very likely hit an error about failing to connect to the hypervisor. 
-</p>
-
-<p>
-  Why?  Because you are not root.
-</p>
-
-<p>
-  The solution is to set the domain socket with certain permissions:
-</p>
-
-<p>
-  The libvirt pages state to enable this configuration is required "that the UNIX socket interface be enabled in the /etc/xen/xend-config.sxp  configuration file. Specifically the config settings (xend-unix-server yes). This path is usually restricted to only allow the root user access."
-</p>
-
-<p>
-  In the <tt class="literal">/etc/xen/xend-config.sxp</tt> file, activate the <tt class="literal">xend-unix-server</tt> configuration by including <tt class="literal">yes</tt>.  Then uncomment the <tt class="literal">xend-unix-path</tt> setting and note the value (for example <tt class="literal">/var/lib/xend/xend-socket</tt>).
-</p>
-
-<p>
-  As root, allow the nimbus user to access Xen.
-</p>
-<p>
-  Make the nimbus user a member of the root group:
-</p>
-<div class="panel"><pre>
-root # usermod -a -G root nimbus
-</pre></div>
-
-<p>
-  Make the Xen domain socket available to the root group:
-</p>
-<div class="panel"><pre>
-root # chown :root /var/lib/xend/xend-socket
-root # chmod g+rwx /var/lib/xend/xend-socket
-</pre></div>
-
-<p>
-  Try again:
-</p>
- 
-<div class="panel"><pre>
-nimbus $ virsh -c "xen:///" create /tmp/z2c.xml
+nimbus $ virsh -c 'xen+unix:///' create /tmp/z2c.xml
 </pre></div>
 
 <p>
@@ -497,8 +546,12 @@ nimbus $ ping -c 1 192.168.0.2
 </p>
 
 <div class="panel"><pre>
-nimbus $ virsh -c "xen:///" console control-test
+nimbus $ virsh -c 'xen+unix:///' console control-test
 </pre></div>
+
+<div class="note">
+You may need to be root to run a virsh <tt class="literal">console</tt> subcommand because the nimbus user may not have access to the <tt class="literal">/dev/pts</tt> device being used for console access.
+</div>
 
 <p>
   Does it not get an IP address from DHCPd?  Is DHCPd running?
