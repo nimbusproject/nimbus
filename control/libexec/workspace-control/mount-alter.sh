@@ -206,7 +206,7 @@ echo "Checking input:"
 echo "  - IMAGE_DIR: $IMAGE_DIR"
 
 arglen0=`strlen imagefile`
-imagefile=`echo $imagefile | sed -e 's/[^/\.a-zA-Z0-9_-]//g'`
+imagefile=`echo $imagefile | sed -e 's/[^/\.a-zA-Z0-9%_-]//g'`
 arglen=`strlen imagefile`
 
 if [ $arglen0 -ne $arglen ]; then
