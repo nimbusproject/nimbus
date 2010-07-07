@@ -792,7 +792,6 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         
         logger.debug("Shutting down VM from mediumReq2");            
         
-        //FIXME: Try a non-destroy shutdown mechanism
         rm.trash(medReq2SR.getVMIds()[0], Manager.INSTANCE, siCaller);
         
         // Spot Instances Snapshot
@@ -836,6 +835,110 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         medReq2SR = rm.getSpotRequest(medReq2Id, siCaller);
         assertEquals(SIRequestState.STATE_Closed, medReq2SR.getState().getStateStr());
         assertEquals(0, medReq2SR.getVMIds().length);
+        
+        logger.debug("Submitting basic SI request request: mediumReq2 (1 VM)");                 
+        
+        Double highBid = previousPrice + 4;
+        RequestSI highReq1 = this.populator().getBasicRequestSI("highBid1", 4, highBid, false);
+        String highReq1Id = rm.requestSpotInstances(highReq1, siCaller).getRequestID();
+        
+        // Spot Instances Snapshot
+        // 
+        // Total memory: 1280MB
+        // Used WS memory: 496MB
+        // Reserved capacity (for ordinary WS requests): 256MB (minimum reserved capacity)
+        // Available basic SI VMs: 4 (128MB x 4 = 512MB)
+        //
+        // Current Requests___________________________________________________________
+        // |   Request  | reqVMs | allocVMs |       Bid        | Status | Persistent |
+        // | lowReq1    |   3    |     0    | previousPrice+1  | CLOSED |    false   |
+        // | lowReq2    |   2    |     0    | previousPrice+1  | OPEN   |    true    |
+        // | mediumReq1 |   3    |     0    | previousPrice+3  | CLOSED |    false   |
+        // | mediumReq2 |   1    |     0    | previousPrice+3  | CLOSED |    false   |     
+        // | highReq1   |   4    |     4    | previousPrice+4  | ACTIVE |    false   |           
+        // ---------------------------------------------------------------------------
+        // Requested SI VMs (alive requests): 4
+        // Spot price: MINIUM_PRICE (since requestedVMs < availableVMs)           
+        
+        logger.debug("Waiting 2 seconds for resources to be allocated.");
+        Thread.sleep(2000);        
+        
+        //Check available SI VMs
+        assertEquals(4,  getAvailableResources());             
+        
+        //New spot price is equal to high bid
+        assertEquals(highBid,  rm.getSpotPrice());
+        
+        lowReq1SR = rm.getSpotRequest(lowReq1Id, siCaller);
+        assertEquals(SIRequestState.STATE_Closed, lowReq1SR.getState().getStateStr());
+        assertEquals(0, lowReq1SR.getVMIds().length);        
+        
+        lowReq2SR = rm.getSpotRequest(lowReq2Id, siCaller);
+        assertEquals(SIRequestState.STATE_Open, lowReq2SR.getState().getStateStr());
+        assertEquals(0, lowReq2SR.getVMIds().length);
+        
+        medReqSR = rm.getSpotRequest(medReqId, siCaller);
+        assertEquals(SIRequestState.STATE_Closed, medReqSR.getState().getStateStr());
+        assertEquals(0, medReqSR.getVMIds().length);     
+        
+        medReq2SR = rm.getSpotRequest(medReq2Id, siCaller);
+        assertEquals(SIRequestState.STATE_Closed, medReq2SR.getState().getStateStr());
+        assertEquals(0, medReq2SR.getVMIds().length);        
+        
+        SpotRequest highReqSR = rm.getSpotRequest(highReq1Id, siCaller);
+        assertEquals(SIRequestState.STATE_Active, highReqSR.getState().getStateStr());
+        assertEquals(4, highReqSR.getVMIds().length);        
+        
+        logger.debug("Cancelling request: highReq1");            
+        
+        rm.cancelSpotInstanceRequests(new String[]{highReq1Id}, siCaller);
+        
+        // Spot Instances Snapshot
+        // 
+        // Total memory: 1280MB
+        // Used WS memory: 496MB
+        // Reserved capacity (for ordinary WS requests): 256MB (minimum reserved capacity)
+        // Available basic SI VMs: 4 (128MB x 4 = 512MB)
+        //
+        // Current Requests______________________________________________________________
+        // |   Request  | reqVMs | allocVMs |       Bid        | Status    | Persistent |
+        // | lowReq1    |   3    |     0    | previousPrice+1  | CLOSED    |    false   |
+        // | lowReq2    |   2    |     2    | previousPrice+1  | ACTIVE    |    true    |
+        // | mediumReq1 |   3    |     0    | previousPrice+3  | CLOSED    |    false   |
+        // | mediumReq2 |   1    |     0    | previousPrice+3  | CLOSED    |    false   | 
+        // | highReq1   |   4    |     4    | previousPrice+4  | CANCELLED |    false   |                   
+        // ------------------------------------------------------------------------------
+        // Requested SI VMs (alive requests): 2
+        // Spot price: MINIUM_PRICE (since requestedVMs < availableVMs)           
+        
+        logger.debug("Waiting 2 seconds for VM to shutdown.");
+        Thread.sleep(2000);
+        
+        //Check available SI VMs
+        assertEquals(4,  getAvailableResources());             
+        
+        //New spot price is equal to minimum price
+        assertEquals(PricingModelConstants.MINIMUM_PRICE,  rm.getSpotPrice());
+        
+        lowReq1SR = rm.getSpotRequest(lowReq1Id, siCaller);
+        assertEquals(SIRequestState.STATE_Closed, lowReq1SR.getState().getStateStr());
+        assertEquals(0, lowReq1SR.getVMIds().length);        
+        
+        lowReq2SR = rm.getSpotRequest(lowReq2Id, siCaller);
+        assertEquals(SIRequestState.STATE_Active, lowReq2SR.getState().getStateStr());
+        assertEquals(2, lowReq2SR.getVMIds().length);
+        
+        medReqSR = rm.getSpotRequest(medReqId, siCaller);
+        assertEquals(SIRequestState.STATE_Closed, medReqSR.getState().getStateStr());
+        assertEquals(0, medReqSR.getVMIds().length);     
+        
+        medReq2SR = rm.getSpotRequest(medReq2Id, siCaller);
+        assertEquals(SIRequestState.STATE_Closed, medReq2SR.getState().getStateStr());
+        assertEquals(0, medReq2SR.getVMIds().length);        
+        
+        highReqSR = rm.getSpotRequest(highReq1Id, siCaller);
+        assertEquals(SIRequestState.STATE_Cancelled, highReqSR.getState().getStateStr());
+        assertEquals(0, highReqSR.getVMIds().length);           
         
         logger.debug("Destroying remaining WS VMs.");     
         
