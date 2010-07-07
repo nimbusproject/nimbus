@@ -707,6 +707,18 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
         return this.backfillVMs.contains(vmid);
     }
 
+    /**
+     * The following two methods, populateBackfillHashTable and
+     * writeBackfillHashTable simply read and write a small file
+     * that contains the current status of the backfill hash table
+     * (for persistence).
+     *
+     * Thus, whenever the backfill hash table is updated,
+     * writeBackfillHashTable should be called (gross) to make sure
+     * the version on disk matches the current hash table. And
+     * whenever the service has started, populateBackfillHashTable
+     * should be called to read in the version on the disk.
+     */
     private void populateBackfillHashTable() {
         try {
             logger.debug("Attempting to read backfill hash table file:\n" +

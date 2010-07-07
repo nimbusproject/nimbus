@@ -291,6 +291,9 @@ public class DefaultSchedulerAdapter implements Scheduler {
         final String invalidResponse = "Implementation problem: slot " +
                 "manager returned invalid response";
 
+        // If a request is denied (and it's not a backfill request) then we
+        // should attempt to kill backfill nodes until there are no more
+        // backfill nodes to kill or until the request can be satisfied.
         Reservation res = null;
         try {
             res = this.slotManager.reserveSpace(req);
@@ -895,6 +898,9 @@ public class DefaultSchedulerAdapter implements Scheduler {
         this.slotManager.releaseSpace(vmid);
         this.db.deleteNodeRequest(vmid);
 
+        // Check to see if this was a backfill request being killed off.
+        // If not, relaunch the backfill timer to deploy backfill nodes
+        // on *potentially* empty slots.
         if ((this.slotManager.isOldBackfillID(vmid) == false) &&
             (this.slotManager.isCurrentBackfillID(vmid) == false)) {
             logger.debug("Relaunching backfill timer");

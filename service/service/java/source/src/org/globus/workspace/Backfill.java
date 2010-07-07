@@ -187,6 +187,15 @@ public class Backfill {
         this.backfillReqFile.delete();
     }
 
+    /**
+     * This method should be called on service startup. It is responsible for
+     * starting the backfill timer (if the backfill feature is enabled).
+     *
+     * It also checks to see if a persistence backfill file exists, and if the
+     * backfill configuration has changed. If the backfill configuration has
+     * changed then it cancels the previous backfill request and submits a new
+     * one.
+     */
     public void initiateBackfill() throws Exception {
 
         if (this.backfillDisabled == false) {
@@ -232,6 +241,8 @@ public class Backfill {
                 this.retryPeriod * 1000);
     }
 
+    // Returns true if a backfill node was successfully killed.
+    // False, if it wasn't able to kill a backfill node.
     public boolean terminateBackfillNode() {
 
         int vmid;
@@ -258,6 +269,17 @@ public class Backfill {
         return false;
     }
 
+    /**
+     * This attempts to launch a new backfill node.
+     * It should only be called by the backfill timer (ugh,
+     * should really be changed so ONLY that can happen).
+     * If backfill nodes should be launched (at some place else
+     * in the code) then the backfill timer should simply be relaunched
+     * (via the launchBackfillTimer method in this class)
+     * as it will attempt to launch backfill nodes. The timer is what
+     * respects the max backfill instances configuration value, and if
+     * backfill is disabled then it won't be relaunched.
+     */
     public void createBackfillNode() throws Exception {
 
         CreateRequest req = this.getBackfillRequest("BACKFILL_REQUEST");
