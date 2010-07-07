@@ -16,6 +16,78 @@ _NIMBUS_2_5_DEPRECATED
     will be started for you as expected.
 </p>
 
+<h3>Back to the cloud client</h3>
+<p>
+    Several pages ago, we set up and tested the cloud client against
+    the service. Now we are ready to revisit that client installation
+    and try again, but with a real VM. First off, run the status
+    and list commands to ensure that the IaaS and repository services
+    are still running correctly.
+</p>
+<pre class="panel">
+$ cd nimbus-cloud-client/
+</pre>
+<pre class="panel">
+$ ./bin/grid-proxy-init.sh
+</pre>
+<pre class="panel">
+$ ./bin/cloud-client.sh --status
+
+Querying for ALL instances.
+
+There's nothing running on this cloud that you own.
+</pre>
+
+<pre class="panel">
+$ bin/cloud-client.sh --list
+
+No files.
+</pre>
+
+<p>
+    If these commands succeeded, we can move on and attempt to upload a
+    real VM image to the repository.
+</p>
+<h3>Upload image</h3>
+
+<p>It is recommended to start with the
+    <tt class="literal">nimbus-z2c</tt> image that you used earlier to
+    test the VMM. If you don't still have it, fetch it again.
+</p>
+<div class="panel"><pre>
+$ wget http://www.nimbusproject.org/downloads/nimbus-z2c.gz
+$ gunzip nimbus-z2c.gz
+</pre></div>
+<p>
+    Now use the cloud-client to upload the VM image to the Cumulus repository.
+</p>
+<pre class="panel">
+$ ./bin/cloud-client.sh --transfer --sourcefile nimbus-z2c
+
+Transferring
+  - Source: nimbus-z2c
+  - Destination: cumulus://Repo/VMS/04NjWi75iz1TzNf4Y3zvU/nimbus-z2c
+</pre>
+
+<p>
+    Now the list operation should show the new image.
+</p>
+
+<pre class="panel">
+$ ./bin/cloud-client.sh --list
+
+[Image] 'nimbus-z2c'                     Read/write
+        Modified: Jun 7 2010 @ 12:43   Size: 288358400 bytes (~275 MB)
+</pre>
+<h3>Start VM</h3>
+<pre class="panel">
+$ ./bin/cloud-client.sh --run --name nimbus-z2c
+</pre>
+
+<p>More to come..</p>
+
+
+
 
 _NIMBUS_CENTER2_COLUMN_END
 _NIMBUS_FOOTER1

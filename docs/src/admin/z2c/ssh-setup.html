@@ -15,6 +15,93 @@ _NIMBUS_2_5_DEPRECATED
     Nimbus components can properly and securely communicate.
 </p>
 
+<h3>SSH</h3>
+
+<p>
+    The Nimbus service and VMM nodes communicate via SSH, so you must set up
+    password-less SSH keys. At this point you should have two nodes set up, each with a privileged
+    account (probably, but not necessary called <tt class="literal">nimbus</tt>.
+    You need to allow the service node account to SSH to the VMM, and vice versa.
+</p>
+<p>
+    There are several ways to set this up, but the easiest way is to generate keys
+    on each node and append the public keys to each others
+    <tt class="literal">~/.ssh/authorized_keys</tt> files. For example:
+</p>
+
+<p>Generate an SSH keypair on the service node, taking care to NOT specify a password.</p>
+<pre class="panel">
+nimbus@service $ ssh-keygen
+</pre>
+<p>Copy the generated public key to the VMM node and then login there directly</p>
+<pre class="panel">
+nimbus@service $ scp ~/.ssh/id_rsa.pub nimbus@vmm1:service_rsa.pub
+</pre>
+<pre class="panel">
+nimbus@service $ ssh nimbus@vmm1
+</pre>
+<p>Append the service node's key to the <tt class="literal">authorized_keys</tt> file</p>
+<pre class="panel">
+nimbus@vmm1 $ cat service_rsa.pub >> .ssh/authorized_keys
+</pre>
+
+<p>Now generate a key pair for the VMM node itself and exit back to the service node</p>
+<pre class="panel">
+nimbus@vmm1 $ ssh-keygen
+</pre>
+<pre class="panel">
+nimbus@vmm1 $ exit
+</pre>
+
+<p>Copy down the VMM's public key and authorize it (you should not be
+prompted for a password during the scp transfer.</p>
+<pre class="panel">
+nimbus@service $ scp nimbus@vmm1:~/.ssh/id_rsa.pub ./vmm1_rsa.pub
+</pre>
+<pre class="panel">
+nimbus@service $ cat ./vmm1_rsa.pub >> .ssh/authorized_keys
+</pre>
+
+<p>
+    You should now be able to freely SSH between the service and VMM nodes.
+    Note that as you add more VMMs in the future, you will need to ensure
+    that SSH works in the same way for each.
+</p>
+
+
+<h3>Autoconfig script</h3>
+
+<p>
+    Nimbus includes an autoconfig script that checks for a properly functioning
+    SSH setup and configures your first VMM node into the service. The script
+    is interactive and will go through a series of questions and tests before
+    it makes any changes. If you make a mistake, just hit Ctrl-C and start
+    over.
+</p>
+<pre class="panel">
+$ cd $NIMBUS_HOME
+</pre>
+<pre class="panel">
+$ ./services/share/nimbus-autoconfig/autoconfig.sh
+</pre>
+
+<p>
+    Afterwards, restart the Nimbus services in order for changes to take effect.
+</p>
+
+<pre class="panel">
+$ $NIMBUS_HOME/bin/nimbusctl services restart
+</pre>
+
+<p>
+    The last thing the autoconfig script does is disable fake mode on the service.
+    Which means that you are ready for a real test, using the cloud client to
+    launch a real virtual machine! Proceed to the next page,
+    <a href="final-tests.html">Final Tests</a>.
+</p>
+
+
+
 
 _NIMBUS_CENTER2_COLUMN_END
 _NIMBUS_FOOTER1
