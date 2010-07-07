@@ -353,7 +353,7 @@ public class DefaultSlotManagement implements SlotManagement {
                             //so, free preemptable space
                             //and decrease i value, so 
                             //previous entry can be reconsidered
-                            preempManager.freeSpace(neededMem);
+                            preempManager.releaseSpace(neededMem);
                             i--;
                         } else {
                             throw e;
@@ -591,7 +591,7 @@ public class DefaultSlotManagement implements SlotManagement {
 
         this.db.replaceResourcepools(new_resourcepools);
         
-        preempManager.start();
+        preempManager.init();
     }
     
 }

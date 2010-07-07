@@ -57,6 +57,7 @@ import org.nimbustools.api.repr.CreateRequest;
 import org.nimbustools.api.repr.ReprFactory;
 import org.nimbustools.api.repr.RequestSI;
 import org.nimbustools.api.repr.ctx.Context;
+import org.nimbustools.api.repr.si.SIConstants;
 import org.nimbustools.api.repr.vm.NIC;
 import org.nimbustools.api.repr.vm.ResourceAllocation;
 import org.nimbustools.api.services.rm.AuthorizationException;
@@ -300,7 +301,7 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
         
         final String groupID = this.getGroupID(creatorID, bound.length);   
         
-        final String siID = generateID();
+        final String siID = generateRequestID();
         SIRequest siRequest = new SIRequest(siID, req.getSpotPrice(), req.isPersistent(), caller, groupID, bound, req.getContext(), req.getRequestedNics(), Calendar.getInstance());
         
         siManager.addRequest(siRequest); 
@@ -345,11 +346,12 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
     }
     
     /**
-     * TODO: Temporary random generation, update to use more advanced method.
-     * @return
+     * Generates a random Spot Instance request ID
+     * @return the generated ID
      */
-    private String generateID() {
-        return "" + Math.random()*10000000;
+    private String generateRequestID() {
+        
+        return SIConstants.SI_REQUEST_PREFIX + this.uuidGen.generateRandomBasedUUID().toString(); 
     }    
 
     protected String getType(CreateRequest req) {

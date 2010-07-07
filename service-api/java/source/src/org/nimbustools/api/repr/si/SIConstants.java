@@ -24,5 +24,7 @@ public abstract class SIConstants {
     public static Integer getInstanceMem(String instanceType){
         return instanceMems.get(instanceType);
     }
+    
+    public static final String SI_REQUEST_PREFIX = "si-";
 
 }

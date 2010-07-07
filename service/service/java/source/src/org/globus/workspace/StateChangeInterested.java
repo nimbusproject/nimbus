@@ -21,16 +21,16 @@ import org.nimbustools.api.services.rm.ManageException;
 public interface StateChangeInterested {
 
     /**
-     * This notification allows the scheduler to be autonomous
+     * This notification allows modules to be autonomous
      * from the service layer's actions if it wants to be (instead
      * of allowing the resource states to progress, it could time
      * every state transition by continually re-adjusting the
      * resource's target state when it is time to transition it).
      *
      * The first state notification (always preceded by a call to
-     * schedule) signals that the scheduler may act.  This allows
-     * the service layer to finalize creation before the scheduler
-     * acts on a a resouce.
+     * schedule) signals that creation process has finished.  
+     * This allows the service layer to finalize creation 
+     * before a module (ie. scheduler) can act on a a resouce.
      *
      * @param vmid id
      * @param state STATE_* in WorkspaceConstants
@@ -42,13 +42,16 @@ public interface StateChangeInterested {
     
     /**
      * Batch state notification
+     * 
      * NOTE: This version doesn't throw exception when
-     * an error occurs during the notification. If error conditions need to be
-     * treated, use {@code stateNotification(int vmid, int state)}
-     * instead. However, implementations of this interface
-     * are recommended to log errors.
-     * @param vmids
-     * @param state
+     * an error occurs during the notification. If error 
+     * conditions need to be treated, use 
+     * {@code stateNotification(int vmid, int state)}
+     * instead. However, implementations of this 
+     * interface are recommended to log possible errors.
+     * 
+     * @param vmids ids of vms
+     * @param stateSTATE_* in WorkspaceConstants
      */
     public void stateNotification(int[] vmids, int state);    
     

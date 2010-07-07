@@ -62,20 +62,6 @@ public class SIRequestUtils {
         return activeRequestsEqualPrice;
     }
     
-    public static List<SIRequest> filterOpenRequestsEqualPrice(
-            Double price, Collection<SIRequest> allRequests) {
-        
-        List<SIRequest> inactiveRequestsEqualPrice = new ArrayList<SIRequest>();
-        
-        for (SIRequest siRequest : allRequests) {
-            if(siRequest.getStatus().equals(SIRequestStatus.OPEN) && siRequest.getMaxBid().equals(price)){
-                inactiveRequestsEqualPrice.add(siRequest);
-            }
-        }
-        
-        return inactiveRequestsEqualPrice;
-    }
-
     public static List<SIRequest> filterAliveRequestsAbovePrice(
             Double currentPrice, Collection<SIRequest> allRequests) {
         List<SIRequest> aliveRequestsAbovePrice = new ArrayList<SIRequest>();
