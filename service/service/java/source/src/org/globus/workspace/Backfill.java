@@ -217,6 +217,10 @@ public class Backfill {
 
     public void launchBackfillTimer() {
 
+        if (this.backfillDisabled == true) {
+            return;
+        }
+
         if (this.backfillTimer != null) {
             this.backfillTimer.cancel();
         }
