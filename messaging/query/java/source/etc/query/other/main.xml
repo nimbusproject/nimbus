@@ -282,6 +282,8 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
         <property name="repoBucket" value="$CUMULUS{cumulus.repo.bucket}" />
         <property name="prefix" value="$CUMULUS{cumulus.repo.prefix}" />
         <property name="cumulusHost" value="$CUMULUS{cumulus.host}" />
+        <property name="rootFileMountAs" value="$OTHER_ELASTIC{rootfile.mountas}" />
+         
     </bean>
 
 

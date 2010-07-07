@@ -208,14 +208,11 @@ public class AuthzDecisionLogic extends DecisionLogic
             logger.debug("Unprop image " + unPropImageName + " requested");
             try
             {
-                boolean check_write;
-                check_write = incomingImageName.equals(unPropImageName);
-                
-                // just authorize the image
-                long size = checkUrl(incomingImageName, dn, check_write, 0);
+                // see if we are allowed to read the image
+                long size = checkUrl(incomingImageName, dn, false, 0);
 
-                // if the names were different and we are unpropagating we need to check write on the new file
-                if(unPropImageName != null && !check_write)
+                // if unpropagting, see if we are allowed to write to the unprop name
+                if(unPropImageName != null)
                 {                    
                     checkUrl(unPropImageName, dn, true, size);
                 }
@@ -237,7 +234,7 @@ public class AuthzDecisionLogic extends DecisionLogic
         String                          userId,
         boolean                         write,
         long                            expectedSize)
-            throws AuthorizationException, WorkspaceDatabaseException
+            throws AuthorizationException, ResourceRequestDeniedException, WorkspaceDatabaseException
     {
         int    fileId;
         String [] urlParts = this.parseUrl(url);
@@ -266,7 +263,7 @@ public class AuthzDecisionLogic extends DecisionLogic
 
                 if(fileIds[0] < 0)
                 {
-                    throw new AuthorizationException("The bucket name " + bucketName + " was not found.");
+                    throw new ResourceRequestDeniedException("The bucket name " + bucketName + " was not found.");
                 }
                 String perms = "";
                 if(fileIds[1] < 0 && write)
@@ -278,13 +275,13 @@ public class AuthzDecisionLogic extends DecisionLogic
                 perms = authDB.getPermissions(fileIds[1], canUser);
                 if(fileIds[1] < 0)
                 {
-                    throw new AuthorizationException("the object " + objectName + " was not found.");
+                    throw new ResourceRequestDeniedException("the object " + objectName + " was not found.");
                 }
                 
                 int ndx = perms.indexOf('r');
                 if(ndx < 0)
                 {
-                    throw new AuthorizationException("user " + userId + " canonical ID " + canUser + " does not have read access to " + url);
+                    throw new ResourceRequestDeniedException("user " + userId + " canonical ID " + canUser + " does not have read access to " + url);
                 }
                 long size = authDB.getFileSize(fileIds[1]);
                 if(write)
@@ -292,7 +289,7 @@ public class AuthzDecisionLogic extends DecisionLogic
                     ndx = perms.indexOf('w');
                     if(ndx < 0)
                     {
-                        throw new AuthorizationException("user " + userId + " does not have write access to " + url);
+                        throw new ResourceRequestDeniedException("user " + userId + " does not have write access to " + url);
                     }
 
                     // expected size is only zero when replacing the original file.  in this case we assume it will
@@ -305,7 +302,7 @@ public class AuthzDecisionLogic extends DecisionLogic
                         boolean quota = authDB.canStore(canFitSize, canUser, schemeType);
                         if(!quota)
                         {
-                            throw new AuthorizationException("You do not have enough storage space for the new image.  Please free up some storage and try again");
+                            throw new ResourceRequestDeniedException("You do not have enough storage space for the new image.  Please free up some storage and try again");
                         }
                     }
                 }
@@ -324,7 +321,7 @@ public class AuthzDecisionLogic extends DecisionLogic
         }
         else
         {
-            throw new AuthorizationException("scheme of: " + scheme + " is not supported.");
+            throw new ResourceRequestDeniedException("scheme of: " + scheme + " is not supported.");
         }
     }
 

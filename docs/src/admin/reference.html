@@ -52,12 +52,22 @@ _NIMBUS_2_5_DEPRECATED
     </li>
     <li>
         <p>
+            <a href="#group-authz">Per-user rights and allocations</a>
+        </p>
+    </li>
+    <li>
+        <p>
             <a href="#elastic">Enabling the EC2 SOAP frontend</a>
         </p>
     </li>
     <li>
         <p>
             <a href="#query">Configuring the EC2 Query frontend</a>
+        </p>
+    </li>
+    <li>
+        <p>
+            <a href="#service-ports">Changing the network ports of Nimbus and Cumulus</a>
         </p>
     </li>
 	<li>
@@ -148,7 +158,7 @@ _NIMBUS_2_5_DEPRECATED
 </p>
 
 <p>
-    See the <i>$NIMBUS_HOME/services/etc/nimbus/workspace-service</i> directory.
+    See the <tt class="literal">$NIMBUS_HOME/services/etc/nimbus/workspace-service</tt> directory.
 </p>
 
 
@@ -161,11 +171,15 @@ _NIMBUS_2_5_DEPRECATED
 <h2>Cloud configuration overview _NAMELINK(cloud-overview)</h2>
 
 <p>
-    The cloud configuration is a particular configuration of Nimbus that allows the cloud-client to operate out of the box.  It is what is set up when you are done with the <a href="z2c/index.html">Zero To Cloud Guide</a>.
+    The cloud configuration is a particular configuration of Nimbus that allows the cloud-client to
+    operate out of the box.  It is what is set up when you are done with the
+    <a href="z2c/index.html">Zero To Cloud Guide</a>.
 </p>
 
 <p>
-    This overview section and subsequent reference sections give a more in-depth explanation of how it works in order to provide context for administrators running Nimbus in production that want to customize settings or understand things in a more "under the hood" way for security/networking reasons.
+    This overview section and subsequent reference sections give a more in-depth explanation of how
+    it works in order to provide context for administrators running Nimbus in production that want to
+    customize settings or understand things in a more "under the hood" way for security/networking reasons.
 </p>
 
 <p>
@@ -177,24 +191,16 @@ _NIMBUS_2_5_DEPRECATED
 
 <p>
     In the Nimbus 2.5 release the repository service (<a href="#cumulus">Cumulus</a>) and the IaaS services
-    MUST be on the same node, or at least must be installed on a filesystem
-    that they both can access.  In future releases this restriction will
+    MUST be on the same node.  In future releases this restriction will
     be lifted.
 </p>
 
 <p>
     The server addresses must be directly reachable from the Internet
-    or otherwise configured to deal with being NAT'd.  The IaaS services container can be setup for NAT or other port 
+    or otherwise configured to deal with being NAT'd.  The IaaS services container can be setup for NAT or other port
     forwarding situations.  Cumulus should be NAT friendly so long as
     its listening port (default 8888) is forwarded through the NAT.
 </p>
-
-<p>
-    To enable one-click clusters, you need to enable the context broker (see
-    <a href="#context-broker">this section</a> admin
-    guide).
-</p>
-
 
 <p>
     <img src="../img/cloud-overview-rt.png" alt="workspace cloud configuration" />
@@ -210,8 +216,8 @@ _NIMBUS_2_5_DEPRECATED
     </li>
     <li>
         Files are transferred from the cloud-client to a client-specific
-        storage system  on the repository node (manual or other types of 
-        S3 protocol 
+        storage system  on the repository node (manual or other types of
+        S3 protocol
         based transfers are also possible for advanced users).
     </li>
     <li>
@@ -236,9 +242,9 @@ _NIMBUS_2_5_DEPRECATED
 
 <a name="cloud-userexp"> </a>
 <h2>Cloud configuration user experience _NAMELINK(cloud-userexp)</h2>
-    
+
 <p>
-    Working backwards from the user's <i>cloud-client</i> experience is a
+    Working backwards from the user's <tt class="literal">cloud-client</tt> experience is a
     good way to understand how the service needs to be setup.
 </p>
 
@@ -252,7 +258,7 @@ _NIMBUS_2_5_DEPRECATED
     <li>
         <p>
             A grid credential is needed, there is an embedded
-            <i>grid-proxy-init</i> program if that is necessary.
+            <tt class="literal">grid-proxy-init</tt> program if that is necessary.
         </p>
     </li>
 
@@ -329,7 +335,8 @@ Running: 'vm-023'
     <li>
         <p>
             The client had picked up your default public SSH key and sent it to
-            be installed on the fly into the VM's <i>authorized_keys</i> policy
+            be installed on the fly into the VM's
+            <tt class="literal">authorized_keys</tt> policy
             for the root account.  So after launching you can use the printed
             hostname to log in as root:
         </p>
@@ -355,7 +362,7 @@ Running: 'vm-023'
 
 <a name="cloud-assumptions"> </a>
 <h2>Cloud configuration assumptions and defaults _NAMELINK(cloud-assumptions)</h2>
-    
+
 <p>
     A number of things go into making the cloud client work out of the box,
     but it is in large part accomplished by giving the user a downloadable
@@ -383,7 +390,7 @@ Running: 'vm-023'
 
 <p class="indent">
     <b>Note</b>: How properties files and commandline overrides work is covered
-    in a <a href="#cloud-props">later section</a> in detail, it is all designed to be
+    in a <a href="#cloud-properties">later section</a> in detail, it is all designed to be
     flexible under the covers.  If you don't want to follow the conventions
     laid out in this current "assumptions" section, it will be important to
     understand the later section to know how to change things for a good
@@ -412,7 +419,7 @@ Running: 'vm-023'
     <i>--transfer</i>) the server to contact is based on the contact in
     the cloud properties file.  The s3id and s3 secret to authenticate with
     the Cumulus server is stored in the
-    cloud properties file. 
+    cloud properties file.
 </p>
 
 <p>
@@ -434,7 +441,7 @@ Running: 'vm-023'
     <li>
         The configured <i>base directory property</i>.  The default
         configuration for the base bucket on the repository node is
-        "<b>Repo</b>".  This value can be changed in the cloud.properties 
+        "<b>Repo</b>".  This value can be changed in the cloud.properties
         file so long as it matches the particular clouds setup.  It is
         best to not alter this value.
     </li>
@@ -455,7 +462,7 @@ Running: 'vm-023'
 <p>
     The second set of assumptions to cover is how a given image file is going
     to actually work.  There are many options that you can specify in regular
-    workspace requests.  For example, the memory size, the number of network 
+    workspace requests.  For example, the memory size, the number of network
     interfaces to construct, the pool name(s) to lease network addresses from,
     and the partition name the VM is expecting for the base partition.
 </p>
@@ -538,7 +545,7 @@ Running: 'vm-023'
             This should be done by the Nimbus installer.
         </p>
     </li>
-    
+
 </ul>
 
 
@@ -607,7 +614,7 @@ Running: 'vm-023'
         <p>
             <b>User properties file</b> - An example of this is distributed with the cloud client.
         </p>
-        <p>            
+        <p>
             Note that you can include different properties files and have your
             users switch between clouds using
             <i>./bin/cloud-client.sh --conf ./conf/some-file</i>.
@@ -700,7 +707,7 @@ vws.depreq.fileName=deprequest.xml
 
 
 <p>
-    In order to manage Nimbus user more easily a set of command line tools 
+    In order to manage Nimbus user more easily a set of command line tools
     have been created.
 </p>
 
@@ -719,13 +726,13 @@ as an argument a query pattern.  For example, if you wanted to look up
 all the users with email addresses at gmail.com you would run:
 </p>
 
-<pre>
-% nimbus-list-users %@gmail.com
+<pre class="panel">
+$ nimbus-list-users %@gmail.com
 </pre>
 
 <p>
 All of the command line tools take the argument --help and further information
-can be found there.  For didactic purposes an example of a common session in which a 
+can be found there.  For didactic purposes an example of a common session in which a
 new user is created, changes, listed and removed follows:
 </p>
 
@@ -766,6 +773,29 @@ $
 
 
 
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+
+
+<br />
+
+<a name="group-authz"> </a>
+<h2>Per-user rights and allocations _NAMELINK(group-authz)</h2>
+
+<p>
+    In the <i>services/etc/nimbus/workspace-service/group-authz/</i> directory are the default policies for each user.  You pick a pre-configured policy to apply to a new user.  The "groups" are not a shared allocation but rather each group is a policy that describes a "type" of user.
+</p>
+
+<p>
+    Todo: describe what can be tracked on a per-user basis
+</p>
+
+<p>
+    Todo: speak of nimbus-new-user integration
+</p>
+
+
 
 
 <!-- *********************************************************************** -->
@@ -778,8 +808,12 @@ $
 <a name="elastic"> </a>
 <h2>Enabling the EC2 SOAP frontend _NAMELINK(elastic)</h2>
 <p>
-    After installing, see the <i>$NIMBUS_HOME/services/etc/nimbus/elastic</i>
-    directory.  The .conf file here specifies what the EC2 "instance type"
+    After installing, the EC2 query frontend should be immediately
+    operational. However if you wish you use the SOAP frontend as well,
+    you must make a few configuration changes. To begin, see the
+    <tt class="literal">$NIMBUS_HOME/services/etc/nimbus/elastic</tt>
+    directory.  The <tt class="literal">elastic.conf</tt> file here specifies
+    what the EC2 "instance type"
     allocations should translate to and what networks should be requested
     from the underlying workspace service when VM create requests are sent.
 </p>
@@ -794,7 +828,7 @@ https://10.20.0.1:8443/wsrf/services/ElasticNimbusService
 
 <p>
     But before the service will work, you must adjust a container configuration.
-    This will account for some security related customs for EC2: 
+    This will account for some security related customs for EC2:
 </p>
 <ul>
     <li>
@@ -819,8 +853,6 @@ https://10.20.0.1:8443/wsrf/services/ElasticNimbusService
         </p>
     </li>
 </ul>
-
-<!-- the following is not relevant anymore ? -->
 
 <p>
     There is a sample container <i>server-config.wsdd</i> configuration
@@ -867,7 +899,7 @@ _EXAMPLE_CMD_END
                    value="org.nimbustools.messaging.gt4_0_elastic.rpc.SignHandler" /&gt;
 
         &lt;!-- <b>disabled</b>: --&gt;
-        &lt;!--&lt;parameter name="className" 
+        &lt;!--&lt;parameter name="className"
                        value="org.globus.wsrf.impl.security.authentication.securemsg.X509SignHandler"/&gt;--&gt;
     &lt;/handler&gt;</pre></div>
 
@@ -889,18 +921,18 @@ _EXAMPLE_CMD_END
 <a name="query"> </a>
 <h2>Configuring the EC2 Query frontend _NAMELINK(query)</h2>
 
-<!-- could have a "ports" section somewhere that this refers to, instead of littering default port configs around the docs which may get messy and incaccurate -->
 <p>
 The EC2 Query frontend supports the same operations as the SOAP frontend.
 However, it does not run in the same container. It listens on HTTPS using Jetty.
 Starting with Nimbus 2.4, the query frontend is enabled and listens on port 8444.
+For instructions on changing this port, see the
+<a href="#service-ports">service ports</a> section.
 </p>
 
 <p>
 Configuration for the query frontend lives in the
-    <i>$NIMBUS_HOME/services/etc/nimbus/query</i> directory.
-It contains a configuration file <i>query.conf</i> and a sample user mapping
-file <i>users.txt</i>.
+    <tt class="literal">$NIMBUS_HOME/services/etc/nimbus/query/query.conf</tt>
+    file.
 </p>
 
 <p>
@@ -929,12 +961,29 @@ and compares its result with the one included in the request.
 
 <br />
 
-<!-- again, ports section? -->
-
-<a name="cumulus-port"> </a>
-<h2>Changing the service port of Cumulus <span class="namelink"><a href="#cumulus-port">(#)</a></span>
+<a name="service-ports"> </a>
+<h2>Changing the network ports of Nimbus and Cumulus <span class="namelink"><a href="#service-ports">(#)</a></span>
 </h2>
+<p>
+    The assorted Nimbus and Cumulus services use several network ports. Each is configured with sensible
+    defaults, but you may change them if needed. Below are instructions for changing the port of each service.
+</p>
 
+<h3>Nimbus core services (default 8443)</h3>
+<p>
+    Edit <tt class="literal">$NIMBUS_HOME/libexec/run-services.sh</tt> and change the
+    <tt class="literal">PORT</tt> line to your desired port number. You must restart the service
+    for changes to take effect.
+</p>
+
+<h3>Nimbus EC2 query frontend (default 8444)</h3>
+<p>
+    Edit <tt class="literal">$NIMBUS_HOME/services/etc/nimbus/query/query.conf</tt> and
+    adjust the <tt class="literal">https.port</tt> line. You must restart the service
+    for changes to take effect.
+</p>
+
+<h3>Cumulus (default 8888)</h3>
 <p>
     The configuration options for Cumulus can be found in
     <tt class="literal">$NIMBUS_HOME/cumulus/etc/cumulus.ini</tt>.
@@ -959,6 +1008,14 @@ hostname = &lt;hostname&gt;
 
 </p>
 
+<h3>Nimbus Web application (default 1443)</h3>
+<p>
+    When enabled, the web application listens by default on port 1443. This and other configuration
+    options are location in the <tt class="literal">$NIMBUS_HOME/web/nimbusweb.conf</tt>
+    file. Changes to this file require a restart of the service.
+</p>
+
+
 <!-- *********************************************************************** -->
 <!-- *********************************************************************** -->
 <!-- *********************************************************************** -->
@@ -978,12 +1035,6 @@ hostname = &lt;hostname&gt;
     to start/stop the web application.
 </p>
 
-<!-- ports section... -->
-<p>
-    By default, the web application listens on port 1443. This and other configuration
-    options are location in the <i>$NIMBUS_HOME/web/nimbusweb.conf</i> file. Changes to
-    this file require a restart of the service.
-</p>
 
 <p>
     Once the web application has been configured, you can start to use it with the nimbus-new-user program (see the help output), see the <a href="#user-management">user management</a> section.
@@ -1669,8 +1720,8 @@ fakepub1 192.168.0.3 192.168.0.1 192.168.0.255 255.255.255.0</pre>
     facilitate <a href="../clouds/clusters.html">one click clusters</a>.
 </p>
 <p>
-    The context broker (see <a href="#context-broker">above</a>)
-    is installed and configured automatically starting with Nimbus 2.5RC1, but there
+    The context broker
+    is installed and configured automatically starting with Nimbus 2.4, but there
     is not a dependency on any Nimbus service component.  It can run by itself in a
     GT container.  You can use it for deploying virtual clusters on EC2 for
     example without any other Nimbus service running (the cloud client #11 has
@@ -1756,14 +1807,14 @@ Amazon S3 clients they already use.
 <p>
 When the Cumulus server is run it expects to find a configuration file (typically
 called cumulus.ini) in one or all of the following locations:
-
+</p>
     <ol>
         <li>/etc/nimbus/cumulus.ini</li>
         <li>~/.nimbus/cumulus.ini</li>
         <li>the same directory from which the program was launched</li>
         <li>file pointed to by the environment variable CUMULUS_SETTINGS_FILE</li>
     </ol>
-
+<p>
 Each file in the path is read in (provided it exists).  The values found 
 in each file override the values found in the previous file in this list.
 

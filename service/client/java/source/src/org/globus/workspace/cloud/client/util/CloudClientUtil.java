@@ -18,40 +18,37 @@ package org.globus.workspace.cloud.client.util;
 
 import org.apache.axis.message.addressing.EndpointReferenceType;
 import org.apache.axis.types.URI;
+import org.globus.gsi.GlobusCredential;
 import org.globus.workspace.client_core.ExecutionProblem;
 import org.globus.workspace.client_core.ParameterProblem;
 import org.globus.workspace.client_core.repr.Workspace;
 import org.globus.workspace.client_core.utils.EPRUtils;
 import org.globus.workspace.client_core.utils.StringUtils;
+import org.globus.workspace.cloud.client.AllArgs;
 import org.globus.workspace.common.print.Print;
 import org.globus.wsrf.encoding.DeserializationException;
 import org.globus.wsrf.encoding.ObjectDeserializer;
-import org.xml.sax.InputSource;
 import org.nimbustools.messaging.gt4_0.generated.metadata.VirtualWorkspace_Type;
+import org.nimbustools.messaging.gt4_0.generated.metadata.definition.BoundDisk_Type;
 import org.nimbustools.messaging.gt4_0.generated.metadata.definition.Definition;
 import org.nimbustools.messaging.gt4_0.generated.metadata.definition.DiskCollection_Type;
-import org.nimbustools.messaging.gt4_0.generated.metadata.definition.BoundDisk_Type;
+import org.xml.sax.InputSource;
 
-import org.globus.gsi.GlobusCredential;
 import java.io.File;
-import java.io.PrintStream;
-import java.io.FilenameFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.net.URL;
+import java.io.FilenameFilter;
+import java.io.PrintStream;
 import java.net.MalformedURLException;
-import java.util.Properties;
-import java.util.Hashtable;
-import java.util.Enumeration;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
+import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
 import java.util.StringTokenizer;
-
-import org.globus.workspace.cloud.client.Props;
-import org.globus.workspace.cloud.client.AllArgs;
-import org.globus.workspace.common.print.Print;
 
 public class CloudClientUtil {
 

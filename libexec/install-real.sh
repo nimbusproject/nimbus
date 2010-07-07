@@ -15,6 +15,12 @@ fi
 
 NIMBUS_HOME=$1
 
+chmod 755 $NIMBUS_HOME/libexec/*sh
+if [ $? -ne 0 ]; then
+    echo "Could not chmod $NIMBUS_HOME/libexec files"
+    exit 1
+fi
+
 CONFIG_SCRIPT="$NIMBUS_HOME/bin/nimbus-configure"
 
 

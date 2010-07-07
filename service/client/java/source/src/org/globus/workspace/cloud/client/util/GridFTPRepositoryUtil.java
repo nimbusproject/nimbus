@@ -16,40 +16,35 @@
 
 package org.globus.workspace.cloud.client.util;
 
-import org.globus.ftp.GridFTPClient;
-import org.globus.ftp.Session;
-import org.globus.ftp.MlsxEntry;
-import org.globus.ftp.exception.ServerException;
-import org.globus.util.GlobusURL;
-import org.globus.gsi.gssapi.auth.HostAuthorization;
-import org.globus.gsi.gssapi.auth.IdentityAuthorization;
-import org.globus.gsi.gssapi.auth.Authorization;
-import org.globus.workspace.client_core.ExecutionProblem;
-import org.globus.workspace.cloud.client.tasks.CopyTask;
-import org.globus.workspace.cloud.client.tasks.CopyWatchTask;
-import org.globus.io.urlcopy.UrlCopy;
-
-import java.io.PrintStream;
-import java.io.IOException;
-import java.util.Vector;
-import java.util.ArrayList;
-import java.io.File;
-
+import edu.emory.mathcs.backport.java.util.concurrent.ExecutionException;
+import edu.emory.mathcs.backport.java.util.concurrent.ExecutorService;
 import edu.emory.mathcs.backport.java.util.concurrent.FutureTask;
 import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
-import edu.emory.mathcs.backport.java.util.concurrent.ExecutionException;
 import edu.emory.mathcs.backport.java.util.concurrent.TimeoutException;
-import edu.emory.mathcs.backport.java.util.concurrent.ExecutorService;
+import org.globus.ftp.GridFTPClient;
+import org.globus.ftp.MlsxEntry;
+import org.globus.ftp.Session;
+import org.globus.ftp.exception.ServerException;
+import org.globus.gsi.gssapi.auth.Authorization;
+import org.globus.gsi.gssapi.auth.HostAuthorization;
+import org.globus.gsi.gssapi.auth.IdentityAuthorization;
+import org.globus.io.urlcopy.UrlCopy;
+import org.globus.util.GlobusURL;
+import org.globus.workspace.client_core.ExecutionProblem;
 import org.globus.workspace.client_core.ParameterProblem;
-
-import org.globus.workspace.common.SecurityUtil;
 import org.globus.workspace.cloud.client.AllArgs;
 import org.globus.workspace.cloud.client.Opts;
-import org.globus.workspace.client_core.ExecutionProblem;
-import org.globus.workspace.common.print.Print;
-import edu.emory.mathcs.backport.java.util.concurrent.ExecutorService;
 import org.globus.workspace.cloud.client.Props;
-import java.util.Properties;
+import org.globus.workspace.cloud.client.tasks.CopyTask;
+import org.globus.workspace.cloud.client.tasks.CopyWatchTask;
+import org.globus.workspace.common.SecurityUtil;
+import org.globus.workspace.common.print.Print;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Vector;
 
 public class GridFTPRepositoryUtil 
     implements RepositoryInterface {
@@ -85,6 +80,11 @@ public class GridFTPRepositoryUtil
         if (this.args.getTargetBaseDirectory() == null) {
             throw new ParameterProblem(action + " requires '" +
                                        Opts.TARGETDIR_OPT_STRING + "'");
+        }
+
+        if (this.args.getPropagationScheme() == null) {
+            throw new ParameterProblem(action + " with GridFTP requires '" +
+                    Props.KEY_PROPAGATION_KEEPPORT + "' property");
         }
 
         final String url;
@@ -598,7 +598,32 @@ public class GridFTPRepositoryUtil
         String                          imageName)
             throws ExecutionProblem 
     {
-        String url = "gridftp://" + this.args.getXferHostPort() + this.remoteUserBaseDir + "/" + imageName;
+
+        String imageURL = this.args.getPropagationScheme();
+        this.print.debugln("Given propagation scheme: '" + imageURL + "'");
+
+        imageURL += "://";
+        // a bit messy
+        if (this.args.isPropagationKeepPort()) {
+
+            imageURL += this.args.getXferHostPort();
+
+        } else {
+
+            final String[] parts = this.args.getXferHostPort().split(":");
+
+            if (parts.length != 2) {
+                throw new ExecutionProblem(
+                        "gridftp host + port has no port?");
+            }
+
+            imageURL += parts[0];
+
+            this.print.debugln("Stripped port from repository host+port");
+        }
+
+        String url = imageURL + this.remoteUserBaseDir + "/" + imageName;
+        this.print.debugln("New image URL: " + url);
         return url;
     }
 

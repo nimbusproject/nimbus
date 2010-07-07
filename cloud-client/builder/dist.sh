@@ -17,14 +17,14 @@ if [ ! -f $CLCLBUILDER_TARBALL_DEST ]; then
     fi
 fi
 
-CHECKSUM=`md5sum $CLCLBUILDER_TARBALL_DEST`
+CHECKSUM=`openssl md5 $CLCLBUILDER_TARBALL_DEST | awk '{print $2}'`
 if [ $? -ne 0 ]; then
   echo "Checksum failed"
   exit 1
 fi
 
 # remember, two spaces between checksum value and filename in expected output:
-if [ "$CHECKSUM" != "$CLCLBUILDER_WSCORE_MD5SUM  $CLCLBUILDER_TARBALL_DEST" ]; then
+if [ "$CHECKSUM" != "$CLCLBUILDER_WSCORE_MD5SUM" ]; then
   echo "Checksum comparison failed"
   exit 1
 fi

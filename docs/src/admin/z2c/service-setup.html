@@ -44,19 +44,20 @@ _NIMBUS_2_5_DEPRECATED
 </p>
 
 <pre class="panel">
-$ wget http://www.nimbusproject.org/downloads/nimbus-2.5-src.tar.gz
+$ wget http://www.nimbusproject.org/downloads/nimbus-2.5RC1-src.tar.gz
 </pre>
 <pre class="panel">
-$ tar xfz nimbus-2.5-src.tar.gz
+$ tar xfz nimbus-2.5RC1-src.tar.gz
 </pre>
 <pre class="panel">
-$ cd nimbus-2.5-src/
+$ cd nimbus-2.5RC1-src/
 </pre>
 
 <p>
     You must now choose an installation directory. It could be within
     the <tt class="literal">nimbus</tt> user home directory, or something
-    like /opt/nimbus. If the directory exists, it must be empty and writable by the <tt class="literal">nimbus</tt> user.
+    like <tt class="literal">/opt/nimbus</tt>. If the directory exists,
+    it must be empty and writable by the <tt class="literal">nimbus</tt> user.
     If it does not exist, the parent directory must be writable by the <tt class="literal">nimbus</tt> user.
 </p>
 
@@ -105,13 +106,18 @@ $ ./install $NIMBUS_HOME
     <p class="note-title">Service ports</p>
     <p>
         Nimbus requires several network ports. We have chosen some sensible defaults,
-        but you may adjust them if needed. The initial default set is:
+        but you may adjust them if needed. The defaults are:
     </p>
         <UL>
             <LI>Cumulus : 8888</LI>
-            <LI>Nimbus Service interface : 8443</LI>This is used by the cloud-client
-            <LI>EC2 compatible REST Interface: 8444</LI>
+            <LI>Nimbus Service interface : 8443</LI>
+            <LI>EC2 compatible Query Interface: 8444</LI>
         </UL>
+    <p>
+        If you need to change these ports, check out
+        <a href="../reference.html#service-ports">this section</a>
+        of the reference guide.
+    </p>
 </div>
 <div class="note">
     <p class="note-title">Certificates</p>

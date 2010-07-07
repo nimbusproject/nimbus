@@ -27,10 +27,13 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Set;
 import java.util.EnumSet;
 import java.util.Properties;
-import java.io.*;
 
 public class AllArgs {
 
