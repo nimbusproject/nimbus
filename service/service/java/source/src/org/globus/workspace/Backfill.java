@@ -291,6 +291,13 @@ public class Backfill {
         CreateResult create = this.manager.create(req, caller);
     }
 
+    /**
+     * writeCurBackfillReq, readPrevBackfillReqStrB, and
+     * buildCurBackfillReqStrB are simply a hack to support persistence
+     * between service restarts or crashes. Ideally, they should become
+     * obsolete once the backfill feature is integrated with support for Spot
+     * Instances.
+     */
     private void writeCurBackfillReq() throws Exception {
 
         if (this.backfillReqFile.exists()) {
