@@ -343,7 +343,7 @@ m4_define([[[_NIMBUS_LEFT2_ADMIN_SIDEBAR',
           <a href="index.html" title="Admin Overview" class="$1">Overview</a>
         </li>
         <li>
-          <a href="quickstart.html" title="Quickstart" class="$2">Start</a>
+          <a href="z2c/" title="Zero to Cloud Guide" class="$2">Guide</a>
         </li>
         <li>
           <a href="reference.html" title="Reference" class="$3">Reference</a>
@@ -353,35 +353,6 @@ m4_define([[[_NIMBUS_LEFT2_ADMIN_SIDEBAR',
         </li>
         <li>
           <a href="upgrading.html" title="Upgrading" class="$5">Upgrading</a>
-        </li>
-        <li>
-          <a href="../doc/cloud.html" title="Cloud Guide" class="n">Cloud Guide</a>
-        </li>
-    </ul>
-</div>
-
-)m4_dnl
-m4_define([[[_NIMBUS_LEFT2_ADMIN2_SIDEBAR',
-
-<div id="sidebarmenu">
-    <ul>
-        <li>
-          <a href="../admin/index.html" title="Admin Overview">Overview</a>
-        </li>
-        <li>
-          <a href="../admin/quickstart.html" title="Quickstart">Start</a>
-        </li>
-        <li>
-          <a href="../admin/reference.html" title="Reference">Reference</a>
-        </li>
-        <li>
-          <a href="../admin/troubleshooting.html" title="Troubleshooting">Troubleshooting</a>
-        </li>
-        <li>
-          <a href="../admin/upgrading.html" title="Upgrading">Upgrading</a>
-        </li>
-        <li>
-          <a href="cloud.html" title="Cloud Guide" class="y">Cloud Guide</a>
         </li>
     </ul>
 </div>
