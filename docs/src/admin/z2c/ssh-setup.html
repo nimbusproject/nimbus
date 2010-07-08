@@ -20,7 +20,7 @@ _NIMBUS_2_5_DEPRECATED
 <p>
     The Nimbus service and VMM nodes communicate via SSH, so you must set up
     password-less SSH keys. At this point you should have two nodes set up, each with a privileged
-    account (probably, but not necessary called <tt class="literal">nimbus</tt>.
+    account (probably, but not necessary called <tt class="literal">nimbus</tt>).
     You need to allow the service node account to SSH to the VMM, and vice versa.
 </p>
 <p>
@@ -53,8 +53,8 @@ nimbus@vmm1 $ ssh-keygen
 nimbus@vmm1 $ exit
 </pre>
 
-<p>Copy down the VMM's public key and authorize it (you should not be
-prompted for a password during the scp transfer.</p>
+<p>Fetch the VMM's public key and authorize it (you should not be
+prompted for a password during the scp transfer).</p>
 <pre class="panel">
 nimbus@service $ scp nimbus@vmm1:~/.ssh/id_rsa.pub ./vmm1_rsa.pub
 </pre>

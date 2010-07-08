@@ -80,12 +80,60 @@ $ ./bin/cloud-client.sh --list
         Modified: Jun 7 2010 @ 12:43   Size: 288358400 bytes (~275 MB)
 </pre>
 <h3>Start VM</h3>
+
+<p>
+    Now we are ready to boot this image and see if we can ssh into it.
+</p>
 <pre class="panel">
-$ ./bin/cloud-client.sh --run --name nimbus-z2c
+$ ./bin/cloud-client.sh --run --name nimbus-z2c --hours 1
+
+Launching workspace.
+
+Workspace Factory Service:
+    https://nimbus.example.edu:8445/wsrf/services/WorkspaceFactoryService
+
+Creating workspace "vm-001"... done.
+
+
+       IP address: 128.135.125.25
+         Hostname: x001.nimbus.example.edu
+       Start time: Mon Jul 05 21:27:20 CDT 2010
+    Shutdown time: Mon Jul 05 22:27:20 CDT 2010
+ Termination time: Mon Jul 05 22:37:20 CDT 2010
+
+Waiting for updates.
+
 </pre>
 
-<p>More to come..</p>
+<p>
+    If all goes well, a VM should be booting and its IP should be
+    printed to the screen. The client will not exit until the
+    image is distributed and the VM is booting. When this happens,
+    you can attempt to SSH into the new VM.
+</p>
 
+<pre class="panel">
+$ ssh root@x001.nimbus.example.edu
+</pre>
+
+<p>
+    Notice also that a "handle" was printed out to the screen for
+    this launch. In the example above, this handle is
+    "<tt class="literal">vm-001</tt>". When you are ready to destroy
+    a running VM, you do so using this handle.
+</p>
+
+<pre class="panel">
+$ ./bin/cloud-client.sh --terminate --handle vm-001
+</pre>
+
+<p>
+    The cloud client has many other options and features. For details,
+    check <tt class="literal">--help</tt> and the
+    <a href="http://www.nimbusproject.org/docs/2.4/clouds/cloudquickstart.html">client quickstart</a>.
+</p>
+
+<p>TODO: demonstrate cluster launching</p>
 
 
 
