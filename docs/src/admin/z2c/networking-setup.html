@@ -16,6 +16,150 @@ _NIMBUS_2_5_DEPRECATED
     addresses you want to give out to virtual machines when they
     boot.
 </p>
+<h3>Overview</h3>
+
+<p>
+    When a VM is started using Nimbus, it is provided a network IP address
+    via DHCP. You must configure a pool of available networks and addresses
+    in the service. You must provide at least as many addresses as VMs you
+    want to run simultaneously.
+</p>
+<p>
+    In addition to configuring available addresses in the Nimbus service,
+    you must also set up a DHCP server to actually hand out these addresses.
+    This will be discussed in depth shortly.
+
+</p>
+<h3>Network pools</h3>
+<p>
+    Take a look at the
+    <tt class="literal">$NIMBUS_HOME/services/etc/nimbus/workspace-service/network-pools/</tt>
+    directory on your service node. Each file represents a single network which can
+    be provided to virtual machines. Each network can be bridged to different (or the same)
+    physical networks and a single VM can be connected to multiple networks. When a VM is launched,
+    one or more networks are requested by the client.
+</p>
+
+<p>
+    Traditionally, Nimbus installations are configured with two networks,
+    <tt class="literal">public</tt> and <tt class="literal">private</tt>.
+    Start with the <tt class="literal">public</tt> file as it contains
+    a lot of helpful documentation. For each network, you must configure
+    a DNS server as well as a list of available network slots.
+</p>
+
+<pre class="panel">
+# DNS server IP address (or 'none')
+192.168.0.1
+
+# hostname ipaddress gateway broadcast subnetmask [MAC]
+
+pub02 192.168.0.2 192.168.0.1 none none
+pub03 192.168.0.3 192.168.0.1 192.168.0.255 255.255.255.0
+pub04 192.168.0.4 192.168.0.1 192.168.0.255 255.255.255.0
+</pre>
+
+<p>
+    The only truly required fields are the hostname and IP. The gateway, broadcast,
+    and subnet may be specifed as 'none' (but you probably don't want to).
+    You can also optionally specify a hardware MAC address as the last field. If you
+    do not specify a MAC, the Nimbus service will generate one for you.
+</p>
+
+<h3>DHCP server</h3>
+<p>
+    While addresses for VMs are configured and chosen within the Nimbus service,
+    they are physically queried via an external DHCPd service. There are two ways
+    of arranging the DHCP configuration.
+</p>
+<ol>
+    <li>
+        Centralized -- a new or existing DHCP service that you configure with Nimbus-specific
+        MAC to IP mappings. This is generally simpler to set up and is covered in this guide.
+    </li>
+    <li>
+        Per-VMM -- a DHCP server installed on every VMM node and automatically configured
+        with the appropriate addresses just before a VM boots. This is more complicated to
+        set up initially but can be preferable in certain scenarios. It is however out of
+        the scope of this guide. For details, see
+        <a href="../reference.html#vmm-dhcp">this section</a> of the reference guide.
+    </li>
+</ol>
+<p>
+    To proceed, you need a DHCP server listening on the network(s) that will be available to
+    virtual machines. You can use an existing site server or install your own. DHCP has great
+    distribution support in Linux. In Debian/Ubuntu, the package is
+    <tt class="literal">dhcp3-server</tt> while in Redhat it is <tt class="literal">dhcp</tt>.
+</p>
+
+<div class="note">
+    <p class="note-title">DHCP caution</p>
+    <p>
+        You should be very careful when installing DHCP and ensure that you have permission
+        from your network administrators to do so. Multiple DHCP services do not play nicely
+        on the same subnet.
+    </p>
+</div>
+
+<p>
+    When a VM is created using Nimbus, the service selects a network pool entry and sends
+    the IP and hostname back to the client. It is the job of your DHCP server to ensure that
+    the VM leases the correct IP address, otherwise the VM will not be able to access the
+    network. You must add the correct MAC to IP mappings to your DHCP server configuration.
+    To facilitate this, the Nimbus service produces several files for you.
+</p>
+<p>
+    After you configure the network pool entries in the previous section, restart the service.
+</p>
+
+<pre class="panel">
+$ nimbusctl services restart
+</pre>
+<p>
+    Now take a look in <tt class="literal">$NIMBUS_HOME/services/var/nimbus/</tt>. Among several
+    other files, there should be these three:
+</p>
+
+<ul>
+    <li>
+        <tt class="literal">dhcpd.entries</tt> - a generated list of host entries that can be
+        included in your DHCP configuration.
+    </li>
+    <li>
+        <tt class="literal">ip_macs.txt</tt> - a whitespace-separated list of IP address to
+        MAC address pairings. If you have some unusual DHCP system, you can script parsing
+        this file to generate your configuration.
+    </li>
+    <li>
+        <tt class="literal">control.netsample.txt</tt> - a sample network pool entry, useful for
+        testing out new VMM nodes. You will use this file in the next section.
+    </li>
+</ul>
+
+<p>
+    These files will only change when you alter your <tt class="literal">network-pools</tt>
+    configuration and restart the service. So you can safely copy them to another system
+    or use a script to generate your config. You only need to ensure that you keep things
+    in sync whenever you change network pool entries. 
+</p>
+<p>
+    The recommended configuration is to directly include the <tt class="literal">dhcpd.entries</tt>
+    file in your <tt class="literal">dhcpd.conf</tt>. You can do this with the
+    <tt class="literal">include</tt> directive:
+</p>
+
+<pre class="panel">
+include "/path/to/dhcp.entries";
+</pre>
+
+<p>
+    Alternatively you can paste the contents of that file directly inline, or use a script to
+    generate your needed configuration from the <tt class="literal">ip_macs.txt</tt>. Once
+    the configuration is in place, restart the DHCP server and you should be ready for real
+    virtual machines! Proceed to <a href="vmm-setup.html">Install VMM Software</a>.
+</p>
+<!-- TODO would be nice to have a better self test here -->
+
 
 
 _NIMBUS_CENTER2_COLUMN_END

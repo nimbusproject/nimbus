@@ -23,6 +23,7 @@ from pynimbusauthz.user import *
 import logging
 import shlex
 from nimbusweb.setup.setuperrors import *
+from nimbusweb.setup.groupauthz import *
 from optparse import SUPPRESS_HELP
 
 g_report_options = ["dn", "canonical_id", "access_id", "access_secret"]
@@ -169,17 +170,24 @@ def edit_user(o, db):
     if o.dn != None:
         if dnu == None:
             raise CLIError('EUSER', "There is x509 entry for: %s" % (o.emailaddr))
+
         old_dn = dnu.get_name()
+
+        nh = get_nimbus_home()
+        groupauthz_dir = os.path.join(nh, "services/etc/nimbus/workspace-service/group-authz/")
+
+        group = find_member(groupauthz_dir, old_dn)
+        if group == None:
+            raise CLIError('EUSER', "There is no authz group for user: %s" % (old_dn))
+        group_id = group.group_id
+
         remove_gridmap(old_dn)
         add_gridmap(o)
         dnu.set_name(o.dn.strip())
         
-        nh = get_nimbus_home()
-        groupauthz_dir = os.path.join(nh, "services/etc/nimbus/workspace-service/group-authz/")
-
         try:
             remove_member(groupauthz_dir, old_dn)
-            add_member(groupauthz_dir, o.dn)
+            add_member(groupauthz_dir, o.dn, group_id)
         except Exception, ex:
             print "WARNING %s" % (ex)
 

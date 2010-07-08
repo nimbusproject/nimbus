@@ -318,7 +318,10 @@ def do_group_bidnes(o):
     nh = get_nimbus_home()
     groupauthz_dir = os.path.join(nh, "services/etc/nimbus/workspace-service/group-authz/")
     try:
-        add_member(groupauthz_dir, o.dn)
+        if o.group:
+            add_member(groupauthz_dir, o.dn, int(o.group))
+        else:
+            add_member(groupauthz_dir, o.dn)
     except Exception, ex:
         print "WARNING %s" % (ex)
 
