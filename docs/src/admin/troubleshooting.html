@@ -46,7 +46,7 @@ _NIMBUS_2_5_DEPRECATED
         <p>
             <a href="http://bugzilla.globus.org/bugzilla/buglist.cgi?query_format=advanced&short_desc_type=allwordssubstr&short_desc=&product=Nimbus&version=2.5&long_desc_type=allwordssubstr&long_desc=&bug_file_loc_type=allwordssubstr&bug_file_loc=&keywords_type=allwords&keywords=&bug_status=ASSIGNED&bug_status=REOPENED&bug_status=RESOLVED&bug_status=VERIFIED&bug_status=CLOSED&bug_severity=blocker&bug_severity=critical&bug_severity=major&bug_severity=normal&bug_severity=minor&bug_severity=trivial&emailtype1=substring&email1=&emailtype2=substring&email2=&bugidtype=include&bug_id=&votes=&chfieldfrom=&chfieldto=Now&chfieldvalue=&cmdtype=doit&order=Reuse+same+sort+as+last+time&field0-0-0=noop&type0-0-0=noop&value0-0-0=">Known
             issues</a>: custom query to the bugzilla system, it lists out
-            all known issues with 2.5RC1 Nimbus components.
+            all known issues with 2.5 Nimbus components.
         </p>
     </li>
 </ul>
@@ -311,6 +311,38 @@ General: An error was discovered processing the &lt;wsse:Security&gt; header.
         <p>
             Solution: Add the location of libvirt.so.0 to the LD_LIBRARY_PATH
             environment variable.
+        </p>
+    </li>
+<br /><hr />
+    
+    <li>
+        <a name="python-build1"> </a>
+        <p>
+            Problem: The Cumulus build fails with an error about finding Python.h
+            _NAMELINK(python-build1)
+        </p>
+        <p>
+            You went the GCC route (see <a href="z2c/service-dependencies.html">the dependencies page</a>) and are seeing an error like:
+        </p>
+        <pre class="screen">src/crypto/crypto.c:12:20: error: Python.h</pre>
+        <p>
+            Solution: Install the Python development package (<tt class="literal">python-dev</tt> in Debian).
+        </p>
+    </li>
+<br /><hr />
+    
+    <li>
+        <a name="python-build2"> </a>
+        <p>
+            Problem: The Cumulus build fails with an error about Python.h
+            _NAMELINK(python-build1)
+        </p>
+        <p>
+            You went the GCC route (see <a href="z2c/service-dependencies.html">the dependencies page</a>) and are seeing an error like:
+        </p>
+        <pre class="screen">src/crypto/x509name.h:19: error: expected ')' before '*' token</pre>
+        <p>
+            Solution: Install the OpenSSL development package (<tt class="literal">libssl-dev</tt> in Debian).
         </p>
     </li>
 </ul>
