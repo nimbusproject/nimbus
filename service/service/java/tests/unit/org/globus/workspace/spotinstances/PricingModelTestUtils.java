@@ -1,7 +1,9 @@
 package org.globus.workspace.spotinstances;
 
 import java.util.Collection;
-import java.util.TreeSet;
+import java.util.LinkedList;
+
+import edu.emory.mathcs.backport.java.util.Collections;
 
 public class PricingModelTestUtils {
 
@@ -20,11 +22,13 @@ public class PricingModelTestUtils {
 
     private static boolean checkSpotInstancesConstraint(Double nextPrice,
             Integer totalReservedResources, Collection<SIRequest> requests) {
-        TreeSet<SIRequest> orderedRequests = new TreeSet<SIRequest>(requests);
+        
+        LinkedList<SIRequest> reverseOrderedRequests = new LinkedList<SIRequest>(requests);
+        Collections.sort(reverseOrderedRequests, Collections.reverseOrder());
 
         Integer availableResources = totalReservedResources;
         
-        for (SIRequest siRequest : orderedRequests.descendingSet()) {
+        for (SIRequest siRequest : reverseOrderedRequests) {
             if(availableResources > 0){
                 if(siRequest.getMaxBid() >= nextPrice){
                     availableResources -= siRequest.getNeededInstances();
