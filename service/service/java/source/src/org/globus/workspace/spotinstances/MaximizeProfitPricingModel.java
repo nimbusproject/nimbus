@@ -23,7 +23,7 @@ public class MaximizeProfitPricingModel extends AbstractPricingModel {
         }
         
         if(highestProfitPrice == PricingModelConstants.NEGATIVE_INFINITY){
-            Double highestPrice = priceCandidates.peekLast();
+            Double highestPrice = priceCandidates.getLast();
             return highestPrice+1;
         }
         
