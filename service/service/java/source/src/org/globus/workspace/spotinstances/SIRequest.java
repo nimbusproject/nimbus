@@ -122,7 +122,6 @@ public class SIRequest implements Comparable<SIRequest>{
         return false;
     }
 
-    @Override
     public int compareTo(SIRequest o) {
         int compareBid = getMaxBid().compareTo(o.getMaxBid());
         

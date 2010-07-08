@@ -312,7 +312,6 @@ public class DefaultManager implements Manager {
     }
 
 
-    @Override
     public SpotRequest[] cancelSpotInstanceRequests(String[] ids, Caller caller) {
         Logging.debug("Manager.cancelSpotInstanceRequests() -- caller '" + caller + "', " +
                 "ids:" + Arrays.toString(ids));
@@ -321,7 +320,6 @@ public class DefaultManager implements Manager {
     }
 
 
-    @Override
     public SpotRequest[] getSpotRequests(String[] ids, Caller caller)
             throws DoesNotExistException, ManageException,
             AuthorizationException {

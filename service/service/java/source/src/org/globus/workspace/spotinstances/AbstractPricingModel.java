@@ -7,7 +7,6 @@ import edu.emory.mathcs.backport.java.util.Collections;
 
 public abstract class AbstractPricingModel implements PricingModel{
     
-    @Override
     public Double getNextPrice(Integer totalReservedResources, Collection<SIRequest> requests, Double currentPrice) {
         
         if(requests.isEmpty()){
@@ -17,7 +16,7 @@ public abstract class AbstractPricingModel implements PricingModel{
         LinkedList<Double> priceCandidates = getOrderedPriceCandidates(requests);
         
         if(totalReservedResources < 1 && !priceCandidates.isEmpty()){
-            Double highestPrice = priceCandidates.peekLast();
+            Double highestPrice = priceCandidates.getLast();
             return highestPrice+0.1;
         }
         

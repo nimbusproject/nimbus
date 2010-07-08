@@ -35,17 +35,14 @@ public class DefaultRequestSI extends DefaultCreateRequest implements _RequestSI
     // -------------------------------------------------------------------------
     
     
-    @Override
     public Double getSpotPrice() {
         return this.spotPrice;
     }    
     
-    @Override
     public boolean isPersistent() {
         return this.persistent;
     }    
     
-    @Override
     public String getInstanceType() {
         return null;
     }
