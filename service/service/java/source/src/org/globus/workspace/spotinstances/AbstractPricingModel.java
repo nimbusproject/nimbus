@@ -16,7 +16,7 @@ public abstract class AbstractPricingModel implements PricingModel{
         LinkedList<Double> priceCandidates = getOrderedPriceCandidates(requests);
         
         if(totalReservedResources < 1 && !priceCandidates.isEmpty()){
-            Double highestPrice = priceCandidates.peekLast();
+            Double highestPrice = priceCandidates.getLast();
             return highestPrice+0.1;
         }
         

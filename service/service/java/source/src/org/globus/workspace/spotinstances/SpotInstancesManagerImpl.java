@@ -211,7 +211,7 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
      * the needed space is already released by the end
      * of this method's execution.
      * 
-     * @param memoryToRelease the minimum amount
+     * @param memoryToFree the minimum amount
      * of memory that should be released from
      * pre-emptable reservations. In case this value
      * is higher than the amount of space currently
@@ -301,7 +301,7 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
      * interface are recommended to log possible errors.
      * 
      * @param vmids ids of vms
-     * @param stateSTATE_* in WorkspaceConstants
+     * @param state STATE_* in WorkspaceConstants
      */    
     public void stateNotification(int[] vmids, int state) {
         //assume just non-preemptable VM's are being notified here 
@@ -654,7 +654,7 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
                 final String sourceStr = "via siManager-preempt, siRequest " +
                 "id = '" + siRequest.getId() + "'";
                 String errorStr = home.destroyMultiple(preemptionList, sourceStr);
-                if(errorStr != null && !errorStr.isEmpty()){
+                if(errorStr != null && errorStr.length() != 0){
                     failRequest("pre-empting", siRequest, errorStr, null);
                 }
             }            
