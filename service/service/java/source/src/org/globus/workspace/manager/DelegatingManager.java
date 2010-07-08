@@ -782,7 +782,6 @@ public class DelegatingManager implements Manager {
     }
 
 
-    @Override
     public SpotRequest getSpotRequest(String requestID, Caller caller)
             throws DoesNotExistException, ManageException, AuthorizationException {
         return this.getSpotRequests(new String[]{requestID}, caller)[0];
@@ -814,7 +813,6 @@ public class DelegatingManager implements Manager {
     }
 
 
-    @Override
     public SpotRequest[] cancelSpotInstanceRequests(String[] ids, Caller caller) 
             throws DoesNotExistException, AuthorizationException, ManageException {
         SpotRequest[] result = new SpotRequest[ids.length];

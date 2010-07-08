@@ -7,7 +7,6 @@ import edu.emory.mathcs.backport.java.util.Collections;
 
 public abstract class AbstractPricingModel implements PricingModel{
     
-    @Override
     public Double getNextPrice(Integer totalReservedResources, Collection<SIRequest> requests, Double currentPrice) {
         
         if(requests.isEmpty()){

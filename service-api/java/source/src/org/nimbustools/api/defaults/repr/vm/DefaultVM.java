@@ -95,7 +95,6 @@ public class DefaultVM implements _VM {
         return sshKeyName;
     }
     
-    @Override
     public String getLifeCycle() {
         return this.lifeCycle;
     }    
@@ -156,7 +155,6 @@ public class DefaultVM implements _VM {
         this.sshKeyName = sshKeyName;
     }
     
-    @Override
     public void setLifeCycle(String lifeCycle) {
         this.lifeCycle = lifeCycle;
     }    

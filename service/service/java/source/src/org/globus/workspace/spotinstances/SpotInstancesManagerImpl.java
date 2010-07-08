@@ -579,7 +579,6 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
     private Comparator<SIRequest> getPreemptionComparator() {
         return new Comparator<SIRequest>() {
 
-            @Override
             public int compare(SIRequest o1, SIRequest o2) {
                 
                 //Requests with more allocated instances come first
@@ -605,7 +604,6 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
     private Comparator<SIRequest> getAllocationComparator() {
         return new Comparator<SIRequest>() {
 
-            @Override
             public int compare(SIRequest o1, SIRequest o2) {
                 
                 //Requests with less allocated instances come first
