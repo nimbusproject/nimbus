@@ -39,7 +39,7 @@ public class MaximizeProfitPricingModelTest {
         requests.add(new SIRequest("a", 2.0, 1));
      
         Double nextPrice = pricingModel.getNextPrice(0, requests, null);
-        assertEquals(new Double(2.0+1), nextPrice);
+        assertEquals(new Double(2.0+0.1), nextPrice);
         assertTrue(PricingModelTestUtils.checkPricingModelConstraints(nextPrice, 0, requests));
         
         //case 2
@@ -49,7 +49,7 @@ public class MaximizeProfitPricingModelTest {
         requests.add(new SIRequest("c", 3.5, 4));     
         
         nextPrice = pricingModel.getNextPrice(0, requests, null);
-        assertEquals(new Double(4.0+1), nextPrice);
+        assertEquals(new Double(4.0+0.1), nextPrice);
         assertTrue(PricingModelTestUtils.checkPricingModelConstraints(nextPrice, 0, requests));
     }    
     
