@@ -139,7 +139,7 @@ _NIMBUS_2_5_DEPRECATED
 </p>
  
 <div class="panel"><pre>
-root $ virsh -c 'xen+unix:///' list
+root # virsh -c 'xen+unix:///' list
 </pre></div>
 
 <div class="note">
@@ -172,7 +172,7 @@ error: failed to connect to the hypervisor
   Why?  Because you are not root.  Check out the permissions on <tt class="literal">/var/run/libvirt/libvirt-sock</tt>
 </p>
 <div class="panel"><pre>
-root $ ls -l /var/run/libvirt/libvirt-sock
+root # ls -l /var/run/libvirt/libvirt-sock
 srwx------ 1 root root 0 Jul  1 21:28 /var/run/libvirt/libvirt-sock
 </pre></div>
 
