@@ -34,6 +34,8 @@ public class AuthzDecisionLogic extends DecisionLogic
     private String                      repoScheme = null;
     private String                      repoHost = null;
     private String                      repoDir = null;
+    private boolean                     schemePassthrough;
+
     public  AuthzDecisionLogic(
         DataSource ds)
     {
@@ -319,6 +321,10 @@ public class AuthzDecisionLogic extends DecisionLogic
         {
             return 0;
         }
+        else if (this.schemePassthrough)
+        {
+            return 0;
+        }
         else
         {
             throw new ResourceRequestDeniedException("scheme of: " + scheme + " is not supported.");
@@ -407,5 +413,17 @@ public class AuthzDecisionLogic extends DecisionLogic
         {
             throw new WorkspaceException("Workspace database exception occured ", wsdbex);
         }
+    }
+
+    public void setSchemePassthrough(String schemePassthroughStr)
+    {
+        this.schemePassthrough =
+                schemePassthroughStr != null
+                    && schemePassthroughStr.trim().equalsIgnoreCase("true");
+    }
+
+    public boolean getSchemePassthrough()
+    {
+        return schemePassthrough;
     }
 }
