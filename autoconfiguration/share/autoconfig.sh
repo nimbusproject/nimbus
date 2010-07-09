@@ -189,7 +189,7 @@ function get_STRING_ANSWER() {
 
 CONTAINER_RUNNER=`whoami`
 
-get_y_n "Is the current account ($CONTAINER_RUNNER) the one the container will run under?"
+get_y_n "Is the current account ($CONTAINER_RUNNER) the one the service will run under?"
 if [ $? -ne 0 ]; then
   echo ""
   echo "Sorry, please run the wizard with the account the container will run under on the machine the container will run on."
@@ -220,12 +220,12 @@ TEST_VMM="$STRING_ANSWER"
 echo ""
 echo "----------"
 
-QUESTION="How much RAM (MB) should be allocated for a test VM on the '$TEST_VMM' VMM?"
+QUESTION="How much RAM (MB) should be allocated for VMs on the '$TEST_VMM' VMM?"
 get_STRING_ANSWER "$QUESTION"
 TEST_VMM_RAM="$STRING_ANSWER"
 
 echo ""
-echo "Will allocate $TEST_VMM_RAM MB RAM for test VM on the '$TEST_VMM' VMM."
+echo "Will allocate $TEST_VMM_RAM MB RAM for VMs on the '$TEST_VMM' VMM."
 
 echo ""
 echo "----------"
