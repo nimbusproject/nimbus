@@ -16,7 +16,7 @@ def newball(builddir=None, webdir=None, printbase=None, gitref=None):
         
     _checknode(builddir)
     _pull_and_reset(builddir, gitref)
-    result_dir = _make_dist(builddir)
+    result_dir = _make_dist(builddir, gitref)
     filelist = _make_available(result_dir, webdir)
     
     print "\n\n"
@@ -46,13 +46,13 @@ def _pull_and_reset(builddir, gitref):
         run("git pull")
         run("git reset --hard %s" % gitref)
 
-def _make_dist(builddir):
+def _make_dist(builddir, gitref):
     print "\n* Running make-dist"
     
     # make a unique directory for all of the tarballs, easier to reason
     # about the result this way
     now = datetime.now()
-    basename = "%.4d-%.2d-%.2d__%.2d-%.2d__%s" % (now.year, now.month, now.day, now.hour, now.minute, str(uuid.uuid4()))
+    basename = "%.4d-%.2d-%.2d__%.2d-%.2d__%s" % (now.year, now.month, now.day, now.hour, now.minute, gitref.strip())
     result_dir = os.path.join("/tmp/", basename)
     
     with cd(builddir):
