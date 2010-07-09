@@ -243,30 +243,37 @@ public class Backfill {
 
     // Returns true if a backfill node was successfully killed.
     // False, if it wasn't able to kill a backfill node.
-    public boolean terminateBackfillNode() {
+    public int terminateBackfillNode(int numNodes) {
 
         int vmid;
-        if ((this.terminationPolicy.compareTo("ANY")) == 0) {
-            logger.debug("Backfill is using the ANY policy");
-            vmid = this.slotManager.getBackfillVMID();
-        } else {
-            logger.debug("Backfill is using the MOST_RECENT policy");
-            vmid = this.slotManager.getMostRecentBackfillVMID();
+        int count = 0;
+        int successfulTerminations = 0;
+
+        while (count < numNodes) {
+            if ((this.terminationPolicy.compareTo("ANY")) == 0) {
+                logger.debug("Backfill is using the ANY policy");
+                vmid = this.slotManager.getBackfillVMID();
+            } else {
+                logger.debug("Backfill is using the MOST_RECENT policy");
+                vmid = this.slotManager.getMostRecentBackfillVMID();
+            }
+
+            String vmidStr = Integer.toString(vmid);
+            logger.debug("Terminating backfill node with ID: " + vmidStr);
+
+            Caller caller = this.getBackfillCaller();
+            try {
+                this.manager.trash(vmidStr, 0, caller);
+                this.subCurInstances(1);
+                successfulTerminations += 1;
+            } catch (Exception e) {
+                logger.error("Problem terminating backfill node: " +
+                        e.getMessage());
+            }
+            count += 1;
         }
 
-        String vmidStr = Integer.toString(vmid);
-        logger.debug("Terminating backfill node with ID: " + vmidStr);
-
-        Caller caller = this.getBackfillCaller();
-        try {
-            this.manager.trash(vmidStr, 0, caller);
-            this.subCurInstances(1);
-            return true;
-        } catch (Exception e) {
-            logger.error("Problem terminating backfill node: " +
-                         e.getMessage());
-        }
-        return false;
+        return successfulTerminations;
     }
 
     /**

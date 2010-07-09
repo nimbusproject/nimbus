@@ -342,7 +342,8 @@ public class DefaultCreation implements Creation {
                         bound = this.binding.processRequest(req);
                         continueTerminateBackfill = false;
                     } catch (ResourceRequestDeniedException rDE) {
-                        if (this.backfill.terminateBackfillNode() == false) {
+                        int numNodes = req.getRequestedRA().getNodeNumber();
+                        if (this.backfill.terminateBackfillNode(numNodes) == 0) {
                             throw rDE;
                         } else {
                             continueTerminateBackfill = true;

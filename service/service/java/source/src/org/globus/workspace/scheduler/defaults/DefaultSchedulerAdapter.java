@@ -308,7 +308,8 @@ public class DefaultSchedulerAdapter implements Scheduler {
                         res = this.slotManager.reserveSpace(req);
                         continueTerminateBackfill = false;
                     } catch (ResourceRequestDeniedException rDE) {
-                        if (this.backfill.terminateBackfillNode() == false) {
+                        int numNodes = req.getNumNodes();
+                        if (this.backfill.terminateBackfillNode(numNodes) == 0) {
                             throw rDE;
                         } else {
                             continueTerminateBackfill = true;
