@@ -15,8 +15,14 @@ REMOTE_BUILDDIR=${MAKE_DIST_REMOTE_BUILDDIR-/scratch/nimbus}
 REMOTE_WEBDIR=${MAKE_DIST_REMOTE_WEBDIR-/mcs/ee.mcs.anl.gov/nimbus/downloads}
 USERNAME=${MAKE_DIST_REMOTE_USERNAME-XXX}
 HOSTNAME=${MAKE_DIST_REMOTE_HOSTNAME-login.mcs.anl.gov}
-SSHKEY=${MAKE_DIST_SSHKEY-$HOME/.ssh/id_rsa}
 PRINT_URL_BASE=${MAKE_DIST_PRINT_URL_BASE-http://www.nimbusproject.org/downloads/}
+
+if [ "X" == "X$MAKE_DIST_SSHKEY" ]; then
+    FABSSHKEY=""
+else
+    FABSSHKEY="-i $MAKE_DIST_SSHKEY"
+fi
+
 
 EXPLANATION="
 
@@ -59,5 +65,5 @@ NH_REL="`dirname $0`/.."
 NH=`cd $NH_REL; pwd`
 FAB_SCRIPT=$NH/scripts/lib/web_ball.py
 
-fab -f $FAB_SCRIPT -i $SSHKEY -u $USERNAME -H $HOSTNAME newball:builddir=$REMOTE_BUILDDIR,webdir=$REMOTE_WEBDIR,printbase=$PRINT_URL_BASE,gitref=$1
+fab -f $FAB_SCRIPT $FABSSHKEY -u $USERNAME -H $HOSTNAME newball:builddir=$REMOTE_BUILDDIR,webdir=$REMOTE_WEBDIR,printbase=$PRINT_URL_BASE,gitref=$1
 
