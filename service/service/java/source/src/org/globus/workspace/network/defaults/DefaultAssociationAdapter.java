@@ -199,11 +199,12 @@ public class DefaultAssociationAdapter implements AssociationAdapter {
         if (this.netSampleResource != null) {
             if (this.netSampleNetwork != null && this.netSampleNetwork.length() != 0) {
                 final Association assoc = associations.get(this.netSampleNetwork);
-                final List entries = assoc.getEntries();
-                if (entries == null || entries.isEmpty()) {
+                
+                if (assoc == null || assoc.getEntries() == null || assoc.getEntries().isEmpty()) {
                     logger.warn ("Not writing netsample file because network '" +
-                            this.netSampleNetwork + "' has no entries");
+                            this.netSampleNetwork + "' does not exist or has no entries");
                 } else {
+                    final List entries = assoc.getEntries();
                     final File netsampleFile;
                     try {
 
