@@ -244,6 +244,7 @@ def add_gridmap(o):
     f.close()
 
 def create_user(o, db):
+    added_gridmap = False
     try:
         # create canonical user
         user = User.get_user_by_friendly(db, o.emailaddr)
@@ -272,6 +273,7 @@ def create_user(o, db):
             ua2 = user.create_alias(o.dn, pynimbusauthz.alias_type_x509, o.emailaddr)
             # add dn to gridmap
             add_gridmap(o)
+            added_gridmap = True
 
         cloud_props(o)
         if o.web:
@@ -283,6 +285,8 @@ def create_user(o, db):
 
         db.commit()
     except Exception, ex1:
+        if added_gridmap:
+            remove_gridmap(o.dn)
         db.rollback()
         if DEBUG:
             traceback.print_exc(file=sys.stdout)

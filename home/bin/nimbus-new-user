@@ -19,5 +19,6 @@ export DJANGO_SETTINGS_MODULE
 source $NIMBUS_HOME/cumulus/env.sh
 source $NIMBUS_HOME/ve/bin/activate
 cd $NIMBUS_HOME
-$PYTHON_EXE $NIMBUS_HOME/libexec/nimbus_new_user.py "$@"
+which python
+$NIMBUS_HOME/ve/bin/python $NIMBUS_HOME/libexec/nimbus_new_user.py "$@"
 exit $?

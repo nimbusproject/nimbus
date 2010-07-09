@@ -167,6 +167,15 @@ def edit_user(o, db):
 
     s3u = user.get_alias_by_friendly(o.emailaddr, pynimbusauthz.alias_type_s3)
     # if there is a dn set it
+    if o.access_id != None:
+        if s3u == None:
+            raise CLIError('EUSER', "There is no s3 user for: %s" % (o.emailaddr))
+        s3u.set_name(o.access_id.strip())
+
+    if o.access_secret != None:
+        if s3u == None:
+            raise CLIError('EUSER', "There is no s3 user for: %s" % (o.emailaddr))
+        s3u.set_data(o.access_secret.strip())
     if o.dn != None:
         if dnu == None:
             raise CLIError('EUSER', "There is x509 entry for: %s" % (o.emailaddr))
@@ -181,24 +190,18 @@ def edit_user(o, db):
             raise CLIError('EUSER', "There is no authz group for user: %s" % (old_dn))
         group_id = group.group_id
 
+        dnu.set_name(o.dn.strip())
+
         remove_gridmap(old_dn)
         add_gridmap(o)
-        dnu.set_name(o.dn.strip())
-        
-        try:
+
+        try:        
             remove_member(groupauthz_dir, old_dn)
             add_member(groupauthz_dir, o.dn, group_id)
-        except Exception, ex:
-            print "WARNING %s" % (ex)
-
-    if o.access_id != None:
-        if s3u == None:
-            raise CLIError('EUSER', "There is no s3 user for: %s" % (o.emailaddr))
-        s3u.set_name(o.access_id.strip())
-    if o.access_secret != None:
-        if s3u == None:
-            raise CLIError('EUSER', "There is no s3 user for: %s" % (o.emailaddr))
-        s3u.set_data(o.access_secret.strip())
+        except:
+            remove_gridmap(o.dn)
+            add_gridmap(old_dn)
+            
     db.commit()
 
     # todo, reset options structure to report user
