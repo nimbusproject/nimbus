@@ -182,6 +182,9 @@ class ARGS:
     GRIDFTPENV = "-g"
     GRIDFTPENV_HELP = "Path to GridFTP $GLOBUS_LOCATION"
     
+    AUTOCONFIG_LONG= "--autoconfig"
+    AUTOCONFIG_HELP = "Run the Nimbus autoconfig tool to test VMM communication"
+    
     IMPORTDB_LONG= "--import-db"
     IMPORTDB_HELP = "Import a Nimbus accounting database from another install"
     
@@ -224,6 +227,10 @@ def parsersetup():
     parser = optparse.OptionParser(version=ver, usage=usage)
 
     group = optparse.OptionGroup(parser, "Actions", "-------------")
+    group.add_option(ARGS.AUTOCONFIG_LONG,
+                    action="store_true", dest="autoconfig",
+                    default=False, help=ARGS.AUTOCONFIG_HELP)
+    
     group.add_option(ARGS.IMPORTDB_LONG,
             dest="importdb", metavar="PATH", help=ARGS.IMPORTDB_HELP)
 
@@ -659,6 +666,15 @@ def main(argv=None):
         if opts.gridftpenv:
             print_gridftpenv(setup, opts.gridftpenv)
             return 0
+        elif opts.autoconfig:
+            cmd = os.path.join(setup.gtdir, 
+                    'share/nimbus-autoconfig/autoconfig.sh')
+            if not (os.path.exists(cmd) and os.access(cmd, os.X_OK)):
+                print >>sys.stderr, "\nERROR: autoconfig script not found or not executable: " + cmd
+                return 1
+            os.system(cmd)
+            return 0
+
         elif opts.importdb:
             import_db(setup, opts.importdb)
             return 0
