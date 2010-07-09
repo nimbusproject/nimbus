@@ -129,7 +129,7 @@ function get_y_n() {
     count=$((count + 1))
     echo ""
     echo "$1 y/n:"
-    read response
+    read -e response
     if [ "$response" = "y" ]; then
       RESPONSE="y"
       count=10
@@ -163,7 +163,7 @@ function get_STRING_ANSWER() {
     count=$((count + 1))
     echo ""
     echo "$1"
-    read response
+    read -e response
     if [ "X$response" = "X" ]; then
       echo ""
       echo "Please enter something."
@@ -275,7 +275,7 @@ if [ $? -eq 0 ]; then
     count=$((count + 1))
     echo ""
     echo "What is the absolute path to the private key to use that allows '$CONTAINER_RUNNER' to ssh to '$VMM_RUNNER'? "
-    read response
+    read -e response
     if [ "X$response" != "X" ]; then
       if [ "${response:0:1}" != "/" ]; then
         echo "Not an absolute path: $response"
@@ -404,7 +404,7 @@ while [ $count -lt 6 ]; do
   count=$((count + 1))
   echo ""
   echo "Is your local SSHd server on a port different than 22?  Enter 'n' or a port number: "
-  read ssh_port
+  read -e ssh_port
   if [ "$ssh_port" = "n" ]; then
     SSH_PORT=22
     count=10
@@ -445,7 +445,7 @@ while [ $count -lt 6 ]; do
     echo "If you need to change something in the provided answers, re-run the wizard."
     echo ""
     echo "Otherwise, start a server and press any key to try the test again"
-    read response
+    read -e response
   fi
 done
 
@@ -556,7 +556,7 @@ if [ $? -eq 0 ]; then
     count=$((count + 1))
     echo ""
     echo "What is the absolute path to workspace-control on the VMM node?"
-    read response
+    read -e response
     if [ "X$response" != "X" ]; then
       if [ "${response:0:1}" != "/" ]; then
         echo "Not an absolute path: $response"
@@ -623,7 +623,7 @@ while [ $count -lt 6 ]; do
   echo "We are looking for the directory on the VMM to push customization files from the container node. This defaults to '$CONTROL_TMPDIR'"
   echo ""
   echo "Did you install workspace-control under some other base directory besides /opt/nimbus? y/n: "
-  read response
+  read -e response
   if [ "$response" = "y" ]; then
     RESPONSE="y"
     count=10
@@ -650,7 +650,7 @@ if [ "y" = "$RESPONSE" ]; then
     echo ""
     echo "It's typically at 'BASEDIR/var/workspace-control/tmp' if workspace-control is at 'BASEDIR/bin/workspace-control.sh'"
     
-    read response
+    read -e response
     if [ "X$response" != "X" ]; then
       if [ "${response:0:1}" != "/" ]; then
         echo "Not an absolute path: $response"
@@ -805,7 +805,7 @@ while [ $count -lt 6 ]; do
   count=$((count + 1))
   echo ""
   echo "OK, point of no return.  Proceed? y/n" 
-  read do_proceed
+  read -e do_proceed
   if [ "$do_proceed" = "y" ]; then
     PROCEED="y"
     count=10
