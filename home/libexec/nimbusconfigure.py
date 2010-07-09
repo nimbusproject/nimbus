@@ -178,10 +178,6 @@ class ARGS:
     HOSTCERT = "-C"
     HOSTCERT_HELP = "Path to PEM-encoded host certificate"
 
-    GRIDFTPENV_LONG= "--gridftpenv"
-    GRIDFTPENV = "-g"
-    GRIDFTPENV_HELP = "Path to GridFTP $GLOBUS_LOCATION"
-    
     AUTOCONFIG_LONG= "--autoconfig"
     AUTOCONFIG_HELP = "Run the Nimbus autoconfig tool to test VMM communication"
     
@@ -234,10 +230,6 @@ def parsersetup():
     group.add_option(ARGS.IMPORTDB_LONG,
             dest="importdb", metavar="PATH", help=ARGS.IMPORTDB_HELP)
 
-    group.add_option(ARGS.GRIDFTPENV, ARGS.GRIDFTPENV_LONG,
-                    dest="gridftpenv", metavar="PATH",
-                    help=ARGS.GRIDFTPENV_HELP)
-    
     group.add_option(ARGS.PRINT_HOSTNAME, ARGS.PRINT_HOSTNAME_LONG,
                     action="store_true", dest="print_chosen_hostname",
                     default=False, help=ARGS.PRINT_HOSTNAME_HELP)
@@ -586,41 +578,6 @@ def import_db(setup, old_db_path):
     if derbyutil.update_db(ij_path, old_db_path, new_db_path) == 1:
         raise UnexpectedError("Failed to update Accounting DB")
 
-def print_gridftpenv(setup, gridftp_globus_path):
-    lines = get_gridftpenv_sample(setup, gridftp_globus_path)
-    
-    border = "\n-------------------------------------------------------------\n"
-    print border
-    for line in lines:
-        print line
-    print border
-    
-def get_gridftpenv_sample(setup, gridftp_globus_path):
-    out = ["# Sample environment file for launching GridFTP", ""]
-    
-    out.append("# This GLOBUS_LOCATION is where you installed GridFTP, it can differ from where Nimbus is installed")
-    out.append("# (and it should differ, since you should pick the most recent GridFTP)")
-    out.append("export GLOBUS_LOCATION=\"%s\"" % gridftp_globus_path)
-    
-    out.append("")
-    out.append("# These ports need to be opened in your firewall for client callbacks")
-    out.append("export GLOBUS_TCP_PORT_RANGE=\"50000,50200\"")
-    
-    out.append("")
-    out.append("# The rest of these settings are based on the Nimbus install")
-    out.append("export GRIDMAP=\"%s\"" % setup.gridmap_path)
-    out.append("export X509_USER_CERT=\"%s\"" % setup.hostcert_path)
-    out.append("export X509_USER_KEY=\"%s\"" % setup.hostkey_path)
-    out.append("export X509_CERT_DIR=\"%s\"" % setup.trustedcertsdir)
-    out.append("")
-    out.append("# Sample launch command.")
-    out.append("# Note the hostname, it is important that is right for HTTPS & reverse DNS.")
-    out.append("")
-    out.append("alias gridftp=\"$GLOBUS_LOCATION/sbin/globus-gridftp-server -daemon -p 2811 -d ALL -hostname %s -l /tmp/gridftp.log\"" % setup['hostname'])
-    
-    out.append("")
-    return out
-
 def generate_password(length=25):
     okchars = string.letters + string.digits + "!@^_&*+-"
     return ''.join(Random().sample(okchars, length))
@@ -663,10 +620,7 @@ def main(argv=None):
         setup = NimbusSetup(basedir, config)
         setup.validate_environment()
         
-        if opts.gridftpenv:
-            print_gridftpenv(setup, opts.gridftpenv)
-            return 0
-        elif opts.autoconfig:
+        if opts.autoconfig:
             cmd = os.path.join(setup.gtdir, 
                     'share/nimbus-autoconfig/autoconfig.sh')
             if not (os.path.exists(cmd) and os.access(cmd, os.X_OK)):
