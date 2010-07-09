@@ -247,7 +247,7 @@ class Process:
         else:
             return "crashed"
 
-    def start( self ):
+    def start( self, warnCrashed = False ):
         """
         Public method that starts the process. If the process is
         already deemed to be running, nothing happens.
@@ -261,7 +261,7 @@ class Process:
             if _isPidRunning( pid ):
                 print "Process '%s' is already running!" % self.name
                 return
-            else:
+            elif warnCrashed:
                 print "Process '%s' may have died prematurely." % self.name
 
         # Start the process now.
@@ -295,12 +295,10 @@ class Process:
             os.dup2( nullFile, 0 )
 
             # Replace stdout
-            if not _options.enableStdout:
-                os.dup2( nullFile, 1 )
+            os.dup2( nullFile, 1 )
 
             # Replace stderr
-            if not _options.enableStderr:
-                os.dup2( nullFile, 2 )
+            os.dup2( nullFile, 2 )
 
             os.close( nullFile )
             
@@ -321,6 +319,10 @@ class Process:
                 print "OK"
             else:
                 print "FAILED"
+                try:
+                    os.remove(self._pidfile())
+                except:
+                    pass
                 raise ProcessStartupError()
 
     def stop( self, warnCrashed = True ):
@@ -345,7 +347,7 @@ class Process:
                 else:
                     print "FAILED"
             elif warnCrashed:
-                print "Process '%s' seems to have died prematurely." % self.name
+                print "Process '%s' may have died prematurely." % self.name
             os.remove( self._pidfile() )
         else:
             print "Process '%s' is not running." % self.name
@@ -553,16 +555,6 @@ def _processCmdLineOptions( usageText, args=None ):
     global _args
     
     _parser = optparse.OptionParser( usage = usageText )
-    _parser.add_option(
-        "-e", "--enable-stderr",
-        action = "store_true", dest = "enableStderr", default = False,
-        help = "enable output of starting target's stderr to console"
-        )
-    _parser.add_option(
-        "-o", "--enable-stdout",
-        action = "store_true", dest = "enableStdout", default = False,
-        help = "enable output of starting target's stdout to console"
-        )
 
     ( _options, _args ) = _parser.parse_args(args=args)
 
