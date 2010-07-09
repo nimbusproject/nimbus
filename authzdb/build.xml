@@ -57,6 +57,8 @@
         <javac srcdir="${nimbus.authz.main.src.dir}"
                destdir="${nimbus.authz.main.build.dest}"
                classpathref="nimbus.authz.main.classpath"
+               source="1.5"
+               target="1.5"
                debug="on">
 
             <include name="**/*.java"/>

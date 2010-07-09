@@ -127,6 +127,8 @@
         <javac srcdir="${nimbusctx.gt4_0.stubs.build.src.dir}"
                destdir="${nimbusctx.gt4_0.stubs.build.dest}"
                includeantruntime="false"
+               source="1.5"
+               target="1.5"
                debug="on">
             
             <include name="**/*.java"/>

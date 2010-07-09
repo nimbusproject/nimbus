@@ -49,6 +49,8 @@
                destdir="${nimbus.service.api.build.dest}"
                includeantruntime="false"
                debug="on"
+               source="1.5"
+               target="1.5"
                classpathref="nimbus.service.api.classpath">
 
             <include name="**/*.java"/>

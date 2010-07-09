@@ -80,6 +80,8 @@
                classpathref="nimbus.ctxbroker.classpath"
                classpath="${nimbus.ctxbroker.stubs.dist}/*jar"
                includeantruntime="false"
+               source="1.5"
+               target="1.5"
                debug="on">
 
             <include name="**/*.java"/>

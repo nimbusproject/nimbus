@@ -69,6 +69,8 @@
                destdir="${nimbus.messaging.rest.build.dest}"
                classpathref="nimbus.messaging.rest.classpath"
                includeantruntime="false"
+               source="1.5"
+               target="1.5"
                debug="on">
 
             <include name="**/*.java"/>
