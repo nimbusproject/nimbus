@@ -37,9 +37,13 @@ public class AuthzDecisionLogic extends DecisionLogic
     private boolean                     schemePassthrough;
 
     public  AuthzDecisionLogic(
-        DataSource ds)
+        DataSource ds,
+        String schemePassthroughStr)
     {
         this.authDB = new AuthzDBAdapter(ds);
+        this.schemePassthrough =
+                schemePassthroughStr != null
+                    && schemePassthroughStr.trim().equalsIgnoreCase("true");
     }
 
     public String translateExternaltoInternal(
@@ -413,17 +417,5 @@ public class AuthzDecisionLogic extends DecisionLogic
         {
             throw new WorkspaceException("Workspace database exception occured ", wsdbex);
         }
-    }
-
-    public void setSchemePassthrough(String schemePassthroughStr)
-    {
-        this.schemePassthrough =
-                schemePassthroughStr != null
-                    && schemePassthroughStr.trim().equalsIgnoreCase("true");
-    }
-
-    public boolean getSchemePassthrough()
-    {
-        return schemePassthrough;
     }
 }
