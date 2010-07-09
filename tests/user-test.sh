@@ -18,8 +18,6 @@ export PYTHONPATH
 DJANGO_SETTINGS_MODULE="nimbusweb.portal.settings"
 export DJANGO_SETTINGS_MODULE
 
-cd $NIMBUS_HOME/
-./bin/nimbusctl restart
-
+source $NIMBUS_HOME/ve/bin/activate
 cd $NIMBUS_HOME/libexec
-nosetests ../tests/user_tests.py ../tests/ec2_test.py
+nosetests ../tests/user_tests.py ../tests/user_failures_tests.py

@@ -209,3 +209,4 @@ class TestUsers(unittest.TestCase):
         rc = nimbus_new_user.main([friendly_name])
         self.assertEqual(rc, 0, "but then this clarification should succeed %d" % (rc))
 
+

@@ -58,6 +58,38 @@ def get_dn(cert_file):
     dn = autoca.getCertDN(cert_file, webdir, log)
     return dn
 
+def remove_gridmap(dn):
+    nimbus_home = get_nimbus_home()
+    configpath = os.path.join(nimbus_home, 'nimbus-setup.conf')
+    config = SafeConfigParser()
+    if not config.read(configpath):
+        raise CLIError('ENIMBUSHOME',
+                "Failed to read config from '%s'. Has Nimbus been configured?"
+                % configpath)
+    gmf = config.get('nimbussetup', 'gridmap')
+    gmf = os.path.join(nimbus_home, gmf)
+
+    found = False
+    f = open(gmf, 'r')
+    (nf, new_name) = tempfile.mkstemp(dir=nimbus_home+"/var", prefix="gridmap", text=True)
+    for l in f.readlines():
+        l = l.strip()
+        if l == "":
+            continue
+        a = shlex.split(l)
+        if dn == a[0]:
+            found = True
+        else:
+            os.write(nf, l)
+            os.write(nf, os.linesep)
+
+    if not found:
+        print "WARNING! user not found in %s" % (dn)
+    os.close(nf)
+    f.close()
+    os.unlink(gmf)
+    os.rename(new_name, gmf)
+
 def generate_cert(o):
     nimbus_home = get_nimbus_home()
     webdir = os.path.join(nimbus_home, 'web/')
@@ -321,13 +353,10 @@ def do_group_bidnes(o):
     
     nh = get_nimbus_home()
     groupauthz_dir = os.path.join(nh, "services/etc/nimbus/workspace-service/group-authz/")
-    try:
-        if o.group:
-            add_member(groupauthz_dir, o.dn, int(o.group))
-        else:
-            add_member(groupauthz_dir, o.dn)
-    except Exception, ex:
-        print "WARNING %s" % (ex)
+    if o.group:
+        add_member(groupauthz_dir, o.dn, int(o.group))
+    else:
+        add_member(groupauthz_dir, o.dn)
 
 def report_results(o, db):
     user = User.get_user_by_friendly(db, o.emailaddr)
@@ -358,6 +387,9 @@ def main(argv=sys.argv[1:]):
         report_results(o, db)
         db.close()
     except CLIError, clie:
+        if DEBUG:
+            traceback.print_exc(file=sys.stdout)
+        
         print clie
         return clie.get_rc()
 

@@ -24,6 +24,7 @@ import logging
 import shlex
 from nimbusweb.setup.setuperrors import *
 from nimbusweb.setup.groupauthz import *
+import traceback
 
 g_created_cert_files=False
 g_report_options = ["cert", "key", "dn", "canonical_id", "access_id", "access_secret", "url", "web_id"]
@@ -127,6 +128,9 @@ def main(argv=sys.argv[1:]):
     except CLIError, clie:
         print clie
         return clie.get_rc()
+    except:
+        traceback.print_exc(file=sys.stdout)
+
     return 0
 
 if __name__ == "__main__":

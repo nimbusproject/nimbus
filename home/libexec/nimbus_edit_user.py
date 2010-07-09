@@ -84,7 +84,7 @@ Create/edit a nimbus user
 
     return (o, args, parser)
 
-def add_gridmap(o):
+def add_gridmap(dn):
     nimbus_home = get_nimbus_home()
     configpath = os.path.join(nimbus_home, 'nimbus-setup.conf')
     config = SafeConfigParser()
@@ -101,11 +101,11 @@ def add_gridmap(o):
         if l == "":
             continue
         a = shlex.split(l)
-        if o.dn == a[0]:
+        if dn == a[0]:
             print "WARNING! This dn is already in the gridmap file"
             f.close()
             return
-    f.write("\"%s\" not_a_real_account\n" % (o.dn))
+    f.write("\"%s\" not_a_real_account\n" % (dn))
     f.close()
 
 def remove_gridmap(dn):
@@ -193,7 +193,7 @@ def edit_user(o, db):
         dnu.set_name(o.dn.strip())
 
         remove_gridmap(old_dn)
-        add_gridmap(o)
+        add_gridmap(o.dn)
 
         try:        
             remove_member(groupauthz_dir, old_dn)
