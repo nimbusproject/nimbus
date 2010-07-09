@@ -108,7 +108,6 @@ function examine() {
   fi
 }
 
-examine NIMBUS_CONFIG_GLOBUS_LOCATION "$NIMBUS_CONFIG_GLOBUS_LOCATION"
 examine NIMBUS_CONFIG_CONTAINER_RUNNER "$NIMBUS_CONFIG_CONTAINER_RUNNER"
 examine NIMBUS_CONFIG_VMM_RUNNER "$NIMBUS_CONFIG_VMM_RUNNER"
 examine NIMBUS_CONFIG_VMM_RUN_KEY "$NIMBUS_CONFIG_VMM_RUN_KEY"
@@ -128,7 +127,6 @@ examine NIMBUS_CONFIG_TEST_VM_NETWORK_DNS "$NIMBUS_CONFIG_TEST_VM_NETWORK_DNS"
 if [ "Xnoprint" != "X$1" ]; then
 
   echo ""
-  echo " - The GLOBUS_LOCATION in use: $NIMBUS_CONFIG_GLOBUS_LOCATION"
   echo " - The account running the container/service: $NIMBUS_CONFIG_CONTAINER_RUNNER"
   echo " - The hostname running the container/service: $NIMBUS_CONFIG_CONTAINER_HOSTNAME"
   echo " - The contact address of the container/service for notifications: $NIMBUS_CONFIG_SSH_USE_CONTACT_STRING (port $NIMBUS_CONFIG_SSH_USE_CONTACT_PORT)"
@@ -142,12 +140,6 @@ if [ "Xnoprint" != "X$1" ]; then
   echo ""
   echo " - The workspace-control path on VMM: $NIMBUS_CONFIG_VMM_CONTROL_EXE"
   echo " - The workspace-control tmpdir on VMM: $NIMBUS_CONFIG_VMM_CONTROL_TMPDIR"
-  
-  echo ""
-  echo " - Test network address IP: $NIMBUS_CONFIG_TEST_VM_NETWORK_ADDRESS"
-  echo " - Test network address hostname: $NIMBUS_CONFIG_TEST_VM_NETWORK_HOSTNAME"
-  echo " - Test network address gateway: $NIMBUS_CONFIG_TEST_VM_NETWORK_GATEWAY"
-  echo " - Test network address DNS: $NIMBUS_CONFIG_TEST_VM_NETWORK_DNS"
   
   echo ""
   echo "----------"
@@ -386,158 +378,6 @@ if [ "$DO_POOL" = "y" ]; then
   echo "    ... created '$POOLPATH'"
   
   echo ""
-  echo "----------"
-  echo ""
-fi
-
-# }}}
-
-# -----------------------------------------------------------------------------
-# {{{  do network sample?
-# -----------------------------------------------------------------------------
-
-DO_NET="y"
-
-if [ "$NIMWIZ_NO_NETWORK_CONFIGS" = "$NIMBUS_CONFIG_TEST_VM_NETWORK_ADDRESS" ]; then
-  echo "Not configuring test network."
-  DO_NET="n"
-fi
-
-if [ "$NOT_SET" = "$NIMBUS_CONFIG_TEST_VM_NETWORK_ADDRESS" ]; then
-  echo "Warning: not enough information available to create a test network.  No IP address."
-  DO_NET="n"
-fi
-
-if [ "$DO_NET" = "y" ]; then
-  if [ "$NOT_SET" = "$NIMBUS_CONFIG_TEST_VM_NETWORK_HOSTNAME" ]; then
-    echo "Warning: not enough information available to create a test network.  No hostname."
-    DO_NET="n"
-  fi
-fi
-
-if [ "$DO_NET" = "y" ]; then
-  if [ "$NOT_SET" = "$NIMBUS_CONFIG_TEST_VM_NETWORK_GATEWAY" ]; then
-    echo "Warning: not enough information available to create a test network.  No gateway setting (this may be set to 'none' by the way)."
-    DO_NET="n"
-  fi
-fi
-
-if [ "$DO_NET" = "y" ]; then
-  if [ "$NOT_SET" = "$NIMBUS_CONFIG_TEST_VM_NETWORK_DNS" ]; then
-    echo "Warning: not enough information available to create a test network.  No DNS setting (this may be set to 'none' by the way)."
-    DO_NET="n"
-  fi
-fi
-
-if [ "$DO_NET" = "n" ]; then
-  echo ""
-  echo "----------"
-  echo ""
-fi
-  
-# }}}
-
-# -----------------------------------------------------------------------------
-# {{{  backup networks
-# -----------------------------------------------------------------------------
-
-if [ "$DO_NET" = "y" ]; then
-  
-  VMMNETDIR=`$JAVA_BIN $NIMWIZ_JAVA_OPTS $EXE_GET_NETWORKDIR`
-  if [ $? -ne 0 ]; then
-    exit 1
-  fi
-  
-  echo "[*] Backing up old network settings"
-  
-  if [ ! -d $VMMNETDIR ]; then
-    echo "Not a directory? '$VMMNETDIR'"
-    exit 1
-  fi
-  
-  BASE_BACKUP_DIR="$VMMNETDIR/.backups"
-  
-  if [ -d "$BASE_BACKUP_DIR" ]; then
-    #echo "    ... base backups directory exists already '$BASE_BACKUP_DIR'"
-    true
-  else
-    mkdir $BASE_BACKUP_DIR
-    if [ $? -ne 0 ]; then
-      echo ""
-      echo "Problem creating directory: $BASE_BACKUP_DIR"
-      exit 1
-    fi
-    #echo "    ... created base backup directory '$BASE_BACKUP_DIR'"
-  fi
-  
-  NEW_BACKUP_DIR=`$JAVA_BIN $NIMWIZ_JAVA_OPTS $EXE_CREATE_BACKUP_DIR $BASE_BACKUP_DIR old-networks-`
-  if [ $? -ne 0 ]; then
-    echo ""
-    echo "Problem, exiting."
-    exit 1
-  fi
-  echo "    ... created new directory '$NEW_BACKUP_DIR'"
-  
-  for f in `ls $VMMNETDIR`; do
-  
-    CMD="mv $VMMNETDIR/$f $NEW_BACKUP_DIR/"
-    $CMD
-    if [ $? -ne 0 ]; then
-      echo "This failed: $CMD"
-      exit 1
-    fi
-    echo "    ... moved '$f' to '$NEW_BACKUP_DIR'"
-  
-  done
-  
-  echo ""
-  echo "----------"
-  echo ""
-  
-fi
-
-# }}}
-
-# -----------------------------------------------------------------------------
-# {{{  create sample network
-# -----------------------------------------------------------------------------
-
-if [ "$DO_NET" = "y" ]; then
-
-  echo "[*] Creating new network called '$NEW_NET_NAME'"
-  
-  NETPATH="$VMMNETDIR/$NEW_NET_NAME"
-  
-  cp $NETWORK_TEMPLATE_FILE $NETPATH
-  if [ $? -ne 0 ]; then
-    echo "Could not create '$NETPATH' ?"
-    exit 1
-  fi
-  
-  DATE=`date`
-  echo "# File contents injected @ $DATE" >> $NETPATH
-  if [ $? -ne 0 ]; then
-    echo "Could not write to '$NETPATH' ?"
-    exit 1
-  fi
-  
-  echo "" >> $NETPATH
-  echo "# DNS server IP or 'none'" >> $NETPATH
-  echo "$NIMBUS_CONFIG_TEST_VM_NETWORK_DNS" >> $NETPATH
-  echo "" >> $NETPATH
-  
-  
-  hostname="$NIMBUS_CONFIG_TEST_VM_NETWORK_HOSTNAME"
-  ipaddress="$NIMBUS_CONFIG_TEST_VM_NETWORK_ADDRESS"
-  gateway="$NIMBUS_CONFIG_TEST_VM_NETWORK_GATEWAY"
-  broadcast="none" # this makes Nimbus guess
-  subnetmask="none" # this makes Nimbus guess
-  
-  echo "# hostname ipaddress gateway broadcast subnetmask" >> $NETPATH
-  echo "$hostname $ipaddress $gateway $broadcast $subnetmask" >> $NETPATH
-  echo "" >> $NETPATH
-  
-  echo "    ... created '$NETPATH'"
   echo "----------"
   echo ""
 fi

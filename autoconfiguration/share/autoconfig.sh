@@ -28,8 +28,6 @@ THISDIR=`cd $THISDIR_REL; pwd`
 GLOBUS_LOCATION=`cd $THISDIR/../../; pwd`
 export GLOBUS_LOCATION
 
-echo "Using GLOBUS_LOCATION: $GLOBUS_LOCATION"
-
 # -----------------------------------------------------------------------------
 # {{{  get nimbus-wizard environment
 # -----------------------------------------------------------------------------
@@ -81,7 +79,6 @@ fi
 # -----------------------------------------------------------------------------
 
 function unset_all_global_config_settings() {
-  unset NIMBUS_CONFIG_GLOBUS_LOCATION
   unset NIMBUS_CONFIG_CONTAINER_RUNNER
   unset NIMBUS_CONFIG_VMM_RUNNER
   unset NIMBUS_CONFIG_VMM_RUN_KEY
@@ -104,7 +101,7 @@ if [ -f $NIMWIZ_DECISIONS_FILE ]; then
 
   source $NIMWIZ_DECISIONS_FILE
   
-  if [ "X" != "X$NIMBUS_CONFIG_GLOBUS_LOCATION$NIMBUS_CONFIG_CONTAINER_RUNNER$NIMBUS_CONFIG_VMM_RUNNER$NIMBUS_CONFIG_VMM_RUN_KEY$NIMBUS_CONFIG_CONTAINER_HOSTNAME$NIMBUS_CONFIG_SSH_USE_CONTACT_STRING$NIMBUS_CONFIG_TEST_VMM$NIMBUS_CONFIG_VMM_CONTROL_EXE$NIMBUS_CONFIG_VMM_CONTROL_TMPDIR$NIMBUS_CONFIG_TEST_VM_NETWORK_ADDRESS$NIMBUS_CONFIG_TEST_VM_NETWORK_HOSTNAME$NIMBUS_CONFIG_TEST_VM_NETWORK_GATEWAY$NIMBUS_CONFIG_TEST_VM_NETWORK_DNS$NIMBUS_CONFIG_TEST_VMM_RAM" ]; then
+  if [ "X" != "X$NIMBUS_CONFIG_CONTAINER_RUNNER$NIMBUS_CONFIG_VMM_RUNNER$NIMBUS_CONFIG_VMM_RUN_KEY$NIMBUS_CONFIG_CONTAINER_HOSTNAME$NIMBUS_CONFIG_SSH_USE_CONTACT_STRING$NIMBUS_CONFIG_TEST_VMM$NIMBUS_CONFIG_VMM_CONTROL_EXE$NIMBUS_CONFIG_VMM_CONTROL_TMPDIR$NIMBUS_CONFIG_TEST_VMM_RAM" ]; then
   
     echo ""
     echo "It looks like you already have a file with one or more configuration decisions at:"
@@ -710,215 +707,6 @@ fi
 
 # }}}
 
-# -----------------------------------------------------------------------------
-# {{{  test network
-# -----------------------------------------------------------------------------
-
-echo ""
-echo "----------"
-echo ""
-echo "Great."
-echo ""
-echo "---------------------------------------------------------------------"
-echo "---------------------------------------------------------------------"
-echo ""
-echo "Now you will choose a test network address to give to an incoming VM."
-
-QUESTION="Does the test VMM ($TEST_VMM) have an IP address on the same subnet that VMs will be assigned network addresses from?"
-get_y_n "$QUESTION"
-if [ $? -ne 0 ]; then
-  echo ""
-  echo "----------"
-  echo ""
-  echo "The configuration wizard cannot help you with this situation, you must see the 'EXPLANATION' section in the 'aux/foreign-subnet.py' file for more information."
-  echo ""
-  echo "The DHCP server (running in domain 0) must have a presence on the subnet in order to assign network addresses."
-  echo ""
-  echo "The foreign-subnet.py script allows you to 'fake' this address, but this is out of scope of the configuration wizard."
-  
-  RESPONSE2="undefined"
-  count=0
-  while [ $count -lt 6 ]; do
-    count=$((count + 1))
-    echo ""
-    echo "In light of that, would you like to skip over the network questions coming up (which only handle a same-subnet address)? y/n"
-    read response2
-    if [ "$response2" = "y" ]; then
-      RESPONSE2="y"
-      count=10
-    elif [ "$response2" = "n" ]; then
-      RESPONSE2="n"
-      count=10
-    else
-      echo "Please enter 'y' or 'n'"
-    fi
-  done
-  
-  if [ "undefined" = "$RESPONSE2" ]; then
-    echo ""
-    echo "Exiting, no response"
-    exit 1
-  fi
-  
-fi
-
-if [ "Xy" = "X$RESPONSE2" ]; then
-
-  echo ""
-  echo "Skipping network questions..."
-  echo ""
-  
-  TEST_VM_NETWORK_ADDRESS="$NIMWIZ_NO_NETWORK_CONFIGS"
-  TEST_VM_NETWORK_HOSTNAME="$NIMWIZ_NO_NETWORK_CONFIGS"
-  TEST_VM_NETWORK_GATEWAY="$NIMWIZ_NO_NETWORK_CONFIGS"
-  TEST_VM_NETWORK_DNS="$NIMWIZ_NO_NETWORK_CONFIGS"
-  
-else
-
-  echo "----------"
-  
-  SAMPLEIP=`$JAVA_BIN $NIMWIZ_JAVA_OPTS $EXE_HOSTLOOKUP $TEST_VMM`
-  if [ $? -ne 0 ]; then
-    QUESTION="What is a free IP address on the same subnet as '$TEST_VMM'?"
-  else
-    QUESTION="What is a free IP address on the same subnet as '$TEST_VMM' (whose IP address is '$SAMPLEIP')"
-  fi
-
-  NO_NETTEST_RESPONSE="undefined_1298312987"
-  TEST_VM_NETWORK_ADDRESS="$NO_NETTEST_RESPONSE"
-
-  count=0
-  while [ $count -lt 4 ]; do
-    count=$((count + 1))
-    echo ""
-    echo "$QUESTION"
-    read response
-    if [ "X$response" != "X" ]; then
-        TEST_VM_NETWORK_ADDRESS="$response"
-        count=10
-    else
-      echo "Please enter an IP address."
-    fi
-  done
-  
-  if [ "$NO_NETTEST_RESPONSE" = "$TEST_VM_NETWORK_ADDRESS" ]; then
-    echo ""
-    echo "Exiting, no response"
-    exit 1
-  fi
-  
-  echo ""
-  echo "----------"
-  
-  QUESTION="Even if it does not resolve, a hostname is required for '$TEST_VM_NETWORK_ADDRESS' to include in the DHCP lease the VM will get:" 
-
-  NO_NETTEST_HOSTNAME_RESPONSE="undefined_1298312987"
-  TEST_VM_NETWORK_HOSTNAME="$NO_NETTEST_HOSTNAME_RESPONSE"
-
-  count=0
-  while [ $count -lt 4 ]; do
-    count=$((count + 1))
-    echo ""
-    echo "$QUESTION"
-    read response
-    if [ "X$response" != "X" ]; then
-        TEST_VM_NETWORK_HOSTNAME="$response"
-        count=10
-    else
-      echo "Please enter a hostname."
-    fi
-  done
-  
-  if [ "$TEST_VM_NETWORK_HOSTNAME" = "$NO_NETTEST_HOSTNAME_RESPONSE" ]; then
-    echo ""
-    echo "Exiting, no response"
-    exit 1
-  fi
-  
-  echo ""
-  echo "----------"
-  QUESTION_BEGIN="What is the default gateway for $TEST_VM_NETWORK_ADDRESS?"
-  
-  DEFAULT_GATEWAY_GUESS=`$SSH_CMD /sbin/route -n | grep "^0.0.0.0" | awk '{ print $2 }'`
-  
-  if [ $? -ne 0 ]; then
-    QUESTION="$QUESTION_BEGIN"
-  else
-    QUESTION="$QUESTION_BEGIN (guessing it is $DEFAULT_GATEWAY_GUESS)"
-  fi
-  
-  
-  NO_NETTEST_GATEWAY_RESPONSE="undefined_1298312987"
-  TEST_VM_NETWORK_GATEWAY="$NO_NETTEST_GATEWAY_RESPONSE"
-
-  count=0
-  while [ $count -lt 4 ]; do
-    count=$((count + 1))
-    echo ""
-    echo "$QUESTION"
-    echo "You can type 'none' if you are sure you don't want the VM to have a gateway"
-    read response
-    if [ "X$response" != "X" ]; then
-        TEST_VM_NETWORK_GATEWAY="$response"
-        count=10
-    else
-      echo "Please enter a gateway IP address or type 'none'."
-    fi
-  done
-  
-  if [ "$TEST_VM_NETWORK_GATEWAY" = "$NO_NETTEST_GATEWAY_RESPONSE" ]; then
-    echo ""
-    echo "Exiting, no response"
-    exit 1
-  fi
-  
-  echo ""
-  echo "----------"
-  QUESTION_BEGIN="What is the IP address of the DNS server that should be used by the VM?"
-  
-  DNS_GUESS=`$SSH_CMD grep nameserver /etc/resolv.conf | head -n 1 |  awk '{ print $2 }'`
-  
-  if [ $? -ne 0 ]; then
-    QUESTION="$QUESTION_BEGIN"
-  else
-    QUESTION="$QUESTION_BEGIN (guessing it is $DNS_GUESS)"
-  fi
-  
-  
-  NO_NETTEST_DNS_RESPONSE="undefined_1298312987"
-  TEST_VM_NETWORK_DNS="$NO_NETTEST_DNS_RESPONSE"
-
-  count=0
-  while [ $count -lt 4 ]; do
-    count=$((count + 1))
-    echo ""
-    echo "$QUESTION"
-    echo "You can type 'none' if you are sure you don't want the VM to have DNS"
-    read response
-    if [ "X$response" != "X" ]; then
-        TEST_VM_NETWORK_DNS="$response"
-        count=10
-    else
-      echo "Please enter a DNS IP address or type 'none'."
-    fi
-  done
-  
-  if [ "$TEST_VM_NETWORK_DNS" = "$NO_NETTEST_DNS_RESPONSE" ]; then
-    echo ""
-    echo "Exiting, no response"
-    exit 1
-  fi
-  
-  
-  echo "----------"
-  echo ""
-  echo "OK, in the 'make adjustments' step that follows, the service will be configured to provide this ONE network address to ONE guest VM."
-  echo ""
-  echo "You should add more VMMs and more available network addresses to assign guest VMs only after you successfully test with one VMM and one network address."
-  echo ""
-fi
-
-# }}}
 
 # -----------------------------------------------------------------------------
 # {{{  export decisions
@@ -932,7 +720,6 @@ echo "So far, no configurations have been changed.  The following adjustments wi
 
 unset_all_global_config_settings
 
-NIMBUS_CONFIG_GLOBUS_LOCATION="$GLOBUS_LOCATION"
 NIMBUS_CONFIG_CONTAINER_RUNNER="$CONTAINER_RUNNER"
 NIMBUS_CONFIG_VMM_RUNNER="$VMM_RUNNER"
 NIMBUS_CONFIG_VMM_RUN_KEY="$VMM_RUN_KEY"
@@ -943,13 +730,8 @@ NIMBUS_CONFIG_TEST_VMM="$TEST_VMM"
 NIMBUS_CONFIG_TEST_VMM_RAM="$TEST_VMM_RAM"
 NIMBUS_CONFIG_VMM_CONTROL_EXE="$EFFECTIVE_VMM_CONTROL_EXE"
 NIMBUS_CONFIG_VMM_CONTROL_TMPDIR="$EFFECTIVE_VMM_CONTROL_TMPDIR"
-NIMBUS_CONFIG_TEST_VM_NETWORK_ADDRESS="$TEST_VM_NETWORK_ADDRESS"
-NIMBUS_CONFIG_TEST_VM_NETWORK_HOSTNAME="$TEST_VM_NETWORK_HOSTNAME"
-NIMBUS_CONFIG_TEST_VM_NETWORK_GATEWAY="$TEST_VM_NETWORK_GATEWAY"
-NIMBUS_CONFIG_TEST_VM_NETWORK_DNS="$TEST_VM_NETWORK_DNS"
 
 echo ""
-echo " - The GLOBUS_LOCATION in use: $NIMBUS_CONFIG_GLOBUS_LOCATION"
 echo " - The account running the container/service: $NIMBUS_CONFIG_CONTAINER_RUNNER"
 echo " - The hostname running the container/service: $NIMBUS_CONFIG_CONTAINER_HOSTNAME"
 echo " - The contact address of the container/service for notifications: $NIMBUS_CONFIG_SSH_USE_CONTACT_STRING (port $NIMBUS_CONFIG_SSH_USE_CONTACT_PORT)"
@@ -963,12 +745,6 @@ fi
 echo ""
 echo " - The workspace-control path on VMM: $NIMBUS_CONFIG_VMM_CONTROL_EXE"
 echo " - The workspace-control tmpdir on VMM: $NIMBUS_CONFIG_VMM_CONTROL_TMPDIR"
-
-echo ""
-echo " - Test network address IP: $NIMBUS_CONFIG_TEST_VM_NETWORK_ADDRESS"
-echo " - Test network address hostname: $NIMBUS_CONFIG_TEST_VM_NETWORK_HOSTNAME"
-echo " - Test network address gateway: $NIMBUS_CONFIG_TEST_VM_NETWORK_GATEWAY"
-echo " - Test network address DNS: $NIMBUS_CONFIG_TEST_VM_NETWORK_DNS"
 
 echo ""
 echo "----------"
@@ -1000,7 +776,6 @@ function append_nameval() {
   echo "" >> $NIMWIZ_DECISIONS_FILE
 }
 
-append_nameval NIMBUS_CONFIG_GLOBUS_LOCATION "$NIMBUS_CONFIG_GLOBUS_LOCATION"
 append_nameval NIMBUS_CONFIG_CONTAINER_RUNNER "$NIMBUS_CONFIG_CONTAINER_RUNNER"
 append_nameval NIMBUS_CONFIG_VMM_RUNNER "$NIMBUS_CONFIG_VMM_RUNNER"
 append_nameval NIMBUS_CONFIG_VMM_RUN_KEY "$NIMBUS_CONFIG_VMM_RUN_KEY"
@@ -1012,12 +787,6 @@ append_nameval NIMBUS_CONFIG_TEST_VMM "$NIMBUS_CONFIG_TEST_VMM"
 append_nameval NIMBUS_CONFIG_TEST_VMM_RAM "$NIMBUS_CONFIG_TEST_VMM_RAM"
 append_nameval NIMBUS_CONFIG_VMM_CONTROL_EXE "$NIMBUS_CONFIG_VMM_CONTROL_EXE"
 append_nameval NIMBUS_CONFIG_VMM_CONTROL_TMPDIR "$NIMBUS_CONFIG_VMM_CONTROL_TMPDIR"
-
-
-append_nameval NIMBUS_CONFIG_TEST_VM_NETWORK_ADDRESS "$NIMBUS_CONFIG_TEST_VM_NETWORK_ADDRESS"
-append_nameval NIMBUS_CONFIG_TEST_VM_NETWORK_HOSTNAME "$NIMBUS_CONFIG_TEST_VM_NETWORK_HOSTNAME"
-append_nameval NIMBUS_CONFIG_TEST_VM_NETWORK_GATEWAY "$NIMBUS_CONFIG_TEST_VM_NETWORK_GATEWAY"
-append_nameval NIMBUS_CONFIG_TEST_VM_NETWORK_DNS "$NIMBUS_CONFIG_TEST_VM_NETWORK_DNS"
 
 echo "" >> $NIMWIZ_DECISIONS_FILE
 
