@@ -17,6 +17,12 @@ fi
 
 NIMBUS_REL_BASE_HOME="`dirname $1`"
 NIMBUS_BASE_HOME=`cd $NIMBUS_REL_BASE_HOME; pwd`
+
+if [ ! -e $NIMBUS_REL_BASE_HOME ]; then
+    echo "The parent directory for the installation path $1 must exist"
+    exit 1
+fi
+
 NIMBUS_INST_DIR=`basename $1`
 NIMBUS_HOME="$NIMBUS_BASE_HOME/$NIMBUS_INST_DIR"
 echo "NIMBUS_HOME $NIMBUS_HOME"
