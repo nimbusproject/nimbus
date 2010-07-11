@@ -63,7 +63,7 @@ def _make_dist(builddir, current_commit_hash):
     # make a unique directory for all of the tarballs, easier to reason
     # about the result this way
     now = datetime.now()
-    basename = "%.4d-%.2d-%.2d__%.2d-%.2d__%s" % (now.year, now.month, now.day, now.hour, now.minute, current_commit_hash)
+    basename = "%.4d-%.2d-%.2d_%.2d%.2d_%s" % (now.year, now.month, now.day, now.hour, now.minute, current_commit_hash[:8])
     result_dir = os.path.join("/tmp/", basename)
     
     with cd(builddir):
