@@ -22,7 +22,7 @@ def newball(builddir=None, webdir=None, printbase=None, gitref=None):
     seppi = "----------------------------------------------------------------"
     print "\n\n%s" % seppi
     print "Ref given to tarball creator: %s" % gitref
-    print "Commit that tarball is based on: %s" % current_commit_hash
+    print "Commit that tarballs are based on: %s" % current_commit_hash
     print "%s\nDownloads:" % seppi
     for f in filelist:
         print "%s%s/%s" % (printbase, os.path.basename(result_dir), f)
