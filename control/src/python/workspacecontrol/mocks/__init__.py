@@ -12,6 +12,7 @@ from workspacecontrol.api.exceptions import IncompatibleEnvironment
 
 from TestProcurement import TestProcurement
 from NetworkLease import NetworkLease
+from DoNothingPlatform import DoNothingPlatform
 
 def get_mock_mainconf(basename="main.conf"):
     # this can be an unintuitive value
