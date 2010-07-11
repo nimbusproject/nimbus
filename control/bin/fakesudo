@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# This script is a passthrough.
+#
+# In some situations it might make sense to simply run workspace-control as
+# root.  In this case, you can configure the sudo program in sudo.conf with
+# the path to this program instead of the path to the real sudo.
+#
+# This lets you avoid setting up sudo rules for root-->root which would be
+# a waste of time.
+
+exec $@
