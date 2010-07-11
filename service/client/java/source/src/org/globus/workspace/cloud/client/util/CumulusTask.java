@@ -361,14 +361,14 @@ public class CumulusTask
                 key, file, null, false, progressWatcher);
             s3Object.setContentType(Mimetypes.MIMETYPE_OCTET_STREAM);
             if (pr != null) {
-                pr.println("Transferring the file");
+                pr.println("\n\nTransferring the file:");
             }
             CumulusInputStream cis = new CumulusInputStream(
                 file.length(), pr, s3Object.getDataInputStream());
             s3Object.setDataInputStream(cis);
             s3Service.putObject(baseBucketName, s3Object);
             if (pr != null) {
-                pr.println("\ndone");
+                pr.println("\n\nDone.");
             }
         }
         catch(Exception s3ex)
