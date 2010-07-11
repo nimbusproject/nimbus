@@ -15,15 +15,20 @@ def newball(builddir=None, webdir=None, printbase=None, gitref=None):
          raise Exception("gitref required")   
         
     _checknode(builddir)
-    _pull_and_reset(builddir, gitref)
-    result_dir = _make_dist(builddir, gitref)
-    filelist = _make_available(result_dir, webdir)
+    current_commit_hash = _pull_and_reset(builddir, gitref)
+    result_dir = _make_dist(builddir, current_commit_hash)
+    (filelist, md5sums) = _make_available(result_dir, webdir)
     
-    print "\n\n"
+    seppi = "----------------------------------------------------------------"
+    print "\n\n%s" % seppi
+    print "Ref given to tarball creator: %s" % gitref
+    print "Commit that tarball is based on: %s" % current_commit_hash
+    print "%s\nDownloads:" % seppi
     for f in filelist:
         print "%s%s/%s" % (printbase, os.path.basename(result_dir), f)
-    print "\n\n"
-    
+    print "%s\nTarball MD5 sums:" % seppi
+    print md5sums
+    print seppi
     
 # ---------------------------------------------------------------------
 
@@ -42,17 +47,23 @@ def _pull_and_reset(builddir, gitref):
         run("git diff --quiet --exit-code")
         run("git diff --quiet --exit-code --cached")
         
-        # use pull ant not just fetch so that HEAD becomes relevant
+        # use pull ant not just fetch so that HEAD becomes relevant if that
+        # is what is supplied as the gitref
         run("git pull")
         run("git reset --hard %s" % gitref)
+        
+        # HEAD here is whatever tip is after the reset, report back exactly
+        # what ended up being used
+        current_commit_hash = run("git rev-parse HEAD")
+        return current_commit_hash
 
-def _make_dist(builddir, gitref):
+def _make_dist(builddir, current_commit_hash):
     print "\n* Running make-dist"
     
     # make a unique directory for all of the tarballs, easier to reason
     # about the result this way
     now = datetime.now()
-    basename = "%.4d-%.2d-%.2d__%.2d-%.2d__%s" % (now.year, now.month, now.day, now.hour, now.minute, gitref.strip())
+    basename = "%.4d-%.2d-%.2d__%.2d-%.2d__%s" % (now.year, now.month, now.day, now.hour, now.minute, current_commit_hash)
     result_dir = os.path.join("/tmp/", basename)
     
     with cd(builddir):
@@ -73,6 +84,7 @@ def _make_available(result_dir, webdir):
     with cd(target_dir):
         files = run("ls")
         filelist = files.split("\n")
+        md5sums = run("md5sum *")
 
-    return filelist
+    return (filelist, md5sums)
     
