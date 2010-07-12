@@ -471,8 +471,8 @@ class NimbusSetup(object):
             raise Exception("Could not open %s for parsing" % (cumulus_ini_file))
 
         s.set("https", "enabled", "True")
-        s.set("https", "key", self.hostcert_path)
-        s.set("https", "cert", self.hostkey_path)
+        s.set("https", "key", self.hostkey_path)
+        s.set("https", "cert", self.hostcert_path)
         s.set("cb", "hostname", self['hostname'])
         s.write(open(cumulus_ini_file, "w"))
 
