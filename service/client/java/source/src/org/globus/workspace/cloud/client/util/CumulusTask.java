@@ -37,6 +37,7 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 class CumulusInputStream
     extends InputStream
@@ -386,7 +387,6 @@ public class CumulusTask
     {
         try
         {
-            System.out.println("SSSS");
             String awsAccessKey = this.args.getXferS3ID();
             String baseBucketName = this.args.getS3Bucket();
             String key = this.makeKey(vmName, null);
@@ -555,7 +555,8 @@ public class CumulusTask
             if(name != null)
             {
                 Date dt = s3Objs[i].getLastModifiedDate();
-                cal.setTime(dt);
+                cal.setTimeZone(TimeZone.getTimeZone("GMT"));
+                cal.setTimeInMillis(dt.getTime());
 
                 FileListing fl = new FileListing();
             
@@ -609,8 +610,13 @@ public class CumulusTask
     {
         int hr = cal.get(Calendar.HOUR_OF_DAY);
         int m = cal.get(Calendar.MINUTE);
+        String mStr = new Integer(m).toString();
+        if(mStr.length() != 2)
+        {
+            mStr = "0" + mStr;
+        }
 
-        return new Integer(hr).toString() + ":" + new Integer(m).toString();
+        return new Integer(hr).toString() + ":" + mStr;
     }
 
     public void chmod(
