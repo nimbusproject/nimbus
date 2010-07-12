@@ -19,6 +19,9 @@ import unittest
 import tempfile
 import filecmp
 from pycb.cumulus import *
+from boto.s3.connection import OrdinaryCallingFormat
+from boto.s3.connection import S3Connection
+
 
 def setup_options(argv):
 
@@ -50,7 +53,8 @@ def main(argv=sys.argv[1:]):
     print "admin s3 id is: %s" % (id)
     print "admin s3 pw:    %s" % (pw)
 
-    conn = pycb.test_common.cb_get_conn(pycb.config.hostname, pycb.config.port, id, pw)
+    cf = OrdinaryCallingFormat()
+    conn = S3Connection(id, pw, host=pycb.config.hostname, port=pycb.config.port, is_secure=pycb.config.use_https, calling_format=cf)
 
     bucket = conn.create_bucket(repo_dir, policy='public-read-write')
     

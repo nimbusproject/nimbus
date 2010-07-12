@@ -96,6 +96,7 @@ public class AllArgs {
     private String xferS3ID;
     private String xferS3Key;
     private String xferS3BaseKey;
+    private String xferS3Https;
     private String s3Bucket;
     private String gridftpID;
     private String handle;
@@ -640,6 +641,14 @@ public class AllArgs {
                          sourceName);
         }
 
+        if (this.xferS3Https == null) {
+            this.xferS3Https =
+                    CloudClientUtil.getProp(props, Props.KEY_S3_HTTPS);
+            this.gotProp(Props.KEY_S3_HTTPS,
+                         this.xferS3Https,
+                         sourceName);
+        }
+
         if (this.xferS3ID == null) {
             this.xferS3ID =
                     CloudClientUtil.getProp(props, Props.KEY_S3_ID);
@@ -1027,6 +1036,15 @@ public class AllArgs {
     public void setXferType(String xferType) {
         this.xferType = xferType;
     }
+
+    public String getXferS3Https() {
+        return this.xferS3Https;
+    }
+
+    public void setXferS3Https(String xferS3Https) {
+        this.xferS3Https = xferS3Https;
+    }
+
 
     public String getXferS3ID() {
         return this.xferS3ID;

@@ -53,7 +53,7 @@ class CumulusInputStream
     {
         super();
         this.is = is;
-        this.pr = pr;
+        this.pr = pr;   
 
         progress = new CloudProgressPrinter(this.pr, len);
     }
@@ -250,14 +250,17 @@ public class CumulusTask
     private PrintStream                 debug;
     private AllArgs                     args;
     private Print                       print;
+    private String                      useHttps;
 
 
     public CumulusTask(
         AllArgs                         args,
-        Print                           pr)
+        Print                           pr,
+        String                          useHttps)
     {
         this.args = args;
         this.print = pr;
+        this.useHttps = useHttps;
     }
 
     public void setTask(
@@ -486,20 +489,26 @@ public class CumulusTask
         int ndx = host.lastIndexOf(":");
         int port = 80;
         String portS = "80";
+        String httpsPortS = "443";
 
         if(ndx > 0)
         {
             portS = host.substring(ndx+1);
+            httpsPortS = portS;
             port = new Integer(portS).intValue();
             host = host.substring(0, ndx);
         }
         
         Jets3tProperties j3p = new Jets3tProperties();
 
+
+        portS = "5555";
+        System.out.println(host);
         j3p.setProperty("s3service.s3-endpoint", host);   
         j3p.setProperty("s3service.s3-endpoint-http-port", portS);
+        j3p.setProperty("s3service.s3-endpoint-https-port", httpsPortS);
         j3p.setProperty("s3service.disable-dns-buckets", "true");
-        j3p.setProperty("s3service.https-only", "false"); 
+        j3p.setProperty("s3service.https-only", this.useHttps);
 
         AWSCredentials awsCredentials = this.getAwsCredentail();
         S3Service s3Service = new RestS3Service(

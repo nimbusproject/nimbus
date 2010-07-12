@@ -42,7 +42,12 @@ public class CumulusRepositoryUtil
         this.args = args;
         this.print = pr;
 
-        cumulusTask = new CumulusTask(args, pr);
+        String useHttps = this.args.getXferS3Https();
+        if (useHttps == null)
+        {
+            useHttps = "false";
+        }
+        cumulusTask = new CumulusTask(args, pr, useHttps);
     }
 
     public void paramterCheck(

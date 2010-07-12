@@ -40,6 +40,9 @@ public class Props {
             KEY_XFER_TYPE = "vws.repository.type";
 
     public static final String
+            KEY_S3_HTTPS = "vws.repository.s3https";
+
+    public static final String
             KEY_S3_ID = "vws.repository.s3id";
 
     public static final String
