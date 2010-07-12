@@ -1141,13 +1141,23 @@ hostname = &lt;hostname&gt;
     these three files, copy in your own hostcert.pem and hostkey.pem, and run
     <em>nimbus-configure</em>, which will generate the keystore.
 </p>
-<p>
-    <b>NOTE:</b>
+<div class="note">
+<p class="note-title">CA Certs</p>
     It is important that the issuing CA cert is trusted by Nimbus (and any
     clients used to access the Nimbus services). This is done by placing the
     hashed form of the CA files in the trusted-certs directory, by default
     "$NIMBUS_HOME/var/ca/trusted-certs/". For example, these three files:
 </p>
+</div>
+<div class="note">
+<p class="note-title">Cumulus https</p>
+    <b>NOTE:</b>
+    If you are using Cumulus with https you will need to point it at the
+    correct certificates as well.  This is further explained 
+    <a href="#cumulus-https">here.</a>
+</p>
+</div>
+
 <div class="screen"><pre>
 3fc18087.0
 3fc18087.r0
@@ -1816,6 +1826,13 @@ called cumulus.ini) in one or all of the following locations:
         <li>the same directory from which the program was launched</li>
         <li>file pointed to by the environment variable CUMULUS_SETTINGS_FILE</li>
     </ol>
+<div class="note">
+<p class="note-title">cumulus.ini in Nimbus</p>
+For Nimbus installations this file can be found at
+<tt class="literal">$NIMBUS_HOME/cumulus/etc/cumulus.ini</tt>
+</p>
+</div>
+
 <p>
 Each file in the path is read in (provided it exists).  The values found 
 in each file override the values found in the previous file in this list.
