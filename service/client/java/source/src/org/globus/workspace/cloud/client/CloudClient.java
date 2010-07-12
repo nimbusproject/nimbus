@@ -471,8 +471,6 @@ public class CloudClient {
 
     void parameterCheck_list() throws ParameterProblem {
 
-        CloudClientUtil.checkGSICredential("Image listing");
-        
         this.repoUtil.paramterCheck(this.args, Opts.LIST_OPT_STRING);
     }
 
@@ -570,7 +568,6 @@ public class CloudClient {
         }
 
         final String actionString = "Saving";
-        CloudClientUtil.checkGSICredential(actionString);
         this._translateHandle(actionString);
         this._checkSpecificEPR(actionString);
         this.repoUtil.paramterCheck(this.args, actionString);
@@ -592,10 +589,6 @@ public class CloudClient {
 
     void parameterCheck_targetPrint() throws ParameterProblem {
 
-        CloudClientUtil.checkGSICredential("Target printing " +
-                              " (because target path is partially derived " +
-                                      "from your credential).");
-        
         this.repoUtil.paramterCheck(this.args, Opts.TARGETDIR_OPT_STRING);
 
         final String sourcefile = this.args.getSourcefile();
@@ -609,8 +602,6 @@ public class CloudClient {
     }
 
     void parameterCheck_transfer() throws ParameterProblem {
-
-        CloudClientUtil.checkGSICredential("Transferring");
 
         this.repoUtil.paramterCheck(this.args, Opts.TRANSFER_OPT_STRING);
 
@@ -626,8 +617,6 @@ public class CloudClient {
 
     void parameterCheck_delete() throws ParameterProblem {
 
-        CloudClientUtil.checkGSICredential("Deleting");
-
         this.repoUtil.paramterCheck(this.args, Opts.DELETE_OPT_STRING);
 
         final String name = this.args.getName();
@@ -639,8 +628,6 @@ public class CloudClient {
     }
 
     void parameterCheck_download() throws ParameterProblem {
-
-        CloudClientUtil.checkGSICredential("Downloading");
 
         this.repoUtil.paramterCheck(this.args, Opts.DOWNLOAD_OPT_STRING);
 
