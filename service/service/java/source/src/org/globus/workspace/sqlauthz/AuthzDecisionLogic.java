@@ -410,7 +410,10 @@ public class AuthzDecisionLogic extends DecisionLogic
                     boolean hasRoom = authDB.canStore(sizeDiff, canUser, schemeType);
                     if(!hasRoom)
                     {
-                        logger.error("FOR TIMF callout happens here");
+                        logger.error("Client exceeded quota on this unpropagation, this can " +
+                                "happen if they chose to unpropagate an image that is bigger " +
+                                "than the one propagated. We are letting this one slide to " +
+                                "avoid data loss (user '" + canUser + "').");
                     }
                 }
 
