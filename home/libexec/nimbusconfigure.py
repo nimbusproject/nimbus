@@ -461,6 +461,21 @@ class NimbusSetup(object):
             if f:
                 f.close()
 
+    def write_cumulus_init(self):
+        cumulus_ini_file = os.path.join(self.basedir, 'cumulus/etc/cumulus.ini')
+
+        s = ConfigParser.SafeConfigParser()
+        try:
+            s.readfp(open(cumulus_ini_file, "r"))
+        except:
+            raise Exception("Could not open %s for parsing" % (cumulus_ini_file))
+
+        s.set("https", "enabled", "True")
+        s.set("https", "key", self.hostcert_path)
+        s.set("https", "cert", self.hostkey_path)
+        s.set("cb", "hostname", self['hostname'])
+        s.write(open(cumulus_ini_file, "w"))
+
     def get_hostname_or_ask(self):
         if self['hostname']:
             hostname = self['hostname']
@@ -559,6 +574,7 @@ class NimbusSetup(object):
         
         # and cumulus properties file
         self.write_cumulus_props()
+        self.write_cumulus_init()
 
 def import_db(setup, old_db_path):
     derbyrun_path = os.path.join(setup.gtdir, 'lib/derbyrun.jar')
