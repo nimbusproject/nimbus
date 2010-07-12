@@ -33,13 +33,14 @@ You need to have fab installed locally (not remotely).  The remote build
 directory need to be prepopulated with some checkout of the Nimbus git
 repository (not the most recent one, just something).
 
-It will pull to the latest in a tracked branch but you can provide a different
-refspec.
+It will pull to the latest in a tracked branch (so you can give 'HEAD' as
+the argument to this script to just use the latest branch tip which is the
+normal usage) but you can provide a different refspec.
 
 The result will print, like:
 
-http://www.nimbusproject.org/downloads/2010-07-08__20-24__4004a4d4-d45a-4547-81ff-73e4edd69b74/nimbus-2.5RC1.9-src.tar.gz
-http://www.nimbusproject.org/downloads/2010-07-08__20-24__4004a4d4-d45a-4547-81ff-73e4edd69b74/nimbus-controls-2.5RC1.9.tar.gz
+http://www.nimbusproject.org/downloads/2010-07-08_2024_4004a4d4/nimbus-2.5RC1.9-src.tar.gz
+http://www.nimbusproject.org/downloads/2010-07-08_2024_4004a4d4/nimbus-controls-2.5RC1.9.tar.gz
 
 
 Everything besides the git <refspec> is defined at the top of the script.
