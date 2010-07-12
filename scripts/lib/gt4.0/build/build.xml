@@ -179,6 +179,23 @@
 
     </target>
 
+
+    <!-- *******************************************************************
+         INSTALL JUST JARS (development target)
+         ******************************************************************* -->
+
+    <target name="deploy-jars-GT4.0-service"
+            depends="checkgl, _build-default-GT4.0-service">
+
+        <echo>JAR ONLY installation to GT4.0 container (development target):
+        </echo>
+
+        <ant dir="${nimbus.messaging.gt4_0.client.builddir}" target="justjars" />
+        <ant dir="${nimbus.messaging.gt4_0.gar.builddir}" target="justjars" />
+        <ant dir="${nimbus.wizard.gt4_0.builddir}" target="justjars" />
+        <ant dir="${nimbus.ctx-broker.gt4_0.builddir}" target="justjars" />
+
+    </target>
     
     <!-- *******************************************************************
          BUILD CLIENTS ONLY
