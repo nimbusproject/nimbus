@@ -47,7 +47,18 @@ public class CumulusRepositoryUtil
         {
             useHttps = "false";
         }
-        cumulusTask = new CumulusTask(args, pr, useHttps);
+        boolean ss;
+        String selfSigned = this.args.getXferS3AllowSelfSigned();
+        if(selfSigned == null || selfSigned.equalsIgnoreCase("true"))
+        {
+            ss = true;
+        }
+        else
+        {
+            ss = false;
+        }
+        
+        cumulusTask = new CumulusTask(args, pr, useHttps, ss);
     }
 
     public void paramterCheck(

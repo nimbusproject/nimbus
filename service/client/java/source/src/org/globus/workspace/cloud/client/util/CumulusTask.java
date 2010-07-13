@@ -17,6 +17,12 @@
 package org.globus.workspace.cloud.client.util;
 
 import edu.emory.mathcs.backport.java.util.concurrent.Callable;
+import org.apache.commons.httpclient.HostConfiguration;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.contrib.ssl.EasySSLProtocolSocketFactory;
+import org.apache.commons.httpclient.contrib.ssl.TrustSSLProtocolSocketFactory;
+import org.apache.commons.httpclient.protocol.Protocol;
+import org.apache.commons.httpclient.protocol.SSLProtocolSocketFactory;
 import org.globus.workspace.client_core.ExecutionProblem;
 import org.globus.workspace.cloud.client.AllArgs;
 import org.globus.workspace.common.print.Print;
@@ -251,16 +257,19 @@ public class CumulusTask
     private AllArgs                     args;
     private Print                       print;
     private String                      useHttps;
+    private boolean                     allowSelfSigned;
 
 
     public CumulusTask(
         AllArgs                         args,
         Print                           pr,
-        String                          useHttps)
+        String                          useHttps,
+        boolean                         allowSelfSigned)
     {
         this.args = args;
         this.print = pr;
         this.useHttps = useHttps;
+        this.allowSelfSigned = allowSelfSigned;
     }
 
     public void setTask(
@@ -490,32 +499,48 @@ public class CumulusTask
         int port = 80;
         String portS = "80";
         String httpsPortS = "443";
+        int httpsPort = 443;
 
         if(ndx > 0)
         {
             portS = host.substring(ndx+1);
             httpsPortS = portS;
             port = new Integer(portS).intValue();
+            httpsPort = new Integer(httpsPortS).intValue();
             host = host.substring(0, ndx);
         }
         
         Jets3tProperties j3p = new Jets3tProperties();
 
-
-        portS = "5555";
-        System.out.println(host);
-        j3p.setProperty("s3service.s3-endpoint", host);   
         j3p.setProperty("s3service.s3-endpoint-http-port", portS);
         j3p.setProperty("s3service.s3-endpoint-https-port", httpsPortS);
         j3p.setProperty("s3service.disable-dns-buckets", "true");
+        j3p.setProperty("s3service.s3-endpoint", host);   
         j3p.setProperty("s3service.https-only", this.useHttps);
 
+        HostConfiguration hc = null;
+        if(allowSelfSigned)
+        {
+            // magic needed for jets3t to work with self signed cert.
+            try
+            {
+                String cert = "/home/bresnaha/2944337c.0.pem";
+                Protocol easyhttps = new Protocol("https", new EasySSLProtocolSocketFactory(), 443);                
+                Protocol.registerProtocol("https", easyhttps);
+            }
+            catch(Exception ex)
+            {
+                throw new S3ServiceException("Could not make the self signed handler " + ex.toString(), ex);
+            }
+            hc = new HostConfiguration();
+        }
         AWSCredentials awsCredentials = this.getAwsCredentail();
         S3Service s3Service = new RestS3Service(
             awsCredentials,
             "cloud-client",
             null,
-            j3p);
+            j3p,
+            hc);
 
         return s3Service;
     }

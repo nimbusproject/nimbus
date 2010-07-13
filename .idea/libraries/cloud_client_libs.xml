@@ -8,7 +8,9 @@
       <root url="file://$PROJECT_DIR$/lib/clients" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES />
+    <SOURCES>
+      <root url="file://$PROJECT_DIR$/../../jets3/jets3t-0.7.3/src" />
+    </SOURCES>
     <jarDirectory url="file://$PROJECT_DIR$/lib/clients" recursive="false" />
   </library>
 </component>

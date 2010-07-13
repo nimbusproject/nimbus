@@ -34,6 +34,9 @@ public class Props {
             KEY_FACTORY_HOSTPORT = "vws.factory";
 
     public static final String
+            KEY_S3_ALLOW_SELF_SIGNED = "vws.repository.s3acceptallcerts";
+
+    public static final String
             KEY_XFER_HOSTPORT = "vws.repository";
 
     public static final String
