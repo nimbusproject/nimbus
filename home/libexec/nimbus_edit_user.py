@@ -70,6 +70,9 @@ Create/edit a nimbus user
     all_opts.append(opt)
     opt = cbOpts("delim", "D", "Character between columns in the report", ",")
     all_opts.append(opt)
+    opt = cbOpts("group", "g", "Change the users group", None, vals=(None, "01", "02", "03", "04"))
+    all_opts.append(opt)
+
     opt = cbOpts("report", "r", "Report the selected columns from the following: " + pycb.tools.report_options_to_string(g_report_options), pycb.tools.report_options_to_string(g_report_options))
     all_opts.append(opt)
 
@@ -176,14 +179,23 @@ def edit_user(o, db):
         if s3u == None:
             raise CLIError('EUSER', "There is no s3 user for: %s" % (o.emailaddr))
         s3u.set_data(o.access_secret.strip())
+
+    nh = get_nimbus_home()
+    groupauthz_dir = os.path.join(nh, "services/etc/nimbus/workspace-service/group-authz/")
+    if o.group != None:
+        if dnu == None:
+            raise CLIError('EUSER', "There is x509 entry for: %s" % (o.emailaddr))
+        dn = dnu.get_name()
+        group = find_member(groupauthz_dir, dn)
+        if group != None:
+            remove_member(groupauthz_dir, dn)
+        add_member(groupauthz_dir, dn, int(o.group))
+
     if o.dn != None:
         if dnu == None:
             raise CLIError('EUSER', "There is x509 entry for: %s" % (o.emailaddr))
-
         old_dn = dnu.get_name()
 
-        nh = get_nimbus_home()
-        groupauthz_dir = os.path.join(nh, "services/etc/nimbus/workspace-service/group-authz/")
 
         group = find_member(groupauthz_dir, old_dn)
         if group == None:
