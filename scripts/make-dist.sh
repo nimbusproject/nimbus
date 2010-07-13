@@ -60,6 +60,10 @@ fi
 
 echo "commit: $git_hash" >> .nimbusversion
 
+build_time=`date --utc +%Y-%m-%d_%H.%M.%S`
+build_time=UTC-${build_time}
+echo "buildtime: $build_time" >> .nimbusversion
+
 cd scripts/lib/gt4.0/dist/result/
 gunzip $nimbus_src
 if [ $? -ne 0 ]; then

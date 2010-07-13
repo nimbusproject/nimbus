@@ -22,6 +22,7 @@ commit: 76202cc04b50cac0086115c95df26fb49016cddd
 
 # optional
 rc: RC2
+buildtime: UTC_2010-07-13_19.14.29
 """
 
 class ARGS:
@@ -53,6 +54,9 @@ class ARGS:
     
     COMMIT_LONG = "--commit"
     COMMIT_HELP = "Just the commit this was based on"
+    
+    TIME_LONG = "--buildtime"
+    TIME_HELP = "Just build time, exits non-zero if there is none"
     
     TARPARSE_LONG = "--tar"
     TARPARSE_HELP = "New config file to stdout"
@@ -87,6 +91,9 @@ def parsersetup():
     
     parser.add_option(ARGS.DOCVERSION_LONG, action="store_true", default=False,
                       dest="docversion", help=ARGS.DOCVERSION_HELP)
+    
+    parser.add_option(ARGS.TIME_LONG, action="store_true", default=False,
+                      dest="buildtime", help=ARGS.TIME_HELP)
     
     parser.add_option(ARGS.COMMIT_LONG, action="store_true", default=False,
                       dest="commit", help=ARGS.COMMIT_HELP)
@@ -296,6 +303,12 @@ def main(argv=None):
             rc = _get(config, "rc", required=False)
             if rc:
                 print rc
+            else:
+                return 3
+        elif opts.buildtime:
+            time = _get(config, "buildtime", required=False)
+            if time:
+                print time
             else:
                 return 3
         elif opts.docversion:
