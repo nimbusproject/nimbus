@@ -17,12 +17,15 @@
 package org.globus.workspace.cloud.client.util;
 
 import edu.emory.mathcs.backport.java.util.concurrent.Callable;
+import org.apache.commons.httpclient.ConnectTimeoutException;
 import org.apache.commons.httpclient.HostConfiguration;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.contrib.ssl.EasySSLProtocolSocketFactory;
-import org.apache.commons.httpclient.contrib.ssl.TrustSSLProtocolSocketFactory;
+import org.apache.commons.httpclient.params.HttpConnectionParams;
+import org.apache.commons.httpclient.params.HttpParams;
+import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
+import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.commons.httpclient.protocol.Protocol;
-import org.apache.commons.httpclient.protocol.SSLProtocolSocketFactory;
+import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.globus.workspace.client_core.ExecutionProblem;
 import org.globus.workspace.cloud.client.AllArgs;
 import org.globus.workspace.common.print.Print;
@@ -36,14 +39,175 @@ import org.jets3t.service.security.AWSCredentials;
 import org.jets3t.service.utils.Mimetypes;
 import org.jets3t.service.utils.ObjectUtils;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.PrintStream;
+
+import java.io.*;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
+
+class CumulusParameterConvert implements org.apache.http.params.HttpParams
+{
+    private HttpParams otherPs;
+    public CumulusParameterConvert(HttpParams otherPs)
+    {
+        this.otherPs = otherPs;
+    }
+
+    public org.apache.http.params.HttpParams 	copy()
+    {
+        return new CumulusParameterConvert(this.otherPs);
+    }
+
+    public boolean 	getBooleanParameter(String name, boolean defaultValue)
+    {
+        return otherPs.getBooleanParameter(name, defaultValue);
+    }
+
+    public double 	getDoubleParameter(String name, double defaultValue)
+    {
+        return otherPs.getDoubleParameter(name, defaultValue);
+    }
+
+    public int 	getIntParameter(String name, int defaultValue)
+    {
+        return otherPs.getIntParameter(name, defaultValue);
+    }
+
+    public long 	getLongParameter(String name, long defaultValue)
+    {
+        return otherPs.getLongParameter(name, defaultValue);
+    }
+
+    public Object 	getParameter(String name)
+    {
+        return otherPs.getParameter(name);
+    }
+
+    public boolean 	isParameterFalse(String name)
+    {
+        return otherPs.isParameterFalse(name);
+    }
+
+    public boolean 	isParameterTrue(String name)
+    {
+        return otherPs.isParameterTrue(name);
+    }
+
+    public boolean 	removeParameter(String name)
+    {
+        boolean rc = otherPs.isParameterSet(name);
+        if(rc)
+        {
+            otherPs.setParameter(name, null);
+        }
+        return rc;
+    }
+
+    public org.apache.http.params.HttpParams 	setBooleanParameter(String name, boolean value)
+    {
+        this.otherPs.setBooleanParameter(name, value);
+        return this;
+    }
+
+    public org.apache.http.params.HttpParams 	setDoubleParameter(String name, double value)
+    {
+        this.otherPs.setDoubleParameter(name, value);
+        return this;
+    }
+
+    public org.apache.http.params.HttpParams 	setIntParameter(String name, int value)
+    {
+        this.otherPs.setIntParameter(name, value);
+        return this;
+    }
+
+    public org.apache.http.params.HttpParams 	setLongParameter(String name, long value)
+    {
+        this.otherPs.setLongParameter(name, value);
+        return this;
+    }
+
+    public org.apache.http.params.HttpParams 	setParameter(String name, Object value)
+    {
+        this.otherPs.setParameter(name, value);
+        return this;
+    }
+
+}
+
+class CumulusAlwaysTrustStrategy implements TrustStrategy
+{
+    public boolean isTrusted(X509Certificate[] chain, String authType)
+    {
+        return true;
+    }
+}
+
+
+class CumulusProtocolSocketFactory implements ProtocolSocketFactory
+{
+    protected  SSLSocketFactory psf;
+
+    public CumulusProtocolSocketFactory()
+            throws Exception
+    {
+         //TrustStrategy ts = new TrustSelfSignedStrategy();
+         TrustStrategy ts = new CumulusAlwaysTrustStrategy();
+         psf = new SSLSocketFactory(ts);
+    }
+
+    public Socket createSocket(String host,
+                    int port,
+                    InetAddress localAddress,
+                    int localPort)         
+                    throws IOException,
+        UnknownHostException
+    {
+        Socket s = psf.createSocket();        
+        InetSocketAddress remote = new InetSocketAddress(host, port);
+        InetSocketAddress local = new InetSocketAddress(localAddress, localPort);
+        org.apache.http.params.HttpParams hp = new org.apache.http.params.BasicHttpParams();
+        s = psf.connectSocket(s, remote, local, hp);
+        return s;
+    }
+
+
+    public Socket createSocket(String host,
+                    int port,
+                    InetAddress localAddress,
+                    int localPort,
+                    HttpConnectionParams params)
+                    throws IOException,
+                           UnknownHostException,
+            ConnectTimeoutException
+    {
+        Socket s = psf.createSocket();
+        InetSocketAddress remote = new InetSocketAddress(host, port);
+        InetSocketAddress local = new InetSocketAddress(0);
+        org.apache.http.params.HttpParams hp = new CumulusParameterConvert(params);
+        s = psf.connectSocket(s, remote, local, hp);
+        return s; 
+    }
+
+
+    public Socket createSocket(String host,
+                    int port)
+                    throws IOException,
+                           UnknownHostException
+    {
+        Socket s = psf.createSocket();
+        InetSocketAddress local = new InetSocketAddress(0);
+        InetSocketAddress remote = new InetSocketAddress(host, port);
+        s = psf.connectSocket(s, remote, local, null);
+        return s;         
+    }
+}
 
 class CumulusInputStream
     extends InputStream
@@ -519,20 +683,21 @@ public class CumulusTask
         j3p.setProperty("s3service.https-only", this.useHttps);
 
         HostConfiguration hc = null;
-        if(allowSelfSigned)
+        if(allowSelfSigned && this.useHttps.equalsIgnoreCase("true"))
         {
+            hc = new HostConfiguration();
             // magic needed for jets3t to work with self signed cert.
             try
             {
-                String cert = "/home/bresnaha/2944337c.0.pem";
-                Protocol easyhttps = new Protocol("https", new EasySSLProtocolSocketFactory(), 443);                
+                Protocol easyhttps = new Protocol("https", new CumulusProtocolSocketFactory(), 443);
                 Protocol.registerProtocol("https", easyhttps);
+
+                hc.setHost(host, httpsPort, easyhttps);
             }
             catch(Exception ex)
             {
                 throw new S3ServiceException("Could not make the self signed handler " + ex.toString(), ex);
             }
-            hc = new HostConfiguration();
         }
         AWSCredentials awsCredentials = this.getAwsCredentail();
         S3Service s3Service = new RestS3Service(
