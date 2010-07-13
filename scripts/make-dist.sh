@@ -32,13 +32,71 @@ git clone $repo
 cd nimbus/cumulus/deps
 ./get-em.sh
 cd $co_dir/nimbus
-#./cloud-client/builder/get-wscore.sh
 ant -f scripts/lib/gt4.0/dist/build.xml clean-local
 ant -f scripts/lib/gt4.0/dist/build.xml create-dist
-
+if [ $? -ne 0 ]; then
+    echo "create-dist failed"
+    exit 1
+fi
 
 ls scripts/lib/gt4.0/dist/result/
-cp scripts/lib/gt4.0/dist/result/*.tar.gz $dest_dir
+
+git_hash=`git rev-parse HEAD`
+if [ $? -ne 0 ]; then
+    echo "rev-parse failed"
+    exit 1
+fi
+
+cd scripts/lib/gt4.0/dist/result/
+nimbus_src=`ls nimbus-*-src.tar.gz`
+
+cd $co_dir/nimbus
+
+python home/libexec/nimbus_version.py --tar=$nimbus_src > .nimbusversion
+if [ $? -ne 0 ]; then
+    echo "could not determine Nimbus version"
+    exit 1
+fi
+
+echo "commit: $git_hash" >> .nimbusversion
+
+cd scripts/lib/gt4.0/dist/result/
+gunzip $nimbus_src
+if [ $? -ne 0 ]; then
+    echo "gunzip failed"
+    exit 1
+fi
+
+tar_file=`ls *.tar`
+echo "adjusting tar file: $tar_file"
+
+tardirname=`echo $tar_file | sed -e 's/.tar//g'`
+
+mkdir -p $tardirname/home/libexec
+mv $co_dir/nimbus/.nimbusversion $tardirname/home/libexec/
+if [ $? -ne 0 ]; then
+    echo "nimbusversion move failed"
+    exit 1
+fi
+
+tar -r -f $tar_file $tardirname/home/libexec/
+if [ $? -ne 0 ]; then
+    echo "tar adjustment failed"
+    exit 1
+fi
+
+echo "gzipping: $tar_file"
+gzip --best $tar_file
+if [ $? -ne 0 ]; then
+    echo "regzip failed"
+    exit 1
+fi
+
+cp *.tar.gz $dest_dir
+if [ $? -ne 0 ]; then
+    echo "copy failed"
+    exit 1
+fi
 
 echo "Removing temp dir: $co_dir"
 rm -rf $co_dir
