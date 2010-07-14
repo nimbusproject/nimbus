@@ -98,6 +98,7 @@ public class AllArgs {
     private String xferS3BaseKey;
     private String xferS3Https;
     private String xferS3AllowSelfSigned;
+    private String xferCanonicalID;
     private String s3Bucket;
     private String gridftpID;
     private String handle;
@@ -642,6 +643,14 @@ public class AllArgs {
                          sourceName);
         }
 
+        if(this.xferCanonicalID == null) {
+            this.xferCanonicalID =
+                    CloudClientUtil.getProp(props, Props.KEY_CANONICAL_ID);
+            this.gotProp(Props.KEY_CANONICAL_ID,
+                         this.xferCanonicalID,
+                         sourceName);
+        }
+
         if(this.xferS3AllowSelfSigned == null) {
             this.xferS3AllowSelfSigned =
                     CloudClientUtil.getProp(props, Props.KEY_S3_ALLOW_SELF_SIGNED);
@@ -1045,6 +1054,15 @@ public class AllArgs {
     public void setXferType(String xferType) {
         this.xferType = xferType;
     }
+
+    public String getXferCanonicalID() {
+        return this.xferCanonicalID;
+    }
+
+    public void setXferCanonicalID(String xferCanonicalID) {
+        this.xferCanonicalID = xferS3AllowSelfSigned;
+    }
+    
 
     public String getXferS3AllowSelfSigned() {
         return this.xferS3AllowSelfSigned;

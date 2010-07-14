@@ -71,6 +71,7 @@ public class CumulusRepositoryUtil
         String awsSecretKey = this.args.getXferS3Key();
         String baseBucket = this.args.getS3Bucket();
         String baseKey = this.args.getXferS3BaseKey();
+        String ownerID = this.args.getXferCanonicalID();
 
         if(awsAccessKey == null)
         {
@@ -91,6 +92,11 @@ public class CumulusRepositoryUtil
         {
             throw new ParameterProblem(
                 "The configuration file must include a cumulus base key.  This is a value that must be obtained from the nimbus site administrator");
+        }
+        if(ownerID == null)
+        {
+            throw new ParameterProblem(
+                "Cumulus canonical user ID must be added to the configuration file");
         }
     }
 
@@ -214,7 +220,7 @@ public class CumulusRepositoryUtil
             throws ExecutionProblem
     {
         String baseKey = this.args.getXferS3BaseKey();
-        String ID = this.args.getXferS3ID();
+        String ID = this.args.getXferCanonicalID();
 
         return "cumulus://" + this.args.getXferHostPort() + "/" + this.args.getS3Bucket() + "/" + baseKey + "/" + ID + "/" + imageName;
     }

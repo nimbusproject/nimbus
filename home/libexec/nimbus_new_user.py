@@ -161,6 +161,7 @@ def cloud_props(o):
     string_subs['@HOST@'] = hostname
     string_subs['@CUMULUS_ID@'] = o.access_id
     string_subs['@CUMULUS_SECRET@'] = o.access_secret
+    string_subs['@CANONICAL_ID@'] = o.canonical_id
 
     # start the sed
     o.cloud_properties = o.dest + "/cloud.properties"

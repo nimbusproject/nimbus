@@ -61,7 +61,8 @@ vws.factory.identity=@FACTORY_DN@
 vws.repository.type=cumulus
 vws.repository.s3basekey=VMS
 vws.repository.s3bucket=Repo
-
+vws.repository.s3https=false
+vws.repository.s3acceptallcerts=false
 
 ###########################################################################
 # Your image repository credentials
@@ -69,4 +70,4 @@ vws.repository.s3bucket=Repo
 
 vws.repository.s3id=@CUMULUS_ID@
 vws.repository.s3key=@CUMULUS_SECRET@
-
+vws.repository.canonicalid=@CANONICAL_ID@

@@ -446,8 +446,7 @@ public class CumulusTask
     {
         String awsAccessKey = this.args.getXferS3ID();
         String awsSecretKey = this.args.getXferS3Key();
-        
-       
+               
         AWSCredentials awsCredentials = 
             new AWSCredentials(awsAccessKey, awsSecretKey);
 
@@ -461,7 +460,7 @@ public class CumulusTask
         String baseKey = this.args.getXferS3BaseKey();
         if(ID == null)
         {
-            ID = this.args.getXferS3ID();
+            ID = this.args.getXferCanonicalID();
         }
 
         return baseKey + "/" + ID + "/" + vmName;

@@ -49,6 +49,9 @@ public class Props {
             KEY_S3_ID = "vws.repository.s3id";
 
     public static final String
+                KEY_CANONICAL_ID = "vws.repository.canonicalid";
+
+    public static final String
             KEY_S3_KEY = "vws.repository.s3key";
 
     public static final String
