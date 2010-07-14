@@ -69,6 +69,7 @@ installdir=<path to cumulus installation>
 The search path for cumulus.ini is:
 
     /etc/nimbus/cumulus.ini
+    $CUMULUS_HOME/etc/cumulus.ini
     ~/.nimbus/cumulus.ini
     cumulus.ini
     env 'CUMULUS_SETTINGS_FILE
@@ -111,6 +112,8 @@ The search path for cumulus.ini is:
     def load_settings(self):
         config_path = []
         config_path.append("/etc/nimbus/cumulus.ini")
+        if 'CUMULUS_HOME' in os.environ:
+            config_path.append(os.path.join(os.environ['CUMULUS_HOME'], "etc/cumulus.ini"))
         config_path.append(os.path.expanduser('~/.nimbus/cumulus.ini'))
         config_path.append(os.path.expanduser('cumulus.ini'))
         config_path.append(os.environ.get('CUMULUS_SETTINGS_FILE'))
