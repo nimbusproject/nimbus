@@ -17,6 +17,7 @@ DJANGO_SETTINGS_MODULE="nimbusweb.portal.settings"
 export DJANGO_SETTINGS_MODULE
 
 source $NIMBUS_HOME/cumulus/env.sh
+export CUMULUS_SETTINGS_FILE=$NIMBUS_HOME/cumulus/etc/cumulus.ini
 source $NIMBUS_HOME/ve/bin/activate
 cd $NIMBUS_HOME
 $PYTHON_EXE $NIMBUS_HOME/libexec/nimbus_new_user.py "$@"
