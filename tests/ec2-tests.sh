@@ -20,4 +20,4 @@ export DJANGO_SETTINGS_MODULE
 
 source $NIMBUS_HOME/ve/bin/activate
 cd $NIMBUS_HOME/libexec
-nosetests ../tests/ec2_test.py
+nosetests ../tests/ec2_repo_test.py ../tests/ec2_submit_tests.py

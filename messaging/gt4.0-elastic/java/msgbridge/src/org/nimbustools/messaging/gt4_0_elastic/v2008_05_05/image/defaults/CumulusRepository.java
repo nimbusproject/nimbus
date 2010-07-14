@@ -275,7 +275,16 @@ public class CumulusRepository implements Repository {
             for (ObjectWrapper ow : objList)
             {
                 FileListing fl = new FileListing();
-                fl.setName(ow.getName());
+                String name = ow.getName();
+                String [] parts = name.split("/", 3);
+                if(parts.length != 3)
+                {
+                    // if a bad name jsut skip this file... they may have uploaded baddness
+                    logger.error("The filename " + name + " is not in the proper format");
+                    continue;
+                }
+                name = parts[2];
+                fl.setName(name);
                 fl.setSize(ow.getSize());
 
                 long tm = ow.getTime();
