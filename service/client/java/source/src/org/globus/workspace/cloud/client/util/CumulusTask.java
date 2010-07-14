@@ -683,10 +683,9 @@ public class CumulusTask
         j3p.setProperty("s3service.s3-endpoint", host);   
         j3p.setProperty("s3service.https-only", this.useHttps);
 
-        HostConfiguration hc = null;
+        HostConfiguration hc = new HostConfiguration();
         if(allowSelfSigned && this.useHttps.equalsIgnoreCase("true"))
         {
-            hc = new HostConfiguration();
             // magic needed for jets3t to work with self signed cert.
             try
             {
