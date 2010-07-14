@@ -562,9 +562,15 @@ public class CumulusTask
                 pr.println("\n\nDone.");
             }
         }
-        catch(Exception s3ex)
+        catch(S3ServiceException s3ex)
         {
-            throw new ExecutionProblem(s3ex.toString());
+            String msg = s3ex.getS3ErrorMessage() + " cause: " + s3ex.getCause();
+            throw new ExecutionProblem(msg, s3ex);
+        }
+        catch(Exception ex1)
+        {
+            String msg = ex1.toString() + " cause: " + ex1.getCause();
+            throw new ExecutionProblem(msg, ex1);
         }
     }
 
