@@ -218,6 +218,8 @@ class CumulusInputStream
     private InputStream                 is;
     private PrintStream pr;
     private CloudProgressPrinter        progress;
+    private long                        where = 0;
+    private long                        marked = 0;
 
     public CumulusInputStream(
         long                            len,
@@ -245,6 +247,7 @@ class CumulusInputStream
  
     public void   mark(int readlimit)
     {
+        marked = where;
         this.is.mark(readlimit);
     }
 
@@ -253,12 +256,18 @@ class CumulusInputStream
         return this.is.markSupported();
     }
 
+    private void updatePosition(int len)
+    {
+        where += len;
+        progress.updateBytesTransferred(len);
+    }
+
     public int   read()
         throws java.io.IOException
     {
         int len;
         len = this.is.read();
-        progress.updateBytesTransferred((long)len);
+        updatePosition(len);
         return len;
     }
  
@@ -267,7 +276,7 @@ class CumulusInputStream
     {
         int len;
         len = this.is.read(b);
-        progress.updateBytesTransferred((long)len);
+        updatePosition(len);
         return len;
     }
 
@@ -276,13 +285,16 @@ class CumulusInputStream
     {
         int lenrc;
         lenrc = this.is.read(b, off, len);
+        updatePosition(lenrc);
         return lenrc;
     }
 
     public void   reset()
         throws java.io.IOException
     {
+        long diff = marked - where;
         this.is.reset();
+        updatePosition((int)diff);
     }
  
     public long   skip(long n)
