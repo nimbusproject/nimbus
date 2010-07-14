@@ -75,7 +75,7 @@ class TestEC2List(unittest.TestCase):
         # obviously this will not work if the default name changes
         bucket = self.s3conn.get_bucket("Repo")
         k = boto.s3.key.Key(bucket)
-        k.key = self.cb_random_bucketname(25)
+        k.key = "VMS/" + self.can_user.get_id() + "/" + self.cb_random_bucketname(25)
         k.set_contents_from_filename("/etc/group")
 
         images = self.ec2conn.get_all_images()

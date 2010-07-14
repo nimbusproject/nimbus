@@ -220,16 +220,6 @@ public class CumulusRepository implements Repository {
                     "request without owner hash/ID, the file(s) location is " +
                     "based on it");
         }
-        String ownerID;
-        try
-        {
-            ownerID = this.authDB.getCanonicalUserIdFromDn(dn);
-        }
-        catch(AuthzDBException ex)
-        {
-            throw new CannotTranslateException(ex.toString(), ex);
-        }
-
         // todo: look at RA and construct blankspace request
         //return new VMFile[]{this.getRootFile(imageID, ownerID)};
         VMFile [] vma = new VMFile[1];
@@ -243,18 +233,7 @@ public class CumulusRepository implements Repository {
         // look up image id
         try
         {
-            String keyName = this.prefix + "/" + ownerID + "/" + imageID;
-            int object_id = this.authDB.getFileID(keyName, this.repo_id, AuthzDBAdapter.OBJECT_TYPE_S3);
-            String canUser = ownerID;
-            String perms = this.authDB.getPermissions(object_id, canUser);
-            int ndx = perms.indexOf('r');
-            if(ndx < 0)
-            {
-                throw new AuthzDBException("User " + ownerID + " cannot access the image  " + imageID);
-            }
-            String datakey = this.authDB.getDataKey(object_id);
-            String urlStr = "scp://" + this.cumulusHost + ":22" + datakey;
-
+            String urlStr = getImageLocation(caller) + "/" + imageID;
             file.setMountAs(this.getRootFileMountAs());
             URI imageURI = new URI(urlStr);
             file.setURI(imageURI);
