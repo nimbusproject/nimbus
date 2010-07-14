@@ -22,7 +22,6 @@ import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.params.HttpConnectionParams;
 import org.apache.commons.httpclient.params.HttpParams;
 import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
@@ -40,7 +39,11 @@ import org.jets3t.service.utils.Mimetypes;
 import org.jets3t.service.utils.ObjectUtils;
 
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -54,7 +57,7 @@ import java.util.TimeZone;
 class CumulusParameterConvert implements org.apache.http.params.HttpParams
 {
     private HttpParams otherPs;
-    public CumulusParameterConvert(HttpParams otherPs)
+    CumulusParameterConvert(HttpParams otherPs)
     {
         this.otherPs = otherPs;
     }
@@ -154,7 +157,7 @@ class CumulusProtocolSocketFactory implements ProtocolSocketFactory
 {
     protected  SSLSocketFactory psf;
 
-    public CumulusProtocolSocketFactory()
+    CumulusProtocolSocketFactory()
             throws Exception
     {
          //TrustStrategy ts = new TrustSelfSignedStrategy();
@@ -213,7 +216,7 @@ class CumulusInputStream
     extends InputStream
 {
     private InputStream                 is;
-    private PrintStream                 pr;
+    private PrintStream pr;
     private CloudProgressPrinter        progress;
 
     public CumulusInputStream(
@@ -562,7 +565,6 @@ public class CumulusTask
     {
         try
         {
-            String awsAccessKey = this.args.getXferS3ID();
             String baseBucketName = this.args.getS3Bucket();
             String key = this.makeKey(vmName, null);
             File file = new File(localfile);
@@ -578,7 +580,7 @@ public class CumulusTask
                 String srcUrlString = "cumulus://" + baseBucketName + "/" + key;
                 pr.println("\nTransferring");
                 pr.println("  - Source: " + srcUrlString);
-;
+
                 pr.println("  - Destination: " + file.getAbsolutePath());
                 pr.println();
 
