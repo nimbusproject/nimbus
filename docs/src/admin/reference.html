@@ -641,7 +641,7 @@ Running: 'vm-023'
 </div>
 
 <p>
-    There are (intentionally) <b>no fallback settings</b> for many of the properties:
+    There are (intentionally) <b>no fallback settings</b> for many of the properties, they will be included in the cloud.properties file you give to a user:
 </p>
 
 <ul>
@@ -650,6 +650,7 @@ Running: 'vm-023'
     <li>vws.factory.identity (Virtal Workspace Service X509 identity)</li>
     <li>vws.repository (Host+port of cumulus image repository)</li>
     <li>vws.repository.type=cumulus (currently cumulus is the only supported repository protocol</li>
+    <li>vws.repository.canonicalid (The users canonical ID)</li>
     <li>vws.repository.s3id (The users S3 ID)</li>
     <li>vws.repository.s3key (The users S3 secret key)</li>
     <li>vws.repository.s3bucket (The bucket where the system stores images)</li>
