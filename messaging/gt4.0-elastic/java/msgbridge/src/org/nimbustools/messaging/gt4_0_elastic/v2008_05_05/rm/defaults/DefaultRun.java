@@ -452,8 +452,15 @@ public class DefaultRun implements Run {
                     vm.getID() + " is missing hostname");
         }
 
+        final String ipAddress = nics[0].getIpAddress();
+        if (ipAddress == null) {
+            throw new CannotTranslateException("NIC in vm id-" +
+                    vm.getID() + " is missing IP address");
+        }
+
         final String netName2;
         final String hostname2;
+        final String ipAddress2;
         if (nics.length == 2) {
             netName2 = nics[1].getNetworkName();
             if (netName2 == null) {
@@ -466,20 +473,33 @@ public class DefaultRun implements Run {
                 throw new CannotTranslateException("NIC in vm id-" +
                         vm.getID() + " is missing hostname");
             }
+
+            ipAddress2 = nics[1].getIpAddress();
+            if (ipAddress2 == null) {
+                throw new CannotTranslateException("NIC in vm id-" +
+                        vm.getID() + " is missing IP address");
+            }
         } else {
             netName2 = null;
             hostname2 = null;
+            ipAddress2 = null;
         }
 
-        String privateAssigned = null;
-        String publicAssigned = null;
+        String privateAssignedHostname = null;
+        String publicAssignedHostname = null;
+        String privateAssignedIp = null;
+        String publicAssignedIp = null;
 
         if (this.networks.isPrivateNetwork(netName)) {
             riit.setPrivateDnsName(hostname);
-            privateAssigned = hostname;
+            riit.setPrivateIpAddress(ipAddress);
+            privateAssignedHostname = hostname;
+            privateAssignedIp = ipAddress;
         } else if (this.networks.isPublicNetwork(netName)) {
             riit.setDnsName(hostname);
-            publicAssigned = hostname;
+            riit.setIpAddress(ipAddress);
+            publicAssignedHostname = hostname;
+            publicAssignedIp = ipAddress;
         } else {
             throw new CannotTranslateException("Unknown network was " +
                     "assigned: '" + netName + "'");
@@ -487,7 +507,7 @@ public class DefaultRun implements Run {
 
         if (nics.length == 2) {
             if (this.networks.isPrivateNetwork(netName2)) {
-                if (privateAssigned != null) {
+                if (privateAssignedHostname != null) {
                     // if public and private are set to be the same, that means
                     // request ONE nic and make it appear to be two in remote
                     // interface
@@ -495,9 +515,11 @@ public class DefaultRun implements Run {
                             "real NICs from duplicate networks yet");
                 }
                 riit.setPrivateDnsName(hostname2);
-                privateAssigned = hostname2;
+                riit.setPrivateIpAddress(ipAddress2);
+                privateAssignedHostname = hostname2;
+                privateAssignedIp = ipAddress2;
             } else if (this.networks.isPublicNetwork(netName2)) {
-                if (publicAssigned != null) {
+                if (publicAssignedHostname != null) {
                     // if public and private are set to be the same, that means
                     // request ONE nic and make it appear to be two in remote
                     // interface
@@ -505,7 +527,9 @@ public class DefaultRun implements Run {
                             "real NICs from duplicate networks yet");
                 }
                 riit.setDnsName(hostname2);
-                publicAssigned = hostname2;
+                riit.setIpAddress(ipAddress2);
+                publicAssignedHostname = hostname2;
+                publicAssignedIp = ipAddress2;
             } else {
                 throw new CannotTranslateException("Unknown network was " +
                         "assigned: '" + netName2 + "'");
@@ -515,7 +539,7 @@ public class DefaultRun implements Run {
         if (this.networks.getManagerPublicNetworkName().equals(
                 this.networks.getManagerPrivateNetworkName())) {
 
-            if (publicAssigned != null && privateAssigned != null) {
+            if (publicAssignedHostname != null && privateAssignedHostname != null) {
                 // if public and private are set to be the same, that means
                 // request ONE nic and make it appear to be two in remote
                 // interface
@@ -523,10 +547,12 @@ public class DefaultRun implements Run {
                             "real NICs from duplicate networks yet");
             }
 
-            if (publicAssigned != null) {
-                riit.setPrivateDnsName(publicAssigned);
+            if (publicAssignedHostname != null) {
+                riit.setPrivateDnsName(publicAssignedHostname);
+                riit.setPrivateIpAddress(publicAssignedIp);
             } else {
-                riit.setDnsName(privateAssigned);
+                riit.setDnsName(privateAssignedHostname);
+                riit.setIpAddress(privateAssignedIp);
             }
         }
     }
