@@ -333,13 +333,14 @@ def do_web_bidnes(o):
     # for new admins.
     try:
         import nimbusweb.portal.nimbus.create_web_user as create_web_user
+        create_web_user.check_db()
     except Exception, e:
         msg = "\nERROR linking with web application (have you ever sets up the web application?)\n"
         msg += "\nSee: http://www.nimbusproject.org/docs/current/admin/reference.html#nimbusweb-usage\n"
         msg += "\n%s\n" % e
         raise CLIError('EUSER', "%s" % msg)
     
-    (errmsg, url) = create_web_user.create_web_user(o.web_id, o.emailaddr, o.cert, o.key, o.access_id, o.access_secret, o.cloud_properties)
+    (errmsg, url) = create_web_user.create_web_user(o.web_id, o.emailaddr, o.cert, o.key, o.canonical_id, o.access_id, o.access_secret, o.cloud_properties)
     
     if errmsg:
         raise CLIError('EUSER', "Problem adding user to webapp: %s" % (errmsg))

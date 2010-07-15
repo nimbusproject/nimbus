@@ -117,6 +117,7 @@ def profile(request):
                       'key_present': key_present,
                       'access_present': query_present,
                       'props_present': props_present,
+                      'canonical_id': up.query_canonical,
                       'access_key': up.query_id,
                       'access_secret': up.query_secret
                      }
