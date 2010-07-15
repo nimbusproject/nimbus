@@ -320,9 +320,6 @@ def main(argv=None):
         timezone = config_from_key(config, "timezone")
         port = config_from_key(config, "webserver.port")
         host = config_from_key(config, "webserver.host")
-        rest_url = config_from_key(config, "nimbusrest.url")
-        rest_key = config_from_key(config, "nimbusrest.key")
-        rest_secret = config_from_key(config, "nimbusrest.secret")
         printurl = config_from_key(config, "print.url")
         accountprompt = config_from_key(config, "account.prompt")
         expire_hours = config_from_key(config, "token.expire_hours")
@@ -346,7 +343,7 @@ def main(argv=None):
         if opts.newconf:
             newconf.run(basedir, timezone, accountprompt, log, 
                     printdebugoutput, insecuremode, printurl, expire_hours, 
-                    cadir, rest_url, rest_key, rest_secret)
+                    cadir)
         
         if opts.printport:
             if not port:

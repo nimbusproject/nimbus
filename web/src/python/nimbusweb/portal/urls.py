@@ -11,7 +11,6 @@ urlpatterns = patterns('',
     (r'^$', "nimbusweb.portal.welcome.views.index"),
     (r'^admin/', include(admin.site.urls)),
     (r'^nimbus/', include("nimbusweb.portal.nimbus.urls")),
-    #(r'^usercreate/', include("nimbusweb.portal.usercreate.urls")),
 )
 
 _media_url = settings.MEDIA_URL
