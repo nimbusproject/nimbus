@@ -333,10 +333,9 @@ def do_web_bidnes(o):
     # for new admins.
     try:
         import nimbusweb.portal.nimbus.create_web_user as create_web_user
-        create_web_user.check_db()
     except Exception, e:
         msg = "\nERROR linking with web application (have you ever sets up the web application?)\n"
-        msg += "\nSee: http://www.nimbusproject.org/docs/current/admin/reference.html#nimbusweb-usage\n"
+        msg += "\nSee: http://www.nimbusproject.org/docs/current/admin/reference.html#nimbusweb-config\n"
         msg += "\n%s\n" % e
         raise CLIError('EUSER', "%s" % msg)
     

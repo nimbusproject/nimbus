@@ -10,11 +10,6 @@ from django.db import IntegrityError
 from datetime import datetime
 from dateutil.relativedelta import *
 
-def check_db():
-    # this will throw an exception if the database is not
-    # set up, i.e., if the webapp is not set up
-    allusers = User.objects.all()
-
 def create_web_user(username, email, cert_file, key_file, query_canonical, query_id, query_secret, cloudprop_file):
     """Create user and return tuple: (error_msg, url)
     
