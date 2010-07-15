@@ -233,7 +233,15 @@ public class CumulusRepository implements Repository {
         // look up image id
         try
         {
-            String urlStr = getImageLocation(caller) + "/" + imageID;
+            String urlStr;
+            if(imageID.indexOf("cumulus://") == 0)
+            {
+                urlStr = imageID;
+            }
+            else
+            {
+                urlStr = getImageLocation(caller) + "/" + imageID;
+            }
             file.setMountAs(this.getRootFileMountAs());
             URI imageURI = new URI(urlStr);
             file.setURI(imageURI);

@@ -87,8 +87,7 @@ class TestEC2Submit(unittest.TestCase):
             self.db.close()
 
 
-    def test_ec2_list_empty(self):
-
+    def test_ec2_submit_name_format(self):
         bucket = self.s3conn.get_bucket("Repo")
         k = boto.s3.key.Key(bucket)
         image_name = self.cb_random_bucketname(10)
@@ -97,4 +96,16 @@ class TestEC2Submit(unittest.TestCase):
         image = self.ec2conn.get_image(image_name)
         res = image.run() 
         dir(res)
+        res.stop_all()
+
+    def test_ec2_submit_url(self):
+        bucket_name = "Repo"
+        bucket = self.s3conn.get_bucket(bucket_name)
+        k = boto.s3.key.Key(bucket)
+        image_name = self.cb_random_bucketname(10)
+        k.key = "WHATEVER/" + image_name
+        k.set_contents_from_filename("/etc/group")
+        url = "cumulus://HOST/" + bucket_name + "/" + k.key
+        print url
+        res = self.ec2conn.run_instances(url)
         res.stop_all()

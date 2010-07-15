@@ -79,7 +79,9 @@ def report_results(db, user, opts):
         groupauthz_dir = os.path.join(nh, "services/etc/nimbus/workspace-service/group-authz/")
         o.dn = dnu.get_name()
         group = find_member(groupauthz_dir, o.dn)
-        o.group = group.group_id
+        o.group = None
+        if group != None:
+            o.group = group.group_id
     else:
         o.dn = None
         o.group = None
