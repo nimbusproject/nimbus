@@ -26,9 +26,6 @@
     <property name="query.conf.dir"
               value="${base.conf.dir}/query" />
     
-    <property name="rest.conf.dir"
-              value="${base.conf.dir}/rest" />
-
     <property name="workspace.persistence.dir"
               value="${deploy.dir}/var/${base.package.name}" />
 
