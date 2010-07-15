@@ -5,6 +5,14 @@ PYTHON_EXE="/usr/bin/env python -Wignore::DeprecationWarning"
 NIMBUS_WEBDIR_REL="`dirname $0`/.."
 NIMBUS_WEBDIR=`cd $NIMBUS_WEBDIR_REL; pwd`
 
+if [ ! -d $NIMBUS_WEBDIR/var ]; then
+    mkdir $NIMBUS_WEBDIR/var
+    if [ $? -ne 0 ]; then
+        echo "Could not create $NIMBUS_WEBDIR/var"
+        exit 1
+    fi
+fi
+
 # Force this directory to be private.
 chmod 700 $NIMBUS_WEBDIR/var
 if [ $? -ne 0 ]; then
