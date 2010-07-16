@@ -52,7 +52,7 @@ nimbus_src=`ls nimbus-*-src.tar.gz`
 
 cd $co_dir/nimbus
 
-python home/libexec/nimbus_version.py --tar=$nimbus_src > .nimbusversion
+python home/libexec/nimbus_version.py --tar $nimbus_src > .nimbusversion
 if [ $? -ne 0 ]; then
     echo "could not determine Nimbus version"
     exit 1
