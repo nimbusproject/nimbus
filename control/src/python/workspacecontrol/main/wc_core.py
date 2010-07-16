@@ -7,6 +7,7 @@ import wc_core_creation
 import wc_core_persistence
 import wc_core_propagation
 import wc_deprecated
+import workspacecontrol.experimental.tmplease as tmplease
 from workspacecontrol.main import get_class_by_keyword, get_all_configs, ACTIONS
 import workspacecontrol.main.wc_args as wc_args
     
