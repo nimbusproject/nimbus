@@ -55,7 +55,7 @@ class ARGS:
 
     PORT_LONG="--port"
     PORT="-p"
-    PORT_HELP="Override port number (default is 8888)"
+    PORT_HELP="Override port number (default is 9999)"
     
     
     ADDR_LONG="--address"
@@ -106,7 +106,7 @@ def main(argv=None):
     else:
         (opts, args) = parser.parse_args()
         
-    port = 8888
+    port = 9999
     if opts.port:
         port = int(opts.port)
         
