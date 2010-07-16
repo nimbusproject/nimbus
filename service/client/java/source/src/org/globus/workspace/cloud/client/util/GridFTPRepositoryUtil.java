@@ -67,7 +67,7 @@ public class GridFTPRepositoryUtil
         String                          action)
             throws ParameterProblem
     {
-        CloudClientUtil.checkGSICredential(action);
+        CloudClientUtil.checkX509Credential(action, this.print);
         this._checkGridFTPGeneric(action);
     }
 
@@ -160,7 +160,7 @@ public class GridFTPRepositoryUtil
         try
         {
             hash = SecurityUtil.hashGlobusCredential(
-                CloudClientUtil.getProxyBeingUsed(),
+                CloudClientUtil.getActiveX509Credential(this.print),
                 this.print.getDebugProxy());
         }
         catch(Exception ex)

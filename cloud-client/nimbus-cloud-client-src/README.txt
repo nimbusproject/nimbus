@@ -23,18 +23,52 @@ You need to have Java installed in order to run this.
 Security
 --------
 
-1. Obtain a credential.  If you do not have a proxy credential in place, you
-   can use the embedded Globus libraries to run grid-proxy-init like so:
+1. Obtain a credential.  
+
+The cloud administrator should have either provided you one or authorized your
+preexisting credential.
+
+The search path the cloud client uses is as follows:
+
+    A. props
+
+    If "nimbus.cert" and "nimbus.key" are in the properties file and point to
+    an unencrypted credential, they trump all.  These are not present by default
+    but allow an advanced user to easily toggle between clouds by using the
+    --conf switch.
+
+    B. proxy
+  
+    If a normal proxy is present in the /tmp directory and is still valid, that
+    is  used.  This lets the cloud work with all existing certs, tooling, MyProxy,
+    etc.
+
+    C. ~/.nimbus/
+
+    If ~/.nimbus/usercert.pem and ~/.nimbus/userkey.pem are present and the key
+    is unencrypted, use this.  No proxy is required or created.  This is what
+    most will use.
+
+    D. ~/.globus/
+
+    Same as #3 but with ~/.globus
+
+
+
+If you want to go the proxy credential route (for example, you have a 'grid'
+certificate), and do not have a proxy credential in place, you can use an embedded
+program to run grid-proxy-init like so:
    
    $ ./bin/grid-proxy-init.sh
 
-   Issues?  Try our mailing list and/or run:
+Issues?  Try our mailing list and/or run:
 
    $ ./bin/grid-proxy-init.sh -help
 
-   grid-proxy-init cannot find your credential's CA files?  try:
+grid-proxy-init cannot find your credential's CA files?  They are normally in 
+the "lib/certs" directory of the cloud client but you can override like so:
 
-   $ export X509_CERT_DIR="/path/to/certificates_directory"
+   $ export NIMBUS_X509_TRUSTED_CERTS="/path/to/certificates_directory"
 
 
 2. Test the security setup.
@@ -42,8 +76,9 @@ Security
    $ ./bin/cloud-client.sh --security
 
 
-3. If you have not given your DN to the cloud administrators, do so sending
-   the distinguished name printed after 'Identity:'
+3. If you already have a credential and have not given your DN to the cloud
+   administrators, do so sending the distinguished name printed after 'Identity'
+
 
 
 Configuring The Cloud
@@ -71,6 +106,7 @@ provides settings of the University of Chicago nimbus cloud and can be
 referenced by the name "nimbus".
 
 
+
 Uploading A Workspace To The Cloud
 ----------------------------------
 
@@ -90,6 +126,7 @@ Uploading A Workspace To The Cloud
 
 There are also --download (get an image in your personal directory) and
 --delete (delete an image in your personal directory) options.
+
 
 SSH Notes
 ---------

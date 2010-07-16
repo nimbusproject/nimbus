@@ -33,6 +33,8 @@ import org.apache.axis.message.addressing.Address;
 import org.apache.axis.message.addressing.EndpointReferenceType;
 import org.apache.axis.message.addressing.ReferencePropertiesType;
 
+import org.globus.workspace.client_core.utils.NimbusCredential;
+import org.ietf.jgss.GSSCredential;
 import org.xml.sax.InputSource;
 
 import org.globus.axis.gsi.GSIConstants;
@@ -477,6 +479,11 @@ abstract class TempBaseClient {
         if (this.contextLifetime != null) {
             stub._setProperty(Constants.CONTEXT_LIFETIME,
                               this.contextLifetime);
+        }
+
+        final GSSCredential usercred = NimbusCredential.getGSSCredential();
+        if (usercred != null) {
+            stub._setProperty(GSIConstants.GSI_CREDENTIALS, usercred);
         }
     }
 

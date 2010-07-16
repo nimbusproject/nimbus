@@ -18,16 +18,22 @@ package org.globus.workspace.cloud.client.util;
 
 import org.apache.axis.message.addressing.EndpointReferenceType;
 import org.apache.axis.types.URI;
+import org.globus.common.CoGProperties;
 import org.globus.gsi.GlobusCredential;
+import org.globus.gsi.GlobusCredentialException;
+import org.globus.util.Util;
 import org.globus.workspace.client_core.ExecutionProblem;
 import org.globus.workspace.client_core.ParameterProblem;
 import org.globus.workspace.client_core.repr.Workspace;
 import org.globus.workspace.client_core.utils.EPRUtils;
+import org.globus.workspace.client_core.utils.NimbusCredential;
 import org.globus.workspace.client_core.utils.StringUtils;
 import org.globus.workspace.cloud.client.AllArgs;
+import org.globus.workspace.cloud.client.Props;
 import org.globus.workspace.common.print.Print;
 import org.globus.wsrf.encoding.DeserializationException;
 import org.globus.wsrf.encoding.ObjectDeserializer;
+import org.nimbustools.messaging.gt4_0.common.CommonUtil;
 import org.nimbustools.messaging.gt4_0.generated.metadata.VirtualWorkspace_Type;
 import org.nimbustools.messaging.gt4_0.generated.metadata.definition.BoundDisk_Type;
 import org.nimbustools.messaging.gt4_0.generated.metadata.definition.Definition;
@@ -51,10 +57,6 @@ import java.util.Properties;
 import java.util.StringTokenizer;
 
 public class CloudClientUtil {
-
-    public static final String credURL =
-            "http://www.globus.org/toolkit/docs/4.0/security/prewsaa/" +
-                    "Pre_WS_AA_Public_Interfaces.html#prewsaa-env-credentials";
 
     public static String sourceURL(String sourcePath) {
         final String sourceAbsolutePath = absPath(sourcePath);
@@ -800,12 +802,11 @@ public class CloudClientUtil {
         }
     }
 
-    public static void checkGSICredential(String action)
+    public static void checkX509Credential(String action, Print print)
         throws ParameterProblem {
-        String tail = null;
 
         try {
-            CloudClientUtil.getProxyBeingUsed();
+            CloudClientUtil.getActiveX509Credential(print);
         } catch (Exception e) {
 
             String actionTxt = action;
@@ -814,22 +815,176 @@ public class CloudClientUtil {
                 actionTxt = "This action";
             }
 
-            String msg = actionTxt + " requires credential";
+            String msg = actionTxt + " requires an X509 credential.\n\n";
 
-            msg += ", see:\n";
-            msg += "  - " + credURL + "\n";
-            msg += "  - README.txt\n";
-            msg += "  - ./bin/grid-proxy-init.sh";
+            msg += "If you point to an unencrypted X509 key with the \"nimbus.cert\"\n" +
+                   "and \"nimbus.key\" properties, that will be used.\n\n";
+            msg += "If your X509 key file is encrypted on disk, you will need to\n" +
+                   "first run \"./bin/grid-proxy-init.sh\" and the program will use\n" +
+                   "the created \"/tmp/x509up_$unix_id\" proxy certificate file.\n\n";
+            msg += "If that file is not present, if you have an unencrypted X509 key\n" +
+                   "\"~/.nimbus/userkey.pem\", that will be used.\n\n";
+            msg += "If that file is not present, if you have an unencrypted X509 key\n" +
+                   "\"~/.globus/userkey.pem\", that will be used.\n\n";
+
+            msg += e.getMessage();
             throw new ParameterProblem(msg);
         }
     }
 
-    public static GlobusCredential getProxyBeingUsed() throws Exception {
-        GlobusCredential proxyUsed = GlobusCredential.getDefaultCredential();
-        if (proxyUsed == null) {
-            throw new Exception("Could not find current credential");
+    public static GlobusCredential getActiveX509Credential(Print print) throws Exception {
+
+        final StringBuilder accumulatedErrors =
+               new StringBuilder("-----------------------------\n\nHere is what happened:\n\n");
+
+        try {
+            print.debugln("First, attempting to load any credential specified in properties");
+
+            String certPath = NimbusCredential.getNimbusCertificatePath();
+            if (certPath == null) {
+                certPath = "Not set.";
+            }
+            String keyPath = NimbusCredential.getNimbusUnencryptedKeyPath();
+            if (keyPath == null) {
+                keyPath = "Not set.";
+            }
+            String files = "  - " + Props.KEY_NIMBUS_CERT + ": " + certPath + '\n';
+            files += "  - " + Props.KEY_NIMBUS_KEY + ": " + keyPath + '\n';
+            print.debugln(files);
+
+            final GlobusCredential credential = NimbusCredential.getGlobusCredential();
+            if (credential != null) {
+                print.debugln("Using Nimbus credential from properties:");
+                print.debugln("    - " + NimbusCredential.getNimbusCertificatePath());
+                print.debugln("    - " + NimbusCredential.getNimbusUnencryptedKeyPath());
+                print.debugln();
+                return credential;
+            }
+            String err = "Could not load credential from properties, properties are " +
+                    "probably not set.\n";
+            print.debugln(err);
+            err += files;
+            accumulatedErrors.append(err);
+        } catch (Exception e) {
+            final String err = "Problem loading credential from properties:\n    " +
+                    CommonUtil.recurseForSomeString(e);
+            accumulatedErrors.append(err).append('\n');
+            print.debugln(err);
         }
-        return proxyUsed;
+
+        try {
+            print.debugln("Attempting to load the default X509 proxy file");
+            final GlobusCredential credential = GlobusCredential.getDefaultCredential();
+            print.debugln("Using default X509 proxy:");
+            proxyInformation(credential, print);
+            return credential;
+        } catch (Exception e) {
+            final String err = "Problem loading default proxy credential:" +
+                    "\n    " + CommonUtil.recurseForSomeString(e);
+            accumulatedErrors.append(err).append('\n');
+            print.debugln(err);
+        }
+
+        final String dotNimbus = expandTilde("~/.nimbus/");
+        try {
+            print.debugln("\nLooking for unencrypted credential in ~/.nimbus");
+            final File usercert = guessCertFromDirectory(dotNimbus);
+            final File userkey = guessKeyFromDirectory(dotNimbus);
+            final GlobusCredential credential =
+                    getUnencryptedUsercert(usercert, userkey, print);
+            NimbusCredential.setUnencryptedCredential(usercert.getAbsolutePath(),
+                                                       userkey.getAbsolutePath());
+            print.debugln("Using unencrypted ~/.nimbus credential\n");
+            return credential;
+        } catch (Exception e) {
+            final String err = "Problem loading from ~/.nimbus:\n    " +
+                    CommonUtil.recurseForSomeString(e);
+            accumulatedErrors.append(err).append('\n');
+            print.debugln(err);
+        }
+
+        final String dotGlobus = expandTilde("~/.globus/");
+        try {
+            print.debugln("\nLooking for unencrypted credential in ~/.globus");
+            final File usercert = guessCertFromDirectory(dotGlobus);
+            final File userkey = guessKeyFromDirectory(dotGlobus);
+            final GlobusCredential credential =
+                    getUnencryptedUsercert(usercert, userkey, print);
+            NimbusCredential.setUnencryptedCredential(usercert.getAbsolutePath(),
+                                                       userkey.getAbsolutePath());
+            print.debugln("Using unencrypted ~/.globus credential\n");
+            return credential;
+        } catch (Exception e) {
+            final String err = "Problem loading from ~/.globus:\n    " +
+                    CommonUtil.recurseForSomeString(e);
+            accumulatedErrors.append(err).append('\n');
+            print.debugln(err);
+            throw new Exception(accumulatedErrors.toString());
+        }
     }
 
+    private static String expandTilde(String directory) throws Exception {
+        if (directory.startsWith("~")) {
+            final String homedir = System.getProperty("user.home");
+            if (homedir == null || homedir.trim().length() == 0) {
+                throw new Exception("Need to replace tilde to look for X509 credential, but " +
+                        "cannot determine your user home directory");
+            }
+            return directory.replaceFirst("~", homedir);
+        } else {
+            return directory;
+        }
+    }
+
+    private static File guessCertFromDirectory(String directory) {
+        return new File(directory, "usercert.pem");
+    }
+
+    private static File guessKeyFromDirectory(String directory) {
+        return new File(directory, "userkey.pem");
+    }
+
+    private static GlobusCredential getUnencryptedUsercert(File usercert,
+                                                           File userkey,
+                                                           Print print) throws Exception {
+
+        final String userkeyPath = userkey.getAbsolutePath();
+        final String usercertPath = usercert.getAbsolutePath();
+        
+        if (userkey.exists()) {
+            print.debugln("Exists: " + userkeyPath);
+        } else {
+            final String err = "Does not exist: " + userkeyPath;
+            print.debugln(err);
+            throw new Exception(err);
+        }
+        if (usercert.exists()) {
+            print.debugln("Exists: " + usercertPath);
+        } else {
+            final String err = "Does not exist: " + usercertPath;
+            print.debugln(err);
+            throw new Exception(err);
+        }
+
+        final GlobusCredential credential;
+        try {
+            credential = new GlobusCredential(usercertPath, userkeyPath);
+        } catch (Exception e) {
+            final String err = "Problem loading " + usercertPath + ":\n    " +
+                                    CommonUtil.recurseForSomeString(e);
+            print.debugln(err);
+            throw new Exception(err);
+        }
+        return credential;
+    }
+    
+    private static void proxyInformation(GlobusCredential credential, Print print)
+            throws GlobusCredentialException {
+
+        // this cert is already verified once
+        print.debugln("    Identity: " + credential.getIdentity());
+        print.debugln("    Subject: " + credential.getSubject());
+        print.debugln("    Time Left: " + Util.formatTimeSec(credential.getTimeLeft()));
+        print.debugln("\n");
+    }
 }

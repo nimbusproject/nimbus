@@ -108,6 +108,8 @@ public class AllArgs {
     private String initCtxDir;
     private String kernel;
     private String localfile;
+    private String nimbusCertFile;
+    private String nimbusKeyFile;
     private int memory;
     private int cores = -1;
     private String name;
@@ -865,6 +867,24 @@ public class AllArgs {
             }
         }
 
+        if (this.nimbusCertFile == null) {
+            final String key = Props.KEY_NIMBUS_CERT;
+            final String val = CloudClientUtil.getProp(props, key);
+            if (val != null) {
+                this.nimbusCertFile = val;
+                this.gotProp(key, val, sourceName);
+            }
+        }
+
+        if (this.nimbusKeyFile == null) {
+            final String key = Props.KEY_NIMBUS_KEY;
+            final String val = CloudClientUtil.getProp(props, key);
+            if (val != null) {
+                this.nimbusKeyFile = val;
+                this.gotProp(key, val, sourceName);
+            }
+        }
+
         // ----
 
         if (this.metadata_association == null) {
@@ -1443,5 +1463,21 @@ public class AllArgs {
 
     public void setBrokerLocalNicPrefix(String brokerLocalNicPrefix) {
         this.brokerLocalNicPrefix = brokerLocalNicPrefix;
+    }
+
+    public String getNimbusCertFile() {
+        return nimbusCertFile;
+    }
+
+    public void setNimbusCertFile(String nimbusCertFile) {
+        this.nimbusCertFile = nimbusCertFile;
+    }
+
+    public String getNimbusKeyFile() {
+        return nimbusKeyFile;
+    }
+
+    public void setNimbusKeyFile(String nimbusKeyFile) {
+        this.nimbusKeyFile = nimbusKeyFile;
     }
 }

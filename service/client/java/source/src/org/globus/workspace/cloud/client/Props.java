@@ -19,6 +19,12 @@ package org.globus.workspace.cloud.client;
 public class Props {
 
     public static final String
+            KEY_NIMBUS_CERT = "nimbus.cert";
+
+    public static final String
+            KEY_NIMBUS_KEY = "nimbus.key";
+
+    public static final String
             KEY_FACTORY_IDENTITY = "vws.factory.identity";
 
     public static final String

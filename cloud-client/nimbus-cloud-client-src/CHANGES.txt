@@ -17,6 +17,16 @@ nimbus-cloud-client-016
     usually recommend the number to use.
     http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7062
 
+[*] When using the cloud client, you may now export NIMBUS_X509_TRUSTED_CERTS 
+    to override using the lib/certs directory. This is intentionally different
+    than X509_CERT_DIR in order to allow coexistence with 'grid' software
+    environments.
+
+[*] Added support for using unencrypted keys directly instead of needing to
+    run proxy-init.  The properties 'nimbus.cert' and 'nimbus.key' are consulted
+    first, then normal a grid proxy search is made, then ~/.nimbus is consulted,
+    then ~/.globus.  See the README for details.
+
 
 nimbus-cloud-client-015
 -----------------------

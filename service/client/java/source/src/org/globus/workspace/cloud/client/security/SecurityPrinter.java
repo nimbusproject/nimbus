@@ -28,33 +28,18 @@ public class SecurityPrinter {
     private String id;
     private String[] certDirs;
 
-    public SecurityPrinter() throws Exception {
-        final GlobusCredential proxy = GlobusCredential.getDefaultCredential();
-        if (proxy == null) {
-            throw new Exception("default credential can not be obtained");
+    public SecurityPrinter(GlobusCredential credential) throws Exception {
+        if (credential == null) {
+            throw new IllegalArgumentException("credential may not be null");
         }
-        this.inuse = proxy;
+        this.inuse = credential;
         this.identity();
         this.certDirs = null;
     }
-
-    public SecurityPrinter(GlobusCredential proxy) throws Exception {
-        if (proxy == null) {
-            throw new IllegalArgumentException("proxy may not be null");
-        }
-        this.inuse = proxy;
-        this.identity();
-        this.certDirs = null;
-    }
-
-    public SecurityPrinter(String[] trustedCertDirs) throws Exception {
-        this();
-        this.certDirs = trustedCertDirs;
-    }
-
-    public SecurityPrinter(GlobusCredential proxy,
+    
+    public SecurityPrinter(GlobusCredential credential,
                            String[] trustedCertDirs) throws Exception {
-        this(proxy);
+        this(credential);
         this.certDirs = trustedCertDirs;
     }
 
