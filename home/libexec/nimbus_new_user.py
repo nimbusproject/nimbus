@@ -186,6 +186,8 @@ Create/edit a nimbus user
 
     opt = cbOpts("dn", "s", "This is used when the user already has a cert.  This option will use the given DN instead of generating a new cert", None)
     all_opts.append(opt)
+    opt = cbOpts("canonical_id", "i", "Specify the canonical ID string to user for this new user.  If the ID already exists an error will be returned.", None)
+    all_opts.append(opt)
     opt = cbOpts("cert", "c", "Instead of generating a new key pair use this certificate.  This must be used with the --key option", None)
     all_opts.append(opt)
     opt = cbOpts("key", "k", "Instead of generating a new key pair use this key.  This must be used with the --cert option", None)
@@ -284,7 +286,14 @@ def create_user(o, db):
         if user != None:
             raise CLIError('EUSER', "The user already exists: %s" % (o.emailaddr))
 
-        user = User(db, friendly=o.emailaddr)
+        if o.canonical_id != None:
+            user = User.find_user(db, o.canonical_id)
+            if user != None:
+                raise CLIError('EUSER', "The user already exists: %s" % (o.canonical_id))
+            user = User(db, friendly=o.emailaddr, uu=o.canonical_id, create=True)
+        else:
+            user = User(db, friendly=o.emailaddr, create=True)
+
         o.canonical_id = user.get_id()
         if not o.noaccess:
             if o.access_id == None:

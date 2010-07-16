@@ -40,6 +40,14 @@ class TestUsers(unittest.TestCase):
         self.users.append(friendly_name)
         return friendly_name    
 
+    def test_make_remove_canid_user(self):
+        uu = str(uuid.uuid1())
+        friendly_name = self.get_user_name()
+        rc = nimbus_new_user.main(["--canonical-id", uu, friendly_name])
+        self.assertEqual(rc, 0, "should be 0 %d" % (rc))
+        rc = nimbus_remove_user.main([friendly_name])
+        self.assertEqual(rc, 0, "should be 0 %d" % (rc))
+
     def test_make_remove_user(self):
         friendly_name = self.get_user_name()
         rc = nimbus_new_user.main([friendly_name])
