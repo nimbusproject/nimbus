@@ -24,8 +24,10 @@ nimbus-cloud-client-016
 
 [*] Added support for using unencrypted keys directly instead of needing to
     run proxy-init.  The properties 'nimbus.cert' and 'nimbus.key' are consulted
-    first, then normal a grid proxy search is made, then ~/.nimbus is consulted,
-    then ~/.globus.  See the README for details.
+    first if they exist, then a normal grid proxy search is made, then ~/.nimbus
+    is consulted for an unencrypted usercert.pem and userkey.pem (which will be
+    the most typical/recommended situation), then ~/.globus.  
+    See the README for details.
 
 
 nimbus-cloud-client-015
