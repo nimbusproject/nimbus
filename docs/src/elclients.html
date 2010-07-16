@@ -74,6 +74,43 @@ is strongly recommended in order to have a smooth and natural experience.
 <p>
 There is more information <a href="admin/reference.html#s3cmd">here.</a>
 </p>
+<a name="boto"> </a>
+<h2>Using the EC2 Query frontend from Python with Boto _NAMELINK(ec2-api-tools)</h2>
+
+<p>
+    Nimbus 2.5 supports for the EC2 Query interface, which is used
+    by the excellent Python client, <a href="http://code.google.com/p/boto/">boto</a>.
+    In order to use this interface, you must have Query credentials from the cloud
+    administrator. These are composed of an <i>access identifier</i> (usually the hash
+    of your DN) and a shared <i>secret key</i>.
+</p>
+<p>
+    You also need the URL of the Query interface on the Nimbus service node. See the
+    <a href="_NIMBUS_WEBSITE/nimbus_cloud">University of Chicago cloud</a> for example.
+<p>
+Before you can launch a VM you must first upload it to Cumulus.  That process
+is described <a href="#s3boto">here</a>
+</p>
+
+<div class="panel"><pre>
+import boto
+
+# first create a connection to the appropriate host, using your credentials
+conn =  boto.connect_ec2("YOUR_ACCESS_ID_HERE", "YOUR_SECRET_KEY_HERE", port=SERVICE_PORT_NUMBER)
+# due to an inconvenient bug in boto the following line is needed
+conn.host = "service.hostname.com"
+
+# then do something with the connection
+conn.run_instances("image_name")
+</pre></div>
+
+<p>Please refer to the boto documentation for more details on usage.</p>
+<div class="note"><p class="note-title">Image Names</p>
+<p>Image names can be a full cumulus:// url, or simply the image name 
+portion of the naming convention cumulus://&lt;cumulus hostname&gt;/&lt;bucket name&gt;/&lt;prefix&gt;/&lt;canonical ID&gt;/&lt;image name&gt;
+</p>
+</div>
+
 <a name="ec2-api-tools"> </a>
 <h2>Using the EC2 SOAP frontend from the console _NAMELINK(ec2-api-tools)</h2>
 
@@ -247,43 +284,6 @@ ec2-terminate-instances i-4662834e
 _EXAMPLE_CMD_END
 
 <br/><br/>
-
-<a name="boto"> </a>
-<h2>Using the EC2 Query frontend from Python with Boto _NAMELINK(ec2-api-tools)</h2>
-
-<p>
-    Nimbus 2.5 supports for the EC2 Query interface, which is used
-    by the excellent Python client, <a href="http://code.google.com/p/boto/">boto</a>.
-    In order to use this interface, you must have Query credentials from the cloud
-    administrator. These are composed of an <i>access identifier</i> (usually the hash
-    of your DN) and a shared <i>secret key</i>.
-</p>
-<p>
-    You also need the URL of the Query interface on the Nimbus service node. See the
-    <a href="_NIMBUS_WEBSITE/nimbus_cloud">University of Chicago cloud</a> for example.
-<p>
-Before you can launch a VM you must first upload it to Cumulus.  That process
-is described <a href="#s3boto">here</a>
-</p>
-
-<div class="panel"><pre>
-import boto
-
-# first create a connection to the appropriate host, using your credentials
-conn =  boto.connect_ec2("YOUR_ACCESS_ID_HERE", "YOUR_SECRET_KEY_HERE", port=SERVICE_PORT_NUMBER)
-# due to an inconvenient bug in boto the following line is needed
-conn.host = "service.hostname.com"
-
-# then do something with the connection
-conn.run_instances("image_name")
-</pre></div>
-
-<p>Please refer to the boto documentation for more details on usage.</p>
-<div class="note"><p class="note-title">Image Names</p>
-<p>Image names can be a full cumulus:// url, or simply the image name 
-portion of the naming convention cumulus://&lt;cumulus hostname&gt;/&lt;bucket name&gt;/&lt;prefix&gt;/&lt;canonical ID&gt;/&lt;image name&gt;
-</p>
-</div>
 
 <br />
 <br />
