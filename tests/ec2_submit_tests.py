@@ -109,3 +109,4 @@ class TestEC2Submit(unittest.TestCase):
         print url
         res = self.ec2conn.run_instances(url)
         res.stop_all()
+
