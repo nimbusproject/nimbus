@@ -248,7 +248,6 @@ Create/edit a nimbus user
     if o.dn != None and o.nocert:
         raise CLIError('ECMDLINE', "why specify a dn and use nocert?")
 
-    o.canonical_id = None
     o.url = None
     o.cloud_properties = None
 
@@ -287,9 +286,10 @@ def create_user(o, db):
             raise CLIError('EUSER', "The user already exists: %s" % (o.emailaddr))
 
         if o.canonical_id != None:
-            user = User.find_user(db, o.canonical_id)
+            user = User.get_user(db, o.canonical_id)
             if user != None:
-                raise CLIError('EUSER', "The user already exists: %s" % (o.canonical_id))
+                raise CLIError('EUSER', "The canonical user already exists: %s" % (o.canonical_id))
+
             user = User(db, friendly=o.emailaddr, uu=o.canonical_id, create=True)
         else:
             user = User(db, friendly=o.emailaddr, create=True)

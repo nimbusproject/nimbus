@@ -45,6 +45,14 @@ class TestUsers(unittest.TestCase):
         friendly_name = self.get_user_name()
         rc = nimbus_new_user.main(["--canonical-id", uu, friendly_name])
         self.assertEqual(rc, 0, "should be 0 %d" % (rc))
+
+        (tmpFD, outFileName) = tempfile.mkstemp("cumulustests")
+        os.close(tmpFD)
+        rc = nimbus_list_users.main(["-b", "-r", "canonical_id", "-O", outFileName, '%'])
+        rc = self.find_in_file(outFileName, uu)
+        self.assertTrue(rc)
+
+
         rc = nimbus_remove_user.main([friendly_name])
         self.assertEqual(rc, 0, "should be 0 %d" % (rc))
 
