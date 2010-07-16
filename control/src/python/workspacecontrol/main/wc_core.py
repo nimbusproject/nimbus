@@ -396,16 +396,15 @@ def vacate_tmplease(p, c, vm_name):
     
     try:
         tmplease.teardown(p, c, vm_name)
+        c.log.debug("removed tmplease, if any")
     except:
         exception_type = sys.exc_type
         try:
             exceptname = exception_type.__name__ 
         except AttributeError:
             exceptname = exception_type
-        errstr = "Possible issue with netbootstrap teardown: %s: %s" % (str(exceptname), str(sys.exc_value))
+        errstr = "Possible issue with tmpplease teardown: %s: %s" % (str(exceptname), str(sys.exc_value))
         c.log.error(errstr)
-    
-    c.log.debug("removed tmplease, if any")
     
 
 # -----------------------------------------------------------------------------
