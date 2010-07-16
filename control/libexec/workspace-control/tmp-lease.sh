@@ -126,11 +126,6 @@ unset PYTHONINSPECT
 # ARGUMENTS #
 #############
 
-if [ $# -ne 1 ]; then
-  echo "Syntax: add|rem <vmname>   (or just 'print' for debugging)"
-  exit 1
-fi
-
 if [ "$1" = "print" ]; then
     $TMP_LEASE_ALTER_CMD --print
     exit 0

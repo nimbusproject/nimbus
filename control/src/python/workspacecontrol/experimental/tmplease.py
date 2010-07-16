@@ -126,7 +126,6 @@ def setup(p, c, local_file_set, vmname):
         
     c.log.debug("leased tmp space physical partition successfully: %s" % cmd)
     c.log.debug("tmp space physical partition: %s" % output)
-    output="/dev/sdx1"
     if not output:
         raise UnexpectedError("no output from partition leasing")
         
