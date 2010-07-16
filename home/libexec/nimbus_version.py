@@ -57,9 +57,6 @@ class ARGS:
     
     TIME_LONG = "--buildtime"
     TIME_HELP = "Just build time, exits non-zero if there is none"
-    
-    TARPARSE_LONG = "--tar"
-    TARPARSE_HELP = "New config file to stdout"
 
 def parsersetup():
     """Return configured command-line parser."""
@@ -86,9 +83,6 @@ def parsersetup():
     parser.add_option(ARGS.RC_LONG, action="store_true", default=False,
                       dest="rc", help=ARGS.RC_HELP)
     
-    parser.add_option(ARGS.TARPARSE_LONG, dest="tarball", metavar="ball",
-                      help=ARGS.TARPARSE_HELP)
-    
     parser.add_option(ARGS.DOCVERSION_LONG, action="store_true", default=False,
                       dest="docversion", help=ARGS.DOCVERSION_HELP)
     
@@ -107,7 +101,7 @@ def validateargs(opts):
     
     seeh = "see help (-h)"
     actions = 0
-    for action in [ opts.majorminor, opts.fullversion, opts.major, opts.minor, opts.patch, opts.rc, opts.docversion, opts.commit, opts.guide, opts.tarball ]:
+    for action in [ opts.majorminor, opts.fullversion, opts.major, opts.minor, opts.patch, opts.rc, opts.docversion, opts.commit, opts.guide ]:
         if action:
             actions += 1
     
@@ -264,26 +258,19 @@ def main(argv=None):
     
     try:
         validateargs(opts)
-        if not opts.tarball:
-            nh = os.getenv("NIMBUS_HOME")
-            if not nh:
-                raise Exception("Requires that NIMBUS_HOME is set.")
-            if not os.path.exists(nh):
-                raise Exception("NIMBUS_HOME does not exist: %s" % nh)
-            conf = os.path.join(nh, "libexec/.nimbusversion")
-            if not os.path.exists(conf):
-                raise Exception("Version information does not exist: %s\nYou probably installed from the code repository." % conf)
+        nh = os.getenv("NIMBUS_HOME")
+        if not nh:
+            raise Exception("Requires that NIMBUS_HOME is set.")
+        if not os.path.exists(nh):
+            raise Exception("NIMBUS_HOME does not exist: %s" % nh)
+        conf = os.path.join(nh, "libexec/.nimbusversion")
+        if not os.path.exists(conf):
+            raise Exception("Version information does not exist: %s\nYou probably installed from the code repository." % conf)
     except:
         print >>sys.stderr, sys.exc_value
         return 2
     
     try:
-        if opts.tarball:
-            (major, minor, patch, rc) = parsetarname(opts.tarball)
-            newconf = newconfig(major, minor, patch, rc)
-            print newconf
-            return 0
-        
         config = ConfigParser.SafeConfigParser()
         config.read(conf)
         
@@ -335,6 +322,15 @@ def main(argv=None):
     return 0
 
 if __name__ == "__main__":
+    
+    # hidden argument to support the make-dist process, not for users
+    if len(sys.argv) == 3:
+        if sys.argv[1] == "--tar":
+            (major, minor, patch, rc) = parsetarname(sys.argv[2])
+            newconf = newconfig(major, minor, patch, rc)
+            print newconf
+            sys.exit(0)
+    
     sys.exit(main())
 
 def test_parsetarname():
