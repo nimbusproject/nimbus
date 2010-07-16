@@ -213,6 +213,8 @@ def _core(vm_name, action, p, c):
         
         vacate_networking(c, netbootstrap, netsecurity, netlease, vm_name, nic_set, persistence)
         c.log.info("vacated '%s' from workspace-control (networking)" % vm_name)
+        
+        vacate_tmplease(p, c, vm_name)
                 
         # If deleteall is not requested, the VM will now be moved back to
         # 'propagated' from the service's perspective.  There is no other
@@ -389,6 +391,22 @@ def vacate_networking(c, netbootstrap, netsecurity, netlease, vm_name, nic_set, 
     
     persistence.remove_nic_set(vm_name)
     c.log.debug("removed VM from persistence")
+
+def vacate_tmplease(p, c, vm_name):
+    
+    try:
+        tmplease.teardown(p, c, vm_name)
+    except:
+        exception_type = sys.exc_type
+        try:
+            exceptname = exception_type.__name__ 
+        except AttributeError:
+            exceptname = exception_type
+        errstr = "Possible issue with netbootstrap teardown: %s: %s" % (str(exceptname), str(sys.exc_value))
+        c.log.error(errstr)
+    
+    c.log.debug("removed tmplease, if any")
+    
 
 # -----------------------------------------------------------------------------
 # GLOBAL VALIDATIONS
