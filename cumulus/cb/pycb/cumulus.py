@@ -232,6 +232,10 @@ class CumulusHTTPChannel(http.HTTPChannel):
             self.send_access_error()
             return
 
+        if 'expect' in h:
+            if h['expect'].lower() == '100-continue':
+                self.transport.write("HTTP/1.1 100 Continue\r\n\r\n")
+
         (bucketName, objectName) = path_to_bucket_object(rPath)
         # if we are putting an object
         if objectName != None:
