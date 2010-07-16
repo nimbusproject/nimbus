@@ -12,6 +12,7 @@ _NIMBUS_2_5_DEPRECATED
     <li><p><a href="#s3boto">Uploading VM Images to Cumulus with Boto</a></p></li>
     <li><p><a href="#s3cmd">Uploading VM Images to Cumulus with s3cmd</a></p></li>
     <li><p><a href="#boto">Using the EC2 Query frontend from Python with Boto</a></p></li>
+    <li><p><a href="#botoex">A Full Example with Boto</a></p></li>
     <li><p><a href="#ec2-api-tools">Using the EC2 SOAP frontend from the console</a></p></li>
 </ul>
 
@@ -110,6 +111,52 @@ conn.run_instances("image_name")
 portion of the naming convention cumulus://&lt;cumulus hostname&gt;/&lt;bucket name&gt;/&lt;prefix&gt;/&lt;canonical ID&gt;/&lt;image name&gt;
 </p>
 </div>
+
+<a name="botoex"> </a>
+<h2>A Full Example with Boto _NAMELINK(botoex)</h2>
+<p>
+<div class="panel"><pre>
+import boto
+from boto.s3.key import Key
+import time
+from boto.s3.connection import OrdinaryCallingFormat
+from boto.s3.connection import S3Connection
+from boto.ec2.connection import EC2Connection
+
+id="&lt;Cumulus ID&gt;"
+pw="&lt;Cumulus password&gt;"
+host="&lt;Cumulus hostname&gt;
+port="&lt;Service port port " 8443&gt;"
+cumulusport="&lt;Cumulus port : 8888&gt;"
+canonical_id="&lt;Canonical ID&gt;"
+
+
+ec2conn = EC2Connection(id, pw, host=host, port=port)
+cf = OrdinaryCallingFormat()
+s3conn = S3Connection(id, pw, host=host, port=cumulusport, is_secure=False, calling_format=cf)
+
+# upload the file according to the Nimbus naming convention
+bucket = s3conn.get_bucket("Repo")
+k = boto.s3.key.Key(bucket)
+k.key = "VMS/%s/%s" % (canonical_id, "my_image_name")
+k.set_contents_from_filename(&lt;path to image file&gt;)
+
+# now run the VM
+reservation = ec2conn.run_instances("my_image_name")
+instance = reservation.instances[0]
+
+# poll for status
+while instance.state != 'running':
+    print 'instance is %s' % instance.state
+    time.sleep(30)
+    instance.update()
+
+# stop the instances
+reservation.stop_all()
+
+</pre></div>
+</p>
+
 
 <a name="ec2-api-tools"> </a>
 <h2>Using the EC2 SOAP frontend from the console _NAMELINK(ec2-api-tools)</h2>
