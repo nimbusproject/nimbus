@@ -13,3 +13,58 @@
 {
   color: gray;
 }
+
+.panel
+{
+    background-color:#f8f8ff;
+    border:thin solid #dedede;
+    font-family:monospace;
+    font-size:0.9em;
+    margin-bottom:1.1em;
+    margin-top:0.5em;
+    padding:0.7em;
+    white-space:pre;
+}
+
+.note
+{
+    border:thin solid #dedede;
+    padding-top: 0.8em;
+    padding-right: 1em;
+    padding-bottom: 0.8em;
+    padding-left: 58px;
+    margin-top: 2em;
+    margin-bottom: 2em;
+     
+    background-image: url("../clouds/img/note.png");
+    background-repeat: no-repeat;
+    background-attachment: scroll;
+    background-position: 5px 5px;
+}
+p.note-title
+{
+    margin-top: 0pt;
+    margin-left: 0pt;
+    font-weight: bold;
+}
+
+h1, h2, h3
+{
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+}
+
+/* Nice shadow from http://www.sohtanaka.com/web-design/css-border-tricks-tutorial/ */
+.sidebox
+{
+    margin: 5px 18px 20px 10px;
+    padding: 5px 20px 10px 20px;
+    width: 240px;
+    height: 200px;
+    border: 1px solid #f0f0f0;
+    border-bottom: 2px solid #ccc;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+}
+
