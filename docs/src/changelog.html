@@ -26,7 +26,7 @@ _NIMBUS_2_5_DEPRECATED
             <i>We are happy to announce the first version of Cumulus!</i>
         </p>
         <p>
-            Cumulus is a storage cloud implementation compatible with the Amazon Web Services S3 REST API (with small exceptions), it works seamlessy with S3 clients such as s3cmd, jets3t, and boto.  In addition, it offers extra functionality such as disk quota enforcement. 
+            Cumulus is a storage cloud implementation compatible with the Amazon Web Services S3 REST API (with small exceptions), it works seamlessly with S3 clients such as s3cmd, jets3t, and boto.  In addition, it offers extra functionality such as disk quota enforcement. 
         </p>
         <p>
             Cumulus replaces the current GridFTP-based upload and download of VM images: it integrates tightly in a Nimbus installation as the VM image repository solution.  And it can be also installed on its own to manage a storage cloud: a Nimbus IaaS installation needs Cumulus but not vice versa.
@@ -212,13 +212,13 @@ _NIMBUS_2_5_DEPRECATED
         <ul>
             <li>
                 <p>
-                    The build system now forces the Java pieces to be 1.5
+                    The build system now forces the Java pieces to be JRE 1.5
                     compatible. (<b>New in RC2</b>)
                 </p>
             </li>
             <li>
                 <p>
-                    <i>scripts/check-jars.sh</i> makes it easy to check 1.5
+                    <i>scripts/check-jars.sh</i> makes it easy to check JRE 1.5
                     compatibility on any directory of jars (including
                     subdirectories).  For example, a Nimbus installation.
                     (<b>New in RC2</b>)
@@ -231,7 +231,7 @@ _NIMBUS_2_5_DEPRECATED
                 <p>
                     Lets you change Java source code and just build and install
                     the jars and get the changes straight into an existing
-                    installation for more immediate non-automated testing.
+                    installation for immediate experimentation/testing.
                 </p>
             </li>
             <li>
@@ -749,7 +749,7 @@ _NIMBUS_2_5_DEPRECATED
         </p>
         <p>
             This means one less user step in many of the common ways people use
-            the cloud client.  The new <b>optional</b>'nimbus.cert' and
+            the cloud client.  The new (optional) 'nimbus.cert' and
             'nimbus.key' properties also makes toggling between clouds easier.
         </p>
     </li>

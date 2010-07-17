@@ -65,9 +65,6 @@ _NIMBUS_2_5_DEPRECATED
         <a href="#ctxagent">What is the Context Agent</a>?
     </li>
     <li>
-        <a href="#defcloudkit">What is the cloudkit</a>?
-    </li>
-    <li>
         <a href="#nimbusweb">What is Nimbus Web</a>?
     </li>
     <li>
@@ -142,15 +139,12 @@ _NIMBUS_2_5_DEPRECATED
 
         <p>
             Options aren't always a good thing, especially to start with.  The
-            main way to deploy Nimbus is the "cloudkit" configuration.  This
+            main way to deploy Nimbus is the cloud configuration.  This
             involves hosting a site manager service and creating an image
-            repository for clients to have their own personal image directories
-            (see the
-            <a href="doc/cloud.html">cloud
-            guide</a> for details).  You direct your new users to use the
+            repository (see the
+            <a href="admin/z2c/">Zero To Cloud guide</a> for details).  You direct your new users to use the
             <a href="clouds/cloudquickstart.html">cloud client</a> which
-            gets them up and running in just a few minutes if the credential
-            situation is understood.
+            gets them up and running in just a few minutes.
         </p>
 
         <p>
@@ -168,20 +162,21 @@ _NIMBUS_2_5_DEPRECATED
         </p>
         <p>
             Nimbus itself is not hard to install, it has a script driven install
-            option that asks you questions (see the
-            <a href="admin/index.html">administrator
-            guide</a> for details).
+            that asks you two questions.
         </p>
         <p>
             Nimbus requires that some dependencies are installed first.  On the
-            service node: <b>Java</b> (1.5+) and <b>bash</b>.  On the
-            hypervisor nodes: <b>Python</b> (2.4+), <b>bash</b>,
-            <b>ebtables</b>, <b>DHCPd</b>, <b>libvirt</b> and <b>KVM</b> or <b>Xen</b>
-            (2 works but 3 is recommended).
+            service node: Java, Python, and bash.  On the
+            hypervisor nodes: Python, bash, ebtables, libvirt and KVM or Xen.
         </p>
         <p>
             All of these things are installable via the package management
             system of all the popular Linux distributions.
+        </p>
+        <p>
+            See the <a href="admin/z2c/">Zero To Cloud</a> guide for details
+            including detailed 
+            <a href="admin/z2c/service-dependencies.html">prerequisite information</a>.
         </p>
     </li>
 
@@ -264,13 +259,6 @@ _NIMBUS_2_5_DEPRECATED
                     interacts with the Context Broker at VM boot.
                 </p>
             </li>
-            <li>
-                <p>
-                    The <a href="#ec2-backend">EC2 backend</a> allows the service
-                    to turn around and secure remote resources from off-site.
-                </p>
-            </li>
-            
         </ul>
         </div>
 
@@ -348,7 +336,6 @@ _NIMBUS_2_5_DEPRECATED
         <p>
             This is the protocol implementation in longstanding use by previous
             workspace services and clients including the popular cloud-client.
-            A full protocol guide enumerating differences is forthcoming.
         </p>
     </li>
 
@@ -590,7 +577,7 @@ _NIMBUS_2_5_DEPRECATED
         </p>
 
         <p>
-            The reference client exposes all features of the <a href="">WSRF
+            The reference client exposes all features of the <a href="#wsrf-frontend">WSRF
             frontend</a> as a commandline client.  It is relatively complex
             to use and thus typically wrapped by task-specific scripts.
         </p>
@@ -750,25 +737,14 @@ _NIMBUS_2_5_DEPRECATED
 
     <li>
         <p>
-            <a name="defcloudkit"> </a>
-            <b>What is the "cloudkit"? _NAMELINK(defcloudkit)</b>
-        </p>
-
-        <p>
-            See <i><a href="#cloudkit">What is the main way to deploy Nimbus</a>?</i>
-        </p>
-    </li>
-
-    <li>
-        <p>
             <a name="nimbusweb"> </a>
             <b>What is Nimbus Web? <span class="namelink"><a href="#nimbusweb">(#)</a></span></b>
         </p>
 
         <p>
-            Nimbus Web is the rapidly evolving web interface for Nimbus. It provides administrative
-            and user functions in a friendly interface. This module is targeted for many exciting
-            features and enhancements over the coming months.
+            Nimbus Web is the evolving web interface for Nimbus. Its aim is
+            to provide administrative and user functions in a friendly
+            interface. 
         </p>
         <p>
             Nimbus Web is centered around a Python Django web application that is intended to be
@@ -797,7 +773,7 @@ _NIMBUS_2_5_DEPRECATED
     <li>
         <p>
             <a name="cumulus"> </a>
-            <b>What is Cumulus? <span class="namelink"><a href="#cumulus">(#)</a></span></b>
+            <b>What is Cumulus? _NAMELINK(cumulus)</b>
         </p>
 
         <p>
@@ -809,7 +785,7 @@ features are added, such as file system usage quotas.
     <li>
         <p>
             <a name="cumulusclients"> </a>
-            <b>What clients can I use with Cumulus? <span class="namelink"><a href="#cumulusclients">(#)</a></span></b>
+            <b>What clients can I use with Cumulus? _NAMELINK(cumulusclients)</b>
         </p>
 
         <p>
@@ -822,7 +798,7 @@ of the more popular ones are boto and s3cmd.
     <li>
         <p>
             <a name="cumulusnimbus"> </a>
-            <b>How are Nimbus and Cumulus related?<span class="namelink"><a href="#cumulusnimbus">(#)</a></span></b>
+            <b>How are Nimbus and Cumulus related? _NAMELINK(cumulusnimbus)</b>
         </p>
         
         <p> 
@@ -835,7 +811,7 @@ that same clouds Cumulus repository (advanced use cases can by pass this).
     <li>
         <p>
             <a name="cumulusnonimbus"> </a>
-            <b>Can Cumulus be installed without Nimbus?<span class="namelink"><a href="#cumulusnonimbus">(#)</a></span></b>
+            <b>Can Cumulus be installed without Nimbus? _NAMELINK(cumulusnonimbus)</b>
         </p>
 
         <p>
@@ -848,7 +824,7 @@ system may do so.
     <li>
         <p>
             <a name="nimbusnocumulus"> </a>
-            <b>Can Nimbus be installed without Cumulus?<span class="namelink"><a href="#nimbusnocumulus">(#)</a></span></b>
+            <b>Can Nimbus be installed without Cumulus? _NAMELINK(nimbusnocumulus)</b>
         </p>
 
         <p>
@@ -862,7 +838,7 @@ which it is packages.
     <li>
         <p>
             <a name="cumulusprop"> </a>
-            <b>Does the Nimbus IaaS system directly use Cumulus for image propagation?<span class="namelink"><a href="#cumulusprop">(#)</a></span></b>
+            <b>Does the Nimbus IaaS system directly use Cumulus for image propagation? _NAMELINK(cumulusprop)</b>
         </p>
 
         <p>
@@ -878,7 +854,7 @@ for scientific users.
     <li>
         <p>
             <a name="cumulusreliable"> </a>
-            <b>How reliable is Cumulus?<span class="namelink"><a href="#cumulusreliable">(#)</a></span></b>
+            <b>How reliable is Cumulus? _NAMELINK(cumulusreliable)</b>
         </p>
 
         <p>
@@ -890,7 +866,7 @@ The reliability of Cumulus depends entirely on the storage system that is backin
     <li>
         <p>
             <a name="cumulusbackend"> </a>
-            <b>What type of storage system backs the Cumulus repository?<span class="namelink"><a href="#cumulusbackend">(#)</a></span></b>
+            <b>What type of storage system backs the Cumulus repository? _NAMELINK(cumulusbackend)</b>
         </p>
 
         <p>
