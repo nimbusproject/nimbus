@@ -20,12 +20,13 @@ _NIMBUS_2_5_DEPRECATED
 <h2>Uploading VM Images to Cumulus with Boto _NAMELINK(s3boto)</h2>
 <p>
 The python library boto can be used to upload images to 
-<a href="faq.html#Cumulus">Cumulus</a>.  Once a VM is staged into Cumulus
+<a href="faq.html#cumulus">Cumulus</a>.  Once a VM is staged into Cumulus
 it can be submitted for execution.  
 </p>
 <p>
 In order for Nimbus to efficiently find VM images in Cumulus a naming convention
 is used.  Three pieces of information are needed to follow this convention:
+</p>
 <ol>
     <li>The repository bucket name</li>By default this is
     <tt class="literal">Repo</tt>
@@ -35,14 +36,16 @@ is used.  Three pieces of information are needed to follow this convention:
     the time of your account creation.  It can also be found in your 
     cloud clients configuration file (<a href="clouds/cloudquickstart.html">More Info</a>)
 </ol>
+<p>
 That information is used to form a Cumulus url in the following way:
+</p>
 <pre class="panel">
 cumulus://&lt;cumulus hostname&gt;/&lt;bucket name&gt;/&lt;prefix&gt;/&lt;canonical ID&gt;/&lt;image name&gt;
 </pre>
-</p>
 <p>
 Once you have the proper url formed you can use that information and 
 boto to upload the image into the storage repository.
+</p>
 <pre class="panel">
 from boto.s3.connection import OrdinaryCallingFormat
 from boto.s3.connection import S3Connection
@@ -61,10 +64,11 @@ k = boto.s3.key.Key(bucket)
 k.key = VMS/" + canonical_id + "/" + image_name
 set_contents_from_filename(path_to_image)
 </pre>
-
+<p>
 At this point your image will be ready for submission using the name <i>image_name</i>
 </p>
 <div class="note"><p class="note-title">Image Names</p>
+<p>
 You may upload an image to any Cumulus name you wish and still submit it
 for run.  This is described below.  However, the above naming convention
 is strongly recommended in order to have a smooth and natural experience.
@@ -95,11 +99,11 @@ is described <a href="#s3boto">here</a>
 
 <div class="panel"><pre>
 import boto
+from boto.ec2.regioninfo import RegionInfo
 
-# first create a connection to the appropriate host, using your credentials
+# first create a region object and connection
+region = RegionInfo(name="nimbus", endpoint="service.hostname.com")
 conn =  boto.connect_ec2("YOUR_ACCESS_ID_HERE", "YOUR_SECRET_KEY_HERE", port=SERVICE_PORT_NUMBER)
-# due to an inconvenient bug in boto the following line is needed
-conn.host = "service.hostname.com"
 
 # then do something with the connection
 conn.run_instances("image_name")
@@ -114,7 +118,6 @@ portion of the naming convention cumulus://&lt;cumulus hostname&gt;/&lt;bucket n
 
 <a name="botoex"> </a>
 <h2>A Full Example with Boto _NAMELINK(botoex)</h2>
-<p>
 <div class="panel"><pre>
 import boto
 from boto.s3.key import Key
@@ -122,7 +125,8 @@ import time
 from boto.s3.connection import OrdinaryCallingFormat
 from boto.s3.connection import S3Connection
 from boto.ec2.connection import EC2Connection
-
+from boto.ec2.regioninfo import RegionInfo
+    
 id="&lt;Cumulus ID&gt;"
 pw="&lt;Cumulus password&gt;"
 host="&lt;Cumulus hostname&gt;
@@ -131,7 +135,8 @@ cumulusport="&lt;Cumulus port : 8888&gt;"
 canonical_id="&lt;Canonical ID&gt;"
 
 
-ec2conn = EC2Connection(id, pw, host=host, port=port)
+region = RegionInfo(name="nimbus", endpoint=host)
+ec2conn = boto.connect_ec2(access_id, access_secret, region=region, port=8444)
 cf = OrdinaryCallingFormat()
 s3conn = S3Connection(id, pw, host=host, port=cumulusport, is_secure=False, calling_format=cf)
 
@@ -155,7 +160,6 @@ while instance.state != 'running':
 reservation.stop_all()
 
 </pre></div>
-</p>
 
 
 <a name="ec2-api-tools"> </a>
