@@ -80,6 +80,8 @@
                classpathref="nimbus.ctxbroker.classpath"
                classpath="${nimbus.ctxbroker.stubs.dist}/*jar"
                includeantruntime="false"
+               source="1.5"
+               target="1.5"
                debug="on">
 
             <include name="**/*.java"/>
@@ -130,6 +132,20 @@
          ******************************************************************* -->
 
     <target name="dist" depends="clean, jar" />
+
+
+    <!-- *******************************************************************
+         DEPLOY ONLY JARS (development target)
+         ******************************************************************* -->
+
+    <target name="justjars" depends="jar">
+        <echo message="Copying JARs: ${basedir}" />
+        <copy todir="${gt4_0.lib.dir}" >
+            <fileset dir="${nimbus.ctxbroker.dist.dir}">
+                  <include name="*.jar"/>
+            </fileset>
+        </copy>
+    </target>
 
 
     <!-- *******************************************************************

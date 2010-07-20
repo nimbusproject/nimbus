@@ -17,10 +17,12 @@
 package org.globus.workspace.cloud.client;
 
 import org.globus.workspace.client_core.StubConfigurator;
+import org.globus.workspace.client_core.utils.NimbusCredential;
 import org.globus.wsrf.impl.security.authorization.Authorization;
 import org.globus.wsrf.impl.security.authentication.Constants;
 import org.globus.axis.gsi.GSIConstants;
 import org.apache.axis.message.addressing.EndpointReferenceType;
+import org.ietf.jgss.GSSCredential;
 
 import javax.xml.rpc.Stub;
 
@@ -102,6 +104,11 @@ public class StubConf implements StubConfigurator {
 
         if (this.authorization != null) {
             stub._setProperty(Constants.AUTHORIZATION, this.authorization);
+        }
+
+        final GSSCredential usercred = NimbusCredential.getGSSCredential();
+        if (usercred != null) {
+            stub._setProperty(GSIConstants.GSI_CREDENTIALS, usercred);
         }
     }
 }

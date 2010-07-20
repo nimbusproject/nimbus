@@ -81,7 +81,7 @@ public class Cloud {
 
     //  CACHE FIELDS FOR DERIVED VALUES
     private String remoteUserBaseDir;
-    private GlobusCredential proxyUsed;
+    private GlobusCredential credentialUsed;
 
 
     /**
@@ -171,15 +171,15 @@ public class Cloud {
         return val;
     }
 
-    GlobusCredential getProxyBeingUsed() throws Exception {
-        if (this.proxyUsed != null) {
-            return this.proxyUsed;
+    GlobusCredential getCredentialBeingUsed() throws Exception {
+        if (this.credentialUsed != null) {
+            return this.credentialUsed;
         }
-        this.proxyUsed = GlobusCredential.getDefaultCredential();
-        if (this.proxyUsed == null) {
+        this.credentialUsed = CloudClientUtil.getActiveX509Credential(new Print());
+        if (this.credentialUsed == null) {
             throw new Exception("Could not find current credential");
         }
-        return this.proxyUsed;
+        return this.credentialUsed;
     }
 
     String getRemoteUserBaseDir() throws ExecutionProblem {
@@ -191,7 +191,7 @@ public class Cloud {
         Exception ex = null;
         String hash = null;
         try {
-            hash = SecurityUtil.hashGlobusCredential(this.getProxyBeingUsed(), null);
+            hash = SecurityUtil.hashGlobusCredential(this.getCredentialBeingUsed(), null);
         } catch (Exception e) {
             ex = e;
         }

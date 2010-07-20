@@ -53,3 +53,19 @@ h1, h2, h3
     margin-top: 1.5em;
     margin-bottom: 0.5em;
 }
+
+/* Nice shadow from http://www.sohtanaka.com/web-design/css-border-tricks-tutorial/ */
+.sidebox
+{
+    margin: 5px 18px 20px 10px;
+    padding: 5px 20px 10px 20px;
+    width: 240px;
+    height: 190px;
+    border: 2px solid #f0f0f0;
+    border-bottom: 3px solid #ccc;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+}
+
+

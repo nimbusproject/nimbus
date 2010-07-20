@@ -10,7 +10,7 @@ from django.db import IntegrityError
 from datetime import datetime
 from dateutil.relativedelta import *
 
-def create_web_user(username, email, cert_file, key_file, query_id, query_secret, cloudprop_file):
+def create_web_user(username, email, cert_file, key_file, query_canonical, query_id, query_secret, cloudprop_file):
     """Create user and return tuple: (error_msg, url)
     
     Quick and dirty translation method, couldn't use adminops directly.
@@ -24,6 +24,8 @@ def create_web_user(username, email, cert_file, key_file, query_id, query_secret
     * key_file -- key for X509 certificate, file on local FS, can
     not have password protection; optional
     
+    * query_canonical -- query canonical ID, optional 
+
     * query_id -- query ID, optional 
     
     * query_secret -- query secret, optional
@@ -101,6 +103,7 @@ def create_web_user(username, email, cert_file, key_file, query_id, query_secret
         profile.initial_login_key = token
         profile.cert = cert_content
         profile.certkey = key_content
+        profile.query_canonical = query_canonical
         profile.query_id = query_id
         profile.query_secret = query_secret
         profile.cloudprop_file = cloudprop_content

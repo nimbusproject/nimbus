@@ -545,6 +545,11 @@ class cbPutObject(cbRequest):
 
     def __init__(self, request, user, bucketName, objName, requestId, bucketIface):
         cbRequest.__init__(self, request, user, requestId, bucketIface)
+        ndx = objName.find("cumulus:/")
+        if ndx >= 0:
+            pycb.log(logging.ERROR, "someone tried to make a key named cumulus://... why would someone do that? %d" % (ndx))
+            raise cbException('InvalidURI')
+
         self.checkMD5 = None
         self.bucketName = bucketName
         self.objectName = objName

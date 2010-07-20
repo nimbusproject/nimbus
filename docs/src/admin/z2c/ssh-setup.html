@@ -1,5 +1,5 @@
 m4_include(/mcs/m4/worksp.lib.m4)
-_NIMBUS_HEADER(2.5RC1 Zero To Cloud Guide)
+_NIMBUS_HEADER(2.5RC2 Zero To Cloud Guide)
 _NIMBUS_HEADER2(n,n,y,n,n,n,n)
 _NIMBUS_LEFT2_COLUMN
 _NIMBUS_LEFT2_Z2C_SIDEBAR(y)
@@ -69,10 +69,10 @@ nimbus@service $ cat ./vmm1_rsa.pub >> .ssh/authorized_keys
 </p>
 
 
-<h3>Autoconfig script</h3>
+<h3>Autoconfig</h3>
 
 <p>
-    Nimbus includes an autoconfig script that checks for a properly functioning
+    Nimbus includes a configuration program that checks for a properly functioning
     SSH setup and configures your first VMM node into the service. The script
     is interactive and will go through a series of questions and tests before
     it makes any changes. If you make a mistake, just hit Ctrl-C and start
@@ -82,7 +82,7 @@ nimbus@service $ cat ./vmm1_rsa.pub >> .ssh/authorized_keys
 $ cd $NIMBUS_HOME
 </pre>
 <pre class="panel">
-$ ./services/share/nimbus-autoconfig/autoconfig.sh
+$ ./bin/nimbus-configure --autoconfig
 </pre>
 
 <p>

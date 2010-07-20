@@ -81,6 +81,8 @@
                destdir="${nimbus.messaging.gt4_0-elastic.build.dest}"
                classpathref="nimbus.messaging.gt4_0-elastic.classpath"
                includeantruntime="false"
+               source="1.5"
+               target="1.5"
                debug="on">
 
             <include name="**/*.java"/>

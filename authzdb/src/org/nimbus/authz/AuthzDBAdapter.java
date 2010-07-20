@@ -295,7 +295,6 @@ public class AuthzDBAdapter
             if(!rs.next())
             {
                 logger.debug("pstmt " + pstmt.toString());
-                pstmt.close();
                 throw new AuthzDBException("no such parent file found " + objectName + " " + objectType);
             }
             int objectId = rs.getInt(1);

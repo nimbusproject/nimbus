@@ -1,6 +1,7 @@
 from workspacecontrol.api.exceptions import *
 from commands import getstatusoutput
 import os
+import subprocess
 
 def _common_validation(p, c):
     # All of the following checks violate the "up front" validation philosophy
@@ -110,26 +111,31 @@ def setup(p, c, local_file_set, vmname):
             
             # DONE
             return local_file_set
-            
-    cmd = "%s %s add %s" % (sudo_path, tmplease_exe, vmname)
+    
+    args = [sudo_path, tmplease_exe, "add", vmname]
+    cmd = ' '.join(args)
     c.log.debug("command = '%s'" % cmd)
     if c.dryrun:
         c.log.debug("(dryrun, didn't run that)")
         return local_file_set
 
-    ret,output = getstatusoutput(cmd)
+    proc = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    (output,error) = proc.communicate()
+    ret = proc.wait()
     if ret:
         errmsg = "problem running command: '%s' ::: return code" % cmd
-        errmsg += ": %d ::: output:\n%s" % (ret, output)
+        errmsg += ": %d ::: error:\n%s\noutput:\n%s" % (ret, error, output)
         c.log.error(errmsg)
         raise UnexpectedError(errmsg)
         
     c.log.debug("leased tmp space physical partition successfully: %s" % cmd)
+    if error:
+        c.log.debug("STDERR output: %s" % error)
     c.log.debug("tmp space physical partition: %s" % output)
-    output="/dev/sdx1"
     if not output:
         raise UnexpectedError("no output from partition leasing")
         
+    output = output.strip()
     if not output.startswith("/dev/"):
         raise UnexpectedError("output from partition leasing does not start with '/dev/'")
         
@@ -169,5 +175,3 @@ def setup(p, c, local_file_set, vmname):
     new_local_file_set = local_file_set_cls(lfs)
     
     return new_local_file_set
-    
-    

@@ -69,6 +69,14 @@
                     </span>
                     {{ newuserform.key.errors }}
                 </div>
+                
+                <div class="frow">
+                    <label for="id_query_canonical" class="flabel">Canonical ID</label>
+                    <span class="finput">
+                    {{ newuserform.query_canonical }} (not required)
+                    </span>
+                    {{ newuserform.query_canonical.errors }}
+                </div>
 
                 <div class="frow">
                     <label for="id_query_id" class="flabel">Query ID</label>

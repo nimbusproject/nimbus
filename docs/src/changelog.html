@@ -17,7 +17,7 @@ _NIMBUS_2_5_DEPRECATED
 
 <a name="2.5"> </a>
 
-<h3>2.5RC1</h3>
+<h3>2.5RC2</h3>
 
 <i>Summary</i>
 <ul>
@@ -26,7 +26,7 @@ _NIMBUS_2_5_DEPRECATED
             <i>We are happy to announce the first version of Cumulus!</i>
         </p>
         <p>
-            Cumulus is a storage cloud implementation compatible with the Amazon Web Services S3 REST API (with small exceptions), it works seamlessy with S3 clients such as s3cmd, jets3t, and boto.  In addition, it offers extra functionality such as disk quota enforcement. 
+            Cumulus is a storage cloud implementation compatible with the Amazon Web Services S3 REST API (with small exceptions), it works seamlessly with S3 clients such as s3cmd, jets3t, and boto.  In addition, it offers extra functionality such as disk quota enforcement. 
         </p>
         <p>
             Cumulus replaces the current GridFTP-based upload and download of VM images: it integrates tightly in a Nimbus installation as the VM image repository solution.  And it can be also installed on its own to manage a storage cloud: a Nimbus IaaS installation needs Cumulus but not vice versa.
@@ -159,7 +159,11 @@ _NIMBUS_2_5_DEPRECATED
             <i>For developers</i>
         </p>
         <p>
-            Highlights for software developers include a new internal testing framework for the RM API and tight integration with IntelliJ IDEA if you use that IDE. 
+            Highlights for software developers include a new internal testing
+            framework for the RM API, tight integration with IntelliJ IDEA if
+            you use that IDE, a propagate-only mode (no VMM required), a way to
+            quickly overwrite just jar files in an installation, and better
+            tarball/release management.
         </p>
     </li>
 </ul>
@@ -183,6 +187,59 @@ _NIMBUS_2_5_DEPRECATED
         <p>
             <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7018">Enhancement 7018 - Installation produces a log file</a>
         </p>
+    </li>
+    <li>
+        <p>
+            Now works with relative and absolute paths and catches more
+            error/warning situations. (<b>New in RC2</b>)
+        </p>
+    </li>
+    <li>
+        <p>
+            The autoconfigure process is now an option of nimbus-configure (<b>New in RC2</b>).
+        </p>
+        <p>
+            See the installation guide for details.  The autoconfigure process
+            is also now more in line with the installation guide: it does less
+            so that it fits better in the guide's step by step instructions.
+        </p>
+    </li>
+    
+    <li>
+        <p>
+            <i>For Developers</i>
+        </p>
+        <ul>
+            <li>
+                <p>
+                    The build system now forces the Java pieces to be JRE 1.5
+                    compatible. (<b>New in RC2</b>)
+                </p>
+            </li>
+            <li>
+                <p>
+                    <i>scripts/check-jars.sh</i> makes it easy to check JRE 1.5
+                    compatibility on any directory of jars (including
+                    subdirectories).  For example, a Nimbus installation.
+                    (<b>New in RC2</b>)
+                </p>
+            </li>
+            <li>
+                <p>
+                    <i>scripts/jars-build-and-install.sh</i> (<b>New in RC2</b>)
+                </p>
+                <p>
+                    Lets you change Java source code and just build and install
+                    the jars and get the changes straight into an existing
+                    installation for immediate experimentation/testing.
+                </p>
+            </li>
+            <li>
+                <p>
+                    <i>scripts/make-dist-remote.sh</i> makes it easier to generate release and nightly tarballs and get them online with just one command. (<b>New in RC2</b>)
+                </p>
+            </li>
+        </ul>
     </li>
     <li>
         <p>
@@ -250,6 +307,36 @@ _NIMBUS_2_5_DEPRECATED
         </p>
         <p>
             There is sample help output and sample usages output in the comments of <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7035">Enhancement 7035 - new create-user process</a>  
+        </p>
+    </li>
+    <li>
+        <p>
+            <i>nimbus-reset-state program</i> (<b>New in RC2</b>)
+        </p>
+        <p>
+            The <i>nimbus-reset-state</i> program allows administrators to reset
+            long term accounting data, running state data that tracks the
+            cluster, and Cumulus users and files in bulk.
+        </p>
+        <p>
+            It is a destructive program, please read the help output carefully.
+            For safety, it includes an "are you sure?" prompt if you don't pass
+            it a "force" argument.
+        </p>
+        <p>
+            Addresses <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7021">Bug 7021</a>.
+        </p>
+    </li>
+    <li>
+        <p>
+            <i>nimbus-version program</i> (<b>New in RC2</b>)
+        </p>
+        <p>
+            The <i>nimbus-version</i> program allows you to examine/remember
+            the details of your installation.  A metadata file is inserted by
+            the release builder which records things like the exact version,
+            build date, and git commit identifier that the release was built
+            from.
         </p>
     </li>
     <li>
@@ -346,6 +433,13 @@ _NIMBUS_2_5_DEPRECATED
         <p>
             See: <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7066">Enhancement 7066 - Allow  VMs to use site DHCP server</a>
         </p>
+    </li>
+     <li>
+        <p>
+            The EC2 interfaces now return IP address as well as hostname 
+            (<b>New in RC2</b>).  This was a feature added to the EC2 protocol
+            API version 2009-07-15.  This addresses 
+            <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7073">Enhancement 7073</a>.
     </li>
     <li>
         <p>
@@ -572,6 +666,35 @@ _NIMBUS_2_5_DEPRECATED
             <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7065">Enhancement 7065 - better performing blankspace: physical partition leases</a>
         </p>
     </li>
+    
+    <li>
+        <p>
+            <i>For Developers</i>
+        </p>
+        <ul>
+            <li>
+                <p><i>Propagate-only mode</i> (<b>New in RC2</b>)</p>
+                <p>
+                    New propagation-only mode for workspace-control that helps
+                    with development and testing of fast/smart propagation
+                    techniques.  Does not require libvirt or any sudo
+                    privileges to work with the central Nimbus service and
+                    fully exercise propagation.
+                </p>
+                <p>
+                    See the embedded notes in the new 'src/propagate-only.sh'
+                    script in workspace-control.
+                </p>
+            </li>
+            <li>
+                <p>
+                    A workspace-control helper script <i>bin/fakesudo</i> makes
+                    it easier to work in situations where workspace-control is
+                    running entirely as root (not a normal situation).
+                </p>
+            </li>
+        </ul>
+    </li>
     <li>
         <p>
             <i>Bug Fixes</i>
@@ -616,6 +739,22 @@ _NIMBUS_2_5_DEPRECATED
     </li>
     <li>
         <p>
+            Added support for using unencrypted keys directly instead of 
+            needing to run proxy-init. (<b>New in RC2</b>)
+        </p>
+        <p>
+            The properties 'nimbus.cert' and 'nimbus.key' are consulted
+            first, then normal a grid proxy search is made, then ~/.nimbus is
+            consulted, then ~/.globus.  See the README for details.
+        </p>
+        <p>
+            This means one less user step in many of the common ways people use
+            the cloud client.  The new (optional) 'nimbus.cert' and
+            'nimbus.key' properties also makes toggling between clouds easier.
+        </p>
+    </li>
+    <li>
+        <p>
             Other enhancements can be viewed in the <a href="http://github.com/nimbusproject/nimbus/raw/master/cloud-client/nimbus-cloud-client-src/CHANGES.txt">cloud client changelog</a>.
         </p>
     </li>
@@ -635,6 +774,11 @@ _NIMBUS_2_5_DEPRECATED
         </p>
         <p>
             This will change to the commits between 2.4 and 2.5 when the final release happens.
+        </p>
+    </li>
+    <li>
+        <p>
+            Mainly for developers and testers, a <a href="changelog_supplement2.5rc2.html">list of fixes to 2.5RC1</a> that are included in 2.5RC2.
         </p>
     </li>
 </ul>

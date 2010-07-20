@@ -65,29 +65,6 @@ else
 
 fi
 
-if [ -e $HOME/.nimbus ]; then
-    if [ ! -d $HOME/.nimbus ]; then
-        echo "~/.nimbus exists but it is a regular file, not a directory."
-        echo "This installation program needs to create the directory ~/.nimbus."
-        echo "please rename your existing file"
-        exit 1
-    fi
-fi
-
-if [ ! -e $HOME/.nimbus ]; then
-    mkdir $HOME/.nimbus
-    if [ $? -ne 0 ]; then
-        echo "mkdir ~/.nimbus failed"
-        exit 1
-    fi
-fi
-if [ -e $HOME/.nimbus/cumulus.ini ]; then 
-    echo "----- WARNING -----"
-    bkup=$HOME/.nimbus/cumulus.ini.`date +%s`
-    echo "$HOME/.nimbus/cumulus.ini exists, moving it to $bkup"
-    mv $HOME/.nimbus/cumulus.ini $bkup
-fi
-
 cd $source_dir/deps
 if [ $? -ne 0 ]; then
     echo "Could not change to the deps directory"

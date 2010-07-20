@@ -1,5 +1,5 @@
 m4_include(/mcs/m4/worksp.lib.m4)
-_NIMBUS_HEADER(2.5RC1 Zero To Cloud Guide)
+_NIMBUS_HEADER(2.5RC2 Zero To Cloud Guide)
 _NIMBUS_HEADER2(n,n,y,n,n,n,n)
 _NIMBUS_LEFT2_COLUMN
 _NIMBUS_LEFT2_Z2C_SIDEBAR(y)
@@ -19,7 +19,7 @@ _NIMBUS_2_5_DEPRECATED
 <h3>Sun Java 1.5 or later</h3>
 <p>
     The <tt class="literal">java</tt> and <tt class="literal">javac</tt> commands should be on your path. You can check your
-    Java version with these command:
+    Java version with these commands:
 </p>
 <pre class="panel">
 $ java -version
@@ -31,6 +31,17 @@ $ javac -version
 </p>
 
 <h3>Python 2.5 or later</h3>
+<p>
+    You can check the version of your system Python with this command:
+</p>
+<pre class="panel">
+$ python --version
+</pre>
+<p>
+    If you cannot safely upgrade the system Python, you can use an alternate location such as
+    <tt class="literal">/usr/local/bin/python2.5</tt>.
+    You will have an opportunity to specify this alternate path during the service node install.
+</p>
 <p>
     Your Python must have support for <tt class="literal">sqlite 2</tt>, which is often installed separately, in a
     package called <tt class="literal">python-sqlite2</tt> (Redhat) or <tt class="literal">python-pysqlite2</tt>
@@ -50,30 +61,22 @@ $ python -c "import sqlite3"
     <tt class="literal">Twisted 10.0.0</tt>.
 </p>
 
+<p>
+    When going the GCC route you would also need the Python development 
+    package (<tt class="literal">python-dev</tt> in Debian) and the OpenSSL
+    development package (<tt class="literal">libssl-dev</tt> in Debian).
+</p>
+
         
 <h3>Apache Ant 1.6.2 or later</h3>
 <p>
     You must also have the <tt class="literal">propertyfile</tt> task available which
     is usually installed separately from Ant itself. On Redhat-compatible systems this is often a package called
-    <tt class="literal">ant-nodeps</tt>. On Debian/Ubuntu the package is <tt class="literal">ant-optional</tt>. You can
-    check your ant installation:
+    <tt class="literal">ant-nodeps</tt>. On Debian/Ubuntu the package is <tt class="literal">ant-optional</tt>.
+    To be sure, you can check for the presence of a library called <tt class="literal">ant-nodeps.jar</tt>
+    in your Ant installation.
 </p>
-<pre class="panel">
-$ ant -diagnostics
 
-------- Ant diagnostics report -------
-Apache Ant version 1.6.5
-
--------------------------------------------
- Implementation Version
--------------------------------------------
-core tasks     : 1.6.5
-optional tasks : 1.6.5
-...
-</pre>
-<p>
-    If the "optional tasks" line does not say "not available", you should have everything needed.
-</p>
 
 <p>
     If you have all of these dependencies, you can safely move on to the next section,

@@ -27,6 +27,7 @@
     <property environment="env"/>
     <property name="abs.deploy.dir"
               location="${env.GLOBUS_LOCATION}"/>
+    <property name="gt4_0.lib.dir" location="${abs.deploy.dir}/lib"/>
     <property name="build.packages"
               location="${nimbus.messaging.gt4_0.gar.build.packages.xml}"/>
 
@@ -135,10 +136,6 @@
                 <include name="*.jar"/>
                 <include name="*LICENSE*"/>
             </fileset>
-            <fileset dir="${nimbus.messaging.rest.dist.dir}">
-                <include name="*.jar"/>
-                <include name="*LICENSE*"/>
-            </fileset>
         </copy>
     </target>
 
@@ -156,9 +153,6 @@
         </copy>
         <copy todir="${nimbus.messaging.gt4_0.gar.build.etc.dir}">
             <fileset dir="${nimbus.messaging.query.etc.dir}" />
-        </copy>
-        <copy todir="${nimbus.messaging.gt4_0.gar.build.etc.dir}">
-            <fileset dir="${nimbus.messaging.rest.etc.dir}" />
         </copy>
         <copy todir="${nimbus.messaging.gt4_0.gar.build.etc.dir}">
             <fileset dir="${nimbus.messaging.gt4_0.gar.etc.dir}" />
@@ -223,6 +217,18 @@
         <antcall target="_dist" />
         <echo>Built: ${nimbus.messaging.gt4_0.gar.print-noun}
         </echo>
+    </target>
+
+    
+    <!-- *******************************************************************
+         DEPLOY ONLY JARS (development target)
+         ******************************************************************* -->
+
+    <target name="justjars" depends="lib_copies">
+        <echo message="Copying JARs: ${basedir}" />
+        <copy todir="${gt4_0.lib.dir}" >
+              <fileset refid="garjars" />
+        </copy>
     </target>
 
 

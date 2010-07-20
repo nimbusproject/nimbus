@@ -1,5 +1,5 @@
 m4_include(/mcs/m4/worksp.lib.m4)
-_NIMBUS_HEADER(2.5RC1 Bird's Eye View)
+_NIMBUS_HEADER(2.5RC2 Bird's Eye View)
 _NIMBUS_HEADER2(n,n,y,n,n,n,n)
 
 _NIMBUS_LEFT2_COLUMN
@@ -10,7 +10,7 @@ _NIMBUS_LEFT2_COLUMN_END
 _NIMBUS_CENTER2_COLUMN
 _NIMBUS_2_5_DEPRECATED
 
-<h2>Nimbus 2.5RC1 - Bird's Eye View</h2>
+<h2>Nimbus 2.5RC2 - Bird's Eye View</h2>
 
 <p>
     If you want to learn more about the concepts underlying Nimbus, see the
@@ -27,34 +27,39 @@ _NIMBUS_2_5_DEPRECATED
     "infrastructure-as-a-service" (IaaS) solution.
 </p>
 <p>
-    Nimbus 2.5RC1 consists of a piece of software for one
-    <i>service node</i> and a separate piece of software to install
-    on any number of <i>virtual machine monitor</i> (VMM) nodes.
+    Also included in a Nimbus installation is a storage cloud
+    implementation called Cumulus that has been tightly integrated with the
+    other central services (but it can also be used standalone). Cumulus is
+    compatible with the Amazon Web Services S3 REST API, but extends it as
+    well (to include quota management, for example).
 </p>
 <p>
-    There is also a separate download
-    for a special client called the <i>cloud client</i> that makes life
-    very easy for clients.  And another separate download, a special packaging
-    of a remote service container, to make life easier for administrators.
+    A set of software needs to be installed to one <i>service node</i> in
+    a non-root account and a separate piece of software needs to be 
+    installed on any number of <i>virtual machine monitor</i> (VMM) nodes
+    (some root permissions are required).
 </p>
 <p>
-    Clients interact with the service using X509 credentials over multiple
+    There is also a separate download for a client called the <i>cloud
+    client</i> that makes life very easy for users.
+</p>
+<p>
+    Clients interact with the service using credentials over multiple
     protocols.  The easiest client to use is the <i>cloud client</i>
     (<a href="clouds/cloudquickstart.html">details</a>) which
     is geared towards getting users up and running in minutes.  The service
-    must be configured in the <i>cloud configuration</i>
-    (<a href="doc/cloud.html">details</a>) to serve requests from the
-    cloud client.  These clients implement web services messaging (specifically
+    must be configured in the <a href="admin/z2c/">cloud configuration</a>
+    to serve requests from the cloud client.  These clients implement web
+    services messaging (specifically
     <a href="http://www.oasis-open.org/committees/tc_home.php?wg_abbrev=wsrf">WSRF</a> based).
 </p>
 <p>
-    But Nimbus 2.5RC1 also provides an implementation of the Amazon Elastic
-    Compute Cloud (EC2) web services description (WSDL) that allows you
-    to use clients developed for the real EC2 system against Nimbus
-    based clouds. 
+    But Nimbus also provides an implementation of Amazon's Elastic
+    Compute Cloud (EC2) that allows you to use clients developed for the real
+    EC2 system against Nimbus based clouds.  See the <a href="elclients.html">EC2 Clients</a> page.
 </p>
 <p>
-    You can examine the 2.5RC1 WSRF based interfaces in detail in the
+    You can examine the web services based interface details in the
     <a href="interfaces/index.html">WSRF interfaces</a> section.
 </p>
 <p>
@@ -71,10 +76,6 @@ _NIMBUS_2_5_DEPRECATED
     Download the software from the
     <a href="_NIMBUS_WEBSITE/downloads/">downloads</a> page, peruse the
     <a href="changelog.html">changelog</a>.
-</p>
-
-<p>
-    And see the links on the left for more information.
 </p>
 
 

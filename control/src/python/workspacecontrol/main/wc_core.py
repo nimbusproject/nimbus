@@ -7,6 +7,7 @@ import wc_core_creation
 import wc_core_persistence
 import wc_core_propagation
 import wc_deprecated
+import workspacecontrol.experimental.tmplease as tmplease
 from workspacecontrol.main import get_class_by_keyword, get_all_configs, ACTIONS
 import workspacecontrol.main.wc_args as wc_args
     
@@ -213,6 +214,8 @@ def _core(vm_name, action, p, c):
         
         vacate_networking(c, netbootstrap, netsecurity, netlease, vm_name, nic_set, persistence)
         c.log.info("vacated '%s' from workspace-control (networking)" % vm_name)
+        
+        vacate_tmplease(p, c, vm_name)
                 
         # If deleteall is not requested, the VM will now be moved back to
         # 'propagated' from the service's perspective.  There is no other
@@ -389,6 +392,21 @@ def vacate_networking(c, netbootstrap, netsecurity, netlease, vm_name, nic_set, 
     
     persistence.remove_nic_set(vm_name)
     c.log.debug("removed VM from persistence")
+
+def vacate_tmplease(p, c, vm_name):
+    
+    try:
+        tmplease.teardown(p, c, vm_name)
+        c.log.debug("removed tmplease, if any")
+    except:
+        exception_type = sys.exc_type
+        try:
+            exceptname = exception_type.__name__ 
+        except AttributeError:
+            exceptname = exception_type
+        errstr = "Possible issue with tmpplease teardown: %s: %s" % (str(exceptname), str(sys.exc_value))
+        c.log.error(errstr)
+    
 
 # -----------------------------------------------------------------------------
 # GLOBAL VALIDATIONS

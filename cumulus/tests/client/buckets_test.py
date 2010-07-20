@@ -242,3 +242,19 @@ class TestBucketsWithBoto(unittest.TestCase):
             passed = True
         self.assertTrue(passed, "failed! bucket should already be gone")
 
+    def test_bad_key_name(self):
+        conn = pycb.test_common.cb_get_conn(self.host, self.port, self.id, self.pw)
+        (bucketname,bucket) = self.create_bucket(conn)
+        key = "cumulus://BADME"
+        k = boto.s3.key.Key(bucket)
+        k.key = key
+        try:
+            k.set_contents_from_filename("/etc/group")
+            passed = False
+        except:
+            passed = True
+        rs = bucket.list()
+        for key in rs:
+            print key.name
+
+        self.assertTrue(passed, "failed! that key name should be be allowed")

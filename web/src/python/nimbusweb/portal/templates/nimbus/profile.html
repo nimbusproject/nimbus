@@ -103,10 +103,9 @@
                 client (or name it something different and use the --conf
                 argument).
             </p>
-            <div class="lrow">
-                <span class="flabel">cloud.properties</span>
+            <p>
                 <a href="cloud.properties">cloud.properties</a>
-            </div>
+            </p>
         </div>
         {% endif %}
 
@@ -126,7 +125,11 @@
             </p>
             {% endif %}
             <div class="lrow" id="accesskey">
-                <span class="flabel">Key</span>
+                <span class="flabel">Canonical</span>
+                <span class="copybox">{{ canonical_id }}</span>
+            </div>
+            <div class="lrow" id="accesskey">
+                <span class="flabel">User ID</span>
                 <span class="copybox">{{ access_key }}</span>
             </div>
             <div class="lrow" id="accesssecret">

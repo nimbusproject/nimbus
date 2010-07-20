@@ -1,5 +1,5 @@
 m4_include(/mcs/m4/worksp.lib.m4)
-_NIMBUS_HEADER(2.5RC1 Zero To Cloud Guide)
+_NIMBUS_HEADER(2.5RC2 Zero To Cloud Guide)
 _NIMBUS_HEADER2(n,n,y,n,n,n,n)
 _NIMBUS_LEFT2_COLUMN
 _NIMBUS_LEFT2_Z2C_SIDEBAR(y)
@@ -78,11 +78,11 @@ pub04 192.168.0.4 192.168.0.1 192.168.0.255 255.255.255.0
         MAC to IP mappings. This is generally simpler to set up and is covered in this guide.
     </li>
     <li>
-        Per-VMM -- a DHCP server installed on every VMM node and automatically configured
+        Local -- a DHCP server is installed on every VMM node and automatically configured
         with the appropriate addresses just before a VM boots. This is more complicated to
         set up initially but can be preferable in certain scenarios. It is however out of
         the scope of this guide. For details, see
-        <a href="../reference.html#vmm-dhcp">this section</a> of the reference guide.
+        <a href="../reference.html#backend-config-invm-networking">this section</a> of the reference guide.
     </li>
 </ol>
 <p>
@@ -149,8 +149,14 @@ $ nimbusctl services restart
 </p>
 
 <pre class="panel">
-include "/path/to/dhcp.entries";
+include "/path/to/dhcpd.entries";
 </pre>
+
+<p>
+    On some systems, such as Ubuntu, you may need to copy the <tt class="literal">dhcpd.entries</tt>
+    file to the DHCP configuration directory (<tt class="literal">/etc/dhcp3</tt>) as the daemon
+    will not read from other locations.
+</p>
 
 <p>
     Alternatively you can paste the contents of that file directly inline, or use a script to

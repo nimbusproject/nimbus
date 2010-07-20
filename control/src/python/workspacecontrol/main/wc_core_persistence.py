@@ -115,3 +115,55 @@ class Persistence:
             raise UnexpectedError("The persistence file is an invalid path: '%s'" % path)
         return path
 
+
+    # ---------------------------------------------
+    
+    def get_mock_vm(self, vm_name):
+        if not self.pdir:
+            raise ProgrammingError("cannot use persistence without setup/validation")
+        
+        pobject = self._derive_mock_filepath(vm_name)
+        if not os.path.exists(pobject):
+            return None
+            
+        f = None
+        try:
+            f = open(pobject, 'r')
+            x = pickle.load(f)
+            return x
+        finally:
+            if f:
+                f.close()
+
+    def _derive_mock_filepath(self, vm_name):
+        if not vm_name:
+            raise ProgrammingError("no vm_name")
+        path = os.path.join(self.pdir, vm_name + "-mockinfo")
+        if path.find("..") != -1:
+            raise UnexpectedError("The persistence file is an invalid path: '%s'" % path)
+        return path
+
+    def store_mock_vm(self, vm_name, mockinfo):
+        if not self.pdir:
+            raise ProgrammingError("cannot persist anything without setup/validation")
+            
+        if not mockinfo:
+            raise ProgrammingError("no mockinfo")
+            
+        pobject = self._derive_mock_filepath(vm_name)
+        
+        f = None
+        try:
+            f = open(pobject, 'w')
+            pickle.dump(mockinfo, f)
+        finally:
+            if f:
+                f.close()
+
+    def remove_mock_vm(self, vm_name):
+        if not self.pdir:
+            raise ProgrammingError("cannot use persistence without setup/validation")
+        pobject = self._derive_mock_filepath(vm_name)
+        if not os.path.exists(pobject):
+            return
+        os.remove(pobject)

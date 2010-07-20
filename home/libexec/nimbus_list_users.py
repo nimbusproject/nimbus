@@ -22,9 +22,10 @@ from pynimbusauthz.user import *
 import logging
 import shlex
 from nimbusweb.setup.setuperrors import *
+from nimbusweb.setup.groupauthz import *
 
 g_created_cert_files=False
-g_report_options = ["dn", "canonical_id", "access_id", "access_secret", "display_name"]
+g_report_options = ["dn", "canonical_id", "access_id", "access_secret", "display_name", "group"]
 
 class printer_obj(object):
     def __init__(self):
@@ -74,9 +75,16 @@ def report_results(db, user, opts):
 
     dnu = user.get_alias_by_friendly(o.display_name, pynimbusauthz.alias_type_x509)
     if dnu != None:
+        nh = get_nimbus_home()
+        groupauthz_dir = os.path.join(nh, "services/etc/nimbus/workspace-service/group-authz/")
         o.dn = dnu.get_name()
+        group = find_member(groupauthz_dir, o.dn)
+        o.group = None
+        if group != None:
+            o.group = group.group_id
     else:
         o.dn = None
+        o.group = None
     o.canonical_id = user.get_id()
 
     s3u = user.get_alias_by_friendly(o.display_name, pynimbusauthz.alias_type_s3)

@@ -7,6 +7,7 @@ import org.globus.workspace.WorkspaceException;
 import org.globus.workspace.groupauthz.DecisionLogic;
 import org.globus.workspace.groupauthz.GroupRights;
 import org.globus.workspace.persistence.WorkspaceDatabaseException;
+import org.globus.workspace.service.binding.authorization.Decision;
 import org.globus.workspace.service.binding.vm.VirtualMachinePartition;
 import org.nimbustools.api.services.rm.AuthorizationException;
 import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
@@ -16,6 +17,7 @@ import org.nimbus.authz.AuthzDBException;
 
 import javax.sql.DataSource;
 import java.io.File;
+import java.net.URI;
 
 /**
  * Created by John Bresnahan
@@ -34,10 +36,16 @@ public class AuthzDecisionLogic extends DecisionLogic
     private String                      repoScheme = null;
     private String                      repoHost = null;
     private String                      repoDir = null;
+    private boolean                     schemePassthrough;
+
     public  AuthzDecisionLogic(
-        DataSource ds)
+        DataSource ds,
+        String schemePassthroughStr)
     {
         this.authDB = new AuthzDBAdapter(ds);
+        this.schemePassthrough =
+                schemePassthroughStr != null
+                    && schemePassthroughStr.trim().equalsIgnoreCase("true");
     }
 
     public String translateExternaltoInternal(
@@ -98,7 +106,7 @@ public class AuthzDecisionLogic extends DecisionLogic
         }
         catch(AuthzDBException wsdbex)
         {
-            logger.error("iternal db problem", wsdbex);
+            logger.error("internal db problem", wsdbex);
             throw new AuthorizationException("Internal problem with the data base " + wsdbex.toString()); 
         }
     }
@@ -204,8 +212,13 @@ public class AuthzDecisionLogic extends DecisionLogic
                 }
             }            
 
-            logger.debug("Image " + incomingImageName + " requested");
-            logger.debug("Unprop image " + unPropImageName + " requested");
+            if (different_target) {
+                logger.debug("Image '" + incomingImageName + "' requested, unpropagation " +
+                        "image is different: '" + unPropImageName + "'");
+            } else {
+                logger.debug("Image '" + incomingImageName + "' requested (unprop is same)");
+            }
+            
             try
             {
                 // see if we are allowed to read the image
@@ -319,6 +332,10 @@ public class AuthzDecisionLogic extends DecisionLogic
         {
             return 0;
         }
+        else if (this.schemePassthrough)
+        {
+            return 0;
+        }
         else
         {
             throw new ResourceRequestDeniedException("scheme of: " + scheme + " is not supported.");
@@ -371,6 +388,11 @@ public class AuthzDecisionLogic extends DecisionLogic
             {
                 schemeType = AuthzDBAdapter.OBJECT_TYPE_S3;
                 int [] fileIds = this.cumulusGetFileID(hostport, objectName);
+                if (fileIds[1] < 0) {
+                    throw new WorkspaceException("Unpropagation target was not prepared " +
+                            "correctly in the database, cannot unpropagate.");
+                }
+
                 String datakey = authDB.getDataKey(fileIds[1]);
 
                 // need to calculate the md5sum and set the size
@@ -388,7 +410,10 @@ public class AuthzDecisionLogic extends DecisionLogic
                     boolean hasRoom = authDB.canStore(sizeDiff, canUser, schemeType);
                     if(!hasRoom)
                     {
-                        logger.error("FOR TIMF callout happens here");
+                        logger.error("Client exceeded quota on this unpropagation, this can " +
+                                "happen if they chose to unpropagate an image that is bigger " +
+                                "than the one propagated. We are letting this one slide to " +
+                                "avoid data loss (user '" + canUser + "').");
                     }
                 }
 
@@ -407,5 +432,33 @@ public class AuthzDecisionLogic extends DecisionLogic
         {
             throw new WorkspaceException("Workspace database exception occured ", wsdbex);
         }
+    }
+
+    public Integer checkNewAltTargetURI(
+        GroupRights rights,
+        URI altTargetURI,
+        String dn)
+            throws AuthorizationException
+    {
+
+        final String unPropImageName = altTargetURI.toASCIIString();
+        try
+        {
+            // if unpropagting, see if we are allowed to write to the unprop name
+            checkUrl(unPropImageName, dn, true, 0);
+        }
+        catch (WorkspaceDatabaseException e)
+        {
+            final String msg = "ERROR: Partition in " +
+                "binding is not a valid URI? Can't make decision. " +
+                    " Error message: " + e.getMessage();
+            logger.error(msg, e);
+            throw new AuthorizationException(msg);
+        } catch (ResourceRequestDeniedException e) {
+            logger.error(e.getMessage());
+            return Decision.DENY;
+        }
+
+        return Decision.PERMIT;
     }
 }

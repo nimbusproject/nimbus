@@ -1,5 +1,5 @@
 m4_include(/mcs/m4/worksp.lib.m4)
-_NIMBUS_HEADER(2.5RC1 Zero To Cloud Guide)
+_NIMBUS_HEADER(2.5RC2 Zero To Cloud Guide)
 _NIMBUS_HEADER2(n,n,y,n,n,n,n)
 _NIMBUS_LEFT2_COLUMN
 _NIMBUS_LEFT2_Z2C_SIDEBAR(y)
@@ -44,13 +44,13 @@ _NIMBUS_2_5_DEPRECATED
 </p>
 
 <pre class="panel">
-$ wget http://www.nimbusproject.org/downloads/nimbus-2.5RC1-src.tar.gz
+$ wget http://www.nimbusproject.org/downloads/nimbus-2.5RC2-src.tar.gz
 </pre>
 <pre class="panel">
-$ tar xfz nimbus-2.5RC1-src.tar.gz
+$ tar xfz nimbus-2.5RC2-src.tar.gz
 </pre>
 <pre class="panel">
-$ cd nimbus-2.5RC1-src/
+$ cd nimbus-2.5RC2-src/
 </pre>
 
 <p>
@@ -138,9 +138,9 @@ $ cd $NIMBUS_HOME
 </pre>
 <pre class="panel">
 $ ls bin/
-nimbus-configure    nimbus-new-cert     nimbusctl
-nimbus-edit-user    nimbus-new-user
-nimbus-list-users   nimbus-remove-user
+nimbus-configure   nimbus-new-cert     nimbus-reset-state
+nimbus-edit-user   nimbus-new-user     nimbus-version
+nimbus-list-users  nimbus-remove-user  nimbusctl
 </pre>
 
 <p>
@@ -157,7 +157,7 @@ Launching Cumulus services...  OK
 <p>
     If one or both services fail to start, you should take a look at the appropriate
     log file. For Nimbus services, check <tt class="literal">var/services.log</tt>.
-    For Cumulus, look in <tt class="literal">cumulus/log/cumulus.log</tt>.
+    For Cumulus, look in <tt class="literal">var/cumulus.log</tt>.
 </p>
 
 <h3>Create first user</h3>
@@ -198,30 +198,29 @@ cloud properties : /tmp/newuser/cloud.properties
     (version must be >= 16).
 </p>
 <pre class="panel">
-$ wget http://www.nimbusproject.org/downloads/nimbus-cloud-client-016.tar.gz
+$ wget http://www.nimbusproject.org/downloads/nimbus-cloud-client-016RC2.tar.gz
 </pre>
 <pre class="panel">
-$ tar xfz nimbus-cloud-client-016.tar.gz
+$ tar xfz nimbus-cloud-client-016RC2.tar.gz
 </pre>
 
-<!-- maybe just direct to run grid-proxy-init later with specific -cert and -key options and forget about ~/.globus? -->
 <p>
     Now you need to install the files produced earlier by
     <tt class="literal">nimbus-new-user</tt>. The <tt class="literal">cloud.properties</tt>
     file needs to be placed into the extracted cloud client's <tt class="literal">conf/</tt>
     directory. The <tt class="literal">usercert.pem</tt> and
     <tt class="literal">userkey.pem</tt> files need to be installed into
-    <tt class="literal">~/.globus/</tt> in your home directory. Be careful not to overwrite
-    any credentials you already have in <tt class="literal">~/.globus/</tt>.
+    <tt class="literal">~/.nimbus/</tt> in your home directory. Be careful not to overwrite
+    any credentials you already have in <tt class="literal">~/.nimbus/</tt>.
 </p>
 <pre class="panel">
 $ cp /tmp/newuser/cloud.properties nimbus-cloud-client/conf/
 </pre>
 <pre class="panel">
-$ mkdir ~/.globus/
+$ mkdir ~/.nimbus/
 </pre>
 <pre class="panel">
-$ cp /tmp/newuser/*.pem ~/.globus/
+$ cp /tmp/newuser/*.pem ~/.nimbus/
 </pre>
 
 <p>
@@ -240,21 +239,15 @@ $ cp $NIMBUS_HOME/var/ca/trusted-certs/* nimbus-cloud-client/lib/certs/
 </pre>
 
 <h3>Try it out!</h3>
+
 <p>
-    Now we have what should be a working client and are ready to test the service. The first step
-    is to initialize the grid proxy.
+    First we will attempt to query the service. This command shows the running VMs that you own.
+    Of course you do not have any at this point, but this can help to diagnose any configuration
+    or security problems.
 </p>
 <pre class="panel">
 $ cd nimbus-cloud-client/
 </pre>
-<pre class="panel">
-$ ./bin/grid-proxy-init.sh
-</pre>
-<p>
-    Next we will attempt to query the service. This command shows the running VMs that you own.
-    Of course you do not have any at this point, but this can help to diagnose any configuration
-    or security problems.
-</p>
 <pre class="panel">
 $ ./bin/cloud-client.sh --status
 

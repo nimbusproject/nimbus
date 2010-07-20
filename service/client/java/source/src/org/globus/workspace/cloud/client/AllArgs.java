@@ -96,6 +96,9 @@ public class AllArgs {
     private String xferS3ID;
     private String xferS3Key;
     private String xferS3BaseKey;
+    private String xferS3Https;
+    private String xferS3AllowSelfSigned;
+    private String xferCanonicalID;
     private String s3Bucket;
     private String gridftpID;
     private String handle;
@@ -105,6 +108,8 @@ public class AllArgs {
     private String initCtxDir;
     private String kernel;
     private String localfile;
+    private String nimbusCertFile;
+    private String nimbusKeyFile;
     private int memory;
     private int cores = -1;
     private String name;
@@ -640,6 +645,30 @@ public class AllArgs {
                          sourceName);
         }
 
+        if(this.xferCanonicalID == null) {
+            this.xferCanonicalID =
+                    CloudClientUtil.getProp(props, Props.KEY_CANONICAL_ID);
+            this.gotProp(Props.KEY_CANONICAL_ID,
+                         this.xferCanonicalID,
+                         sourceName);
+        }
+
+        if(this.xferS3AllowSelfSigned == null) {
+            this.xferS3AllowSelfSigned =
+                    CloudClientUtil.getProp(props, Props.KEY_S3_ALLOW_SELF_SIGNED);
+            this.gotProp(Props.KEY_S3_ALLOW_SELF_SIGNED,
+                         this.xferS3AllowSelfSigned,
+                         sourceName);
+        }
+
+        if (this.xferS3Https == null) {
+            this.xferS3Https =
+                    CloudClientUtil.getProp(props, Props.KEY_S3_HTTPS);
+            this.gotProp(Props.KEY_S3_HTTPS,
+                         this.xferS3Https,
+                         sourceName);
+        }
+
         if (this.xferS3ID == null) {
             this.xferS3ID =
                     CloudClientUtil.getProp(props, Props.KEY_S3_ID);
@@ -838,6 +867,24 @@ public class AllArgs {
             }
         }
 
+        if (this.nimbusCertFile == null) {
+            final String key = Props.KEY_NIMBUS_CERT;
+            final String val = CloudClientUtil.getProp(props, key);
+            if (val != null) {
+                this.nimbusCertFile = val;
+                this.gotProp(key, val, sourceName);
+            }
+        }
+
+        if (this.nimbusKeyFile == null) {
+            final String key = Props.KEY_NIMBUS_KEY;
+            final String val = CloudClientUtil.getProp(props, key);
+            if (val != null) {
+                this.nimbusKeyFile = val;
+                this.gotProp(key, val, sourceName);
+            }
+        }
+
         // ----
 
         if (this.metadata_association == null) {
@@ -1027,6 +1074,32 @@ public class AllArgs {
     public void setXferType(String xferType) {
         this.xferType = xferType;
     }
+
+    public String getXferCanonicalID() {
+        return this.xferCanonicalID;
+    }
+
+    public void setXferCanonicalID(String xferCanonicalID) {
+        this.xferCanonicalID = xferS3AllowSelfSigned;
+    }
+    
+
+    public String getXferS3AllowSelfSigned() {
+        return this.xferS3AllowSelfSigned;
+    }
+
+    public void setXferS3AllowSelfSigned(String xferS3AllowSelfSigned) {
+        this.xferS3AllowSelfSigned = xferS3AllowSelfSigned;
+    }
+
+    public String getXferS3Https() {
+        return this.xferS3Https;
+    }
+
+    public void setXferS3Https(String xferS3Https) {
+        this.xferS3Https = xferS3Https;
+    }
+
 
     public String getXferS3ID() {
         return this.xferS3ID;
@@ -1390,5 +1463,21 @@ public class AllArgs {
 
     public void setBrokerLocalNicPrefix(String brokerLocalNicPrefix) {
         this.brokerLocalNicPrefix = brokerLocalNicPrefix;
+    }
+
+    public String getNimbusCertFile() {
+        return nimbusCertFile;
+    }
+
+    public void setNimbusCertFile(String nimbusCertFile) {
+        this.nimbusCertFile = nimbusCertFile;
+    }
+
+    public String getNimbusKeyFile() {
+        return nimbusKeyFile;
+    }
+
+    public void setNimbusKeyFile(String nimbusKeyFile) {
+        this.nimbusKeyFile = nimbusKeyFile;
     }
 }

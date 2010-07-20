@@ -40,6 +40,8 @@ echo ""
 echo "Creating Cumulus repository with the following commands:"
 echo ""
 
+export CUMULUS_SETTINGS_FILE=$NIMBUS_HOME/cumulus/etc/cumulus.ini
+
 REPOCMD1="$NIMBUS_HOME/bin/nimbusctl cumulus start"
 REPOCMD2="$NIMBUS_HOME/ve/bin/cumulus-create-repo-admin nimbusadmin@${CUMULUS_HOST} $CUMULUS_REPO_BUCKET"
 REPOCMD3="$NIMBUS_HOME/bin/nimbusctl cumulus stop"
@@ -68,21 +70,22 @@ if [ $? -ne 0 ]; then
 fi
 
 echo ""
+GUIDEURL=`$NIMBUS_HOME/bin/nimbus-version --guide`
+if [ $? -ne 0 ]; then
+    GUIDEURL="Development mode: no guide url"
+fi
+
 echo ""
 echo "-----------------------------------------------------------------"
 echo " Nimbus installation succeeded!"
 echo "-----------------------------------------------------------------"
 echo ""
-echo "However, additional configuration may be necessary:"
+echo "Additional configuration may be necessary, refer to this URL for information:"
 echo ""
-echo "    To run the auto-configuration program, launch:"
-echo "        $NIMBUS_HOME/services/share/nimbus-autoconfig/autoconfig.sh"
-echo ""
-
-echo "Refer to the Administrator Guide for details:"
-echo "    http://www.nimbusproject.org/docs/2.5/admin/"
+echo "    $GUIDEURL"
 echo ""
 echo "You can start/stop Nimbus services with the nimbusctl command. e.g:"
+echo ""
 echo "    $NIMBUS_HOME/bin/nimbusctl start"
 echo ""
 

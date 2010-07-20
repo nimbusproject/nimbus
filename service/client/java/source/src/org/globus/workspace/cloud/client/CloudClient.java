@@ -27,6 +27,7 @@ import org.globus.workspace.client_core.ParameterProblem;
 import org.globus.workspace.client_core.actions.Status_QueryAll;
 import org.globus.workspace.client_core.print.PrCodes;
 import org.globus.workspace.client_core.repr.Workspace;
+import org.globus.workspace.client_core.utils.NimbusCredential;
 import org.globus.workspace.cloud.client.cluster.ClusterMember;
 import org.globus.workspace.cloud.client.cluster.ClusterUtil;
 import org.globus.workspace.cloud.client.cluster.KnownHostsTask;
@@ -36,8 +37,6 @@ import org.globus.workspace.cloud.client.security.TrustedCAs;
 import org.globus.workspace.cloud.client.util.CloudClientUtil;
 import org.globus.workspace.cloud.client.util.DeploymentXMLUtil;
 import org.globus.workspace.cloud.client.util.ExecuteUtil;
-import org.globus.workspace.cloud.client.util.GridFTPRepositoryUtil;
-import org.globus.workspace.cloud.client.util.CumulusRepositoryUtil;
 import org.globus.workspace.cloud.client.util.RepositoryInterface;
 import org.globus.workspace.cloud.client.util.FileListing;
 import org.globus.workspace.cloud.client.util.HistoryUtil;
@@ -88,7 +87,7 @@ public class CloudClient {
     private final Print print;
 
     /* derived */
-    private GlobusCredential proxyUsed;
+    private GlobusCredential x509Used;
     private String specificEPRpath;
     private String[] trustedCertDirs;
     private String workspaceFactoryURL;
@@ -304,7 +303,17 @@ public class CloudClient {
             repoType = "gridftp";
         }
         this.repoUtil = CloudClientUtil.getRepoUtil(repoType, this.args, this.print);
+
         try {
+            final String credPath = this.args.getNimbusCertFile();
+            if (credPath != null) {
+                NimbusCredential.setNimbusCredentialPath(credPath);
+            }
+            final String keyPath = this.args.getNimbusKeyFile();
+            if (keyPath != null) {
+                NimbusCredential.setNimbusUnencryptedKeyPath(keyPath);
+            }
+            
             this.parameterCheck();
         } catch (Exception e) {
             throw new ParameterProblem(e.getMessage(), e);
@@ -471,8 +480,6 @@ public class CloudClient {
 
     void parameterCheck_list() throws ParameterProblem {
 
-        CloudClientUtil.checkGSICredential("Image listing");
-        
         this.repoUtil.paramterCheck(this.args, Opts.LIST_OPT_STRING);
     }
 
@@ -484,9 +491,9 @@ public class CloudClient {
     }
 
     void parameterCheck_securityPrint() throws ParameterProblem {
-        CloudClientUtil.checkGSICredential("Security printing");
+        CloudClientUtil.checkX509Credential("Security printing", this.print);
         try {
-            getProxyBeingUsed();
+            loadX509BeingUsed();
         } catch (Exception e) {
             throw new ParameterProblem(e.getMessage());
         }
@@ -505,7 +512,7 @@ public class CloudClient {
         }
 
         final String actionString = "Terminating";
-        CloudClientUtil.checkGSICredential(actionString);
+        CloudClientUtil.checkX509Credential(actionString, this.print);
         this._translateHandle(actionString);
         this._checkSpecificEPR(actionString);
     }
@@ -520,7 +527,7 @@ public class CloudClient {
         }
 
         final String actionString = "Checking status";
-        CloudClientUtil.checkGSICredential(actionString);
+        CloudClientUtil.checkX509Credential(actionString, this.print);
         this._translateHandle(actionString);
 
         if (this.args.getHistorySubDir() != null ||
@@ -541,7 +548,7 @@ public class CloudClient {
         }
 
         final String actionString = "Printing ctx status of each node";
-        CloudClientUtil.checkGSICredential(actionString);
+        CloudClientUtil.checkX509Credential(actionString, this.print);
         this._translateHandle(actionString);
 
         if (this.args.getHistorySubDir() != null ||
@@ -557,7 +564,7 @@ public class CloudClient {
 
     void parameterCheck_assocquery() throws ParameterProblem {
         final String actionString = "Querying networks";
-        CloudClientUtil.checkGSICredential(actionString);
+        CloudClientUtil.checkX509Credential(actionString, this.print);
         this._checkServiceURL(actionString);
     }
 
@@ -570,7 +577,6 @@ public class CloudClient {
         }
 
         final String actionString = "Saving";
-        CloudClientUtil.checkGSICredential(actionString);
         this._translateHandle(actionString);
         this._checkSpecificEPR(actionString);
         this.repoUtil.paramterCheck(this.args, actionString);
@@ -592,10 +598,6 @@ public class CloudClient {
 
     void parameterCheck_targetPrint() throws ParameterProblem {
 
-        CloudClientUtil.checkGSICredential("Target printing " +
-                              " (because target path is partially derived " +
-                                      "from your credential).");
-        
         this.repoUtil.paramterCheck(this.args, Opts.TARGETDIR_OPT_STRING);
 
         final String sourcefile = this.args.getSourcefile();
@@ -609,8 +611,6 @@ public class CloudClient {
     }
 
     void parameterCheck_transfer() throws ParameterProblem {
-
-        CloudClientUtil.checkGSICredential("Transferring");
 
         this.repoUtil.paramterCheck(this.args, Opts.TRANSFER_OPT_STRING);
 
@@ -626,8 +626,6 @@ public class CloudClient {
 
     void parameterCheck_delete() throws ParameterProblem {
 
-        CloudClientUtil.checkGSICredential("Deleting");
-
         this.repoUtil.paramterCheck(this.args, Opts.DELETE_OPT_STRING);
 
         final String name = this.args.getName();
@@ -639,8 +637,6 @@ public class CloudClient {
     }
 
     void parameterCheck_download() throws ParameterProblem {
-
-        CloudClientUtil.checkGSICredential("Downloading");
 
         this.repoUtil.paramterCheck(this.args, Opts.DOWNLOAD_OPT_STRING);
 
@@ -765,7 +761,7 @@ public class CloudClient {
 
     void _parameterCheck_runcommon() throws ParameterProblem {
 
-        CloudClientUtil.checkGSICredential("Running");
+        CloudClientUtil.checkX509Credential("Running", this.print);
 
         this._checkServiceURL(Opts.RUN_OPT_STRING);
 
@@ -848,8 +844,8 @@ public class CloudClient {
     }
 
     void _parameterCheck_initContext() throws ParameterProblem {
-        CloudClientUtil.checkGSICredential("Context init helper (which talks to the " +
-                "context broker)");
+        CloudClientUtil.checkX509Credential("Context init helper (which talks to the " +
+                "context broker)", this.print);
 
         if (this.args.getInitCtxDir() == null) {
             throw new ParameterProblem("Must specify ctx output directory");
@@ -858,8 +854,8 @@ public class CloudClient {
 
     void _parameterCheck_runec2cluster() throws ParameterProblem {
 
-        CloudClientUtil.checkGSICredential("EC2 cluster helper (which talks to the " +
-                "context broker)");
+        CloudClientUtil.checkX509Credential("EC2 cluster helper (which talks to the " +
+                "context broker)", this.print);
 
         final String brokerURL = this.args.getBrokerURL();
         if (brokerURL == null) {
@@ -1155,12 +1151,12 @@ public class CloudClient {
     /* DERIVED FIELDS */
 
     // only used for printing and/or presence-detect
-    GlobusCredential getProxyBeingUsed() throws Exception {
-        if (this.proxyUsed != null) {
-            return this.proxyUsed;
+    GlobusCredential loadX509BeingUsed() throws Exception {
+        if (this.x509Used != null) {
+            return this.x509Used;
         }
-        this.proxyUsed = CloudClientUtil.getProxyBeingUsed();
-        return this.proxyUsed;
+        this.x509Used = CloudClientUtil.getActiveX509Credential(this.print);
+        return this.x509Used;
     }
 
     // -------------------------------------------------------------------------
@@ -1263,7 +1259,7 @@ public class CloudClient {
                 CommonPrint.printDebugSection(this.print, sectionTitle);
 
                 final SecurityPrinter sp =
-                        new SecurityPrinter(this.proxyUsed,
+                        new SecurityPrinter(this.x509Used,
                                             this.trustedCertDirs);
                 sp.print(this.args.getCaHash(),
                          this.print.getInfoProxy(),

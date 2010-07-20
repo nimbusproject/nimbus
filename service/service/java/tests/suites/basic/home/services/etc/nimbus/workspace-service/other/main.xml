@@ -303,7 +303,8 @@
         <!-- these modules can be null (InstanceResourceImpl) -->
         <property name="accountingEventAdapter"
                   ref="nimbus-rm.accounting" />
-        <property name="authzCallout"><null/></property>
+        <property name="authzCallout"
+                  ref="nimbus-rm.service.binding.AuthorizationCallout" />
     </bean>
     
     <bean id="nimbus-rm.home.instance"

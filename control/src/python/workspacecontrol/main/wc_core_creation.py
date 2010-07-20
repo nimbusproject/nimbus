@@ -157,7 +157,7 @@ def _common_withnetsecurity(vm_name, nic_set, kernel, local_file_set, p, c, nets
         c.log.exception(e)
         try:
             c.log.error("Creation problem: going to back out tmp space lease")
-            tmplease.teardown(local_file_set)
+            tmplease.teardown(p, c, vm_name)
             c.log.error("Backed out tmp space lease")
         except Exception,e2:
             c.log.exception(e2)

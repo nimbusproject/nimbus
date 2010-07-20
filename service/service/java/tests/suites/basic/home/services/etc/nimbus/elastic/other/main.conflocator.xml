@@ -48,10 +48,4 @@
         <property name="placeholderPrefix" value="$QUERY{" />
     </bean>
 
-    <bean id="restSettings"
-          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-        <property name="location" value="$NIMBUS_HOME/services/etc/nimbus/rest/rest.conf" />
-        <property name="placeholderPrefix" value="$REST{" />
-    </bean>
-
 </beans>

@@ -6,9 +6,14 @@
       <root url="jar://$PROJECT_DIR$/lib/clients/globus_delegation_stubs.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/services/commons-cli-2.0.jar!/" />
       <root url="file://$PROJECT_DIR$/lib/clients" />
+      <root url="file://$PROJECT_DIR$/lib/clients" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES />
+    <SOURCES>
+      <root url="file://$PROJECT_DIR$/../../jets3/jets3t-0.7.3/src" />
+      <root url="jar://$PROJECT_DIR$/lib/clients/httpcore-4.0.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/clients/httpclient-4.0.1.jar!/" />
+    </SOURCES>
     <jarDirectory url="file://$PROJECT_DIR$/lib/clients" recursive="false" />
   </library>
 </component>

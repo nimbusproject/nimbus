@@ -26,22 +26,11 @@ class propadapter(PropagationAdapter):
 
         self.c.log.debug("SCP configured: %s" % self.scp)
         
-
         self.scpuser = self.p.get_conf_or_none("propagation", "scp_user")
         if self.scpuser:
             self.c.log.debug("SCP default user: %s" % self.scpuser)
         else:
             self.c.log.debug("no SCP default user")
-            
-        override_conf = self.p.get_conf_or_none("propagation", "scp_user_override")
-        
-        if not override_conf:
-            self.scpuser_override = False
-        else:
-            if string.lower(override_conf) == "false":
-                self.scpuser_override = False
-            else:
-                self.scpuser_override = True
 
     def validate_propagate_source(self, imagestr):
         # will throw errors if invalid
@@ -148,16 +137,7 @@ class propadapter(PropagationAdapter):
             xfer_host = host[at_index+1:]
 
         if xfer_user:
-            self.c.log.debug("client wants override of scp account") 
-
-            if not self.scpuser_override:
-                errmsg = "client specified in SCP URL %s, " % remote
-                errmsg += "but scpuser_override is configured to "
-                errmsg += "false, meaning the default account "
-                errmsg += "is not allowed to be overriden"
-                raise InvalidInput(errmsg)
-            else:
-                self.c.log.info("scpuser_override is true, so allowing client to specify this account: %s" % xfer_user) 
+            self.c.log.info("allowing client to specify this account: %s" % xfer_user) 
         else:
             self.c.log.debug("client did not specify account") 
 

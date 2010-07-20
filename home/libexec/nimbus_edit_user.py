@@ -70,6 +70,9 @@ Create/edit a nimbus user
     all_opts.append(opt)
     opt = cbOpts("delim", "D", "Character between columns in the report", ",")
     all_opts.append(opt)
+    opt = cbOpts("group", "g", "Change the users group", None, vals=(None, "01", "02", "03", "04"))
+    all_opts.append(opt)
+
     opt = cbOpts("report", "r", "Report the selected columns from the following: " + pycb.tools.report_options_to_string(g_report_options), pycb.tools.report_options_to_string(g_report_options))
     all_opts.append(opt)
 
@@ -84,7 +87,7 @@ Create/edit a nimbus user
 
     return (o, args, parser)
 
-def add_gridmap(o):
+def add_gridmap(dn):
     nimbus_home = get_nimbus_home()
     configpath = os.path.join(nimbus_home, 'nimbus-setup.conf')
     config = SafeConfigParser()
@@ -101,11 +104,11 @@ def add_gridmap(o):
         if l == "":
             continue
         a = shlex.split(l)
-        if o.dn == a[0]:
+        if dn == a[0]:
             print "WARNING! This dn is already in the gridmap file"
             f.close()
             return
-    f.write("\"%s\" not_a_real_account\n" % (o.dn))
+    f.write("\"%s\" not_a_real_account\n" % (dn))
     f.close()
 
 def remove_gridmap(dn):
@@ -167,38 +170,50 @@ def edit_user(o, db):
 
     s3u = user.get_alias_by_friendly(o.emailaddr, pynimbusauthz.alias_type_s3)
     # if there is a dn set it
+    if o.access_id != None:
+        if s3u == None:
+            raise CLIError('EUSER', "There is no s3 user for: %s" % (o.emailaddr))
+        s3u.set_name(o.access_id.strip())
+
+    if o.access_secret != None:
+        if s3u == None:
+            raise CLIError('EUSER', "There is no s3 user for: %s" % (o.emailaddr))
+        s3u.set_data(o.access_secret.strip())
+
+    nh = get_nimbus_home()
+    groupauthz_dir = os.path.join(nh, "services/etc/nimbus/workspace-service/group-authz/")
+    if o.group != None:
+        if dnu == None:
+            raise CLIError('EUSER', "There is x509 entry for: %s" % (o.emailaddr))
+        dn = dnu.get_name()
+        group = find_member(groupauthz_dir, dn)
+        if group != None:
+            remove_member(groupauthz_dir, dn)
+        add_member(groupauthz_dir, dn, int(o.group))
+
     if o.dn != None:
         if dnu == None:
             raise CLIError('EUSER', "There is x509 entry for: %s" % (o.emailaddr))
-
         old_dn = dnu.get_name()
 
-        nh = get_nimbus_home()
-        groupauthz_dir = os.path.join(nh, "services/etc/nimbus/workspace-service/group-authz/")
 
         group = find_member(groupauthz_dir, old_dn)
         if group == None:
             raise CLIError('EUSER', "There is no authz group for user: %s" % (old_dn))
         group_id = group.group_id
 
-        remove_gridmap(old_dn)
-        add_gridmap(o)
         dnu.set_name(o.dn.strip())
-        
-        try:
+
+        remove_gridmap(old_dn)
+        add_gridmap(o.dn)
+
+        try:        
             remove_member(groupauthz_dir, old_dn)
             add_member(groupauthz_dir, o.dn, group_id)
-        except Exception, ex:
-            print "WARNING %s" % (ex)
-
-    if o.access_id != None:
-        if s3u == None:
-            raise CLIError('EUSER', "There is no s3 user for: %s" % (o.emailaddr))
-        s3u.set_name(o.access_id.strip())
-    if o.access_secret != None:
-        if s3u == None:
-            raise CLIError('EUSER', "There is no s3 user for: %s" % (o.emailaddr))
-        s3u.set_data(o.access_secret.strip())
+        except:
+            remove_gridmap(o.dn)
+            add_gridmap(old_dn)
+            
     db.commit()
 
     # todo, reset options structure to report user

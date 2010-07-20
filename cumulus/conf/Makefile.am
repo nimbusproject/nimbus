@@ -32,7 +32,6 @@ tests:
 	(cd $(cumulus_dst_dir)/tests && ./run-all.sh)
 
 install: predest
-	cp $(cumulus_src_dir)/etc/cumulus.ini ~/.nimbus
 	cp -r $(cumulus_src_dir)/etc $(cumulus_dst_dir)
 	cp -r $(cumulus_src_dir)/etc/env.sh $(cumulus_dst_dir)
 	$(SQLITE) $(AUTHZDB) < $(cumulus_src_dir)/etc/acl.sql

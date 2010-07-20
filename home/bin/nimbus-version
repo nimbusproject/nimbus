@@ -1,0 +1,10 @@
+#!/bin/bash
+
+PYTHON_EXE="/usr/bin/env python -Wignore::DeprecationWarning"
+
+NIMBUS_HOME_REL="`dirname $0`/.."
+NIMBUS_HOME=`cd $NIMBUS_HOME_REL; pwd`
+
+export NIMBUS_HOME
+
+$PYTHON_EXE $NIMBUS_HOME/libexec/nimbus_version.py $@

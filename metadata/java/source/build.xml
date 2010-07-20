@@ -63,6 +63,8 @@
                destdir="${nimbus.metadata-server.build.dest}"
                classpathref="nimbus.metadata-server.classpath"
                includeantruntime="false"
+               source="1.5"
+               target="1.5"
                debug="on">
 
             <include name="**/*.java"/>

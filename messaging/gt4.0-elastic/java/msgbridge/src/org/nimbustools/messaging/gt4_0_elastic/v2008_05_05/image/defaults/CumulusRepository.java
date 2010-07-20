@@ -189,8 +189,16 @@ public class CumulusRepository implements Repository {
     public String getImageLocation(Caller caller)
             throws CannotTranslateException
     {
-        final String ownerID = this.container.getOwnerID(caller);
-
+        final String dn = caller.getIdentity();
+        String ownerID;
+        try
+        {
+            ownerID = this.authDB.getCanonicalUserIdFromDn(dn);
+        }
+        catch(AuthzDBException ex)
+        {
+            throw new CannotTranslateException(ex.toString(), ex);
+        }
         if (ownerID == null)
         {
             throw new CannotTranslateException("No caller/ownerID?");
@@ -205,14 +213,13 @@ public class CumulusRepository implements Repository {
                                          Caller caller)
             throws CannotTranslateException    
     {
-        final String ownerID = this.container.getOwnerID(caller);
-        if (ownerID == null)
+        final String dn = caller.getIdentity();
+        if (dn == null)
         {
             throw new CannotTranslateException("Cannot construct file " +
                     "request without owner hash/ID, the file(s) location is " +
                     "based on it");
         }
-
         // todo: look at RA and construct blankspace request
         //return new VMFile[]{this.getRootFile(imageID, ownerID)};
         VMFile [] vma = new VMFile[1];
@@ -222,24 +229,19 @@ public class CumulusRepository implements Repository {
         file.setRootFile(true);
         file.setDiskPerms(VMFile.DISKPERMS_ReadWrite);
 
-
         // must convert to scp url
         // look up image id
         try
         {
-            
-            String keyName = this.prefix + "/" + ownerID + "/" + imageID;
-            int object_id = this.authDB.getFileID(keyName, this.repo_id, AuthzDBAdapter.OBJECT_TYPE_S3);
-            String canUser = authDB.getCanonicalUserIdFromDn(ownerID);
-            String perms = this.authDB.getPermissions(object_id, canUser);
-            int ndx = perms.indexOf('r');
-            if(ndx < 0)
+            String urlStr;
+            if(imageID.indexOf("cumulus://") == 0)
             {
-                throw new AuthzDBException("User " + ownerID + " cannot access the image  " + imageID);
+                urlStr = imageID;
             }
-            String datakey = this.authDB.getDataKey(object_id);
-            String urlStr = "scp://" + this.cumulusHost + ":22" + datakey;
-
+            else
+            {
+                urlStr = getImageLocation(caller) + "/" + imageID;
+            }
             file.setMountAs(this.getRootFileMountAs());
             URI imageURI = new URI(urlStr);
             file.setURI(imageURI);
@@ -252,20 +254,27 @@ public class CumulusRepository implements Repository {
         }                
     }
 
-
     // return a list of all the images owned by this user
     public FileListing[] listFiles(Caller caller,
                                    String[] nameScoped,
                                    String[] ownerScoped)
             throws CannotTranslateException, ListingException
     {
-        final String ownerID = this.container.getOwnerID(caller);
         int                             repo_id;
         String                          keyName;
 
+        final String dn = caller.getIdentity();
+        if (dn == null)
+        {
+            throw new CannotTranslateException("Cannot construct file " +
+                    "request without owner hash/ID, the file(s) location is " +
+                    "based on it");
+        }
 
         try
         {
+            String ownerID = this.authDB.getCanonicalUserIdFromDn(dn);
+
             final ArrayList files = new ArrayList();
             //String canUser = this.authDB.getCanonicalUserIdFromS3(ownerID);
             keyName = this.prefix + "/" + ownerID + '%';
@@ -274,7 +283,16 @@ public class CumulusRepository implements Repository {
             for (ObjectWrapper ow : objList)
             {
                 FileListing fl = new FileListing();
-                fl.setName(ow.getName());
+                String name = ow.getName();
+                String [] parts = name.split("/", 3);
+                if(parts.length != 3)
+                {
+                    // if a bad name jsut skip this file... they may have uploaded baddness
+                    logger.error("The filename " + name + " is not in the proper format");
+                    continue;
+                }
+                name = parts[2];
+                fl.setName(name);
                 fl.setSize(ow.getSize());
 
                 long tm = ow.getTime();
@@ -313,5 +331,4 @@ public class CumulusRepository implements Repository {
             default: return "???";
         }
     }
-
 }

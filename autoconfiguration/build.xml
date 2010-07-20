@@ -173,6 +173,8 @@
                destdir="${nimbus.autoconfig.gt4_0.build.dest}"
                classpathref="nimbus.autoconfig.gt4_0.classpath"
                includeantruntime="false"
+               source="1.5"
+               target="1.5"
                debug="on">
 
             <include name="**/*.java"/>
@@ -251,6 +253,18 @@
         <antcall target="_dist" />
         <echo>Built: ${nimbus.autoconfig.gt4_0.gar.print-noun}
         </echo>
+    </target>
+
+    
+    <!-- *******************************************************************
+         DEPLOY ONLY JARS (development target)
+         ******************************************************************* -->
+
+    <target name="justjars" depends="jar, lib_copies">
+        <echo message="Copying JARs: ${basedir}" />
+        <copy todir="${gt4_0.lib.dir}" >
+              <fileset refid="garjars" />
+        </copy>
     </target>
 
 

@@ -58,6 +58,38 @@ def get_dn(cert_file):
     dn = autoca.getCertDN(cert_file, webdir, log)
     return dn
 
+def remove_gridmap(dn):
+    nimbus_home = get_nimbus_home()
+    configpath = os.path.join(nimbus_home, 'nimbus-setup.conf')
+    config = SafeConfigParser()
+    if not config.read(configpath):
+        raise CLIError('ENIMBUSHOME',
+                "Failed to read config from '%s'. Has Nimbus been configured?"
+                % configpath)
+    gmf = config.get('nimbussetup', 'gridmap')
+    gmf = os.path.join(nimbus_home, gmf)
+
+    found = False
+    f = open(gmf, 'r')
+    (nf, new_name) = tempfile.mkstemp(dir=nimbus_home+"/var", prefix="gridmap", text=True)
+    for l in f.readlines():
+        l = l.strip()
+        if l == "":
+            continue
+        a = shlex.split(l)
+        if dn == a[0]:
+            found = True
+        else:
+            os.write(nf, l)
+            os.write(nf, os.linesep)
+
+    if not found:
+        print "WARNING! user not found in %s" % (dn)
+    os.close(nf)
+    f.close()
+    os.unlink(gmf)
+    os.rename(new_name, gmf)
+
 def generate_cert(o):
     nimbus_home = get_nimbus_home()
     webdir = os.path.join(nimbus_home, 'web/')
@@ -129,6 +161,7 @@ def cloud_props(o):
     string_subs['@HOST@'] = hostname
     string_subs['@CUMULUS_ID@'] = o.access_id
     string_subs['@CUMULUS_SECRET@'] = o.access_secret
+    string_subs['@CANONICAL_ID@'] = o.canonical_id
 
     # start the sed
     o.cloud_properties = o.dest + "/cloud.properties"
@@ -152,6 +185,8 @@ Create/edit a nimbus user
     (parser, all_opts) = pynimbusauthz.get_default_options(u)
 
     opt = cbOpts("dn", "s", "This is used when the user already has a cert.  This option will use the given DN instead of generating a new cert", None)
+    all_opts.append(opt)
+    opt = cbOpts("canonical_id", "i", "Specify the canonical ID string to user for this new user.  If the ID already exists an error will be returned.", None)
     all_opts.append(opt)
     opt = cbOpts("cert", "c", "Instead of generating a new key pair use this certificate.  This must be used with the --key option", None)
     all_opts.append(opt)
@@ -213,7 +248,6 @@ Create/edit a nimbus user
     if o.dn != None and o.nocert:
         raise CLIError('ECMDLINE', "why specify a dn and use nocert?")
 
-    o.canonical_id = None
     o.url = None
     o.cloud_properties = None
 
@@ -244,13 +278,22 @@ def add_gridmap(o):
     f.close()
 
 def create_user(o, db):
+    added_gridmap = False
     try:
         # create canonical user
         user = User.get_user_by_friendly(db, o.emailaddr)
         if user != None:
             raise CLIError('EUSER', "The user already exists: %s" % (o.emailaddr))
 
-        user = User(db, friendly=o.emailaddr)
+        if o.canonical_id != None:
+            user = User.get_user(db, o.canonical_id)
+            if user != None:
+                raise CLIError('EUSER', "The canonical user already exists: %s" % (o.canonical_id))
+
+            user = User(db, friendly=o.emailaddr, uu=o.canonical_id, create=True)
+        else:
+            user = User(db, friendly=o.emailaddr, create=True)
+
         o.canonical_id = user.get_id()
         if not o.noaccess:
             if o.access_id == None:
@@ -272,6 +315,7 @@ def create_user(o, db):
             ua2 = user.create_alias(o.dn, pynimbusauthz.alias_type_x509, o.emailaddr)
             # add dn to gridmap
             add_gridmap(o)
+            added_gridmap = True
 
         cloud_props(o)
         if o.web:
@@ -283,6 +327,8 @@ def create_user(o, db):
 
         db.commit()
     except Exception, ex1:
+        if added_gridmap:
+            remove_gridmap(o.dn)
         db.rollback()
         if DEBUG:
             traceback.print_exc(file=sys.stdout)
@@ -298,11 +344,11 @@ def do_web_bidnes(o):
         import nimbusweb.portal.nimbus.create_web_user as create_web_user
     except Exception, e:
         msg = "\nERROR linking with web application (have you ever sets up the web application?)\n"
-        msg += "\nSee: http://www.nimbusproject.org/docs/current/admin/reference.html#nimbusweb-usage\n"
+        msg += "\nSee: http://www.nimbusproject.org/docs/current/admin/reference.html#nimbusweb-config\n"
         msg += "\n%s\n" % e
         raise CLIError('EUSER', "%s" % msg)
     
-    (errmsg, url) = create_web_user.create_web_user(o.web_id, o.emailaddr, o.cert, o.key, o.access_id, o.access_secret, o.cloud_properties)
+    (errmsg, url) = create_web_user.create_web_user(o.web_id, o.emailaddr, o.cert, o.key, o.canonical_id, o.access_id, o.access_secret, o.cloud_properties)
     
     if errmsg:
         raise CLIError('EUSER', "Problem adding user to webapp: %s" % (errmsg))
@@ -317,13 +363,10 @@ def do_group_bidnes(o):
     
     nh = get_nimbus_home()
     groupauthz_dir = os.path.join(nh, "services/etc/nimbus/workspace-service/group-authz/")
-    try:
-        if o.group:
-            add_member(groupauthz_dir, o.dn, int(o.group))
-        else:
-            add_member(groupauthz_dir, o.dn)
-    except Exception, ex:
-        print "WARNING %s" % (ex)
+    if o.group:
+        add_member(groupauthz_dir, o.dn, int(o.group))
+    else:
+        add_member(groupauthz_dir, o.dn)
 
 def report_results(o, db):
     user = User.get_user_by_friendly(db, o.emailaddr)
@@ -354,6 +397,9 @@ def main(argv=sys.argv[1:]):
         report_results(o, db)
         db.close()
     except CLIError, clie:
+        if DEBUG:
+            traceback.print_exc(file=sys.stdout)
+        
         print clie
         return clie.get_rc()
 

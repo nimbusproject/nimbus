@@ -1,7 +1,6 @@
 import sys
 from django.db import models
 from django.contrib.auth.models import User, UserManager
-import remote
 
 class TokenFailure(models.Model):
     ip = models.IPAddressField(primary_key=True)
@@ -25,6 +24,7 @@ class UserProfile(models.Model):
     certkey = models.TextField(null=True)
     certkey_ip = models.IPAddressField(null=True)
     certkey_time = models.DateTimeField(auto_now=False, null=True)
+    query_canonical = models.TextField(null=True)
     query_id = models.TextField(null=True)
     query_secret = models.TextField(null=True)
     cloudprop_file = models.TextField(null=True)

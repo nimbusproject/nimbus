@@ -17,6 +17,14 @@
 package org.globus.workspace.cloud.client.util;
 
 import edu.emory.mathcs.backport.java.util.concurrent.Callable;
+import org.apache.commons.httpclient.ConnectTimeoutException;
+import org.apache.commons.httpclient.HostConfiguration;
+import org.apache.commons.httpclient.params.HttpConnectionParams;
+import org.apache.commons.httpclient.params.HttpParams;
+import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.conn.ssl.TrustStrategy;
+import org.apache.commons.httpclient.protocol.Protocol;
+import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.globus.workspace.client_core.ExecutionProblem;
 import org.globus.workspace.cloud.client.AllArgs;
 import org.globus.workspace.common.print.Print;
@@ -30,20 +38,188 @@ import org.jets3t.service.security.AWSCredentials;
 import org.jets3t.service.utils.Mimetypes;
 import org.jets3t.service.utils.ObjectUtils;
 
+
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
+
+class CumulusParameterConvert implements org.apache.http.params.HttpParams
+{
+    private HttpParams otherPs;
+    CumulusParameterConvert(HttpParams otherPs)
+    {
+        this.otherPs = otherPs;
+    }
+
+    public org.apache.http.params.HttpParams 	copy()
+    {
+        return new CumulusParameterConvert(this.otherPs);
+    }
+
+    public boolean 	getBooleanParameter(String name, boolean defaultValue)
+    {
+        return otherPs.getBooleanParameter(name, defaultValue);
+    }
+
+    public double 	getDoubleParameter(String name, double defaultValue)
+    {
+        return otherPs.getDoubleParameter(name, defaultValue);
+    }
+
+    public int 	getIntParameter(String name, int defaultValue)
+    {
+        return otherPs.getIntParameter(name, defaultValue);
+    }
+
+    public long 	getLongParameter(String name, long defaultValue)
+    {
+        return otherPs.getLongParameter(name, defaultValue);
+    }
+
+    public Object 	getParameter(String name)
+    {
+        return otherPs.getParameter(name);
+    }
+
+    public boolean 	isParameterFalse(String name)
+    {
+        return otherPs.isParameterFalse(name);
+    }
+
+    public boolean 	isParameterTrue(String name)
+    {
+        return otherPs.isParameterTrue(name);
+    }
+
+    public boolean 	removeParameter(String name)
+    {
+        boolean rc = otherPs.isParameterSet(name);
+        if(rc)
+        {
+            otherPs.setParameter(name, null);
+        }
+        return rc;
+    }
+
+    public org.apache.http.params.HttpParams 	setBooleanParameter(String name, boolean value)
+    {
+        this.otherPs.setBooleanParameter(name, value);
+        return this;
+    }
+
+    public org.apache.http.params.HttpParams 	setDoubleParameter(String name, double value)
+    {
+        this.otherPs.setDoubleParameter(name, value);
+        return this;
+    }
+
+    public org.apache.http.params.HttpParams 	setIntParameter(String name, int value)
+    {
+        this.otherPs.setIntParameter(name, value);
+        return this;
+    }
+
+    public org.apache.http.params.HttpParams 	setLongParameter(String name, long value)
+    {
+        this.otherPs.setLongParameter(name, value);
+        return this;
+    }
+
+    public org.apache.http.params.HttpParams 	setParameter(String name, Object value)
+    {
+        this.otherPs.setParameter(name, value);
+        return this;
+    }
+
+}
+
+class CumulusAlwaysTrustStrategy implements TrustStrategy
+{
+    public boolean isTrusted(X509Certificate[] chain, String authType)
+    {
+        return true;
+    }
+}
+
+
+class CumulusProtocolSocketFactory implements ProtocolSocketFactory
+{
+    protected  SSLSocketFactory psf;
+
+    CumulusProtocolSocketFactory()
+            throws Exception
+    {
+         //TrustStrategy ts = new TrustSelfSignedStrategy();
+         TrustStrategy ts = new CumulusAlwaysTrustStrategy();
+         psf = new SSLSocketFactory(ts);
+    }
+
+    public Socket createSocket(String host,
+                    int port,
+                    InetAddress localAddress,
+                    int localPort)         
+                    throws IOException,
+        UnknownHostException
+    {
+        Socket s = psf.createSocket();        
+        InetSocketAddress remote = new InetSocketAddress(host, port);
+        InetSocketAddress local = new InetSocketAddress(localAddress, localPort);
+        org.apache.http.params.HttpParams hp = new org.apache.http.params.BasicHttpParams();
+        s = psf.connectSocket(s, remote, local, hp);
+        return s;
+    }
+
+
+    public Socket createSocket(String host,
+                    int port,
+                    InetAddress localAddress,
+                    int localPort,
+                    HttpConnectionParams params)
+                    throws IOException,
+                           UnknownHostException,
+            ConnectTimeoutException
+    {
+        Socket s = psf.createSocket();
+        InetSocketAddress remote = new InetSocketAddress(host, port);
+        InetSocketAddress local = new InetSocketAddress(0);
+        org.apache.http.params.HttpParams hp = new CumulusParameterConvert(params);
+        s = psf.connectSocket(s, remote, local, hp);
+        return s; 
+    }
+
+
+    public Socket createSocket(String host,
+                    int port)
+                    throws IOException,
+                           UnknownHostException
+    {
+        Socket s = psf.createSocket();
+        InetSocketAddress local = new InetSocketAddress(0);
+        InetSocketAddress remote = new InetSocketAddress(host, port);
+        s = psf.connectSocket(s, remote, local, null);
+        return s;         
+    }
+}
 
 class CumulusInputStream
     extends InputStream
 {
     private InputStream                 is;
-    private PrintStream                 pr;
+    private PrintStream pr;
     private CloudProgressPrinter        progress;
+    private long                        where = 0;
+    private long                        marked = 0;
 
     public CumulusInputStream(
         long                            len,
@@ -52,7 +228,7 @@ class CumulusInputStream
     {
         super();
         this.is = is;
-        this.pr = pr;
+        this.pr = pr;   
 
         progress = new CloudProgressPrinter(this.pr, len);
     }
@@ -71,6 +247,7 @@ class CumulusInputStream
  
     public void   mark(int readlimit)
     {
+        marked = where;
         this.is.mark(readlimit);
     }
 
@@ -79,12 +256,18 @@ class CumulusInputStream
         return this.is.markSupported();
     }
 
+    private void updatePosition(int len)
+    {
+        where += len;
+        progress.updateBytesTransferred(len);
+    }
+
     public int   read()
         throws java.io.IOException
     {
         int len;
         len = this.is.read();
-        progress.updateBytesTransferred((long)len);
+        updatePosition(len);
         return len;
     }
  
@@ -93,7 +276,7 @@ class CumulusInputStream
     {
         int len;
         len = this.is.read(b);
-        progress.updateBytesTransferred((long)len);
+        updatePosition(len);
         return len;
     }
 
@@ -102,13 +285,16 @@ class CumulusInputStream
     {
         int lenrc;
         lenrc = this.is.read(b, off, len);
+        updatePosition(lenrc);
         return lenrc;
     }
 
     public void   reset()
         throws java.io.IOException
     {
+        long diff = marked - where;
         this.is.reset();
+        updatePosition((int)diff);
     }
  
     public long   skip(long n)
@@ -249,14 +435,20 @@ public class CumulusTask
     private PrintStream                 debug;
     private AllArgs                     args;
     private Print                       print;
+    private String                      useHttps;
+    private boolean                     allowSelfSigned;
 
 
     public CumulusTask(
         AllArgs                         args,
-        Print                           pr)
+        Print                           pr,
+        String                          useHttps,
+        boolean                         allowSelfSigned)
     {
         this.args = args;
         this.print = pr;
+        this.useHttps = useHttps;
+        this.allowSelfSigned = allowSelfSigned;
     }
 
     public void setTask(
@@ -269,8 +461,7 @@ public class CumulusTask
     {
         String awsAccessKey = this.args.getXferS3ID();
         String awsSecretKey = this.args.getXferS3Key();
-        
-       
+               
         AWSCredentials awsCredentials = 
             new AWSCredentials(awsAccessKey, awsSecretKey);
 
@@ -284,7 +475,7 @@ public class CumulusTask
         String baseKey = this.args.getXferS3BaseKey();
         if(ID == null)
         {
-            ID = this.args.getXferS3ID();
+            ID = this.args.getXferCanonicalID();
         }
 
         return baseKey + "/" + ID + "/" + vmName;
@@ -361,19 +552,25 @@ public class CumulusTask
                 key, file, null, false, progressWatcher);
             s3Object.setContentType(Mimetypes.MIMETYPE_OCTET_STREAM);
             if (pr != null) {
-                pr.println("Transferring the file");
+                pr.println("\n\nTransferring the file:");
             }
             CumulusInputStream cis = new CumulusInputStream(
                 file.length(), pr, s3Object.getDataInputStream());
             s3Object.setDataInputStream(cis);
             s3Service.putObject(baseBucketName, s3Object);
             if (pr != null) {
-                pr.println("\ndone");
+                pr.println("\n\nDone.");
             }
         }
-        catch(Exception s3ex)
+        catch(S3ServiceException s3ex)
         {
-            throw new ExecutionProblem(s3ex.toString());
+            String msg = s3ex.getS3ErrorMessage() + " cause: " + s3ex.getCause();
+            throw new ExecutionProblem(msg, s3ex);
+        }
+        catch(Exception ex1)
+        {
+            String msg = ex1.toString() + " cause: " + ex1.getCause();
+            throw new ExecutionProblem(msg, ex1);
         }
     }
 
@@ -386,8 +583,6 @@ public class CumulusTask
     {
         try
         {
-            System.out.println("SSSS");
-            String awsAccessKey = this.args.getXferS3ID();
             String baseBucketName = this.args.getS3Bucket();
             String key = this.makeKey(vmName, null);
             File file = new File(localfile);
@@ -403,7 +598,7 @@ public class CumulusTask
                 String srcUrlString = "cumulus://" + baseBucketName + "/" + key;
                 pr.println("\nTransferring");
                 pr.println("  - Source: " + srcUrlString);
-;
+
                 pr.println("  - Destination: " + file.getAbsolutePath());
                 pr.println();
 
@@ -486,27 +681,49 @@ public class CumulusTask
         int ndx = host.lastIndexOf(":");
         int port = 80;
         String portS = "80";
+        String httpsPortS = "443";
+        int httpsPort = 443;
 
         if(ndx > 0)
         {
             portS = host.substring(ndx+1);
+            httpsPortS = portS;
             port = new Integer(portS).intValue();
+            httpsPort = new Integer(httpsPortS).intValue();
             host = host.substring(0, ndx);
         }
         
         Jets3tProperties j3p = new Jets3tProperties();
 
-        j3p.setProperty("s3service.s3-endpoint", host);   
         j3p.setProperty("s3service.s3-endpoint-http-port", portS);
+        j3p.setProperty("s3service.s3-endpoint-https-port", httpsPortS);
         j3p.setProperty("s3service.disable-dns-buckets", "true");
-        j3p.setProperty("s3service.https-only", "false"); 
+        j3p.setProperty("s3service.s3-endpoint", host);   
+        j3p.setProperty("s3service.https-only", this.useHttps);
 
+        HostConfiguration hc = new HostConfiguration();
+        if(allowSelfSigned && this.useHttps.equalsIgnoreCase("true"))
+        {
+            // magic needed for jets3t to work with self signed cert.
+            try
+            {
+                Protocol easyhttps = new Protocol("https", new CumulusProtocolSocketFactory(), 443);
+                Protocol.registerProtocol("https", easyhttps);
+
+                hc.setHost(host, httpsPort, easyhttps);
+            }
+            catch(Exception ex)
+            {
+                throw new S3ServiceException("Could not make the self signed handler " + ex.toString(), ex);
+            }
+        }
         AWSCredentials awsCredentials = this.getAwsCredentail();
         S3Service s3Service = new RestS3Service(
             awsCredentials,
             "cloud-client",
             null,
-            j3p);
+            j3p,
+            hc);
 
         return s3Service;
     }
@@ -555,7 +772,8 @@ public class CumulusTask
             if(name != null)
             {
                 Date dt = s3Objs[i].getLastModifiedDate();
-                cal.setTime(dt);
+                cal.setTimeZone(TimeZone.getTimeZone("GMT"));
+                cal.setTimeInMillis(dt.getTime());
 
                 FileListing fl = new FileListing();
             
@@ -609,8 +827,13 @@ public class CumulusTask
     {
         int hr = cal.get(Calendar.HOUR_OF_DAY);
         int m = cal.get(Calendar.MINUTE);
+        String mStr = new Integer(m).toString();
+        if(mStr.length() != 2)
+        {
+            mStr = "0" + mStr;
+        }
 
-        return new Integer(hr).toString() + ":" + new Integer(m).toString();
+        return new Integer(hr).toString() + ":" + mStr;
     }
 
     public void chmod(

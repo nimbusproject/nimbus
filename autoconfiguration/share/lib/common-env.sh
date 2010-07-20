@@ -100,9 +100,6 @@ export EXE_ALTER_CONTROLTMPDIR
 EXE_GET_VMMDIR="org.nimbustools.auto_config.confmgr.GetVmmPoolDirectory"
 export EXE_GET_VMMDIR
 
-EXE_GET_NETWORKDIR="org.nimbustools.auto_config.confmgr.GetNetworkDirectory"
-export EXE_GET_NETWORKDIR
-
 EXE_CREATE_BACKUP_DIR="org.nimbustools.auto_common.dirmgr.CreateNewNumberedDirectory"
 export EXE_CREATE_BACKUP_DIR
 
@@ -111,12 +108,6 @@ export RESOURCE_POOL_TEMPLATE_FILE
 
 NEW_POOL_NAME="testpool"
 export NEW_POOL_NAME
-
-NETWORK_TEMPLATE_FILE="$NIMBUS_WIZARD_LIBDIR/network-template.txt"
-export NETWORK_TEMPLATE_FILE
-
-NEW_NET_NAME="public"
-export NEW_NET_NAME
 
 EXE_ALTER_FAKEMODE="org.nimbustools.auto_config.confmgr.AlterFakeMode"
 export EXE_ALTER_FAKEMODE

@@ -38,7 +38,7 @@ class DefaultNetworkBootstrap:
         # when localdhcp is off, the rest of the module is basically a no-op
 
         if not self.localdhcp:
-            self.c.log.warn("local DHCP is disabled. DHCP requests will hit your site DHCP server")
+            self.c.log.info("local DHCP is disabled. DHCP requests will hit your site DHCP server")
             return
         
         self.dhcpconfig = self.p.get_conf_or_none("dhcp", "dhcpconfig")

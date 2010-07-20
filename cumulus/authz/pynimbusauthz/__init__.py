@@ -50,7 +50,7 @@ def get_default_options(u):
     all_opts.append(opt)
     opt = cbOpts("quiet", "q", "Display no output", False, flag=True)
     all_opts.append(opt)
-    opt = cbOpts("verbose", "V", "Display much output", 1, count=True)
+    opt = cbOpts("verbose", "V", "Display much output, repeat to increase level", 1, count=True)
     all_opts.append(opt)
     opt = cbOpts("instream", "I", SUPPRESS_HELP, None)
     all_opts.append(opt)

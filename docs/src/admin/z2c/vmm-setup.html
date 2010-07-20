@@ -1,5 +1,5 @@
 m4_include(/mcs/m4/worksp.lib.m4)
-_NIMBUS_HEADER(2.5RC1 Zero To Cloud Guide)
+_NIMBUS_HEADER(2.5RC2 Zero To Cloud Guide)
 _NIMBUS_HEADER2(n,n,y,n,n,n,n)
 _NIMBUS_LEFT2_COLUMN
 _NIMBUS_LEFT2_Z2C_SIDEBAR(y)
@@ -139,7 +139,7 @@ _NIMBUS_2_5_DEPRECATED
 </p>
  
 <div class="panel"><pre>
-root $ virsh -c 'xen+unix:///' list
+root # virsh -c 'xen+unix:///' list
 </pre></div>
 
 <div class="note">
@@ -172,7 +172,7 @@ error: failed to connect to the hypervisor
   Why?  Because you are not root.  Check out the permissions on <tt class="literal">/var/run/libvirt/libvirt-sock</tt>
 </p>
 <div class="panel"><pre>
-root $ ls -l /var/run/libvirt/libvirt-sock
+root # ls -l /var/run/libvirt/libvirt-sock
 srwx------ 1 root root 0 Jul  1 21:28 /var/run/libvirt/libvirt-sock
 </pre></div>
 
@@ -320,13 +320,12 @@ nimbus $ cp /boot/initrd-2.6.16.29-xen $KERNELDIR/default-initrd
 <div class="panel"><pre>
 nimbus $ cd /tmp
 nimbus $ wget http://www.nimbusproject.org/downloads/nimbus-z2c.gz
-nimbus $ md5sum nimbus-z2c.gz
-d41d8cd98f00b204e9800998ecf8427e  nimbus-z2c.gz
 nimbus $ gunzip nimbus-z2c.gz
 </pre></div>
 
 <p>
-  It is a VM with [TODO] installed.  It runs an SSH server when it boots.  If you have console access to it, you will be able to log in to it using the <tt class="literal">root</tt> account with password <tt class="literal">root</tt>.
+  It is a minimal Debian VM with very little installed.  It runs an SSH server when it boots.  If you have console access to it, you will be able to log in to it using the <tt class="literal">root</tt> account with password <tt class="literal">root</tt>.
+    It also runs the Nimbus context agent on boot, so you can use it to test contextualization.
 </p>
 
 <h3>Configure default bridge</h3>
@@ -376,7 +375,8 @@ xenbr0          8000.feffffffffff       no              peth0
 
 <div class="panel"><pre>
 nimbus $ /usr/bin/sudo /opt/nimbus/libexec/workspace-control/xen-ebtables-config.sh
-ERROR: requires at least 2 arguments, syntax: add|rem <vifname> [<dhcpif>  <macaddr> <ipaddr>]
+ERROR: requires at least 2 arguments, syntax: add|rem &lt;vifname&gt; [&lt;macaddr&gt; &lt;ipaddr&gt; [&lt;dhcpif&gt;]]
+
 </pre></div>
 
 <p>
@@ -632,6 +632,11 @@ nimbus $ ./sbin/cat-latest-logfile.sh
 
 <p>
   If putting the culprit error into a search engine does not produce any obvious answers, don't hesitate to contact the <a href="_NIMBUS_WEBSITE/contact/">workspace-user</a> mailing list.  Describe your situation and any errors you are seeing.  Attaching this debug log and including version information (of the VMM and libvirt and your OS) can often be helpful and reduce the amount of emails that need to occur.
+</p>
+
+<p>
+    Once you've gotten everything working, proceed to the next page where you will configure communication between
+    the service node and the VMM node: <a href="ssh-setup.html">SSH Setup</a>.
 </p>
 
 

@@ -33,6 +33,7 @@
          class="org.globus.workspace.sqlauthz.AuthzDecisionLogic">
 
         <constructor-arg ref="other.AuthzDataSource" />
+        <constructor-arg value="$GLOBAL{allow.other.schemes}" />
 
         <property name="repoDir" value="$CUMULUS{cumulus.repo.dir}" />
         <property name="repoHost" value="$SSH{service.sshd.contact.string}" />

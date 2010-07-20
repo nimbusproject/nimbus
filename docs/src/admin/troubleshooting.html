@@ -1,5 +1,5 @@
 m4_include(/mcs/m4/worksp.lib.m4)
-_NIMBUS_HEADER(2.5RC1 Troubleshooting)
+_NIMBUS_HEADER(2.5RC2 Troubleshooting)
 _NIMBUS_HEADER2(n,n,y,n,n,n,n)
 _NIMBUS_LEFT2_COLUMN
 _NIMBUS_LEFT2_ADMIN_SIDEBAR(n,n,n,y,n)
@@ -7,7 +7,7 @@ _NIMBUS_LEFT2_COLUMN_END
 _NIMBUS_CENTER2_COLUMN
 _NIMBUS_2_5_DEPRECATED
 
-<h2>Nimbus 2.5RC1 Troubleshooting</h2>
+<h2>Nimbus 2.5RC2 Troubleshooting</h2>
 
 <p>
     Any questions can be posted to the workspace-user mailing list and will
@@ -46,7 +46,7 @@ _NIMBUS_2_5_DEPRECATED
         <p>
             <a href="http://bugzilla.globus.org/bugzilla/buglist.cgi?query_format=advanced&short_desc_type=allwordssubstr&short_desc=&product=Nimbus&version=2.5&long_desc_type=allwordssubstr&long_desc=&bug_file_loc_type=allwordssubstr&bug_file_loc=&keywords_type=allwords&keywords=&bug_status=ASSIGNED&bug_status=REOPENED&bug_status=RESOLVED&bug_status=VERIFIED&bug_status=CLOSED&bug_severity=blocker&bug_severity=critical&bug_severity=major&bug_severity=normal&bug_severity=minor&bug_severity=trivial&emailtype1=substring&email1=&emailtype2=substring&email2=&bugidtype=include&bug_id=&votes=&chfieldfrom=&chfieldto=Now&chfieldvalue=&cmdtype=doit&order=Reuse+same+sort+as+last+time&field0-0-0=noop&type0-0-0=noop&value0-0-0=">Known
             issues</a>: custom query to the bugzilla system, it lists out
-            all known issues with 2.5RC1 Nimbus components.
+            all known issues with 2.5 Nimbus components.
         </p>
     </li>
 </ul>
@@ -312,6 +312,63 @@ General: An error was discovered processing the &lt;wsse:Security&gt; header.
             Solution: Add the location of libvirt.so.0 to the LD_LIBRARY_PATH
             environment variable.
         </p>
+    </li>
+<br /><hr />
+    
+    <li>
+        <a name="python-build1"> </a>
+        <p>
+            Problem: The Cumulus build fails with an error about finding Python.h
+            _NAMELINK(python-build1)
+        </p>
+        <p>
+            You went the GCC route (see <a href="z2c/service-dependencies.html">the dependencies page</a>) and are seeing an error like:
+        </p>
+        <pre class="screen">src/crypto/crypto.c:12:20: error: Python.h</pre>
+        <p>
+            Solution: Install the Python development package (<tt class="literal">python-dev</tt> in Debian).
+        </p>
+    </li>
+<br /><hr />
+    
+    <li>
+        <a name="python-build2"> </a>
+        <p>
+            Problem: The Cumulus build fails with an error about compiling against crypto headers
+            _NAMELINK(python-build2)
+        </p>
+        <p>
+            You went the GCC route (see <a href="z2c/service-dependencies.html">the dependencies page</a>) and are seeing an error like:
+        </p>
+        <pre class="screen">src/crypto/x509name.h:19: error: expected ')' before '*' token</pre>
+        <p>
+            Solution: Install the OpenSSL development package (<tt class="literal">libssl-dev</tt> in Debian).
+        </p>
+    </li>
+<br /><hr />
+    
+    <li>
+        <a name="repo1"> </a>
+        <p>
+            Problem: The service starts with an error about "no such parent file found Repo 1"
+            _NAMELINK(repo1)
+        </p>
+        <p>
+            You installed Nimbus (or have been playing with the nimbus-reset-state program) and see the following error:
+        </p>
+        <pre class="screen">
+Error creating bean with name 'nimbus-elastic.image.repository' defined 
+in file [/tmp/x/services/etc/nimbus/elastic/other/main.xml]: Invocation 
+of init method failed; nested exception is 
+org.nimbus.authz.AuthzDBException: no such parent file found Repo 1</pre>
+        <p>
+            This typically means you have gotten into a situation where the
+            installer did not run <tt class="literal">cumulus-create-repo-admin</tt> to configure the Cumulus/IaaS connection.  Or you have reset Cumulus state (e.g. using <tt class="literal">nimbus-reset-state</tt>) recently.
+        </p>
+        <p>
+            Solution: Run the following:
+        </p>
+        <pre class="screen">$NIMBUS_HOME/ve/bin/cumulus-create-repo-admin nimbusadmin@localhost Repo</pre>
     </li>
 </ul>
 
