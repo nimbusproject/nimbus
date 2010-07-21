@@ -48,30 +48,17 @@ if [ ! -f $CUMULUS_ENV ]; then
 fi
 
 source $CUMULUS_ENV
-REPOCMD2="$NIMBUS_HOME/ve/bin/cumulus-create-repo-admin $CUMULUS_REPO_BUCKET"
+REPOCMD="$NIMBUS_HOME/ve/bin/cumulus-create-repo-admin $CUMULUS_REPO_BUCKET"
 
-echo "    $REPOCMD1"
-echo "    $REPOCMD2"
-echo "    $REPOCMD3"
+echo "    $REPOCMD"
 echo ""
 
-$REPOCMD1
-if [ $? -ne 0 ]; then
-    echo "Could not start Cumulus."
-    exit 1
-fi
-
-$REPOCMD2 >/dev/null
+$REPOCMD >/dev/null
 if [ $? -ne 0 ]; then
     echo "Could not create Cumulus repository."
     exit 1
 fi
 echo "Created repo admin."
-
-$REPOCMD3
-if [ $? -ne 0 ]; then
-    echo "Could not stop Cumulus? (continuing)"
-fi
 
 echo ""
 GUIDEURL=`$NIMBUS_HOME/bin/nimbus-version --guide`

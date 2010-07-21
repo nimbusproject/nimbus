@@ -58,7 +58,7 @@ Use % for a wild card
 
     opt = cbOpts("report", "r", "Report the selected columns from the following: " + pycb.tools.report_options_to_string(g_report_options), pycb.tools.report_options_to_string(g_report_options))
     all_opts.append(opt)
-    opt = cbOpts("delim", "D", "Character between columns in the report", ",")
+    opt = cbOpts("delim", "D", "Character between columns in the batch mode report.  This options is only relevant when used with -b", ",")
     all_opts.append(opt)
 
     (o, args) = pynimbusauthz.parse_args(parser, all_opts, argv)
