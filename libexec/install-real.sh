@@ -41,10 +41,14 @@ echo "Creating Cumulus repository with the following commands:"
 echo ""
 
 export CUMULUS_SETTINGS_FILE=$NIMBUS_HOME/cumulus/etc/cumulus.ini
+CUMULUS_ENV="$NIMBUS_HOME/cumulus/env.sh"
+if [ ! -f $CUMULUS_ENV ]; then
+    echo "Expected file to be created: $CUMULUS_ENV"
+    exit 1
+fi
 
-REPOCMD1="$NIMBUS_HOME/bin/nimbusctl cumulus start"
-REPOCMD2="$NIMBUS_HOME/ve/bin/cumulus-create-repo-admin nimbusadmin@${CUMULUS_HOST} $CUMULUS_REPO_BUCKET"
-REPOCMD3="$NIMBUS_HOME/bin/nimbusctl cumulus stop"
+source $CUMULUS_ENV
+REPOCMD2="$NIMBUS_HOME/ve/bin/cumulus-create-repo-admin $CUMULUS_REPO_BUCKET"
 
 echo "    $REPOCMD1"
 echo "    $REPOCMD2"
