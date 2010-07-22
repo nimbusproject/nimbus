@@ -21,8 +21,8 @@
             <identity>
                 <_interface>localnic</_interface>
             </identity>
-            <role interface="localnic">torquemaster</role>
-            <role interface="localnic">nfsserver</role>
+            <role _interface="localnic">torquemaster</role>
+            <role _interface="localnic">nfsserver</role>
         </provides>
 
         <requires>
@@ -64,8 +64,8 @@ ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAIEA2Uoxji01ETQAllCL/7z0Q26h81cW1DKKhhJG3ZSttq3h
             <identity>
                 <_interface>localnic</_interface>
             </identity>
-            <role interface="localnic">torqueslave</role>
-            <role interface="localnic">nfsclient</role>
+            <role _interface="localnic">torqueslave</role>
+            <role _interface="localnic">nfsclient</role>
         </provides>
 
         <requires>

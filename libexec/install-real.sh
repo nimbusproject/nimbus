@@ -41,33 +41,24 @@ echo "Creating Cumulus repository with the following commands:"
 echo ""
 
 export CUMULUS_SETTINGS_FILE=$NIMBUS_HOME/cumulus/etc/cumulus.ini
-
-REPOCMD1="$NIMBUS_HOME/bin/nimbusctl cumulus start"
-REPOCMD2="$NIMBUS_HOME/ve/bin/cumulus-create-repo-admin nimbusadmin@${CUMULUS_HOST} $CUMULUS_REPO_BUCKET"
-REPOCMD3="$NIMBUS_HOME/bin/nimbusctl cumulus stop"
-
-echo "    $REPOCMD1"
-echo "    $REPOCMD2"
-echo "    $REPOCMD3"
-echo ""
-
-$REPOCMD1
-if [ $? -ne 0 ]; then
-    echo "Could not start Cumulus."
+CUMULUS_ENV="$NIMBUS_HOME/cumulus/env.sh"
+if [ ! -f $CUMULUS_ENV ]; then
+    echo "Expected file to be created: $CUMULUS_ENV"
     exit 1
 fi
 
-$REPOCMD2 >/dev/null
+source $CUMULUS_ENV
+REPOCMD="$NIMBUS_HOME/ve/bin/cumulus-create-repo-admin $CUMULUS_REPO_BUCKET"
+
+echo "    $REPOCMD"
+echo ""
+
+$REPOCMD >/dev/null
 if [ $? -ne 0 ]; then
     echo "Could not create Cumulus repository."
     exit 1
 fi
 echo "Created repo admin."
-
-$REPOCMD3
-if [ $? -ne 0 ]; then
-    echo "Could not stop Cumulus? (continuing)"
-fi
 
 echo ""
 GUIDEURL=`$NIMBUS_HOME/bin/nimbus-version --guide`
