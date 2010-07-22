@@ -39,19 +39,16 @@ import org.globus.workspace.service.WorkspaceGroupHome;
 import org.globus.workspace.service.WorkspaceHome;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.nimbustools.api.repr.Caller;
-import org.nimbustools.api.repr.si.SIConstants;
 import org.nimbustools.api.services.rm.DoesNotExistException;
 import org.nimbustools.api.services.rm.ManageException;
 
 
 public class SpotInstancesManagerImpl implements SpotInstancesManager {
     
-    //TODO: Move this constants to a Spring configuration file
-    private static String MACHINE_TYPE = SIConstants.SI_TYPE_BASIC;
-    private static final Integer MINIMUM_RESERVED_MEMORY = 256;
-    private static final Double MAX_NON_PREEMP_UTILIZATION = 0.7;
-    
-    private static Integer INSTANCE_MEM = SIConstants.getInstanceMem(MACHINE_TYPE);    
+    //TODO: Set by Spring IoC
+    private Integer minReservedMem;
+    private Double maxUtilization;
+    private Integer instanceMem;    
 
     private static final Log logger =
         LogFactory.getLog(SpotInstancesManagerImpl.class.getName());
@@ -74,13 +71,25 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
     public SpotInstancesManagerImpl(PersistenceAdapter persistenceAdapterImpl,
                                     Lager lagerImpl,
                                     WorkspaceHome instanceHome,
-                                    WorkspaceGroupHome groupHome){
+                                    WorkspaceGroupHome groupHome,
+                                    Double minPrice,
+                                    PricingModel pricingModelImpl){
 
         this.allRequests = new HashMap<String, SIRequest>();
-        this.currentPrice = PricingModelConstants.MINIMUM_PRICE;
-        this.pricingModel = new MaximizeUtilizationPricingModel();
         this.maximumInstances = 0;
-
+   
+        if (minPrice == null){
+            throw new IllegalArgumentException("minPrice may not be null");
+        }
+        
+        this.currentPrice = minPrice;
+        
+        if (pricingModelImpl == null) {
+            throw new IllegalArgumentException("pricingModelImpl may not be null");
+        }
+        this.pricingModel = pricingModelImpl;        
+        this.pricingModel.setMinPrice(minPrice);
+        
         if (persistenceAdapterImpl == null) {
             throw new IllegalArgumentException("persistenceAdapterImpl may not be null");
         }
@@ -226,7 +235,7 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
                     "MB RAM have to be freed to give space to higher priority requests");
         }
         
-        Integer usedMemory = maximumInstances*INSTANCE_MEM;
+        Integer usedMemory = maximumInstances*instanceMem;
 
         if(memoryToFree > usedMemory){
             logger.warn(Lager.ev(-1) + "[Spot Instances] Spot Instances requests are consuming " + usedMemory + 
@@ -778,15 +787,15 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
         Integer siMem;
         
         try {
-            Integer availableMem = persistence.getTotalAvailableMemory(INSTANCE_MEM);
+            Integer availableMem = persistence.getTotalAvailableMemory(instanceMem);
             Integer usedPreemptableMem = persistence.getTotalPreemptableMemory();             
             Integer usedNonPreemptableMem = persistence.getUsedNonPreemptableMemory();
             
             //Formula derived from maximum_utilization =       usedNonPreemptable
             //                                           -----------------------------------------
             //                                           usedNonPreemptable + reservedNonPreempMem
-            Integer reservedNonPreempMem = (int)Math.round((1-MAX_NON_PREEMP_UTILIZATION)*usedNonPreemptableMem/MAX_NON_PREEMP_UTILIZATION);
-            reservedNonPreempMem = Math.max(reservedNonPreempMem, MINIMUM_RESERVED_MEMORY);
+            Integer reservedNonPreempMem = (int)Math.round((1-maxUtilization)*usedNonPreemptableMem/maxUtilization);
+            reservedNonPreempMem = Math.max(reservedNonPreempMem, minReservedMem);
             
             siMem = Math.max((availableMem+usedPreemptableMem)-reservedNonPreempMem, 0);
             
@@ -820,7 +829,7 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
             return;
         }
 
-        Integer newMaxInstances = availableMemory/INSTANCE_MEM;
+        Integer newMaxInstances = availableMemory/instanceMem;
 
         //TODO Also take available network associations 
         //     into account        
@@ -941,6 +950,22 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
         }
         this.creationManager = creationManagerImpl;
     }
+    
+    // -------------------------------------------------------------------------
+    // Spring IoC setters
+    // -------------------------------------------------------------------------    
+    
+    public void setMinReservedMem(Integer minReservedMem) {
+        this.minReservedMem = minReservedMem;
+    }
+
+    public void setMaxUtilization(Double maxUtilization) {
+        this.maxUtilization = maxUtilization;
+    }
+
+    public void setInstanceMem(Integer instanceMem) {
+        this.instanceMem = instanceMem;
+    }    
 
     // -------------------------------------------------------------------------
     // TEST UTILS

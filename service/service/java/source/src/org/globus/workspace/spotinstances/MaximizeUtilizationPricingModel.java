@@ -24,11 +24,11 @@ public class MaximizeUtilizationPricingModel extends AbstractPricingModel {
         LinkedList<SIRequest> reverseOrderedRequests = new LinkedList<SIRequest>(requests);
         Collections.sort(reverseOrderedRequests, Collections.reverseOrder());
         
-        Double nextPrice = PricingModelConstants.MINIMUM_PRICE;
+        Double nextPrice = this.minPrice;
         Integer availableResources = totalReservedResources;
         
         for (SIRequest siRequest : reverseOrderedRequests) {
-            if(siRequest.getMaxBid() >= PricingModelConstants.MINIMUM_PRICE){
+            if(siRequest.getMaxBid() >= this.minPrice){
                 nextPrice = siRequest.getMaxBid();
                 availableResources -= siRequest.getNeededInstances();
                 if(availableResources <= 0){
@@ -38,7 +38,7 @@ public class MaximizeUtilizationPricingModel extends AbstractPricingModel {
         }
         
         if(availableResources > 0 && this.setMinPrice){
-            nextPrice = PricingModelConstants.MINIMUM_PRICE;
+            nextPrice = this.minPrice;
         }
         
         return nextPrice;

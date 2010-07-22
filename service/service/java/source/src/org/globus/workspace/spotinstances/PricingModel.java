@@ -7,4 +7,6 @@ public interface PricingModel {
     Double getNextPrice(Integer totalReservedResources,
             Collection<SIRequest> aliveRequests, Double currentPrice);
     
+    void setMinPrice(Double minPrice);
+    
 }

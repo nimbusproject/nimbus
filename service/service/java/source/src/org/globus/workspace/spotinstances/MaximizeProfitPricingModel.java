@@ -5,7 +5,6 @@ import java.util.LinkedList;
 
 public class MaximizeProfitPricingModel extends AbstractPricingModel {
 
-    
     @Override
     public Double getNextPriceImpl(Integer totalReservedResources, Collection<SIRequest> requests, Double currentPrice) {
                 

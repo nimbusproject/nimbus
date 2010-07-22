@@ -7,10 +7,25 @@ import edu.emory.mathcs.backport.java.util.Collections;
 
 public abstract class AbstractPricingModel implements PricingModel{
     
+    public static final Double DEFAULT_MIN_PRICE = 0.1;
+    protected Double minPrice;
+    
+    public AbstractPricingModel(){
+        this.minPrice = DEFAULT_MIN_PRICE;
+    }
+    
+    public void setMinPrice(Double minPrice){
+        this.minPrice = minPrice;
+    }
+    
+    public Double getMinPrice(){
+        return this.minPrice;
+    }
+    
     public Double getNextPrice(Integer totalReservedResources, Collection<SIRequest> requests, Double currentPrice) {
         
         if(requests.isEmpty()){
-            return PricingModelConstants.MINIMUM_PRICE;
+            return minPrice;
         }
         
         LinkedList<Double> priceCandidates = getOrderedPriceCandidates(requests);
@@ -34,7 +49,7 @@ public abstract class AbstractPricingModel implements PricingModel{
         
         for (SIRequest siRequest : requests) {
             Double requestBid = siRequest.getMaxBid();
-            if(requestBid >= PricingModelConstants.MINIMUM_PRICE){
+            if(requestBid >= minPrice){
                 priceCandidates.add(requestBid);
             }
         }
