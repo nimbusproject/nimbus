@@ -10,7 +10,6 @@ import org.junit.Test;
 public class MaximizeProfitPricingModelTest {
 
     private MaximizeProfitPricingModel pricingModel = new MaximizeProfitPricingModel();
-   
     
     @Test
     public void testGetNextPriceNoDemand() {
@@ -18,17 +17,17 @@ public class MaximizeProfitPricingModelTest {
         LinkedList<SIRequest> requests = new LinkedList<SIRequest>();
         
         Double nextPrice = pricingModel.getNextPrice(0, requests, null);
-        assertEquals(PricingModelConstants.MINIMUM_PRICE, nextPrice);
-        assertTrue(PricingModelTestUtils.checkPricingModelConstraints(nextPrice, 0, requests));
+        assertEquals(pricingModel.getMinPrice(), nextPrice);
+        assertTrue(PricingModelTestUtils.checkPricingModelConstraints(pricingModel.getMinPrice(), nextPrice, 0, requests));
         
         
         nextPrice = pricingModel.getNextPrice(5, requests, null);
-        assertEquals(PricingModelConstants.MINIMUM_PRICE, nextPrice);
-        assertTrue(PricingModelTestUtils.checkPricingModelConstraints(nextPrice, 5, requests));
+        assertEquals(pricingModel.getMinPrice(), nextPrice);
+        assertTrue(PricingModelTestUtils.checkPricingModelConstraints(pricingModel.getMinPrice(), nextPrice, 5, requests));
         
         nextPrice = pricingModel.getNextPrice(2500, requests, null);
-        assertEquals(PricingModelConstants.MINIMUM_PRICE, nextPrice);
-        assertTrue(PricingModelTestUtils.checkPricingModelConstraints(nextPrice, 2500, requests));
+        assertEquals(pricingModel.getMinPrice(), nextPrice);
+        assertTrue(PricingModelTestUtils.checkPricingModelConstraints(pricingModel.getMinPrice(), nextPrice, 2500, requests));
     }
     
     @Test
@@ -40,7 +39,7 @@ public class MaximizeProfitPricingModelTest {
      
         Double nextPrice = pricingModel.getNextPrice(0, requests, null);
         assertEquals(new Double(2.0+0.1), nextPrice);
-        assertTrue(PricingModelTestUtils.checkPricingModelConstraints(nextPrice, 0, requests));
+        assertTrue(PricingModelTestUtils.checkPricingModelConstraints(pricingModel.getMinPrice(), nextPrice, 0, requests));
         
         //case 2
         requests = new LinkedList<SIRequest>();
@@ -50,7 +49,7 @@ public class MaximizeProfitPricingModelTest {
         
         nextPrice = pricingModel.getNextPrice(0, requests, null);
         assertEquals(new Double(4.0+0.1), nextPrice);
-        assertTrue(PricingModelTestUtils.checkPricingModelConstraints(nextPrice, 0, requests));
+        assertTrue(PricingModelTestUtils.checkPricingModelConstraints(pricingModel.getMinPrice(), nextPrice, 0, requests));
     }    
     
     @Test
@@ -61,7 +60,7 @@ public class MaximizeProfitPricingModelTest {
         
         Double nextPrice = pricingModel.getNextPrice(5, requests, null);
         assertEquals(new Double(2.0), nextPrice);
-        assertTrue(PricingModelTestUtils.checkPricingModelConstraints(nextPrice, 5, requests));
+        assertTrue(PricingModelTestUtils.checkPricingModelConstraints(pricingModel.getMinPrice(), nextPrice, 5, requests));
         
     }  
     
@@ -73,7 +72,7 @@ public class MaximizeProfitPricingModelTest {
         
         Double nextPrice = pricingModel.getNextPrice(5, requests, null);
         assertEquals(new Double(2.0), nextPrice);
-        assertTrue(PricingModelTestUtils.checkPricingModelConstraints(nextPrice, 5, requests));
+        assertTrue(PricingModelTestUtils.checkPricingModelConstraints(pricingModel.getMinPrice(), nextPrice, 5, requests));
     }
     
     @Test
@@ -86,7 +85,7 @@ public class MaximizeProfitPricingModelTest {
         
         Double nextPrice = pricingModel.getNextPrice(5, requests, null);
         assertEquals(new Double(2.0), nextPrice);
-        assertTrue(PricingModelTestUtils.checkPricingModelConstraints(nextPrice, 5, requests));
+        assertTrue(PricingModelTestUtils.checkPricingModelConstraints(pricingModel.getMinPrice(), nextPrice, 5, requests));
 
     } 
     
@@ -100,7 +99,7 @@ public class MaximizeProfitPricingModelTest {
         
         Double nextPrice = pricingModel.getNextPrice(15, requests, null);
         assertEquals(new Double(1.6), nextPrice);
-        assertTrue(PricingModelTestUtils.checkPricingModelConstraints(nextPrice, 15, requests));
+        assertTrue(PricingModelTestUtils.checkPricingModelConstraints(pricingModel.getMinPrice(), nextPrice, 15, requests));
     }   
     
     @Test
@@ -113,7 +112,7 @@ public class MaximizeProfitPricingModelTest {
         
         Double nextPrice = pricingModel.getNextPrice(15, requests, null);
         assertEquals(new Double(1.0), nextPrice);
-        assertTrue(PricingModelTestUtils.checkPricingModelConstraints(nextPrice, 15, requests));        
+        assertTrue(PricingModelTestUtils.checkPricingModelConstraints(pricingModel.getMinPrice(), nextPrice, 15, requests));        
     }    
     
     /*
@@ -135,7 +134,7 @@ public class MaximizeProfitPricingModelTest {
         
         Double nextPrice = pricingModel.getNextPrice(200, requests, null);
         assertEquals(new Double(200.0), nextPrice);
-        assertTrue(PricingModelTestUtils.checkPricingModelConstraints(nextPrice, 200, requests));        
+        assertTrue(PricingModelTestUtils.checkPricingModelConstraints(pricingModel.getMinPrice(), nextPrice, 200, requests));        
     }    
 
 }

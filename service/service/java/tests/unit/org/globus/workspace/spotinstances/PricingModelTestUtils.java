@@ -7,17 +7,13 @@ import edu.emory.mathcs.backport.java.util.Collections;
 
 public class PricingModelTestUtils {
 
-    public static boolean checkPricingModelConstraints(Double nextPrice, Integer totalReservedResources, Collection<SIRequest> requests){
+    public static boolean checkPricingModelConstraints(Double minPrice, Double nextPrice, Integer totalReservedResources, Collection<SIRequest> requests){
         
-        if(!checkMinimumPriceCOnstant(nextPrice)){
+        if(nextPrice < minPrice){
             return false;
         }
         
         return checkSpotInstancesConstraint(nextPrice, totalReservedResources, requests);
-    }
-
-    private static boolean checkMinimumPriceCOnstant(Double nextPrice) {
-        return nextPrice >= PricingModelConstants.MINIMUM_PRICE;
     }
 
     private static boolean checkSpotInstancesConstraint(Double nextPrice,

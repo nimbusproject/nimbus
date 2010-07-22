@@ -19,7 +19,6 @@ package org.globus.workspace.testing.suites.spotinstances;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
-import org.globus.workspace.spotinstances.PricingModelConstants;
 import org.globus.workspace.spotinstances.SpotInstancesManagerImpl;
 import org.globus.workspace.testing.NimbusTestBase;
 import org.globus.workspace.testing.NimbusTestContextLoader;
@@ -48,6 +47,8 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
     private static final String SPOTINSTANCES_MANAGER_BEAN_NAME = "nimbus-rm.spotinstances.manager";
     private static final int TASK_TIME = 10;
     private static final int BUFFER = 10000;
+    
+    private static final Double MINIMUM_PRICE = 0.1;
 
     @AfterSuite(alwaysRun=true)
     public void suiteTeardown() throws Exception {
@@ -117,7 +118,7 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         // Spot price: MINIUM_PRICE (since requestedVMs < availableVMs)                  
         
         //New spot price is equal to minimum price (since there are still available resources)
-        assertEquals(PricingModelConstants.MINIMUM_PRICE,  rm.getSpotPrice());
+        assertEquals(MINIMUM_PRICE,  rm.getSpotPrice());
         
         SpotRequest[] spotRequestByCaller = rm.getSpotRequestByCaller(caller);
         assertEquals(1, spotRequestByCaller.length);
@@ -253,7 +254,7 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         // Spot price: MINIUM_PRICE (since requestedVMs < availableVMs)           
         
         //New spot price is equal to minimum price
-        assertEquals(PricingModelConstants.MINIMUM_PRICE,  rm.getSpotPrice());
+        assertEquals(MINIMUM_PRICE,  rm.getSpotPrice());
         
         //Check if all submitted requests are active
         SpotRequest[] caller1Reqs = rm.getSpotRequestByCaller(caller1);
@@ -729,7 +730,7 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         assertEquals(4,  getAvailableResources());             
         
         //New spot price is equal to minimum price
-        assertEquals(PricingModelConstants.MINIMUM_PRICE,  rm.getSpotPrice());
+        assertEquals(MINIMUM_PRICE,  rm.getSpotPrice());
         
         lowReq1SR = rm.getSpotRequest(lowReq1Id, siCaller);
         assertEquals(SIRequestState.STATE_Closed, lowReq1SR.getState().getStateStr());
@@ -772,7 +773,7 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         assertEquals(4,  getAvailableResources());             
         
         //New spot price is equal to minimum price
-        assertEquals(PricingModelConstants.MINIMUM_PRICE,  rm.getSpotPrice());
+        assertEquals(MINIMUM_PRICE,  rm.getSpotPrice());
         
         lowReq1SR = rm.getSpotRequest(lowReq1Id, siCaller);
         assertEquals(SIRequestState.STATE_Closed, lowReq1SR.getState().getStateStr());
@@ -818,7 +819,7 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         assertEquals(4,  getAvailableResources());             
         
         //New spot price is equal to minimum price
-        assertEquals(PricingModelConstants.MINIMUM_PRICE,  rm.getSpotPrice());
+        assertEquals(MINIMUM_PRICE,  rm.getSpotPrice());
         
         lowReq1SR = rm.getSpotRequest(lowReq1Id, siCaller);
         assertEquals(SIRequestState.STATE_Closed, lowReq1SR.getState().getStateStr());
@@ -918,7 +919,7 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         assertEquals(4,  getAvailableResources());             
         
         //New spot price is equal to minimum price
-        assertEquals(PricingModelConstants.MINIMUM_PRICE,  rm.getSpotPrice());
+        assertEquals(MINIMUM_PRICE,  rm.getSpotPrice());
         
         lowReq1SR = rm.getSpotRequest(lowReq1Id, siCaller);
         assertEquals(SIRequestState.STATE_Closed, lowReq1SR.getState().getStateStr());

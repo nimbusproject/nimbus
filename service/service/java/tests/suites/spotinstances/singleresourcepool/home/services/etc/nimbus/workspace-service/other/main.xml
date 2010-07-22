@@ -152,6 +152,8 @@
                   value="$GLOBAL{termination.offset.seconds}" />
         <property name="defaultRunningTimeSeconds"
                   value="$GLOBAL{default.runtime.seconds}" />
+        <property name="allowedHttpHosts"
+                  value="$GLOBAL{allowed.http.hosts}" />
 
         <!-- Property values coming via common.conf -->
         <property name="fake" value="$COMMON{fake.mode}" />
@@ -274,6 +276,13 @@
         
         <property name="networksDir" value="$COMMON{conf.dir}/network-pools" />
         <property name="macPrefix" value="$NETWORK{mac.prefix}" />
+        <property name="netSampleNetwork" value="$NETWORK{netsample.network}" />
+        <property name="netSampleResource"
+                  value="$COMMON{persistence.dir}/control.netsample.txt" />
+        <property name="dhcpdEntriesResource"
+                  value="$COMMON{persistence.dir}/dhcpd.entries" />
+        <property name="ipMacResource"
+                  value="$COMMON{persistence.dir}/ip_macs.txt" />
 
     </bean>
 
@@ -303,7 +312,8 @@
         <!-- these modules can be null (InstanceResourceImpl) -->
         <property name="accountingEventAdapter"
                   ref="nimbus-rm.accounting" />
-        <property name="authzCallout"><null/></property>
+        <property name="authzCallout"
+                  ref="nimbus-rm.service.binding.AuthorizationCallout" />
     </bean>
     
     <bean id="nimbus-rm.home.instance"
@@ -537,6 +547,9 @@
          org.globus.workspace.spotinstances.* interfaces
          =================================================================== -->
 
+    <bean id="nimbus-rm.spotinstances.pricingmodel"
+          class="$SI{si.pricingmodel}" />
+
     <bean id="nimbus-rm.spotinstances.manager"
           class="org.globus.workspace.spotinstances.SpotInstancesManagerImpl">
 
@@ -544,9 +557,20 @@
         <constructor-arg ref="nimbus-rm.loglevels" />
         <constructor-arg ref="nimbus-rm.home.instance"/>
         <constructor-arg ref="nimbus-rm.home.group"/>
+        <constructor-arg value="$SI{si.basic.minprice}" />        
+        <constructor-arg ref="nimbus-rm.spotinstances.pricingmodel" />
  
         <!-- set after object creation time to avoid circular dep -->
         <property name="creationManager" ref="nimbus-rm.creation" />
+        
+        <!-- Property values coming via spotinstances.conf -->        
+        <property name="minReservedMem"
+                  value="$SI{si.policies.minreservedmem}" />
+        <property name="maxUtilization"
+                  value="$SI{si.policies.maxutilization}" />
+        <property name="instanceMem"
+                  value="$SI{si.basic.mem}" />                                    
+                          
     </bean>
 
     
