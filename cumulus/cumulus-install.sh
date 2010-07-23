@@ -44,8 +44,8 @@ if [ "X$2" == "X" ]; then
         exit 1
     fi
 
-    PYVEDIR=$installdir
     PYVE=$installdir/bin/python
+    PYVEDIR=$installdir
     PIP=$installdir/bin/pip
 else
     use_py=$2
@@ -62,7 +62,24 @@ else
         echo "ERROR: Your system must have Python version 2.5 or later."
         exit 1
     fi
+fi
 
+source $PYVEDIR/bin/activate
+
+
+if [ ! -e $PIP ]; then
+    cd $source_dir/deps
+    tar -zxf pip-0.7.2.tar.gz
+    if [ $? -ne 0 ]; then
+        echo "unable to untar pip-0.7.2.tar.gz"
+        exit 1
+    fi
+    cd $source_dir/deps/pip-0.7.2
+    $PYVE setup.py install
+    if [ $? -ne 0 ]; then
+        echo "pip was not installed correctly"
+        exit 1
+    fi
 fi
 
 cd $source_dir/deps
