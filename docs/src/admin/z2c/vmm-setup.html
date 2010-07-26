@@ -22,7 +22,8 @@ _NIMBUS_2_5_DEPRECATED
     You should use one VMM node for this exercise.  When things are working end to end, you can propagate the configuration and dependencies to all of the other nodes on your cluster (assuming that they are roughly homogeneous).
 </p>
 
-<h3>Dependencies</h3>
+<a name="deps"> </a>
+<h3>Dependencies _NAMELINK(deps)</h3>
 <p>
     Before automating a VMM node with Nimbus software, it needs to <b>be</b> a VMM node.  So the first thing we need to do is make sure that all the virtualization and networking dependencies are present.
 </p>
@@ -89,7 +90,8 @@ _NIMBUS_2_5_DEPRECATED
   Our next step in this guide will be to create a unix account for workspace-control and then install it.  This will give us access to some scripts we can use to further verify the system is ready to be automated with Nimbus.
 </p>
 
-<h3>Choose/Create Privileged User Account</h3>
+<a name="accounts"> </a>
+<h3>Choose/Create Privileged User Account _NAMELINK(accounts)</h3>
 <p>
     There are two system accounts needed on the VMMs.
 </p>
@@ -228,8 +230,8 @@ nimbus $ virsh -c 'xen+unix:///' list
     If you can still not do this basic list command as the nimbus user, look into your distribution's libvirt configurations and also don't hesitate to contact the     <a href="_NIMBUS_WEBSITE/contact/">workspace-user</a> mailing list with problems.
 </p>
 
-
-<h3>Install workspace-control</h3>
+<a name="installwc"> </a>
+<h3>Install workspace-control _NAMELINK(installwc)</h3>
 
 <p>
   We can now download the VMM control package to the machine. 
@@ -288,7 +290,8 @@ nimbus $ ./sbin/test-dependencies.sh
     problems.
 </p>
 
-<h3>Pick the kernel to use</h3>
+<a name="kernel"> </a>
+<h3>Pick the kernel to use _NAMELINK(kernel)</h3>
 
 <p>
   Pick a kernel in /boot that was installed with Xen to use for guest VMs.  Let's say for example you find <tt class="literal">/boot/vmlinuz-2.6.16.29-xen</tt> was installed along with Xen.
@@ -312,7 +315,8 @@ nimbus $ cp /boot/initrd-2.6.16.29-xen $KERNELDIR/default-initrd
   Now you have created a kernel called <tt class="literal">default</tt> that workspace-control will launch paravirtualized VMs with.  The default kernel and initrd to use for VMs is controlled by the <tt class="literal">authz_kernels</tt> configuration in <tt class="literal">/opt/nimbus/etc/workspace-control/kernels.conf</tt> (by default the authorized kernel is "default").
 </p>
 
-<h3>Obtain the sample image</h3>
+<a name="image"> </a>
+<h3>Obtain the sample image _NAMELINK(image)</h3>
 
 <p>
   A sample image has been prepared for testing.  This is a basic VM that the Nimbus developers are familiar with, meaning it will be easier to get support help using this VM.
@@ -329,7 +333,8 @@ nimbus $ gunzip nimbus-z2c.gz
     It also runs the Nimbus context agent on boot, so you can use it to test contextualization.
 </p>
 
-<h3>Configure default bridge</h3>
+<a name="bridge"> </a>
+<h3>Configure default bridge _NAMELINK(bridge)</h3>
 
 <p>
   You set up Xen to use bridged networking, now it is time to check what the actual name of the bridge will be that the guest VM network card uses to get traffic to the LAN.
@@ -358,8 +363,8 @@ xenbr0          8000.feffffffffff       no              peth0
   Notice <tt class="literal">default: xenbr0</tt> in the <tt class="literal">[defaultbridge]</tt> section of that configuration file.  The value here needs to be the bridge that VM traffic will be bridged to.  In this case, the <tt class="literal">xenbr0</tt> bridge.
 </p>
 
-
-<h3>Configure sudo and ebtables script</h3>
+<a name="sudo"> </a>
+<h3>Configure sudo and ebtables script _NAMELINK(sudo)</h3>
 
 <p>
   Before we can do a live test, we need to configure workspace-control to use sudo privileged properly.
@@ -396,8 +401,8 @@ ERROR: requires at least 2 arguments, syntax: add|rem &lt;vifname&gt; [&lt;macad
   The commands run via sudo are not using a terminal and so if you have "requiretty" enabled, this can cause a failure.
 </p>
 
-
-<h3>Obtain the workspace-control network sample</h3>
+<a name="netsample"> </a>
+<h3>Obtain the workspace-control network sample _NAMELINK(netsample)</h3>
 
 <p>
   In a previous section of this guide, you configured DHCPd and the network addresses to give to guest VMs. 
@@ -415,7 +420,8 @@ ERROR: requires at least 2 arguments, syntax: add|rem &lt;vifname&gt; [&lt;macad
   We will use it in the next step.  The example location on the VMM will be <tt class="literal">/tmp/control.netsample.txt</tt>.
 </p>
 
-<h3>Test VM creation with a generated libvirt config</h3>
+<a name="libvirtxml"> </a>
+<h3>Test VM creation with a generated libvirt config _NAMELINK(libvirtxml)</h3>
 
 <p>
   Once you have obtained the <tt class="literal">control.netsample.txt</tt> file, have the kernel configured and have the default bridge configured, you are ready to try starting the test VM using a libvirt configuration file.
@@ -586,8 +592,8 @@ nimbus $ virsh -c 'xen+unix:///' console control-test
 ssh root@192.168.0.2
 </pre></div>
 
-
-<h3>Final test: VM creation using workspace-control</h3>
+<a name="controltest"> </a>
+<h3>Final test: VM creation using workspace-control _NAMELINK(controltest)</h3>
 
 
 <p>
