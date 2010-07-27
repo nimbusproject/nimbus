@@ -16,6 +16,7 @@
 package org.globus.workspace.spotinstances;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -39,6 +40,7 @@ import org.globus.workspace.service.WorkspaceGroupHome;
 import org.globus.workspace.service.WorkspaceHome;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.nimbustools.api.repr.Caller;
+import org.nimbustools.api.repr.SpotPriceEntry;
 import org.nimbustools.api.services.rm.DoesNotExistException;
 import org.nimbustools.api.services.rm.ManageException;
 
@@ -78,23 +80,16 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
         this.allRequests = new HashMap<String, SIRequest>();
         this.maximumInstances = 0;
    
-        if (minPrice == null){
-            throw new IllegalArgumentException("minPrice may not be null");
-        }
-        
-        this.currentPrice = minPrice;
-        
-        if (pricingModelImpl == null) {
-            throw new IllegalArgumentException("pricingModelImpl may not be null");
-        }
-        this.pricingModel = pricingModelImpl;        
-        this.pricingModel.setMinPrice(minPrice);
-        
         if (persistenceAdapterImpl == null) {
             throw new IllegalArgumentException("persistenceAdapterImpl may not be null");
         }
-        this.persistence = persistenceAdapterImpl;
-
+        this.persistence = persistenceAdapterImpl;        
+       
+        if (pricingModelImpl == null) {
+            throw new IllegalArgumentException("pricingModelImpl may not be null");
+        }
+        this.pricingModel = pricingModelImpl; 
+        
         if (lagerImpl == null) {
             throw new IllegalArgumentException("lagerImpl may not be null");
         }
@@ -108,7 +103,14 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
         if (groupHome == null) {
             throw new IllegalArgumentException("groupHome may not be null");
         }
-        this.ghome = groupHome;
+        this.ghome = groupHome;        
+        
+        if (minPrice == null){
+            throw new IllegalArgumentException("minPrice may not be null");
+        }
+        
+        setPrice(minPrice);
+        this.pricingModel.setMinPrice(minPrice);
     }
     
     // -------------------------------------------------------------------------
@@ -188,6 +190,12 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
     public Double getSpotPrice() {
         return this.currentPrice;
     }
+
+    public List<SpotPriceEntry> getSpotPriceHistory(Calendar startDate, Calendar endDate)
+        throws WorkspaceDatabaseException {
+        
+        return persistence.getSpotPriceHistory(startDate, endDate);
+    }     
     
     // -------------------------------------------------------------------------
     // Implements org.globus.workspace.scheduler.defaults.PreemptableSpaceManager
@@ -360,9 +368,11 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
         Double newPrice = pricingModel.getNextPrice(maximumInstances, getAliveRequests(), currentPrice);
         if(!newPrice.equals(this.currentPrice)){
             if (this.lager.eventLog) {
-                logger.info(Lager.ev(-1) + "[Spot Instances] Spot price has changed. Previous price = " + this.currentPrice + ". Current price = " + newPrice);
+                logger.info(Lager.ev(-1) + "[Spot Instances] Spot price has changed. " +
+                		                   "Previous price = " + this.currentPrice + ". " +
+                		                   "Current price = " + newPrice);
             }
-            this.currentPrice = newPrice;
+            setPrice(newPrice);
         }
     }
 
@@ -846,6 +856,17 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
     // -------------------------------------------------------------------------
     // UTILS - Candidates for moving down to SQL
     // -------------------------------------------------------------------------  
+    
+    private void setPrice(Double newPrice) {
+        this.currentPrice = newPrice;
+        try {
+            persistence.addSpotPriceHistory(Calendar.getInstance(), newPrice);
+        } catch (WorkspaceDatabaseException e) {
+            logger.error(Lager.ev(-1) + "[Spot Instances] Error while persisting " +
+                                        "spot price history: " + e.getMessage());
+            return;
+        }
+    }    
     
     /**
      * Retrieves a Spot Instance request and its related information

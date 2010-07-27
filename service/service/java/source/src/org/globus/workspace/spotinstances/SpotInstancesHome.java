@@ -15,7 +15,12 @@
  */
 package org.globus.workspace.spotinstances;
 
+import java.util.Calendar;
+import java.util.List;
+
+import org.globus.workspace.persistence.WorkspaceDatabaseException;
 import org.nimbustools.api.repr.Caller;
+import org.nimbustools.api.repr.SpotPriceEntry;
 import org.nimbustools.api.services.rm.DoesNotExistException;
 
 
@@ -56,5 +61,8 @@ public interface SpotInstancesHome {
      * @return current spot price
      */
     public Double getSpotPrice();
+
+    public List<SpotPriceEntry> getSpotPriceHistory(Calendar startDate, Calendar endDate) 
+            throws WorkspaceDatabaseException;
 
 }
