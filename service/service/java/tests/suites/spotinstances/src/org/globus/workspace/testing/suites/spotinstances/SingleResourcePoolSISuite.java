@@ -19,6 +19,8 @@ package org.globus.workspace.testing.suites.spotinstances;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.util.Calendar;
+
 import org.globus.workspace.spotinstances.SpotInstancesManagerImpl;
 import org.globus.workspace.testing.NimbusTestBase;
 import org.globus.workspace.testing.NimbusTestContextLoader;
@@ -26,6 +28,7 @@ import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.CreateRequest;
 import org.nimbustools.api.repr.CreateResult;
 import org.nimbustools.api.repr.RequestSI;
+import org.nimbustools.api.repr.SpotPriceEntry;
 import org.nimbustools.api.repr.SpotRequest;
 import org.nimbustools.api.repr.si.SIRequestState;
 import org.nimbustools.api.services.rm.Manager;
@@ -83,6 +86,8 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
     public void singleRequest() throws Exception {
         logger.debug("singleRequest");
 
+        Calendar ts1 = Calendar.getInstance();
+        
         //Objects and requests setup        
         
         Caller caller = this.populator().getCaller();
@@ -154,6 +159,29 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         request = rm.getSpotRequest(result.getRequestID(), caller);
         assertEquals(SIRequestState.STATE_Cancelled, request.getState().getStateStr());
         assertEquals(0, request.getVMIds().length);
+        
+        Double[] prices = {MINIMUM_PRICE};
+        
+        //Check spot price history
+        SpotPriceEntry[] history = rm.getSpotPriceHistory();
+        
+        assertEquals(prices.length, history.length);
+        
+        for (int i = 0; i < history.length; i++) {
+            assertEquals(prices[i], history[i].getSpotPrice());
+        }
+        
+        history = rm.getSpotPriceHistory(ts1, null);
+        
+        assertEquals(history.length, 0);
+        
+        history = rm.getSpotPriceHistory(null, ts1);
+        
+        assertEquals(prices.length, history.length);
+        
+        for (int i = 0; i < history.length; i++) {
+            assertEquals(prices[i], history[i].getSpotPrice());
+        }        
     } 
     
     /**
@@ -209,7 +237,7 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
     @DirtiesContext
     public void multipleSIRequestsOnly() throws Exception {
         logger.debug("multipleRequestsSIOnly");
-
+        
         //Objects and requests setup
         
         Manager rm = this.locator.getManager();
@@ -253,6 +281,8 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         // Requested SI VMs (alive requests): 7
         // Spot price: MINIUM_PRICE (since requestedVMs < availableVMs)           
         
+        Calendar ts2 = Calendar.getInstance();        
+        
         //New spot price is equal to minimum price
         assertEquals(MINIMUM_PRICE,  rm.getSpotPrice());
         
@@ -284,7 +314,7 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         // ---------------------------------------------------------------------------      
         // Requested SI VMs (alive requests): 8
         // Spot price: lowBid (previousPrice+1) 
-        
+                
         //New spot price is equal to lower bid
         assertEquals(lowBid,  rm.getSpotPrice());
         
@@ -313,6 +343,8 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         // Requested SI VMs (alive requests): 11
         // Spot price: mediumBid (previousPrice+2)             
 
+        Calendar ts4 = Calendar.getInstance();        
+        
         logger.debug("Waiting 2 seconds for resources to be pre-empted.");
         Thread.sleep(2000);         
         
@@ -355,6 +387,8 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         // Requested SI VMs (alive requests): 18
         // Spot price: highBid (previousPrice+3)              
         
+        Calendar ts5 = Calendar.getInstance();        
+        
         logger.debug("Waiting 2 seconds for resources to be pre-empted.");
         Thread.sleep(2000);        
         
@@ -372,6 +406,58 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         assertEquals(SIRequestState.STATE_Closed, rm.getSpotRequest(lowReq1Id, caller1).getState().getStateStr());
         assertEquals(SIRequestState.STATE_Closed, rm.getSpotRequest(lowReq3Id, caller2).getState().getStateStr());
         assertEquals(SIRequestState.STATE_Closed, rm.getSpotRequest(medReq1Id, caller2).getState().getStateStr());
+        
+        //Expected prices from full history
+        
+        Double[] prices = new Double[]{MINIMUM_PRICE, lowBid, mediumBid, highBid};
+        
+        //Check spot price history
+        SpotPriceEntry[] history = rm.getSpotPriceHistory();
+        
+        assertEquals(prices.length, history.length);
+        
+        for (int i = 0; i < history.length; i++) {
+            assertEquals(prices[i], history[i].getSpotPrice());
+        }
+        
+        //Expected prices before ts2
+        
+        prices = new Double[]{MINIMUM_PRICE};
+        
+        //Check spot price history
+        history = rm.getSpotPriceHistory(null, ts2);
+        
+        assertEquals(prices.length, history.length);
+        
+        for (int i = 0; i < history.length; i++) {
+            assertEquals(prices[i], history[i].getSpotPrice());
+        }
+        
+        //Expected prices from ts2 to ts4
+        
+        prices = new Double[]{lowBid, mediumBid};
+        
+        //Check spot price history
+        history = rm.getSpotPriceHistory(ts2, ts4);
+        
+        assertEquals(prices.length, history.length);
+        
+        for (int i = 0; i < history.length; i++) {
+            assertEquals(prices[i], history[i].getSpotPrice());
+        }           
+         
+        //Expected prices from ts4 to ts5
+        
+        prices = new Double[]{highBid};
+        
+        //Check spot price history
+        history = rm.getSpotPriceHistory(ts4, ts5);
+        
+        assertEquals(prices.length, history.length);
+        
+        for (int i = 0; i < history.length; i++) {
+            assertEquals(prices[i], history[i].getSpotPrice());
+        }            
     }
     
 

@@ -209,6 +209,16 @@ position BIGINT
 );
 
 --
+-- Spot Instances:
+
+CREATE TABLE spot_prices
+(
+tstamp BIGINT NOT NULL,
+price DOUBLE NOT NULL,
+PRIMARY KEY(tstamp, price)
+);
+
+--
 -- Other:
 
 CREATE TABLE counter

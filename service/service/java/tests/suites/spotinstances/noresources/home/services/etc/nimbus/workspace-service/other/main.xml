@@ -408,6 +408,7 @@
         <constructor-arg ref="other.MainDataSource" />
         <constructor-arg ref="nimbus-rm.loglevels" />
         <constructor-arg ref="nimbus-rm.persistence.dbloader" />
+	<constructor-arg ref="nimbus-repr.ReprFactory"/>
 
     </bean>
 
