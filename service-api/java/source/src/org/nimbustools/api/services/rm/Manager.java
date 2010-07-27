@@ -24,6 +24,7 @@ import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.CreateRequest;
 import org.nimbustools.api.repr.CreateResult;
 import org.nimbustools.api.repr.RequestSI;
+import org.nimbustools.api.repr.SpotPriceEntry;
 import org.nimbustools.api.repr.SpotRequest;
 import org.nimbustools.api.repr.ShutdownTasks;
 import org.nimbustools.api.repr.Usage;
@@ -200,6 +201,11 @@ public interface Manager extends NimbusModule {
                                                     Caller caller)
             throws DoesNotExistException, AuthorizationException, ManageException;
     
-    public Double getSpotPrice()
+    public Double getSpotPrice();
+
+    public SpotPriceEntry[] getSpotPriceHistory()
+            throws ManageException;
+    
+    public SpotPriceEntry[] getSpotPriceHistory(Calendar startDate, Calendar endDate)
             throws ManageException;    
 }

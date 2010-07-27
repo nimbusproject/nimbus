@@ -17,6 +17,7 @@
 package org.globus.workspace.manager;
 
 import java.util.Calendar;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -42,6 +43,7 @@ import org.nimbustools.api.repr.CreateResult;
 import org.nimbustools.api.repr.ReprFactory;
 import org.nimbustools.api.repr.RequestSI;
 import org.nimbustools.api.repr.ShutdownTasks;
+import org.nimbustools.api.repr.SpotPriceEntry;
 import org.nimbustools.api.repr.SpotRequest;
 import org.nimbustools.api.repr.Usage;
 import org.nimbustools.api.repr.vm.VM;
@@ -777,7 +779,7 @@ public class DelegatingManager implements Manager {
         }
     }     
     
-    public Double getSpotPrice() throws ManageException {
+    public Double getSpotPrice() {
         return siHome.getSpotPrice();
     }
 
@@ -846,6 +848,22 @@ public class DelegatingManager implements Manager {
         }
         
         return result;
+    }
+
+
+    @Override
+    public SpotPriceEntry[] getSpotPriceHistory() throws ManageException {
+        
+        return getSpotPriceHistory(null, null);
+    }
+
+
+    @Override
+    public SpotPriceEntry[] getSpotPriceHistory(Calendar startDate,
+            Calendar endDate) throws ManageException {
+        List<SpotPriceEntry> result = siHome.getSpotPriceHistory(startDate, endDate);
+        
+        return result.toArray(new SpotPriceEntry[0]);
     }    
 
 }

@@ -23,6 +23,7 @@ import org.nimbustools.api.repr.CreateRequest;
 import org.nimbustools.api.repr.CreateResult;
 import org.nimbustools.api.repr.ReprFactory;
 import org.nimbustools.api.repr.RequestSI;
+import org.nimbustools.api.repr.SpotPriceEntry;
 import org.nimbustools.api.repr.SpotRequest;
 import org.nimbustools.api.repr.ShutdownTasks;
 import org.nimbustools.api.repr.Usage;
@@ -287,7 +288,7 @@ public class DefaultManager implements Manager {
         return null;
     }        
     
-    public Double getSpotPrice() throws ManageException {
+    public Double getSpotPrice() {
 
         Logging.debug("Manager.getSpotPrice()'");        
         
@@ -326,6 +327,18 @@ public class DefaultManager implements Manager {
         Logging.debug("Manager.getSpotRequest() -- caller '" + caller + "', " +
                 "ids:" + Arrays.toString(ids));
         
+        return null;
+    }
+
+    public SpotPriceEntry[] getSpotPriceHistory() throws ManageException {
+        Logging.debug("Manager.getSpotPriceHistory()'");        
+        
+        return null;
+    }
+
+    public SpotPriceEntry[] getSpotPriceHistory(Calendar startDate,
+            Calendar endDate) throws ManageException {
+        Logging.debug("Manager.getSpotPriceHistory() startDate: " + startDate + ". endDate: " + endDate);
         return null;
     }
 
