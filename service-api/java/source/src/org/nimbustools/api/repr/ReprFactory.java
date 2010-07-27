@@ -23,6 +23,8 @@ import org.nimbustools.api._repr._CreateRequest;
 import org.nimbustools.api._repr._CreateResult;
 import org.nimbustools.api._repr._CustomizationRequest;
 import org.nimbustools.api._repr._ShutdownTasks;
+import org.nimbustools.api._repr._SpotPriceEntry;
+import org.nimbustools.api._repr._SpotRequest;
 import org.nimbustools.api._repr._Usage;
 import org.nimbustools.api._repr.ctx._Context;
 import org.nimbustools.api._repr.vm._Kernel;
@@ -48,6 +50,8 @@ public interface ReprFactory extends NimbusModule {
     public _CustomizationRequest _newCustomizationRequest();
     public _ShutdownTasks _newShutdownTasks();
     public _Usage _newUsage();
+    public _SpotRequest _newSpotRequest();
+    public _SpotPriceEntry _newSpotPriceEntry();
 
 
     // vm package

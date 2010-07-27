@@ -29,6 +29,25 @@ import org.globus.workspace.persistence.WorkspaceDatabaseException;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.nimbustools.api._repr._Advertised;
+import org.nimbustools.api._repr._Caller;
+import org.nimbustools.api._repr._CreateRequest;
+import org.nimbustools.api._repr._CreateResult;
+import org.nimbustools.api._repr._CustomizationRequest;
+import org.nimbustools.api._repr._ShutdownTasks;
+import org.nimbustools.api._repr._SpotPriceEntry;
+import org.nimbustools.api._repr._SpotRequest;
+import org.nimbustools.api._repr._Usage;
+import org.nimbustools.api._repr.ctx._Context;
+import org.nimbustools.api._repr.vm._Kernel;
+import org.nimbustools.api._repr.vm._NIC;
+import org.nimbustools.api._repr.vm._RequiredVMM;
+import org.nimbustools.api._repr.vm._ResourceAllocation;
+import org.nimbustools.api._repr.vm._Schedule;
+import org.nimbustools.api._repr.vm._State;
+import org.nimbustools.api._repr.vm._VM;
+import org.nimbustools.api._repr.vm._VMFile;
+import org.nimbustools.api.defaults.repr.DefaultReprFactory;
 
 public class ResourcepoolUtilTest extends NimbusDatabaseTestCase {
 
@@ -42,7 +61,7 @@ public class ResourcepoolUtilTest extends NimbusDatabaseTestCase {
         
         //objects creation
         loader.setDerbySystemProperty();
-        adapter = new PersistenceAdapterImpl(getDataSource(), lagerImpl, loader);
+        adapter = new PersistenceAdapterImpl(getDataSource(), lagerImpl, loader, getReprFactory());
         
         populateDB();
     }
@@ -185,4 +204,116 @@ public class ResourcepoolUtilTest extends NimbusDatabaseTestCase {
         assertTrue(hostImpr.equals("hostC") || hostImpr.equals("hostG"));
     }    
 
+    private static DefaultReprFactory getReprFactory() {
+        return new DefaultReprFactory() {
+            
+            @Override
+            public _SpotRequest _newSpotRequest() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+            
+            @Override
+            public _SpotPriceEntry _newSpotPriceEntry() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+            
+            @Override
+            public _VMFile _newVMFile() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+            
+            @Override
+            public _VM _newVM() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+            
+            @Override
+            public _Usage _newUsage() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+            
+            @Override
+            public _State _newState() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+            
+            @Override
+            public _ShutdownTasks _newShutdownTasks() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+            
+            @Override
+            public _Schedule _newSchedule() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+            
+            @Override
+            public _ResourceAllocation _newResourceAllocation() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+            
+            @Override
+            public _RequiredVMM _newRequiredVMM() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+            
+            @Override
+            public _NIC _newNIC() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+            
+            @Override
+            public _Kernel _newKernel() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+            
+            @Override
+            public _CustomizationRequest _newCustomizationRequest() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+            
+            @Override
+            public _CreateResult _newCreateResult() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+            
+            @Override
+            public _CreateRequest _newCreateRequest() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+            
+            @Override
+            public _Context _newContext() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+            
+            @Override
+            public _Caller _newCaller() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+            
+            @Override
+            public _Advertised _newAdvertised() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+        };
+    }
 }

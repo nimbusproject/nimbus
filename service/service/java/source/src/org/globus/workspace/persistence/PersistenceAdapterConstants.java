@@ -195,8 +195,13 @@ public interface PersistenceAdapterConstants {
             "SELECT id FROM resources WHERE creator_dn=?";
     
     public static final String SQL_SELECT_AVAILABLE_ENTRIES =
-        "SELECT * FROM resourcepool_entries WHERE available_memory >= ? ORDER BY (available_memory/maximum_memory) ASC";    
+            "SELECT * FROM resourcepool_entries WHERE available_memory >= ? ORDER BY (available_memory/maximum_memory) ASC";    
     
+    public static final String SQL_INSERT_SPOT_PRICE =
+            "INSERT INTO spot_prices VALUES(?,?)";    
+    
+    public static final String SQL_SELECT_SPOT_PRICE =
+            "SELECT * FROM spot_prices";
     
     public static final String[] PREPARED_STATEMENTS = {
                                     SQL_SELECT_RESOURCES,
@@ -247,5 +252,6 @@ public interface PersistenceAdapterConstants {
                                     SQL_SELECT_TOTAL_AVAILABLE_MEMORY,
                                     SQL_SELECT_TOTAL_MAX_MEMORY,
                                     SQL_SELECT_TOTAL_PREEMPTABLE_MEMORY,
-                                    SQL_SELECT_USED_NON_PREEMPTABLE_MEMORY};
+                                    SQL_SELECT_USED_NON_PREEMPTABLE_MEMORY,
+                                    SQL_INSERT_SPOT_PRICE};
 }

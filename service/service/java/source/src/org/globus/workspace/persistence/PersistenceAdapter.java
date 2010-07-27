@@ -26,6 +26,7 @@ import org.globus.workspace.service.CoschedResource;
 import org.globus.workspace.service.GroupResource;
 import org.globus.workspace.service.InstanceResource;
 import org.globus.workspace.service.binding.vm.CustomizationNeed;
+import org.nimbustools.api.repr.SpotPriceEntry;
 import org.nimbustools.api.services.rm.DoesNotExistException;
 
 /**
@@ -235,6 +236,16 @@ public interface PersistenceAdapter {
     
     public Integer getUsedNonPreemptableMemory()
     
-            throws WorkspaceDatabaseException;     
+            throws WorkspaceDatabaseException;
+
+    public void addSpotPriceHistory(Calendar timeStamp, 
+                                  Double newPrice)
+    
+            throws WorkspaceDatabaseException;
+
+    public List<SpotPriceEntry> getSpotPriceHistory(Calendar startDate,
+                                                    Calendar endDate)
+                                                  
+            throws WorkspaceDatabaseException;
 
 }

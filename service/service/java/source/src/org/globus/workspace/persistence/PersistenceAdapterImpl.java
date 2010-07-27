@@ -27,6 +27,7 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Hashtable;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -49,6 +50,9 @@ import org.globus.workspace.service.InstanceResource;
 import org.globus.workspace.service.binding.vm.CustomizationNeed;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.globus.workspace.service.binding.vm.VirtualMachinePartition;
+import org.nimbustools.api._repr._SpotPriceEntry;
+import org.nimbustools.api.repr.ReprFactory;
+import org.nimbustools.api.repr.SpotPriceEntry;
 import org.nimbustools.api.services.rm.DoesNotExistException;
 import org.nimbustools.api.services.rm.ManageException;
 
@@ -73,6 +77,7 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
     private final Lager lager;
     private final DataSource dataSource;
     private final boolean dbTrace;
+    private final ReprFactory repr;
 
     // caches, todo: ehcache
     private Hashtable associations;
@@ -85,7 +90,8 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
 
     public PersistenceAdapterImpl(DataSource dataSourceImpl,
                                   Lager lagerImpl,
-                                  DBLoader loader) throws Exception {
+                                  DBLoader loader,
+                                  ReprFactory reprImpl) throws Exception {
         
         if (dataSourceImpl == null) {
             throw new IllegalArgumentException("dataSource may not be null");
@@ -98,6 +104,11 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
         this.lager = lagerImpl;
         this.dbTrace = lagerImpl.dbLog;
 
+        if (reprImpl == null) {
+            throw new IllegalArgumentException("reprImpl may not be null");
+        }
+        this.repr = reprImpl;        
+        
         if (loader == null) {
             throw new IllegalArgumentException("loader may not be null");
         }
@@ -2518,5 +2529,133 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
         }
 
         return total;
+    }
+
+
+    @Override
+    public void addSpotPriceHistory(Calendar timeStamp, Double newPrice) throws WorkspaceDatabaseException{
+        if (this.dbTrace) {
+            logger.trace("addSpotPriceHistory(): timeStamp = " + timeStamp + ", spot price = " + newPrice);
+        }
+
+        Connection c = null;
+        PreparedStatement pstmt = null;
+        try {
+            c = getConnection();
+            pstmt = c.prepareStatement(SQL_INSERT_SPOT_PRICE);
+
+            if (timeStamp != null) {
+                pstmt.setLong(1,
+                    new Long(timeStamp.getTimeInMillis()));
+            } else {
+                pstmt.setInt(1, 0);
+            }
+
+            pstmt.setDouble(2, newPrice);
+            final int updated = pstmt.executeUpdate();
+
+            if (this.dbTrace) {
+                logger.trace("addSpotPriceHistory(): updated " + updated + " rows");
+            }
+
+        } catch(SQLException e) {
+            logger.error("",e);
+            throw new WorkspaceDatabaseException(e);
+        } finally {
+            try {
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+                if (c != null) {
+                    returnConnection(c);
+                }
+            } catch (SQLException sql) {
+                logger.error("SQLException in finally cleanup", sql);
+            }
+        }
+    }
+
+
+    public List<SpotPriceEntry> getSpotPriceHistory(Calendar startDate,
+            Calendar endDate) throws WorkspaceDatabaseException {
+        if (this.dbTrace) {
+            logger.trace("getSpotPriceHistory() startDate: " + startDate + ". endDate: " + endDate);
+        }
+
+        Connection c = null;
+        Statement st = null;
+        ResultSet rs = null;
+
+        try {
+            c = getConnection();
+            st = c.createStatement();
+            
+            String statement = SQL_SELECT_SPOT_PRICE;
+            
+            if(startDate != null || endDate != null){
+                statement += " WHERE ";
+                
+                if(startDate != null){
+                    statement += "tstamp >= " + startDate.getTimeInMillis(); 
+                    if(endDate != null){
+                        statement += " AND";
+                    }
+                }
+                
+                if(endDate != null){
+                    statement += " tstamp <= " + endDate.getTimeInMillis();
+                }
+            }
+            
+            rs = st.executeQuery(statement);
+            
+            if (rs == null || !rs.next()) {
+                if (lager.traceLog) {
+                    logger.debug("no previous spot price history");
+                }
+                return new LinkedList<SpotPriceEntry>();
+            }
+
+            List<SpotPriceEntry> result = new LinkedList<SpotPriceEntry>();
+            do {
+                // rs was next'd above already
+                Long timeMillis = rs.getLong(1);                
+                Double spotPrice = rs.getDouble(2);
+                _SpotPriceEntry spotPriceEntry = repr._newSpotPriceEntry();
+                
+                Calendar timeStamp = Calendar.getInstance();
+                timeStamp.setTimeInMillis(timeMillis);
+
+                spotPriceEntry.setTimeStamp(timeStamp);
+                spotPriceEntry.setSpotPrice(spotPrice);
+                
+                result.add(spotPriceEntry);
+                
+                if (this.dbTrace) {
+                    logger.trace("found spot price entry: '" +
+                            timeStamp + " : " + spotPrice + "'");
+                }
+            } while (rs.next());
+
+            return result;
+            
+        } catch(SQLException e) {
+            logger.error("",e);
+            throw new WorkspaceDatabaseException(e);
+        } finally {
+            try {
+                if (st != null) {
+                    st.close();
+                }
+                if (rs != null) {
+                    rs.close();
+                }
+                if (c != null) {
+                    returnConnection(c);
+                }
+            } catch (SQLException sql) {
+                logger.error("SQLException in finally cleanup", sql);
+            }
+        }
     }    
 }
