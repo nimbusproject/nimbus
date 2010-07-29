@@ -19,6 +19,10 @@ class Platform:
     
     def __init__(self, params, common):
         
+        self.xen3 = False
+        self.kvm0 = False
+        self.create_flock = False
+        
         if params == None:
             raise ProgrammingError("expecting params")
         if common == None:
@@ -36,6 +40,10 @@ class Platform:
             self.adapter = lvrt_adapter_xen3.vmmadapter(params, common)
             self.intakeadapter = lvrt_adapter_xen3.intakeadapter(params, common)
             self.xen3 = True
+            # Because of a race between mount-alter.sh and Xen scripts for
+            # accessing loopback devices, we need to flock the same lock as
+            # mount-alter.sh
+            self.create_flock = True
         elif adapter_conf == "kvm0":
             self.adapter = lvrt_adapter_kvm0.vmmadapter(params, common)
             self.intakeadapter = lvrt_adapter_kvm0.intakeadapter(params, common)
@@ -69,11 +77,6 @@ class Platform:
         if self.c.dryrun:
             self.c.log.debug("dryrun, not sending")
             return
-
-        # Because of a race between mount-alter.sh and Xen scripts for accessing
-        # loopback devices, we need to flock the same lock as mount-alter.sh
-        if self.xen3:
-            self.create_flock = True
 
         newvm = None
         lockfile = None

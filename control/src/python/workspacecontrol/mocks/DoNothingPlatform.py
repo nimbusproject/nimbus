@@ -21,6 +21,8 @@ class DoNothingPlatform:
         self.p = params
         self.c = common
         self.persistence = wc_core_persistence.Persistence(self.p, self.c)
+        self.xen3 = False
+        self.kvm0 = False
 
     def _get_mockinfo_expecting(self):
         """Return (name, mockinfo)
