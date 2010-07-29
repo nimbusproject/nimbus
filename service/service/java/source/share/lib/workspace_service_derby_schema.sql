@@ -70,7 +70,7 @@ md_user_data VARCHAR(30720)
 CREATE TABLE vm_partitions
 (
 vmid INT NOT NULL,
-image VARCHAR(128) NOT NULL,
+image VARCHAR(4096) NOT NULL,
 imagemount VARCHAR(128) NOT NULL,
 readwrite SMALLINT NOT NULL,
 rootdisk SMALLINT NOT NULL,
