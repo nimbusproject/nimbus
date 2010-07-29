@@ -508,7 +508,10 @@ fdisk, but that did not work either:
             self.c.log.error(errmsg)
             raise IncompatibleEnvironment(errmsg)
         
-        part_pattern = re.compile(r'\n%s.*' % imagepath)
+        # fdisk will truncate the partition name to 79 characters if it's too
+        # long. Match only the first 10 characters of imagepath to detect the
+        # first partition line.
+        part_pattern = re.compile(r'\n%s.*' % imagepath[:10])
         lines = []
         for m in part_pattern.finditer(output):
             lines.append(m.group())
@@ -535,4 +538,3 @@ fdisk, but that did not work either:
         self.c.log.debug("offset guess is %d for HD image %s" % (offset, imagepath))
         
         return offset
-        
