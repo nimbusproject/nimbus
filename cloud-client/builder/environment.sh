@@ -2,7 +2,7 @@ if [ ! "X$CLCLBUILDER_ENVIRONMENT_DEFINED" = "X" ]; then
   return 0
 fi
 
-export CLCLBUILDER_RELEASE_NAME="nimbus-cloud-client-016RC2.99"
+export CLCLBUILDER_RELEASE_NAME="nimbus-cloud-client-016"
 
 # #########################################################
 
