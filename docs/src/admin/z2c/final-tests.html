@@ -28,9 +28,6 @@ _NIMBUS_2_5_DEPRECATED
 $ cd nimbus-cloud-client/
 </pre>
 <pre class="panel">
-$ ./bin/grid-proxy-init.sh
-</pre>
-<pre class="panel">
 $ ./bin/cloud-client.sh --status
 
 Querying for ALL instances.
@@ -133,8 +130,114 @@ $ ./bin/cloud-client.sh --terminate --handle vm-001
     <a href="http://www.nimbusproject.org/docs/2.4/clouds/cloudquickstart.html">client quickstart</a>.
 </p>
 
-<p>TODO: demonstrate cluster launching</p>
+<h3>Once more, with contextualization</h3>
 
+<p>
+    The cloud client also supports launching VMs with <em>contextualization</em>.
+    The VM image has an agent installed that securely contacts a broker and exchanges
+    information about itself and other nodes. This allows launching groups of nodes
+    that are contextualized into clusters.
+</p>
+
+
+<p>
+    The <tt class="literal">nimbus-z2c</tt> image supports simple contextualization.
+    Each VM's SSH public key will be retrieved by the cloud client and installed into
+    your <tt class="literal">~/.ssh/known_hosts</tt> file. If you launch multiple
+    <tt class="literal">nimbus-z2c</tt> VMs, they will be contextualized and
+    configured with host-based authentication.
+</p>
+<p>
+    Clusters are launched using a cluster document which describes the instances
+    and their relationships. An example for <tt class="literal">nimbus-z2c</tt>
+    is available <a href="http://www.nimbusproject.org/downloads/nimbus-z2c.xml">here</a>.
+</p>
+
+<pre class="panel">
+$ wget http://www.nimbusproject.org/downloads/nimbus-z2c.xml
+</pre>
+
+<pre class="panel">
+&lt;cluster&gt;
+  &lt;workspace&gt;
+    &lt;name&gt;node1&lt;/name&gt;
+    &lt;image&gt;nimbus-z2c&lt;/image&gt;
+    &lt;!-- How many to launch --&gt;
+    &lt;quantity&gt;1&lt;/quantity&gt;
+
+    &lt;nic wantlogin="true"&gt;public&lt;/nic&gt;
+
+    &lt;ctx&gt;
+      &lt;provides&gt;
+          &lt;identity /&gt;
+          &lt;role&gt;testrole1&lt;/role&gt;
+      &lt;/provides&gt;
+      &lt;requires&gt;
+          &lt;identity /&gt;
+          &lt;role name="testrole2" hostname="true" pubkey="true" /&gt;
+          &lt;role name="testrole3" /&gt;
+      &lt;/requires&gt;
+    &lt;/ctx&gt;
+  &lt;/workspace&gt;
+&lt;/cluster&gt;
+</pre>
+
+<p>
+    Run the cloud client again, specifying this file with
+    the <tt class="literal">--cluster</tt> argument.
+</p>
+
+<pre class="panel">
+$ ./bin/cloud-client.sh --run --cluster nimbus-z2c.xml --hours 1
+
+Requesting cluster.
+  - node1: image 'nimbus-z2c', 1 instance
+
+Context Broker:
+    https://nimbus.example.edu:8445/wsrf/services/NimbusContextBroker
+
+Created new context with broker.
+
+Workspace Factory Service:
+    https://nimbus.example.edu:8445/wsrf/services/WorkspaceFactoryService
+
+Creating workspace "node1"... done.
+  - 128.135.125.21 [ x001.nimbus.example.edu ]
+
+
+Launching cluster-001... done.
+
+Waiting for launch updates.
+  - cluster-001: all members are Running
+
+Waiting for context broker updates.
+  - cluster-001: contextualized
+
+SSH trusts new key for x001.nimbus.example.edu  [[ node1 ]]
+</pre>
+
+<p>
+    If all went well, you should see output similar to the example. The VM
+    was booted and its SSH key was sent back to the client via the Context
+    Broker. If you want to try booting multiple VMs in a cluster, edit the
+    XML file and adjust the quantity element then try again. You can also
+    check out the
+    <a href="../../clouds/clusters.html">cluster guide</a>
+    for more information.
+</p>
+
+<h3>What's next?</h3>
+<p>
+    Once all of these tests succeed, your cloud is up and running. At this
+    point you probably want to configure more VMM nodes and add them
+    to the resource pool. You may also want to check out the
+    <a href="../reference.html">reference page</a> for details about advanced
+    configurations.
+</p>
+<p>
+    Thanks for trying out Nimbus! If you have any questions or comments
+    please contact our <a href="/contact/">support lists</a>.
+</p>
 
 
 _NIMBUS_CENTER2_COLUMN_END
