@@ -81,18 +81,19 @@ class Platform:
         newvm = None
         lockfile = None
         try:
-            if self.create_flock:
-                lockfilepath = self.c.resolve_var_dir("lock/loopback.lock")
-                if not os.path.exists(lockfilepath):
-                    raise IncompatibleEnvironment("cannot find lock directory or lock file, make sure lock/loopback.lock exists")
-                lockfile = open(lockfilepath, "r")
-                fcntl.flock(lockfile.fileno(), fcntl.LOCK_EX)
-            newvm = self._vmm().createXML(xml, 0)
-        except libvirt.libvirtError,e:
-            shorterr = "Problem creating the VM: %s" % str(e)
-            self.c.log.error(shorterr)
-            self.c.log.exception(e)
-            raise UnexpectedError(shorterr)
+            try:
+                if self.create_flock:
+                    lockfilepath = self.c.resolve_var_dir("lock/loopback.lock")
+                    if not os.path.exists(lockfilepath):
+                        raise IncompatibleEnvironment("cannot find lock directory or lock file, make sure lock/loopback.lock exists")
+                    lockfile = open(lockfilepath, "r")
+                    fcntl.flock(lockfile.fileno(), fcntl.LOCK_EX)
+                newvm = self._vmm().createXML(xml, 0)
+            except libvirt.libvirtError,e:
+                shorterr = "Problem creating the VM: %s" % str(e)
+                self.c.log.error(shorterr)
+                self.c.log.exception(e)
+                raise UnexpectedError(shorterr)
         finally:
             if lockfile:
                 lockfile.close()
