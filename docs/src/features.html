@@ -14,17 +14,24 @@ _NIMBUS_2_5_DEPRECATED
 <div class="ulmoveleft">
 
 <ul>
+    <a name="opensource"></a>
     <li>
-        <a name="remotedep"></a>
+        <h4>Open Source IaaS _NAMELINK(opensource)</h4></li>
+    <p>
+    Nimbus provides a 100% freely available and open source Infrastructure as a 
+    service (IaaS) system.  Every feature our community develops is freely
+    available with no upgrade costs.
+    </p>
+    <a name="cumulus"></a>
+    <li><h4>Storage Cloud Service _NAMELINK(cumulus)</h4></li>
+    Cumulus is storage cloud service that is compatible with the S3 REST
+    API.  It can be used against many existing clients (boto, s3cmd, jets3t, 
+    etc) to provide data storage and transfer services. 
+
+    <a name="remotedep"></a>
+    <li>
         <h4>Remote deployment and lifecycle management of VMs _NAMELINK(remotedep)</h4>
-
-        <p>Nimbus has been developed in part within the Globus
-            Toolkit 4 framework and provides interfaces to VM management
-            functions based on the WSRF set of protocols.  There is also
-            an alternative implementation implementing Amazon EC2 WSDL.
-            (The underlying service implementation is protocol agnostic)
-        </p>
-
+    </li>
         <p>
             Nimbus clients can deploy, pause, restart and shutdown VMs.
         </p>
@@ -50,7 +57,7 @@ _NIMBUS_2_5_DEPRECATED
             service, a client can inspect various VM properties (e.g., its
             lifecycle state, time-to-live, the IP address assigned to a VM
             on deployment, or the resources assigned to the VM) via WSRF
-            resource properties/notificaitons or polling (such as EC2
+            resource properties/notifications or polling (such as EC2
             describe-instances).
         </p>
         <p>
@@ -60,10 +67,57 @@ _NIMBUS_2_5_DEPRECATED
             deploy (which describe for example what VMM is required for the
             workspace).
         </p>
+
+    <a name="awscompat"></a>
+    <li>
+        <h4>Compatibility with Amazons Network Protocols _NAMELINK(awscompat)</h4>
+    </li>
+        <p>
+           <a href="http://aws.amazon.com/ec2">EC2</a> based clients
+            written for EC2 can be used with Nimbus installations.  
+            Both SOAP API and the REST API have been implemented in Nimbus.
+            For more information, 
+            see <a href="#ec2-frontend">What is the EC2 frontend</a>?
+        </P>
+        <p> <a href="http://aws.amazon.com/s3">S3</a> REST API clients 
+        can also be used for managing VM storage with the Nimbus system.
+        </p>
+
+    <a name="x509"></a>
+    <li>
+        <h4>Support X509 Credentials  _NAMELINK(x509)</h4>
+        <p>
+        Users interested in a strong PKI security model can make use of
+        our WSRF interface which uses X509 certificates.  While the main
+        feature here is strong security, it can also be a great convenience
+        for institutions that are already using DOE certificates or any other
+        certificate authority.
+        </p>
+    <a name="cloudclient"></a>
+    <li>
+        <h4>Easy to Use Cloud Client _NAMELINK(cloudclient)</h4>
     </li>
 
+        <p>
+            The workspace cloud client allows authorized clients to access
+            many Workspace Service features in a user friendly way.  
+            It is designed to get users up and running in a matter of 
+            minutes, even from laptops, NATs, etc.
+        </p>
+        <p>
+            cloud-client is the easiest way to use both a storage cloud
+            and IaaS.  Even the uninitiate find this fully integrated
+            tool easy to use.
+        </p>
+        <p>
+            See the <a href="/clouds/">clouds page</a> as well as a
+            behind-the-scenes overview of the service
+            <a href="doc/cloud.html">cloud
+            configuration</a>.
+        </p>
+
+    <a name="protocols"></a>
     <li>
-        <a name="protocols"></a>
         <h4>Multiple protocol support / Compartmentalized dependencies _NAMELINK(protocols)</h4>
 
         <p>
@@ -124,8 +178,8 @@ _NIMBUS_2_5_DEPRECATED
         </div>
     </li>
 
+    <a name="group"></a>
     <li>
-        <a name="group"></a>
         <h4>Flexible group management _NAMELINK(group)</h4>
 
         <p>
@@ -146,8 +200,8 @@ _NIMBUS_2_5_DEPRECATED
     </li>
 
 
+    <a name="accounting"></a>
     <li>
-        <a name="accounting"></a>
         <h4>Per-client usage tracking _NAMELINK(accounting)</h4>
 
         <p>
@@ -158,8 +212,22 @@ _NIMBUS_2_5_DEPRECATED
         </p>
     </li>
 
+    <a name="quotas"></a>
     <li>
-        <a name="ana"></a>
+        <h4>Per-user Storage Quota _NAMELINK(quotas)</h4>
+
+        <p> 
+        Cumulus (the VM image repository manager for Nimbus) can be configured
+        to enforce per user storage usage limits.  This is an especially
+        important feature for the scientific community where it is 
+        not convenient to directly charge dollars and cents for storage
+        but where resources still need to be protected and rationed.
+        </p>
+    </li>
+
+
+    <a name="ana"></a>
+    <li>
         <h4>Flexible request authentication and authorization _NAMELINK(ana)</h4>
 
         <p>
@@ -180,23 +248,19 @@ _NIMBUS_2_5_DEPRECATED
             node and path checks.
         </p>
     </li>
+    <a name="usermanage"></a>
     <li>
-        <a name="cloudadmin"></a>
-        <h4>Easy user management _NAMELINK(cloudadmin)</h4>
+        <h4>Easy user management _NAMELINK(usermanage)</h4>
 
         <p>
-            As of version TP2.1, an administrator wizard (<i>cloud-admin.sh</i>)
-            is provided to make adding and removing cloud users simple.  This
-            includes adjusting authorization policies and creating repository
-            directories with sample images, etc.  This is intended for the
-            "<a href="faq.html#defcloudkit">cloudkit</a>" setup and requires
-            the group management authorization described in the
-            <a href="#ana">previous section</a>.
+            New in Nimbus 2.5 are a set of user management tools that 
+            make administering a Nimbus cloud significantly easier.
+            The tools are both easy to use and scriptable.
         </p>
     </li>
 
+    <a name="config"></a>
     <li>
-        <a name="config"></a>
         <h4>Configuration management (deployment request) _NAMELINK(config)</h4>
 
         <p>
@@ -216,8 +280,8 @@ _NIMBUS_2_5_DEPRECATED
         </p>
     </li>
 
+    <a name="ctx"></a>
     <li>
-        <a name="ctx"></a>
         <h4>One-click clusters (contextualization) _NAMELINK(ctx)</h4>
 
         <p>
@@ -229,8 +293,8 @@ _NIMBUS_2_5_DEPRECATED
         </p>
     </li>
 
+    <a name="client"></a>
     <li>
-        <a name="client"></a>
         <h4>Workspace client _NAMELINK(client)</h4>
 
         <p>
@@ -240,27 +304,8 @@ _NIMBUS_2_5_DEPRECATED
         </p>
     </li>
 
+    <a name="net"></a>
     <li>
-        <a name="cloudclient"></a>
-        <h4>Cloud client _NAMELINK(cloudclient)</h4>
-
-        <p>
-            The workspace cloud client allows authorized clients to access
-            many Workspace Service features in a user friendly way.  It is
-            compatible with a certain configuration of the workspace service
-            and aims to get users up and running in a matter of minutes, even
-            from laptops, NATs, etc.
-        </p>
-        <p>
-            See the <a href="/clouds/">clouds page</a> as well as a
-            behind-the-scenes overview of the service
-            <a href="doc/cloud.html">cloud
-            configuration</a>.
-        </p>
-    </li>
-
-    <li>
-        <a name="net"></a>
         <h4>VM network configuration (deployment request) _NAMELINK(net)</h4>
 
         <p>
@@ -282,8 +327,8 @@ _NIMBUS_2_5_DEPRECATED
         </p>
     </li>
 
+    <a name="backend"></a>
     <li>
-        <a name="backend"></a>
         <h4>Xen backend plugin _NAMELINK(backend)</h4>
 
         <p>
@@ -292,8 +337,8 @@ _NIMBUS_2_5_DEPRECATED
         </p>
     </li>
 
+    <a name="lrm"></a>
     <li>
-        <a name="lrm"></a>
         <h4>Local resource management plugin _NAMELINK(lrm)</h4>
 
         <p>
@@ -317,8 +362,8 @@ _NIMBUS_2_5_DEPRECATED
     </li>
 
 
+    <a name="pilot"></a>
     <li>
-        <a name="pilot"></a>
         <h4>Non-invasive site scheduler integration _NAMELINK(pilot)</h4>
 
         <p>
@@ -346,8 +391,8 @@ _NIMBUS_2_5_DEPRECATED
         </p>
     </li>
 
+    <a name="fine"></a>
     <li>
-        <a name="fine"></a>
         <h4>VM fine-grain resource usage enforcement (resource allocation) _NAMELINK(fine)</h4>
 
         <p>
