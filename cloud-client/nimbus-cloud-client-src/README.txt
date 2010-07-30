@@ -40,8 +40,8 @@ The search path the cloud client uses is as follows:
     B. proxy
   
     If a normal proxy is present in the /tmp directory and is still valid, that
-    is  used.  This lets the cloud work with all existing certs, tooling, MyProxy,
-    etc.
+    is  used.  This lets the cloud work with all existing certs, tooling,
+    MyProxy, etc.
 
     C. ~/.nimbus/
 
@@ -55,11 +55,19 @@ The search path the cloud client uses is as follows:
 
 
 
-If you want to go the proxy credential route (for example, you have a 'grid'
-certificate), and do not have a proxy credential in place, you can use an embedded
-program to run grid-proxy-init like so:
+If you want to go the proxy credential route (for example, you have an
+encrypted certificate), and do not have a proxy credential in place, you
+can use an embedded program to run grid-proxy-init like so:
    
    $ ./bin/grid-proxy-init.sh
+
+Note that grid-proxy-init does NOT follow the same search path as the cloud
+client does when the cloud client is looking for unencrypted keys.  Instead,
+it only looks for "~/.globus/usercert.pem" and "~/.globus/userkey.pem".
+
+You can specify the paths exactly though:
+
+   $ ./bin/grid-proxy-init.sh -cert /tmp/usercert.pem -key /tmp/userkey.pem
 
 Issues?  Try our mailing list and/or run:
 
