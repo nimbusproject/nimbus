@@ -426,10 +426,12 @@ class DefaultImageEditing:
             cmd = "%s %s one %s %s %s %s" % (self.sudo_path, self.mounttool_path, imagepath, mntpath, src, dst)
             warning = self._doOneMountCopyInnerTask(src, cmd)
             if warning:
-                offsetint = self._guess_offset(imagepath)
-                cmd = "%s %s hdone %s %s %s %s %d" % (self.sudo_path, self.mounttool_path, imagepath, mntpath, src, dst, offsetint)
-                error = self._doOneMountCopyInnerTask(src, cmd)
-            
+                try:
+                    offsetint = self._guess_offset(imagepath)
+                    cmd = "%s %s hdone %s %s %s %s %d" % (self.sudo_path, self.mounttool_path, imagepath, mntpath, src, dst, offsetint)
+                    error = self._doOneMountCopyInnerTask(src, cmd)
+                except Exception,e:
+                    error = e
         if not error:
             return # if there is a warning, it is discarded
         if not warning:
