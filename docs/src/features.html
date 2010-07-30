@@ -20,7 +20,7 @@ _NIMBUS_2_5_DEPRECATED
     <p>
     Nimbus provides a 100% freely available and open source Infrastructure as a 
     service (IaaS) system.  Every feature our community develops is freely
-    available with no upgrade costs.
+    available, there are no add-on or upgrade costs.
     </p>
     <a name="cumulus"></a>
     <li><h4>Storage Cloud Service _NAMELINK(cumulus)</h4></li>
@@ -60,13 +60,6 @@ _NIMBUS_2_5_DEPRECATED
             resource properties/notifications or polling (such as EC2
             describe-instances).
         </p>
-        <p>
-            Before deployment, clients can discover the properties of site
-            configurations (e.g. what VMM is being supported on the site)
-            and match them against the meta-data of workspaces they want to
-            deploy (which describe for example what VMM is required for the
-            workspace).
-        </p>
 
     <a name="awscompat"></a>
     <li>
@@ -77,7 +70,7 @@ _NIMBUS_2_5_DEPRECATED
             written for EC2 can be used with Nimbus installations.  
             Both SOAP API and the REST API have been implemented in Nimbus.
             For more information, 
-            see <a href="#ec2-frontend">What is the EC2 frontend</a>?
+            see <a href="faq.html#ec2-frontend">What is the EC2 frontend</a>?
         </P>
         <p> <a href="http://aws.amazon.com/s3">S3</a> REST API clients 
         can also be used for managing VM storage with the Nimbus system.
@@ -85,10 +78,10 @@ _NIMBUS_2_5_DEPRECATED
 
     <a name="x509"></a>
     <li>
-        <h4>Support X509 Credentials  _NAMELINK(x509)</h4>
+        <h4>Supports X509 Credentials  _NAMELINK(x509)</h4>
         <p>
         Users interested in a strong PKI security model can make use of
-        our WSRF interface which uses X509 certificates.  While the main
+        our web services interface which uses X509 certificates.  While the main
         feature here is strong security, it can also be a great convenience
         for institutions that are already using DOE certificates or any other
         certificate authority.
@@ -144,7 +137,7 @@ _NIMBUS_2_5_DEPRECATED
                 <p>
                 <a href="http://aws.amazon.com/ec2">EC2</a> based: clients
                 written for EC2 can be used with Nimbus installations.  For
-                more information, see <a href="#ec2-frontend">What is the EC2 frontend</a>?
+                more information, see <a href="faq.html#ec2-frontend">What is the EC2 frontend</a>?
                 </p>
             </li>
         </ul>
@@ -231,17 +224,8 @@ _NIMBUS_2_5_DEPRECATED
         <h4>Flexible request authentication and authorization _NAMELINK(ana)</h4>
 
         <p>
-            The workspace service uses GSI to authenticate and authorize
-            creation requests. Among others, it allows a client to be authorized
-            based on VO/role information contained in the VOMS credentials
-            and attributes obtained via GridShib.  Authorization policies
-            can also be applied to networking request, VM image files,
-            resource request, and time used/reserved by the client.
-        </p>
-
-        <p>
-            An included authorization setup (not enabled by default) allows
-            for straightforward group management.  You can assign identities
+            Authorization policies can be applied to networking request, VM image files,
+            resource request, and time used/reserved by the client. You can assign identities
             to logical groups and then write policies about those groups.
             You can set simultaneous reservation limits, reservation limits
             that take past workspace usage into account, and detailed repository
@@ -327,16 +311,6 @@ _NIMBUS_2_5_DEPRECATED
         </p>
     </li>
 
-    <a name="backend"></a>
-    <li>
-        <h4>Xen backend plugin _NAMELINK(backend)</h4>
-
-        <p>
-            The current workspace backend plugin is for the Xen
-            hypervisor, an open source, efficient implementation.
-        </p>
-    </li>
-
     <a name="lrm"></a>
     <li>
         <h4>Local resource management plugin _NAMELINK(lrm)</h4>
@@ -360,6 +334,17 @@ _NIMBUS_2_5_DEPRECATED
             in daemonized mode.
         </p>
     </li>
+
+
+	<a name="backend"></a>
+	<li>
+		<h4>Xen and KVM plugins _NAMELINK(backend)</h4>
+
+		<p>
+			The default workspace-control plugin is for the Xen
+			hypervisor and with configuration you can enable KVM.
+		</p>
+	</li>
 
 
     <a name="pilot"></a>
@@ -404,19 +389,6 @@ _NIMBUS_2_5_DEPRECATED
 
     </li>
 
-    <!--
-    <li>
-        <a name="staging"></a>
-        <h4>Image staging adapters</h4>
-
-        <p>
-            Based on request from users we added adapter-based staging to
-            the workspace service; the adapters include support for HTTP GET
-            and the Globus Reliable File Transfer Service (RFT). The staging
-            mechanism can seamlessly handle delegation.
-        </p>
-    </li>
-    -->
 </ul>
 
 </div>
