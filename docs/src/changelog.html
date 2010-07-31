@@ -326,7 +326,7 @@ _NIMBUS_2_5_DEPRECATED
     </li>
     <li>
         <p>
-            <i>nimbus-version program</i> (<b>New in </b>)
+            <i>nimbus-version program</i>
         </p>
         <p>
             The <i>nimbus-version</i> program allows you to examine/remember
@@ -433,8 +433,7 @@ _NIMBUS_2_5_DEPRECATED
     </li>
      <li>
         <p>
-            The EC2 interfaces now return IP address as well as hostname 
-            (<b>New in </b>).  This was a feature added to the EC2 protocol
+            The EC2 interfaces now return IP address as well as hostname.  This was a feature added to the EC2 protocol
             API version 2009-07-15.  This addresses 
             <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7073">Enhancement 7073</a>.
     </li>
@@ -670,7 +669,7 @@ _NIMBUS_2_5_DEPRECATED
         </p>
         <ul>
             <li>
-                <p><i>Propagate-only mode</i> (<b>New in </b>)</p>
+                <p><i>Propagate-only mode</i></p>
                 <p>
                     New propagation-only mode for workspace-control that helps
                     with development and testing of fast/smart propagation
@@ -720,7 +719,7 @@ _NIMBUS_2_5_DEPRECATED
             <i>Nimbus 2.5 requires the newest cloud client</i>
         </p>
         <p>
-            The current cloud client as of this release is cloud-client-016. This service release will <b>not</b> work with previous cloud clients.
+            The current cloud client as of this release is cloud-client-016. The 2.5 service release will <b>not</b> work with previous cloud clients.
         </p>
     </li>
     <li>
@@ -737,12 +736,12 @@ _NIMBUS_2_5_DEPRECATED
     <li>
         <p>
             Added support for using unencrypted keys directly instead of 
-            needing to run proxy-init. (<b>New in </b>)
+            needing to run proxy-init.  See the README for details.
         </p>
         <p>
             The properties 'nimbus.cert' and 'nimbus.key' are consulted
             first, then normal a grid proxy search is made, then ~/.nimbus is
-            consulted, then ~/.globus.  See the README for details.
+            consulted, then ~/.globus.
         </p>
         <p>
             This means one less user step in many of the common ways people use
@@ -767,15 +766,12 @@ _NIMBUS_2_5_DEPRECATED
     </li>
     <li>
         <p>
-            <a href="http://github.com/nimbusproject/nimbus/compare/nimbus-release-2.4...master">All commits</a> between the "nimbus-release-2.4" tag and the current "master" branch in the Nimbus code repository.
-        </p>
-        <p>
-            This will change to the commits between 2.4 and 2.5 when the final release happens.
+            List of <a href="http://github.com/nimbusproject/nimbus/compare/nimbus-release-2.4...nimbus-release-2.5">all commits</a> between the <a href="http://github.com/nimbusproject/nimbus/tree/nimbus-release-2.4">nimbus-release-2.4</a> tag and the <a href="http://github.com/nimbusproject/nimbus/tree/nimbus-release-2.5">nimbus-release-2.5</a> tag in the Nimbus code repository.
         </p>
     </li>
     <li>
         <p>
-            Mainly for developers and testers, a <a href="changelog_supplement2.5.html">list of fixes to 2.5RC1</a> that are included in 2.5.
+            For developers and community testers: <a href="changelog_supplement2.5.html">list of fixes to 2.5 release candidates</a> that are included in 2.5 final.
         </p>
     </li>
 </ul>
