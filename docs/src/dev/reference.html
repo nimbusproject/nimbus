@@ -281,24 +281,8 @@ _NIMBUS_2_5_DEPRECATED
     </p>
 
     <p>
-        The _PATH(autocontainer) directory contains
-        a standalone system for making the, you guessed it,
-        <a href="../faq.html#autocontainer">AutoContainer</a>.  To make a new
-        release, run the
-        _PATH(autocontainer/lib/prepare-for-auto-container-release.sh) script.
-    </p>
-
-    <p>
-        That script will download a new Globus container (if the tarball is not
-        already present) and adjust some of the config files to make them ready
-        to be autoconfigured when the user downloads and runs the AutoContainer.
-        This ensures we're never storing the ~20MB Globus container itself in
-        source control.
-    </p>
-
-    <p>
         The _PATH(autocommon) directory contains libraries and code that are
-        used by both the AutoContainer and the administrator wizard.
+        used by _PATH(nimbus-configure --autoconfig)
     </p>
 
     _MINI_SEP
@@ -348,11 +332,9 @@ _NIMBUS_2_5_DEPRECATED
 </p>
 
 <p>
-    That directory is what the build system uses to generate the stubs (the
-    Axis classes that are actually referenced by the Nimbus code for
-    un/marshalling of the web services).  So, because you ran
-    _PATH(bin/all-clean.sh) already, running _PATH(bin/all-build.sh) now will
-    generate stubs with the changes you have added.
+    That directory is what the _PATH(stubs-build.sh) script uses to generate
+    the stubs (the Axis classes that are actually referenced by the Nimbus
+    code for un/marshalling of the web services).
 </p>
 
 <p>
