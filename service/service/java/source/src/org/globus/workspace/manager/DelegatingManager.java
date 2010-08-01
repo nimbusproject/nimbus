@@ -850,15 +850,12 @@ public class DelegatingManager implements Manager {
         return result;
     }
 
-
-    @Override
     public SpotPriceEntry[] getSpotPriceHistory() throws ManageException {
         
         return getSpotPriceHistory(null, null);
     }
 
 
-    @Override
     public SpotPriceEntry[] getSpotPriceHistory(Calendar startDate,
             Calendar endDate) throws ManageException {
         List<SpotPriceEntry> result = siHome.getSpotPriceHistory(startDate, endDate);
