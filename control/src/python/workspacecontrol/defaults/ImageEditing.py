@@ -412,31 +412,43 @@ class DefaultImageEditing:
 
     def _doOneMountCopyTask(self, imagepath, src, dst, mntpath, hdimage):
 
-        warning = None
-        error = None
         if not hdimage:
             cmd = "%s %s one %s %s %s %s" % (self.sudo_path, self.mounttool_path, imagepath, mntpath, src, dst)
             error = self._doOneMountCopyInnerTask(src, cmd)
+            if error:
+                raise error
+            else:
+                return
+
+        # Some hard disk formats actually mount like partitions, for example
+        # the KVM 'raw' format.  We attempt to do partition like mounting
+        # first and then if that fails, try the full blown fdisk + mount
+        # mechanism.
         
-        else:
-            # Some hard disk formats actually mount like partitions, for example
-            # the KVM 'raw' format.  We attempt to do partition like mounting
-            # first and then if that fails, try the full blown fdisk + mount
-            # mechanism.
-            cmd = "%s %s one %s %s %s %s" % (self.sudo_path, self.mounttool_path, imagepath, mntpath, src, dst)
-            warning = self._doOneMountCopyInnerTask(src, cmd)
-            if warning:
-                offsetint = self._guess_offset(imagepath)
-                cmd = "%s %s hdone %s %s %s %s %d" % (self.sudo_path, self.mounttool_path, imagepath, mntpath, src, dst, offsetint)
-                error = self._doOneMountCopyInnerTask(src, cmd)
-            
-        if not error:
-            return # if there is a warning, it is discarded
+        cmd = "%s %s one %s %s %s %s" % (self.sudo_path, self.mounttool_path, imagepath, mntpath, src, dst)
+        warning = self._doOneMountCopyInnerTask(src, cmd)
+        
         if not warning:
-            self.c.log.error(error.msg)
-            raise error
-        elif warning:
-            combined = """
+            # success with partition-style edit
+            return
+            
+        error = None
+        try:
+            offsetint = self._guess_offset(imagepath)
+            cmd = "%s %s hdone %s %s %s %s %d" % (self.sudo_path, self.mounttool_path, imagepath, mntpath, src, dst, offsetint)
+            error = self._doOneMountCopyInnerTask(src, cmd)
+        except Exception,e:
+            error = e
+        
+        # warning is always present ('true') at this point
+        
+        if not error:
+            # success with HD-image-style edit
+            return
+        
+        # error AND warning are present, print both
+        
+        combined = """
 ===========================================================================
             
 Tried multiple methods of mounting the image file.
@@ -454,8 +466,7 @@ fdisk, but that did not work either:
 %s
 ===========================================================================
 """ % (warning.msg, error.msg)
-            self.c.log.error(combined)
-            raise IncompatibleEnvironment(combined)
+        raise IncompatibleEnvironment(combined)
             
     def _doOneMountCopyInnerTask(self, src, cmd):
         if self.c.dryrun:
@@ -508,7 +519,10 @@ fdisk, but that did not work either:
             self.c.log.error(errmsg)
             raise IncompatibleEnvironment(errmsg)
         
-        part_pattern = re.compile(r'\n%s.*' % imagepath)
+        # fdisk will truncate the partition name to 79 characters if it's too
+        # long. Match only the first 10 characters of imagepath to detect the
+        # first partition line.
+        part_pattern = re.compile(r'\n%s.*' % imagepath[:10])
         lines = []
         for m in part_pattern.finditer(output):
             lines.append(m.group())
@@ -535,4 +549,3 @@ fdisk, but that did not work either:
         self.c.log.debug("offset guess is %d for HD image %s" % (offset, imagepath))
         
         return offset
-        

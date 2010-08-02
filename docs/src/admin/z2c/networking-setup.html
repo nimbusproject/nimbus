@@ -1,5 +1,5 @@
 m4_include(/mcs/m4/worksp.lib.m4)
-_NIMBUS_HEADER(2.5RC2 Zero To Cloud Guide)
+_NIMBUS_HEADER(2.5 Zero To Cloud Guide)
 _NIMBUS_HEADER2(n,n,y,n,n,n,n)
 _NIMBUS_LEFT2_COLUMN
 _NIMBUS_LEFT2_Z2C_SIDEBAR(y)
@@ -160,11 +160,46 @@ include "/path/to/dhcpd.entries";
 
 <p>
     Alternatively you can paste the contents of that file directly inline, or use a script to
-    generate your needed configuration from the <tt class="literal">ip_macs.txt</tt>. Once
-    the configuration is in place, restart the DHCP server and you should be ready for real
-    virtual machines! Proceed to <a href="vmm-setup.html">Install VMM Software</a>.
+    generate your needed configuration from <tt class="literal">ip_macs.txt</tt>. Once
+    the configuration is in place, restart the DHCP server.
 </p>
 <!-- TODO would be nice to have a better self test here -->
+
+<h3>Metadata server</h3>
+
+<p>
+    VMs can optionally query a metadata server for user-provided data as well as information
+    about the deployment. This service is disabled by default, but will be required if you
+    want to use the Nimbus Context Broker. Configuration is in
+    <tt class="literal">$NIMBUS_HOME/services/etc/nimbus/workspace-service/metadata.conf</tt>.
+    You must choose an IP and port for the service to listen on. This address must be
+    accessible by the VMs. You should also set <tt class="literal">listen=true</tt>. If you
+    have non-standard network names, adjust these as well.
+</p>
+<pre class="panel">
+listen=true
+contact.socket=1.2.3.4:80
+
+public.networks=public
+local.networks=private
+</pre>
+
+<p>
+    After you make these changes, restart the Nimbus service.
+</p>
+
+<pre class="panel">
+$ nimbusctl services restart
+</pre>
+
+<p>
+    You can verify that the metadata server is running by checking the log.
+</p>
+
+<pre class="panel">
+$ grep Metadata $NIMBUS_HOME/var/services.log
+2010-07-30 14:50:33,769 INFO  defaults.HTTPListener [main,initServer:84] Metadata server URL: 'http://0.0.0.0:8090'
+</pre>
 
 
 

@@ -1,3 +1,5 @@
+import fcntl
+import os
 import sys
 import zope.interface
 import libvirt
@@ -17,6 +19,10 @@ class Platform:
     
     def __init__(self, params, common):
         
+        self.xen3 = False
+        self.kvm0 = False
+        self.create_flock = False
+        
         if params == None:
             raise ProgrammingError("expecting params")
         if common == None:
@@ -34,6 +40,10 @@ class Platform:
             self.adapter = lvrt_adapter_xen3.vmmadapter(params, common)
             self.intakeadapter = lvrt_adapter_xen3.intakeadapter(params, common)
             self.xen3 = True
+            # Because of a race between mount-alter.sh and Xen scripts for
+            # accessing loopback devices, we need to flock the same lock as
+            # mount-alter.sh
+            self.create_flock = True
         elif adapter_conf == "kvm0":
             self.adapter = lvrt_adapter_kvm0.vmmadapter(params, common)
             self.intakeadapter = lvrt_adapter_kvm0.intakeadapter(params, common)
@@ -67,15 +77,26 @@ class Platform:
         if self.c.dryrun:
             self.c.log.debug("dryrun, not sending")
             return
-            
+
         newvm = None
+        lockfile = None
         try:
-            newvm = self._vmm().createXML(xml, 0)
-        except libvirt.libvirtError,e:
-            shorterr = "Problem creating the VM: %s" % str(e)
-            self.c.log.error(shorterr)
-            self.c.log.exception(e)
-            raise UnexpectedError(shorterr)
+            try:
+                if self.create_flock:
+                    lockfilepath = self.c.resolve_var_dir("lock/loopback.lock")
+                    if not os.path.exists(lockfilepath):
+                        raise IncompatibleEnvironment("cannot find lock directory or lock file, make sure lock/loopback.lock exists")
+                    lockfile = open(lockfilepath, "r")
+                    fcntl.flock(lockfile.fileno(), fcntl.LOCK_EX)
+                newvm = self._vmm().createXML(xml, 0)
+            except libvirt.libvirtError,e:
+                shorterr = "Problem creating the VM: %s" % str(e)
+                self.c.log.error(shorterr)
+                self.c.log.exception(e)
+                raise UnexpectedError(shorterr)
+        finally:
+            if lockfile:
+                lockfile.close()
             
         self.c.log.info("launched '%s'" % newvm.name())
         
@@ -379,4 +400,3 @@ class Platform:
         self.intakeadapter.fill_model(dom, local_file_set, nic_set, kernel)
         
         return dom
-        

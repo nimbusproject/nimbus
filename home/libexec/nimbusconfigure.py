@@ -565,6 +565,10 @@ class NimbusSetup(object):
         # run the web newconf script, if enabled
         if self.config.getboolean(CONFIGSECTION, 'web.enabled'):
             ret = os.system(os.path.join(self.webdir, 'sbin/new-conf.sh'))
+            configured = pathutil.pathjoin(self.webdir, ".nimbusconfigured")
+            if not os.path.isfile(configured):
+                open(configured, "a")
+                
 
         # write an enviroment file
         self.write_env_file()

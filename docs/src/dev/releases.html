@@ -17,45 +17,26 @@ _NIMBUS_2_5_DEPRECATED
 <h4>Main tarballs _NAMELINK(main-tarballs)</h4>
 
 <p>
-    Cutting a new release is mostly automated but there are still manual
-    steps that must be taken.
+    Cutting a new release is automated, you use the
+    <b>./scripts/make-dist.sh</b> script after double-checking version 
+    strings across the code repository:
 </p>
-
-<ol>
-    <li>
-        <p>
-            Test from a clean CVS checkout.
-        </p>
-    </li>
-    <li>
-        <p>
-            Tag CVS with final tag, convention is now "nimbus-TP2_1", 
-            "nimbus-TP2_2", etc.
-        </p>
-    </li>
-    <li>_EXAMPLE_GENERICCMD_BEGIN
-cd vm/bin/lib/gt4.0/dist
-_EXAMPLE_CMD_END
-    </li>
-    <li>Edit the version number in this file: _EXAMPLE_GENERICCMD_BEGIN
-emacs/vi/nano build.properties
-_EXAMPLE_CMD_END
-    </li>
-    <li>_EXAMPLE_GENERICCMD_BEGIN
-ant create-dist
-_EXAMPLE_CMD_END
-    </li>
-    <li>_EXAMPLE_GENERICCMD_BEGIN
-scp -r result/* USERNAME@cvs.globus.org:/www/workspace.globus.org/downloads/
-_EXAMPLE_CMD_END
-    </li>
-</ol>
+<ul>
+    <li>scripts/lib/gt4.0/dist/build.properties</li>
+    <li>cloud-client/builder/environment.sh</li>
+    <li>control/src/python/workspacecontrol/main/wc_optparse.py</li>
+    <li>pilot/workspacepilot.py</li>
+    <li>cumulus/authz/pynimbusauthz/__init__.py</li>
+</ul>
 
 <p>
-    A number of documentation tasks must be completed, see
-    <a href="docs.html#new-releases">this section</a> for information
-    about those.
+    You can also use a script that does this all on a remote node where
+    a webserver resides.  This is what the Nimbus team uses on the
+    nimbusproject.org web server to cut every set of release tarballs
+    and any intermediate ones.
+    See the original <a href="http://github.com/nimbusproject/nimbus/commit/6abab3d4cbf4d6c8692d380439da493449dba10c">commit message</a> for usage.
 </p>
+
 
 <br />
 <a name="cloud-client"> </a>
@@ -86,13 +67,12 @@ _EXAMPLE_CMD_END
 
 
 <br />
-<a name="context-broker-and-agent"> </a>
-<h4>Context broker and agent _NAMELINK(context-broker-and-agent)</h4>
+<a name="context-agent"> </a>
+<h4>Context agent _NAMELINK(context-agent)</h4>
 
 <p>
-    The context agent and broker are released more "manually", there is no
-    release generation script they are just tarballs of your efforts.  It's a
-    good thing to remove the CVS directories. 
+    The context agent is released more "manually", there is no
+    release generation script, it is just a tarball of your efforts.
 </p>
 <p>
 _EXAMPLE_GENERICCMD_BEGIN

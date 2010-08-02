@@ -40,8 +40,12 @@ The search path the cloud client uses is as follows:
     B. proxy
   
     If a normal proxy is present in the /tmp directory and is still valid, that
-    is  used.  This lets the cloud work with all existing certs, tooling, MyProxy,
-    etc.
+    is  used.  This lets the cloud work with all existing certs, tooling,
+    MyProxy, etc.
+
+    Note: if you are using an encrypted key, such as the ones typically
+    provided by grid computing certificate authorities, you will need to
+    generate the proxy mentioned in this step.  See the section below.
 
     C. ~/.nimbus/
 
@@ -51,15 +55,38 @@ The search path the cloud client uses is as follows:
 
     D. ~/.globus/
 
-    Same as #3 but with ~/.globus
+    Same as #3 but with ~/.globus.  The key still needs to be unencrypted.
+
+    
+2. Test the security setup.
+
+   $ ./bin/cloud-client.sh --security
 
 
+3. If you already have a credential and have not given your DN to the cloud
+   administrators, do so sending the distinguished name printed after 'Identity'
 
-If you want to go the proxy credential route (for example, you have a 'grid'
-certificate), and do not have a proxy credential in place, you can use an embedded
-program to run grid-proxy-init like so:
+   
+Encrypted Keys and Proxy Credentials
+------------------------------------
+
+You might need to go the proxy credential route.  For example, you were given
+an encrypted certificate, this is typically found in grid computing.
+
+If you do not have a proxy credential in place using some other tool (at for
+example "/tmp/x509up_u1000" where "1000" is your unix account ID number), you
+can use an embedded program to run grid-proxy-init like so:
    
    $ ./bin/grid-proxy-init.sh
+
+Note that grid-proxy-init does not follow the same search path as the cloud
+client does when the cloud client is looking for unencrypted keys.  Instead,
+it only looks for "~/.globus/usercert.pem" and "~/.globus/userkey.pem".
+
+But you can specify the paths exactly if that is not where you keep the cert
+and encrypted key:
+
+   $ ./bin/grid-proxy-init.sh -cert /tmp/usercert.pem -key /tmp/userkey.pem
 
 Issues?  Try our mailing list and/or run:
 
@@ -69,15 +96,6 @@ grid-proxy-init cannot find your credential's CA files?  They are normally in
 the "lib/certs" directory of the cloud client but you can override like so:
 
    $ export NIMBUS_X509_TRUSTED_CERTS="/path/to/certificates_directory"
-
-
-2. Test the security setup.
-
-   $ ./bin/cloud-client.sh --security
-
-
-3. If you already have a credential and have not given your DN to the cloud
-   administrators, do so sending the distinguished name printed after 'Identity'
 
 
 

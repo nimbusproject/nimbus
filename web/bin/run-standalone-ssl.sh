@@ -9,8 +9,14 @@ NIMBUS_WEBDIR=`cd $NIMBUS_WEBDIR_REL; pwd`
 
 NIMBUS_WEBCONF="$NIMBUS_WEBDIR/nimbusweb.conf"
 if [ ! -f "$NIMBUS_WEBCONF" ]; then
-    echo ""
     echo "Cannot find conf file, exiting. (expected at '$NIMBUS_WEBCONF')"
+    exit 1
+fi
+
+NIMBUS_CONFIGURED="$NIMBUS_WEBDIR/.nimbusconfigured"
+if [ ! -f "$NIMBUS_CONFIGURED" ]; then
+    echo "It looks like you have not configured the webapp with nimbus-configure."
+    echo "Set 'web.enabled' to true and re-run nimbus-configure with no arguments."
     exit 1
 fi
 
@@ -26,7 +32,6 @@ if [ "X$OWNER_IS_RUNNER_ASSUMPTION" = "Xyes" ]; then
     # The following script expands the tarballs in lib/
     $NIMBUS_WEBDIR/sbin/install-deps.sh $DEBUG
     if [ $? -ne 0 ]; then
-        echo ""
         echo "Dependencies are not set up properly, exiting."
         exit 3
     fi

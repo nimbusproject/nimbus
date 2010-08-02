@@ -88,7 +88,7 @@ MOUNT="/bin/mount"
 UMOUNT="/bin/umount"
 CP="/bin/cp"
 
-FLOCKFILE=/var/lock/nimbus.mountalter.lock
+FLOCKFILE=/opt/nimbus/var/workspace-control/lock/loopback.lock
 FLOCK=/usr/bin/flock
 if [ ! -O $FLOCK ]; then
   echo "*** can not find flock program, disabling"
@@ -375,4 +375,4 @@ if [ "$DRYRUN" != "true" ]; then
   fi
 fi
 
-) 200>>$FLOCKFILE
+) 200<$FLOCKFILE
