@@ -21,17 +21,18 @@ import java.net.URISyntaxException;
 
 import org.nimbustools.api._repr._Caller;
 import org.nimbustools.api._repr._CreateRequest;
-import org.nimbustools.api._repr._RequestSI;
+import org.nimbustools.api._repr._AsyncCreateRequest;
+import org.nimbustools.api._repr._SpotCreateRequest;
 import org.nimbustools.api._repr.vm._NIC;
 import org.nimbustools.api._repr.vm._RequiredVMM;
 import org.nimbustools.api._repr.vm._ResourceAllocation;
 import org.nimbustools.api._repr.vm._Schedule;
 import org.nimbustools.api._repr.vm._VMFile;
-import org.nimbustools.api.defaults.repr.DefaultRequestSI;
 import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.CreateRequest;
 import org.nimbustools.api.repr.ReprFactory;
-import org.nimbustools.api.repr.RequestSI;
+import org.nimbustools.api.repr.AsyncCreateRequest;
+import org.nimbustools.api.repr.SpotCreateRequest;
 import org.nimbustools.api.repr.si.SIConstants;
 import org.nimbustools.api.repr.vm.NIC;
 import org.nimbustools.api.repr.vm.ResourceAllocation;
@@ -116,18 +117,30 @@ public class ReprPopulator {
 
     public Caller getSuperuserCaller() {
         // workspace-service is currently broken with superuser
-        return this.repr._newCaller();
+        _Caller superuser = this.repr._newCaller();
+        superuser.setIdentity("SUPERUSER");        
+        superuser.setSuperUser(true);
+        return superuser;
     }
     
-    public RequestSI getBasicRequestSI(String name, int numNodes, Double spotPrice, boolean persistent) throws Exception {
-        final _RequestSI reqSI = new DefaultRequestSI();
+    public SpotCreateRequest getBasicRequestSI(String name, int numNodes, Double spotPrice, boolean persistent) throws Exception {
+        final _SpotCreateRequest reqSI = this.repr._newSpotCreateRequest();
+        reqSI.setInstanceType(SIConstants.SI_TYPE_BASIC);
+        reqSI.setSpotPrice(spotPrice);
+        reqSI.setPersistent(persistent);        
         
         populate(reqSI, 500, name, SIConstants.SI_TYPE_BASIC_MEM, numNodes, true);
         
-        reqSI.setInstanceType(SIConstants.SI_TYPE_BASIC);
-        reqSI.setSpotPrice(spotPrice);
-        reqSI.setPersistent(persistent);
-        
         return reqSI;
+    }
+
+    public AsyncCreateRequest getBackfillRequest(String name, int numNodes) throws Exception {
+        
+        final _AsyncCreateRequest backfill = this.repr._newBackfillRequest();
+        backfill.setInstanceType(SIConstants.SI_TYPE_BASIC);                
+        
+        populate(backfill, 500, name, SIConstants.SI_TYPE_BASIC_MEM, numNodes, true);
+                
+        return backfill;
     }    
 }

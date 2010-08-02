@@ -19,7 +19,7 @@
         <constructor-arg ref="nimbus-repr.ReprFactory"/>
         <constructor-arg ref="nimbus-rm.persistence.DataConvert"/>
         <constructor-arg ref="nimbus-rm.loglevels" />
-        <constructor-arg ref="nimbus-rm.spotinstances.manager" />
+        <constructor-arg ref="nimbus-rm.async.manager" />
 
         <property name="accounting"
                   ref="nimbus-rm.accounting" />
@@ -102,7 +102,7 @@
 
         <!-- set after object creation time to avoid circular dep -->
         <property name="siManager"
-		  ref="nimbus-rm.spotinstances.manager" />
+		  ref="nimbus-rm.async.manager" />
     </bean>
 
 
@@ -408,7 +408,7 @@
         <constructor-arg ref="other.MainDataSource" />
         <constructor-arg ref="nimbus-rm.loglevels" />
         <constructor-arg ref="nimbus-rm.persistence.dbloader" />
-	<constructor-arg ref="nimbus-repr.ReprFactory"/>
+	    <constructor-arg ref="nimbus-repr.ReprFactory"/>
 
     </bean>
 
@@ -538,7 +538,7 @@
         <!-- set after object creation time to avoid circular dep with home -->
         <property name="home" ref="nimbus-rm.home.instance" />
         <property name="siManager"
-                   ref="nimbus-rm.spotinstances.manager" /> 
+                   ref="nimbus-rm.async.manager" /> 
         <!-- definition of this bean is in "resource-locator-ACTIVE.xml" -->
         <property name="slotManager" 
         		   ref="nimbus-rm.scheduler.SlotManagement" />                   
@@ -551,8 +551,8 @@
     <bean id="nimbus-rm.spotinstances.pricingmodel"
           class="$SI{si.pricingmodel}" />
 
-    <bean id="nimbus-rm.spotinstances.manager"
-          class="org.globus.workspace.spotinstances.SpotInstancesManagerImpl">
+    <bean id="nimbus-rm.async.manager"
+          class="org.globus.workspace.spotinstances.AsyncRequestManagerImpl">
 
         <constructor-arg ref="nimbus-rm.persistence.PersistenceAdapter" />
         <constructor-arg ref="nimbus-rm.loglevels" />

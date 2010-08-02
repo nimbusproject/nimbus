@@ -29,13 +29,16 @@ import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.nimbustools.api._repr._Advertised;
+import org.nimbustools.api._repr._AsyncCreateRequest;
 import org.nimbustools.api._repr._Caller;
 import org.nimbustools.api._repr._CreateRequest;
 import org.nimbustools.api._repr._CreateResult;
 import org.nimbustools.api._repr._CustomizationRequest;
+import org.nimbustools.api._repr._RequestInfo;
 import org.nimbustools.api._repr._ShutdownTasks;
+import org.nimbustools.api._repr._SpotCreateRequest;
 import org.nimbustools.api._repr._SpotPriceEntry;
-import org.nimbustools.api._repr._SpotRequest;
+import org.nimbustools.api._repr._SpotRequestInfo;
 import org.nimbustools.api._repr._Usage;
 import org.nimbustools.api._repr.ctx._Context;
 import org.nimbustools.api._repr.vm._Kernel;
@@ -185,115 +188,134 @@ public class ResourcepoolUtilProfiling extends NimbusDatabaseTestCase {
     }    
     
     private static DefaultReprFactory getReprFactory() {
-        return new DefaultReprFactory() {
-            
+        return new DefaultReprFactory(){
+
             @Override
-            public _SpotRequest _newSpotRequest() {
+            public _Advertised _newAdvertised() {
                 // TODO Auto-generated method stub
                 return null;
             }
-            
+
+            @Override
+            public _AsyncCreateRequest _newBackfillRequest() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+
+            @Override
+            public _Caller _newCaller() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+
+            @Override
+            public _Context _newContext() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+
+            @Override
+            public _CreateRequest _newCreateRequest() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+
+            @Override
+            public _CreateResult _newCreateResult() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+
+            @Override
+            public _CustomizationRequest _newCustomizationRequest() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+
+            @Override
+            public _Kernel _newKernel() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+
+            @Override
+            public _NIC _newNIC() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+
+            @Override
+            public _RequestInfo _newRequestInfo() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+
+            @Override
+            public _RequiredVMM _newRequiredVMM() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+
+            @Override
+            public _ResourceAllocation _newResourceAllocation() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+
+            @Override
+            public _Schedule _newSchedule() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+
+            @Override
+            public _ShutdownTasks _newShutdownTasks() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+
+            @Override
+            public _SpotCreateRequest _newSpotCreateRequest() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+
             @Override
             public _SpotPriceEntry _newSpotPriceEntry() {
                 // TODO Auto-generated method stub
                 return null;
             }
-            
+
+            @Override
+            public _SpotRequestInfo _newSpotRequestInfo() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+
+            @Override
+            public _State _newState() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+
+            @Override
+            public _Usage _newUsage() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+
+            @Override
+            public _VM _newVM() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+
             @Override
             public _VMFile _newVMFile() {
                 // TODO Auto-generated method stub
                 return null;
             }
             
-            @Override
-            public _VM _newVM() {
-                // TODO Auto-generated method stub
-                return null;
-            }
-            
-            @Override
-            public _Usage _newUsage() {
-                // TODO Auto-generated method stub
-                return null;
-            }
-            
-            @Override
-            public _State _newState() {
-                // TODO Auto-generated method stub
-                return null;
-            }
-            
-            @Override
-            public _ShutdownTasks _newShutdownTasks() {
-                // TODO Auto-generated method stub
-                return null;
-            }
-            
-            @Override
-            public _Schedule _newSchedule() {
-                // TODO Auto-generated method stub
-                return null;
-            }
-            
-            @Override
-            public _ResourceAllocation _newResourceAllocation() {
-                // TODO Auto-generated method stub
-                return null;
-            }
-            
-            @Override
-            public _RequiredVMM _newRequiredVMM() {
-                // TODO Auto-generated method stub
-                return null;
-            }
-            
-            @Override
-            public _NIC _newNIC() {
-                // TODO Auto-generated method stub
-                return null;
-            }
-            
-            @Override
-            public _Kernel _newKernel() {
-                // TODO Auto-generated method stub
-                return null;
-            }
-            
-            @Override
-            public _CustomizationRequest _newCustomizationRequest() {
-                // TODO Auto-generated method stub
-                return null;
-            }
-            
-            @Override
-            public _CreateResult _newCreateResult() {
-                // TODO Auto-generated method stub
-                return null;
-            }
-            
-            @Override
-            public _CreateRequest _newCreateRequest() {
-                // TODO Auto-generated method stub
-                return null;
-            }
-            
-            @Override
-            public _Context _newContext() {
-                // TODO Auto-generated method stub
-                return null;
-            }
-            
-            @Override
-            public _Caller _newCaller() {
-                // TODO Auto-generated method stub
-                return null;
-            }
-            
-            @Override
-            public _Advertised _newAdvertised() {
-                // TODO Auto-generated method stub
-                return null;
-            }
         };
     }
 
