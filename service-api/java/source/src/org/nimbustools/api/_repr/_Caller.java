@@ -31,4 +31,6 @@ public interface _Caller extends Caller {
      * @param subject from JAAS etc (presumably), may be null
      */
     public void setSubject(Subject subject);
+    
+    public void setSuperUser(boolean superuser);
 }

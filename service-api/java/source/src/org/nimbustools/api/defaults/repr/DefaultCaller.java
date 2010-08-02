@@ -56,6 +56,10 @@ public class DefaultCaller implements _Caller {
         this.superuser = (identity == null);
     }
 
+    public void setSuperUser(boolean superuser) {
+        this.superuser = superuser;
+    }    
+    
     public void setSubject(Subject subject) {
         this.subject = subject;
     }
