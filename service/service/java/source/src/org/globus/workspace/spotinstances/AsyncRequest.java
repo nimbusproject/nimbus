@@ -11,15 +11,14 @@ import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.ctx.Context;
 import org.nimbustools.api.repr.vm.NIC;
 
-
-
-public class SIRequest implements Comparable<SIRequest>{
+public class AsyncRequest implements Comparable<AsyncRequest>{
  
     private String id;
+    private boolean spot;
+
     private Double maxBid;
-    private Integer requestedInstances;
     private boolean persistent;
-    private SIRequestStatus status;
+    private AsyncRequestStatus status;
     
     private Caller caller;
     private VirtualMachine[] bindings;
@@ -34,24 +33,52 @@ public class SIRequest implements Comparable<SIRequest>{
     private LinkedHashSet<Integer> toBePreempted = new LinkedHashSet<Integer>();
     private Calendar creationTime;
 
-    public SIRequest(String id, Double highestPrice, Integer requestedInstances) {
-        this(id, highestPrice, requestedInstances, false);
+    //Test-only
+    public AsyncRequest(String id, Double highestPrice, VirtualMachine[] bindings) {
+        this(id, highestPrice, false, null, null, bindings, null, null, null);
     }    
-    
-    public SIRequest(String id, Double highestPrice, Integer requestedInstances, boolean persistent) {
-        this.id = id;
-        this.maxBid = highestPrice;
-        this.requestedInstances = requestedInstances;
-        this.persistent = persistent;
-        this.status = SIRequestStatus.OPEN;
-    }  
 
-    public SIRequest(String id, Double spotPrice, boolean persistent,
+    /**
+     * Constructor for Spot Instance requests
+     * @param id
+     * @param spotPrice
+     * @param persistent
+     * @param caller
+     * @param groupID
+     * @param bindings
+     * @param context
+     * @param requestedNics
+     * @param creationTime
+     */
+    public AsyncRequest(String id, Double spotPrice, boolean persistent,
             Caller caller, String groupID, VirtualMachine[] bindings, Context context,
             NIC[] requestedNics, Calendar creationTime) {
-        this.requestedInstances = bindings.length;
-        this.status = SIRequestStatus.OPEN;        
+        this(id, true, spotPrice, persistent, caller, groupID, bindings, context, requestedNics, creationTime);
+    }
+    
+    /**
+     * Constructor for backfill requests
+     * @param id
+     * @param spotPrice
+     * @param persistent
+     * @param caller
+     * @param groupID
+     * @param bindings
+     * @param context
+     * @param requestedNics
+     * @param creationTime
+     */    
+    public AsyncRequest(String id, Caller caller, String groupID, VirtualMachine[] bindings, Context context,
+            NIC[] requestedNics, Calendar creationTime) {
+       this(id, false, -1.0, true, caller, groupID, bindings, context, requestedNics, creationTime);
+    }    
+
+    public AsyncRequest(String id, boolean spotinstances, Double spotPrice, boolean persistent,
+            Caller caller, String groupID, VirtualMachine[] bindings, Context context,
+            NIC[] requestedNics, Calendar creationTime) {
+        this.status = AsyncRequestStatus.OPEN;        
         this.id = id;
+        this.spot = spotinstances;
         this.maxBid = spotPrice;
         this.persistent = persistent;
         this.bindings = bindings;
@@ -60,8 +87,8 @@ public class SIRequest implements Comparable<SIRequest>{
         this.groupID = groupID;
         this.caller = caller;
         this.creationTime = creationTime;
-    }
-
+    }    
+    
     public Double getMaxBid() {
         return maxBid;
     }
@@ -72,9 +99,9 @@ public class SIRequest implements Comparable<SIRequest>{
     
     public Integer getNeededInstances(){
         if(this.persistent){
-            return this.requestedInstances;
+            return this.getRequestedInstances();
         } else {
-            return this.requestedInstances-this.finishedVMs.size();
+            return this.getRequestedInstances()-this.finishedVMs.size();
         }
     }
     
@@ -110,11 +137,11 @@ public class SIRequest implements Comparable<SIRequest>{
         this.persistent = persistent;
     }
 
-    public SIRequestStatus getStatus() {
+    public AsyncRequestStatus getStatus() {
         return status;
     }
 
-    public boolean setStatus(SIRequestStatus status) {
+    public boolean setStatus(AsyncRequestStatus status) {
         if(this.status.isAlive()){
             this.status = status;
             return true;
@@ -122,7 +149,7 @@ public class SIRequest implements Comparable<SIRequest>{
         return false;
     }
 
-    public int compareTo(SIRequest o) {
+    public int compareTo(AsyncRequest o) {
         int compareBid = getMaxBid().compareTo(o.getMaxBid());
         
         if(compareBid == 0){
@@ -168,7 +195,7 @@ public class SIRequest implements Comparable<SIRequest>{
     @Override
     public String toString() {
         return "SIRequest [id " + id + ", status= " + status + ", requestedInstances="
-                + requestedInstances + ", allocatedInstances=" + getAllocatedInstances()
+                + getRequestedInstances() + ", allocatedInstances=" + getAllocatedInstances()
                 + ", maxBid=" + maxBid + ", persistent=" + persistent 
                 + ", caller=" + caller + "]";
     }
@@ -241,7 +268,7 @@ public class SIRequest implements Comparable<SIRequest>{
     }
 
     public Integer getRequestedInstances() {
-        return this.requestedInstances;
+        return bindings.length;
     }
 
     public void preemptAll() {
@@ -255,4 +282,8 @@ public class SIRequest implements Comparable<SIRequest>{
             toBePreempted.add(i);
         }
     }
+    
+    public boolean isSpotRequest() {
+        return spot;
+    }    
 }

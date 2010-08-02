@@ -1,9 +1,8 @@
 package org.globus.workspace.spotinstances;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
-
-import edu.emory.mathcs.backport.java.util.Collections;
 
 public class MaximizeUtilizationPricingModel extends AbstractPricingModel {
 
@@ -17,17 +16,16 @@ public class MaximizeUtilizationPricingModel extends AbstractPricingModel {
         this.setMinPrice = setMinPrice;
     }
     
-    @Override
     protected Double getNextPriceImpl(Integer totalReservedResources,
-            Collection<SIRequest> requests, Double currentPrice) {
+            Collection<AsyncRequest> requests, Double currentPrice) {
        
-        LinkedList<SIRequest> reverseOrderedRequests = new LinkedList<SIRequest>(requests);
+        LinkedList<AsyncRequest> reverseOrderedRequests = new LinkedList<AsyncRequest>(requests);
         Collections.sort(reverseOrderedRequests, Collections.reverseOrder());
         
         Double nextPrice = this.minPrice;
         Integer availableResources = totalReservedResources;
         
-        for (SIRequest siRequest : reverseOrderedRequests) {
+        for (AsyncRequest siRequest : reverseOrderedRequests) {
             if(siRequest.getMaxBid() >= this.minPrice){
                 nextPrice = siRequest.getMaxBid();
                 availableResources -= siRequest.getNeededInstances();

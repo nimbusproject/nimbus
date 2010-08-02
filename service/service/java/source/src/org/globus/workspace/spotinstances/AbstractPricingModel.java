@@ -1,9 +1,8 @@
 package org.globus.workspace.spotinstances;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
-
-import edu.emory.mathcs.backport.java.util.Collections;
 
 public abstract class AbstractPricingModel implements PricingModel{
     
@@ -22,7 +21,7 @@ public abstract class AbstractPricingModel implements PricingModel{
         return this.minPrice;
     }
     
-    public Double getNextPrice(Integer totalReservedResources, Collection<SIRequest> requests, Double currentPrice) {
+    public Double getNextPrice(Integer totalReservedResources, Collection<AsyncRequest> requests, Double currentPrice) {
         
         if(requests.isEmpty()){
             return minPrice;
@@ -40,14 +39,14 @@ public abstract class AbstractPricingModel implements PricingModel{
     
     
     protected abstract Double getNextPriceImpl(Integer totalReservedResources,
-            Collection<SIRequest> requests, Double currentPrice);
+            Collection<AsyncRequest> requests, Double currentPrice);
 
 
-    protected LinkedList<Double> getOrderedPriceCandidates(Collection<SIRequest> requests) {
+    protected LinkedList<Double> getOrderedPriceCandidates(Collection<AsyncRequest> requests) {
         
         LinkedList<Double> priceCandidates = new LinkedList<Double>();
         
-        for (SIRequest siRequest : requests) {
+        for (AsyncRequest siRequest : requests) {
             Double requestBid = siRequest.getMaxBid();
             if(requestBid >= minPrice){
                 priceCandidates.add(requestBid);

@@ -44,8 +44,7 @@ import org.nimbustools.api.repr.SpotPriceEntry;
 import org.nimbustools.api.services.rm.DoesNotExistException;
 import org.nimbustools.api.services.rm.ManageException;
 
-
-public class SpotInstancesManagerImpl implements SpotInstancesManager {
+public class AsyncRequestManagerImpl implements AsyncRequestManager {
     
     //TODO: Set by Spring IoC
     private Integer minReservedMem;
@@ -53,12 +52,11 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
     private Integer instanceMem;    
 
     private static final Log logger =
-        LogFactory.getLog(SpotInstancesManagerImpl.class.getName());
+        LogFactory.getLog(AsyncRequestManagerImpl.class.getName());
     
-    protected Integer maximumInstances;
+    protected Integer maxVMs;
 
-    protected Map<String, SIRequest> allRequests;
-
+    protected Map<String, AsyncRequest> requests;
     protected PricingModel pricingModel;
 
     protected Double currentPrice;
@@ -68,17 +66,18 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
     protected final WorkspaceHome home;
     protected final WorkspaceGroupHome ghome;
     
-    protected InternalCreationManager creationManager;    
+    protected InternalCreationManager creationManager;
+    private Double minPrice;    
 
-    public SpotInstancesManagerImpl(PersistenceAdapter persistenceAdapterImpl,
+    public AsyncRequestManagerImpl(PersistenceAdapter persistenceAdapterImpl,
                                     Lager lagerImpl,
                                     WorkspaceHome instanceHome,
                                     WorkspaceGroupHome groupHome,
                                     Double minPrice,
                                     PricingModel pricingModelImpl){
 
-        this.allRequests = new HashMap<String, SIRequest>();
-        this.maximumInstances = 0;
+        this.requests = new HashMap<String, AsyncRequest>();
+        this.maxVMs = 0;
    
         if (persistenceAdapterImpl == null) {
             throw new IllegalArgumentException("persistenceAdapterImpl may not be null");
@@ -108,6 +107,7 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
         if (minPrice == null){
             throw new IllegalArgumentException("minPrice may not be null");
         }
+        this.minPrice = minPrice;
         
         setPrice(minPrice);
         this.pricingModel.setMinPrice(minPrice);
@@ -122,11 +122,19 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
      * to this module
      * @param request the request to be added
      */    
-    public void addRequest(SIRequest request){
-        allRequests.put(request.getId(), request);
-        if (this.lager.eventLog) {
-            logger.info(Lager.ev(-1) + "[Spot Instances] REQUEST ARRIVED: " + request.toString() + ". Changing price and reallocating requests.");
-        }        
+    public void addRequest(AsyncRequest request){
+
+        requests.put(request.getId(), request);
+        
+        if(this.lager.eventLog){
+            if(request.isSpotRequest()){
+                logger.info(Lager.ev(-1) + "[Spot Instances] Spot Instance request arrived: " + request.toString() + ". Changing price and reallocating requests.");                
+            } else {
+                logger.info(Lager.ev(-1) + "[Spot Instances] Backfill request arrived: " + request.toString() + ".");
+                
+            }
+        }
+        
         changePriceAndAllocateRequests();
     }    
     
@@ -141,12 +149,12 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
      * @throws DoesNotExistException in case the id argument does not map
      *                               to any spot instance request
      */    
-    public SIRequest cancelRequest(String reqID) throws DoesNotExistException {
+    public AsyncRequest cancelRequest(String reqID) throws DoesNotExistException {
         logger.info(Lager.ev(-1) + "[Spot Instances] Cancelling request with id: " + reqID + ".");                
-        SIRequest siRequest = getRequest(reqID, false);
+        AsyncRequest siRequest = getRequest(reqID, false);
 
-        SIRequestStatus prevStatus = siRequest.getStatus();
-        changeStatus(siRequest, SIRequestStatus.CANCELLED);
+        AsyncRequestStatus prevStatus = siRequest.getStatus();
+        changeStatus(siRequest, AsyncRequestStatus.CANCELLED);
         if(prevStatus.isActive()){
             preempt(siRequest, siRequest.getAllocatedInstances());
         }
@@ -163,7 +171,7 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
      * @throws DoesNotExistException in case the id argument does not map
      *                               to any spot instance request
      */
-    public SIRequest getRequest(String id) throws DoesNotExistException {
+    public AsyncRequest getRequest(String id) throws DoesNotExistException {
         return this.getRequest(id, true);
     }    
 
@@ -172,15 +180,15 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
      * @param caller the owner of the Spot Instances' requests
      * @return an array of spot instance requests from this caller
      */    
-    public SIRequest[] getRequests(Caller caller) {
+    public AsyncRequest[] getRequests(Caller caller, boolean spot) {
         logger.info(Lager.ev(-1) + "[Spot Instances] Retrieving requests from caller: " + caller.getIdentity() + ".");        
-        ArrayList<SIRequest> requestsByCaller = new ArrayList<SIRequest>();
-        for (SIRequest siRequest : allRequests.values()) {
-            if(siRequest.getCaller().equals(caller)){
+        ArrayList<AsyncRequest> requestsByCaller = new ArrayList<AsyncRequest>();
+        for (AsyncRequest siRequest : requests.values()) {
+            if(siRequest.isSpotRequest() == spot && siRequest.getCaller().equals(caller)){
                 requestsByCaller.add(siRequest);
             }
         }
-        return requestsByCaller.toArray(new SIRequest[0]);
+        return requestsByCaller.toArray(new AsyncRequest[0]);
     }
 
     /**
@@ -210,7 +218,7 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
      * can be queried
      */
     public void init() {
-        this.calculateMaximumInstances();
+        this.calculateMaxVMs();
     }    
     
     /**
@@ -243,7 +251,7 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
                     "MB RAM have to be freed to give space to higher priority requests");
         }
         
-        Integer usedMemory = maximumInstances*instanceMem;
+        Integer usedMemory = maxVMs*instanceMem;
 
         if(memoryToFree > usedMemory){
             logger.warn(Lager.ev(-1) + "[Spot Instances] Spot Instances requests are consuming " + usedMemory + 
@@ -257,7 +265,7 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
         //Since available memory has decreased,
         //this will cause lower bid workspaces 
         //to be pre-empted
-        changeMaximumInstances(availableMemory); 
+        changeMaxVMs(availableMemory); 
     }        
     
     // -------------------------------------------------------------------------
@@ -282,7 +290,7 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
      */
     public void stateNotification(int vmid, int state) throws ManageException {
         if(state == WorkspaceConstants.STATE_DESTROYING){
-            SIRequest siRequest = this.getSIRequest(vmid);
+            AsyncRequest siRequest = this.getSIRequest(vmid);
             if(siRequest != null){
                 if (this.lager.eventLog) {
                     logger.info(Lager.ev(-1) + "[Spot Instances] VM '" + vmid + "' from request '" + siRequest.getId() + "' finished.");
@@ -295,14 +303,14 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
                     
                     //Will just change price and reallocate requests
                     //if this was not a pre-emption
-                    this.changePriceAndAllocateRequests();
+                    this.changePriceAndAllocateRequests();                        
                 }
                 
             } else {
                 if (this.lager.eventLog) {
                     logger.info(Lager.ev(-1) + "[Spot Instances] A non-preemptable VM was destroyed. Recalculating maximum instances.");
                 }
-                this.calculateMaximumInstances();
+                this.calculateMaxVMs();
             }
         }
     }    
@@ -326,7 +334,7 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
             if (this.lager.eventLog) {
                 logger.info(Lager.ev(-1) + "[Spot Instances] " + vmids.length + " non-preemptable VMs created. Recalculating maximum instances.");
             }            
-            this.calculateMaximumInstances();
+            this.calculateMaxVMs();
         }
     }    
     
@@ -341,7 +349,7 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
      * This method is called every time the
      * number of maximum instances,
      * current requests or allocated instances
-     * change. This happens when:
+     * changes. This happens when:
      * * A SI Request is added
      * * The number of maximum instances changes
      * * An SI instance is terminated
@@ -353,7 +361,7 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
 
         allocateRequests();
 
-        if(maximumInstances == 0){
+        if(maxVMs == 0){
             changePrice();
         }
     }
@@ -365,7 +373,7 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
      * price in case the new price is different
      */
     private void changePrice() {
-        Double newPrice = pricingModel.getNextPrice(maximumInstances, getAliveRequests(), currentPrice);
+        Double newPrice = pricingModel.getNextPrice(maxVMs, getAliveSpotRequests(), currentPrice);
         if(!newPrice.equals(this.currentPrice)){
             if (this.lager.eventLog) {
                 logger.info(Lager.ev(-1) + "[Spot Instances] Spot price has changed. " +
@@ -383,16 +391,23 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
     /**
      * Performs a series of allocations
      * and pre-emptions in order to satisfy
-     * Spot Price and Maximum Instances
-     * contraints
+     * Spot Price, Maximum VMs and backfill
+     * constraints
      */
     protected void allocateRequests() {
-
+                
+        //Pre-empt lower bid requests
         preemptActiveLowerBidRequests();
+        
+        //Allocate or Pre-empt backfill requests
+        allocateLowerPriorityRequests(getGreaterOrEqualBidVMCount(), getAliveBackfillRequests(), "backfill");
+        
+        //Allocate or Pre-empt equal-bid requests
+        allocateLowerPriorityRequests(getGreaterBidVMCount(), getAliveEqualBidRequests(), "equal bid");
 
-        allocateEqualBidRequests();
-
+        //Allocate higher bid requests
         allocateHigherBidRequests();
+        
     }
 
     /**
@@ -401,45 +416,42 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
      */
     private void preemptActiveLowerBidRequests() {
         
-        Collection<SIRequest> inelegibleRequests = getLowerBidActiveRequests();
+        Collection<AsyncRequest> inelegibleRequests = getActiveLowerBidRequests();
         
         if(!inelegibleRequests.isEmpty() && this.lager.eventLog){
             logger.info(Lager.ev(-1) + "[Spot Instances] Pre-empting " + 
                         inelegibleRequests.size() + " lower bid requests.");
         }
         
-        for (SIRequest inelegibleRequest : inelegibleRequests) {
+        for (AsyncRequest inelegibleRequest : inelegibleRequests) {
             preempt(inelegibleRequest, inelegibleRequest.getAllocatedInstances());
         }
     }    
     
     /**
-     * Allocates requests that have bid equal to current spot price,
-     * if there are available instances, or pre-empt them otherwise
+     * Allocates lower priority requests if there are 
+     * available VMs, pre-empt them otherwise
      */
-    private void allocateEqualBidRequests() {         
+    private void allocateLowerPriorityRequests(Integer higherPriorityVMs, List<AsyncRequest> aliveRequests, String requestType) {    
         
-        Integer greaterBidVMs = getGreaterBidInstancesCount();
-
-        Integer availableInstances = this.maximumInstances - greaterBidVMs;
-
-        List<SIRequest> activeRequests = getEqualBidActiveRequests();
+        Integer availableVMs = this.maxVMs - higherPriorityVMs;
 
         Integer allocatedVMs = 0;
-        for (SIRequest activeRequest : activeRequests) {
-            allocatedVMs += activeRequest.getAllocatedInstances();
+        for (AsyncRequest aliveRequest : aliveRequests) {
+            allocatedVMs += aliveRequest.getAllocatedInstances();
         }
         
-        if(allocatedVMs <= availableInstances){
-            availableInstances -= allocatedVMs;
-            allocateEvenly(availableInstances);
+        if(allocatedVMs <= availableVMs){
+            availableVMs -= allocatedVMs;
+            
+            allocateEvenly(getHungryRequests(aliveRequests), availableVMs);
         } else {
-            Integer needToPreempt = allocatedVMs - availableInstances;
+            Integer needToPreempt = allocatedVMs - availableVMs;
             if (this.lager.eventLog) {
-                logger.info(Lager.ev(-1) + "[Spot Instances] No more resources for equal bid requests. " +
+                logger.info(Lager.ev(-1) + "[Spot Instances] No more resources for " + requestType + " requests. " +
                                            "Pre-empting " + needToPreempt + " VMs.");   
             }
-            preemptProportionaly(activeRequests, needToPreempt, allocatedVMs);
+            preemptProportionaly(getActiveRequests(aliveRequests), needToPreempt, allocatedVMs);
         }
     }    
     
@@ -449,11 +461,11 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
      */
     private void allocateHigherBidRequests() {
         
-        Collection<SIRequest> aliveRequests = getHigherBidAliveRequests();
+        Collection<AsyncRequest> aliveRequests = getAliveHigherBidRequests();
         
         int count = 0;
         
-        for (SIRequest aliveRequest : aliveRequests) {
+        for (AsyncRequest aliveRequest : aliveRequests) {
             if(aliveRequest.needsMoreInstances()){
                 allocate(aliveRequest, aliveRequest.getUnallocatedInstances());
                 count++;
@@ -465,9 +477,20 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
                         count + " higher bid requests.");
         }        
     }
+    
+//    private void allocateBackfillRequests() {        
+//        int availableVMs = getMaxVMs() - getAllocatedVMs();
+//        
+//        if(availableVMs > 0){
+//            List<AsyncRequest> hungryRequests = getHungryBackfillRequests();
+//            Collections.sort(hungryRequests, getAllocationComparator());
+//            
+//            allocateEvenly(hungryRequests, availableVMs);            
+//        }
+//    }
 
     /**
-     * Allocates equal bid requests in a balanced manner.
+     * Allocates requests in a balanced manner.
      * 
      * This means allocating the same number of VMs to each request
      * until all requests are satisfied, or there are no available
@@ -476,34 +499,36 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
      * @param availableInstances the number of VMs available
      *                           for allocation
      */
-    private void allocateEvenly(Integer availableInstances) {
-        List<SIRequest> hungryRequests = getEqualBidHungryRequests();
-        Collections.sort(hungryRequests, getAllocationComparator());
+    private void allocateEvenly(List<AsyncRequest> hungryRequests, Integer availableInstances) {
+        
+        if(availableInstances == 0){
+            return;
+        }
         
         if(hungryRequests.isEmpty()){
             return;
         } else {
             if (this.lager.eventLog) {
-                logger.info(Lager.ev(-1) + "[Spot Instances] Allocating " + hungryRequests.size() + "equal bid requests.");
+                logger.info(Lager.ev(-1) + "[Spot Instances] Allocating " + Math.min(availableInstances, hungryRequests.size()) + " requests.");
             }    
         }
         
-        Map<SIRequest, Integer> allocations = new HashMap<SIRequest, Integer>();
-        for (SIRequest hungryRequest : hungryRequests) {
+        Map<AsyncRequest, Integer> allocations = new HashMap<AsyncRequest, Integer>();
+        for (AsyncRequest hungryRequest : hungryRequests) {
             allocations.put(hungryRequest, 0);
         }
         
         while(availableInstances > 0 && !hungryRequests.isEmpty()){
             Integer vmsPerRequest = Math.max(availableInstances/hungryRequests.size(), 1);
             
-            Iterator<SIRequest> iterator = hungryRequests.iterator();
+            Iterator<AsyncRequest> iterator = hungryRequests.iterator();
             while(availableInstances > 0 && iterator.hasNext()){
                 vmsPerRequest = Math.min(vmsPerRequest, availableInstances);
                 
-                SIRequest siRequest = (SIRequest) iterator.next();
+                AsyncRequest siRequest = (AsyncRequest) iterator.next();
                 Integer vmsToAllocate = allocations.get(siRequest);
                 
-                Integer stillNeeded = siRequest.getNeededInstances() - vmsToAllocate;
+                Integer stillNeeded = siRequest.getUnallocatedInstances() - vmsToAllocate;
                 if(stillNeeded <= vmsPerRequest){
                     allocations.put(siRequest, vmsToAllocate+stillNeeded);
                     availableInstances -= stillNeeded;
@@ -513,15 +538,45 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
                 
                 allocations.put(siRequest, vmsToAllocate+vmsPerRequest);
                 availableInstances -= vmsPerRequest;
-            }
-            
-            for (Entry<SIRequest, Integer> allocationEntry : allocations.entrySet()) {
-                SIRequest siRequest = allocationEntry.getKey();
-                allocate(siRequest, allocationEntry.getValue());
             }            
+        }
+        
+        for (Entry<AsyncRequest, Integer> allocationEntry : allocations.entrySet()) {
+            AsyncRequest siRequest = allocationEntry.getKey();
+            allocate(siRequest, allocationEntry.getValue());
         }
     } 
     
+    private List<AsyncRequest> getHungryRequests(
+            List<AsyncRequest> aliveRequests) {
+        
+        for (Iterator<AsyncRequest> iterator = aliveRequests.iterator(); iterator.hasNext();) {
+            AsyncRequest asyncRequest = iterator.next();
+            if(!asyncRequest.needsMoreInstances()){
+                iterator.remove();
+            }
+        }
+        
+        Collections.sort(aliveRequests, getAllocationComparator());
+        
+        return aliveRequests;
+    }
+    
+    private List<AsyncRequest> getActiveRequests(
+            List<AsyncRequest> aliveRequests) {
+        
+        for (Iterator<AsyncRequest> iterator = aliveRequests.iterator(); iterator.hasNext();) {
+            AsyncRequest asyncRequest = iterator.next();
+            if(!asyncRequest.getStatus().isActive()){
+                iterator.remove();
+            }
+        }
+        
+        Collections.sort(aliveRequests, getPreemptionComparator());
+        
+        return aliveRequests;
+    }    
+
     /**
      * Pre-empts equal bid requests more-or-less proportional 
      * to the number of allocations that the request currently has.
@@ -546,23 +601,23 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
      * @param needToPreempt the number of VMs that needs to be pre-empted
      * @param allocatedVMs the number of currently allocated VMs in <b>activeRequests</b>
      */
-    private void preemptProportionaly(List<SIRequest> activeRequests, Integer needToPreempt, Integer allocatedVMs) {
+    private void preemptProportionaly(List<AsyncRequest> activeRequests, Integer needToPreempt, Integer allocatedVMs) {
         
         Collections.sort(activeRequests, getPreemptionComparator());
         
         Integer stillToPreempt = needToPreempt;
         
-        Iterator<SIRequest> iterator = activeRequests.iterator();
+        Iterator<AsyncRequest> iterator = activeRequests.iterator();
         while(iterator.hasNext() && stillToPreempt > 0){
-            SIRequest siRequest = iterator.next();
+            AsyncRequest siRequest = iterator.next();
             Double allocatedProportion = (double)siRequest.getAllocatedInstances()/allocatedVMs;
-            
+
             //Minimum deserved pre-emption is 1
             Integer deservedPreemption = Math.max((int)Math.round(allocatedProportion*needToPreempt), 1);
-            
+
             Integer realPreemption = Math.min(deservedPreemption, stillToPreempt); 
             preempt(siRequest, realPreemption);
-            stillToPreempt -= realPreemption;
+            stillToPreempt -= realPreemption;                
         }
         
         
@@ -573,7 +628,7 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
             
             iterator = activeRequests.iterator();
             while(iterator.hasNext() && stillToPreempt > 0){
-                SIRequest siRequest = iterator.next();
+                AsyncRequest siRequest = iterator.next();
                 Integer allocatedInstances = siRequest.getAllocatedInstances();
                 if(allocatedInstances > 0){
                     if(allocatedInstances > stillToPreempt){
@@ -595,10 +650,10 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
      * first
      * @return the generated comparator
      */
-    private Comparator<SIRequest> getPreemptionComparator() {
-        return new Comparator<SIRequest>() {
+    private Comparator<AsyncRequest> getPreemptionComparator() {
+        return new Comparator<AsyncRequest>() {
 
-            public int compare(SIRequest o1, SIRequest o2) {
+            public int compare(AsyncRequest o1, AsyncRequest o2) {
                 
                 //Requests with more allocated instances come first
                 int compareTo = o2.getAllocatedInstances().compareTo(o1.getAllocatedInstances());
@@ -620,10 +675,10 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
      * first
      * @return the generated comparator
      */    
-    private Comparator<SIRequest> getAllocationComparator() {
-        return new Comparator<SIRequest>() {
+    private Comparator<AsyncRequest> getAllocationComparator() {
+        return new Comparator<AsyncRequest>() {
 
-            public int compare(SIRequest o1, SIRequest o2) {
+            public int compare(AsyncRequest o1, AsyncRequest o2) {
                 
                 //Requests with less allocated instances come first
                 int compareTo = o1.getAllocatedInstances().compareTo(o2.getAllocatedInstances());
@@ -644,7 +699,7 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
      * @param siRequest the request to be pre-empted
      * @param quantity the quantity to be pre-empted
      */
-    protected void preempt(SIRequest siRequest, int quantity) { 
+    protected void preempt(AsyncRequest siRequest, int quantity) { 
                 
         if(siRequest.getAllocatedInstances() == quantity){
             allVMsFinished(siRequest);
@@ -680,6 +735,7 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
         } catch(Exception e){
             failRequest("pre-empting", siRequest, e.getMessage(), e);
         }
+        
     }
 
     /**
@@ -687,11 +743,11 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
      * all VMs from a given request are finished
      * @param siRequest
      */
-    private void allVMsFinished(SIRequest siRequest){
+    private void allVMsFinished(AsyncRequest siRequest){
         if(!siRequest.isPersistent() && (!siRequest.needsMoreInstances() || currentPrice > siRequest.getMaxBid())){
-            changeStatus(siRequest, SIRequestStatus.CLOSED);
+            changeStatus(siRequest, AsyncRequestStatus.CLOSED);
         } else {
-            changeStatus(siRequest, SIRequestStatus.OPEN);
+            changeStatus(siRequest, AsyncRequestStatus.OPEN);
         }
     }
     
@@ -703,11 +759,11 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
      * @param errorStr the error message
      * @param problem the problem that caused the request to fail
      */
-    private void failRequest(String action, SIRequest siRequest, String errorStr, Throwable problem) {
+    private void failRequest(String action, AsyncRequest siRequest, String errorStr, Throwable problem) {
         logger.warn(Lager.ev(-1) + "[Spot Instances] Error while " + action + " VMs for request: " +
                 siRequest.getId() + ". Setting state to FAILED. Problem: " +
                 errorStr);
-        changeStatus(siRequest, SIRequestStatus.FAILED);
+        changeStatus(siRequest, AsyncRequestStatus.FAILED);
         if(problem != null){
             siRequest.setProblem(problem);
         }
@@ -719,7 +775,7 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
      * @param siRequest the request to be pre-empted
      * @param quantity the quantity to be pre-empted
      */
-    protected void allocate(SIRequest siRequest, Integer quantity) {
+    protected void allocate(AsyncRequest siRequest, Integer quantity) {
 
         if(quantity < 1){
             logger.error(Lager.ev(-1) + "[Spot Instances] Number of instances to allocate has to be larger than 0. " +
@@ -748,9 +804,9 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
             failRequest("allocating", siRequest, e.getMessage(), e);
             return;
         }
-        
+                
         if(siRequest.getStatus().isOpen()){
-            changeStatus(siRequest, SIRequestStatus.ACTIVE);
+            changeStatus(siRequest, AsyncRequestStatus.ACTIVE);
         }
     }
 
@@ -759,8 +815,8 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
      * @param siRequest the request that will change status
      * @param newStatus the new status
      */
-    private void changeStatus(SIRequest siRequest, SIRequestStatus newStatus) {
-        SIRequestStatus oldStatus = siRequest.getStatus();
+    private void changeStatus(AsyncRequest siRequest, AsyncRequestStatus newStatus) {
+        AsyncRequestStatus oldStatus = siRequest.getStatus();
         boolean changed = siRequest.setStatus(newStatus);
         if (changed && this.lager.eventLog) {
             logger.info(Lager.ev(-1) + "[Spot Instances] Request " + siRequest.getId() + " changed status from " + oldStatus + " to " + newStatus);
@@ -788,7 +844,7 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
      *  * Destructions of non-preemptable VMs
      * 
      */
-    protected synchronized void calculateMaximumInstances() {
+    protected synchronized void calculateMaxVMs() {
         
         if (this.lager.eventLog) {
             logger.info(Lager.ev(-1) + "[Spot Instances] Calculating maximum SI instances..");
@@ -817,12 +873,12 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
                 logger.info(Lager.ev(-1) + "[Spot Instances] Calculated memory for SI requests: " + siMem + "MB");
             }
         } catch (WorkspaceDatabaseException e) {
-            changeMaximumInstances(0);
+            changeMaxVMs(0);
             logger.error(Lager.ev(-1) + "[Spot Instances] Error while calculating maximum instances: " + e.getMessage());
             return;
         }
         
-        changeMaximumInstances(siMem);
+        changeMaxVMs(siMem);
     }
 
     /**
@@ -833,22 +889,22 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
      * @param availableMemory the new amount of memory
      * available for SI requests
      */
-    protected void changeMaximumInstances(Integer availableMemory){
+    protected void changeMaxVMs(Integer availableMemory){
 
         if(availableMemory == null || availableMemory < 0){
             return;
         }
 
-        Integer newMaxInstances = availableMemory/instanceMem;
+        Integer newMaxVMs = availableMemory/instanceMem;
 
         //TODO Also take available network associations 
         //     into account        
         
-        if(newMaxInstances != maximumInstances){
+        if(newMaxVMs != maxVMs){
             if (this.lager.eventLog) {
-                logger.info(Lager.ev(-1) + "[Spot Instances] Maximum instances changed. Previous maximum instances = " + maximumInstances + ". Current maximum instances = " + newMaxInstances);
+                logger.info(Lager.ev(-1) + "[Spot Instances] Maximum instances changed. Previous maximum instances = " + maxVMs + ". Current maximum instances = " + newMaxVMs);
             }            
-            this.maximumInstances = newMaxInstances;
+            this.maxVMs = newMaxVMs;
             changePriceAndAllocateRequests();
         }
     }    
@@ -876,11 +932,11 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
      * @throws DoesNotExistException in case the id argument does not map
      *                               to any spot instance request
      */
-    protected SIRequest getRequest(String id, boolean log) throws DoesNotExistException {
+    protected AsyncRequest getRequest(String id, boolean log) throws DoesNotExistException {
         if(log){
             logger.info(Lager.ev(-1) + "[Spot Instances] Retrieving request with id: " + id + ".");
         } 
-        SIRequest siRequest = allRequests.get(id);
+        AsyncRequest siRequest = requests.get(id);
         if(siRequest != null){
             return siRequest;
         } else {
@@ -894,67 +950,90 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
      * @param vmid the id of the vm 
      * @return the request that has this VM allocated
      */
-    protected SIRequest getSIRequest(int vmid) {
-        for (SIRequest request : allRequests.values()) {
+    protected AsyncRequest getSIRequest(int vmid) {
+        for (AsyncRequest request : requests.values()) {
             if(request.isAllocatedVM(vmid)){
                 return request;
             }
         }
         
         return null;
-    }    
+    }         
     
     /**
-     * Retrieves OPEN or ACTIVE equal bid requests that
-     * still needs more instances
-     * @return list of equal bid hungry alive requests
+     * Retrieves ACTIVE or OPEN equal or higher bid requests
+     * @return list of alive equal or higher bid requests
+     */    
+    private List<AsyncRequest> getAliveEqualOrHigherBidRequests() {
+        return SIRequestUtils.filterAliveRequestsAboveOrEqualPrice(this.currentPrice, this.requests.values());
+    }        
+    
+    /**
+     * Retrieves ACTIVE or OPEN equal bid requests
+     * @return list of alive equal bid requests
      */
-    protected List<SIRequest> getEqualBidHungryRequests() {
-        return SIRequestUtils.filterHungryAliveRequestsEqualPrice(this.currentPrice, this.allRequests.values());
+    private List<AsyncRequest> getAliveEqualBidRequests(){
+        return SIRequestUtils.filterAliveRequestsEqualPrice(this.currentPrice, this.requests.values());
+    }  
+    
+    /**
+     * Retrieves ACTIVE or OPEN higher bid requests
+     * @return list of alive higher bid requests
+     */
+    private List<AsyncRequest> getAliveHigherBidRequests() {
+        return SIRequestUtils.filterAliveRequestsAbovePrice(this.currentPrice, this.requests.values());
+    }
+    
+    /**
+     * Retrieves ACTIVE or OPEN backfill requests
+     * @return list of alive backfill requests
+     */
+    private List<AsyncRequest> getAliveBackfillRequests(){
+        return SIRequestUtils.filterAliveBackfillRequests(this.requests.values());
+    }     
+    
+    /**
+     * Retrieves ACTIVE or OPEN spot instance requests
+     * @return list of alive requests
+     */
+    private List<AsyncRequest> getAliveSpotRequests() {
+        return SIRequestUtils.filterAliveRequestsAboveOrEqualPrice(minPrice, this.requests.values());
     }
     
     /**
      * Retrieves ACTIVE lower bid requests
      * @return list of lower bid active requests
      */
-    protected Collection<SIRequest> getLowerBidActiveRequests() {
-        return SIRequestUtils.filterActiveRequestsBelowPrice(this.currentPrice, this.allRequests.values());
-    }
-
-    /**
-     * Retrieves ACTIVE equal bid requests
-     * @return list of equal bid active requests
-     */
-    protected List<SIRequest> getEqualBidActiveRequests(){
-        return SIRequestUtils.filterActiveRequestsEqualPrice(this.currentPrice, this.allRequests.values());
-    }  
-    
-    /**
-     * Retrieves OPEN or ACTIVE higher bid requests
-     * @return list of higher bid active alive requests
-     */
-    protected Collection<SIRequest> getHigherBidAliveRequests() {
-        return SIRequestUtils.filterAliveRequestsAbovePrice(this.currentPrice, this.allRequests.values());
-    }
-    
-    /**
-     * Retrieves OPEN or ACTIVE requests
-     * @return list of alive requests
-     */
-    protected Collection<SIRequest> getAliveRequests() {
-        return SIRequestUtils.filterAliveRequests(this.allRequests.values());
+    private List<AsyncRequest> getActiveLowerBidRequests() {
+        return SIRequestUtils.filterActiveRequestsBelowPrice(this.currentPrice, this.requests.values());
     }    
-
+    
     /**
      * Retrieves the number of needed VMs by greater bid requests
      * @return number of needed VMs
      */
-    protected Integer getGreaterBidInstancesCount() {
-        Collection<SIRequest> priorityRequests = getHigherBidAliveRequests();
+    protected Integer getGreaterBidVMCount() {
+        Collection<AsyncRequest> priorityRequests = getAliveHigherBidRequests();
 
         Integer instanceCount = 0;
 
-        for (SIRequest siRequest : priorityRequests) {
+        for (AsyncRequest siRequest : priorityRequests) {
+            instanceCount += siRequest.getNeededInstances();
+        }
+
+        return instanceCount;
+    } 
+    
+    /**
+     * Retrieves the number of needed VMs by greater or equal bid requests
+     * @return number of needed VMs
+     */
+    protected Integer getGreaterOrEqualBidVMCount() {
+        Collection<AsyncRequest> elegibleRequests = getAliveEqualOrHigherBidRequests();
+
+        Integer instanceCount = 0;
+
+        for (AsyncRequest siRequest : elegibleRequests) {
             instanceCount += siRequest.getNeededInstances();
         }
 
@@ -964,7 +1043,7 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
     // -------------------------------------------------------------------------
     // MODULE SET (avoids circular dependency problem)
     // -------------------------------------------------------------------------
-    
+
     public void setCreationManager(InternalCreationManager creationManagerImpl) {
         if (creationManagerImpl == null) {
             throw new IllegalArgumentException("creationManagerImpl may not be null");
@@ -989,11 +1068,11 @@ public class SpotInstancesManagerImpl implements SpotInstancesManager {
     }    
 
     // -------------------------------------------------------------------------
-    // TEST UTILS
-    // -------------------------------------------------------------------------
+    // GETTERS
+    // -------------------------------------------------------------------------   
     
-    public Integer getMaximumInstances() {
-        return maximumInstances;
+    public synchronized Integer getMaxVMs() {
+        return maxVMs;
     }
 
 }

@@ -22,13 +22,13 @@ import org.globus.workspace.scheduler.defaults.PreemptableSpaceManager;
  * Interface that represents
  * a Spot Instances module
  */
-public interface SpotInstancesManager extends SpotInstancesHome, PreemptableSpaceManager, StateChangeInterested {
+public interface AsyncRequestManager extends AsyncRequestHome, PreemptableSpaceManager, StateChangeInterested {
 
     /**
      * Adds a Spot Instances request
      * to this module
      * @param request the request to be added
      */
-    public void addRequest(SIRequest request);
+    public void addRequest(AsyncRequest request);
     
 }

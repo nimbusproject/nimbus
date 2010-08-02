@@ -6,12 +6,12 @@ import java.util.List;
 
 public class SIRequestUtils {
 
-    public static List<SIRequest> getRequestsEqualPrice(
-            Double price, Collection<SIRequest> allRequests) {
+    public static List<AsyncRequest> getRequestsEqualPrice(
+            Double price, Collection<AsyncRequest> allRequests) {
         
-        List<SIRequest> offersEqualPrice = new ArrayList<SIRequest>();
+        List<AsyncRequest> offersEqualPrice = new ArrayList<AsyncRequest>();
         
-        for (SIRequest siRequest : allRequests) {
+        for (AsyncRequest siRequest : allRequests) {
             if(siRequest.getMaxBid() == price){
                 offersEqualPrice.add(siRequest);
             }
@@ -20,12 +20,12 @@ public class SIRequestUtils {
         return offersEqualPrice;
     }
 
-    public static List<SIRequest> getRequestsAbovePrice(Double price,
-            Collection<SIRequest> allRequests) {
+    public static List<AsyncRequest> getRequestsAbovePrice(Double price,
+            Collection<AsyncRequest> allRequests) {
 
-        List<SIRequest> offersAbovePrice = new ArrayList<SIRequest>();
+        List<AsyncRequest> offersAbovePrice = new ArrayList<AsyncRequest>();
         
-        for (SIRequest siRequest : allRequests) {
+        for (AsyncRequest siRequest : allRequests) {
             if(siRequest.getMaxBid() > price){
                 offersAbovePrice.add(siRequest);
             }
@@ -34,13 +34,13 @@ public class SIRequestUtils {
         return offersAbovePrice;          
     }
     
-    public static List<SIRequest> filterActiveRequestsBelowPrice(Double price,
-            Collection<SIRequest> allRequests) {
+    public static List<AsyncRequest> filterActiveRequestsBelowPrice(Double price,
+            Collection<AsyncRequest> allRequests) {
 
-        List<SIRequest> activeRequestsBelowPrice = new ArrayList<SIRequest>();
+        List<AsyncRequest> activeRequestsBelowPrice = new ArrayList<AsyncRequest>();
         
-        for (SIRequest siRequest : allRequests) {
-            if(siRequest.getStatus().isActive() && siRequest.getMaxBid() < price){
+        for (AsyncRequest siRequest : allRequests) {
+            if(siRequest.isSpotRequest() && siRequest.getStatus().isActive() && siRequest.getMaxBid() < price){
                 activeRequestsBelowPrice.add(siRequest);
             }
         }
@@ -48,13 +48,13 @@ public class SIRequestUtils {
         return activeRequestsBelowPrice;          
     }
 
-    public static List<SIRequest> filterActiveRequestsEqualPrice(
-            Double price, Collection<SIRequest> allRequests) {
+    public static List<AsyncRequest> filterAliveRequestsEqualPrice(
+            Double price, Collection<AsyncRequest> allRequests) {
         
-        List<SIRequest> activeRequestsEqualPrice = new ArrayList<SIRequest>();
+        List<AsyncRequest> activeRequestsEqualPrice = new ArrayList<AsyncRequest>();
         
-        for (SIRequest siRequest : allRequests) {
-            if(siRequest.getStatus().isActive() && siRequest.getMaxBid().equals(price)){
+        for (AsyncRequest siRequest : allRequests) {
+            if(siRequest.getStatus().isAlive() && siRequest.getMaxBid().equals(price)){
                 activeRequestsEqualPrice.add(siRequest);
             }
         }
@@ -62,11 +62,11 @@ public class SIRequestUtils {
         return activeRequestsEqualPrice;
     }
     
-    public static List<SIRequest> filterAliveRequestsAbovePrice(
-            Double currentPrice, Collection<SIRequest> allRequests) {
-        List<SIRequest> aliveRequestsAbovePrice = new ArrayList<SIRequest>();
+    public static List<AsyncRequest> filterAliveRequestsAbovePrice(
+            Double currentPrice, Collection<AsyncRequest> allRequests) {
+        List<AsyncRequest> aliveRequestsAbovePrice = new ArrayList<AsyncRequest>();
         
-        for (SIRequest siRequest : allRequests) {
+        for (AsyncRequest siRequest : allRequests) {
             if(siRequest.getStatus().isAlive() && siRequest.getMaxBid() > currentPrice){
                 aliveRequestsAbovePrice.add(siRequest);
             }
@@ -75,13 +75,13 @@ public class SIRequestUtils {
         return aliveRequestsAbovePrice;
     }
 
-    public static List<SIRequest> filterAliveRequests(
-            Collection<SIRequest> allRequests) {
+    public static List<AsyncRequest> filterAliveRequestsAboveOrEqualPrice(
+            Double minPrice, Collection<AsyncRequest> allRequests) {
         
-        List<SIRequest> aliveRequests = new ArrayList<SIRequest>();
+        List<AsyncRequest> aliveRequests = new ArrayList<AsyncRequest>();
         
-        for (SIRequest siRequest : allRequests) {
-            if(siRequest.getStatus().isAlive()){
+        for (AsyncRequest siRequest : allRequests) {
+            if(siRequest.isSpotRequest() && siRequest.getStatus().isAlive()){
                 aliveRequests.add(siRequest);
             }
         }
@@ -89,19 +89,30 @@ public class SIRequestUtils {
         return aliveRequests;
     }
 
-    public static List<SIRequest> filterHungryAliveRequestsEqualPrice(
-            Double price, Collection<SIRequest> allRequests) {
+    public static Collection<AsyncRequest> filterActiveRequests(
+            Collection<AsyncRequest> allRequests) {
+        List<AsyncRequest> activeRequests = new ArrayList<AsyncRequest>();
         
-        List<SIRequest> hungryRequests = new ArrayList<SIRequest>();
-        
-        for (SIRequest siRequest : allRequests) {
-            if(siRequest.getMaxBid().equals(price) && siRequest.needsMoreInstances() && siRequest.getStatus().isAlive()){
-                hungryRequests.add(siRequest);
+        for (AsyncRequest siRequest : allRequests) {
+            if(siRequest.getStatus().isActive()){
+                activeRequests.add(siRequest);
             }
         }
         
-        return hungryRequests;
-    }    
-      
+        return activeRequests;
+    }
+
+    public static List<AsyncRequest> filterAliveBackfillRequests(
+            Collection<AsyncRequest> allRequests) {
+        List<AsyncRequest> activeRequests = new ArrayList<AsyncRequest>();
+        
+        for (AsyncRequest siRequest : allRequests) {
+            if(!siRequest.isSpotRequest() && siRequest.getStatus().isAlive()){
+                activeRequests.add(siRequest);
+            }
+        }
+        
+        return activeRequests;
+    } 
     
 }

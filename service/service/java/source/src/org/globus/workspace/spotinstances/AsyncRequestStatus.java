@@ -1,6 +1,6 @@
 package org.globus.workspace.spotinstances;
 
-public enum SIRequestStatus {
+public enum AsyncRequestStatus {
 
     OPEN, ACTIVE, CLOSED, CANCELLED, FAILED;
     

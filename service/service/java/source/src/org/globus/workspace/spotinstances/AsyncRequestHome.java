@@ -29,7 +29,7 @@ import org.nimbustools.api.services.rm.DoesNotExistException;
  * RETRIEVE and CANCEL operations to 
  * Spot Instance Requests
  */
-public interface SpotInstancesHome {
+public interface AsyncRequestHome {
 
     /**
      * Cancels a Spot Instance request
@@ -38,7 +38,7 @@ public interface SpotInstancesHome {
      * @throws DoesNotExistException in case the id argument does not map
      *                               to any spot instance request
      */
-    public SIRequest cancelRequest(String reqID) throws DoesNotExistException;
+    public AsyncRequest cancelRequest(String reqID) throws DoesNotExistException;
     
     /**
      * Retrieves a Spot Instance request and its related information
@@ -47,14 +47,14 @@ public interface SpotInstancesHome {
      * @throws DoesNotExistException in case the id argument does not map
      *                               to any spot instance request
      */
-    public SIRequest getRequest(String id) throws DoesNotExistException;
+    public AsyncRequest getRequest(String id) throws DoesNotExistException;
     
     /**
      * Retrieves all Spot Instance requests from a caller
      * @param caller the owner of the Spot Instances' requests
      * @return an array of spot instance requests from this caller
      */
-    public SIRequest[] getRequests(Caller caller);
+    public AsyncRequest[] getRequests(Caller caller, boolean spot);
     
     /**
      * Retrieves current spot price

@@ -4,6 +4,9 @@ import static org.junit.Assert.*;
 
 import java.util.LinkedList;
 
+import org.globus.workspace.service.binding.vm.VirtualMachine;
+import org.globus.workspace.spotinstances.MaximizeUtilizationPricingModel;
+import org.globus.workspace.spotinstances.AsyncRequest;
 import org.junit.Test;
 
 public class MaximizeUtilizationPricingModelTest { 
@@ -14,7 +17,7 @@ public class MaximizeUtilizationPricingModelTest {
         
         MaximizeUtilizationPricingModel pricingModel = new MaximizeUtilizationPricingModel();
         
-        LinkedList<SIRequest> requests = new LinkedList<SIRequest>();
+        LinkedList<AsyncRequest> requests = new LinkedList<AsyncRequest>();
         
         Double nextPrice = pricingModel.getNextPrice(0, requests, null);
         assertEquals(pricingModel.getMinPrice(), nextPrice);
@@ -37,18 +40,18 @@ public class MaximizeUtilizationPricingModelTest {
 
         
         //case 1
-        LinkedList<SIRequest> requests = new LinkedList<SIRequest>();
-        requests.add(new SIRequest("a", 2.0, 1));
+        LinkedList<AsyncRequest> requests = new LinkedList<AsyncRequest>();
+        requests.add(new AsyncRequest("a", 2.0, getBindings(1)));
      
         Double nextPrice = pricingModel.getNextPrice(0, requests, null);
         assertEquals(new Double(2.0+0.1), nextPrice);
         assertTrue(PricingModelTestUtils.checkPricingModelConstraints(pricingModel.getMinPrice(), nextPrice, 0, requests));
         
         //case 2
-        requests = new LinkedList<SIRequest>();
-        requests.add(new SIRequest("a", 4.0, 1));
-        requests.add(new SIRequest("b", 2.0, 4));  
-        requests.add(new SIRequest("c", 3.5, 4));     
+        requests = new LinkedList<AsyncRequest>();
+        requests.add(new AsyncRequest("a", 4.0, getBindings(1)));
+        requests.add(new AsyncRequest("b", 2.0, getBindings(4)));  
+        requests.add(new AsyncRequest("c", 3.5, getBindings(4)));     
         
         nextPrice = pricingModel.getNextPrice(0, requests, null);
         assertEquals(new Double(4.0+0.1), nextPrice);
@@ -61,8 +64,8 @@ public class MaximizeUtilizationPricingModelTest {
         MaximizeUtilizationPricingModel pricingModel = new MaximizeUtilizationPricingModel(true);
 
         
-        LinkedList<SIRequest> requests = new LinkedList<SIRequest>();
-        requests.add(new SIRequest("a", 2.0, 3));
+        LinkedList<AsyncRequest> requests = new LinkedList<AsyncRequest>();
+        requests.add(new AsyncRequest("a", 2.0, getBindings(3)));
         
         Double nextPrice = pricingModel.getNextPrice(5, requests, null);
         assertEquals(new Double(pricingModel.getMinPrice()), nextPrice);
@@ -75,8 +78,8 @@ public class MaximizeUtilizationPricingModelTest {
         MaximizeUtilizationPricingModel pricingModel = new MaximizeUtilizationPricingModel(false);
 
         
-        LinkedList<SIRequest> requests = new LinkedList<SIRequest>();
-        requests.add(new SIRequest("a", 2.0, 3));
+        LinkedList<AsyncRequest> requests = new LinkedList<AsyncRequest>();
+        requests.add(new AsyncRequest("a", 2.0, getBindings(3)));
         
         Double nextPrice = pricingModel.getNextPrice(5, requests, null);
         assertEquals(new Double(2.0), nextPrice);
@@ -89,8 +92,8 @@ public class MaximizeUtilizationPricingModelTest {
         MaximizeUtilizationPricingModel pricingModel = new MaximizeUtilizationPricingModel(true);
 
         
-        LinkedList<SIRequest> requests = new LinkedList<SIRequest>();
-        requests.add(new SIRequest("a", 2.0, 10));
+        LinkedList<AsyncRequest> requests = new LinkedList<AsyncRequest>();
+        requests.add(new AsyncRequest("a", 2.0, getBindings(10)));
         
         Double nextPrice = pricingModel.getNextPrice(5, requests, null);
         assertEquals(new Double(2.0), nextPrice);
@@ -103,8 +106,8 @@ public class MaximizeUtilizationPricingModelTest {
         MaximizeUtilizationPricingModel pricingModel = new MaximizeUtilizationPricingModel(false);
 
         
-        LinkedList<SIRequest> requests = new LinkedList<SIRequest>();
-        requests.add(new SIRequest("a", 2.0, 10));
+        LinkedList<AsyncRequest> requests = new LinkedList<AsyncRequest>();
+        requests.add(new AsyncRequest("a", 2.0, getBindings(10)));
         
         Double nextPrice = pricingModel.getNextPrice(5, requests, null);
         assertEquals(new Double(2.0), nextPrice);
@@ -117,9 +120,9 @@ public class MaximizeUtilizationPricingModelTest {
         MaximizeUtilizationPricingModel pricingModel = new MaximizeUtilizationPricingModel(true);
 
         
-        LinkedList<SIRequest> requests = new LinkedList<SIRequest>();
-        requests.add(new SIRequest("a", 2.0, 10));
-        requests.add(new SIRequest("b", 1.0, 5));        
+        LinkedList<AsyncRequest> requests = new LinkedList<AsyncRequest>();
+        requests.add(new AsyncRequest("a", 2.0, getBindings(10)));
+        requests.add(new AsyncRequest("b", 1.0, getBindings(5)));        
         
         Double nextPrice = pricingModel.getNextPrice(5, requests, null);
         assertEquals(new Double(2.0), nextPrice);
@@ -132,9 +135,9 @@ public class MaximizeUtilizationPricingModelTest {
         MaximizeUtilizationPricingModel pricingModel = new MaximizeUtilizationPricingModel(false);
 
         
-        LinkedList<SIRequest> requests = new LinkedList<SIRequest>();
-        requests.add(new SIRequest("a", 2.0, 10));
-        requests.add(new SIRequest("b", 1.0, 5));        
+        LinkedList<AsyncRequest> requests = new LinkedList<AsyncRequest>();
+        requests.add(new AsyncRequest("a", 2.0, getBindings(10)));
+        requests.add(new AsyncRequest("b", 1.0, getBindings(5)));        
         
         Double nextPrice = pricingModel.getNextPrice(5, requests, null);
         assertEquals(new Double(2.0), nextPrice);
@@ -146,10 +149,10 @@ public class MaximizeUtilizationPricingModelTest {
 
         MaximizeUtilizationPricingModel pricingModel = new MaximizeUtilizationPricingModel(true);
         
-        LinkedList<SIRequest> requests = new LinkedList<SIRequest>();
-        requests.add(new SIRequest("a", 2.0, 5));
-        requests.add(new SIRequest("b", 1.0, 5));
-        requests.add(new SIRequest("c", 1.6, 5));
+        LinkedList<AsyncRequest> requests = new LinkedList<AsyncRequest>();
+        requests.add(new AsyncRequest("a", 2.0, getBindings(5)));
+        requests.add(new AsyncRequest("b", 1.0, getBindings(5)));
+        requests.add(new AsyncRequest("c", 1.6, getBindings(5)));
         
         Double nextPrice = pricingModel.getNextPrice(15, requests, null);
         assertEquals(new Double(1.0), nextPrice);
@@ -161,10 +164,10 @@ public class MaximizeUtilizationPricingModelTest {
 
         MaximizeUtilizationPricingModel pricingModel = new MaximizeUtilizationPricingModel(false);
         
-        LinkedList<SIRequest> requests = new LinkedList<SIRequest>();
-        requests.add(new SIRequest("a", 2.0, 5));
-        requests.add(new SIRequest("b", 1.0, 5));
-        requests.add(new SIRequest("c", 1.6, 5));
+        LinkedList<AsyncRequest> requests = new LinkedList<AsyncRequest>();
+        requests.add(new AsyncRequest("a", 2.0, getBindings(5)));
+        requests.add(new AsyncRequest("b", 1.0, getBindings(5)));
+        requests.add(new AsyncRequest("c", 1.6, getBindings(5)));
         
         Double nextPrice = pricingModel.getNextPrice(15, requests, null);
         assertEquals(new Double(1.0), nextPrice);
@@ -176,10 +179,10 @@ public class MaximizeUtilizationPricingModelTest {
 
         MaximizeUtilizationPricingModel pricingModel = new MaximizeUtilizationPricingModel(true);
         
-        LinkedList<SIRequest> requests = new LinkedList<SIRequest>();
-        requests.add(new SIRequest("a", 2.0, 5));
-        requests.add(new SIRequest("b", 1.0, 5));
-        requests.add(new SIRequest("c", 1.4, 5));
+        LinkedList<AsyncRequest> requests = new LinkedList<AsyncRequest>();
+        requests.add(new AsyncRequest("a", 2.0, getBindings(5)));
+        requests.add(new AsyncRequest("b", 1.0, getBindings(5)));
+        requests.add(new AsyncRequest("c", 1.4, getBindings(5)));
         
         Double nextPrice = pricingModel.getNextPrice(15, requests, null);
         assertEquals(new Double(1.0), nextPrice);
@@ -191,10 +194,10 @@ public class MaximizeUtilizationPricingModelTest {
 
         MaximizeUtilizationPricingModel pricingModel = new MaximizeUtilizationPricingModel(false);
         
-        LinkedList<SIRequest> requests = new LinkedList<SIRequest>();
-        requests.add(new SIRequest("a", 2.0, 5));
-        requests.add(new SIRequest("b", 1.0, 5));
-        requests.add(new SIRequest("c", 1.4, 5));
+        LinkedList<AsyncRequest> requests = new LinkedList<AsyncRequest>();
+        requests.add(new AsyncRequest("a", 2.0, getBindings(5)));
+        requests.add(new AsyncRequest("b", 1.0, getBindings(5)));
+        requests.add(new AsyncRequest("c", 1.4, getBindings(5)));
         
         Double nextPrice = pricingModel.getNextPrice(15, requests, null);
         assertEquals(new Double(1.0), nextPrice);
@@ -206,12 +209,12 @@ public class MaximizeUtilizationPricingModelTest {
 
         MaximizeUtilizationPricingModel pricingModel = new MaximizeUtilizationPricingModel(true);
         
-        LinkedList<SIRequest> requests = new LinkedList<SIRequest>();
-        requests.add(new SIRequest("a", 200.0, 1));
-        requests.add(new SIRequest("b", 1.0, 25));
-        requests.add(new SIRequest("c", 2.0, 25));
-        requests.add(new SIRequest("d", 3.0, 25));
-        requests.add(new SIRequest("e", 4.0, 25));
+        LinkedList<AsyncRequest> requests = new LinkedList<AsyncRequest>();
+        requests.add(new AsyncRequest("a", 200.0, getBindings(1)));
+        requests.add(new AsyncRequest("b", 1.0, getBindings(25)));
+        requests.add(new AsyncRequest("c", 2.0, getBindings(25)));
+        requests.add(new AsyncRequest("d", 3.0, getBindings(25)));
+        requests.add(new AsyncRequest("e", 4.0, getBindings(25)));
         
         Double nextPrice = pricingModel.getNextPrice(200, requests, null);
         assertEquals(new Double(pricingModel.getMinPrice()), nextPrice);
@@ -223,16 +226,20 @@ public class MaximizeUtilizationPricingModelTest {
 
         MaximizeUtilizationPricingModel pricingModel = new MaximizeUtilizationPricingModel(false);
         
-        LinkedList<SIRequest> requests = new LinkedList<SIRequest>();
-        requests.add(new SIRequest("a", 200.0, 1));
-        requests.add(new SIRequest("b", 1.0, 25));
-        requests.add(new SIRequest("c", 2.0, 25));
-        requests.add(new SIRequest("d", 3.0, 25));
-        requests.add(new SIRequest("e", 4.0, 25));
+        LinkedList<AsyncRequest> requests = new LinkedList<AsyncRequest>();
+        requests.add(new AsyncRequest("a", 200.0, getBindings(1)));
+        requests.add(new AsyncRequest("b", 1.0, getBindings(25)));
+        requests.add(new AsyncRequest("c", 2.0, getBindings(25)));
+        requests.add(new AsyncRequest("d", 3.0, getBindings(25)));
+        requests.add(new AsyncRequest("e", 4.0, getBindings(25)));
         
         Double nextPrice = pricingModel.getNextPrice(200, requests, null);
         assertEquals(new Double(1.0), nextPrice);
         assertTrue(PricingModelTestUtils.checkPricingModelConstraints(pricingModel.getMinPrice(), nextPrice, 200, requests));        
     }        
 
+    public VirtualMachine[] getBindings(int number){
+        return new VirtualMachine[number];
+    }
+       
 }

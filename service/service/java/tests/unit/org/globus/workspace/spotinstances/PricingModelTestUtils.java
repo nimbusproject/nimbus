@@ -1,13 +1,12 @@
 package org.globus.workspace.spotinstances;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
-
-import edu.emory.mathcs.backport.java.util.Collections;
 
 public class PricingModelTestUtils {
 
-    public static boolean checkPricingModelConstraints(Double minPrice, Double nextPrice, Integer totalReservedResources, Collection<SIRequest> requests){
+    public static boolean checkPricingModelConstraints(Double minPrice, Double nextPrice, Integer totalReservedResources, Collection<AsyncRequest> requests){
         
         if(nextPrice < minPrice){
             return false;
@@ -17,14 +16,14 @@ public class PricingModelTestUtils {
     }
 
     private static boolean checkSpotInstancesConstraint(Double nextPrice,
-            Integer totalReservedResources, Collection<SIRequest> requests) {
+            Integer totalReservedResources, Collection<AsyncRequest> requests) {
         
-        LinkedList<SIRequest> reverseOrderedRequests = new LinkedList<SIRequest>(requests);
+        LinkedList<AsyncRequest> reverseOrderedRequests = new LinkedList<AsyncRequest>(requests);
         Collections.sort(reverseOrderedRequests, Collections.reverseOrder());
 
         Integer availableResources = totalReservedResources;
         
-        for (SIRequest siRequest : reverseOrderedRequests) {
+        for (AsyncRequest siRequest : reverseOrderedRequests) {
             if(availableResources > 0){
                 if(siRequest.getMaxBid() >= nextPrice){
                     availableResources -= siRequest.getNeededInstances();

@@ -6,7 +6,7 @@ import java.util.LinkedList;
 public class MaximizeProfitPricingModel extends AbstractPricingModel {
 
     @Override
-    public Double getNextPriceImpl(Integer totalReservedResources, Collection<SIRequest> requests, Double currentPrice) {
+    public Double getNextPriceImpl(Integer totalReservedResources, Collection<AsyncRequest> requests, Double currentPrice) {
                 
         LinkedList<Double> priceCandidates = getOrderedPriceCandidates(requests);
         
@@ -30,12 +30,12 @@ public class MaximizeProfitPricingModel extends AbstractPricingModel {
     }
 
 
-    private static Double getProfit(Double priceCandidate, Integer availableResources, Collection<SIRequest> allRequests){
+    private static Double getProfit(Double priceCandidate, Integer availableResources, Collection<AsyncRequest> allRequests){
         
-        Collection<SIRequest> priorityOffers = SIRequestUtils.getRequestsAbovePrice(priceCandidate, allRequests);
-        Collection<SIRequest> limitOffers = SIRequestUtils.getRequestsEqualPrice(priceCandidate, allRequests);
+        Collection<AsyncRequest> priorityOffers = SIRequestUtils.getRequestsAbovePrice(priceCandidate, allRequests);
+        Collection<AsyncRequest> limitOffers = SIRequestUtils.getRequestsEqualPrice(priceCandidate, allRequests);
         
-        Collection<SIRequest> eligibleOffers = union(priorityOffers, limitOffers);
+        Collection<AsyncRequest> eligibleOffers = union(priorityOffers, limitOffers);
         
         Double priorityUtilization = getUtilization(priorityOffers, availableResources);
         
@@ -46,32 +46,32 @@ public class MaximizeProfitPricingModel extends AbstractPricingModel {
         return getProfitFromEligibleOffers(eligibleOffers, priceCandidate);
     }
 
-    private static Double getProfitFromEligibleOffers(Collection<SIRequest> eligibleOffers, Double priceCandidate) {
+    private static Double getProfitFromEligibleOffers(Collection<AsyncRequest> eligibleOffers, Double priceCandidate) {
         
         Double totalProfit = 0.0;
         
-        for (SIRequest siRequest : eligibleOffers) {
+        for (AsyncRequest siRequest : eligibleOffers) {
             totalProfit += siRequest.getNeededInstances()*priceCandidate;
         }
         
         return totalProfit;
     }
 
-    private static Collection<SIRequest> union(
-            Collection<SIRequest> priorityOffers,
-            Collection<SIRequest> limitOffers) {
+    private static Collection<AsyncRequest> union(
+            Collection<AsyncRequest> priorityOffers,
+            Collection<AsyncRequest> limitOffers) {
         
-        LinkedList<SIRequest> union = new LinkedList<SIRequest>(priorityOffers);
+        LinkedList<AsyncRequest> union = new LinkedList<AsyncRequest>(priorityOffers);
         union.addAll(limitOffers);
         
         return union;
     }
 
-    private static Double getUtilization(Collection<SIRequest> bids, Integer offeredResources){
+    private static Double getUtilization(Collection<AsyncRequest> bids, Integer offeredResources){
         
         Double demand = 0.0;
         
-        for (SIRequest siRequest : bids) {
+        for (AsyncRequest siRequest : bids) {
             demand += siRequest.getNeededInstances();
         }
         
