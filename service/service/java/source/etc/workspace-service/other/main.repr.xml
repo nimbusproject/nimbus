@@ -3,7 +3,7 @@
 <!--
     WARNING: It is unlikely you would need to edit anything here, most of these
              objects are POJOs/beans.
-
+             
              New implementations of these representation objects are possible
              using these mappings but it's recommended that you familiarize
              yourself at the code level with how the default impls are used.
@@ -16,7 +16,7 @@
 
     <bean id="nimbus-repr.ReprFactory"
           class="org.nimbustools.api.defaults.repr.DefaultReprFactory">
-
+        
         <!-- repr package, writable: -->
 
         <lookup-method name="_newAdvertised" bean="nimbus-repr.Advertised"/>
@@ -26,6 +26,11 @@
         <lookup-method name="_newCustomizationRequest" bean="nimbus-repr.CustomizationRequest"/>
         <lookup-method name="_newShutdownTasks" bean="nimbus-repr.ShutdownTasks"/>
         <lookup-method name="_newUsage" bean="nimbus-repr.Usage"/>
+        <lookup-method name="_newRequestInfo" bean="nimbus-repr.RequestInfo" />        
+        <lookup-method name="_newSpotRequestInfo" bean="nimbus-repr.SpotRequestInfo" />
+        <lookup-method name="_newSpotPriceEntry" bean="nimbus-repr.SpotPriceEntry" />
+        <lookup-method name="_newSpotCreateRequest" bean="nimbus-repr.SpotCreateRequest" />
+        <lookup-method name="_newBackfillRequest" bean="nimbus-repr.BackfillRequest" />
 
         <!-- vm package, writable: -->
 
@@ -43,12 +48,12 @@
         <lookup-method name="_newContext" bean="nimbus-repr.ctx.Context"/>
 
     </bean>
-
+    
     <!-- repr package beans: -->
 
     <bean id="nimbus-repr.Advertised" scope="prototype"
               class="org.nimbustools.api.defaults.repr.DefaultAdvertised" />
-
+    
     <bean id="nimbus-repr.Caller" scope="prototype"
           class="org.nimbustools.api.defaults.repr.DefaultCaller" />
 
@@ -66,6 +71,21 @@
 
     <bean id="nimbus-repr.Usage" scope="prototype"
           class="org.nimbustools.api.defaults.repr.DefaultUsage" />
+
+   <bean id="nimbus-repr.RequestInfo" scope="prototype"
+          class="org.nimbustools.api.defaults.repr.DefaultRequestInfo" />
+
+   <bean id="nimbus-repr.SpotRequestInfo" scope="prototype"
+          class="org.nimbustools.api.defaults.repr.DefaultSpotRequestInfo" />
+
+   <bean id="nimbus-repr.SpotPriceEntry" scope="prototype"
+          class="org.nimbustools.api.defaults.repr.DefaultSpotPriceEntry" />
+
+   <bean id="nimbus-repr.BackfillRequest" scope="prototype"
+          class="org.nimbustools.api.defaults.repr.DefaultAsyncCreateRequest" />
+
+   <bean id="nimbus-repr.SpotCreateRequest" scope="prototype"
+          class="org.nimbustools.api.defaults.repr.DefaultSpotCreateRequest" />
 
     <!-- vm package beans: -->
 
@@ -97,5 +117,5 @@
 
     <bean id="nimbus-repr.ctx.Context" scope="prototype"
           class="org.nimbustools.api.defaults.repr.ctx.DefaultContext" />
-
+    
 </beans>

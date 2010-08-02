@@ -19,31 +19,29 @@ package org.nimbustools.api.defaults.repr;
 import java.util.Arrays;
 import java.util.Calendar;
 
-import org.nimbustools.api._repr._SpotRequest;
+import org.nimbustools.api._repr._RequestInfo;
 import org.nimbustools.api.repr.Caller;
-import org.nimbustools.api.repr.si.SIRequestState;
+import org.nimbustools.api.repr.si.RequestState;
 import org.nimbustools.api.repr.vm.ResourceAllocation;
 import org.nimbustools.api.repr.vm.VMFile;
 
-public class DefaultSpotRequest implements _SpotRequest {
+public class DefaultRequestInfo implements _RequestInfo {
 
     // -------------------------------------------------------------------------
     // INSTANCE VARIABLES
     // -------------------------------------------------------------------------
 
-    private String requestId;
-    private String groupid;
-    private Calendar creationTime;
-    private boolean persistent;
-    private VMFile[] vmFiles;
-    private ResourceAllocation resourceAllocation;
-    private SIRequestState state;
-    private Caller creator;
-    private String mdUserData;
-    private String sshKeyName;
-    private Double spotPrice;
-    private String[] vmIds;
-    private Integer instanceCount;
+    protected String requestId;
+    protected String groupid;
+    protected Calendar creationTime;
+    protected VMFile[] vmFiles;
+    protected ResourceAllocation resourceAllocation;
+    protected RequestState state;
+    protected Caller creator;
+    protected String mdUserData;
+    protected String sshKeyName;
+    protected String[] vmIds;
+    protected Integer instanceCount;
     
     // -------------------------------------------------------------------------
     // implements org.nimbustools.api.repr.RequestSIResult
@@ -65,10 +63,6 @@ public class DefaultSpotRequest implements _SpotRequest {
         return creationTime;
     }
     
-    public boolean isPersistent() {
-        return persistent;
-    }
-    
     public VMFile[] getVMFiles() {
         return vmFiles;
     }
@@ -77,7 +71,7 @@ public class DefaultSpotRequest implements _SpotRequest {
         return resourceAllocation;
     }
     
-    public SIRequestState getState() {
+    public RequestState getState() {
         return state;
     }
     
@@ -105,11 +99,6 @@ public class DefaultSpotRequest implements _SpotRequest {
         return sshKeyName;
     }
     
-    
-    public Double getSpotPrice() {
-        return spotPrice;
-    }    
-    
     public String[] getVMIds() {
         return this.vmIds;
     }       
@@ -122,10 +111,6 @@ public class DefaultSpotRequest implements _SpotRequest {
         this.instanceCount = instanceCount;
     }    
     
-    public void setPersistent(boolean persistent) {
-        this.persistent = persistent;
-    }
-    
     public void setVMFiles(VMFile[] vmFiles) {
         this.vmFiles = vmFiles;
     }    
@@ -134,7 +119,7 @@ public class DefaultSpotRequest implements _SpotRequest {
         this.resourceAllocation = resourceAllocation;
     }    
     
-    public void setState(SIRequestState state) {
+    public void setState(RequestState state) {
         this.state = state;
     }    
     
@@ -150,10 +135,6 @@ public class DefaultSpotRequest implements _SpotRequest {
         this.sshKeyName = sshKeyName;
     }    
     
-    public void setSpotPrice(Double spotPrice) {
-        this.spotPrice = spotPrice;
-    }
-    
     public void setVMIds(String[] ids) {
         this.vmIds = ids;
     }    
@@ -168,15 +149,12 @@ public class DefaultSpotRequest implements _SpotRequest {
         result = prime * result + ((groupid == null) ? 0 : groupid.hashCode());
         result = prime * result
                 + ((mdUserData == null) ? 0 : mdUserData.hashCode());
-        result = prime * result + (persistent ? 1231 : 1237);
         result = prime * result
                 + ((requestId == null) ? 0 : requestId.hashCode());
         result = prime
                 * result
                 + ((resourceAllocation == null) ? 0 : resourceAllocation
                         .hashCode());
-        result = prime * result
-                + ((spotPrice == null) ? 0 : spotPrice.hashCode());
         result = prime * result
                 + ((sshKeyName == null) ? 0 : sshKeyName.hashCode());
         result = prime * result + ((state == null) ? 0 : state.hashCode());
@@ -192,7 +170,7 @@ public class DefaultSpotRequest implements _SpotRequest {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        DefaultSpotRequest other = (DefaultSpotRequest) obj;
+        DefaultRequestInfo other = (DefaultRequestInfo) obj;
         if (creationTime == null) {
             if (other.creationTime != null)
                 return false;
@@ -213,8 +191,6 @@ public class DefaultSpotRequest implements _SpotRequest {
                 return false;
         } else if (!mdUserData.equals(other.mdUserData))
             return false;
-        if (persistent != other.persistent)
-            return false;
         if (requestId == null) {
             if (other.requestId != null)
                 return false;
@@ -224,11 +200,6 @@ public class DefaultSpotRequest implements _SpotRequest {
             if (other.resourceAllocation != null)
                 return false;
         } else if (!resourceAllocation.equals(other.resourceAllocation))
-            return false;
-        if (spotPrice == null) {
-            if (other.spotPrice != null)
-                return false;
-        } else if (!spotPrice.equals(other.spotPrice))
             return false;
         if (sshKeyName == null) {
             if (other.sshKeyName != null)
@@ -249,9 +220,9 @@ public class DefaultSpotRequest implements _SpotRequest {
     public String toString() {
         return "DefaultSpotRequest [creationTime=" + creationTime
                 + ", creator=" + creator + ", groupid=" + groupid
-                + ", mdUserData=" + mdUserData + ", persistent=" + persistent
+                + ", mdUserData=" + mdUserData
                 + ", requestId=" + requestId + ", resourceAllocation="
-                + resourceAllocation + ", spotPrice=" + spotPrice
+                + resourceAllocation
                 + ", sshKeyName=" + sshKeyName + ", state=" + state
                 + ", vmFiles=" + Arrays.toString(vmFiles) + "]";
     } 

@@ -17,11 +17,16 @@
 package org.nimbustools.api.defaults.repr;
 
 import org.nimbustools.api._repr._Advertised;
+import org.nimbustools.api._repr._AsyncCreateRequest;
 import org.nimbustools.api._repr._Caller;
 import org.nimbustools.api._repr._CreateRequest;
 import org.nimbustools.api._repr._CreateResult;
 import org.nimbustools.api._repr._CustomizationRequest;
+import org.nimbustools.api._repr._RequestInfo;
 import org.nimbustools.api._repr._ShutdownTasks;
+import org.nimbustools.api._repr._SpotCreateRequest;
+import org.nimbustools.api._repr._SpotPriceEntry;
+import org.nimbustools.api._repr._SpotRequestInfo;
 import org.nimbustools.api._repr._Usage;
 import org.nimbustools.api._repr.ctx._Context;
 import org.nimbustools.api._repr.vm._Kernel;
@@ -58,7 +63,12 @@ public abstract class DefaultReprFactory implements ReprFactory {
     public abstract _CustomizationRequest _newCustomizationRequest();
     public abstract _ShutdownTasks _newShutdownTasks();
     public abstract _Usage _newUsage();
-
+    public abstract _RequestInfo _newRequestInfo();
+    public abstract _SpotRequestInfo _newSpotRequestInfo();
+    public abstract _SpotPriceEntry _newSpotPriceEntry();
+    public abstract _AsyncCreateRequest _newBackfillRequest();
+    public abstract _SpotCreateRequest _newSpotCreateRequest(); 
+    
     // vm package
     public abstract _Kernel _newKernel();
     public abstract _NIC _newNIC();

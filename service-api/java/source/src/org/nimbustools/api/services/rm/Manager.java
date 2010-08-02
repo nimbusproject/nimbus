@@ -20,13 +20,15 @@ import java.util.Calendar;
 
 import org.nimbustools.api.NimbusModule;
 import org.nimbustools.api.repr.Advertised;
+import org.nimbustools.api.repr.AsyncCreateRequest;
 import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.CreateRequest;
 import org.nimbustools.api.repr.CreateResult;
-import org.nimbustools.api.repr.RequestSI;
-import org.nimbustools.api.repr.SpotPriceEntry;
-import org.nimbustools.api.repr.SpotRequest;
+import org.nimbustools.api.repr.RequestInfo;
 import org.nimbustools.api.repr.ShutdownTasks;
+import org.nimbustools.api.repr.SpotCreateRequest;
+import org.nimbustools.api.repr.SpotPriceEntry;
+import org.nimbustools.api.repr.SpotRequestInfo;
 import org.nimbustools.api.repr.Usage;
 import org.nimbustools.api.repr.vm.VM;
 
@@ -180,7 +182,7 @@ public interface Manager extends NimbusModule {
     // SPOT INSTANCES OPERATIONS
     // -------------------------------------------------------------------------    
     
-    public SpotRequest requestSpotInstances(RequestSI req, Caller caller)
+    public SpotRequestInfo requestSpotInstances(SpotCreateRequest req, Caller caller)
             throws AuthorizationException,
                    CoSchedulingException,
                    CreationException,
@@ -188,16 +190,16 @@ public interface Manager extends NimbusModule {
                    ResourceRequestDeniedException,
                    SchedulingException;     
     
-    public SpotRequest getSpotRequest(String requestID, Caller caller)
+    public SpotRequestInfo getSpotRequest(String requestID, Caller caller)
             throws DoesNotExistException, ManageException, AuthorizationException;
     
-    public SpotRequest[] getSpotRequests(String[] ids, Caller caller)
+    public SpotRequestInfo[] getSpotRequests(String[] ids, Caller caller)
             throws DoesNotExistException, ManageException, AuthorizationException;    
     
-    public SpotRequest[] getSpotRequestByCaller(Caller caller)
+    public SpotRequestInfo[] getSpotRequestsByCaller(Caller caller)
             throws ManageException;    
     
-    public SpotRequest[] cancelSpotInstanceRequests(String[] ids,
+    public SpotRequestInfo[] cancelSpotInstanceRequests(String[] ids,
                                                     Caller caller)
             throws DoesNotExistException, AuthorizationException, ManageException;
     
@@ -207,5 +209,31 @@ public interface Manager extends NimbusModule {
             throws ManageException;
     
     public SpotPriceEntry[] getSpotPriceHistory(Calendar startDate, Calendar endDate)
+            throws ManageException; 
+    
+    // -------------------------------------------------------------------------
+    // BACKFILL OPERATIONS
+    // -------------------------------------------------------------------------    
+    
+    public RequestInfo addBackfillRequest(AsyncCreateRequest req, Caller caller)
+            throws AuthorizationException,
+                   CoSchedulingException,
+                   CreationException,
+                   MetadataException,
+                   ResourceRequestDeniedException,
+                   SchedulingException;     
+    
+    public RequestInfo getBackfillRequest(String requestID, Caller caller)
+            throws DoesNotExistException, ManageException, AuthorizationException;
+    
+    public RequestInfo[] getBackfillRequests(String[] ids, Caller caller)
+            throws DoesNotExistException, ManageException, AuthorizationException;    
+    
+    public RequestInfo[] getBackfillRequestsByCaller(Caller caller)
             throws ManageException;    
+    
+    public RequestInfo[] cancelBackfillRequests(String[] ids,
+                                                    Caller caller)
+            throws DoesNotExistException, AuthorizationException, ManageException;
+    
 }

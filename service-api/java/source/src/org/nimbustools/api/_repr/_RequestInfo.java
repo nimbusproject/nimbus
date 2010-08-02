@@ -19,17 +19,15 @@ package org.nimbustools.api._repr;
 import java.util.Calendar;
 
 import org.nimbustools.api.repr.Caller;
-import org.nimbustools.api.repr.SpotRequest;
-import org.nimbustools.api.repr.si.SIRequestState;
+import org.nimbustools.api.repr.RequestInfo;
+import org.nimbustools.api.repr.si.RequestState;
 import org.nimbustools.api.repr.vm.ResourceAllocation;
 import org.nimbustools.api.repr.vm.VMFile;
 
-public interface _SpotRequest extends SpotRequest {
+public interface _RequestInfo extends RequestInfo {
     
-    public void setRequestID(String requestId);
-    public void setSpotPrice(Double spotPrice);
-    public void setPersistent(boolean persistent);    
-    public void setState(SIRequestState state);
+    public void setRequestID(String requestId);   
+    public void setState(RequestState state);
     public void setCreationTime(Calendar date);
     public void setVMIds(String[] ids);
     public void setInstanceCount(Integer instanceCount);

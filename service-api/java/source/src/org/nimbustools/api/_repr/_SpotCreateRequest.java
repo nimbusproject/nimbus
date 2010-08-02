@@ -14,18 +14,13 @@
  * under the License.
  */
 
-package org.nimbustools.api.repr.si;
+package org.nimbustools.api._repr;
 
+import org.nimbustools.api.repr.SpotCreateRequest;
 
-public interface SIRequestState {
+public interface _SpotCreateRequest extends SpotCreateRequest, _AsyncCreateRequest {
+
+    public void setSpotPrice(Double spotPrice);    
+    public void setPersistent(boolean persistent);
     
-    public static final String STATE_Open = "Open";
-    public static final String STATE_Active = "Active";
-    public static final String STATE_Closed = "Closed";
-    public static final String STATE_Cancelled = "Cancelled";
-    public static final String STATE_Failed = "Failed";
-    
-    public String getStateStr();
-    public Throwable getProblem();    
-
 }

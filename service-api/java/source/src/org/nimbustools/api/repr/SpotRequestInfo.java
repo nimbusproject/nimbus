@@ -16,28 +16,9 @@
 
 package org.nimbustools.api.repr;
 
-import java.util.Calendar;
+public interface SpotRequestInfo extends RequestInfo {
 
-import org.nimbustools.api.repr.si.SIRequestState;
-import org.nimbustools.api.repr.vm.ResourceAllocation;
-import org.nimbustools.api.repr.vm.VMFile;
-
-
-public interface SpotRequest {
-
-    public String getRequestID();
-    public Integer getInstanceCount();
     public Double getSpotPrice();
-    public boolean isPersistent();    
-    public SIRequestState getState();
-    public Calendar getCreationTime();
-    public String[] getVMIds();
-    
-    public VMFile[] getVMFiles();
-    public String getSshKeyName();
-    public Caller getCreator();
-    public String getMdUserData();    
-    public ResourceAllocation getResourceAllocation();
-    public String getGroupID();
+    public boolean isPersistent();
     
 }

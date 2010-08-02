@@ -18,13 +18,15 @@ package org.nimbustools.api.defaults.services.rm;
 
 import org.nimbustools.api.brain.Logging;
 import org.nimbustools.api.repr.Advertised;
+import org.nimbustools.api.repr.AsyncCreateRequest;
 import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.CreateRequest;
 import org.nimbustools.api.repr.CreateResult;
 import org.nimbustools.api.repr.ReprFactory;
-import org.nimbustools.api.repr.RequestSI;
+import org.nimbustools.api.repr.RequestInfo;
+import org.nimbustools.api.repr.SpotCreateRequest;
 import org.nimbustools.api.repr.SpotPriceEntry;
-import org.nimbustools.api.repr.SpotRequest;
+import org.nimbustools.api.repr.SpotRequestInfo;
 import org.nimbustools.api.repr.ShutdownTasks;
 import org.nimbustools.api.repr.Usage;
 import org.nimbustools.api.repr.vm.VM;
@@ -280,7 +282,7 @@ public class DefaultManager implements Manager {
     // SPOT INSTANCES OPERATIONS
     // -------------------------------------------------------------------------        
     
-    public SpotRequest requestSpotInstances(RequestSI req, Caller caller) {
+    public SpotRequestInfo requestSpotInstances(SpotCreateRequest req, Caller caller) {
 
         Logging.debug("Manager.requestSpotInstances() -- caller '" + caller + "', " +
                 "request:" + req);
@@ -296,7 +298,7 @@ public class DefaultManager implements Manager {
     }
 
 
-    public SpotRequest getSpotRequest(String id, Caller caller) throws DoesNotExistException,
+    public SpotRequestInfo getSpotRequest(String id, Caller caller) throws DoesNotExistException,
             ManageException {
         Logging.debug("Manager.getSpotRequest() -- caller '" + caller + "', " +
                 "id:" + id);
@@ -305,15 +307,15 @@ public class DefaultManager implements Manager {
     }
 
 
-    public SpotRequest[] getSpotRequestByCaller(Caller caller)
+    public SpotRequestInfo[] getSpotRequestsByCaller(Caller caller)
             throws ManageException {
-        Logging.debug("Manager.getSpotRequestByCaller() -- caller '" + caller + "'");
+        Logging.debug("Manager.getSpotRequestsByCaller() -- caller '" + caller + "'");
         
         return null;
     }
 
 
-    public SpotRequest[] cancelSpotInstanceRequests(String[] ids, Caller caller) {
+    public SpotRequestInfo[] cancelSpotInstanceRequests(String[] ids, Caller caller) {
         Logging.debug("Manager.cancelSpotInstanceRequests() -- caller '" + caller + "', " +
                 "ids:" + Arrays.toString(ids));
         
@@ -321,7 +323,7 @@ public class DefaultManager implements Manager {
     }
 
 
-    public SpotRequest[] getSpotRequests(String[] ids, Caller caller)
+    public SpotRequestInfo[] getSpotRequests(String[] ids, Caller caller)
             throws DoesNotExistException, ManageException,
             AuthorizationException {
         Logging.debug("Manager.getSpotRequest() -- caller '" + caller + "', " +
@@ -339,6 +341,52 @@ public class DefaultManager implements Manager {
     public SpotPriceEntry[] getSpotPriceHistory(Calendar startDate,
             Calendar endDate) throws ManageException {
         Logging.debug("Manager.getSpotPriceHistory() startDate: " + startDate + ". endDate: " + endDate);
+        return null;
+    }
+
+    public RequestInfo addBackfillRequest(AsyncCreateRequest req, Caller caller)
+            throws AuthorizationException, CoSchedulingException,
+            CreationException, MetadataException,
+            ResourceRequestDeniedException, SchedulingException {
+        Logging.debug("Manager.addBackfillRequest() -- caller '" + caller + "', " +
+                "request:" + req);
+        
+        return null;
+    }
+
+    public RequestInfo[] cancelBackfillRequests(String[] ids, Caller caller)
+            throws DoesNotExistException, AuthorizationException,
+            ManageException {
+        Logging.debug("Manager.cancelBackfillRequests() -- caller '" + caller + "', " +
+                "ids:" + Arrays.toString(ids));
+        
+        return null;
+    }
+
+    public RequestInfo getBackfillRequest(String requestID, Caller caller)
+            throws DoesNotExistException, ManageException,
+            AuthorizationException {
+        Logging.debug("Manager.getBackfillRequest() -- caller '" + caller + "', " +
+                "id:" + requestID);
+        
+        return null;
+    }
+
+    public RequestInfo[] getBackfillRequestsByCaller(Caller caller)
+            throws ManageException {
+        Logging.debug("Manager.getBackfillRequestsByCaller() -- caller '" + caller + "'");
+        
+        return null;
+    }
+
+
+    public RequestInfo[] getBackfillRequests(String[] ids, Caller caller)
+            throws DoesNotExistException, ManageException,
+            AuthorizationException {
+
+        Logging.debug("Manager.getBackfillRequests() -- caller '" + caller + "', " +
+                "ids:" + Arrays.toString(ids));        
+        
         return null;
     }
 

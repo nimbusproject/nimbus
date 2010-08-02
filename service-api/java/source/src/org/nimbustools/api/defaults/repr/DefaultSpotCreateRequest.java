@@ -18,20 +18,19 @@ package org.nimbustools.api.defaults.repr;
 
 import java.util.Arrays;
 
-import org.nimbustools.api._repr._RequestSI;
+import org.nimbustools.api._repr._SpotCreateRequest;
 
-public class DefaultRequestSI extends DefaultCreateRequest implements _RequestSI {
+public class DefaultSpotCreateRequest extends DefaultAsyncCreateRequest implements _SpotCreateRequest {
 
     // -------------------------------------------------------------------------
     // INSTANCE VARIABLES
     // -------------------------------------------------------------------------
 
-    private String instanceType;
-    private Double spotPrice;
-    private boolean persistent; 
+    protected Double spotPrice;
+    protected boolean persistent; 
     
     // -------------------------------------------------------------------------
-    // implements org.nimbustools.api.repr.RequestSI
+    // implements org.nimbustools.api.repr.SpotCreateRequest
     // -------------------------------------------------------------------------
     
     
@@ -41,14 +40,10 @@ public class DefaultRequestSI extends DefaultCreateRequest implements _RequestSI
     
     public boolean isPersistent() {
         return this.persistent;
-    }    
-    
-    public String getInstanceType() {
-        return null;
     }
     
     // -------------------------------------------------------------------------
-    // implements org.nimbustools.api._repr._RequestSI
+    // implements org.nimbustools.api._repr._SpotCreateRequest
     // -------------------------------------------------------------------------
 
     public void setSpotPrice(Double spotPrice) {
@@ -57,11 +52,7 @@ public class DefaultRequestSI extends DefaultCreateRequest implements _RequestSI
     
     public void setPersistent(boolean persistent) {
        this.persistent = persistent;
-    }    
-    
-    public void setInstanceType(String instanceType) {
-       this.instanceType = instanceType;
-    }    
+    }   
     
     // -------------------------------------------------------------------------
     // DEBUG STRING
@@ -92,8 +83,7 @@ public class DefaultRequestSI extends DefaultCreateRequest implements _RequestSI
                 prefix + "context=" + this.context + "'" +
                 prefix + "instanceType=" + this.instanceType + "'" +
                 prefix + "persistent=" + this.persistent + "'" +
-                prefix + "spotPrice='" + this.spotPrice + "\n";
-        
+                prefix + "spotPrice='" + this.spotPrice + "\n";   
     }
 
 }

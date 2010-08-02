@@ -14,12 +14,10 @@
  * under the License.
  */
 
-package org.nimbustools.api._repr.si;
+package org.nimbustools.api.repr;
 
-import org.nimbustools.api.repr.si.RequestState;
 
-public interface _SIRequestState extends RequestState {
+public interface AsyncCreateRequest extends CreateRequest{
 
-    public void setState(String state);
-    public void setProblem(Throwable e);
+    public String getInstanceType();
 }

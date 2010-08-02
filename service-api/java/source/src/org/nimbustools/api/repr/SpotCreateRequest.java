@@ -14,15 +14,11 @@
  * under the License.
  */
 
-package org.nimbustools.api._repr;
+package org.nimbustools.api.repr;
 
-import org.nimbustools.api.repr.RequestSI;
 
-public interface _RequestSI extends RequestSI, _CreateRequest {
+public interface SpotCreateRequest extends AsyncCreateRequest{
 
-    public void setInstanceType(String instanceType);
-    
-    public void setSpotPrice(Double spotPrice);
-    
-    public void setPersistent(boolean persistent);
+    public Double getSpotPrice();
+    public boolean isPersistent();
 }

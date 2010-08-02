@@ -31,8 +31,8 @@ import org.globus.workspace.service.InstanceResource;
 import org.globus.workspace.service.WorkspaceCoschedHome;
 import org.globus.workspace.service.WorkspaceGroupHome;
 import org.globus.workspace.service.WorkspaceHome;
-import org.globus.workspace.spotinstances.SIRequest;
-import org.globus.workspace.spotinstances.SpotInstancesHome;
+import org.globus.workspace.spotinstances.AsyncRequest;
+import org.globus.workspace.spotinstances.AsyncRequestHome;
 import org.nimbustools.api._repr._Caller;
 import org.nimbustools.api._repr._CreateResult;
 import org.nimbustools.api.repr.Advertised;
@@ -41,10 +41,12 @@ import org.nimbustools.api.repr.CannotTranslateException;
 import org.nimbustools.api.repr.CreateRequest;
 import org.nimbustools.api.repr.CreateResult;
 import org.nimbustools.api.repr.ReprFactory;
-import org.nimbustools.api.repr.RequestSI;
+import org.nimbustools.api.repr.AsyncCreateRequest;
+import org.nimbustools.api.repr.RequestInfo;
 import org.nimbustools.api.repr.ShutdownTasks;
+import org.nimbustools.api.repr.SpotCreateRequest;
 import org.nimbustools.api.repr.SpotPriceEntry;
-import org.nimbustools.api.repr.SpotRequest;
+import org.nimbustools.api.repr.SpotRequestInfo;
 import org.nimbustools.api.repr.Usage;
 import org.nimbustools.api.repr.vm.VM;
 import org.nimbustools.api.services.rm.AuthorizationException;
@@ -90,7 +92,7 @@ public class DelegatingManager implements Manager {
     protected final WorkspaceHome home;
     protected final WorkspaceGroupHome ghome;
     protected final WorkspaceCoschedHome cohome;
-    protected final SpotInstancesHome siHome;
+    protected final AsyncRequestHome asyncHome;
     protected final PathConfigs paths;
     protected final ReprFactory repr;
     protected final DataConvert dataConvert;
@@ -109,7 +111,7 @@ public class DelegatingManager implements Manager {
                              ReprFactory reprFactory,
                              DataConvert dataConvertImpl,
                              Lager lagerImpl,
-                             SpotInstancesHome siManagerImpl) {
+                             AsyncRequestHome siManagerImpl) {
         
         if (pathConfigs == null) {
             throw new IllegalArgumentException("pathConfigs may not be null");
@@ -149,7 +151,7 @@ public class DelegatingManager implements Manager {
         if (siManagerImpl == null) {
             throw new IllegalArgumentException("siManagerImpl may not be null");
         }
-        this.siHome = siManagerImpl;
+        this.asyncHome = siManagerImpl;
     }
 
 
@@ -763,14 +765,14 @@ public class DelegatingManager implements Manager {
     // SPOT INSTANCES OPERATIONS
     // -------------------------------------------------------------------------        
 
-    public SpotRequest requestSpotInstances(RequestSI req, Caller caller)
+    public SpotRequestInfo requestSpotInstances(SpotCreateRequest req, Caller caller)
             throws AuthorizationException,
                    CreationException,
                    MetadataException,
                    ResourceRequestDeniedException,
                    SchedulingException {
 
-        SIRequest siRequest = this.creation.requestSpotInstances(req, caller);
+        AsyncRequest siRequest = this.creation.addAsyncRequest(req, caller);
         
         try {
             return dataConvert.getSpotRequest(siRequest);
@@ -780,22 +782,22 @@ public class DelegatingManager implements Manager {
     }     
     
     public Double getSpotPrice() {
-        return siHome.getSpotPrice();
+        return asyncHome.getSpotPrice();
     }
 
 
-    public SpotRequest getSpotRequest(String requestID, Caller caller)
+    public SpotRequestInfo getSpotRequest(String requestID, Caller caller)
             throws DoesNotExistException, ManageException, AuthorizationException {
         return this.getSpotRequests(new String[]{requestID}, caller)[0];
     }    
     
-    public SpotRequest[] getSpotRequests(String[] ids, Caller caller)
+    public SpotRequestInfo[] getSpotRequests(String[] ids, Caller caller)
             throws DoesNotExistException, ManageException, AuthorizationException {
         
-        SpotRequest[] result = new SpotRequest[ids.length];
+        SpotRequestInfo[] result = new SpotRequestInfo[ids.length];
         
         for (int i = 0; i < ids.length; i++) {
-            SIRequest siReq = siHome.getRequest(ids[i]);
+            AsyncRequest siReq = asyncHome.getRequest(ids[i]);
             
             if(!caller.isSuperUser() && !siReq.getCaller().equals(caller)){
                 throw new AuthorizationException("Caller is not authorized to get information about this request");
@@ -808,31 +810,31 @@ public class DelegatingManager implements Manager {
     }
 
 
-    public SpotRequest[] getSpotRequestByCaller(Caller caller)
+    public SpotRequestInfo[] getSpotRequestsByCaller(Caller caller)
             throws ManageException {
         
-        return this.getSpotRequests(siHome.getRequests(caller));
+        return this.getSpotRequests(asyncHome.getRequests(caller, true));
     }
 
 
-    public SpotRequest[] cancelSpotInstanceRequests(String[] ids, Caller caller) 
+    public SpotRequestInfo[] cancelSpotInstanceRequests(String[] ids, Caller caller) 
             throws DoesNotExistException, AuthorizationException, ManageException {
-        SpotRequest[] result = new SpotRequest[ids.length];
+        SpotRequestInfo[] result = new SpotRequestInfo[ids.length];
         
         for (int i = 0; i < ids.length; i++) {
-            SIRequest siReq = siHome.getRequest(ids[i]);
+            AsyncRequest siReq = asyncHome.getRequest(ids[i]);
             
             if(!caller.isSuperUser() && !siReq.getCaller().equals(caller)){
                 throw new AuthorizationException("Caller is not authorized to get information about this request");
             }
             
-            result[i] = getSpotRequest(siHome.cancelRequest(ids[i]));
+            result[i] = getSpotRequest(asyncHome.cancelRequest(ids[i]));
         }
         
         return result;
     }
     
-    private SpotRequest getSpotRequest(SIRequest siReq) throws ManageException {
+    private SpotRequestInfo getSpotRequest(AsyncRequest siReq) throws ManageException {
         try {
             return dataConvert.getSpotRequest(siReq);
         } catch (CannotTranslateException e) {
@@ -840,8 +842,16 @@ public class DelegatingManager implements Manager {
         }
     }    
     
-    private SpotRequest[] getSpotRequests(SIRequest[] requests) throws ManageException{
-        SpotRequest[] result = new SpotRequest[requests.length];
+    private RequestInfo getRequestInfo(AsyncRequest backfillReq) throws ManageException {
+        try {
+            return dataConvert.getRequestInfo(backfillReq);
+        } catch (CannotTranslateException e) {
+            throw new ManageException(e.getMessage(), e);
+        }
+    }    
+    
+    private SpotRequestInfo[] getSpotRequests(AsyncRequest[] requests) throws ManageException{
+        SpotRequestInfo[] result = new SpotRequestInfo[requests.length];
         
         for (int i = 0; i < requests.length; i++) {
             result[i] = getSpotRequest(requests[i]);
@@ -849,6 +859,16 @@ public class DelegatingManager implements Manager {
         
         return result;
     }
+    
+    private RequestInfo[] getRequestInfos(AsyncRequest[] requests) throws ManageException{
+        RequestInfo[] result = new RequestInfo[requests.length];
+        
+        for (int i = 0; i < requests.length; i++) {
+            result[i] = getRequestInfo(requests[i]);
+        }
+        
+        return result;
+    }    
 
     public SpotPriceEntry[] getSpotPriceHistory() throws ManageException {
         
@@ -858,9 +878,74 @@ public class DelegatingManager implements Manager {
 
     public SpotPriceEntry[] getSpotPriceHistory(Calendar startDate,
             Calendar endDate) throws ManageException {
-        List<SpotPriceEntry> result = siHome.getSpotPriceHistory(startDate, endDate);
+        List<SpotPriceEntry> result = asyncHome.getSpotPriceHistory(startDate, endDate);
         
         return result.toArray(new SpotPriceEntry[0]);
+    }
+
+    // -------------------------------------------------------------------------
+    // BACKFILL OPERATIONS
+    // -------------------------------------------------------------------------    
+    
+    public RequestInfo addBackfillRequest(AsyncCreateRequest req, Caller caller)
+            throws AuthorizationException, CoSchedulingException,
+            CreationException, MetadataException,
+            ResourceRequestDeniedException, SchedulingException {
+        AsyncRequest backfillRequest = this.creation.addAsyncRequest(req, caller);
+        
+        try {
+            return dataConvert.getRequestInfo(backfillRequest);
+        } catch (CannotTranslateException e) {
+            throw new MetadataException("Could not translate request from internal representation to RM API representation.", e);
+        }
+    }
+
+    public RequestInfo[] cancelBackfillRequests(String[] ids, Caller caller)
+            throws DoesNotExistException, AuthorizationException,
+            ManageException {
+        RequestInfo[] result = new RequestInfo[ids.length];
+        
+        for (int i = 0; i < ids.length; i++) {
+            AsyncRequest backfillReq = asyncHome.getRequest(ids[i]);
+            
+            if(!caller.isSuperUser() && !backfillReq.getCaller().equals(caller)){
+                throw new AuthorizationException("Caller is not authorized to get information about this request");
+            }
+            
+            result[i] = getRequestInfo(asyncHome.cancelRequest(ids[i]));
+        }
+        
+        return result;
+    }
+
+    public RequestInfo getBackfillRequest(String requestID, Caller caller)
+            throws DoesNotExistException, ManageException,
+            AuthorizationException {
+        return this.getBackfillRequests(new String[]{requestID}, caller)[0];
+    }
+
+    public RequestInfo[] getBackfillRequests(String[] ids, Caller caller)
+            throws DoesNotExistException, ManageException,
+            AuthorizationException {
+        RequestInfo[] result = new RequestInfo[ids.length];
+        
+        for (int i = 0; i < ids.length; i++) {
+            AsyncRequest backfillReq = asyncHome.getRequest(ids[i]);
+            
+            if(!caller.isSuperUser() && !backfillReq.getCaller().equals(caller)){
+                throw new AuthorizationException("Caller is not authorized to get information about this request");
+            }
+            
+            result[i] = getRequestInfo(backfillReq);
+        }
+        
+        return result;
+    }
+
+    public RequestInfo[] getBackfillRequestsByCaller(Caller caller)
+            throws ManageException {
+        
+        return this.getRequestInfos(asyncHome.getRequests(caller, false));
     }    
 
 }

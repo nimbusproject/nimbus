@@ -28,11 +28,12 @@ import org.globus.workspace.service.InstanceResource;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.globus.workspace.service.binding.vm.VirtualMachineDeployment;
 import org.globus.workspace.service.binding.vm.VirtualMachinePartition;
-import org.globus.workspace.spotinstances.SIRequest;
-import org.globus.workspace.spotinstances.SIRequestStatus;
+import org.globus.workspace.spotinstances.AsyncRequest;
+import org.globus.workspace.spotinstances.AsyncRequestStatus;
 import org.globus.workspace.xen.XenUtil;
 import org.nimbustools.api._repr._Caller;
-import org.nimbustools.api._repr._SpotRequest;
+import org.nimbustools.api._repr._RequestInfo;
+import org.nimbustools.api._repr._SpotRequestInfo;
 import org.nimbustools.api._repr._Usage;
 import org.nimbustools.api._repr.si._SIRequestState;
 import org.nimbustools.api._repr.vm._NIC;
@@ -41,14 +42,15 @@ import org.nimbustools.api._repr.vm._Schedule;
 import org.nimbustools.api._repr.vm._State;
 import org.nimbustools.api._repr.vm._VM;
 import org.nimbustools.api._repr.vm._VMFile;
-import org.nimbustools.api.defaults.repr.DefaultSpotRequest;
+import org.nimbustools.api.defaults.repr.DefaultSpotRequestInfo;
 import org.nimbustools.api.defaults.repr.si.DefaultSIRequestState;
 import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.CannotTranslateException;
 import org.nimbustools.api.repr.ReprFactory;
-import org.nimbustools.api.repr.SpotRequest;
+import org.nimbustools.api.repr.RequestInfo;
+import org.nimbustools.api.repr.SpotRequestInfo;
 import org.nimbustools.api.repr.Usage;
-import org.nimbustools.api.repr.si.SIRequestState;
+import org.nimbustools.api.repr.si.RequestState;
 import org.nimbustools.api.repr.vm.NIC;
 import org.nimbustools.api.repr.vm.ResourceAllocation;
 import org.nimbustools.api.repr.vm.Schedule;
@@ -231,7 +233,21 @@ public class DataConvert implements WorkspaceConstants {
         return vm;
     }
     
-    public SpotRequest getSpotRequest(SIRequest siRequest) throws CannotTranslateException {
+    public RequestInfo getRequestInfo(AsyncRequest backfillRequest) throws CannotTranslateException {
+        VirtualMachine[] bindings = backfillRequest.getBindings();
+        
+        if (bindings == null || bindings.length == 0) {
+            throw new CannotTranslateException("no resource?");
+        }        
+        
+        final _RequestInfo result = repr._newRequestInfo();
+        
+        populate(backfillRequest, result);
+        
+        return result;
+    }    
+    
+    public SpotRequestInfo getSpotRequest(AsyncRequest siRequest) throws CannotTranslateException {
 
         VirtualMachine[] bindings = siRequest.getBindings();
         
@@ -239,26 +255,35 @@ public class DataConvert implements WorkspaceConstants {
             throw new CannotTranslateException("no resource?");
         }        
         
-        final _SpotRequest result = new DefaultSpotRequest();
+        final _SpotRequestInfo result = repr._newSpotRequestInfo();
 
-        result.setInstanceCount(siRequest.getRequestedInstances());
-        result.setCreationTime(siRequest.getCreationTime());
-        result.setCreator(siRequest.getCaller());
-        result.setGroupID(siRequest.getGroupID());
-        result.setMdUserData(bindings[0].getMdUserData());
+        populate(siRequest, result);        
+        
         result.setPersistent(siRequest.isPersistent());
-        result.setRequestID(siRequest.getId());
-        result.setSpotPrice(siRequest.getMaxBid());
+        result.setSpotPrice(siRequest.getMaxBid());        
+                
+        return result;
+    }
+
+
+    private void populate(AsyncRequest asyncReq, final _RequestInfo result) throws CannotTranslateException {
+        
+        VirtualMachine[] bindings = asyncReq.getBindings();        
+        
+        result.setInstanceCount(asyncReq.getRequestedInstances());
+        result.setCreationTime(asyncReq.getCreationTime());
+        result.setCreator(asyncReq.getCaller());
+        result.setGroupID(asyncReq.getGroupID());
+        result.setMdUserData(bindings[0].getMdUserData());
+        result.setRequestID(asyncReq.getId());
         result.setVMFiles(this.getStorage(bindings[0]));
         result.setResourceAllocation(this.getRA(bindings[0]));
         
-        result.setVMIds(getVMIDs(siRequest.getVMIds()));
+        result.setVMIds(getVMIDs(asyncReq.getVMIds()));
         
         _SIRequestState state = new DefaultSIRequestState();
-        state.setState(this.getSIRequestState(siRequest.getStatus()));
+        state.setState(this.getSIRequestState(asyncReq.getStatus()));
         result.setState(state);
-                
-        return result;
     }
 
 
@@ -276,18 +301,18 @@ public class DataConvert implements WorkspaceConstants {
     // STATE RELATED
     // -------------------------------------------------------------------------
 
-    private String getSIRequestState(SIRequestStatus status) {
+    private String getSIRequestState(AsyncRequestStatus status) {
         switch(status){
         case ACTIVE:
-            return SIRequestState.STATE_Active;
+            return RequestState.STATE_Active;
         case CANCELLED:
-            return SIRequestState.STATE_Cancelled;
+            return RequestState.STATE_Cancelled;
         case CLOSED:
-            return SIRequestState.STATE_Closed;
+            return RequestState.STATE_Closed;
         case FAILED:
-            return SIRequestState.STATE_Failed;
+            return RequestState.STATE_Failed;
         case OPEN:
-            return SIRequestState.STATE_Open;
+            return RequestState.STATE_Open;
         }
         
         return null;

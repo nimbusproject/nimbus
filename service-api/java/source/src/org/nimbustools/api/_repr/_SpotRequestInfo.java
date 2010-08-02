@@ -14,12 +14,12 @@
  * under the License.
  */
 
-package org.nimbustools.api._repr.si;
+package org.nimbustools.api._repr;
 
-import org.nimbustools.api.repr.si.RequestState;
+import org.nimbustools.api.repr.SpotRequestInfo;
 
-public interface _SIRequestState extends RequestState {
-
-    public void setState(String state);
-    public void setProblem(Throwable e);
+public interface _SpotRequestInfo extends _RequestInfo, SpotRequestInfo {
+    
+    public void setSpotPrice(Double spotPrice);
+    public void setPersistent(boolean persistent); 
 }

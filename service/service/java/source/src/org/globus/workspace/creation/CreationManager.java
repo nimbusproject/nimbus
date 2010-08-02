@@ -17,12 +17,12 @@
 package org.globus.workspace.creation;
 
 import org.globus.workspace.service.InstanceResource;
-import org.globus.workspace.spotinstances.SIRequest;
+import org.globus.workspace.spotinstances.AsyncRequest;
 
 import org.nimbustools.api.repr.Advertised;
 import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.CreateRequest;
-import org.nimbustools.api.repr.RequestSI;
+import org.nimbustools.api.repr.AsyncCreateRequest;
 import org.nimbustools.api.services.rm.CoSchedulingException;
 import org.nimbustools.api.services.rm.CreationException;
 import org.nimbustools.api.services.rm.MetadataException;
@@ -38,7 +38,7 @@ public interface CreationManager {
                   ResourceRequestDeniedException,
                   SchedulingException;
     
-    public SIRequest requestSpotInstances(RequestSI req, Caller caller)
+    public AsyncRequest addAsyncRequest(AsyncCreateRequest req, Caller caller)
                   throws CreationException,
                   MetadataException,
                   ResourceRequestDeniedException,

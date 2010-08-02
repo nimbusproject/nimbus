@@ -45,8 +45,8 @@ import org.globus.workspace.service.binding.GlobalPolicies;
 import org.globus.workspace.service.binding.vm.CustomizationNeed;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.globus.workspace.service.binding.vm.VirtualMachineDeployment;
-import org.globus.workspace.spotinstances.SIRequest;
-import org.globus.workspace.spotinstances.SpotInstancesManager;
+import org.globus.workspace.spotinstances.AsyncRequest;
+import org.globus.workspace.spotinstances.AsyncRequestManager;
 import org.globus.workspace.creation.InternalCreationManager;
 
 import org.nimbustools.api._repr._Advertised;
@@ -55,7 +55,9 @@ import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.CannotTranslateException;
 import org.nimbustools.api.repr.CreateRequest;
 import org.nimbustools.api.repr.ReprFactory;
-import org.nimbustools.api.repr.RequestSI;
+import org.nimbustools.api.repr.AsyncCreateRequest;
+import org.nimbustools.api.repr.SpotCreateRequest;
+import org.nimbustools.api.repr.SpotRequestInfo;
 import org.nimbustools.api.repr.ctx.Context;
 import org.nimbustools.api.repr.si.SIConstants;
 import org.nimbustools.api.repr.vm.NIC;
@@ -118,7 +120,7 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
 
     protected AccountingEventAdapter accounting;
     
-    protected SpotInstancesManager siManager;
+    protected AsyncRequestManager asyncManager;
 
 
     // -------------------------------------------------------------------------
@@ -268,7 +270,7 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
         return adv;
     }
     
-    public SIRequest requestSpotInstances(RequestSI req, Caller caller)
+    public AsyncRequest addAsyncRequest(AsyncCreateRequest req, Caller caller)
             throws CreationException,
                    MetadataException,
                    ResourceRequestDeniedException,
@@ -302,9 +304,17 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
         final String groupID = this.getGroupID(creatorID, bound.length);   
         
         final String siID = generateRequestID();
-        SIRequest siRequest = new SIRequest(siID, req.getSpotPrice(), req.isPersistent(), caller, groupID, bound, req.getContext(), req.getRequestedNics(), Calendar.getInstance());
         
-        siManager.addRequest(siRequest); 
+        AsyncRequest siRequest;
+                
+        if(req instanceof SpotCreateRequest){
+            SpotCreateRequest spotReq = (SpotCreateRequest)req;
+            siRequest = new AsyncRequest(siID, spotReq.getSpotPrice(), spotReq.isPersistent(), caller, groupID, bound, req.getContext(), req.getRequestedNics(), Calendar.getInstance());   
+        } else {
+            siRequest = new AsyncRequest(siID, caller, groupID, bound, req.getContext(), req.getRequestedNics(), Calendar.getInstance());               
+        }
+        
+        asyncManager.addRequest(siRequest); 
         
         return siRequest;
     }    
@@ -856,7 +866,7 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
         if(!spotInstances){
             final StateChangeEvent simEvent = new StateChangeEvent(ids,
                     WorkspaceConstants.STATE_FIRST_LEGAL,
-                    this.siManager);
+                    this.asyncManager);
 
             this.timerManager.schedule(simEvent, 50);            
         }
@@ -1213,10 +1223,10 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
     // -------------------------------------------------------------------------
     // MODULE SET (avoids circular dependency problem)
     // -------------------------------------------------------------------------
-    public void setSiManager(SpotInstancesManager siManagerImpl) {
+    public void setSiManager(AsyncRequestManager siManagerImpl) {
         if (siManagerImpl == null) {
             throw new IllegalArgumentException("siManagerImpl may not be null");
         }
-        this.siManager = siManagerImpl;
+        this.asyncManager = siManagerImpl;
     }
 }
