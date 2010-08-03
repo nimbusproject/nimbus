@@ -585,7 +585,7 @@ nimbus $ virsh -c 'xen+unix:///' console control-test
   is no record of it in the program" then you may have been starting with
   <tt class="literal">virsh</tt> but not through 
   <tt class="literal">libvirt-xml.sh</tt>.  The way to correct this is to
-  run <tt class="literal">virsh shutdown control-test</tt> directly.
+  run <tt class="literal">virsh destroy control-test</tt> directly.
 </p>
 
 <p>
