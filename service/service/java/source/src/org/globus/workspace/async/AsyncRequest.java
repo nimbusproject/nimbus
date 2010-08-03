@@ -1,4 +1,4 @@
-package org.globus.workspace.spotinstances;
+package org.globus.workspace.async;
 
 import java.util.Calendar;
 import java.util.Collection;
@@ -226,9 +226,9 @@ public class AsyncRequest implements Comparable<AsyncRequest>{
         return toBePreempted.remove(vmid);
     }
     
-    public VirtualMachine[] getUnallocatedVMs(int quantity) throws SIRequestException{
+    public VirtualMachine[] getUnallocatedVMs(int quantity) throws AsyncRequestException{
         if(this.getUnallocatedInstances() < quantity){
-            throw new SIRequestException("Requested " + quantity + " unallocated VMs, but there are only " + this.getUnallocatedInstances() + ".");
+            throw new AsyncRequestException("Requested " + quantity + " unallocated VMs, but there are only " + this.getUnallocatedInstances() + ".");
         }        
         
         VirtualMachine[] result = new VirtualMachine[quantity];
@@ -244,9 +244,9 @@ public class AsyncRequest implements Comparable<AsyncRequest>{
         return result;
     }
     
-    public int[] getAllocatedVMs(int quantity) throws SIRequestException{
+    public int[] getAllocatedVMs(int quantity) throws AsyncRequestException{
         if(this.getAllocatedInstances() < quantity){
-            throw new SIRequestException("Requested " + quantity + " allocated VMs, but there are only " + getAllocatedInstances() + ".");
+            throw new AsyncRequestException("Requested " + quantity + " allocated VMs, but there are only " + getAllocatedInstances() + ".");
         }
         
         int[] result = new int[quantity];

@@ -1,4 +1,4 @@
-package org.globus.workspace.spotinstances;
+package org.globus.workspace.async.pricingmodel;
 
 public class PricingModelConstants {
 

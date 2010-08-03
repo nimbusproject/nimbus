@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package org.globus.workspace.spotinstances;
+package org.globus.workspace.async;
 
 import java.util.Calendar;
 import java.util.List;
@@ -27,12 +27,12 @@ import org.nimbustools.api.services.rm.DoesNotExistException;
 /**
  * Frontend interface that provides 
  * RETRIEVE and CANCEL operations to 
- * Spot Instance Requests
+ * Asynchronous requests
  */
 public interface AsyncRequestHome {
 
     /**
-     * Cancels a Spot Instance request
+     * Cancels an asynchronous request
      * @param reqID the id of the request to be canceled
      * @return the canceled request
      * @throws DoesNotExistException in case the id argument does not map
@@ -41,7 +41,7 @@ public interface AsyncRequestHome {
     public AsyncRequest cancelRequest(String reqID) throws DoesNotExistException;
     
     /**
-     * Retrieves a Spot Instance request and its related information
+     * Retrieves an asynchronous request and its related information
      * @param id the id of the request to be retrieved
      * @return the wanted request
      * @throws DoesNotExistException in case the id argument does not map
@@ -50,7 +50,7 @@ public interface AsyncRequestHome {
     public AsyncRequest getRequest(String id) throws DoesNotExistException;
     
     /**
-     * Retrieves all Spot Instance requests from a caller
+     * Retrieves all asynchronous requests from a caller
      * @param caller the owner of the Spot Instances' requests
      * @return an array of spot instance requests from this caller
      */
@@ -62,6 +62,16 @@ public interface AsyncRequestHome {
      */
     public Double getSpotPrice();
 
+    /**
+     * Retrieves the spot price history
+     * @param startDate the date the history should start. <b>null</n>
+     * indicates there is no start date.
+     * @param endDate the date the history should end. <b>null</n>
+     * indicates there is no end date.
+     * @return a list of spot price entries from the start date until the end date
+     * @throws WorkspaceDatabaseException in case there is an error 
+     * in the databsae, while obtaining the history data
+     */
     public List<SpotPriceEntry> getSpotPriceHistory(Calendar startDate, Calendar endDate) 
             throws WorkspaceDatabaseException;
 

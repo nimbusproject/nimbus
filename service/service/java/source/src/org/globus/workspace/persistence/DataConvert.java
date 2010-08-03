@@ -24,12 +24,12 @@ import java.util.Iterator;
 
 import org.globus.workspace.WorkspaceConstants;
 import org.globus.workspace.accounting.ElapsedAndReservedMinutes;
+import org.globus.workspace.async.AsyncRequest;
+import org.globus.workspace.async.AsyncRequestStatus;
 import org.globus.workspace.service.InstanceResource;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.globus.workspace.service.binding.vm.VirtualMachineDeployment;
 import org.globus.workspace.service.binding.vm.VirtualMachinePartition;
-import org.globus.workspace.spotinstances.AsyncRequest;
-import org.globus.workspace.spotinstances.AsyncRequestStatus;
 import org.globus.workspace.xen.XenUtil;
 import org.nimbustools.api._repr._Caller;
 import org.nimbustools.api._repr._RequestInfo;

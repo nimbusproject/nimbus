@@ -1,8 +1,10 @@
-package org.globus.workspace.spotinstances;
+package org.globus.workspace.async.pricingmodel;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
+
+import org.globus.workspace.async.AsyncRequest;
 
 public class MaximizeUtilizationPricingModel extends AbstractPricingModel {
 

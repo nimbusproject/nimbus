@@ -1,7 +1,10 @@
-package org.globus.workspace.spotinstances;
+package org.globus.workspace.async.pricingmodel;
 
 import java.util.Collection;
 import java.util.LinkedList;
+
+import org.globus.workspace.async.AsyncRequest;
+import org.globus.workspace.async.AsyncRequestFilter;
 
 public class MaximizeProfitPricingModel extends AbstractPricingModel {
 
@@ -32,8 +35,8 @@ public class MaximizeProfitPricingModel extends AbstractPricingModel {
 
     private static Double getProfit(Double priceCandidate, Integer availableResources, Collection<AsyncRequest> allRequests){
         
-        Collection<AsyncRequest> priorityOffers = SIRequestUtils.getRequestsAbovePrice(priceCandidate, allRequests);
-        Collection<AsyncRequest> limitOffers = SIRequestUtils.getRequestsEqualPrice(priceCandidate, allRequests);
+        Collection<AsyncRequest> priorityOffers = AsyncRequestFilter.getRequestsAbovePrice(priceCandidate, allRequests);
+        Collection<AsyncRequest> limitOffers = AsyncRequestFilter.getRequestsEqualPrice(priceCandidate, allRequests);
         
         Collection<AsyncRequest> eligibleOffers = union(priorityOffers, limitOffers);
         

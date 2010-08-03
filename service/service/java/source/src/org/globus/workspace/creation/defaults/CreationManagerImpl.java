@@ -25,6 +25,8 @@ import org.globus.workspace.ProgrammingError;
 import org.globus.workspace.WorkspaceConstants;
 import org.globus.workspace.WorkspaceUtil;
 import org.globus.workspace.accounting.AccountingEventAdapter;
+import org.globus.workspace.async.AsyncRequest;
+import org.globus.workspace.async.AsyncRequestManager;
 import org.globus.workspace.creation.CreationManager;
 import org.globus.workspace.network.AssociationAdapter;
 import org.globus.workspace.persistence.DataConvert;
@@ -45,8 +47,6 @@ import org.globus.workspace.service.binding.GlobalPolicies;
 import org.globus.workspace.service.binding.vm.CustomizationNeed;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.globus.workspace.service.binding.vm.VirtualMachineDeployment;
-import org.globus.workspace.spotinstances.AsyncRequest;
-import org.globus.workspace.spotinstances.AsyncRequestManager;
 import org.globus.workspace.creation.InternalCreationManager;
 
 import org.nimbustools.api._repr._Advertised;

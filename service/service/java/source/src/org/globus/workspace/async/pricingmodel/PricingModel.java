@@ -1,6 +1,8 @@
-package org.globus.workspace.spotinstances;
+package org.globus.workspace.async.pricingmodel;
 
 import java.util.Collection;
+
+import org.globus.workspace.async.AsyncRequest;
 
 public interface PricingModel {
 

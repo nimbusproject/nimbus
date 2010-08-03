@@ -1,10 +1,10 @@
-package org.globus.workspace.spotinstances;
+package org.globus.workspace.async;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class SIRequestUtils {
+public class AsyncRequestFilter {
 
     public static List<AsyncRequest> getRequestsEqualPrice(
             Double price, Collection<AsyncRequest> allRequests) {
@@ -54,7 +54,7 @@ public class SIRequestUtils {
         List<AsyncRequest> activeRequestsEqualPrice = new ArrayList<AsyncRequest>();
         
         for (AsyncRequest siRequest : allRequests) {
-            if(siRequest.getStatus().isAlive() && siRequest.getMaxBid().equals(price)){
+            if(siRequest.isSpotRequest() && siRequest.getStatus().isAlive() && siRequest.getMaxBid().equals(price)){
                 activeRequestsEqualPrice.add(siRequest);
             }
         }
@@ -67,7 +67,7 @@ public class SIRequestUtils {
         List<AsyncRequest> aliveRequestsAbovePrice = new ArrayList<AsyncRequest>();
         
         for (AsyncRequest siRequest : allRequests) {
-            if(siRequest.getStatus().isAlive() && siRequest.getMaxBid() > currentPrice){
+            if(siRequest.isSpotRequest() && siRequest.getStatus().isAlive() && siRequest.getMaxBid() > currentPrice){
                 aliveRequestsAbovePrice.add(siRequest);
             }
         }
@@ -87,19 +87,6 @@ public class SIRequestUtils {
         }
         
         return aliveRequests;
-    }
-
-    public static Collection<AsyncRequest> filterActiveRequests(
-            Collection<AsyncRequest> allRequests) {
-        List<AsyncRequest> activeRequests = new ArrayList<AsyncRequest>();
-        
-        for (AsyncRequest siRequest : allRequests) {
-            if(siRequest.getStatus().isActive()){
-                activeRequests.add(siRequest);
-            }
-        }
-        
-        return activeRequests;
     }
 
     public static List<AsyncRequest> filterAliveBackfillRequests(

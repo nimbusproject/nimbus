@@ -16,8 +16,8 @@
 
 package org.globus.workspace.creation;
 
+import org.globus.workspace.async.AsyncRequest;
 import org.globus.workspace.service.InstanceResource;
-import org.globus.workspace.spotinstances.AsyncRequest;
 
 import org.nimbustools.api.repr.Advertised;
 import org.nimbustools.api.repr.Caller;

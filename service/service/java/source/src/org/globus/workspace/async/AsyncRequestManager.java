@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package org.globus.workspace.spotinstances;
+package org.globus.workspace.async;
 
 import org.globus.workspace.StateChangeInterested;
 import org.globus.workspace.scheduler.defaults.PreemptableSpaceManager;
@@ -25,8 +25,8 @@ import org.globus.workspace.scheduler.defaults.PreemptableSpaceManager;
 public interface AsyncRequestManager extends AsyncRequestHome, PreemptableSpaceManager, StateChangeInterested {
 
     /**
-     * Adds a Spot Instances request
-     * to this module
+     * Adds an asynchronous request
+     * to this manager
      * @param request the request to be added
      */
     public void addRequest(AsyncRequest request);

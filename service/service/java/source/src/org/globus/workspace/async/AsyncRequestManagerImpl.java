@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package org.globus.workspace.spotinstances;
+package org.globus.workspace.async;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -30,6 +30,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.globus.workspace.Lager;
 import org.globus.workspace.WorkspaceConstants;
+import org.globus.workspace.async.pricingmodel.PricingModel;
 import org.globus.workspace.creation.InternalCreationManager;
 import org.globus.workspace.persistence.PersistenceAdapter;
 import org.globus.workspace.persistence.WorkspaceDatabaseException;
@@ -118,10 +119,10 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
     // -------------------------------------------------------------------------         
     
     /**
-     * Adds a Spot Instances request
-     * to this module
+     * Adds an asynchronous request
+     * to this manager
      * @param request the request to be added
-     */    
+     */
     public void addRequest(AsyncRequest request){
 
         requests.put(request.getId(), request);
@@ -790,7 +791,7 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
         VirtualMachine[] unallocatedVMs = null;
         try {
             unallocatedVMs = siRequest.getUnallocatedVMs(quantity);
-        } catch (SIRequestException e) {
+        } catch (AsyncRequestException e) {
             logger.fatal("[Spot Instances] " + e.getMessage(), e);
             return;
         }
@@ -965,7 +966,7 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
      * @return list of alive equal or higher bid requests
      */    
     private List<AsyncRequest> getAliveEqualOrHigherBidRequests() {
-        return SIRequestUtils.filterAliveRequestsAboveOrEqualPrice(this.currentPrice, this.requests.values());
+        return AsyncRequestFilter.filterAliveRequestsAboveOrEqualPrice(this.currentPrice, this.requests.values());
     }        
     
     /**
@@ -973,7 +974,7 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
      * @return list of alive equal bid requests
      */
     private List<AsyncRequest> getAliveEqualBidRequests(){
-        return SIRequestUtils.filterAliveRequestsEqualPrice(this.currentPrice, this.requests.values());
+        return AsyncRequestFilter.filterAliveRequestsEqualPrice(this.currentPrice, this.requests.values());
     }  
     
     /**
@@ -981,7 +982,7 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
      * @return list of alive higher bid requests
      */
     private List<AsyncRequest> getAliveHigherBidRequests() {
-        return SIRequestUtils.filterAliveRequestsAbovePrice(this.currentPrice, this.requests.values());
+        return AsyncRequestFilter.filterAliveRequestsAbovePrice(this.currentPrice, this.requests.values());
     }
     
     /**
@@ -989,7 +990,7 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
      * @return list of alive backfill requests
      */
     private List<AsyncRequest> getAliveBackfillRequests(){
-        return SIRequestUtils.filterAliveBackfillRequests(this.requests.values());
+        return AsyncRequestFilter.filterAliveBackfillRequests(this.requests.values());
     }     
     
     /**
@@ -997,7 +998,7 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
      * @return list of alive requests
      */
     private List<AsyncRequest> getAliveSpotRequests() {
-        return SIRequestUtils.filterAliveRequestsAboveOrEqualPrice(minPrice, this.requests.values());
+        return AsyncRequestFilter.filterAliveRequestsAboveOrEqualPrice(minPrice, this.requests.values());
     }
     
     /**
@@ -1005,7 +1006,7 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
      * @return list of lower bid active requests
      */
     private List<AsyncRequest> getActiveLowerBidRequests() {
-        return SIRequestUtils.filterActiveRequestsBelowPrice(this.currentPrice, this.requests.values());
+        return AsyncRequestFilter.filterActiveRequestsBelowPrice(this.currentPrice, this.requests.values());
     }    
     
     /**
