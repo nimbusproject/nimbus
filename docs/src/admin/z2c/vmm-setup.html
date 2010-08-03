@@ -581,6 +581,14 @@ nimbus $ virsh -c 'xen+unix:///' console control-test
 </p>
 
 <p>
+  If you get an error like "There is a VM running with this handle but there
+  is no record of it in the program" then you may have been starting with
+  <tt class="literal">virsh</tt> but not through 
+  <tt class="literal">libvirt-xml.sh</tt>.  The way to correct this is to
+  run <tt class="literal">virsh destroy control-test</tt> directly.
+</p>
+
+<p>
   Seeing an error from a component, for example in the libvirt logs?  If putting the error into a search engine does not produce any obvious answers, don't hesitate to contact the <a href="_NIMBUS_WEBSITE/contact/">workspace-user</a> mailing list.  Describe your situation and any errors you are seeing. Including version information (of the VMM and libvirt and your OS) can often be helpful and reduce the amount of emails that need to occur.
 </p>
 
