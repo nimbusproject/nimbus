@@ -36,7 +36,7 @@ public interface AsyncRequestHome {
      * @param reqID the id of the request to be canceled
      * @return the canceled request
      * @throws DoesNotExistException in case the id argument does not map
-     *                               to any spot instance request
+     *                               to any asynchronous request
      */
     public AsyncRequest cancelRequest(String reqID) throws DoesNotExistException;
     
@@ -45,14 +45,14 @@ public interface AsyncRequestHome {
      * @param id the id of the request to be retrieved
      * @return the wanted request
      * @throws DoesNotExistException in case the id argument does not map
-     *                               to any spot instance request
+     *                               to any asynchronous request
      */
     public AsyncRequest getRequest(String id) throws DoesNotExistException;
     
     /**
      * Retrieves all asynchronous requests from a caller
      * @param caller the owner of the Spot Instances' requests
-     * @return an array of spot instance requests from this caller
+     * @return an array of asynchronous requests from this caller
      */
     public AsyncRequest[] getRequests(Caller caller, boolean spot);
     
