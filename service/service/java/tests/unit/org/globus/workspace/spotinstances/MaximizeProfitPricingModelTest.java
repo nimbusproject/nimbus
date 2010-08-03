@@ -5,9 +5,9 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.LinkedList;
 
+import org.globus.workspace.async.AsyncRequest;
+import org.globus.workspace.async.pricingmodel.MaximizeProfitPricingModel;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
-import org.globus.workspace.spotinstances.MaximizeProfitPricingModel;
-import org.globus.workspace.spotinstances.AsyncRequest;
 import org.junit.Test;
 
 public class MaximizeProfitPricingModelTest {

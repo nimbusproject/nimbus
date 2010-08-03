@@ -21,7 +21,7 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Calendar;
 
-import org.globus.workspace.spotinstances.AsyncRequestManagerImpl;
+import org.globus.workspace.async.AsyncRequestManagerImpl;
 import org.globus.workspace.testing.NimbusTestBase;
 import org.globus.workspace.testing.NimbusTestContextLoader;
 import org.nimbustools.api.repr.AsyncCreateRequest;

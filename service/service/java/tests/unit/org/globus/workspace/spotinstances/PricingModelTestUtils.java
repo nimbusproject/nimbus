@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 
+import org.globus.workspace.async.AsyncRequest;
+
 public class PricingModelTestUtils {
 
     public static boolean checkPricingModelConstraints(Double minPrice, Double nextPrice, Integer totalReservedResources, Collection<AsyncRequest> requests){

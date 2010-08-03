@@ -545,30 +545,30 @@
     </bean>
 
     <!-- ===================================================================
-         org.globus.workspace.spotinstances.* interfaces
+         org.globus.workspace.async.* interfaces
          =================================================================== -->
 
-    <bean id="nimbus-rm.spotinstances.pricingmodel"
+    <bean id="nimbus-rm.si.pricingmodel"
           class="$SI{si.pricingmodel}" />
 
     <bean id="nimbus-rm.async.manager"
-          class="org.globus.workspace.spotinstances.AsyncRequestManagerImpl">
+          class="org.globus.workspace.async.AsyncRequestManagerImpl">
 
         <constructor-arg ref="nimbus-rm.persistence.PersistenceAdapter" />
         <constructor-arg ref="nimbus-rm.loglevels" />
         <constructor-arg ref="nimbus-rm.home.instance"/>
         <constructor-arg ref="nimbus-rm.home.group"/>
         <constructor-arg value="$SI{si.basic.minprice}" />        
-        <constructor-arg ref="nimbus-rm.spotinstances.pricingmodel" />
+        <constructor-arg ref="nimbus-rm.si.pricingmodel" />
  
         <!-- set after object creation time to avoid circular dep -->
         <property name="creationManager" ref="nimbus-rm.creation" />
         
         <!-- Property values coming via spotinstances.conf -->        
         <property name="minReservedMem"
-                  value="$SI{si.policies.minreservedmem}" />
+                  value="$SI{async.policies.minreservedmem}" />
         <property name="maxUtilization"
-                  value="$SI{si.policies.maxutilization}" />
+                  value="$SI{async.policies.maxutilization}" />
         <property name="instanceMem"
                   value="$SI{si.basic.mem}" />                                    
                           
