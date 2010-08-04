@@ -1714,9 +1714,81 @@ fakepub1 192.168.0.3 192.168.0.1 192.168.0.255 255.255.255.0</pre>
 <a name="backend-config-invm-networking"> </a>
 <h2>Network configuration details _NAMELINK(backend-config-invm-networking)</h2>
 <p>
-    As of Nimbus 2.5, the networking and DHCP situation has changed, this section is currently undergoing an overhaul.  Check back soon or contact the list.
+    While addresses for VMs are configured and chosen within the Nimbus service,
+    they are physically queried via an external DHCPd service. There are two ways
+    of arranging the DHCP configuration.
+</p>
+<ol>
+    <li>
+        Centralized -- a new or existing DHCP service that you configure with Nimbus-specific
+        MAC to IP mappings. This is generally simpler to set up and is covered in the
+        <a href="z2c/networking-setup.html">Zero-to-Cloud guide</a>.
+    </li>
+    <li>
+        Local -- a DHCP server is installed on every VMM node and automatically configured
+        with the appropriate addresses just before a VM boots. This is more complicated to
+        set up initially but can be preferable in certain scenarios.
+    </li>
+</ol>
+
+<p>
+    Because Nimbus chooses the MAC address, it controls which DHCP entry will be
+    retrieved by the VM. Additionally, ebtables rules are configured to ensure that
+    a malicious or misconfigured VM cannot use another MAC or IP.
 </p>
 
+<p>
+    In a local DHCP scenario, <tt class="literal">workspace-control</tt>  on each VMM
+    manages the DHCP configuration file and injects entries just before each VM boots.
+    To prevent DHCP broadcast requests from getting out to the LAN, an ebtables rule is
+    enacted to force packets to a specific local interface.
+</p>
+
+<p>
+    Configuring local DHCP is not difficult, but you should exercise caution to
+    ensure that the DHCP daemons on each VMM do not interfere with other networks.
+    First of all, you must install an ISC-compatible DHCP server. This should be
+    available on all Linux distributions.
+</p>
+<p>
+    Once installed, find the DHCP configuration location. Typically this is something
+    like <tt class="literal">/etc/dhcp/dhcpd.conf</tt> or
+    <tt class="literal">/etc/dhcp3/dhcpd.conf</tt>. Replace this file with the example
+    in the workspace-control package:
+    <tt class="literal">share/workspace-control/dhcp.conf.example</tt> and then edit
+    it to include proper subnet declarations for your network. Afterwards, try
+    restarting DHCP and checking logs to ensure that it started without error.
+</p>
+<p>
+    Next, edit the <tt class="literal">networks.conf</tt> file in
+    <tt class="literal">etc/workspace-control/</tt>. Set the
+    <tt class="literal">localdhcp</tt> option to <tt class="literal">true</tt>
+    and take a look at the <tt class="literal">dhcp-bridges</tt> section to configure
+    where DHCP packets are bridged to.
+</p>
+
+<p>
+    Finally, you may need to edit the sudo script that workspace-control uses to
+    alter <tt class="literal">dhcp.conf</tt> and restart the service. This script
+    is located at <tt class="literal">libexec/workspace-control/dhcp-config.sh</tt>.
+    It expects the following defaults:
+</p>
+
+<pre class="panel">
+# Policy file for script to adjust
+DHCPD_CONF="/etc/dhcpd.conf"
+
+# Command to run before policy adjustment
+DHCPD_STOP="/etc/init.d/dhcpd stop"
+
+# Command to run after policy adjustment
+DHCPD_START="/etc/init.d/dhcpd start"
+</pre>
+
+<p>
+    You should also ensure that this script can be called via sudo as the
+    <tt class="literal">nimbus</tt> user.
+</p>
 
 <!-- *********************************************************************** -->
 <!-- *********************************************************************** -->
