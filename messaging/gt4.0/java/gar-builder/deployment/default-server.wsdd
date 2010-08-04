@@ -54,7 +54,7 @@
              style="document">
 
         <parameter name="allowedMethodsClass"
-                   value="org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.AmazonEC2PortType"/>
+                   value="org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.AmazonEC2PortType"/>
         <parameter name="handlerClass"
                    value="org.globus.axis.providers.RPCProvider"/>
         <parameter name="className"

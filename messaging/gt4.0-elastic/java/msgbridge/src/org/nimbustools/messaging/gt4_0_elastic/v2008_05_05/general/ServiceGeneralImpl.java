@@ -18,12 +18,12 @@ package org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general;
 
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.ServiceGeneral;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.service.UnimplementedOperations;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeAvailabilityZonesResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeAvailabilityZonesType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeAvailabilityZonesSetType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeAvailabilityZonesSetItemType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.AvailabilityZoneSetType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.AvailabilityZoneItemType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.DescribeAvailabilityZonesResponseType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.DescribeAvailabilityZonesType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.DescribeAvailabilityZonesSetType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.DescribeAvailabilityZonesSetItemType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.AvailabilityZoneSetType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.AvailabilityZoneItemType;
 
 import java.rmi.RemoteException;
 import java.util.List;

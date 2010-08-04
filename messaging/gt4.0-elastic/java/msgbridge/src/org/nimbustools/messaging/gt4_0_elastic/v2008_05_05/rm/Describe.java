@@ -18,10 +18,10 @@ package org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm;
 
 import org.nimbustools.api.repr.CannotTranslateException;
 import org.nimbustools.api.repr.vm.VM;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeInstancesResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.DescribeInstancesType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.PlacementResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.InstanceStateType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.DescribeInstancesResponseType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.DescribeInstancesType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.PlacementResponseType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.InstanceStateType;
 
 import java.util.Calendar;
 

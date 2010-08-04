@@ -15,7 +15,7 @@
  */
 package org.nimbustools.messaging.query.v2009_08_15;
 
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.*;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.*;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.*;
 import org.nimbustools.messaging.query.*;
 import static org.nimbustools.messaging.query.QueryUtils.*;
@@ -304,14 +304,14 @@ public class ElasticService implements ElasticVersion {
                         "Specify at least one instance to terminate");
             }
 
-            TerminateInstancesItemType[] items =
-                    new TerminateInstancesItemType[instanceIds.size()];
+            InstanceIdType[] items =
+                    new InstanceIdType[instanceIds.size()];
 
             for (int i = 0; i < items.length; i++) {
-                items[i] = new TerminateInstancesItemType(instanceIds.get(i));
+                items[i] = new InstanceIdType(instanceIds.get(i));
             }
 
-            TerminateInstancesInfoType info = new TerminateInstancesInfoType(items);
+            InstanceIdSetType info = new InstanceIdSetType(items);
 
             final TerminateInstancesType request = new TerminateInstancesType(info);
 

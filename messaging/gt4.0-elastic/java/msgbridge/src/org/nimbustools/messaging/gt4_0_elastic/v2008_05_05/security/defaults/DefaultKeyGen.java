@@ -22,7 +22,7 @@ import com.jcraft.jsch.KeyPair;
 import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.CannotTranslateException;
 import org.nimbustools.messaging.gt4_0_elastic.DisabledException;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.CreateKeyPairResponseType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.CreateKeyPairResponseType;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.ContainerInterface;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.security.KeyGen;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.security.KeyGenException;
