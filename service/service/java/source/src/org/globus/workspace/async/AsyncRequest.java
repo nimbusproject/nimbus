@@ -25,7 +25,8 @@ public class AsyncRequest implements Comparable<AsyncRequest>{
     private Context context;
     private NIC[] requestedNics;
     private String groupID;
-    
+    private String sshKeyName;
+
     private Throwable problem = null;
 
     private LinkedHashSet<Integer> allocatedVMs = new LinkedHashSet<Integer>();
@@ -35,7 +36,7 @@ public class AsyncRequest implements Comparable<AsyncRequest>{
 
     //Test-only
     public AsyncRequest(String id, Double highestPrice, VirtualMachine[] bindings) {
-        this(id, highestPrice, false, null, null, bindings, null, null, null);
+        this(id, highestPrice, false, null, null, bindings, null, null, null, null);
     }    
 
     /**
@@ -52,8 +53,8 @@ public class AsyncRequest implements Comparable<AsyncRequest>{
      */
     public AsyncRequest(String id, Double spotPrice, boolean persistent,
             Caller caller, String groupID, VirtualMachine[] bindings, Context context,
-            NIC[] requestedNics, Calendar creationTime) {
-        this(id, true, spotPrice, persistent, caller, groupID, bindings, context, requestedNics, creationTime);
+            NIC[] requestedNics, String sshKeyName, Calendar creationTime) {
+        this(id, true, spotPrice, persistent, caller, groupID, bindings, context, requestedNics, sshKeyName, creationTime);
     }
     
     /**
@@ -70,12 +71,12 @@ public class AsyncRequest implements Comparable<AsyncRequest>{
      */    
     public AsyncRequest(String id, Caller caller, String groupID, VirtualMachine[] bindings, Context context,
             NIC[] requestedNics, Calendar creationTime) {
-       this(id, false, -1.0, true, caller, groupID, bindings, context, requestedNics, creationTime);
+       this(id, false, -1.0, true, caller, groupID, bindings, context, requestedNics, null, creationTime);
     }    
 
     public AsyncRequest(String id, boolean spotinstances, Double spotPrice, boolean persistent,
             Caller caller, String groupID, VirtualMachine[] bindings, Context context,
-            NIC[] requestedNics, Calendar creationTime) {
+            NIC[] requestedNics, String sshKeyName, Calendar creationTime) {
         this.status = AsyncRequestStatus.OPEN;        
         this.id = id;
         this.spot = spotinstances;
@@ -87,6 +88,7 @@ public class AsyncRequest implements Comparable<AsyncRequest>{
         this.groupID = groupID;
         this.caller = caller;
         this.creationTime = creationTime;
+        this.sshKeyName = sshKeyName;
     }    
     
     public Double getMaxBid() {
@@ -179,6 +181,10 @@ public class AsyncRequest implements Comparable<AsyncRequest>{
     public String getGroupID() {
         return groupID;
     }
+    
+    public String getSshKeyName() {
+        return sshKeyName;
+    }    
     
     public boolean isAllocatedVM(Integer vmid){        
         return allocatedVMs.contains(vmid);

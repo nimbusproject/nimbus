@@ -309,9 +309,13 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
                 
         if(req instanceof SpotCreateRequest){
             SpotCreateRequest spotReq = (SpotCreateRequest)req;
-            siRequest = new AsyncRequest(siID, spotReq.getSpotPrice(), spotReq.isPersistent(), caller, groupID, bound, req.getContext(), req.getRequestedNics(), Calendar.getInstance());   
+            siRequest = new AsyncRequest(siID, spotReq.getSpotPrice(), spotReq.isPersistent(), 
+                                        caller, groupID, bound, req.getContext(), req.getRequestedNics(), 
+                                        req.getSshKeyName(), Calendar.getInstance());   
         } else {
-            siRequest = new AsyncRequest(siID, caller, groupID, bound, req.getContext(), req.getRequestedNics(), Calendar.getInstance());               
+            siRequest = new AsyncRequest(siID, caller, groupID, bound, 
+                                        req.getContext(), req.getRequestedNics(), 
+                                        Calendar.getInstance());               
         }
         
         asyncManager.addRequest(siRequest); 
