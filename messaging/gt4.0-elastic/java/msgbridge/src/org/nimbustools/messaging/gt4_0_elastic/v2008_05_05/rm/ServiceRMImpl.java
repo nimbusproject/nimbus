@@ -25,6 +25,8 @@ import org.nimbustools.api.repr.CannotTranslateException;
 import org.nimbustools.api.repr.CreateRequest;
 import org.nimbustools.api.repr.CreateResult;
 import org.nimbustools.api.repr.ReprFactory;
+import org.nimbustools.api.repr.SpotCreateRequest;
+import org.nimbustools.api.repr.SpotRequestInfo;
 import org.nimbustools.api.repr.vm.VM;
 import org.nimbustools.api.services.metadata.MetadataServer;
 import org.nimbustools.api.services.rm.ManageException;
@@ -62,6 +64,7 @@ public class ServiceRMImpl extends UnimplementedOperations
     protected final Reboot reboot;
     protected final Describe describe;
     protected final ContainerInterface container;
+    protected final RequestSI reqSI;
 
     
     // -------------------------------------------------------------------------
@@ -72,6 +75,7 @@ public class ServiceRMImpl extends UnimplementedOperations
                          Terminate terminateImpl,
                          Reboot rebootImpl,
                          Describe describeImpl,
+                         RequestSI reqSIImpl,
                          ContainerInterface containerImpl,
                          ModuleLocator locator) throws Exception {
 
@@ -94,6 +98,11 @@ public class ServiceRMImpl extends UnimplementedOperations
             throw new IllegalArgumentException("describeImpl may not be null");
         }
         this.describe = describeImpl;
+        
+        if (reqSIImpl == null) {
+            throw new IllegalArgumentException("reqSIImpl may not be null");
+        }
+        this.reqSI = reqSIImpl;        
 
         if (containerImpl == null) {
             throw new IllegalArgumentException("containerImpl may not be null");
@@ -207,5 +216,46 @@ public class ServiceRMImpl extends UnimplementedOperations
         }
         final Caller caller = this.container.getCaller();
         return this.terminate.terminate(req, caller, this.manager);
+    }
+    
+
+    // -------------------------------------------------------------------------
+    // SI OPERATIONS
+    // -------------------------------------------------------------------------  
+    
+    public RequestSpotInstancesResponseType requestSpotInstances(
+                        RequestSpotInstancesType req)
+            throws RemoteException {
+
+        if (req == null) {
+            throw new RemoteException("requestSpotInstances request is missing");
+        }
+        
+        final Caller caller = this.container.getCaller();
+
+        final SpotRequestInfo result;
+        try {
+            SpotCreateRequest creq =
+                    this.reqSI.translateReqSpotInstances(req, caller);
+            AddCustomizations.addAll((_CreateRequest)creq,
+                                     this.repr, this.mdServer);
+            result = this.manager.requestSpotInstances(creq, caller);
+
+        } catch (Exception e) {
+            throw new RemoteException(e.getMessage(), e);
+        }
+
+        try {
+            return this.reqSI.translateSpotInfo(result, caller);
+        } catch (Exception e) {
+            final String err = "Problem translating valid request spot instances " +
+                    "result into elastic protocol.  Backout required. " +
+                    " Error: " + e.getMessage();
+            logger.error(err, e);
+            //this.terminate.backOutCreateResult(result, caller, this.manager);
+            // gets caught by Throwable hook:
+            throw new RuntimeException(err, e);
+        }        
+        
     }
 }

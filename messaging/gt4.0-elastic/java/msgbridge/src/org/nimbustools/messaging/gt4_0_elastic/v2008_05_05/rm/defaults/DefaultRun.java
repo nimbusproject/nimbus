@@ -184,7 +184,8 @@ public class DefaultRun implements Run {
         final String raType = req.getInstanceType();
         final ResourceAllocation ra = this.RAs.getMatchingRA(raType,
                                                              req.getMinCount(),
-                                                             req.getMaxCount());
+                                                             req.getMaxCount(),
+                                                             false);
 
         final RequiredVMM reqVMM = this.RAs.getRequiredVMM();
 
@@ -393,7 +394,7 @@ public class DefaultRun implements Run {
         riit.setInstanceState(this.describe.getState(vm));
         riit.setReason(this.describe.getReason(vm));
         riit.setPlacement(this.describe.getPlacement());
-        riit.setImageId(this.describe.getImageID(vm));
+        riit.setImageId(this.describe.getImageID(vm.getVMFiles()));
         riit.setInstanceType(this.describe.getInstanceType(vm));
         riit.setLaunchTime(this.describe.getLaunchTime(vm));
         

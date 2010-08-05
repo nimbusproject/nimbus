@@ -57,4 +57,12 @@
         <property name="placeholderPrefix" value="$QUERY{" />
     </bean>
 
+    <bean id="siSettings"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="location"
+                  value="$NIMBUS_HOME/services/etc/nimbus/workspace-service/spotinstances.conf" />
+        <property name="placeholderPrefix"
+                  value="$SI{" />
+    </bean>
+
 </beans>

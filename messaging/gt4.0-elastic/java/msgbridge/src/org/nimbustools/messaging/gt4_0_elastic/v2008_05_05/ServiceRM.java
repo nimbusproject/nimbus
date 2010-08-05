@@ -43,10 +43,22 @@ public interface ServiceRM {
             throws RemoteException;
 
     public MonitorInstancesResponseType monitorInstances(
-            MonitorInstancesType monitorInstancesRequestMsg)
+                        MonitorInstancesType monitorInstancesRequestMsg)
             throws RemoteException;
 
     public MonitorInstancesResponseType unmonitorInstances(
-            MonitorInstancesType unmonitorInstancesRequestMsg)
+                        MonitorInstancesType unmonitorInstancesRequestMsg)
+            throws RemoteException;
+    
+    // -------------------------------------------------------------------------
+    // SI OPERATIONS
+    // -------------------------------------------------------------------------  
+    
+    public RequestSpotInstancesResponseType requestSpotInstances(
+                        RequestSpotInstancesType requestSpotInstancesMsg)
+            throws RemoteException;
+    
+    public CancelSpotInstanceRequestsResponseType cancelSpotInstanceRequests(
+                        CancelSpotInstanceRequestsType cancelSpotInstancesMsg)
             throws RemoteException;
 }

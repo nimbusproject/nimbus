@@ -54,7 +54,22 @@ public class UnimplementedOperations implements ServiceAll {
         throw new RemoteException(UNIMPLEMENTED + "describeInstances");
     }
 
-
+    // -------------------------------------------------------------------------
+    // SI OPERATIONS
+    // -------------------------------------------------------------------------  
+    
+    public RequestSpotInstancesResponseType requestSpotInstances(
+                        RequestSpotInstancesType requestSpotInstancesMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "requestSpotInstances");        
+    }
+    
+    public CancelSpotInstanceRequestsResponseType cancelSpotInstanceRequests(
+            CancelSpotInstanceRequestsType cancelSpotInstancesMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "cancelSpotInstanceRequests");                
+    }
+    
     // -------------------------------------------------------------------------
     // IMAGE RELATED
     // -------------------------------------------------------------------------

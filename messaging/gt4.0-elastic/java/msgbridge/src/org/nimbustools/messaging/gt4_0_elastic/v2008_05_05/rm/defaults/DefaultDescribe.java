@@ -338,7 +338,7 @@ public class DefaultDescribe implements Describe {
         final RunningInstancesItemType riit = new RunningInstancesItemType();
 
         riit.setInstanceId(elasticID);
-        riit.setImageId(this.getImageID(vm));
+        riit.setImageId(this.getImageID(vm.getVMFiles()));
         riit.setInstanceState(this.getState(vm));
         riit.setReason(this.getReason(vm));
         this.addNICs(vm.getNics(), riit);
@@ -380,6 +380,17 @@ public class DefaultDescribe implements Describe {
         return prt;
     }
 
+    public PlacementRequestType getPlacementReq() {
+        final PlacementRequestType prt = new PlacementRequestType();
+        final String[] availabilityZones = this.zones.getAvailabilityZones();
+        if (availabilityZones == null || availabilityZones.length == 0) {
+            prt.setAvailabilityZone("UNKNOWN");
+        } else {
+            prt.setAvailabilityZone(availabilityZones[0]);
+        }
+        return prt;
+    }    
+    
     public Calendar getLaunchTime(VM vm) throws CannotTranslateException {
 
         if (vm == null) {
@@ -471,13 +482,7 @@ public class DefaultDescribe implements Describe {
         }
     }
 
-    public String getImageID(VM vm) throws CannotTranslateException {
-
-        if (vm == null) {
-            throw new CannotTranslateException("vm is missing");
-        }
-
-        final VMFile[] vmFiles = vm.getVMFiles();
+    public String getImageID(VMFile[] vmFiles) throws CannotTranslateException {
 
         final String UNKNOWN = "UNKNOWN";
 

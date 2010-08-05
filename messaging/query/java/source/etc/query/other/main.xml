@@ -107,6 +107,7 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
         <constructor-arg ref="nimbus-query.rm.terminate" />
         <constructor-arg ref="nimbus-query.rm.reboot" />
         <constructor-arg ref="nimbus-query.rm.describe" />
+	<constructor-arg ref="nimbus-query.rm.requestSI" />
         <constructor-arg ref="nimbus-query.rm.containerInterface" />
         <constructor-arg ref="nimbus-query.rm.modulelocator" />
 
@@ -125,6 +126,21 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
         <constructor-arg ref="nimbus-query.rm.modulelocator" />
 
     </bean>
+
+    <bean id="nimbus-query.rm.requestSI"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultRequestSI">
+
+        <constructor-arg ref="nimbus-query.general.ra" />
+        <constructor-arg ref="nimbus-query.general.networks" />
+        <constructor-arg ref="nimbus-query.rm.idmappings" />
+        <constructor-arg ref="nimbus-query.rm.describe" />
+        <constructor-arg ref="nimbus-query.rm.containerInterface" />
+        <constructor-arg ref="nimbus-query.security.sshkeys" />
+        <constructor-arg ref="nimbus-query.image.repository" />
+        <constructor-arg ref="nimbus-query.rm.modulelocator" />
+
+    </bean>
+
 
     <bean id="nimbus-query.rm.terminate"
           class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultTerminate">
@@ -192,6 +208,7 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
          <property name="largeName" value="$OTHER_ELASTIC{ra.name.large}" />
          <property name="xlargeName" value="$OTHER_ELASTIC{ra.name.xlarge}" />
          <property name="unknownString" value="$OTHER_ELASTIC{ra.name.unknown}" />
+         <property name="siType" value="$SI{si.instancetype}" />
 
          <property name="cpuArch" value="$OTHER_ELASTIC{cpu.arch}" />
          <property name="vmmType" value="$OTHER_ELASTIC{vmm.type}" />

@@ -46,7 +46,7 @@ public class DefaultResourceAllocations implements ResourceAllocations {
     // -------------------------------------------------------------------------
 
     protected final ReprFactory repr;
-
+    
     protected int smallMemory;
     protected int largeMemory;
     protected int xlargeMemory;
@@ -62,6 +62,8 @@ public class DefaultResourceAllocations implements ResourceAllocations {
     protected String vmmVersion;
 
     protected RequiredVMM requestThisVMM;
+    
+    protected String siType;
 
 
     // -------------------------------------------------------------------------
@@ -167,11 +169,19 @@ public class DefaultResourceAllocations implements ResourceAllocations {
     public void setVmmVersion(String vmmVersion) {
         this.vmmVersion = vmmVersion;
     }
+    
+    public void setSiType(String siType) {
+        this.siType = siType;
+    }    
 
     // -------------------------------------------------------------------------
     // implements ResourceAllocations
     // -------------------------------------------------------------------------
 
+    public String getSpotInstanceType(){
+        return this.siType;
+    }
+    
     public String getSmallName() {
         return this.smallName;
     }
@@ -221,7 +231,8 @@ public class DefaultResourceAllocations implements ResourceAllocations {
 
     public ResourceAllocation getMatchingRA(String name,
                                             int minNumNodes,
-                                            int maxNumNodes)
+                                            int maxNumNodes,
+                                            boolean spot)
             throws CannotTranslateException {
 
         final String cmpName;
@@ -235,6 +246,12 @@ public class DefaultResourceAllocations implements ResourceAllocations {
         final _ResourceAllocation ra = this.repr._newResourceAllocation();
         ra.setNodeNumber(minNumNodes); // only respecting min at the moment
 
+        if(spot && !cmpName.equals(siType)){
+            throw new CannotTranslateException(
+                    "Unsupported spot instance type: '" + name + "'." +
+                    		" Currently supported SI type: " + siType);            
+        }
+        
         if (cmpName.equals(this.getSmallName())) {
             ra.setMemory(this.smallMemory);
         } else if (cmpName.equals(this.getLargeName())) {
@@ -245,7 +262,9 @@ public class DefaultResourceAllocations implements ResourceAllocations {
             throw new CannotTranslateException(
                     "Unknown instance type '" + name + "'");
         }
-
+        
+        ra.setPreemptable(spot);
+        
         ra.setArchitecture(this.cpuArch);
 
         return ra;
