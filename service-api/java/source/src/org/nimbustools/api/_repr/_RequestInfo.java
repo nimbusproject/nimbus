@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2008 University of Chicago
+ * Copyright 1999-2010 University of Chicago
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy
@@ -18,10 +18,8 @@ package org.nimbustools.api._repr;
 
 import java.util.Calendar;
 
-import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.RequestInfo;
 import org.nimbustools.api.repr.si.RequestState;
-import org.nimbustools.api.repr.vm.ResourceAllocation;
 import org.nimbustools.api.repr.vm.VMFile;
 
 public interface _RequestInfo extends RequestInfo {
@@ -34,8 +32,5 @@ public interface _RequestInfo extends RequestInfo {
     
     public void setVMFiles(VMFile[] files);
     public void setSshKeyName(String sshKeyName);
-    public void setCreator(Caller creator);
-    public void setMdUserData(String mdUserData);    
-    public void setResourceAllocation(ResourceAllocation ra);
     public void setGroupID(String groupId);    
 }

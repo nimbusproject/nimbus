@@ -19,11 +19,11 @@ package org.nimbustools.api.repr.si;
 
 public interface RequestState {
     
-    public static final String STATE_Open = "Open";
-    public static final String STATE_Active = "Active";
-    public static final String STATE_Closed = "Closed";
-    public static final String STATE_Cancelled = "Cancelled";
-    public static final String STATE_Failed = "Failed";
+    public static final String STATE_Open = "open";
+    public static final String STATE_Active = "active";
+    public static final String STATE_Closed = "closed";
+    public static final String STATE_Canceled = "canceled";
+    public static final String STATE_Failed = "failed";
     
     public String getStateStr();
     public Throwable getProblem();    

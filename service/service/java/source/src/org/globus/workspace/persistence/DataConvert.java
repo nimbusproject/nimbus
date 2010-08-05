@@ -42,7 +42,6 @@ import org.nimbustools.api._repr.vm._Schedule;
 import org.nimbustools.api._repr.vm._State;
 import org.nimbustools.api._repr.vm._VM;
 import org.nimbustools.api._repr.vm._VMFile;
-import org.nimbustools.api.defaults.repr.DefaultSpotRequestInfo;
 import org.nimbustools.api.defaults.repr.si.DefaultSIRequestState;
 import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.CannotTranslateException;
@@ -272,18 +271,20 @@ public class DataConvert implements WorkspaceConstants {
         
         result.setInstanceCount(asyncReq.getRequestedInstances());
         result.setCreationTime(asyncReq.getCreationTime());
-        result.setCreator(asyncReq.getCaller());
         result.setGroupID(asyncReq.getGroupID());
-        result.setMdUserData(bindings[0].getMdUserData());
         result.setRequestID(asyncReq.getId());
         result.setVMFiles(this.getStorage(bindings[0]));
-        result.setResourceAllocation(this.getRA(bindings[0]));
-        
+        result.setSshKeyName(asyncReq.getSshKeyName());
         result.setVMIds(getVMIDs(asyncReq.getVMIds()));
         
         _SIRequestState state = new DefaultSIRequestState();
         state.setState(this.getSIRequestState(asyncReq.getStatus()));
         result.setState(state);
+        
+        //FIXME remove if not used
+        //result.setMdUserData(bindings[0].getMdUserData());
+        //result.setResourceAllocation(this.getRA(bindings[0]));  
+        //result.setCreator(asyncReq.getCaller());        
     }
 
 
@@ -306,7 +307,7 @@ public class DataConvert implements WorkspaceConstants {
         case ACTIVE:
             return RequestState.STATE_Active;
         case CANCELLED:
-            return RequestState.STATE_Cancelled;
+            return RequestState.STATE_Canceled;
         case CLOSED:
             return RequestState.STATE_Closed;
         case FAILED:
