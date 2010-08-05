@@ -136,4 +136,11 @@
         
     </bean>
 
+    <bean id="elasticSettings"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+
+        <property name="location" value="$NIMBUS_HOME/services/etc/nimbus/elastic/elastic.conf" />
+        <property name="placeholderPrefix" value="$ELASTIC{" />
+    </bean>
+
 </beans>
