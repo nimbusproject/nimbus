@@ -28,6 +28,15 @@
         <property name="placeholderPrefix" value="$COMMON{" />
     </bean>
 
+    <bean id="cumulusSettings"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+
+        <!-- grab some shared settings from the workspace-service cumulus.conf file,
+             will have to adjust for other deployment scenarios -->
+        <property name="location" value="$NIMBUS_HOME/services/etc/nimbus/workspace-service/cumulus.conf" />
+        <property name="placeholderPrefix" value="$CUMULUS{" />
+    </bean>
+
     <bean id="elasticSettings"
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 
@@ -42,10 +51,19 @@
         <property name="placeholderPrefix" value="$OTHER_ELASTIC{" />
     </bean>
 
-     <bean id="querySettings"
+    <bean id="querySettings"
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="location" value="$NIMBUS_HOME/services/etc/nimbus/query/query.conf" />
         <property name="placeholderPrefix" value="$QUERY{" />
+    </bean>
+
+    <bean id="siSettings"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+
+        <property name="location"
+                  value="$NIMBUS_HOME/services/etc/nimbus/workspace-service/spotinstances.conf" />
+        <property name="placeholderPrefix"
+                  value="$SI{" />
     </bean>
 
 </beans>

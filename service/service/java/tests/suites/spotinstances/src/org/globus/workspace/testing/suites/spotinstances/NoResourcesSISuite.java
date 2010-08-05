@@ -97,12 +97,12 @@ public class NoResourcesSISuite extends NimbusTestBase {
         //Cancel request
         SpotRequestInfo[] cancelledReqs = rm.cancelSpotInstanceRequests(new String[]{result.getRequestID()}, caller);
         assertEquals(1, cancelledReqs.length);
-        assertEquals(RequestState.STATE_Cancelled, cancelledReqs[0].getState().getStateStr());
+        assertEquals(RequestState.STATE_Canceled, cancelledReqs[0].getState().getStateStr());
         assertEquals(result.getRequestID(), cancelledReqs[0].getRequestID());
         
         //Check if request was really cancelled
         SpotRequestInfo request = rm.getSpotRequest(result.getRequestID(), caller);
-        assertEquals(RequestState.STATE_Cancelled, request.getState().getStateStr());           
+        assertEquals(RequestState.STATE_Canceled, request.getState().getStateStr());           
     }    
     
     /**
@@ -154,9 +154,9 @@ public class NoResourcesSISuite extends NimbusTestBase {
         SpotRequestInfo[] cancelledReqs = rm.cancelSpotInstanceRequests(new String[]{result2.getRequestID()}, caller2);
         
         //Check if requests were really cancelled
-        assertEquals(RequestState.STATE_Cancelled, cancelledReqs[0].getState().getStateStr());
+        assertEquals(RequestState.STATE_Canceled, cancelledReqs[0].getState().getStateStr());
         spotRequestByCaller1 = rm.getSpotRequestsByCaller(caller1);
-        assertEquals(RequestState.STATE_Cancelled, spotRequestByCaller1[0].getState().getStateStr());
-        assertEquals(RequestState.STATE_Cancelled, spotRequestByCaller1[1].getState().getStateStr());
+        assertEquals(RequestState.STATE_Canceled, spotRequestByCaller1[0].getState().getStateStr());
+        assertEquals(RequestState.STATE_Canceled, spotRequestByCaller1[1].getState().getStateStr());
     }
 }

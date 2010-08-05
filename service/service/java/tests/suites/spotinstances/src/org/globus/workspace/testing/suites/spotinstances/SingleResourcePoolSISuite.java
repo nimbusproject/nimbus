@@ -202,7 +202,7 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         
         SpotRequestInfo[] cancelledReqs = rm.cancelSpotInstanceRequests(new String[]{result.getRequestID()}, caller);
         assertEquals(1, cancelledReqs.length);
-        assertEquals(RequestState.STATE_Cancelled, cancelledReqs[0].getState().getStateStr());
+        assertEquals(RequestState.STATE_Canceled, cancelledReqs[0].getState().getStateStr());
         assertEquals(result.getRequestID(), cancelledReqs[0].getRequestID());
         
         // Spot Instances Snapshot
@@ -233,20 +233,20 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         
         //Check if request was really cancelled
         request = rm.getSpotRequest(result.getRequestID(), caller);
-        assertEquals(RequestState.STATE_Cancelled, request.getState().getStateStr());
+        assertEquals(RequestState.STATE_Canceled, request.getState().getStateStr());
         assertEquals(0, request.getVMIds().length);
         
         logger.debug("Cancelling backfill request.");        
         
         RequestInfo[] cancelledBackfillReqs = rm.cancelBackfillRequests(new String[]{backfillResult.getRequestID()}, superuser);
         assertEquals(1, cancelledBackfillReqs.length);
-        assertEquals(RequestState.STATE_Cancelled, cancelledBackfillReqs[0].getState().getStateStr());
+        assertEquals(RequestState.STATE_Canceled, cancelledBackfillReqs[0].getState().getStateStr());
         assertEquals(backfillResult.getRequestID(), cancelledBackfillReqs[0].getRequestID());        
         
         //Check backfill request state
         RequestInfo backfillReq = rm.getBackfillRequest(backfillResult.getRequestID(), superuser);
         assertEquals(0, backfillReq.getVMIds().length);
-        assertEquals(RequestState.STATE_Cancelled, backfillReq.getState().getStateStr());         
+        assertEquals(RequestState.STATE_Canceled, backfillReq.getState().getStateStr());         
         
         Double[] prices = {MINIMUM_PRICE};
         
@@ -640,8 +640,8 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         assertEquals(MINIMUM_PRICE,  rm.getSpotPrice());
         
         //Check if requests were cancelled
-        assertEquals(RequestState.STATE_Cancelled, rm.getSpotRequest(highReqId, caller3).getState().getStateStr());
-        assertEquals(RequestState.STATE_Cancelled, rm.getSpotRequest(lowReq2Id, caller1).getState().getStateStr());
+        assertEquals(RequestState.STATE_Canceled, rm.getSpotRequest(highReqId, caller3).getState().getStateStr());
+        assertEquals(RequestState.STATE_Canceled, rm.getSpotRequest(lowReq2Id, caller1).getState().getStateStr());
         
         //Check if persistent request is active
         SpotRequestInfo medReq2 = rm.getSpotRequest(medReq2Id, caller2);
@@ -699,7 +699,7 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         
         backfill1Result = rm.getBackfillRequest(backfill1Result.getRequestID(), superuser);
         assertEquals(0, backfill1Result.getVMIds().length);
-        assertEquals(RequestState.STATE_Cancelled, backfill1Result.getState().getStateStr());
+        assertEquals(RequestState.STATE_Canceled, backfill1Result.getState().getStateStr());
         
         backfill2Result = rm.getBackfillRequest(backfill2Result.getRequestID(), superuser);        
         assertEquals(3, backfill2Result.getVMIds().length);
@@ -735,7 +735,7 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         
         //Check if persistent request was cancelled
         medReq2 = rm.getSpotRequest(medReq2Id, caller2);
-        assertEquals(RequestState.STATE_Cancelled, medReq2.getState().getStateStr());
+        assertEquals(RequestState.STATE_Canceled, medReq2.getState().getStateStr());
         assertEquals(0, medReq2.getVMIds().length);         
         
         //Check backfill request state
@@ -744,7 +744,7 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         
         backfill1Result = rm.getBackfillRequest(backfill1Result.getRequestID(), superuser);
         assertEquals(0, backfill1Result.getVMIds().length);
-        assertEquals(RequestState.STATE_Cancelled, backfill1Result.getState().getStateStr());
+        assertEquals(RequestState.STATE_Canceled, backfill1Result.getState().getStateStr());
         
         backfill2Result = rm.getBackfillRequest(backfill2Result.getRequestID(), superuser);        
         assertEquals(5, backfill2Result.getVMIds().length);
@@ -1367,7 +1367,7 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         assertEquals(0, medReq2SR.getVMIds().length);        
         
         highReqSR = rm.getSpotRequest(highReq1Id, siCaller);
-        assertEquals(RequestState.STATE_Cancelled, highReqSR.getState().getStateStr());
+        assertEquals(RequestState.STATE_Canceled, highReqSR.getState().getStateStr());
         assertEquals(0, highReqSR.getVMIds().length);           
         
         logger.debug("Destroying remaining WS VMs.");     

@@ -558,7 +558,7 @@
         <constructor-arg ref="nimbus-rm.loglevels" />
         <constructor-arg ref="nimbus-rm.home.instance"/>
         <constructor-arg ref="nimbus-rm.home.group"/>
-        <constructor-arg value="$SI{si.basic.minprice}" />        
+        <constructor-arg value="$SI{si.minprice}" />        
         <constructor-arg ref="nimbus-rm.si.pricingmodel" />
  
         <!-- set after object creation time to avoid circular dep -->
@@ -570,7 +570,7 @@
         <property name="maxUtilization"
                   value="$SI{async.policies.maxutilization}" />
         <property name="instanceMem"
-                  value="$SI{si.basic.mem}" />                                    
+                  value="$ELASTIC{memory.$SI{si.instancetype}}" />                                    
                           
     </bean>
 

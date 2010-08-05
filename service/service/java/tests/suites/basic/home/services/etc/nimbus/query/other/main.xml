@@ -49,11 +49,27 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
         <property name="userDetailsService" ref="userDetailsService"/>
     </bean>
 
+    <bean id="other.AuthzDataSource"
+         class="org.apache.commons.dbcp.BasicDataSource">
+       <property name="driverClassName" value="org.sqlite.JDBC" />
+       <property name="maxActive" value="10" />
+       <property name="maxIdle" value="4" />
+       <property name="maxWait" value="2000" />
+       <property name="poolPreparedStatements" value="true" />
 
-    <bean id="userDetailsService" class="org.nimbustools.messaging.query.security.FileUserDetailsService">
-        <constructor-arg value="$QUERY{query.usermap.path}"/>
+       <property name="url"
+                 value="jdbc:sqlite://$CUMULUS{cumulus.authz.db}" />
+       <property name="username" value="nimbus"/>
+       <property name="password" value="nimbus"/>
+   </bean>
+
+    <bean id="authzDBAdapter" class="org.nimbus.authz.AuthzDBAdapter">
+        <constructor-arg ref="other.AuthzDataSource"/>
     </bean>
 
+    <bean id="userDetailsService" class="org.nimbustools.messaging.query.security.NimbusAuthzUserDetailsService">
+        <property name="authzDBAdapter" ref="authzDBAdapter" />
+    </bean>
 
     <bean id="elasticQuery" class="org.nimbustools.messaging.query.ElasticQuery">
         <property name="versions">
@@ -91,6 +107,7 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
         <constructor-arg ref="nimbus-query.rm.terminate" />
         <constructor-arg ref="nimbus-query.rm.reboot" />
         <constructor-arg ref="nimbus-query.rm.describe" />
+	<constructor-arg ref="nimbus-query.rm.requestSI" />
         <constructor-arg ref="nimbus-query.rm.containerInterface" />
         <constructor-arg ref="nimbus-query.rm.modulelocator" />
 
@@ -109,6 +126,21 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
         <constructor-arg ref="nimbus-query.rm.modulelocator" />
 
     </bean>
+
+    <bean id="nimbus-query.rm.requestSI"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultRequestSI">
+
+        <constructor-arg ref="nimbus-query.general.ra" />
+        <constructor-arg ref="nimbus-query.general.networks" />
+        <constructor-arg ref="nimbus-query.rm.idmappings" />
+        <constructor-arg ref="nimbus-query.rm.describe" />
+        <constructor-arg ref="nimbus-query.rm.containerInterface" />
+        <constructor-arg ref="nimbus-query.security.sshkeys" />
+        <constructor-arg ref="nimbus-query.image.repository" />
+        <constructor-arg ref="nimbus-query.rm.modulelocator" />
+
+    </bean>
+
 
     <bean id="nimbus-query.rm.terminate"
           class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultTerminate">
@@ -176,6 +208,7 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
          <property name="largeName" value="$OTHER_ELASTIC{ra.name.large}" />
          <property name="xlargeName" value="$OTHER_ELASTIC{ra.name.xlarge}" />
          <property name="unknownString" value="$OTHER_ELASTIC{ra.name.unknown}" />
+         <property name="siType" value="$SI{si.instancetype}" />
 
          <property name="cpuArch" value="$OTHER_ELASTIC{cpu.arch}" />
          <property name="vmmType" value="$OTHER_ELASTIC{vmm.type}" />
@@ -254,20 +287,20 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
 
     </bean>
 
-    <bean id="nimbus-query.image.repository"
-          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.image.defaults.DefaultRepository"
+     <bean id="nimbus-query.image.repository"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.image.defaults.CumulusRepository"
           init-method="validate">
 
         <constructor-arg ref="nimbus-query.rm.containerInterface" />
-        <constructor-arg ref="nimbus-query.rm.modulelocator" />
+         <constructor-arg ref="nimbus-query.rm.modulelocator" />
+         <constructor-arg ref="other.AuthzDataSource" />
 
-        <property name="baseDirectory" value="$ELASTIC{base.directory.url}" />
-        <property name="scheme" value="$ELASTIC{propagation.method}" />
+
+        <property name="repoBucket" value="$CUMULUS{cumulus.repo.bucket}" />
+        <property name="prefix" value="$CUMULUS{cumulus.repo.prefix}" />
+        <property name="cumulusHost" value="$CUMULUS{cumulus.host}" />
         <property name="rootFileMountAs" value="$OTHER_ELASTIC{rootfile.mountas}" />
-
-        <property name="enableListing" value="$ELASTIC{repository.listing.enabled}" />
-        <property name="idAuthz" value="$ELASTIC{repository.idauthz}" />
-
+         
     </bean>
 
 
