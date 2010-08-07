@@ -19,6 +19,7 @@ package org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.globus.util.Base64;
+import org.nimbustools.api._repr._CreateRequest;
 import org.nimbustools.api._repr._CustomizationRequest;
 import org.nimbustools.api._repr._SpotCreateRequest;
 import org.nimbustools.api.brain.ModuleLocator;
@@ -33,12 +34,17 @@ import org.nimbustools.api.repr.vm.RequiredVMM;
 import org.nimbustools.api.repr.vm.ResourceAllocation;
 import org.nimbustools.api.repr.vm.State;
 import org.nimbustools.api.repr.vm.VMFile;
+import org.nimbustools.api.services.metadata.MetadataServer;
+import org.nimbustools.api.services.rm.Manager;
+import org.nimbustools.messaging.gt4_0.common.AddCustomizations;
 import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.*;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.Networks;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.ResourceAllocations;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.image.Repository;
+import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.CancelSI;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.ContainerInterface;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.Describe;
+import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.DescribeSI;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.IDMappings;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.RequestSI;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.security.SSHKey;
@@ -54,9 +60,11 @@ public class DefaultRequestSI extends DefaultRun implements RequestSI {
 
     private static final Log logger =
             LogFactory.getLog(DefaultRequestSI.class.getName());
-    protected static final String PERSISTENT = "persistent";
-    protected static final String ONE_TIME = "one-time";
         
+    protected final MetadataServer mdServer;
+    protected final DescribeSI describeSI;
+    protected final CancelSI cancelSI;
+    
     // -------------------------------------------------------------------------
     // CONSTRUCTORS
     // -------------------------------------------------------------------------
@@ -66,28 +74,82 @@ public class DefaultRequestSI extends DefaultRun implements RequestSI {
                             Repository repoImpl,
                             IDMappings idsImpl,
                             Describe describeImpl,
+                            DescribeSI describeSIImpl,
+                            CancelSI cancelSIIMpl,
+                            MetadataServer mdServerImpl,
                             ContainerInterface containerImpl,
                             SSHKeys sshKeysImpl,
                             ModuleLocator locator) throws Exception {
         
         super(rasImpl, networksImpl, repoImpl, idsImpl, describeImpl, containerImpl, locator);
-    }
-
-    public DefaultRequestSI(ResourceAllocations rasImpl,
-                      Networks networksImpl,
-                      Repository repoImpl,
-                      IDMappings idsImpl,
-                      Describe describeImpl,
-                      ContainerInterface containerImpl,
-                      ModuleLocator locator) throws Exception {
-        this(rasImpl, networksImpl, repoImpl,
-             idsImpl, describeImpl, containerImpl, null, locator);
+        
+        if (describeSIImpl == null) {
+            throw new IllegalArgumentException("describeSIImpl may not be null");
+        }
+        this.describeSI = describeSIImpl;
+        
+        if (cancelSIIMpl == null) {
+            throw new IllegalArgumentException("cancelSIIMpl may not be null");
+        }
+        this.cancelSI = cancelSIIMpl;
+        
+        if (mdServerImpl == null) {
+            throw new IllegalArgumentException("mdServerImpl may not be null");
+        }
+        this.mdServer = mdServerImpl;        
     }
 
     // -------------------------------------------------------------------------
-    // implements Run
+    // implements RequestSI
     // -------------------------------------------------------------------------
 
+    public RequestSpotInstancesResponseType requestSpotInstances(
+            RequestSpotInstancesType req, Caller caller, Manager manager)
+            throws RemoteException {
+        
+        final SpotRequestInfo result;
+        try {
+            SpotCreateRequest creq =
+                    this.translateReqSpotInstances(req, caller);
+            AddCustomizations.addAll((_CreateRequest)creq,
+                                     this.repr, this.mdServer);
+            result = manager.requestSpotInstances(creq, caller);
+
+        } catch (Exception e) {
+            throw new RemoteException(e.getMessage(), e);
+        }
+        
+        try {
+            SpotInstanceRequestSetItemType sirsit = this.describeSI.translateSpotInfo(result);
+            
+            SpotInstanceRequestSetType sirs = new SpotInstanceRequestSetType();
+            sirs.setItem(0, sirsit);
+            
+            RequestSpotInstancesResponseType response = new RequestSpotInstancesResponseType();
+            response.setSpotInstanceRequestSet(sirs);
+            
+            return response;
+        } catch (Exception e) {
+            final String err = "Problem translating valid request spot instances " +
+                    "result into elastic protocol.  Backout required. " +
+                    " Error: " + e.getMessage();
+            logger.error(err, e);
+            this.cancelSI.backOutRequestSpotInstances(result, caller, manager);
+            // gets caught by Throwable hook:
+            throw new RuntimeException(err, e);
+        }
+    }    
+    
+    /**
+     * Translate request spot instances 
+     * into something the Manager understands.
+     * 
+     * @param req given SI request
+     * @param caller caller object
+     * @return valid create request for manager
+     * @throws RemoteException unexpected error
+     * @throws CannotTranslateException invalid request or configuration
+     */
     public SpotCreateRequest translateReqSpotInstances(
             RequestSpotInstancesType req, Caller caller)
             throws RemoteException, CannotTranslateException {
@@ -165,7 +227,7 @@ public class DefaultRequestSI extends DefaultRun implements RequestSI {
             throw new RemoteException("Error in spot price conversion.");
         }    
         
-        boolean persistent = PERSISTENT.equals(req.getType());
+        boolean persistent = DefaultDescribeSI.PERSISTENT.equals(req.getType());
         
         final _SpotCreateRequest screq = this.repr._newSpotCreateRequest();
 
@@ -190,100 +252,5 @@ public class DefaultRequestSI extends DefaultRun implements RequestSI {
         screq.setSpotPrice(spotPrice);
         
         return screq;
-        
-    }    
-    
-
-    // -------------------------------------------------------------------------
-    // RESULT
-    // -------------------------------------------------------------------------
-
-    public RequestSpotInstancesResponseType translateSpotInfo(
-            SpotRequestInfo result, Caller caller) throws Exception {
-
-        if (result == null) {
-            throw new CannotTranslateException("spot request info is missing");
-        }
-        
-        Integer instanceCount = result.getInstanceCount();
-        if (instanceCount == null || instanceCount == 0) {
-            throw new CannotTranslateException("instance count is empty?");
-        }        
-
-        final String groupid = result.getGroupID();
-
-        if (groupid == null && instanceCount != 1) {
-            throw new CannotTranslateException("expecting a groupID if " +
-                    "more than one VM was created");
-        }
-
-        String vmidWhenJustOne = null;
-        String resID = null;
-        if (groupid == null && result.getVMIds().length == 1) {
-            vmidWhenJustOne = result.getVMIds()[0];
-            resID = this.ids.newGrouplessInstanceID(vmidWhenJustOne,
-                                                    result.getSshKeyName());
-            logger.info("New reservation ID '" + resID + "' for Single VM '" +
-                         vmidWhenJustOne +"'.");            
-        } else if (groupid != null && result.getVMIds().length > 0) {
-            vmidWhenJustOne = null;
-            resID = this.ids.newGroupReservationID(groupid);
-            logger.info("New reservation ID '" + resID + "' for VM group '" +
-                         groupid +"'.");
-        }
-
-        String instID = null;
-        if (vmidWhenJustOne != null) {
-            // mapping already created:
-            instID = this.ids.managerInstanceToElasticInstance(vmidWhenJustOne);
-            logger.info("id-" + vmidWhenJustOne + "='" + instID + "'.");            
-        } else if(resID != null){
-            String vmId = result.getVMIds()[0];
-            instID = this.ids.newInstanceID(vmId, resID, result.getSshKeyName());
-            logger.info("id-" + vmId + "='" + instID + "'.");
-        }
-        
-        LaunchSpecificationResponseType launchSpec = getLaunchSpec(result);
-        String type = result.isPersistent()? PERSISTENT : ONE_TIME;
-        
-        SpotInstanceRequestSetItemType sirsi = new SpotInstanceRequestSetItemType();
-
-        sirsi.setLaunchSpecification(launchSpec);
-        sirsi.setType(type);
-        sirsi.setSpotPrice(result.getSpotPrice().toString());
-        sirsi.setSpotInstanceRequestId(result.getRequestID());
-        sirsi.setState(result.getState().getStateStr());
-        sirsi.setCreateTime(result.getCreationTime());
-        if(instID != null){
-            sirsi.setInstanceId(instID);
-        }
-        
-        SpotInstanceRequestSetType sirs = new SpotInstanceRequestSetType();
-        sirs.setItem(0, sirsi);        
-
-        final RequestSpotInstancesResponseType rsirt = new RequestSpotInstancesResponseType();
-        rsirt.setSpotInstanceRequestSet(sirs);
-        
-        return rsirt;
     }
-
-    protected LaunchSpecificationResponseType getLaunchSpec(SpotRequestInfo reqInfo)
-    throws CannotTranslateException {
-
-        if (reqInfo == null) {
-            throw new IllegalArgumentException("instID may not be null");
-        }
-
-        LaunchSpecificationResponseType launchSpec = new LaunchSpecificationResponseType();
-
-        launchSpec.setGroupSet(this.getGroupStub());
-        launchSpec.setPlacement(this.describe.getPlacementReq());
-        launchSpec.setImageId(this.describe.getImageID(reqInfo.getVMFiles()));
-        launchSpec.setInstanceType(this.RAs.getSpotInstanceType());
-        launchSpec.setKeyName(reqInfo.getSshKeyName());
-        launchSpec.setKernelId("default"); // todo
-        
-        return launchSpec;
-    }
-    
 }

@@ -17,9 +17,7 @@
 package org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm;
 
 import org.nimbustools.api.repr.Caller;
-import org.nimbustools.api.repr.CannotTranslateException;
-import org.nimbustools.api.repr.SpotCreateRequest;
-import org.nimbustools.api.repr.SpotRequestInfo;
+import org.nimbustools.api.services.rm.Manager;
 import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.RequestSpotInstancesResponseType;
 import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.RequestSpotInstancesType;
 
@@ -27,30 +25,9 @@ import java.rmi.RemoteException;
 
 public interface RequestSI {
 
-    /**
-     * Translate request spot instances 
-     * into something the Manager understands.
-     * 
-     * @param req given SI request
-     * @param caller caller object
-     * @return valid create request for manager
-     * @throws RemoteException unexpected error
-     * @throws CannotTranslateException invalid request or configuration
-     */
-    public SpotCreateRequest translateReqSpotInstances(RequestSpotInstancesType req,
-                                                       Caller caller)
-            throws RemoteException, CannotTranslateException;
+    public RequestSpotInstancesResponseType requestSpotInstances(
+                                    RequestSpotInstancesType req, Caller caller, Manager manager)
+            
+                throws RemoteException;
 
-    /**
-     * Translate Manager's SpotRequestInfo into something the elastic clients
-     * understand.
-     * 
-     * @param result valid result from Manager
-     * @param caller caller object
-     * @return valid elastic response
-     * @throws Exception problem (will require backout)
-     */
-    public RequestSpotInstancesResponseType translateSpotInfo(SpotRequestInfo result,
-                                                          Caller caller)
-            throws Exception;
 }
