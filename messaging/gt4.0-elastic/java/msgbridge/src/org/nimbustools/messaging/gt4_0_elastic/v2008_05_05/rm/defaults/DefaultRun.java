@@ -304,7 +304,7 @@ public class DefaultRun implements Run {
         logger.info(buf.toString());
 
         final RunInstancesResponseType ret = new RunInstancesResponseType();
-        ret.setGroupSet(this.getGroupStub());
+        ret.setGroupSet(getGroupStub());
         final String ownerID = this.container.getOwnerID(caller);
         if (ownerID == null) {
             throw new CannotTranslateException("Cannot find owner ID");
@@ -367,7 +367,7 @@ public class DefaultRun implements Run {
     // -------------------------------------------------------------------------
 
     // todo: duped code; support groups
-    protected GroupSetType getGroupStub() {
+    public static GroupSetType getGroupStub() {
         final GroupItemType[] groupItemTypes = new GroupItemType[1];
         groupItemTypes[0] = new GroupItemType("default");
         return new GroupSetType(groupItemTypes);
