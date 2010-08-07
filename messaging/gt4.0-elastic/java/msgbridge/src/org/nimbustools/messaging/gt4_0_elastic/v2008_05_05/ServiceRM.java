@@ -61,4 +61,12 @@ public interface ServiceRM {
     public CancelSpotInstanceRequestsResponseType cancelSpotInstanceRequests(
                         CancelSpotInstanceRequestsType cancelSpotInstancesMsg)
             throws RemoteException;
+    
+    public DescribeSpotInstanceRequestsResponseType describeSpotInstanceRequests(
+                        DescribeSpotInstanceRequestsType describeSpotInstancesMsg)
+            throws RemoteException;
+    
+    public DescribeSpotPriceHistoryResponseType describeSpotPriceHistoryResponseType(
+                        DescribeSpotPriceHistoryType describeSpotPriceHistoryType)
+            throws RemoteException;
 }
