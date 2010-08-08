@@ -76,7 +76,7 @@ public class UnimplementedOperations implements ServiceAll {
         throw new RemoteException(UNIMPLEMENTED + "describeSpotInstanceRequests");        
     }
 
-    public DescribeSpotPriceHistoryResponseType describeSpotPriceHistoryResponseType(
+    public DescribeSpotPriceHistoryResponseType describeSpotPriceHistory(
             DescribeSpotPriceHistoryType describeSpotPriceHistoryType)
             throws RemoteException {
         throw new RemoteException(UNIMPLEMENTED + "describeSpotPriceHistoryResponseType");

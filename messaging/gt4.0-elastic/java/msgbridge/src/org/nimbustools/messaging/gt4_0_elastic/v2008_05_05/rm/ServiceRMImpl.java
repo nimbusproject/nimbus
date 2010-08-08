@@ -277,7 +277,7 @@ public class ServiceRMImpl extends UnimplementedOperations
         return this.describeSI.describeSIRequests(req, caller, manager);   
     }
 
-    public DescribeSpotPriceHistoryResponseType describeSpotPriceHistoryResponseType(
+    public DescribeSpotPriceHistoryResponseType describeSpotPriceHistory(
             DescribeSpotPriceHistoryType req)
             throws RemoteException {
         if (req == null) {

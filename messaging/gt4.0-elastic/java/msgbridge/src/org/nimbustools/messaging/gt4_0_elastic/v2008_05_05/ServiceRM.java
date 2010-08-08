@@ -66,7 +66,7 @@ public interface ServiceRM {
                         DescribeSpotInstanceRequestsType describeSpotInstancesMsg)
             throws RemoteException;
     
-    public DescribeSpotPriceHistoryResponseType describeSpotPriceHistoryResponseType(
+    public DescribeSpotPriceHistoryResponseType describeSpotPriceHistory(
                         DescribeSpotPriceHistoryType describeSpotPriceHistoryType)
             throws RemoteException;
 }
