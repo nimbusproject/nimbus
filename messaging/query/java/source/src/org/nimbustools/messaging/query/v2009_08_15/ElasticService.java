@@ -65,6 +65,10 @@ public class ElasticService implements ElasticVersion {
 
         // terrible things
         final ElasticAction[] actions = new ElasticAction[]{
+                new RequestSpotInstances(serviceRM),
+                new CancelSpotInstanceRequests(serviceRM),
+                new DescribeSpotInstanceRequests(serviceRM),
+                new DescribeSpotPriceHistory(serviceRM),
                 new CreateKeyPair(), new DeleteKeyPair(), new DescribeKeyPairs(),
                 new RunInstances(), new RebootInstances(), new DescribeInstances(),
                 new TerminateInstances(), new DescribeImages(),
