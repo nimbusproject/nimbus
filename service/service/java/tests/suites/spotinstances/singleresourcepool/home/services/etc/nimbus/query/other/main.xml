@@ -107,7 +107,10 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
         <constructor-arg ref="nimbus-query.rm.terminate" />
         <constructor-arg ref="nimbus-query.rm.reboot" />
         <constructor-arg ref="nimbus-query.rm.describe" />
-	<constructor-arg ref="nimbus-query.rm.requestSI" />
+        <constructor-arg ref="nimbus-query.rm.requestSI" />
+        <constructor-arg ref="nimbus-query.rm.cancelSI" />
+        <constructor-arg ref="nimbus-query.rm.describeI" /> 
+        <constructor-arg ref="nimbus-query.rm.spHistory" />                               
         <constructor-arg ref="nimbus-query.rm.containerInterface" />
         <constructor-arg ref="nimbus-query.rm.modulelocator" />
 
@@ -126,21 +129,6 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
         <constructor-arg ref="nimbus-query.rm.modulelocator" />
 
     </bean>
-
-    <bean id="nimbus-query.rm.requestSI"
-          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultRequestSI">
-
-        <constructor-arg ref="nimbus-query.general.ra" />
-        <constructor-arg ref="nimbus-query.general.networks" />
-        <constructor-arg ref="nimbus-query.rm.idmappings" />
-        <constructor-arg ref="nimbus-query.rm.describe" />
-        <constructor-arg ref="nimbus-query.rm.containerInterface" />
-        <constructor-arg ref="nimbus-query.security.sshkeys" />
-        <constructor-arg ref="nimbus-query.image.repository" />
-        <constructor-arg ref="nimbus-query.rm.modulelocator" />
-
-    </bean>
-
 
     <bean id="nimbus-query.rm.terminate"
           class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultTerminate">
@@ -182,6 +170,40 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
 
     </bean>
 
+    <!-- ************ Spot Instances *********** -->
+
+    <bean id="nimbus-query.rm.requestSI"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultRequestSI">
+
+        <constructor-arg ref="nimbus-query.general.ra" />
+        <constructor-arg ref="nimbus-query.general.networks" />
+        <constructor-arg ref="nimbus-query.image.repository" />        
+        <constructor-arg ref="nimbus-query.rm.idmappings" />
+        <constructor-arg ref="nimbus-query.rm.describe" />
+        <constructor-arg ref="nimbus-query.rm.describeSI" />    
+        <constructor-arg ref="nimbus-query.rm.cancelSI" />                    
+        <constructor-arg ref="nimbus-query.rm.containerInterface" />
+        <constructor-arg ref="nimbus-query.security.sshkeys" />
+        <constructor-arg ref="nimbus-query.rm.modulelocator" />
+
+    </bean>
+
+    <bean id="nimbus-query.rm.cancelSI"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultCancelSI" />
+
+    <bean id="nimbus-query.rm.describeSI"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultDescribeSI">
+
+        <constructor-arg ref="nimbus-query.rm.idmappings" />
+        <constructor-arg ref="nimbus-query.rm.describe" />
+        <constructor-arg ref="nimbus-query.general.ra" />
+    </bean>
+    
+    <bean id="nimbus-query.rm.spHistory"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultDescribeSpotPriceHistory">
+          
+        <constructor-arg ref="nimbus-query.general.ra" />
+    </bean>
 
     <!-- ************ ServiceGeneral *********** -->
 
