@@ -155,6 +155,10 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
 
         AsyncRequestStatus prevStatus = request.getStatus();
         changeStatus(request, AsyncRequestStatus.CANCELLED);
+
+// Canceling a Spot Instance request does not 
+// terminate running Spot Instances associated with the request. 
+//
         if(prevStatus.isActive()){
             preempt(request, request.getAllocatedInstances());
         }
@@ -304,7 +308,7 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
      */
     public void stateNotification(int vmid, int state) throws ManageException {
         if(state == WorkspaceConstants.STATE_DESTROYING){
-            AsyncRequest request = this.getRequest(vmid);
+            AsyncRequest request = this.getRequestFromVM(vmid);
             if(request != null){
                 if (this.lager.eventLog) {
                     logger.info(Lager.ev(-1) + "VM '" + vmid + "' from request '" + request.getId() + "' finished.");
@@ -413,7 +417,7 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
      */
     protected synchronized void allocateRequests() {
                 
-        preemptActiveLowerBidRequests();
+        preemptAllocatedLowerBidRequests();
         
         allocateBackfillRequests();
         
@@ -427,9 +431,9 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
      * Preempts all ACTIVE requests that have bid
      * below the current spot price
      */
-    private void preemptActiveLowerBidRequests() {
+    private void preemptAllocatedLowerBidRequests() {
         
-        Collection<AsyncRequest> inelegibleRequests = getActiveLowerBidRequests();
+        Collection<AsyncRequest> inelegibleRequests = getLowerBidRequests();
         
         if(inelegibleRequests.isEmpty()){
             return;
@@ -984,7 +988,7 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
      * @param vmid the id of the vm 
      * @return the request that has this VM allocated
      */
-    protected AsyncRequest getRequest(int vmid) {
+    public AsyncRequest getRequestFromVM(int vmid) {
         for (AsyncRequest request : requests.values()) {
             if(request.isAllocatedVM(vmid)){
                 return request;
@@ -1035,11 +1039,11 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
     }
     
     /**
-     * Retrieves ACTIVE lower bid requests
+     * Retrieves allocated lower bid requests
      * @return list of lower bid active requests
      */
-    private List<AsyncRequest> getActiveLowerBidRequests() {
-        return AsyncRequestFilter.filterActiveRequestsBelowPrice(this.currentPrice, this.requests.values());
+    private List<AsyncRequest> getLowerBidRequests() {
+        return AsyncRequestFilter.filterAllocatedRequestsBelowPrice(this.currentPrice, this.requests.values());
     }    
     
     /**

@@ -75,4 +75,12 @@ public interface AsyncRequestHome {
     public List<SpotPriceEntry> getSpotPriceHistory(Calendar startDate, Calendar endDate) 
             throws WorkspaceDatabaseException;
 
+    /**
+     * Retrieves the Asynchronous request associated with
+     * this Virtual Machine ID
+     * @param vmid the id of the vm 
+     * @return the request that has this VM allocated
+     */
+    public AsyncRequest getRequestFromVM(int vmid);
+
 }

@@ -35,6 +35,7 @@ import org.globus.workspace.service.WorkspaceGroupHome;
 import org.globus.workspace.service.WorkspaceHome;
 import org.nimbustools.api._repr._Caller;
 import org.nimbustools.api._repr._CreateResult;
+import org.nimbustools.api._repr.vm._VM;
 import org.nimbustools.api.repr.Advertised;
 import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.CannotTranslateException;
@@ -49,6 +50,7 @@ import org.nimbustools.api.repr.SpotPriceEntry;
 import org.nimbustools.api.repr.SpotRequestInfo;
 import org.nimbustools.api.repr.Usage;
 import org.nimbustools.api.repr.vm.VM;
+import org.nimbustools.api.repr.vm.VMConstants;
 import org.nimbustools.api.services.rm.AuthorizationException;
 import org.nimbustools.api.services.rm.CoSchedulingException;
 import org.nimbustools.api.services.rm.CreationException;
@@ -712,7 +714,16 @@ public class DelegatingManager implements Manager {
             throw new CannotTranslateException("resource is missing");
         }
 
-        return this.dataConvert.getVM(resource);
+        VM vm = this.dataConvert.getVM(resource);
+        
+        if(VMConstants.LIFE_CYCLE_SPOT.equals(vm.getLifeCycle())){
+            AsyncRequest request = asyncHome.getRequestFromVM(Integer.valueOf(vm.getID()));
+            if(request != null){
+                ((_VM)vm).setSpotInstanceRequestID(request.getId());
+            }
+        }
+        
+        return vm;
     }
 
     protected VM[] getInstances(InstanceResource[] resources)

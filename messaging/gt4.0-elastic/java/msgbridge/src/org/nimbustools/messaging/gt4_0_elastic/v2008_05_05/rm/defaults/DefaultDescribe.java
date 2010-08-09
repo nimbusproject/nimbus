@@ -346,6 +346,10 @@ public class DefaultDescribe implements Describe {
         riit.setLaunchTime(this.getLaunchTime(vm));
         riit.setPlacement(this.getPlacement());
         riit.setMonitoring(new InstanceMonitoringStateType("disabled"));
+        riit.setInstanceLifecycle(vm.getLifeCycle());
+        if(vm.getSpotInstanceRequestID() != null){
+            riit.setSpotInstanceRequestId(vm.getSpotInstanceRequestID());
+        }
         
         final String[] availableKernels = this.kernels.getAvailableKernels();
         if (availableKernels == null || availableKernels.length == 0) {

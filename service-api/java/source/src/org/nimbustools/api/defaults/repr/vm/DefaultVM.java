@@ -45,6 +45,7 @@ public class DefaultVM implements _VM {
     private String mdUserData;
     private String sshKeyName;
     private String lifeCycle;
+    private String spotReqID;
 
 
     // -------------------------------------------------------------------------
@@ -98,6 +99,10 @@ public class DefaultVM implements _VM {
     public String getLifeCycle() {
         return this.lifeCycle;
     }    
+    
+    public String getSpotInstanceRequestID(){
+        return this.spotReqID;
+    }
 
     // -------------------------------------------------------------------------
     // implements org.nimbustools.api._repr.vm._VM
@@ -158,24 +163,23 @@ public class DefaultVM implements _VM {
     public void setLifeCycle(String lifeCycle) {
         this.lifeCycle = lifeCycle;
     }    
+    
+    public void setSpotInstanceRequestID(String spotReqID){
+        this.spotReqID = spotReqID;
+    }
+
 
     // -------------------------------------------------------------------------
     // DEBUG STRING
     // -------------------------------------------------------------------------
 
-    public String toString() {
-
-        boolean userDataPresent = this.mdUserData != null;
-
-        return "DefaultVM{" +
-                "id='" + id + '\'' +
-                ", groupid='" + groupid + '\'' +
-                ", coschedid='" + coschedid + '\'' +
-                ", nics=" + (nics == null ? null : Arrays.asList(nics)) +
-                ", resourceAllocation=" + resourceAllocation +
-                ", schedule=" + schedule +
-                ", state=" + state +
-                ", user data present? " + userDataPresent +
-                '}';
-    }
+    public String toString() {        
+        return "DefaultVM [coschedid=" + coschedid
+                + ", groupid=" + groupid + ", id=" + id + ", launchIndex="
+                + launchIndex + ", lifeCycle=" + lifeCycle + ", userDataPresent="
+                + (this.mdUserData != null) + ", nics=" + Arrays.toString(nics)
+                + ", resourceAllocation=" + resourceAllocation + ", schedule="
+                + schedule + ", spotReqID=" + spotReqID + 
+                ", state=" + state + "]";
+    }   
 }

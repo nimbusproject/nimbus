@@ -34,5 +34,6 @@ public interface VM {
     public String getSshKeyName();
     
     public String getLifeCycle();
+    public String getSpotInstanceRequestID();    
     
 }

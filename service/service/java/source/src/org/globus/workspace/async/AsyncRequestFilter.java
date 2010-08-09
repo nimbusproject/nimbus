@@ -34,18 +34,18 @@ public class AsyncRequestFilter {
         return offersAbovePrice;          
     }
     
-    public static List<AsyncRequest> filterActiveRequestsBelowPrice(Double price,
+    public static List<AsyncRequest> filterAllocatedRequestsBelowPrice(Double price,
             Collection<AsyncRequest> allRequests) {
 
-        List<AsyncRequest> activeRequestsBelowPrice = new ArrayList<AsyncRequest>();
+        List<AsyncRequest> allocatedRequestsBelowPrice = new ArrayList<AsyncRequest>();
         
         for (AsyncRequest siRequest : allRequests) {
-            if(siRequest.isSpotRequest() && siRequest.getStatus().isActive() && siRequest.getMaxBid() < price){
-                activeRequestsBelowPrice.add(siRequest);
+            if(siRequest.isSpotRequest() && siRequest.getAllocatedInstances() > 0 && siRequest.getMaxBid() < price){
+                allocatedRequestsBelowPrice.add(siRequest);
             }
         }
         
-        return activeRequestsBelowPrice;          
+        return allocatedRequestsBelowPrice;          
     }
 
     public static List<AsyncRequest> filterAliveRequestsEqualPrice(
