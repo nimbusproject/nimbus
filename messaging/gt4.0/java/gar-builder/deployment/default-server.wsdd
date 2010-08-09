@@ -60,7 +60,7 @@
         <parameter name="className"
                    value="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.service.LocalService"/>
 
-        <wsdlFile>share/schema/elastic-2009-08-15/ec2.wsdl</wsdlFile>
+        <wsdlFile>share/schema/elastic-2010-06-15/ec2.wsdl</wsdlFile>
 
         <parameter name="scope"
                    value="Application"/>
