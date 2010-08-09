@@ -49,21 +49,22 @@ class CBConfig(object):
         self.default_settings()
         self.load_settings()
 
+        conf_err_msg = ""
         config_error = False
         if self.auth == None:
             config_error = True
-            print "No authentication module set: |%s|" % (self.auth_error)
+            conf_err_msg = "No authentication module set: |%s|" % (self.auth_error)
 
         if self.bucket == None:
             config_error = True
-            print "No backend set"
+            conf_err_msg = conf_err_msg + " No backend set"
 
         if self.installdir == None:
             config_error = True
-            print "No install dir set"
+            conf_err_msg = conf_err_msg + " No install dir set"
 
         if config_error:
-            print """cumulus.ini file must have the following set:
+            msg = """cumulus.ini file must have the following set:
 installdir=<path to cumulus installation>
 
 The search path for cumulus.ini is:
@@ -74,6 +75,7 @@ The search path for cumulus.ini is:
     cumulus.ini
     env 'CUMULUS_SETTINGS_FILE
 """
+            raise Exception(msg + "\n" + conf_err_msg)
 
         self.setup_logger()
 

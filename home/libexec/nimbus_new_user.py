@@ -4,6 +4,13 @@
 Creates new Nimbus users.  It will create all needed user aliases (Cumulus,
 x509, and web login id)
 """
+import sys
+try:
+    import pycb
+except Exception, ex:
+    print ex
+    print "Error:  please verify that your cumulus.ini file points the correct database"
+    sys.exit(1)
 from nimbusweb.setup import autoca
 import string
 import random
@@ -13,7 +20,11 @@ import sys
 import ConfigParser
 from ConfigParser import SafeConfigParser
 import time
-import pycb
+try:
+    import pycb
+except:
+    print "Error:  please verify that your cumulus.ini file points the correct database"
+    sys.exit(1)
 import pycb.tools
 import pynimbusauthz
 import tempfile
