@@ -76,7 +76,6 @@ public class DefaultRequestSI extends DefaultRun implements RequestSI {
                             Describe describeImpl,
                             DescribeSI describeSIImpl,
                             CancelSI cancelSIIMpl,
-                            MetadataServer mdServerImpl,
                             ContainerInterface containerImpl,
                             SSHKeys sshKeysImpl,
                             ModuleLocator locator) throws Exception {
@@ -93,10 +92,10 @@ public class DefaultRequestSI extends DefaultRun implements RequestSI {
         }
         this.cancelSI = cancelSIIMpl;
         
-        if (mdServerImpl == null) {
+        if (locator == null) {
             throw new IllegalArgumentException("mdServerImpl may not be null");
         }
-        this.mdServer = mdServerImpl;        
+        this.mdServer = locator.getMetadataServer();        
     }
 
     // -------------------------------------------------------------------------
