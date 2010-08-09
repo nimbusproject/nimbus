@@ -537,6 +537,11 @@ public class UnimplementedOperations implements ServiceAll {
         throw new RemoteException(UNIMPLEMENTED + "describePlacementGroups");        
     }    
     
+    public DeletePlacementGroupResponseType deletePlacementGroup(DeletePlacementGroupType deletePlacementGroupRequestMsg)
+           throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "deletePlacementGroup");        
+    }        
+    
     public DescribeInstanceAttributeResponseType describeInstanceAttribute(DescribeInstanceAttributeType describeInstanceAttributeRequestMsg)
            throws RemoteException {
         throw new RemoteException(UNIMPLEMENTED + "describeInstanceAttribute");        
