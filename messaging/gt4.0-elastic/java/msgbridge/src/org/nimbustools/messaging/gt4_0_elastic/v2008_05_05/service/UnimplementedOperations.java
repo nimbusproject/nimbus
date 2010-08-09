@@ -489,5 +489,76 @@ public class UnimplementedOperations implements ServiceAll {
             throws RemoteException {
         throw new RemoteException(UNIMPLEMENTED + "associateDhcpOptions");
     }
+    
+    // Unimplemented operations from v2010-06-15 ec2 schema
 
+    public ActivateLicenseResponseType activateLicense(ActivateLicenseType activateLicenseRequestMsg)
+           throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "activateLicense");        
+    }
+    
+    public DeactivateLicenseResponseType deactivateLicense(DeactivateLicenseType deactivateLicenseRequestMsg)
+           throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "deactivateLicense");        
+    }
+
+    public DescribeLicensesResponseType describeLicenses(DescribeLicensesType describeLicensesRequestMsg)
+           throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "describeLicenses");        
+    }      
+    
+    public CreateImageResponseType createImage(CreateImageType createImageRequestMsg)
+           throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "createImage");        
+    }
+    
+    public CreateSpotDatafeedSubscriptionResponseType createSpotDatafeedSubscription(CreateSpotDatafeedSubscriptionType createSpotDatafeedSubscriptionRequestMsg)
+           throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "createSpotDatafeedSubscription");        
+    }      
+    
+    public DeleteSpotDatafeedSubscriptionResponseType deleteSpotDatafeedSubscription(DeleteSpotDatafeedSubscriptionType deleteSpotDatafeedSubscriptionRequestMsg)
+           throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "deleteSpotDatafeedSubscription");        
+    }
+    
+    public DescribeSpotDatafeedSubscriptionResponseType describeSpotDatafeedSubscription(DescribeSpotDatafeedSubscriptionType describeSpotDatafeedSubscriptionRequestMsg)
+           throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "describeSpotDatafeedSubscription");        
+    }  
+    
+    public CreatePlacementGroupResponseType createPlacementGroup(CreatePlacementGroupType createPlacementGroupRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "createPlacementGroup");        
+    }    
+
+    public DescribePlacementGroupsResponseType describePlacementGroups(DescribePlacementGroupsType describePlacementGroupsRequestMsg)
+           throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "describePlacementGroups");        
+    }    
+    
+    public DescribeInstanceAttributeResponseType describeInstanceAttribute(DescribeInstanceAttributeType describeInstanceAttributeRequestMsg)
+           throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "describeInstanceAttribute");        
+    }
+
+    public ModifyInstanceAttributeResponseType modifyInstanceAttribute(ModifyInstanceAttributeType modifyInstanceAttributeRequestMsg)
+           throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "modifyInstanceAttribute");        
+    }
+    
+    public ResetInstanceAttributeResponseType resetInstanceAttribute(ResetInstanceAttributeType resetInstanceAttributeRequestMsg)
+           throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "resetInstanceAttribute");        
+    }
+    
+    public StartInstancesResponseType startInstances(StartInstancesType startInstancesRequestMsg)
+           throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "startInstances");               
+    }
+    
+    public StopInstancesResponseType stopInstances(StopInstancesType stopInstancesRequestMsg)
+           throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "stopInstances");       
+    }
 }
