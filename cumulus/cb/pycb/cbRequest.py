@@ -53,8 +53,21 @@ def parse_acl_request(xml):
     users = {}
 
     for g in grant_a:
-        email = getText(g.getElementsByTagName("DisplayName")[0].childNodes)
-        id = getText(g.getElementsByTagName("ID")[0].childNodes)
+        el = g.getElementsByTagName("URI")
+        if el != None and len(el) >= 1:
+            u = getText(el[0].childNodes)
+            if u == "http://acs.amazonaws.com/groups/global/AllUsers":
+                id = "CumulusPublicUser"
+                email = ""
+            else:
+                raise cbException('InvalidArgument')
+        else:
+            el = g.getElementsByTagName("DisplayName")
+            if el == None or len(el) < 1:
+                email = None
+            else:
+                email = getText(el[0].childNodes)
+            id = getText(g.getElementsByTagName("ID")[0].childNodes)
         perm_set = g.getElementsByTagName("Permission")
 
         perms = ""
@@ -523,6 +536,7 @@ class cbPutBucket(cbRequest):
             rc = self.grant_public_permissions(self.bucketName, self.objectName)
             if not rc:
                 xml = self.request.content.read()
+                pycb.log(logging.INFO, "xml %s" % (xml))
                 grants = parse_acl_request(xml)
                 for g in grants:
                     pycb.log(logging.INFO, "granting %s to %s" % (g[2], g[0]))
@@ -568,6 +582,7 @@ class cbPutObject(cbRequest):
             rc = self.grant_public_permissions(self.bucketName, self.objectName)
             if not rc:
                 xml = self.request.content.read()
+                pycb.log(logging.ERROR, "acl xml %s" % (xml))
                 grants = parse_acl_request(xml)
                 for g in grants:
                     pycb.log(logging.INFO, "granting %s to %s" % (g[2], g[0]))
