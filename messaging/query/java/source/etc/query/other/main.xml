@@ -109,7 +109,7 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
         <constructor-arg ref="nimbus-query.rm.describe" />
         <constructor-arg ref="nimbus-query.rm.requestSI" />
         <constructor-arg ref="nimbus-query.rm.cancelSI" />
-        <constructor-arg ref="nimbus-query.rm.describeI" /> 
+        <constructor-arg ref="nimbus-query.rm.describeSI" /> 
         <constructor-arg ref="nimbus-query.rm.spHistory" />                               
         <constructor-arg ref="nimbus-query.rm.containerInterface" />
         <constructor-arg ref="nimbus-query.rm.modulelocator" />

@@ -20,7 +20,7 @@
         <constructor-arg ref="nimbus-elastic.rm.describe" />
         <constructor-arg ref="nimbus-elastic.rm.requestSI" />
         <constructor-arg ref="nimbus-elastic.rm.cancelSI" />
-        <constructor-arg ref="nimbus-elastic.rm.describeI" /> 
+        <constructor-arg ref="nimbus-elastic.rm.describeSI" /> 
         <constructor-arg ref="nimbus-elastic.rm.spHistory" />                               
         <constructor-arg ref="nimbus-elastic.rm.containerInterface" />
         <constructor-arg ref="nimbus-elastic.rm.modulelocator" />
