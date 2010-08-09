@@ -140,7 +140,7 @@ public class DefaultBindingAdapter implements BindingAdapter,
         final String name = req.getName();
         vm.setName(name);
         
-        vm.setPreemptable(req.getRequestedRA().isPreemptable());
+        vm.setPreemptable(req.getRequestedRA().isSpotInstance());
 
         if (numNodes > 1) {
             logger.debug("binding " + numNodes + " virtual machines: " + name);

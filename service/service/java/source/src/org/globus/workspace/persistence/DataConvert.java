@@ -225,8 +225,6 @@ public class DataConvert implements WorkspaceConstants {
         
         if(resource.getVM().isPreemptable()){
             vm.setLifeCycle(VMConstants.LIFE_CYCLE_SPOT);
-        } else {
-            vm.setLifeCycle(VMConstants.LIFE_CYCLE_NORMAL);
         }
         
         return vm;
@@ -483,7 +481,7 @@ public class DataConvert implements WorkspaceConstants {
             return ra; // *** EARLY RETURN ***
         }
 
-        ra.setPreemptable(vm.isPreemptable());
+        ra.setSpotInstance(vm.isPreemptable());
         ra.setArchitecture(dep.getCPUArchitecture());
         ra.setCpuPercentage(dep.getCPUPercentage());
         ra.setIndCpuSpeed(dep.getIndividualCPUSpeed());

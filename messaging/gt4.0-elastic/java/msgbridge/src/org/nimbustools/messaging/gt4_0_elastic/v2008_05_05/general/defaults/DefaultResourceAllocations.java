@@ -263,7 +263,7 @@ public class DefaultResourceAllocations implements ResourceAllocations {
                     "Unknown instance type '" + name + "'");
         }
         
-        ra.setPreemptable(spot);
+        ra.setSpotInstance(spot);
         
         ra.setArchitecture(this.cpuArch);
 

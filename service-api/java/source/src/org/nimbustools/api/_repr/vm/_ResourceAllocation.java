@@ -26,5 +26,5 @@ public interface _ResourceAllocation extends ResourceAllocation {
     public void setCpuPercentage(int cpuPercentage);
     public void setMemory(int memory);
     public void setNodeNumber(int nodeNumber);
-    public void setPreemptable(boolean preemptable);
+    public void setSpotInstance(boolean spot);
 }

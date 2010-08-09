@@ -89,7 +89,7 @@ public class ReprPopulator {
         req.setInitialStateRequest(CreateRequest.INITIAL_STATE_RUNNING);
 
         ra.setArchitecture(ResourceAllocation.ARCH_x86);
-        ra.setPreemptable(preemptable);
+        ra.setSpotInstance(preemptable);
         final _RequiredVMM reqVMM = this.repr._newRequiredVMM();
         reqVMM.setType("Xen");
         reqVMM.setVersions(new String[]{"3"});

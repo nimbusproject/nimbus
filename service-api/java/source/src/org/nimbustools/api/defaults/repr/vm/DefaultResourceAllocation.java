@@ -30,7 +30,7 @@ public class DefaultResourceAllocation implements _ResourceAllocation {
     private int cpuPercentage = -1;
     private int memory;
     private int nodeNumber;
-    private boolean preemptable;
+    private boolean spotInstance;
 
     // -------------------------------------------------------------------------
     // implements org.nimbustools.api.repr.vm.ResourceAllocation
@@ -61,8 +61,8 @@ public class DefaultResourceAllocation implements _ResourceAllocation {
         return this.nodeNumber;
     }
     
-    public boolean isPreemptable() {
-        return preemptable;
+    public boolean isSpotInstance() {
+        return spotInstance;
     }    
 
     // -------------------------------------------------------------------------
@@ -93,8 +93,8 @@ public class DefaultResourceAllocation implements _ResourceAllocation {
         this.nodeNumber = nodeNumber;
     }
     
-    public void setPreemptable(boolean preemptable) {
-        this.preemptable = preemptable;
+    public void setSpotInstance(boolean preemptable) {
+        this.spotInstance = preemptable;
     }    
 
     // -------------------------------------------------------------------------
@@ -125,7 +125,7 @@ public class DefaultResourceAllocation implements _ResourceAllocation {
         result = prime * result + indCpuSpeed;
         result = prime * result + memory;
         result = prime * result + nodeNumber;
-        result = prime * result + (preemptable ? 1231 : 1237);
+        result = prime * result + (spotInstance ? 1231 : 1237);
         return result;
     }
 
@@ -150,7 +150,7 @@ public class DefaultResourceAllocation implements _ResourceAllocation {
             return false;
         if (nodeNumber != other.nodeNumber)
             return false;
-        if (preemptable != other.preemptable)
+        if (spotInstance != other.spotInstance)
             return false;
         return true;
     }
