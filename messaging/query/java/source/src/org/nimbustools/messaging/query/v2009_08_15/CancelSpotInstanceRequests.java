@@ -4,7 +4,9 @@ import java.rmi.RemoteException;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.UriInfo;
 
 import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.CancelSpotInstanceRequestsResponseType;
 import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.CancelSpotInstanceRequestsType;
@@ -30,8 +32,14 @@ public class CancelSpotInstanceRequests implements ElasticAction {
     
     @GET
     public CancelSpotInstanceRequestsResponseType handleGet(
-            MultivaluedMap<String, String> form) {
+                                                @Context UriInfo uriInfo) {
 
+        if (uriInfo == null) {
+            throw new IllegalArgumentException("uriInfo may not be null");
+        }
+        
+        MultivaluedMap<String, String> form = uriInfo.getQueryParameters();
+        
         final CancelSpotInstanceRequestsType request = new CancelSpotInstanceRequestsType();
         if(form != null && !form.isEmpty()){
             SpotInstanceRequestIdSetType spotInstanceRequestIdSet = 
@@ -49,8 +57,8 @@ public class CancelSpotInstanceRequests implements ElasticAction {
     }
     @POST
     public CancelSpotInstanceRequestsResponseType handlePost(
-            MultivaluedMap<String, String> form) {
-        return handleGet(form);
+                                                @Context UriInfo uriInfo) {
+        return handleGet(uriInfo);
     }    
 
 }
