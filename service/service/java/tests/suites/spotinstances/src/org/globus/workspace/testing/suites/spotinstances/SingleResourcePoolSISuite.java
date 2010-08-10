@@ -204,6 +204,92 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         assertEquals(1, cancelledReqs.length);
         assertEquals(RequestState.STATE_Canceled, cancelledReqs[0].getState().getStateStr());
         assertEquals(result.getRequestID(), cancelledReqs[0].getRequestID());
+       
+        // Spot Instances Snapshot
+        // 
+        // Total memory: 1280MB
+        // Reserved free memory (for ordinary WS requests): 256MB
+        // Available basic SI VMs: 8 (128MB x 8 = 1024)         
+        //
+        // Current Requests______________________________________________________________
+        // |   Request  | reqVMs | allocVMs |       Bid        |   Status  | Persistent |
+        // | singleReq  |    1   |    1     |  previousPrice+1 | CANCELLED |    false   |
+        // ------------------------------------------------------------------------------
+        // Backfill Requests__________________________
+        // |   Request  | reqVMs | allocVMs | Status |
+        // | backfill   |   10   |    7     | ACTIVE |
+        // -------------------------------------------           
+        // Requested SI VMs (alive requests): 1
+        // Spot price: MINIUM_PRICE (since requestedVMs < availableVMs)        
+        
+        logger.debug("Waiting 2 seconds for resources to be pre-empted.");        
+        Thread.sleep(2000);
+        
+        //Check backfill request state
+        backfillRequestsByCaller = rm.getBackfillRequestsByCaller(superuser);
+        assertEquals(1, backfillRequestsByCaller.length);          
+        assertEquals(7, backfillRequestsByCaller[0].getVMIds().length);
+        assertEquals(RequestState.STATE_Active, backfillRequestsByCaller[0].getState().getStateStr());             
+        
+        //Check if request was really cancelled
+        request = rm.getSpotRequest(result.getRequestID(), caller);
+        assertEquals(RequestState.STATE_Canceled, request.getState().getStateStr());
+        assertEquals(1, request.getVMIds().length);        
+        
+        Double higherBid = previousPrice + 2;
+        requestSI = this.populator().getBasicRequestSI("higherRequest", 7, higherBid, false);
+        
+        logger.debug("Submitting basic SI request: higherRequest");        
+        
+        //Request spot instances
+        SpotRequestInfo result2 = rm.requestSpotInstances(requestSI, caller);        
+        
+        // Spot Instances Snapshot
+        // 
+        // Total memory: 1280MB
+        // Reserved free memory (for ordinary WS requests): 256MB
+        // Available basic SI VMs: 8 (128MB x 8 = 1024)         
+        //
+        // Current Requests______________________________________________________________
+        // |   Request  | reqVMs | allocVMs |       Bid        |   Status  | Persistent |
+        // | singleReq  |    1   |    1     |  previousPrice+1 | CANCELLED |    false   |
+        // | higherReq  |    7   |    7     |  previousPrice+2 | ACTIVE    |    false   |        
+        // ------------------------------------------------------------------------------
+        // Backfill Requests__________________________
+        // |   Request  | reqVMs | allocVMs | Status |
+        // | backfill   |   10   |    0     | OPEN   |
+        // -------------------------------------------           
+        // Requested SI VMs (alive requests): 8
+        // Spot price: bid (previousPrice+1) 
+        
+        logger.debug("Waiting 2 seconds for resources to be pre-empted.");        
+        Thread.sleep(2000);
+        
+        //New spot price is equal to bid
+        assertEquals(bid,  rm.getSpotPrice());        
+        
+        //Check backfill request state
+        backfillRequestsByCaller = rm.getBackfillRequestsByCaller(superuser);
+        assertEquals(1, backfillRequestsByCaller.length);          
+        assertEquals(0, backfillRequestsByCaller[0].getVMIds().length);
+        assertEquals(RequestState.STATE_Open, backfillRequestsByCaller[0].getState().getStateStr());             
+        
+        //Check if request was really cancelled
+        request = rm.getSpotRequest(result.getRequestID(), caller);
+        assertEquals(RequestState.STATE_Canceled, request.getState().getStateStr());
+        assertEquals(1, request.getVMIds().length);
+        
+        //Check if submitted request is active
+        request = rm.getSpotRequest(result2.getRequestID(), caller);
+        assertEquals(RequestState.STATE_Active, request.getState().getStateStr());
+        assertEquals(7, request.getVMIds().length);        
+        
+        requestSI = this.populator().getBasicRequestSI("higherRequest2", 1, higherBid, false);
+        
+        logger.debug("Submitting basic SI request: higherRequest2");        
+        
+        //Request spot instances
+        SpotRequestInfo result3 = rm.requestSpotInstances(requestSI, caller);        
         
         // Spot Instances Snapshot
         // 
@@ -214,27 +300,93 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         // Current Requests______________________________________________________________
         // |   Request  | reqVMs | allocVMs |       Bid        |   Status  | Persistent |
         // | singleReq  |    1   |    0     |  previousPrice+1 | CANCELLED |    false   |
+        // | higherReq  |    7   |    7     |  previousPrice+2 | ACTIVE    |    false   | 
+        // | higherReq2 |    1   |    1     |  previousPrice+2 | ACTIVE    |    false   |                
         // ------------------------------------------------------------------------------
         // Backfill Requests__________________________
         // |   Request  | reqVMs | allocVMs | Status |
-        // | backfill   |   10   |    8     | ACTIVE |
+        // | backfill   |   10   |    0     | OPEN   |
         // -------------------------------------------           
-        // Requested SI VMs (alive requests): 0
-        // Spot price: MINIUM_PRICE (since requestedVMs < availableVMs)        
+        // Requested SI VMs (alive requests): 8
+        // Spot price: higherBid (previousPrice+2) 
         
         logger.debug("Waiting 2 seconds for resources to be pre-empted.");        
         Thread.sleep(2000);
         
+        //New spot price is equal to higherBid
+        assertEquals(higherBid,  rm.getSpotPrice());        
+        
         //Check backfill request state
         backfillRequestsByCaller = rm.getBackfillRequestsByCaller(superuser);
         assertEquals(1, backfillRequestsByCaller.length);          
-        assertEquals(8, backfillRequestsByCaller[0].getVMIds().length);
-        assertEquals(RequestState.STATE_Active, backfillRequestsByCaller[0].getState().getStateStr());             
+        assertEquals(0, backfillRequestsByCaller[0].getVMIds().length);
+        assertEquals(RequestState.STATE_Open, backfillRequestsByCaller[0].getState().getStateStr());             
         
-        //Check if request was really cancelled
+        //Check if request has no VMs
         request = rm.getSpotRequest(result.getRequestID(), caller);
         assertEquals(RequestState.STATE_Canceled, request.getState().getStateStr());
         assertEquals(0, request.getVMIds().length);
+        
+        //Check if previous submitted request is active
+        request = rm.getSpotRequest(result2.getRequestID(), caller);
+        assertEquals(RequestState.STATE_Active, request.getState().getStateStr());
+        assertEquals(7, request.getVMIds().length);       
+        
+        //Check if submitted request is active
+        request = rm.getSpotRequest(result3.getRequestID(), caller);
+        assertEquals(RequestState.STATE_Active, request.getState().getStateStr());
+        assertEquals(1, request.getVMIds().length);          
+        
+        logger.debug("Trashing higherRequest VMs");        
+        
+        request = rm.getSpotRequest(result2.getRequestID(), caller);
+        rm.trash(request.getGroupID(), Manager.GROUP, caller);
+        
+        // Spot Instances Snapshot
+        // 
+        // Total memory: 1280MB
+        // Reserved free memory (for ordinary WS requests): 256MB
+        // Available basic SI VMs: 8 (128MB x 8 = 1024)         
+        //
+        // Current Requests______________________________________________________________
+        // |   Request  | reqVMs | allocVMs |       Bid        |   Status  | Persistent |
+        // | singleReq  |    1   |    0     |  previousPrice+1 | CANCELLED |    false   |
+        // | higherReq  |    7   |    0     |  previousPrice+2 | CLOSED    |    false   | 
+        // | higherReq2 |    1   |    1     |  previousPrice+2 | ACTIVE    |    false   |                
+        // ------------------------------------------------------------------------------
+        // Backfill Requests__________________________
+        // |   Request  | reqVMs | allocVMs | Status |
+        // | backfill   |   10   |    7     | ACTIVE |
+        // -------------------------------------------           
+        // Requested SI VMs (alive requests): 1
+        // Spot price: MINIUM_PRICE (since requestedVMs < availableVMs)        
+
+        logger.debug("Waiting 2 seconds for resources to be pre-empted.");        
+        Thread.sleep(2000);
+        
+        //New spot price is equal to minimum price (since there are still available resources)
+        assertEquals(MINIMUM_PRICE,  rm.getSpotPrice());        
+        
+        //Check backfill request state
+        backfillRequestsByCaller = rm.getBackfillRequestsByCaller(superuser);
+        assertEquals(1, backfillRequestsByCaller.length);          
+        assertEquals(7, backfillRequestsByCaller[0].getVMIds().length);
+        assertEquals(RequestState.STATE_Active, backfillRequestsByCaller[0].getState().getStateStr());             
+        
+        //Check if request has no VMs
+        request = rm.getSpotRequest(result.getRequestID(), caller);
+        assertEquals(RequestState.STATE_Canceled, request.getState().getStateStr());
+        assertEquals(0, request.getVMIds().length);
+        
+        //Check if previous submitted request is closed
+        request = rm.getSpotRequest(result2.getRequestID(), caller);
+        assertEquals(RequestState.STATE_Closed, request.getState().getStateStr());
+        assertEquals(0, request.getVMIds().length);       
+        
+        //Check if submitted request is active
+        request = rm.getSpotRequest(result3.getRequestID(), caller);
+        assertEquals(RequestState.STATE_Active, request.getState().getStateStr());
+        assertEquals(1, request.getVMIds().length);        
         
         logger.debug("Cancelling backfill request.");        
         
@@ -245,10 +397,61 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         
         //Check backfill request state
         RequestInfo backfillReq = rm.getBackfillRequest(backfillResult.getRequestID(), superuser);
-        assertEquals(0, backfillReq.getVMIds().length);
+        assertEquals(7, backfillReq.getVMIds().length);
         assertEquals(RequestState.STATE_Canceled, backfillReq.getState().getStateStr());         
         
-        Double[] prices = {MINIMUM_PRICE};
+        logger.debug("Trashing higherRequest2 VMs");        
+        
+        request = rm.getSpotRequest(result3.getRequestID(), caller);
+        rm.trash(request.getVMIds()[0], Manager.INSTANCE, caller);         
+        
+        // Spot Instances Snapshot
+        // 
+        // Total memory: 1280MB
+        // Reserved free memory (for ordinary WS requests): 256MB
+        // Available basic SI VMs: 8 (128MB x 8 = 1024)         
+        //
+        // Current Requests______________________________________________________________
+        // |   Request  | reqVMs | allocVMs |       Bid        |   Status  | Persistent |
+        // | singleReq  |    1   |    0     |  previousPrice+1 | CANCELLED |    false   |
+        // | higherReq  |    7   |    0     |  previousPrice+2 | CLOSED    |    false   | 
+        // | higherReq2 |    1   |    0     |  previousPrice+2 | CLOSED    |    false   |                
+        // ------------------------------------------------------------------------------
+        // Backfill Requests__________________________
+        // |   Request  | reqVMs | allocVMs | Status |
+        // | backfill   |   10   |    7     | ACTIVE |
+        // -------------------------------------------           
+        // Requested SI VMs (alive requests): 0
+        // Spot price: MINIUM_PRICE (since requestedVMs < availableVMs)                   
+        
+        logger.debug("Waiting 2 seconds for resources to be pre-empted.");        
+        Thread.sleep(2000);
+        
+        //New spot price is equal to minimum price (since there are still available resources)
+        assertEquals(MINIMUM_PRICE,  rm.getSpotPrice());        
+        
+        //Check backfill request state
+        backfillRequestsByCaller = rm.getBackfillRequestsByCaller(superuser);
+        assertEquals(1, backfillRequestsByCaller.length);          
+        assertEquals(7, backfillRequestsByCaller[0].getVMIds().length);
+        assertEquals(RequestState.STATE_Canceled, backfillRequestsByCaller[0].getState().getStateStr());             
+        
+        //Check if request has no VMs
+        request = rm.getSpotRequest(result.getRequestID(), caller);
+        assertEquals(RequestState.STATE_Canceled, request.getState().getStateStr());
+        assertEquals(0, request.getVMIds().length);
+        
+        //Check if previous submitted request is closed
+        request = rm.getSpotRequest(result2.getRequestID(), caller);
+        assertEquals(RequestState.STATE_Closed, request.getState().getStateStr());
+        assertEquals(0, request.getVMIds().length);       
+        
+        //Check if submitted request is closed
+        request = rm.getSpotRequest(result3.getRequestID(), caller);
+        assertEquals(RequestState.STATE_Closed, request.getState().getStateStr());
+        assertEquals(0, request.getVMIds().length);                  
+        
+        Double[] prices = {MINIMUM_PRICE, bid, higherBid, MINIMUM_PRICE};
         
         //Check spot price history
         SpotPriceEntry[] history = rm.getSpotPriceHistory();
@@ -259,16 +462,16 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
             assertEquals(prices[i], history[i].getSpotPrice());
         }
         
-        history = rm.getSpotPriceHistory(ts1, null);
-        
-        assertEquals(history.length, 0);
-        
         history = rm.getSpotPriceHistory(null, ts1);
         
-        assertEquals(prices.length, history.length);
+        assertEquals(1, history.length);
         
-        for (int i = 0; i < history.length; i++) {
-            assertEquals(prices[i], history[i].getSpotPrice());
+        history = rm.getSpotPriceHistory(ts1, null);
+        
+        assertEquals(3, history.length);
+        
+        for (int i = 1; i < prices.length; i++) {
+            assertEquals(prices[i], history[i-1].getSpotPrice());
         }        
     } 
     
@@ -622,6 +825,133 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         // | lowReq2    |   3    |    0     |  previousPrice+1 | CANCELLED |    true    |
         // | mediumReq1 |   3    |    0     |  previousPrice+2 | CLOSED    |    false   |
         // | lowReq3    |   1    |    0     |  previousPrice+1 | CLOSED    |    false   |
+        // | mediumReq2 |   5    |    0     |  previousPrice+2 | OPEN      |    true    |
+        // | highReq    |  10    |    8     |  previousPrice+3 | CANCELLED |    false   |            
+        // ---------------------------------------------------------------------------
+        // Backfill Requests__________________________
+        // |   Request   | reqVMs | allocVMs | Status |
+        // |  backfill1  |   3    |    0     | OPEN   |
+        // |  backfill2  |   5    |    0     | OPEN   |      
+        // --------------------------------------------        
+        // Requested SI VMs (alive requests): 15
+        // Spot price: highBid (previousPrice+3)        
+        
+        logger.debug("Waiting 2 seconds for resources to be pre-empted.");
+        Thread.sleep(2000);          
+        
+        //New spot price is equal to minimum price
+        assertEquals(highBid,  rm.getSpotPrice());
+        
+        //Check if requests were cancelled
+        assertEquals(RequestState.STATE_Canceled, rm.getSpotRequest(highReqId, caller3).getState().getStateStr());
+        assertEquals(RequestState.STATE_Canceled, rm.getSpotRequest(lowReq2Id, caller1).getState().getStateStr());
+        
+        //Check if canceled request has allocated VMs
+        SpotRequestInfo highReq1 = rm.getSpotRequest(highReqId, caller3);
+        assertEquals(RequestState.STATE_Canceled, highReq1.getState().getStateStr());
+        assertEquals(8, highReq1.getVMIds().length);        
+        
+        //Check if persistent request is open
+        SpotRequestInfo medReq2 = rm.getSpotRequest(medReq2Id, caller2);
+        assertEquals(RequestState.STATE_Open, medReq2.getState().getStateStr());
+        assertEquals(0, medReq2.getVMIds().length);
+        
+        //Check if non-persistent requests are closed
+        assertEquals(RequestState.STATE_Closed, rm.getSpotRequest(lowReq1Id, caller1).getState().getStateStr());
+        assertEquals(RequestState.STATE_Closed, rm.getSpotRequest(lowReq3Id, caller2).getState().getStateStr());
+        assertEquals(RequestState.STATE_Closed, rm.getSpotRequest(medReq1Id, caller2).getState().getStateStr());
+        
+        //Check backfill request state
+        backfillRequestsByCaller = rm.getBackfillRequestsByCaller(superuser);
+        assertEquals(2, backfillRequestsByCaller.length);
+        
+        backfill1Result = rm.getBackfillRequest(backfill1Result.getRequestID(), superuser);
+        assertEquals(0, backfill1Result.getVMIds().length);
+        assertEquals(RequestState.STATE_Open, backfill1Result.getState().getStateStr());
+        
+        backfill2Result = rm.getBackfillRequest(backfill2Result.getRequestID(), superuser);        
+        assertEquals(0, backfill2Result.getVMIds().length);
+        assertEquals(RequestState.STATE_Open, backfill2Result.getState().getStateStr());        
+        
+        //Trash 5 VMs from highReq  
+        for (int i = 0; i < 5; i++) {
+            rm.trash(highReq1.getVMIds()[i], Manager.INSTANCE, caller3);
+        }
+        
+        // Spot Instances Snapshot
+        // 
+        // Total memory: 1280MB
+        // Reserved free memory (for ordinary WS requests): 256MB (minimum reserved capacity)
+        // Available basic SI VMs: 8 (128MB x 8 = 1024MB)         
+        // 
+        // Current Requests_______________________________________________________________
+        // |   Request  | reqVMs | allocVMs |       Bid        | Status    | Persistent |
+        // | lowReq1    |   1    |    0     |  previousPrice+1 | CLOSED    |    false   |
+        // | lowReq2    |   3    |    0     |  previousPrice+1 | CANCELLED |    true    |
+        // | mediumReq1 |   3    |    0     |  previousPrice+2 | CLOSED    |    false   |
+        // | lowReq3    |   1    |    0     |  previousPrice+1 | CLOSED    |    false   |
+        // | mediumReq2 |   5    |    5     |  previousPrice+2 | ACTIVE    |    true    |
+        // | highReq    |  10    |    3     |  previousPrice+3 | CANCELLED |    false   |            
+        // ---------------------------------------------------------------------------
+        // Backfill Requests__________________________
+        // |   Request   | reqVMs | allocVMs | Status |
+        // |  backfill1  |   3    |    0     | OPEN   |
+        // |  backfill2  |   5    |    0     | OPEN   |      
+        // --------------------------------------------        
+        // Requested SI VMs (alive requests): 8
+        // Spot price: mediumBid (previousPrice+2)        
+        
+        logger.debug("Waiting 2 seconds for resources to be pre-empted.");
+        Thread.sleep(2000);          
+        
+        //New spot price is equal to minimum price
+        assertEquals(mediumBid,  rm.getSpotPrice());
+        
+        //Check if requests were cancelled
+        assertEquals(RequestState.STATE_Canceled, rm.getSpotRequest(highReqId, caller3).getState().getStateStr());
+        assertEquals(RequestState.STATE_Canceled, rm.getSpotRequest(lowReq2Id, caller1).getState().getStateStr());
+        
+        //Check if canceled request has allocated VMs
+        highReq1 = rm.getSpotRequest(highReqId, caller3);
+        assertEquals(RequestState.STATE_Canceled, highReq1.getState().getStateStr());
+        assertEquals(3, highReq1.getVMIds().length);        
+        
+        //Check if persistent request is active
+        medReq2 = rm.getSpotRequest(medReq2Id, caller2);
+        assertEquals(RequestState.STATE_Active, medReq2.getState().getStateStr());
+        assertEquals(5, medReq2.getVMIds().length);
+        
+        //Check if non-persistent requests are closed
+        assertEquals(RequestState.STATE_Closed, rm.getSpotRequest(lowReq1Id, caller1).getState().getStateStr());
+        assertEquals(RequestState.STATE_Closed, rm.getSpotRequest(lowReq3Id, caller2).getState().getStateStr());
+        assertEquals(RequestState.STATE_Closed, rm.getSpotRequest(medReq1Id, caller2).getState().getStateStr());
+        
+        //Check backfill request state
+        backfillRequestsByCaller = rm.getBackfillRequestsByCaller(superuser);
+        assertEquals(2, backfillRequestsByCaller.length);
+        
+        backfill1Result = rm.getBackfillRequest(backfill1Result.getRequestID(), superuser);
+        assertEquals(0, backfill1Result.getVMIds().length);
+        assertEquals(RequestState.STATE_Open, backfill1Result.getState().getStateStr());
+        
+        backfill2Result = rm.getBackfillRequest(backfill2Result.getRequestID(), superuser);        
+        assertEquals(0, backfill2Result.getVMIds().length);
+        assertEquals(RequestState.STATE_Open, backfill2Result.getState().getStateStr());        
+        
+        rm.trash(highReq1.getGroupID(), Manager.GROUP, caller3);
+        
+        // Spot Instances Snapshot
+        // 
+        // Total memory: 1280MB
+        // Reserved free memory (for ordinary WS requests): 256MB (minimum reserved capacity)
+        // Available basic SI VMs: 8 (128MB x 8 = 1024MB)         
+        // 
+        // Current Requests_______________________________________________________________
+        // |   Request  | reqVMs | allocVMs |       Bid        | Status    | Persistent |
+        // | lowReq1    |   1    |    0     |  previousPrice+1 | CLOSED    |    false   |
+        // | lowReq2    |   3    |    0     |  previousPrice+1 | CANCELLED |    true    |
+        // | mediumReq1 |   3    |    0     |  previousPrice+2 | CLOSED    |    false   |
+        // | lowReq3    |   1    |    0     |  previousPrice+1 | CLOSED    |    false   |
         // | mediumReq2 |   5    |    5     |  previousPrice+2 | ACTIVE    |    true    |
         // | highReq    |  10    |    0     |  previousPrice+3 | CANCELLED |    false   |            
         // ---------------------------------------------------------------------------
@@ -644,7 +974,7 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         assertEquals(RequestState.STATE_Canceled, rm.getSpotRequest(lowReq2Id, caller1).getState().getStateStr());
         
         //Check if persistent request is active
-        SpotRequestInfo medReq2 = rm.getSpotRequest(medReq2Id, caller2);
+        medReq2 = rm.getSpotRequest(medReq2Id, caller2);
         assertEquals(RequestState.STATE_Active, medReq2.getState().getStateStr());
         assertEquals(5, medReq2.getVMIds().length);
         
@@ -666,6 +996,7 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         assertEquals(RequestState.STATE_Active, backfill2Result.getState().getStateStr());        
         
         rm.cancelBackfillRequests(new String[]{backfill1Result.getRequestID()}, superuser);
+        rm.trash(backfill1Result.getGroupID(), Manager.GROUP, superuser);
         
         // Spot Instances Snapshot
         // 
@@ -706,6 +1037,7 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         assertEquals(RequestState.STATE_Active, backfill2Result.getState().getStateStr());        
         
         rm.cancelSpotInstanceRequests(new String[]{medReq2Id}, caller2);
+        rm.trash(medReq2.getGroupID(), Manager.GROUP, caller2);        
         
         // Spot Instances Snapshot
         // 
@@ -752,7 +1084,7 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         
         //Expected prices from full history
         
-        Double[] prices = new Double[]{MINIMUM_PRICE, lowBid, mediumBid, highBid, MINIMUM_PRICE};
+        Double[] prices = new Double[]{MINIMUM_PRICE, lowBid, mediumBid, highBid, mediumBid, MINIMUM_PRICE};
         
         //Check spot price history
         SpotPriceEntry[] history = rm.getSpotPriceHistory();
@@ -1319,10 +1651,10 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         assertEquals(RequestState.STATE_Active, highReqSR.getState().getStateStr());
         assertEquals(4, highReqSR.getVMIds().length);        
         
-        logger.debug("Cancelling request: highReq1");            
+        logger.debug("Trashing machines from request: highReq1");        
         
-        rm.cancelSpotInstanceRequests(new String[]{highReq1Id}, siCaller);
-        
+        rm.trash(highReqSR.getGroupID(), Manager.GROUP, siCaller);
+                
         // Spot Instances Snapshot
         // 
         // Total memory: 1280MB
@@ -1336,12 +1668,12 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         // | lowReq2    |   2    |     2    | previousPrice+1  | ACTIVE    |    true    |
         // | mediumReq1 |   3    |     0    | previousPrice+3  | CLOSED    |    false   |
         // | mediumReq2 |   1    |     0    | previousPrice+3  | CLOSED    |    false   | 
-        // | highReq1   |   4    |     4    | previousPrice+4  | CANCELLED |    false   |                   
+        // | highReq1   |   4    |     0    | previousPrice+4  | CLOSED    |    false   |                   
         // ------------------------------------------------------------------------------
         // Requested SI VMs (alive requests): 2
         // Spot price: MINIMUM_PRICE (since requestedVMs < availableVMs)           
         
-        logger.debug("Waiting 2 seconds for VM to shutdown.");
+        logger.debug("Waiting 2 seconds for VMs to shutdown.");
         Thread.sleep(2000);
         
         //Check available SI VMs
@@ -1367,7 +1699,7 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         assertEquals(0, medReq2SR.getVMIds().length);        
         
         highReqSR = rm.getSpotRequest(highReq1Id, siCaller);
-        assertEquals(RequestState.STATE_Canceled, highReqSR.getState().getStateStr());
+        assertEquals(RequestState.STATE_Closed, highReqSR.getState().getStateStr());
         assertEquals(0, highReqSR.getVMIds().length);           
         
         logger.debug("Destroying remaining WS VMs.");     
