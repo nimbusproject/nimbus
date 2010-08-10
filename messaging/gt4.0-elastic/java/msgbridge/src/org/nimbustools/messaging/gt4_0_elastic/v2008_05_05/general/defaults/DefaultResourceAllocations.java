@@ -170,8 +170,17 @@ public class DefaultResourceAllocations implements ResourceAllocations {
         this.vmmVersion = vmmVersion;
     }
     
-    public void setSiType(String siType) {
-        this.siType = siType;
+    public void setSiType(String siType) throws Exception {
+        if(siType.equalsIgnoreCase("small")){
+            this.siType = this.getSmallName();
+        } else if(siType.equalsIgnoreCase("large")){
+            this.siType = this.getLargeName();
+        } else if(siType.equalsIgnoreCase("xlarge")){
+            this.siType = this.getXlargeName();
+        } else {
+            throw new Exception("Invalid SI type in spotinstances configuration file. " +
+            		            "Valid values are: small, large or xlarge");
+        }
     }    
 
     // -------------------------------------------------------------------------
@@ -252,22 +261,29 @@ public class DefaultResourceAllocations implements ResourceAllocations {
                     		" Currently supported SI type: " + siType);            
         }
         
-        if (cmpName.equals(this.getSmallName())) {
-            ra.setMemory(this.smallMemory);
-        } else if (cmpName.equals(this.getLargeName())) {
-            ra.setMemory(this.largeMemory);
-        } else if (cmpName.equals(this.getXlargeName())) {
-            ra.setMemory(this.xlargeMemory);
-        } else {
-            throw new CannotTranslateException(
-                    "Unknown instance type '" + name + "'");
-        }
+        Integer memory = getInstanceMemory(cmpName);
+        
+        ra.setMemory(memory);
         
         ra.setSpotInstance(spot);
         
         ra.setArchitecture(this.cpuArch);
 
         return ra;
+    }
+
+    protected Integer getInstanceMemory(final String cmpName)
+            throws CannotTranslateException {
+        if (cmpName.equals(this.getSmallName())) {
+            return this.smallMemory;
+        } else if (cmpName.equals(this.getLargeName())) {
+            return this.largeMemory;
+        } else if (cmpName.equals(this.getXlargeName())) {
+            return this.xlargeMemory;
+        } else {
+            throw new CannotTranslateException(
+                    "Unknown instance type '" + cmpName + "'");
+        }
     }
 
     public RequiredVMM getRequiredVMM() {
