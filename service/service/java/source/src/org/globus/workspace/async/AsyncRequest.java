@@ -100,6 +100,10 @@ public class AsyncRequest implements Comparable<AsyncRequest>{
     }
     
     public Integer getNeededInstances(){
+        if(this.status.isCancelled()){
+            return this.getAllocatedInstances();
+        } 
+        
         if(this.persistent){
             return this.getRequestedInstances();
         } else {
@@ -124,7 +128,7 @@ public class AsyncRequest implements Comparable<AsyncRequest>{
     }
     
     public Boolean needsMoreInstances(){
-        return !this.getUnallocatedInstances().equals(0);
+        return this.statusIsOpenOrActive() && !this.getUnallocatedInstances().equals(0);
     }
 
     public String getId() {
@@ -143,12 +147,20 @@ public class AsyncRequest implements Comparable<AsyncRequest>{
         return status;
     }
 
+    public boolean isAlive(){
+        return this.statusIsOpenOrActive() || (this.status.isCancelled() && !allocatedVMs.isEmpty());
+    }
+    
     public boolean setStatus(AsyncRequestStatus status) {
-        if(this.status.isAlive()){
+        if(statusIsOpenOrActive()){
             this.status = status;
             return true;
         }
         return false;
+    }
+
+    private boolean statusIsOpenOrActive() {
+        return this.status.isOpen() || this.status.isActive();
     }
 
     public int compareTo(AsyncRequest o) {

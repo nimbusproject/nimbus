@@ -54,7 +54,7 @@ public class AsyncRequestFilter {
         List<AsyncRequest> activeRequestsEqualPrice = new ArrayList<AsyncRequest>();
         
         for (AsyncRequest siRequest : allRequests) {
-            if(siRequest.isSpotRequest() && siRequest.getStatus().isAlive() && siRequest.getMaxBid().equals(price)){
+            if(siRequest.isSpotRequest() && siRequest.isAlive() && siRequest.getMaxBid().equals(price)){
                 activeRequestsEqualPrice.add(siRequest);
             }
         }
@@ -67,7 +67,7 @@ public class AsyncRequestFilter {
         List<AsyncRequest> aliveRequestsAbovePrice = new ArrayList<AsyncRequest>();
         
         for (AsyncRequest siRequest : allRequests) {
-            if(siRequest.isSpotRequest() && siRequest.getStatus().isAlive() && siRequest.getMaxBid() > currentPrice){
+            if(siRequest.isSpotRequest() && siRequest.isAlive() && siRequest.getMaxBid() > currentPrice){
                 aliveRequestsAbovePrice.add(siRequest);
             }
         }
@@ -81,7 +81,7 @@ public class AsyncRequestFilter {
         List<AsyncRequest> aliveRequests = new ArrayList<AsyncRequest>();
         
         for (AsyncRequest siRequest : allRequests) {
-            if(siRequest.isSpotRequest() && siRequest.getStatus().isAlive()){
+            if(siRequest.isSpotRequest() && siRequest.isAlive()){
                 aliveRequests.add(siRequest);
             }
         }
@@ -94,7 +94,7 @@ public class AsyncRequestFilter {
         List<AsyncRequest> activeRequests = new ArrayList<AsyncRequest>();
         
         for (AsyncRequest siRequest : allRequests) {
-            if(!siRequest.isSpotRequest() && siRequest.getStatus().isAlive()){
+            if(!siRequest.isSpotRequest() && siRequest.isAlive()){
                 activeRequests.add(siRequest);
             }
         }

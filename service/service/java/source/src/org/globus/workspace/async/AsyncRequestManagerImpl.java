@@ -153,21 +153,21 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
         logger.info(Lager.ev(-1) + "Cancelling request with id: " + reqID + ".");                
         AsyncRequest request = getRequest(reqID, false);
 
-        AsyncRequestStatus prevStatus = request.getStatus();
         changeStatus(request, AsyncRequestStatus.CANCELLED);
-
+        
+// From http://docs.amazonwebservices.com/AWSEC2/latest/APIReference/ApiReference-soap-CancelSpotInstanceRequests.html
 // Canceling a Spot Instance request does not 
 // terminate running Spot Instances associated with the request. 
-//
-        if(prevStatus.isActive()){
-            preempt(request, request.getAllocatedInstances());
-        }
         
-        if(request.isSpotRequest()){
-            changePriceAndAllocateRequests();            
-        } else {
-            allocateBackfillRequests();
-        }
+//        if(prevStatus.isActive()){
+//            preempt(request, request.getAllocatedInstances());
+//        }
+//        
+//        if(request.isSpotRequest()){
+//            changePriceAndAllocateRequests();            
+//        } else {
+//            allocateBackfillRequests();
+//        }
         
         return request;
     }    
@@ -742,7 +742,7 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
         }
         
         try{
-            if(request.getRequestedInstances() > 1 && !request.getStatus().isAlive()){
+            if(request.getRequestedInstances() > 1 && !request.isAlive()){
                 if (this.lager.eventLog) {
                     logger.info(Lager.ev(-1) + "All VMs from asynchronous request '" + request.getId() + 
                             "' will be destroyed. Destroying group: " + request.getGroupID());
@@ -1031,7 +1031,7 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
     }     
     
     /**
-     * Retrieves ACTIVE or OPEN spot instance requests
+     * Retrieves alive spot instance requests
      * @return list of alive requests
      */
     private List<AsyncRequest> getAliveSpotRequests() {
