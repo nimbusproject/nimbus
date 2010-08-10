@@ -845,7 +845,7 @@ public class DelegatingManager implements Manager {
     private void authorizeCaller(Caller caller, AsyncRequest siReq)
             throws AuthorizationException {
         if(!caller.isSuperUser() && !siReq.getCaller().equals(caller)){
-            logger.info("Caller " + caller + " is not authorized to gather information of asynchronous request from "
+            logger.warn("Caller " + caller + " is not authorized to gather information of asynchronous request from "
                     + siReq.getCaller());
             throw new AuthorizationException("Caller is not authorized to get information about this request");
         }
