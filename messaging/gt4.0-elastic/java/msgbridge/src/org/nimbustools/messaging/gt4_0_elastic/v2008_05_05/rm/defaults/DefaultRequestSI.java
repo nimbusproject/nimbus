@@ -122,7 +122,7 @@ public class DefaultRequestSI extends DefaultRun implements RequestSI {
             SpotInstanceRequestSetItemType sirsit = this.describeSI.translateSpotInfo(result);
             
             SpotInstanceRequestSetType sirs = new SpotInstanceRequestSetType();
-            sirs.setItem(0, sirsit);
+            sirs.setItem(new SpotInstanceRequestSetItemType[]{sirsit});
             
             RequestSpotInstancesResponseType response = new RequestSpotInstancesResponseType();
             response.setSpotInstanceRequestSet(sirs);
