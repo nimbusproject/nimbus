@@ -810,9 +810,7 @@ public class DelegatingManager implements Manager {
         for (int i = 0; i < ids.length; i++) {
             AsyncRequest siReq = asyncHome.getRequest(ids[i]);
             
-            if(!caller.isSuperUser() && !siReq.getCaller().equals(caller)){
-                throw new AuthorizationException("Caller is not authorized to get information about this request");
-            }
+            authorizeCaller(caller, siReq);
             
             result[i] = getSpotRequest(siReq);
         }
@@ -835,14 +833,22 @@ public class DelegatingManager implements Manager {
         for (int i = 0; i < ids.length; i++) {
             AsyncRequest siReq = asyncHome.getRequest(ids[i]);
             
-            if(!caller.isSuperUser() && !siReq.getCaller().equals(caller)){
-                throw new AuthorizationException("Caller is not authorized to get information about this request");
-            }
+            authorizeCaller(caller, siReq);
             
             result[i] = getSpotRequest(asyncHome.cancelRequest(ids[i]));
         }
         
         return result;
+    }
+
+
+    private void authorizeCaller(Caller caller, AsyncRequest siReq)
+            throws AuthorizationException {
+        if(!caller.isSuperUser() && !siReq.getCaller().equals(caller)){
+            logger.info("Caller " + caller + " is not authorized to gather information of asynchronous request from "
+                    + siReq.getCaller());
+            throw new AuthorizationException("Caller is not authorized to get information about this request");
+        }
     }
     
     private SpotRequestInfo getSpotRequest(AsyncRequest siReq) throws ManageException {
@@ -919,9 +925,7 @@ public class DelegatingManager implements Manager {
         for (int i = 0; i < ids.length; i++) {
             AsyncRequest backfillReq = asyncHome.getRequest(ids[i]);
             
-            if(!caller.isSuperUser() && !backfillReq.getCaller().equals(caller)){
-                throw new AuthorizationException("Caller is not authorized to get information about this request");
-            }
+            authorizeCaller(caller, backfillReq);
             
             result[i] = getRequestInfo(asyncHome.cancelRequest(ids[i]));
         }
@@ -943,9 +947,7 @@ public class DelegatingManager implements Manager {
         for (int i = 0; i < ids.length; i++) {
             AsyncRequest backfillReq = asyncHome.getRequest(ids[i]);
             
-            if(!caller.isSuperUser() && !backfillReq.getCaller().equals(caller)){
-                throw new AuthorizationException("Caller is not authorized to get information about this request");
-            }
+            authorizeCaller(caller, backfillReq);
             
             result[i] = getRequestInfo(backfillReq);
         }
