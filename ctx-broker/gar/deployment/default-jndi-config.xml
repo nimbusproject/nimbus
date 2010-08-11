@@ -68,6 +68,37 @@
                 </parameter>
             </resourceParams>
         </resource>
+        <resource
+            name="rest"
+            type="org.nimbustools.ctxbroker.rest.RestHttp">
+
+            <resourceParams>
+                <parameter>
+                    <name>enabled</name>
+                    <value>true</value>
+                </parameter>
+                <parameter>
+                    <name>port</name>
+                    <value>8446</value>
+                </parameter>
+                <parameter>
+                    <name>springConfig</name>
+                    <value>/some/path/services/etc/nimbus-context-broker/other/main.xml</value>
+                </parameter>
+                <parameter>
+                    <name>keystoreLocation</name>
+                    <value>/some/path/var/keystore.jks</value>
+                </parameter>
+                <parameter>
+                    <name>keystorePassword</name>
+                    <value>changeit</value>
+                </parameter>
+                <parameter>
+                    <name>factory</name>
+                    <value>org.globus.wsrf.jndi.BeanFactory</value>
+                </parameter>
+            </resourceParams>
+        </resource>
     </service>
 
 </jndiConfig>

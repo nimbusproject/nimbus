@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+     Discover conf files.  The conf files hold name/value pairs that are
+     brought into the XML files in this directory via Spring's nice properties
+     mechanism.
+
+     Concentrate all uses of PropertyPlaceholderConfigurer into this bean
+     config so that the install script can do token replacements for absolute
+     paths throughout the entire spring configuration by just running the
+     token replacement on this file.
+
+     Spring wants "//" in front of absolute filesystem paths so that is why
+     "/TOKEN" is used here instead of "TOKEN"
+-->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+    <bean id="cumulusSettings"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+
+        <!-- grab some shared settings from the workspace-service cumulus.conf file,
+             will have to adjust for other deployment scenarios -->
+        <property name="location" value="$NIMBUS_HOME/services/etc/nimbus/workspace-service/cumulus.conf" />
+        <property name="placeholderPrefix" value="$CUMULUS{" />
+    </bean>
+</beans>

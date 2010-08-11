@@ -559,8 +559,8 @@ class NimbusSetup(object):
                 self.gtdir, log)
 
         # and context broker
-        gtcontainer.adjust_broker_config(ca_cert, ca_key, self.webdir,
-                self.gtdir, log)
+        gtcontainer.adjust_broker_config(ca_cert, ca_key, self.keystore_path,
+                password, self.webdir, self.gtdir, log)
 
         # run the web newconf script, if enabled
         if self.config.getboolean(CONFIGSECTION, 'web.enabled'):

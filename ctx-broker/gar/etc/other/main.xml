@@ -19,8 +19,26 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
     <import resource="classpath:META-INF/cxf/cxf-extension-jaxrs-binding.xml" />
     <import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
 
-    <bean id="userDetailsService" class="org.nimbustools.messaging.query.security.FileUserDetailsService">
-        <constructor-arg value="/Users/david/foop/services/etc/nimbus/query/users.txt"/>
+    <bean id="other.AuthzDataSource"
+         class="org.apache.commons.dbcp.BasicDataSource">
+       <property name="driverClassName" value="org.sqlite.JDBC" />
+       <property name="maxActive" value="10" />
+       <property name="maxIdle" value="4" />
+       <property name="maxWait" value="2000" />
+       <property name="poolPreparedStatements" value="true" />
+
+       <property name="url"
+                 value="jdbc:sqlite://$CUMULUS{cumulus.authz.db}" />
+       <property name="username" value="nimbus"/>
+       <property name="password" value="nimbus"/>
+   </bean>
+
+    <bean id="authzDBAdapter" class="org.nimbus.authz.AuthzDBAdapter">
+        <constructor-arg ref="other.AuthzDataSource"/>
+    </bean>
+
+    <bean id="userDetailsService" class="org.nimbustools.messaging.query.security.NimbusAuthzUserDetailsService">
+        <property name="authzDBAdapter" ref="authzDBAdapter" />
     </bean>
 
     <jaxrs:server id="ContextBroker" address="/ContextBroker/">
@@ -38,6 +56,12 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
     <security:authentication-manager>
         <security:authentication-provider user-service-ref="userDetailsService"/>
     </security:authentication-manager>
+
+
+    <!--
+        property sources are concentrated in this file
+    -->
+    <import resource="main.conflocator.xml"/>
 
 
 </beans>

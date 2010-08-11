@@ -92,15 +92,30 @@ def adjust_host_cert(cert, key, basedir, gtdir, log):
             exitcode, stdout, stderr)
     log.debug("Activated host key file in GT container: %s" % cert)
 
-def adjust_broker_config(cacert, cakey, basedir, gtdir, log):
+def adjust_broker_config(cacert, cakey, keystore, keystore_pass, basedir, gtdir, log):
     brokerconfig = get_brokerconfig_path(gtdir)
 
     pathutil.ensure_file_exists(cacert, "CA certificate")
     pathutil.ensure_file_exists(cakey, "CA private key")
     pathutil.ensure_file_exists(brokerconfig, "Nimbus Context Broker config")
+    pathutil.ensure_file_exists(keystore, "Java keystore")
+
+    # is some BS
+    restbroker_xml = pathutil.pathjoin(gtdir, 
+            'etc/nimbus-context-broker/other/main.xml')
+    pathutil.ensure_file_exists(restbroker_xml, 
+            "Context Broker REST interface config")
 
     args = [brokerconfig, 'NimbusContextBroker', 'ctxBrokerBootstrapFactory',
             'caCertPath', cacert, 'caKeyPath', cakey]
+    (exitcode, stdout, stderr) = javautil.run(basedir, log, 
+            EXE_SERVICE_RESOURCE, args=args)
+    runutil.generic_bailout("Problem adjusting broker config", 
+            exitcode, stdout, stderr)
+    
+    args = [brokerconfig, 'NimbusContextBroker', 'rest',
+            'keystoreLocation', keystore, 'keystorePassword', keystore_pass,
+            'springConfig', restbroker_xml]
     (exitcode, stdout, stderr) = javautil.run(basedir, log, 
             EXE_SERVICE_RESOURCE, args=args)
     runutil.generic_bailout("Problem adjusting broker config", 

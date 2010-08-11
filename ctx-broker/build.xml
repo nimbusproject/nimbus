@@ -76,6 +76,14 @@
             <include name="*.jar"/>
         </fileset>
 
+        <fileset dir="${nimbus.authz.dist.dir}">
+            <include name="*.jar"/>
+        </fileset>
+
+        <fileset dir="${nimbus.service.api.dist.dir}">
+            <include name="*.jar"/>
+        </fileset>
+
         <fileset dir="${nimbus.ctxbroker.lib.dir}">
             <include name="*.jar"/>
         </fileset>

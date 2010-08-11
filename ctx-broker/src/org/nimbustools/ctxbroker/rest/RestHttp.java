@@ -16,6 +16,7 @@
 package org.nimbustools.ctxbroker.rest;
 
 import org.apache.cxf.transport.servlet.CXFServlet;
+import org.globus.wsrf.jndi.Initializable;
 import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.Server;
@@ -24,33 +25,29 @@ import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.FilterHolder;
 import org.mortbay.jetty.servlet.ServletHolder;
 import org.mortbay.jetty.webapp.WebAppContext;
+import org.nimbustools.api.brain.NimbusXmlWebApplicationContext;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.filter.DelegatingFilterProxy;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class RestHttp {
+public class RestHttp implements Initializable {
 
+    //set by JNDI
     private boolean enabled;
     private int port;
     private String springConfig;
     private String keystoreLocation;
     private String keystorePassword;
+
+
     private Server server;
 
     public RestHttp() {
     }
 
-    public RestHttp(String springConfig, int port,
-                    String keystoreLocation, String keystorePassword) {
-        this.port = port;
-        this.springConfig = springConfig;
-        this.keystoreLocation = keystoreLocation;
-        this.keystorePassword = keystorePassword;
-    }
-
-    public synchronized void startListening() throws Exception {
+    public void initialize() throws Exception {
 
         if (!enabled) {
             return;
@@ -84,7 +81,8 @@ public class RestHttp {
 
         Context context = new Context(server, "/",  Context.SESSIONS);
         Map<String, String> initParams = new HashMap<String,String>();
-        initParams.put("contextConfigLocation", springConfig);
+        initParams.put("contextConfigLocation", "file://" + springConfig);
+        initParams.put("contextClass", NimbusXmlWebApplicationContext.class.getCanonicalName());
         context.setInitParams(initParams);
         context.addEventListener(new ContextLoaderListener());
         FilterHolder filterHolder = new FilterHolder(new DelegatingFilterProxy());
