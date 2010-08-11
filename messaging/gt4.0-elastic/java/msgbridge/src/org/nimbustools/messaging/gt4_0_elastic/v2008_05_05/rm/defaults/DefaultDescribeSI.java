@@ -173,31 +173,27 @@ public class DefaultDescribeSI implements DescribeSI {
             throw new CannotTranslateException("expecting a groupID if " +
                     "more than one VM was created");
         }
-
-        String vmidWhenJustOne = null;
+        
+        String instID = null;
         String resID = null;
         if (groupid == null && result.getVMIds().length == 1) {
-            vmidWhenJustOne = result.getVMIds()[0];
-            resID = this.ids.newGrouplessInstanceID(vmidWhenJustOne,
+            String vmId = result.getVMIds()[0];
+            resID = this.ids.getOrNewInstanceReservationID(vmId,
                                                     result.getSshKeyName());
             logger.info("New reservation ID '" + resID + "' for Single VM '" +
-                         vmidWhenJustOne +"'.");            
+                    vmId +"'.");            
+            instID = this.ids.managerInstanceToElasticInstance(vmId);
+            logger.info("id-" + vmId + "='" + instID + "'.");            
         } else if (groupid != null && result.getVMIds().length > 0) {
-            vmidWhenJustOne = null;
-            resID = this.ids.newGroupReservationID(groupid);
+            String vmId = result.getVMIds()[0];
+            resID = this.ids.getOrNewGroupReservationID(groupid);
             logger.info("New reservation ID '" + resID + "' for VM group '" +
                          groupid +"'.");
-        }
-
-        String instID = null;
-        if (vmidWhenJustOne != null) {
-            // mapping already created:
-            instID = this.ids.managerInstanceToElasticInstance(vmidWhenJustOne);
-            logger.info("id-" + vmidWhenJustOne + "='" + instID + "'.");            
-        } else if(resID != null){
-            String vmId = result.getVMIds()[0];
-            instID = this.ids.newInstanceID(vmId, resID, result.getSshKeyName());
-            logger.info("id-" + vmId + "='" + instID + "'.");
+            instID = this.ids.managerInstanceToElasticInstance(vmId); 
+            if(instID == null){
+                instID = this.ids.newInstanceID(vmId, resID, result.getSshKeyName());
+            }
+            logger.info("id-" + vmId + "='" + instID + "'.");                   
         }
         
         LaunchSpecificationResponseType launchSpec = getLaunchSpec(result);
