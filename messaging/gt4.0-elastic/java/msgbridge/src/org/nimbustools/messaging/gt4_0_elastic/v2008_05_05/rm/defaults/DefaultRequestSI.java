@@ -226,7 +226,7 @@ public class DefaultRequestSI extends DefaultRun implements RequestSI {
             throw new RemoteException("Error in spot price conversion.");
         }    
         
-        boolean persistent = DefaultDescribeSI.PERSISTENT.equals(req.getType());
+        boolean persistent = DefaultDescribeSI.PERSISTENT.equalsIgnoreCase(req.getType());
         
         final _SpotCreateRequest screq = this.repr._newSpotCreateRequest();
 
