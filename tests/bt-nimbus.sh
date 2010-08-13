@@ -83,16 +83,21 @@ echo $key
 
 cp $install_dir/var/ca/ca-certs/*  lib/certs/
 cp $cp conf/
+
+mv ~/.nimbus ~/.nimbus.bak
 mkdir ~/.nimbus
+mkdir ~/.globus
 cp $cert  ~/.nimbus/
 cp $key  ~/.nimbus/
-./bin/grid-proxy-init.sh
+cp -r ~/.nimbus ~/.globus
 
+./bin/grid-proxy-init.sh
 
 echo "========================================="
 echo "Starting the services"
 echo "========================================="
 cd $install_dir
+pkill cumulus
 ./bin/nimbusctl restart
 if [ $? -ne 0 ]; then
     echo "something somewhere went wrong. look through the output above"
@@ -100,6 +105,9 @@ if [ $? -ne 0 ]; then
 fi
 
 
+echo $work_dir
+export NIMBUS_HOME=$install_dir
+export NIMBUS_TEST_USER=$user_name
 echo "========================================="
 echo "Run tests...."
 echo "========================================="
@@ -107,16 +115,13 @@ cd $src_dir
 
 for t in *test.sh
 do
-    ./t
+    ./$t
     if [ $? -ne 0 ]; then
         echo "the test $t failed"
         exit 1
     fi
 done
 
-echo $work_dir
-export NIMBUS_HOME=$install_dir
-export NIMBUS_TEST_USER=$user_name
 #rm -rf $work_dir
 #mv ~/.ssh/authorized_keys.back ~/.ssh/authorized_keys
 
