@@ -45,18 +45,46 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
         <jaxrs:serviceBeans>
             <ref bean="brokerResource" />
         </jaxrs:serviceBeans>
+        <jaxrs:outFaultInterceptors>
+            <ref bean="outFaultInterceptor"/>
+        </jaxrs:outFaultInterceptors>
+        <jaxrs:properties>
+            <entry key="org.apache.cxf.propogate.exception" value="false"/>
+        </jaxrs:properties>
     </jaxrs:server>
+
     <bean id="brokerResource" class="org.nimbustools.ctxbroker.rest.BrokerResource"/>
 
-    <security:http auto-config="true">
-        <security:http-basic/>
-        <security:intercept-url pattern="/**" access="ROLE_USER"/>
-    </security:http>
+    <bean id="springSecurityFilterChain" class="org.springframework.security.web.FilterChainProxy">
+        <security:filter-chain-map path-type="ant">
+            <security:filter-chain pattern="/**" filters="
+            basicAuthenticationFilter" />
+        </security:filter-chain-map>
+    </bean>
+    <bean id="basicAuthenticationFilter"
+          class="org.springframework.security.web.authentication.www.BasicAuthenticationFilter">
 
-    <security:authentication-manager>
+        <property name="authenticationManager" ref="authenticationManager"/>
+        <property name="authenticationEntryPoint" ref="authenticationEntryPoint"/>
+    </bean>
+
+    <bean name="outFaultInterceptor" class="org.nimbustools.ctxbroker.rest.OutFaultInterceptor" />   
+
+
+    <security:authentication-manager alias="authenticationManager">
         <security:authentication-provider user-service-ref="userDetailsService"/>
     </security:authentication-manager>
 
+    <!--<bean id="exceptionTranslationFilter"
+          class="org.springframework.security.web.access.ExceptionTranslationFilter">
+        <property name="authenticationEntryPoint" ref="authenticationEntryPoint"/>
+        <property name="accessDeniedHandler" ref="accessDeniedHandler"/>
+    </bean> -->
+
+    <bean id="authenticationEntryPoint"
+          class="org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint">
+        <property name="realmName" value="Nimbus Context Broker"/>
+    </bean>
 
     <!--
         property sources are concentrated in this file

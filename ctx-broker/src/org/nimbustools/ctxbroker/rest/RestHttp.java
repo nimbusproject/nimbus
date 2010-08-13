@@ -79,7 +79,7 @@ public class RestHttp implements Initializable {
         sslConnector.setTrustPassword(keystorePassword);
         server.setConnectors(new Connector[] {sslConnector});
 
-        Context context = new Context(server, "/",  Context.SESSIONS);
+        Context context = new Context(server, "/",  Context.NO_SESSIONS);
         Map<String, String> initParams = new HashMap<String,String>();
         initParams.put("contextConfigLocation", "file://" + springConfig);
         initParams.put("contextClass", NimbusXmlWebApplicationContext.class.getCanonicalName());
