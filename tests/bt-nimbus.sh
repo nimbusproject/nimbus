@@ -94,17 +94,25 @@ echo "Starting the services"
 echo "========================================="
 cd $install_dir
 ./bin/nimbusctl restart
-
-
-echo "========================================="
-echo "Simple test"
-echo "========================================="
-./bin/cloud-client.sh --list
 if [ $? -ne 0 ]; then
-    echo "something somewhere went wrong.   cloud client failed.  look through the output above"
+    echo "something somewhere went wrong. look through the output above"
     exit 1
 fi
 
+
+echo "========================================="
+echo "Run tests...."
+echo "========================================="
+cd $src_dir
+
+for t in *test.sh
+do
+    ./t
+    if [ $? -ne 0 ]; then
+        echo "the test $t failed"
+        exit 1
+    fi
+done
 
 echo $work_dir
 export NIMBUS_HOME=$install_dir
