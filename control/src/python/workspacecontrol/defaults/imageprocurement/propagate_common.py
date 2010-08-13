@@ -381,7 +381,6 @@ class DefaultImageProcurement:
             
             if not l_file._unpropagate_needed:
                 continue
-                
             for keyword in self.adapters.keys():
                 schemestring = keyword + "://"
                 scheme_len = len(schemestring)
@@ -397,7 +396,7 @@ class DefaultImageProcurement:
                         return
                     
                     adapter.unpropagate(l_file.path, l_file._unpropagation_target)
-                    
+
                     return
         
     def _blankspace(self, l_files):
