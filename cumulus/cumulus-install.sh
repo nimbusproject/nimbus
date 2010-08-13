@@ -66,6 +66,16 @@ fi
 
 source $PYVEDIR/bin/activate
 
+cd $source_dir/deps
+if [ $? -ne 0 ]; then
+    echo "Could not change to the deps directory"
+    exit 1
+fi
+./get-em.sh
+if [ $? -ne 0 ]; then
+    echo "get-em failed"
+    exit 1
+fi
 
 if [ ! -e $PIP ]; then
     cd $source_dir/deps
@@ -80,18 +90,6 @@ if [ ! -e $PIP ]; then
         echo "pip was not installed correctly"
         exit 1
     fi
-fi
-
-cd $source_dir/deps
-if [ $? -ne 0 ]; then
-    echo "Could not change to the deps directory"
-    exit 1
-fi
-
-./get-em.sh
-if [ $? -ne 0 ]; then
-    echo "get-em failed"
-    exit 1
 fi
 
 echo ""
