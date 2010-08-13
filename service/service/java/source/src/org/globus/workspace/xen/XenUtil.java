@@ -189,7 +189,7 @@ public class XenUtil implements WorkspaceConstants {
             logger.error(err);
             throw new IllegalArgumentException(err);
         }
-
+                                                             
         if (worksp == null) {
             logger.error(NO_WRKSP);
             throw new WorkspaceException(NO_WRKSP);
@@ -235,7 +235,7 @@ public class XenUtil implements WorkspaceConstants {
             if(nsTrans != null) {
                 img = nsTrans.translateExternaltoInternal(altTargets);
             }
-            cmd.add(altTargets);
+            cmd.add(img);
         }
 
         if (notificationInfo != null) {
