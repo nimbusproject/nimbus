@@ -103,7 +103,8 @@ from boto.ec2.regioninfo import RegionInfo
 
 # first create a region object and connection
 region = RegionInfo(name="nimbus", endpoint="service.hostname.com")
-conn =  boto.connect_ec2("YOUR_ACCESS_ID_HERE", "YOUR_SECRET_KEY_HERE", port=SERVICE_PORT_NUMBER)
+conn =  boto.connect_ec2("YOUR_ACCESS_ID_HERE", "YOUR_SECRET_KEY_HERE",
+                         port=SERVICE_PORT_NUMBER, region=region)
 
 # then do something with the connection
 conn.run_instances("image_name")
