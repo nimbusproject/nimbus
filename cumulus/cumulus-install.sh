@@ -78,13 +78,13 @@ if [ $? -ne 0 ]; then
 fi
 
 if [ ! -e $PIP ]; then
-    cd $source_dir/deps
+    cd $source_dir
     tar -zxf pip-0.7.2.tar.gz
     if [ $? -ne 0 ]; then
         echo "unable to untar pip-0.7.2.tar.gz"
         exit 1
     fi
-    cd $source_dir/deps/pip-0.7.2
+    cd $source_dir/pip-0.7.2
     $PYVE setup.py install
     if [ $? -ne 0 ]; then
         echo "pip was not installed correctly"
