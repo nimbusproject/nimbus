@@ -26,6 +26,10 @@ echo ""
 
 THISDIR_REL="`dirname $0`"
 THISDIR=`cd $THISDIR_REL; pwd`
+
+GLOBUS_LOCATION=`cd $THISDIR/../../; pwd`
+export GLOBUS_LOCATION
+
 LIBDIR="$THISDIR/lib/"
 if [ ! -f $LIBDIR/common-env.sh ]; then
   echo "Failure, cannot find environment definitions"
