@@ -43,7 +43,7 @@ touch test.log
 for t in *test.sh
 do
     ./$t | tee -a test.log
-    if [ $? -ne 0 ]; then
+    if [ $PIPESTATUS -ne 0 ]; then
         echo "$cnt parent tests passed (many more subtests were run)"
         echo "the test $t failed"
         error_cnt=`expr $error_cnt + 1`

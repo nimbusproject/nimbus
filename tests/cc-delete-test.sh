@@ -10,10 +10,16 @@ if [ $? -ne 0 ]; then
     echo "upload failed"
     exit 1
 fi
-./bin/cloud-client.sh --download --name group --localfile $backf
+./bin/cloud-client.sh --delete --name group
 if [ $? -ne 0 ]; then
     rm $backf
-    echo "download failed"
+    echo "delete failed"
+    exit 1
+fi
+./bin/cloud-client.sh --download --name group --localfile $backf
+if [ $? -eq 0 ]; then
+    rm $backf
+    echo "download should have failed"
     exit 1
 fi
 
