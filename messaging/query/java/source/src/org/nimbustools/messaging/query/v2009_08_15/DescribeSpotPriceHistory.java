@@ -1,19 +1,22 @@
 package org.nimbustools.messaging.query.v2009_08_15;
 
 import java.rmi.RemoteException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
 import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.DescribeSpotPriceHistoryResponseType;
 import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.DescribeSpotPriceHistoryType;
 import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.InstanceTypeSetItemType;
@@ -43,8 +46,10 @@ public class DescribeSpotPriceHistory implements ElasticAction {
     
     @GET
     public DescribeSpotPriceHistoryResponseType handleGet(
-                            MultivaluedMap<String, String> form) {
+                                            @Context UriInfo uriInfo) {
 
+        MultivaluedMap<String, String> form = uriInfo.getQueryParameters();
+        
         final DescribeSpotPriceHistoryType request = new DescribeSpotPriceHistoryType();
         if(form != null && !form.isEmpty()){
             List<String> startTime = form.remove("StartTime");
@@ -54,7 +59,7 @@ public class DescribeSpotPriceHistory implements ElasticAction {
                 try {
                     Calendar startDate = convertTimeStampToCalendar(startTimeStr);
                     request.setStartTime(startDate);
-                } catch (ParseException e) {
+                } catch (IllegalArgumentException e) {
                     logger.warn("Could not convert DescribeSpotPriceHistory's " +
                     		    "start time String: " + startTimeStr, e);
                 }
@@ -62,12 +67,12 @@ public class DescribeSpotPriceHistory implements ElasticAction {
             
             List<String> endTime = form.remove("EndTime");
             
-            if(startTime != null && startTime.size() == 1){
+            if(endTime != null && endTime.size() == 1){
                 String endTimeStr = endTime.get(0);
                 try {
                     Calendar endDate = convertTimeStampToCalendar(endTimeStr);
                     request.setEndTime(endDate);
-                } catch (ParseException e) {
+                } catch (IllegalArgumentException e) {
                     logger.warn("Could not convert DescribeSpotPriceHistory's " +
                                 "end time String: " + endTimeStr, e);
                 }
@@ -76,20 +81,19 @@ public class DescribeSpotPriceHistory implements ElasticAction {
             //not used yet
             form.remove("ProductDescription");
             
-            InstanceTypeSetItemType[] itsit = new InstanceTypeSetItemType[form.size()];            
+            ArrayList<InstanceTypeSetItemType> itsit = new ArrayList<InstanceTypeSetItemType>();            
             
-            int i=0;
             for (Entry<String,List<String>> entrySet : form.entrySet()) {
                 List<String> instanceType = entrySet.getValue();
                 if(entrySet.getKey().startsWith(INSTANCE_TYPE_VAR) && instanceType.size() == 1) {
                     InstanceTypeSetItemType instType = new InstanceTypeSetItemType();
                     instType.setInstanceType(instanceType.get(0));
-                    itsit[i++] = instType;                    
+                    itsit.add(instType);                   
                 }
             }
             
             InstanceTypeSetType instanceTypeSet = new InstanceTypeSetType();
-            instanceTypeSet.setItem(itsit);
+            instanceTypeSet.setItem(itsit.toArray(new InstanceTypeSetItemType[0]));
             
             request.setInstanceTypeSet(instanceTypeSet);
         }
@@ -104,18 +108,17 @@ public class DescribeSpotPriceHistory implements ElasticAction {
     
     @POST
     public DescribeSpotPriceHistoryResponseType handlePost(
-            MultivaluedMap<String, String> form) {
-        return handleGet(form);
+                        @Context UriInfo uriInfo) {
+        return handleGet(uriInfo);
     }    
     
-    public Calendar convertTimeStampToCalendar(String timeStamp) throws ParseException  {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss.S'Z'");
-        Date d = sdf.parse("timeStamp");
+    public static Calendar convertTimeStampToCalendar(String timeStamp) throws IllegalArgumentException {
+        DateTimeFormatter dateTime = ISODateTimeFormat.dateTimeParser();
+        DateTime parsedDateTime = dateTime.parseDateTime(timeStamp);
         
         Calendar result = Calendar.getInstance();
-        result.setTime(d);
+        result.setTimeInMillis(parsedDateTime.getMillis());
 
         return result;
     }
-
 }
