@@ -16,7 +16,7 @@ if rc != 0:
 
 cmd = "%s/bin/cloud-client.sh --list" % (cc_home)
 child = pexpect.spawn (cmd, timeout=30, maxread=20000, logfile=logfile)
-child.expect ('[Image] \'group\'')
+child.expect ('group')
 print child.before
 x = child.readlines()
 print x
