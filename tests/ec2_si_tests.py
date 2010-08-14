@@ -4,6 +4,7 @@ import os
 import sys
 import nose.tools
 import boto
+from boto.exception import BotoServerError
 from boto.ec2.connection import EC2Connection
 import boto.ec2 
 import sys
@@ -20,6 +21,8 @@ import pycb.test_common
 from boto.s3.connection import OrdinaryCallingFormat
 from boto.s3.connection import S3Connection
 import random
+import datetime
+import re
 from nimbusweb.setup.groupauthz import *
 
 def get_nimbus_home():
@@ -85,6 +88,9 @@ class TestEC2Submit(unittest.TestCase):
             self.can_user.destroy_brutally()
         if self.db != None:
             self.db.close()
+
+    def test_error(self):
+	self.assertRaises(BotoServerError, self.ec2conn.request_spot_instances, '2.0', 'nil', 1, None, None, None, None, None, None, None, None, None, 'm1.large')
 
     def test_simple_requestSI(self):
         bucket_name = "Repo"
@@ -158,8 +164,6 @@ class TestEC2Submit(unittest.TestCase):
         prev_id = request.id
         assert request.launch_specification.instance_type == "m1.small"
         assert request.price == 1.0, 'incorrect price returned'
-        print "REQUEST TYPE: "
-        print request.type
         assert request.type == "persistent", 'incorrect type returned'        
         
         result = self.ec2conn.get_all_spot_instance_requests()
@@ -183,6 +187,22 @@ class TestEC2Submit(unittest.TestCase):
         assert instance2.spot_instance_request_id == prev_id, 'returned spot instance id is not the same from the request call'
         assert instance2.instanceLifecycle == "spot", 'instance life cycle is incorrect'
         assert instance2.instance_type == "m1.small", 'returned instance is not the same as submitted'
+
+        instance2.stop()
+        
+        time.sleep(1)
+		
+        allReservations = self.ec2conn.get_all_instances()
+        assert len(allReservations) == 1, 'incorrect result size'
+	reservation = allReservations[0]
+        assert len(reservation.instances) == 2, 'incorrect result size'
+        instance3 = reservation.instances[0]
+        assert instance3.id == instance1.id, 'returned instance is not the same as before'
+        instance4 = reservation.instances[1]
+        assert instance4.id != instance2.id
+        assert instance4.spot_instance_request_id == prev_id, 'returned spot instance id is not the same from the request call'
+        assert instance4.instanceLifecycle == "spot", 'instance life cycle is incorrect'
+        assert instance4.instance_type == "m1.small", 'returned instance is not the same as submitted'
 
         request.cancel()
 
@@ -208,3 +228,59 @@ class TestEC2Submit(unittest.TestCase):
 
         allReservations = self.ec2conn.get_all_instances()
         assert len(allReservations) == 0, 'incorrect result size'
+
+    def test_multiple_requestSI(self):
+        bucket_name = "Repo"
+        bucket = self.s3conn.get_bucket(bucket_name)
+        k = boto.s3.key.Key(bucket)
+        image_name = self.cb_random_bucketname(10)
+        k.key = "WHATEVER/" + image_name
+        k.set_contents_from_filename("/etc/group")
+        url = "cumulus://HOST/" + bucket_name + "/" + k.key
+        
+        ts1 = now = datetime.datetime.now()
+
+        req1 = self.ec2conn.request_spot_instances("1.0",url,count=2,type="persistent")
+        req2 = self.ec2conn.request_spot_instances("1.2",url,count=1)
+        req3 = self.ec2conn.request_spot_instances("1.5",url,count=1)
+        
+        req1_res = None
+        req2_res = None
+        req3_res = None
+
+        allReservations = self.ec2conn.get_all_instances()
+        assert len(allReservations) == 3, 'incorrect result size'
+        for reservation in allReservations:
+           assert len(reservation.instances) > 0, 'reservations have no instances!'
+           inst = reservation.instances[0]
+           if inst.spot_instance_request_id == req1[0].id:
+              req1_res = reservation
+           elif inst.spot_instance_request_id == req2[0].id:
+              req2_res = reservation
+           elif inst.spot_instance_request_id == req3[0].id:
+              req3_res = reservation
+
+        assert len(req1_res.instances) == 2
+        assert len(req2_res.instances) == 1
+        assert len(req3_res.instances) == 1
+ 
+        price_history = self.ec2conn.get_spot_price_history(start_time=ts1.isoformat())
+        assert len(price_history) == 0       
+
+        run_res1 = self.ec2conn.run_instances(url,min_count=2)
+
+        time.sleep(1)
+
+        price_history = self.ec2conn.get_spot_price_history(start_time=ts1.isoformat())
+        assert len(price_history) == 1
+        price1 = price_history[0]
+        assert price1.price == 1.0
+
+        #run_res2 = self.ec2conn.run_instances(url)
+
+        req1[0].cancel()
+        req1_res.stop_all()
+        req2_res.stop_all()
+        req3_res.stop_all()
+        run_res1.stop_all()
+        #run_res2.stop_all()
