@@ -110,7 +110,21 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
         }
         this.minPrice = minPrice;
         
-        setPrice(minPrice);
+        Double previousSpotPrice = null;
+        try {
+            previousSpotPrice = this.persistence.getLastSpotPrice();
+        } catch (WorkspaceDatabaseException e) {
+            logger.warn("Error while retrieving previous spot price from database.",e);
+        }
+        
+        if(previousSpotPrice != null){
+            logger.info("Loading previous spot price: " + previousSpotPrice);                        
+            this.currentPrice = previousSpotPrice;
+        } else {
+            logger.info("Setting first spot price: " + minPrice);
+            setPrice(minPrice);
+        }
+
         this.pricingModel.setMinPrice(minPrice);
     }
     
@@ -396,11 +410,9 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
     private void changePrice() {
         Double newPrice = pricingModel.getNextPrice(maxVMs, getAliveSpotRequests(), currentPrice);
         if(!newPrice.equals(this.currentPrice)){
-            if (this.lager.eventLog) {
-                logger.info(Lager.ev(-1) + "Spot price has changed. " +
-                		                   "Previous price = " + this.currentPrice + ". " +
-                		                   "Current price = " + newPrice);
-            }
+            logger.info(Lager.ev(-1) + "Spot price has changed. " +
+                    "Previous price = " + this.currentPrice + ". " +
+                    "Current price = " + newPrice);
             setPrice(newPrice);
         }
     }
@@ -907,7 +919,7 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
                 logger.info(Lager.ev(-1) + "Used non pre-emptable memory: " + usedNonPreemptableMem + "MB");
                 logger.info(Lager.ev(-1) + "Reserved non pre-emptable memory: " + reservedNonPreempMem + "MB");
                 logger.info(Lager.ev(-1) + "Used pre-emptable memory: " + usedPreemptableMem + "MB");                
-                logger.info(Lager.ev(-1) + "Calculated memory for asynchronous   requests: " + siMem + "MB");
+                logger.info(Lager.ev(-1) + "Calculated memory for asynchronous requests: " + siMem + "MB");
             }
         } catch (WorkspaceDatabaseException e) {
             changeMaxVMs(0);

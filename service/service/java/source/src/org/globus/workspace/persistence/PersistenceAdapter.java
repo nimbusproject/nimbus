@@ -247,5 +247,8 @@ public interface PersistenceAdapter {
                                                     Calendar endDate)
                                                   
             throws WorkspaceDatabaseException;
+    
+    public Double getLastSpotPrice()
+            throws WorkspaceDatabaseException;
 
 }

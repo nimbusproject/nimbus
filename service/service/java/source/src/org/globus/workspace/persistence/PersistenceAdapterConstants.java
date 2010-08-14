@@ -200,6 +200,9 @@ public interface PersistenceAdapterConstants {
     public static final String SQL_INSERT_SPOT_PRICE =
             "INSERT INTO spot_prices VALUES(?,?)";    
     
+    public static final String SQL_SELECT_LAST_SPOT_PRICE =
+        "SELECT price FROM spot_prices WHERE tstamp=(select max(tstamp) from spot_prices)";
+    
     public static final String SQL_SELECT_SPOT_PRICE =
             "SELECT * FROM spot_prices";
     
@@ -253,5 +256,6 @@ public interface PersistenceAdapterConstants {
                                     SQL_SELECT_TOTAL_MAX_MEMORY,
                                     SQL_SELECT_TOTAL_PREEMPTABLE_MEMORY,
                                     SQL_SELECT_USED_NON_PREEMPTABLE_MEMORY,
-                                    SQL_INSERT_SPOT_PRICE};
+                                    SQL_INSERT_SPOT_PRICE,
+                                    SQL_SELECT_LAST_SPOT_PRICE};
 }

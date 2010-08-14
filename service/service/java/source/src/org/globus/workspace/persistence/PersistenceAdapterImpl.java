@@ -2579,7 +2579,8 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
     public List<SpotPriceEntry> getSpotPriceHistory(Calendar startDate,
             Calendar endDate) throws WorkspaceDatabaseException {
         if (this.dbTrace) {
-            logger.trace("getSpotPriceHistory() startDate: " + startDate + ". endDate: " + endDate);
+            logger.trace("getSpotPriceHistory() startDate: " + startDate == null? null : startDate.getTime() 
+                            + ". endDate: " + endDate == null? null : endDate.getTime());
         }
 
         Connection c = null;
@@ -2657,5 +2658,55 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
                 logger.error("SQLException in finally cleanup", sql);
             }
         }
-    }    
+    }
+    
+    public Double getLastSpotPrice() throws WorkspaceDatabaseException {
+        if (this.dbTrace) {
+            logger.trace("getLastSpotPrice()");
+        }
+
+        Connection c = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            c = getConnection();
+            pstmt = c.prepareStatement(SQL_SELECT_LAST_SPOT_PRICE);
+            
+            rs = pstmt.executeQuery();
+            
+            if (rs == null || !rs.next()) {
+                if (lager.traceLog) {
+                    logger.debug("no previous spot price");
+                }
+                return null;
+            }
+
+            double result = rs.getDouble(1);
+            
+            if(rs.next()){
+                logger.warn("Wrong behavior: multiple spot prices from last time stamp.");
+            }
+            
+            return result;
+            
+        } catch(SQLException e) {
+            logger.error("",e);
+            throw new WorkspaceDatabaseException(e);
+        } finally {
+            try {
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+                if (rs != null) {
+                    rs.close();
+                }
+                if (c != null) {
+                    returnConnection(c);
+                }
+            } catch (SQLException sql) {
+                logger.error("SQLException in finally cleanup", sql);
+            }
+        }
+    }
 }
