@@ -21,6 +21,7 @@ import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.ctx.Context;
 import org.nimbustools.api.repr.vm.NIC;
+import org.nimbustools.api.services.rm.AuthorizationException;
 import org.nimbustools.api.services.rm.CoSchedulingException;
 import org.nimbustools.api.services.rm.CreationException;
 import org.nimbustools.api.services.rm.MetadataException;
@@ -41,5 +42,6 @@ public interface InternalCreationManager {
                    CreationException,
                    MetadataException,
                    ResourceRequestDeniedException,
-                   SchedulingException;
+                   SchedulingException,
+                   AuthorizationException;
 }

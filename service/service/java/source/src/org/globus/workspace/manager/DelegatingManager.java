@@ -225,7 +225,8 @@ public class DelegatingManager implements Manager {
                   CreationException,
                   MetadataException,
                   ResourceRequestDeniedException,
-                  SchedulingException {
+                  SchedulingException,
+                  AuthorizationException {
         
         InstanceResource[] resources = this.creation.create(req, caller);
         final _CreateResult result = this.repr._newCreateResult();        

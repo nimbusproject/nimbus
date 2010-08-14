@@ -57,7 +57,6 @@ import org.nimbustools.api.repr.CreateRequest;
 import org.nimbustools.api.repr.ReprFactory;
 import org.nimbustools.api.repr.AsyncCreateRequest;
 import org.nimbustools.api.repr.SpotCreateRequest;
-import org.nimbustools.api.repr.SpotRequestInfo;
 import org.nimbustools.api.repr.ctx.Context;
 import org.nimbustools.api.repr.si.SIConstants;
 import org.nimbustools.api.repr.vm.NIC;
@@ -329,7 +328,8 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
                    CreationException,
                    MetadataException,
                    ResourceRequestDeniedException,
-                   SchedulingException {
+                   SchedulingException,
+                   AuthorizationException {
 
         if (caller == null) {
             throw new CreationException("no caller");
@@ -434,77 +434,61 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
     // implements InternalCreationManager
     // -------------------------------------------------------------------------
 
+//    public InstanceResource[] createVMs2(VirtualMachine[] bindings,
+//                                   NIC[] nics,
+//                                   Caller caller,
+//                                   Context context,
+//                                   String groupId,
+//                                   String coschedID,
+//                                   boolean spotInstances)
+//
+//            throws CoSchedulingException,
+//                   CreationException,
+//                   MetadataException,
+//                   ResourceRequestDeniedException,
+//                   SchedulingException {
+//        
+//        this.bindNetwork.consume(bindings, nics);
+//
+//        // From this point forward an error requires backOutIPAllocations
+//        try {
+//            return this.create1(bindings, caller, context, groupId, coschedID, spotInstances);
+//        } catch (CoSchedulingException e) {
+//            this.backoutBound(bindings);
+//            throw e;
+//        } catch (CreationException e) {
+//            this.backoutBound(bindings);
+//            throw e;
+//        } catch (MetadataException e) {
+//            this.backoutBound(bindings);
+//            throw e;
+//        } catch (ResourceRequestDeniedException e) {
+//            this.backoutBound(bindings);
+//            throw e;
+//        } catch (SchedulingException e) {
+//            this.backoutBound(bindings);
+//            throw e;                    
+//        } catch (Throwable t) {
+//            this.backoutBound(bindings);
+//            throw new CreationException("Unknown problem occured: " +
+//                    "'" + ErrorUtil.excString(t) + "'", t);
+//        }
+//    }
+
     public InstanceResource[] createVMs(VirtualMachine[] bindings,
-                                   NIC[] nics,
-                                   Caller caller,
-                                   Context context,
-                                   String groupId,
-                                   String coschedID,
-                                   boolean spotInstances)
+                                        NIC[] nics,
+                                        Caller caller,
+                                        Context context,
+                                        String groupID,
+                                        String coschedID,
+                                        boolean spotInstances)
 
             throws CoSchedulingException,
                    CreationException,
                    MetadataException,
                    ResourceRequestDeniedException,
-                   SchedulingException {
-
-        this.bindNetwork.consume(bindings, nics);
-
-        // From this point forward an error requires backOutIPAllocations
-        try {
-            return this.create1(bindings, caller, context, groupId, coschedID, spotInstances);
-        } catch (CoSchedulingException e) {
-            this.backoutBound(bindings);
-            throw e;
-        } catch (CreationException e) {
-            this.backoutBound(bindings);
-            throw e;
-        } catch (MetadataException e) {
-            this.backoutBound(bindings);
-            throw e;
-        } catch (ResourceRequestDeniedException e) {
-            this.backoutBound(bindings);
-            throw e;
-        } catch (SchedulingException e) {
-            this.backoutBound(bindings);
-            throw e;                    
-        } catch (Throwable t) {
-            this.backoutBound(bindings);
-            throw new CreationException("Unknown problem occured: " +
-                    "'" + ErrorUtil.excString(t) + "'", t);
-        }
-    }
-
-    protected void backoutBound(VirtualMachine[] bound) {
-        try {
-            this.bindNetwork.backOutIPAllocations(bound);
-            //this.binding.backOutAllocations(bound);
-        } catch (Throwable t) {
-            final String err =
-                    "Error during bindings backout: " + t.getMessage();
-            logger.error(err, t);
-        }
-    }
-    
-    
-    // -------------------------------------------------------------------------
-    // CREATE I
-    // -------------------------------------------------------------------------
-
-    // create #1 (wrapped, backOutAllocations required for failures)
-    protected InstanceResource[] create1(VirtualMachine[] bindings,
-                                   Caller caller,
-                                   Context context,
-                                   String groupID,
-                                   String coschedID,
-                                   boolean spotInstances)
-
-            throws AuthorizationException,
-                   CoSchedulingException,
-                   CreationException,
-                   MetadataException,
-                   ResourceRequestDeniedException,
-                   SchedulingException {
+                   SchedulingException,
+                   AuthorizationException {
 
         // msg for future extenders
         if (bindings == null) {
@@ -530,15 +514,20 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
                                                   coschedID,
                                                   caller.getIdentity());
 
+        // From this point forward an error requires attempt to
+        // remove from scheduler        
+        
         if (res == null) {
             throw new SchedulingException("reservation is missing, illegal " +
                     "scheduling implementation");
         }
         
+        this.bindNetwork.consume(bindings, nics);        
+        
+        // From this point forward an error requires backOutIPAllocations
+        
+        
         final int[] ids = res.getIds();
-
-        // From this point forward an error requires attempt to
-        // remove from scheduler
 
         try {
 
@@ -556,7 +545,7 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
                 }
             }
 
-            return create2(res,
+            return create1(res,
                            bindings,
                            caller.getIdentity(),
                            context,
@@ -566,26 +555,43 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
 
         } catch (CoSchedulingException e) {
             this.backoutScheduling(ids, groupID);
+            this.backoutBound(bindings);            
             throw e;
         } catch (CreationException e) {
             this.backoutScheduling(ids, groupID);
+            this.backoutBound(bindings);            
             throw e;
         } catch (MetadataException e) {
             this.backoutScheduling(ids, groupID);
+            this.backoutBound(bindings);
             throw e;
         } catch (ResourceRequestDeniedException e) {
             this.backoutScheduling(ids, groupID);
+            this.backoutBound(bindings);            
             throw e;
         } catch (SchedulingException e) {
             this.backoutScheduling(ids, groupID);
+            this.backoutBound(bindings);            
             throw e;
         } catch (Throwable t) {
             this.backoutScheduling(ids, groupID);
+            this.backoutBound(bindings);            
             throw new CreationException("Unknown problem occured: " +
                     "'" + ErrorUtil.excString(t) + "'", t);
         }
         
     }
+    
+    protected void backoutBound(VirtualMachine[] bound) {
+        try {
+            this.bindNetwork.backOutIPAllocations(bound);
+            //this.binding.backOutAllocations(bound);
+        } catch (Throwable t) {
+            final String err =
+                    "Error during bindings backout: " + t.getMessage();
+            logger.error(err, t);
+        }
+    }    
 
     protected Reservation scheduleImpl(VirtualMachine vm,
                                        int numNodes,
@@ -635,11 +641,12 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
 
     
     // -------------------------------------------------------------------------
-    // CREATE II
+    // CREATE I
     // -------------------------------------------------------------------------
 
-    // create #2 (wrapped, scheduler notification required for failure)
-    protected InstanceResource[] create2(Reservation res,
+    // create #1 (wrapped, backOutAllocations required for failures)    
+    // create #1 (wrapped, scheduler notification required for failure)
+    protected InstanceResource[] create1(Reservation res,
                                    VirtualMachine[] bindings,
                                    String callerID,
                                    Context context,
@@ -702,7 +709,7 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
         }
 
         try {
-            return create3(res,
+            return create2(res,
                            bindings,
                            callerID,
                            context,
@@ -753,11 +760,11 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
 
 
     // -------------------------------------------------------------------------
-    // CREATE III
+    // CREATE II
     // -------------------------------------------------------------------------
 
-    // create #3 (wrapped, accounting destruction might be required for failure)
-    protected InstanceResource[] create3(Reservation res,
+    // create #2 (wrapped, accounting destruction might be required for failure)
+    protected InstanceResource[] create2(Reservation res,
                                    VirtualMachine[] bindings,
                                    String callerID,
                                    Context context,
@@ -878,7 +885,7 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
 
 
     // -------------------------------------------------------------------------
-    // INSTANCE CREATION/BACKOUT (called from CREATE IV)
+    // INSTANCE CREATION/BACKOUT (called from CREATE II)
     // -------------------------------------------------------------------------
 
     // always throws an exception, return is to satisfy compiler
