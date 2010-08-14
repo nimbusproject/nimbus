@@ -2,6 +2,7 @@
 
 cd $CLOUD_CLIENT_HOME
 ./bin/grid-proxy-init.sh
+./bin/cloud-client.sh --delete --name group
 ./bin/cloud-client.sh --transfer --sourcefile /etc/group
 if [ $? -ne 0 ]; then
     echo "upload failed"

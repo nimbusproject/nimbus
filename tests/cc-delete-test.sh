@@ -23,13 +23,6 @@ if [ $? -eq 0 ]; then
     exit 1
 fi
 
-diff $backf /etc/group
-if [ $? -ne 0 ]; then
-    rm $backf
-    echo "diff failed, file corrupted in transfer"
-    exit 1
-fi
-
 rm $backf
 exit 0
 
