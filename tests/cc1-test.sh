@@ -13,14 +13,13 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 handle_line=`./bin/cloud-client.sh --run --hours .2 --name group | tail -n 1`
-if [ $? -ne 0 ]; then
-    echo "run failed"
+if [ $PIPESTATUS -ne 0 ]; then
+    echo "create failed"
     exit 1
 fi
 
 echo $handle_line
 handle=`echo $handle_line | sed  "s/.*Running: //" | sed "s/'//g"`
-echo "++"
 echo $handle
 ./bin/cloud-client.sh --terminate --handle $handle
 if [ $? -ne 0 ]; then

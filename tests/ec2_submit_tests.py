@@ -52,13 +52,16 @@ class TestEC2Submit(unittest.TestCase):
         cumport = 8888
         ec2port = 8444
         self.db = DB(pycb.config.authzdb)
-        self.friendly = self.cb_random_bucketname(21)
-        self.can_user = User(self.db, friendly=self.friendly, create=True)
-        self.subject = self.cb_random_bucketname(21)
-        self.s3id = self.cb_random_bucketname(21)
-        self.s3pw = self.cb_random_bucketname(42)
-        self.s3user = self.can_user.create_alias(self.s3id, pynimbusauthz.alias_type_s3, self.friendly, self.s3pw)
-        self.dnuser = self.can_user.create_alias(self.subject, pynimbusauthz.alias_type_x509, self.friendly)
+        self.friendly = os.environ['NIMBUS_TEST_USER']
+        self.can_user = User.get_user_by_friendly(self.db, self.friendly)
+        s3a = self.can_user.get_alias_by_friendly(self.friendly, pynimbusauthz.alias_type_s3)
+        x509a = self.can_user.get_alias_by_friendly(self.friendly, pynimbusauthz.alias_type_x509)
+
+        self.subject = x509a.get_name()
+        self.s3id = s3a.get_name()
+        self.s3pw = s3a.get_data()
+        self.s3user = s3a
+        self.dnuser = x509a
 
         self.ec2conn = EC2Connection(self.s3id, self.s3pw, host=host, port=ec2port, debug=2)
         self.ec2conn.host = host
@@ -66,10 +69,6 @@ class TestEC2Submit(unittest.TestCase):
         cf = OrdinaryCallingFormat()
         self.s3conn = S3Connection(self.s3id, self.s3pw, host=host, port=cumport, is_secure=False, calling_format=cf)
         self.db.commit()
-
-        nh = get_nimbus_home()
-        groupauthz_dir = os.path.join(nh, "services/etc/nimbus/workspace-service/group-authz/")
-        add_member(groupauthz_dir, self.subject, 4)
 
 
     def tearDown(self):
