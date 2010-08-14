@@ -467,7 +467,7 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
      */
     private void allocateLowerPriorityRequests(Integer higherPriorityVMs, List<AsyncRequest> aliveRequests, String requestType) {    
         
-        Integer availableVMs = this.maxVMs - higherPriorityVMs;
+        Integer availableVMs = Math.max(this.maxVMs - higherPriorityVMs, 0);
 
         Integer allocatedVMs = 0;
         for (AsyncRequest aliveRequest : aliveRequests) {
