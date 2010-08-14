@@ -69,7 +69,7 @@ public class DefaultDescribeSpotPriceHistory implements DescribeSpotPriceHistory
         
         InstanceTypeSetItemType[] instanceType = req.getInstanceTypeSet().getItem();
         
-        if(instanceType != null && instanceType.length > 0 && !instanceType[0].equals(supportedType)){
+        if(instanceType != null && instanceType.length > 0 && !supportedType.equals(instanceType[0].getInstanceType())){
             throw new RemoteException(
                     "Unsupported spot instance type: '" + instanceType[0] + "'." +
                             " Currently supported SI type: " + supportedType);             
@@ -88,6 +88,7 @@ public class DefaultDescribeSpotPriceHistory implements DescribeSpotPriceHistory
             }
         }
         
+
         DescribeSpotPriceHistoryResponseType result = new DescribeSpotPriceHistoryResponseType();
         
         if(spotPriceHistory != null){

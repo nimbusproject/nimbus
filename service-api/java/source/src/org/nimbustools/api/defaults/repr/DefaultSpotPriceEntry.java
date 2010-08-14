@@ -59,7 +59,7 @@ public class DefaultSpotPriceEntry implements _SpotPriceEntry {
 
     public String toString() {
         return "DefaultSpotPriceEntry [spotPrice=" + spotPrice + ", timeStamp="
-                + timeStamp + "]";
+                + (timeStamp != null? timeStamp.getTime() : null) + "]";
     }    
     
 }

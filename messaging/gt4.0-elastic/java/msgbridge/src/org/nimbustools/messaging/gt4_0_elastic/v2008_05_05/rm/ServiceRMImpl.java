@@ -281,7 +281,7 @@ public class ServiceRMImpl extends UnimplementedOperations
             DescribeSpotPriceHistoryType req)
             throws RemoteException {
         if (req == null) {
-            throw new RemoteException("CancelSpotInstanceRequestsType request is missing");
+            throw new RemoteException("DescribeSpotPriceHistoryType request is missing");
         }
         return this.priceHistory.describeSpotPriceHistory(req, manager);   
     }    
