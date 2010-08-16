@@ -1,16 +1,18 @@
 #!/bin/bash
 
 work_dir=$1
+bkdate=`date +%s`
 function on_exit()
 {
-#    rm -rf $work_dir
+    echo "Cleaning up! $bkdate"
+    rm -rf $work_dir
     rm -rf ~/.nimbus
     rm -rf ~/.globus
     mv ~/.nimbus.$bkdate ~/.nimbus
     mv ~/.globus.$bkdate ~/.globus
+    mv ~/.ssh.$bkdate ~/.ssh
 }
 
-bkdate=`date +%s`
 if [ "X$work_dir" == "X" ]; then
     work_dir=`mktemp --tmpdir=$HOME -d -t tmp.XXXXXXXXXX`
     mv ~/.ssh ~/.ssh.$bkdate
@@ -52,10 +54,9 @@ cd $src_dir
 cnt="0"
 error_cnt="0"
 error_ts=""
-touch test.log
 for t in *test.{sh,py}
 do
-    ./$t | tee -a test.log
+    ./$t 2>&1 | tee $t.log
     if [ $PIPESTATUS -ne 0 ]; then
         echo "$cnt parent tests passed (many more subtests were run)"
         echo "the test $t failed"

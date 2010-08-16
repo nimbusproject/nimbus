@@ -1,5 +1,7 @@
 #!/bin/bash
 
+ls -l ~/.ssh/
+
 cd $CLOUD_CLIENT_HOME
 ./bin/grid-proxy-init.sh
 ./bin/cloud-client.sh --delete --name group

@@ -7,6 +7,21 @@ if [ "X$work_dir" == "X" ]; then
     exit 1
 fi
 
+if [ -e $HOME/.ssh ]; then
+    echo "this will destroy your .ssh dir!  please back it up first"
+    exit 1
+fi
+if [ -e $HOME/.globus ]; then
+    echo "this will destroy your .globus dir!  please back it up first"
+    exit 1
+fi
+if [ -e $HOME/.nimbus ]; then
+    echo "this will destroy your .nimbus dir!  please back it up first"
+    exit 1
+fi
+
+
+
 bd=`dirname $0`
 cd $bd
 src_dir=`pwd`
@@ -38,13 +53,13 @@ echo "Configuring propagation only mode"
 echo "========================================="
 
 cp -r $repo_dir/nimbus/control/   $work_dir
-ssh-keygen -N "" -f $work_dir/keys
+ssh-keygen -N "" -f ~/.ssh/id_rsa
 cp ~/.ssh/authorized_keys ~/.ssh/authorized_keys.back.$bkdate
 touch ~/.ssh/authorized_keys
 cat $work_dir/keys.pub >> ~/.ssh/authorized_keys
 user=`whoami`
 
-sed -e "s^@KEY@^$work_dir/keys^" -e "s/@WHO@/$user/" $src_dir/autoconfig-decisions.sh.in > $install_dir/services/share/nimbus-autoconfig/autoconfig-decisions.sh
+sed -e "s^@KEY@^$HOME/.ssh/id_rsa^" -e "s/@WHO@/$user/" $src_dir/autoconfig-decisions.sh.in > $install_dir/services/share/nimbus-autoconfig/autoconfig-decisions.sh
 
 cat $install_dir/services/share/nimbus-autoconfig/autoconfig-decisions.sh
 
