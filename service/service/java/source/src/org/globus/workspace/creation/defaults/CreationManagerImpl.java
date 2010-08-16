@@ -269,6 +269,23 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
         return adv;
     }
     
+    
+    /**
+     * An asynchronous create request is not satisfied at the same time
+     * it is submitted, but when the Asynchronous Request Manager
+     * decides to fulfill that request based on policies.
+     * 
+     * Currently, asynchronous requests can be Spot Instance
+     * requests or backfill requests.
+     * 
+     * @param req the asynchronous create request
+     * @param caller the owner of the request
+     * @return the added asynchronous request
+     * @throws CreationException
+     * @throws MetadataException
+     * @throws ResourceRequestDeniedException
+     * @throws SchedulingException
+     */    
     public AsyncRequest addAsyncRequest(AsyncCreateRequest req, Caller caller)
             throws CreationException,
                    MetadataException,
@@ -302,24 +319,24 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
         
         final String groupID = this.getGroupID(creatorID, bound.length);   
         
-        final String siID = generateRequestID();
+        final String reqiID = generateRequestID();
         
-        AsyncRequest siRequest;
+        AsyncRequest asyncReq;
                 
         if(req instanceof SpotCreateRequest){
             SpotCreateRequest spotReq = (SpotCreateRequest)req;
-            siRequest = new AsyncRequest(siID, spotReq.getSpotPrice(), spotReq.isPersistent(), 
+            asyncReq = new AsyncRequest(reqiID, spotReq.getSpotPrice(), spotReq.isPersistent(), 
                                         caller, groupID, bound, req.getContext(), req.getRequestedNics(), 
                                         req.getSshKeyName(), Calendar.getInstance());   
         } else {
-            siRequest = new AsyncRequest(siID, caller, groupID, bound, 
+            asyncReq = new AsyncRequest(reqiID, caller, groupID, bound, 
                                         req.getContext(), req.getRequestedNics(), 
                                         Calendar.getInstance());               
         }
         
-        asyncManager.addRequest(siRequest); 
+        asyncManager.addRequest(asyncReq); 
         
-        return siRequest;
+        return asyncReq;
     }    
 
     public InstanceResource[] create(CreateRequest req, Caller caller)

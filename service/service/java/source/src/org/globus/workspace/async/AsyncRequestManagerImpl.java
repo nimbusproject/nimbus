@@ -628,7 +628,7 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
     }    
 
     /**
-     * Pre-empts equal bid requests more-or-less proportional 
+     * Pre-empts requests more-or-less proportional 
      * to the number of allocations that the request currently has.
      * 
      * NOTE: Each ACTIVE request must have at least one
@@ -790,7 +790,7 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
     /**
      * Trigger a status change after
      * all VMs from a given request are finished
-     * @param siRequest
+     * @param request
      */
     private void allVMsFinished(AsyncRequest request){
         if(!request.isPersistent() && (!request.needsMoreInstances() || currentPrice > request.getMaxBid())){
@@ -860,7 +860,7 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
     }
 
     /**
-     * Changes the status of a Spot Instance request
+     * Changes the status of an asynchronous request
      * @param request the request that will change status
      * @param newStatus the new status
      */
@@ -873,12 +873,12 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
     }
 
     // -------------------------------------------------------------------------
-    // DEFINE SPOT INSTANCES CAPACITY
+    // DEFINE ASYNCHRONOUS REQUEST CAPACITY
     // -------------------------------------------------------------------------        
     
     /**
      * Calculates the maximum number of instances
-     * the Spot Instances module can allocate
+     * the Asynchronous Request module can allocate
      * 
      * The amount of memory available for SI and backfill 
      * requests will depend on the free reserved capacity

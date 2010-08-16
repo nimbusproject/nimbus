@@ -20,7 +20,7 @@ import org.globus.workspace.scheduler.defaults.PreemptableSpaceManager;
 
 /**
  * Interface that represents
- * a Spot Instances module
+ * an Asynchronous Request module
  */
 public interface AsyncRequestManager extends AsyncRequestHome, PreemptableSpaceManager, StateChangeInterested {
 

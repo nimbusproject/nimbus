@@ -28,8 +28,32 @@ import org.nimbustools.api.services.rm.MetadataException;
 import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
 import org.nimbustools.api.services.rm.SchedulingException;
 
+/**
+ * This interface provides internal modules
+ * (such as the AsynchronousRequestManager) the
+ * ability to instantiate Virtual Machines
+ *
+ */
 public interface InternalCreationManager {
 
+    /**
+     * Instantiates virtual machines with
+     * the given specification 
+     * @param bindings the virtual machines' specs
+     * @param nics network interfaces
+     * @param caller owner of the VMs
+     * @param context the VM's context
+     * @param groupId the group id for this group of VMs
+     * @param coschedID the cosched id for this group of VMs
+     * @param spotInstances if the VMs are spot instances
+     * @return an array of created InstanceResources
+     * @throws CoSchedulingException
+     * @throws CreationException
+     * @throws MetadataException
+     * @throws ResourceRequestDeniedException
+     * @throws SchedulingException
+     * @throws AuthorizationException
+     */
     public InstanceResource[] createVMs(VirtualMachine[] bindings,
                                         NIC[] nics,
                                         Caller caller,

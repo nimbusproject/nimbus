@@ -40,6 +40,22 @@ public interface CreationManager {
                   SchedulingException,
                   AuthorizationException;
     
+    /**
+     * An asynchronous create request is not satisfied at the same time
+     * it is submitted, but when the Asynchronous Request Manager
+     * decides to fulfill that request based on policies.
+     * 
+     * Currently, asynchronous requests can be Spot Instance
+     * requests or backfill requests.
+     * 
+     * @param req the asynchronous create request
+     * @param caller the owner of the request
+     * @return the added asynchronous request
+     * @throws CreationException
+     * @throws MetadataException
+     * @throws ResourceRequestDeniedException
+     * @throws SchedulingException
+     */
     public AsyncRequest addAsyncRequest(AsyncCreateRequest req, Caller caller)
                   throws CreationException,
                   MetadataException,
