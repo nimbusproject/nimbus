@@ -10,7 +10,7 @@ on your system and thus should be considered dangerous.
 Important
 ---------
 This system may destroy your ~/.ssh ~/.globus and ~/.nimbus directories!
-WHile it makes every effort to back them up and reestablish them, this is
+While it makes every effort to back them up and reestablish them, this is
 developer code and it does touch these files!  It is best run under a 
 new and clean user.  Please back all of these directories up before using
 this system!
@@ -51,7 +51,7 @@ name it according to the convention <your test name>test.{py,sh}.  The
 script will be run with the following environment:
 
     NIMBUS_HOME=<nimbus service installation>
-    NIMBUS_TEST_USER=<a configured numbus user name>
+    NIMBUS_TEST_USER=<a configured nimbus user name>
     CLOUD_CLIENT_HOME=<location of the cloud client install>
     NIMBUS_WORKSPACE_CONTROL_HOME=<location of the workspace control install>
 
@@ -61,4 +61,4 @@ Propagation Only
 It should be noted that all tests are run in 'propagation only' mode.  This
 means that no VMs are actually started.  However the service, storage,  
 propagation code, and cloud client code is tested.  While this is not 
-exhustive, it does provided a good sanity check of the codebase.
+exhaustive, it does provided a good sanity check of the codebase.
