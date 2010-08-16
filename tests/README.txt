@@ -1,7 +1,7 @@
 Nimbus Build and Test
 =====================
 
-This document is for developers of nimbus.  It describes how to use the 
+This document is for developers of Nimbus.  It describes how to use the 
 automated build, configure, and test system.  This system is NOT intended
 for users and is not supported.  It touches some very important files 
 on your system and thus should be considered dangerous.
@@ -20,9 +20,9 @@ Testing
 
 simply run the program ./bt-nimbus.sh with no arguments.  This will 
 do the following:
-    1) nimbus from the github master branch
+    1) Nimbus from the github master branch
     2) build and install
-        -- nimbus
+        -- Nimbus
         -- workspace control in propagate only mode
         -- cloud-client
     3) run all tests in the current directory
@@ -50,10 +50,13 @@ To add a new test simply create an executable bash or python script and
 name it according to the convention <your test name>test.{py,sh}.  The 
 script will be run with the following environment:
 
-    NIMBUS_HOME=<nimbus service installation>
-    NIMBUS_TEST_USER=<a configured nimbus user name>
+    NIMBUS_HOME=<Nimbus service installation>
+    NIMBUS_TEST_USER=<a configured Nimbus user name>
     CLOUD_CLIENT_HOME=<location of the cloud client install>
     NIMBUS_WORKSPACE_CONTROL_HOME=<location of the workspace control install>
+
+All tests must return 0 for success.  All other return codes are considered
+failure.  Tests may log whatever they want to stdout/err.
 
 Propagation Only
 ----------------

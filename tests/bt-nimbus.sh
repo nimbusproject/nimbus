@@ -1,5 +1,8 @@
 #!/bin/bash
 
+unset SSH_AGENT_PID
+unset SSH_AUTH_SOCK
+
 work_dir=$1
 bkdate=`date +%s`
 function on_exit()
@@ -33,6 +36,9 @@ else
     ./make-test-env.sh $work_dir | tee bandt.log
 fi
 source env.sh
+
+cd $CLOUD_CLIENT_HOME
+./bin/grid-proxy-init.sh
 
 echo "========================================="
 echo "Starting the services"

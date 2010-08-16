@@ -19,11 +19,14 @@ if rc != 0:
 
 cmd = "%s/bin/cloud-client.sh --list" % (cc_home)
 child = pexpect.spawn (cmd, timeout=30, maxread=20000, logfile=logfile)
-child.expect ('group')
+rc = child.expect ('group')
+if rc != 0:
+    print "group not found in the list"
+    sys.exit(1)
 print child.before
-x = child.readlines()
-print x
-if child.status != 0:
+rc = child.expect(pexpect.EOF)
+print child.before
+if rc != 0:
     print "failed to list"
     sys.exit(1)
 

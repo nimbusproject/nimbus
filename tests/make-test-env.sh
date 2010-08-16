@@ -51,14 +51,15 @@ echo "========================================="
 echo "Configuring propagation only mode"
 echo "========================================="
 
-cp -r $repo_dir/nimbus/control/   $work_dir
-ssh-keygen -N "" -f ~/.ssh/id_rsa
-cp ~/.ssh/authorized_keys ~/.ssh/authorized_keys.back.$bkdate
-touch ~/.ssh/authorized_keys
-cat $~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+new_key=$HOME/.ssh/id_rsa
+python $src_dir/ssh.py $new_key
 user=`whoami`
+ls -l ~/.ssh
+echo "Attempting to ssh"
+ssh localhost hostname
 
-sed -e "s^@KEY@^$HOME/.ssh/id_rsa^" -e "s/@WHO@/$user/" $src_dir/autoconfig-decisions.sh.in > $install_dir/services/share/nimbus-autoconfig/autoconfig-decisions.sh
+cp -r $repo_dir/nimbus/control/  $work_dir
+sed -e "s^@KEY@^$new_key^" -e "s/@WHO@/$user/" $src_dir/autoconfig-decisions.sh.in > $install_dir/services/share/nimbus-autoconfig/autoconfig-decisions.sh
 
 cat $install_dir/services/share/nimbus-autoconfig/autoconfig-decisions.sh
 

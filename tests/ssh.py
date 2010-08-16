@@ -2,18 +2,41 @@
 
 import pexpect
 import sys
-from ConfigParser import SafeConfigParser
+import shutil
+import os
+
 
 logfile = sys.stdout
 print "try ssh"
 try:
+    cmd="ssh-keygen -f %s" % (sys.argv[1])
+    child = pexpect.spawn (cmd, timeout=30, maxread=20000, logfile=logfile)
+    child.expect (':')
+#    print child.before
+    child.sendline ('')
+    child.expect (':')
+#    print child.before
+    child.sendline ('')
+    rc = child.expect(pexpect.EOF)
+#    print child.before
+
+    cmd = "cp %s.pub %s/.ssh/authorized_keys" % (sys.argv[1], os.environ['HOME'])
+    print cmd
+    child = pexpect.spawn (cmd, timeout=10, maxread=20000, logfile=logfile)
+    rc = child.expect(pexpect.EOF)
+#    print child.before
+
     print "setting up ssh knowhosts"
-    cmd = "ssh localhost hostname"
-    child = pexpect.spawn (cmd, timeout=8, maxread=20000, logfile=logfile)
+    cmd = "ssh -i %s localhost hostname" % (sys.argv[1])
+    child = pexpect.spawn (cmd, timeout=10, maxread=20000, logfile=logfile)
     child.expect ('(yes/no)?')
-    print child.before
+#    print child.before
     child.sendline ('yes')
     rc = child.expect(pexpect.EOF)
-    print child.before
+#    print child.before
+
 except Exception, ex:
     print ex
+
+
+
