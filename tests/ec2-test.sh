@@ -20,5 +20,4 @@ DJANGO_SETTINGS_MODULE="nimbusweb.portal.settings"
 export DJANGO_SETTINGS_MODULE
 
 source $NIMBUS_HOME/ve/bin/activate
-nosetests ec2_repo_test.py ec2_submit_tests.py
-exit $?
+exec nosetests ec2_repo_tests.py ec2_submit_tests.py
