@@ -1,0 +1,44 @@
+# A sample network pool 'public'
+
+# The first non-blank, non-comment line must be the DNS server you would
+# like to tell the VMs receiving addresses from this network pool to use.
+
+# DNS server IP address (or 'none')
+192.168.0.1
+
+# The rest of the file's non-blank, non-comment lines are the addresses
+# that will be leased out to VMs requesting this network.
+
+# The only optional field is the MAC address. All others must be a valid
+# entry or 'none'.
+
+# The IP address and hostname fields may not be 'none'.
+# If the gateway is 'none', no gateway is assigned.
+# If broadcast or subnetmask are 'none' they are derived from the IP
+#   - based on the normal subnet and broadcast for the IP class (A,B,C)
+
+# An explicit MAC address may be optionally specified for an entry. The
+# MAC must be specified as six pairs of hex digits, separated by colons.
+# If you do not specify a MAC, one will be automatically generated when
+# Nimbus is started.
+
+# A file containing sample DHCP entries is written by the Nimbus service
+# to $NIMBUS_HOME/services/var/nimbus/dhcpd.entries
+# This file contains the generated and explicit IP -> MAC mappings and
+# can be included in your site DHCPD configuration. There is also a
+# simple text mapping of IP -> MAC written to the ip_mac.txt file in the
+# same directory.
+
+
+
+# hostname ipaddress gateway broadcast subnetmask [MAC]
+
+pub02 192.168.0.2 192.168.0.1 none none
+pub03 192.168.0.3 192.168.0.1 192.168.0.255 255.255.255.0 A2:AA:BB:EE:5F:2A
+pub04 192.168.0.4 192.168.0.1 192.168.0.255 255.255.255.0
+pub05 192.168.0.5 192.168.0.1 none none
+pub06 192.168.0.6 none none none
+pub07 192.168.0.7 192.168.0.1 none 255.255.255.0
+pub08 192.168.0.8 192.168.0.1 none 255.255.255.0
+pub09 192.168.0.9 192.168.0.1 none 255.255.255.0
+pub10 192.168.0.10 192.168.0.1 none 255.255.255.0

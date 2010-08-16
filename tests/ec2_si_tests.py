@@ -240,9 +240,9 @@ class TestEC2Submit(unittest.TestCase):
         
         ts1 = now = datetime.datetime.now()
 
-        req1 = self.ec2conn.request_spot_instances("1.0",url,count=2,type="persistent")
-        req2 = self.ec2conn.request_spot_instances("1.2",url,count=1)
-        req3 = self.ec2conn.request_spot_instances("1.5",url,count=1)
+        req1 = self.ec2conn.request_spot_instances("1.0",url,count=2,type="persistent")[0]
+        req2 = self.ec2conn.request_spot_instances("1.2",url,count=1)[0]
+        req3 = self.ec2conn.request_spot_instances("1.5",url,count=1)[0]
         
         req1_res = None
         req2_res = None
@@ -253,11 +253,11 @@ class TestEC2Submit(unittest.TestCase):
         for reservation in allReservations:
            assert len(reservation.instances) > 0, 'reservations have no instances!'
            inst = reservation.instances[0]
-           if inst.spot_instance_request_id == req1[0].id:
+           if inst.spot_instance_request_id == req1.id:
               req1_res = reservation
-           elif inst.spot_instance_request_id == req2[0].id:
+           elif inst.spot_instance_request_id == req2.id:
               req2_res = reservation
-           elif inst.spot_instance_request_id == req3[0].id:
+           elif inst.spot_instance_request_id == req3.id:
               req3_res = reservation
 
         assert len(req1_res.instances) == 2
@@ -268,7 +268,6 @@ class TestEC2Submit(unittest.TestCase):
         assert len(price_history) == 0       
 
         run_res1 = self.ec2conn.run_instances(url,min_count=2)
-
         time.sleep(1)
 
         price_history = self.ec2conn.get_spot_price_history(start_time=ts1.isoformat())
@@ -276,11 +275,132 @@ class TestEC2Submit(unittest.TestCase):
         price1 = price_history[0]
         assert price1.price == 1.0
 
-        #run_res2 = self.ec2conn.run_instances(url)
+        ts2 = now = datetime.datetime.now()
 
-        req1[0].cancel()
-        req1_res.stop_all()
-        req2_res.stop_all()
-        req3_res.stop_all()
-        run_res1.stop_all()
-        #run_res2.stop_all()
+        run_res2 = self.ec2conn.run_instances(url)
+        time.sleep(1) 
+
+        price_history = self.ec2conn.get_spot_price_history(start_time=ts1.isoformat())
+        assert len(price_history) == 2
+        price1 = price_history[0]
+        assert price1.price == 1.0
+        price1 = price_history[1]
+        assert price1.price == 1.2
+
+        run_res3 = self.ec2conn.run_instances(url)
+        time.sleep(1)
+
+        price_history = self.ec2conn.get_spot_price_history(start_time=ts1.isoformat())
+        assert len(price_history) == 3
+        price1 = price_history[0]
+        assert price1.price == 1.0
+        price1 = price_history[1]
+        assert price1.price == 1.2
+        price1 = price_history[2]
+        assert price1.price == 1.5
+
+        si_reqs = self.ec2conn.get_all_spot_instance_requests()
+        assert len(si_reqs) == 3, 'incorrect result size'
+        for si_req in si_reqs:
+           if si_req.id == req1.id:
+              assert si_req.price == 1.0, 'incorrect price returned'
+              assert si_req.type == "persistent", 'incorrect type returned'
+              assert si_req.state == "open", 'request should have been in the open status'
+              assert not si_req.instance_id, 'there shouldnt be an instance id'           
+           elif si_req.id == req2.id:
+              assert si_req.price == 1.2, 'incorrect price returned'
+              assert si_req.type == "one-time", 'incorrect type returned'
+              assert si_req.state == "closed", 'request should have been in the open status'
+              assert not si_req.instance_id, 'there shouldnt be an instance id'
+           elif si_req.id == req3.id:
+              assert si_req.price == 1.5, 'incorrect price returned'
+              assert si_req.type == "one-time", 'incorrect type returned'
+              assert si_req.state == "active", 'request should have been in the open status'
+              assert req3_res.instances[0].id == si_req.instance_id, 'returned instance id must be equal to spot instance id'
+           else:
+              self.fail("shouldn't happen")
+
+        ts3 = now = datetime.datetime.now()
+
+        run_res2.stop_all()
+        time.sleep(1)
+
+        si_reqs = self.ec2conn.get_all_spot_instance_requests()
+        assert len(si_reqs) == 3, 'incorrect result size'
+        for si_req in si_reqs:
+           if si_req.id == req1.id:
+              assert si_req.price == 1.0, 'incorrect price returned'
+              assert si_req.type == "persistent", 'incorrect type returned'
+              assert si_req.state == "active", 'request should have been in the open status'
+           elif si_req.id == req2.id:
+              assert si_req.price == 1.2, 'incorrect price returned'
+              assert si_req.type == "one-time", 'incorrect type returned'
+              assert si_req.state == "closed", 'request should have been in the open status'
+              assert not si_req.instance_id, 'there shouldnt be an instance id'
+           elif si_req.id == req3.id:
+              assert si_req.price == 1.5, 'incorrect price returned'
+              assert si_req.type == "one-time", 'incorrect type returned'
+              assert si_req.state == "active", 'request should have been in the open status'
+              assert req3_res.instances[0].id == si_req.instance_id, 'returned instance id must be equal to spot instance id'
+           else:
+              self.fail("shouldn't happen")
+
+        price_history = self.ec2conn.get_spot_price_history(start_time=ts1.isoformat())
+        assert len(price_history) == 4
+        price1 = price_history[0]
+        assert price1.price == 1.0
+        price1 = price_history[1]
+        assert price1.price == 1.2
+        price1 = price_history[2]
+        assert price1.price == 1.5
+        price1 = price_history[3]
+        assert price1.price == 1.0
+
+        self.ec2conn.cancel_spot_instance_requests([req1.id,req3.id])
+
+        si_reqs = self.ec2conn.get_all_spot_instance_requests()
+        assert len(si_reqs) == 3, 'incorrect result size'
+        for si_req in si_reqs:
+           if si_req.id == req1.id:
+              assert si_req.price == 1.0, 'incorrect price returned'
+              assert si_req.type == "persistent", 'incorrect type returned'
+              assert si_req.state == "canceled", 'request should have been in the open status'
+           elif si_req.id == req2.id:
+              assert si_req.price == 1.2, 'incorrect price returned'
+              assert si_req.type == "one-time", 'incorrect type returned'
+              assert si_req.state == "closed", 'request should have been in the open status'
+              assert not si_req.instance_id, 'there shouldnt be an instance id'
+           elif si_req.id == req3.id:
+              assert si_req.price == 1.5, 'incorrect price returned'
+              assert si_req.type == "one-time", 'incorrect type returned'
+              assert si_req.state == "canceled", 'request should have been in the open status'
+              assert req3_res.instances[0].id == si_req.instance_id, 'returned instance id must be equal to spot instance id'
+           else:
+              self.fail("shouldn't happen")
+
+        allReservations = self.ec2conn.get_all_instances()
+        for reservation in allReservations:
+           reservation.stop_all()
+
+        allReservations = self.ec2conn.get_all_instances()
+        assert len(allReservations) == 0, 'incorrect result size'
+
+        price_history = self.ec2conn.get_spot_price_history(start_time=ts1.isoformat())
+        assert len(price_history) == 5
+        price1 = price_history[0]
+        assert price1.price == 1.0
+        price1 = price_history[1]
+        assert price1.price == 1.2
+        price1 = price_history[2]
+        assert price1.price == 1.5
+        price1 = price_history[3]
+        assert price1.price == 1.0
+        price1 = price_history[4]
+        assert price1.price == 0.1
+
+        price_history = self.ec2conn.get_spot_price_history(start_time=ts2.isoformat(), end_time=ts3.isoformat())
+        assert len(price_history) == 2
+        price1 = price_history[0]
+        assert price1.price == 1.2
+        price1 = price_history[1]
+        assert price1.price == 1.5
