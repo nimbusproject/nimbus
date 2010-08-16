@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import pexpect
 import sys
 from ConfigParser import SafeConfigParser
