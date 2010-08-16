@@ -31,7 +31,6 @@ mkdir $repo_dir
 cd $repo_dir
 
 repo="git://github.com/nimbusproject/nimbus.git"
-repo="/home/nimbus/nimbus"
 repo="/home/bresnaha/Dev/Nimbus/nimbus"
 git clone $repo
 
@@ -56,7 +55,7 @@ cp -r $repo_dir/nimbus/control/   $work_dir
 ssh-keygen -N "" -f ~/.ssh/id_rsa
 cp ~/.ssh/authorized_keys ~/.ssh/authorized_keys.back.$bkdate
 touch ~/.ssh/authorized_keys
-cat $work_dir/keys.pub >> ~/.ssh/authorized_keys
+cat $~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
 user=`whoami`
 
 sed -e "s^@KEY@^$HOME/.ssh/id_rsa^" -e "s/@WHO@/$user/" $src_dir/autoconfig-decisions.sh.in > $install_dir/services/share/nimbus-autoconfig/autoconfig-decisions.sh

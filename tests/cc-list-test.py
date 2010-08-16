@@ -14,6 +14,7 @@ cmd = "%s/bin/cloud-client.sh --transfer --sourcefile /etc/group" % (cc_home)
 (x, rc)=pexpect.run(cmd, withexitstatus=1)
 print x
 if rc != 0:
+    print "failed to transfer"
     sys.exit(1)
 
 cmd = "%s/bin/cloud-client.sh --list" % (cc_home)
@@ -23,10 +24,12 @@ print child.before
 x = child.readlines()
 print x
 if child.status != 0:
+    print "failed to list"
     sys.exit(1)
 
 (x, rc)=pexpect.run("%s/bin/cloud-client.sh --delete --name group" % (cc_home) , withexitstatus=1)
 print x
 if rc != 0:
+    print "failed to delete"
     sys.exit(1)
 sys.exit(0)

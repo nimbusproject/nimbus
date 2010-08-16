@@ -35,6 +35,9 @@ Results
 All output is sent to the console.  Within the last few lines there will
 be a summary line similar to: 
 
+    4 parent tests passed (many more subtests were run)
+    3 parent tests failed
+         cc1-test.sh ec2-test.sh cc-list-test.py
 
 Log files are also created.  The main build log can be found in the source
 directory at 'bandt.log'.  Each test also creates a log file <test name>.log.
