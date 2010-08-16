@@ -1,9 +1,22 @@
 #!/bin/bash
 
-bkdate=`date +%s`
 work_dir=$1
+function on_exit()
+{
+#    rm -rf $work_dir
+    rm -rf ~/.nimbus
+    rm -rf ~/.globus
+    mv ~/.nimbus.$bkdate ~/.nimbus
+    mv ~/.globus.$bkdate ~/.globus
+}
+
+bkdate=`date +%s`
 if [ "X$work_dir" == "X" ]; then
     work_dir=`mktemp --tmpdir=$HOME -d -t tmp.XXXXXXXXXX`
+    mv ~/.ssh ~/.ssh.$bkdate
+    mv ~/.nimbus ~/.nimbus.$bkdate
+    mv ~/.globus ~/.globus.$bkdate
+    trap on_exit EXIT
 fi
 
 bd=`dirname $0`
@@ -40,7 +53,7 @@ cnt="0"
 error_cnt="0"
 error_ts=""
 touch test.log
-for t in *test.sh
+for t in *test.{sh,py}
 do
     ./$t | tee -a test.log
     if [ $PIPESTATUS -ne 0 ]; then
@@ -55,9 +68,6 @@ done
 echo "$cnt parent tests passed (many more subtests were run)"
 echo "$error_cnt parent tests failed"
 echo "    $error_ts"
-
-#rm -rf $work_dir
-#mv ~/.ssh/authorized_keys.back ~/.ssh/authorized_keys
 
 $NIMBUS_HOME/bin/nimbusctl stop
 exit $?
