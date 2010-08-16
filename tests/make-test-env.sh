@@ -31,7 +31,7 @@ mkdir $repo_dir
 cd $repo_dir
 
 repo="git://github.com/nimbusproject/nimbus.git"
-repo="/home/bresnaha/Dev/Nimbus/nimbus"
+#repo="/home/bresnaha/Dev/Nimbus/nimbus"
 git clone $repo
 
 install_dir=$work_dir/NIMBUSINSTALL
