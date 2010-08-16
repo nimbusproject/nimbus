@@ -8,6 +8,7 @@ function on_exit()
     rm -rf $work_dir
     rm -rf ~/.nimbus
     rm -rf ~/.globus
+    rm -rf ~/.ssh
     mv ~/.nimbus.$bkdate ~/.nimbus
     mv ~/.globus.$bkdate ~/.globus
     mv ~/.ssh.$bkdate ~/.ssh
