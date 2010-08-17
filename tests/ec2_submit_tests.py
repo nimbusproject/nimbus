@@ -85,7 +85,6 @@ class TestEC2Submit(unittest.TestCase):
         if self.db != None:
             self.db.close()
 
-
     def test_ec2_submit_name_format(self):
         bucket = self.s3conn.get_bucket("Repo")
         k = boto.s3.key.Key(bucket)
