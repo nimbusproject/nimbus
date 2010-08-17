@@ -8,7 +8,10 @@ bkdate=`date +%s`
 function on_exit()
 {
     echo "Cleaning up! $bkdate"
-    rm -rf $work_dir
+    if [ "X$work_dir" == "X" ]; then
+    #    rm -rf $work_dir
+         echo "hi"
+    fi
     rm -rf $HOME/.nimbus
     rm -rf $HOME/.globus
     rm -rf $HOME/.ssh
