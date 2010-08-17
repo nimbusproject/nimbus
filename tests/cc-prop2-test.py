@@ -7,7 +7,7 @@ import filecmp
 
 cc_home=os.environ['CLOUD_CLIENT_HOME']
 logfile = sys.stdout
-newname="XXXX"
+newname="YYYY"
 try:
     os.remove(newname)
 except:

@@ -81,5 +81,5 @@ echo "$error_cnt parent tests failed"
 echo "    $error_ts"
 
 $NIMBUS_HOME/bin/nimbusctl stop
-exit $?
+exit $error_cnt
 
