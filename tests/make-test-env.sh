@@ -54,7 +54,7 @@ echo "========================================="
 new_key=$HOME/.ssh/id_rsa
 python $src_dir/ssh.py $new_key
 user=`whoami`
-ls -l ~/.ssh
+ls -l $HOME/.ssh
 echo "Attempting to ssh"
 ssh localhost hostname
 
@@ -101,10 +101,10 @@ echo $key
 cp $install_dir/var/ca/ca-certs/*  lib/certs/
 cp $cp conf/
 
-mkdir ~/.nimbus
-cp $cert  ~/.nimbus/
-cp $key  ~/.nimbus/
-cp -r ~/.nimbus ~/.globus
+mkdir $HOME/.nimbus
+cp $cert  $HOME/.nimbus/
+cp $key  $HOME/.nimbus/
+cp -r $HOME/.nimbus $HOME/.globus
 
 ./bin/grid-proxy-init.sh
 

@@ -9,19 +9,19 @@ function on_exit()
 {
     echo "Cleaning up! $bkdate"
     rm -rf $work_dir
-    rm -rf ~/.nimbus
-    rm -rf ~/.globus
-    rm -rf ~/.ssh
-    mv ~/.nimbus.$bkdate ~/.nimbus
-    mv ~/.globus.$bkdate ~/.globus
-    mv ~/.ssh.$bkdate ~/.ssh
+    rm -rf $HOME/.nimbus
+    rm -rf $HOME/.globus
+    rm -rf $HOME/.ssh
+    mv $HOME/.nimbus.$bkdate $HOME/.nimbus
+    mv $HOME/.globus.$bkdate $HOME/.globus
+    mv $HOME/.ssh.$bkdate $HOME/.ssh
 }
 
 if [ "X$work_dir" == "X" ]; then
     work_dir=`mktemp --tmpdir=$HOME -d -t tmp.XXXXXXXXXX`
-    mv ~/.ssh ~/.ssh.$bkdate
-    mv ~/.nimbus ~/.nimbus.$bkdate
-    mv ~/.globus ~/.globus.$bkdate
+    mv $HOME/.ssh $HOME/.ssh.$bkdate
+    mv $HOME/.nimbus $HOME/.nimbus.$bkdate
+    mv $HOME/.globus $HOME/.globus.$bkdate
     trap on_exit EXIT
 fi
 
