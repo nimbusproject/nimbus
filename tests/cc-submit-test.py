@@ -22,7 +22,9 @@ if rc != 0:
     print "run"
     sys.exit(1)
 
-(x, rc)=pexpect.run("%s/bin/cloud-client.sh --terminate --name %s" % (cc_home, handle) , withexitstatus=1)
+cmd = "%s/bin/cloud-client.sh --terminate --handle %s" % (cc_home, handle)
+print cmd
+(x, rc)=pexpect.run(cmd, withexitstatus=1)
 print x
 if rc != 0:
     print "failed to terminate"
