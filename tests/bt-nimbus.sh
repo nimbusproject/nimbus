@@ -9,8 +9,7 @@ function on_exit()
 {
     echo "Cleaning up! $bkdate"
     if [ "X$work_dir" == "X" ]; then
-    #    rm -rf $work_dir
-         echo "hi"
+        rm -rf $work_dir
     fi
     rm -rf $HOME/.nimbus
     rm -rf $HOME/.globus
