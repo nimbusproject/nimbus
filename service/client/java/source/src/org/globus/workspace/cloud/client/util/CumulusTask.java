@@ -753,7 +753,22 @@ public class CumulusTask
             S3Service s3Service = this.getService();
             String baseBucketName = this.args.getS3Bucket();
             String keyName = this.makeKey(vmName, null);
-            boolean exists = s3Service.isObjectInBucket(baseBucketName, keyName);
+            boolean exists = false;
+            try
+            {
+                exists = s3Service.isObjectInBucket(baseBucketName, keyName);
+            }
+            catch(S3ServiceException s3ex)
+            {
+                if(s3ex.getResponseCode() == 404)
+                {
+                    exists = false;
+                }
+                else
+                {
+                    throw s3ex;
+                }
+            }
             if(exists)
             {
                 return keyName;
