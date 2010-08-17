@@ -665,7 +665,19 @@ public class CumulusTask
             String baseBucketName = this.args.getS3Bucket();
             String keyName = this.makeKey(vmName, null);
 
-            s3Service.deleteObject(baseBucketName, keyName);
+            try
+            {
+                s3Service.deleteObject(baseBucketName, keyName);
+            }
+            catch(S3ServiceException s3ex)
+            {
+                if(s3ex.getS3ErrorCode().equals("NoSuchKey"))
+                {
+                    keyName = this.makeKey(vmName, "common");
+                    s3Service.deleteObject(baseBucketName, keyName);
+                }
+            }
+
         }
         catch(S3ServiceException s3ex)
         {
@@ -726,6 +738,34 @@ public class CumulusTask
             hc);
 
         return s3Service;
+    }
+
+    public String getImagePath(
+            String                      vmName)
+                throws ExecutionProblem
+    {
+        try
+        {
+            S3Service s3Service = this.getService();
+            String baseBucketName = this.args.getS3Bucket();
+            String keyName = this.makeKey(vmName, null);
+            boolean exists = s3Service.isObjectInBucket(baseBucketName, keyName);
+            if(exists)
+            {
+                return keyName;
+            }
+            keyName = this.makeKey(vmName, "common");
+            exists = s3Service.isObjectInBucket(baseBucketName, keyName);
+            if(exists)
+            {
+                return keyName;
+            }
+            throw new ExecutionProblem("We cannot find the VM " + vmName);
+         }
+        catch(S3ServiceException s3ex)
+        {
+            throw new ExecutionProblem(s3ex.toString());
+        }
     }
 
     public FileListing[] listFiles(
