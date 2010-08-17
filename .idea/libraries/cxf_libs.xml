@@ -23,17 +23,21 @@
       <root url="jar://$PROJECT_DIR$/lib/services/jaxb-api-2.1.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/services/servlet.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/services/jetty-util-6.1.21.jar!/" />
-      <root url="jar://$PROJECT_DIR$/lib/services/spring-security-core-3.0.0.RELEASE.jar!/" />
-      <root url="jar://$PROJECT_DIR$/lib/services/spring-security-config-3.0.0.RELEASE.jar!/" />
-      <root url="jar://$PROJECT_DIR$/lib/services/spring-security-web-3.0.0.RELEASE.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/services/neethi-2.0.4.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/services/jsr311-api-1.0.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/services/joda-time-1.6.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/services/wsdl4j-1.6.2.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/services/wstx-asl-3.2.8.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/services/gson-1.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/spring-security-web-3.0.3.RELEASE.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/spring-security-config-3.0.3.RELEASE.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/spring-security-core-3.0.3.RELEASE.jar!/" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES />
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/../../src/spring-security-3.0.3.RELEASE/dist/spring-security-web-3.0.3.RELEASE-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../src/spring-security-3.0.3.RELEASE/dist/spring-security-core-3.0.3.RELEASE-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../src/spring-security-3.0.3.RELEASE/dist/spring-security-config-3.0.3.RELEASE-sources.jar!/" />
+    </SOURCES>
   </library>
 </component>
