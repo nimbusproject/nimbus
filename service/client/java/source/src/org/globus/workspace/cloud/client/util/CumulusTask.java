@@ -728,7 +728,6 @@ public class CumulusTask
         return s3Service;
     }
 
-
     public FileListing[] listFiles(
         PrintStream                     info,
         PrintStream                     err,

@@ -118,7 +118,7 @@ class TestBucketsWithBoto(unittest.TestCase):
         conn = pycb.test_common.cb_get_conn(self.host, self.port, self.id, self.pw)
         bn = self.cb_random_bucketname(10)
         try:
-            bucket = conn.get_bucket(dn)
+            bucket = conn.get_bucket(bn)
             passed = False
         except:
             passed = True
