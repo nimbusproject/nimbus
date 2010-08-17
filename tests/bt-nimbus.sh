@@ -19,6 +19,7 @@ function on_exit()
         mv $HOME/.nimbus.$bkdate $HOME/.nimbus
         mv $HOME/.globus.$bkdate $HOME/.globus
         mv $HOME/.ssh.$bkdate $HOME/.ssh
+        mv $HOME/.s3cfg.$bkdate $HOME/.s3cfg
         echo "put everything back"
     fi
 }
@@ -32,11 +33,12 @@ cd $bd
 src_dir=`pwd`
 
 if [ "X$2" == "Xno" ]; then
-    echo "we are kiping the build and just running the tests"
+    echo "we are skiping the build and just running the tests"
 else
     mv $HOME/.ssh $HOME/.ssh.$bkdate
     mv $HOME/.nimbus $HOME/.nimbus.$bkdate
     mv $HOME/.globus $HOME/.globus.$bkdate
+    mv $HOME/.s3cfg $HOME/.s3cfg.$bkdate
     trap on_exit EXIT
     echo "Building a Nimbus env at $work_dir"
     ./make-test-env.sh $work_dir | tee bandt.log
