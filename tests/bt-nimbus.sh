@@ -13,13 +13,13 @@ function on_exit()
         echo "deleting the checkout"
     fi
     if [ "X$2" != "Xno" ]; then
-        rm -rf $HOME/.nimbus
-        rm -rf $HOME/.globus
-        rm -rf $HOME/.ssh
-        mv $HOME/.nimbus.$bkdate $HOME/.nimbus
-        mv $HOME/.globus.$bkdate $HOME/.globus
-        mv $HOME/.ssh.$bkdate $HOME/.ssh
-        mv $HOME/.s3cfg.$bkdate $HOME/.s3cfg
+#        rm -rf $HOME/.nimbus
+#        rm -rf $HOME/.globus
+#        rm -rf $HOME/.ssh
+#        mv $HOME/.nimbus.$bkdate $HOME/.nimbus
+#        mv $HOME/.globus.$bkdate $HOME/.globus
+#        mv $HOME/.ssh.$bkdate $HOME/.ssh
+#        mv $HOME/.s3cfg.$bkdate $HOME/.s3cfg
         echo "put everything back"
     fi
 }

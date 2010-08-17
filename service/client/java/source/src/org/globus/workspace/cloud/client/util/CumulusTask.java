@@ -671,10 +671,16 @@ public class CumulusTask
             }
             catch(S3ServiceException s3ex)
             {
-                if(s3ex.getS3ErrorCode().equals("NoSuchKey"))
+                String eS = "NoSuchKey";
+                String s3Em = s3ex.getS3ErrorCode();
+                if(eS.equals(s3Em))
                 {
                     keyName = this.makeKey(vmName, "common");
                     s3Service.deleteObject(baseBucketName, keyName);
+                }
+                else
+                {
+                    throw new ExecutionProblem(s3ex.toString());
                 }
             }
 
