@@ -20,11 +20,6 @@ import sys
 import ConfigParser
 from ConfigParser import SafeConfigParser
 import time
-try:
-    import pycb
-except:
-    print "Error:  please verify that your cumulus.ini file points the correct database"
-    sys.exit(1)
 import pycb.tools
 import pynimbusauthz
 import tempfile

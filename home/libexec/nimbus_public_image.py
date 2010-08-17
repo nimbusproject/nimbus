@@ -23,9 +23,9 @@ import boto
 from boto.s3.connection import OrdinaryCallingFormat
 from boto.s3.connection import VHostCallingFormat
 from boto.s3.connection import SubdomainCallingFormat
-
-
-g_report_options = ["cert", "key", "dn", "canonical_id", "access_id", "access_secret", "url", "web_id", "cloud_properties"]
+from nimbusweb.setup.setuperrors import *
+from pynimbusauthz.cmd_opts import cbOpts
+from boto.s3.connection import S3Connection
 
 DEBUG = False
 
@@ -47,7 +47,8 @@ def get_nimbus_home():
 def setup_options(argv):
 
     u = """[options] <filename> <image name>
-Upload an image to the public repository
+Upload an image to the public repository.  The program uses ~/.s3cfg to
+get your configuration information.
     """
     (parser, all_opts) = pynimbusauthz.get_default_options(u)
     opt = cbOpts("repo", "r", "The bucket where cloud client images are stored", "Repo")
@@ -70,6 +71,30 @@ def main(argv=sys.argv[1:]):
         filename = args[0]
         imagename = args[1]
 
+        try:
+            s = SafeConfigParser()
+            s3cfg = os.getenv("HOME") + "/.s3cfg"
+            s.readfp(open(s3cfg, "r"))
+            s3id = s.get("default", "access_key")
+            pw = s.get("default", "secret_key")
+            host_base = s.get("default", "host_base")
+            use_https = s.getboolean("default", "use_https")
+
+            hba = host_base.split(":", 1)
+            if len(hba) == 2:
+                port = int(hba[1])
+            else:
+                port = 8888
+            host = hba[0]
+        except Exception, ex:
+            print "This program uses the s3cmd configuration file ~/.s3cfg"
+            print ex
+            sys.exit(1)
+
+
+        cf = OrdinaryCallingFormat()
+        conn = S3Connection(s3id, pw, host=host, port=port, is_secure=use_https, calling_format=cf)
+
         bucket = conn.get_bucket(o.repo)
 
         k = boto.s3.key.Key(bucket)
@@ -80,7 +105,6 @@ def main(argv=sys.argv[1:]):
     except CLIError, clie:
         if DEBUG:
             traceback.print_exc(file=sys.stdout)
-        
         print clie
         return clie.get_rc()
 
