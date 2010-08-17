@@ -55,12 +55,6 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
 
     <bean id="brokerResource" class="org.nimbustools.ctxbroker.rest.BrokerResource"/>
 
-    <bean id="springSecurityFilterChain" class="org.springframework.security.web.FilterChainProxy">
-        <security:filter-chain-map path-type="ant">
-            <security:filter-chain pattern="/**" filters="
-            basicAuthenticationFilter" />
-        </security:filter-chain-map>
-    </bean>
     <bean id="basicAuthenticationFilter"
           class="org.springframework.security.web.authentication.www.BasicAuthenticationFilter">
 
@@ -68,23 +62,31 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
         <property name="authenticationEntryPoint" ref="authenticationEntryPoint"/>
     </bean>
 
-    <bean name="outFaultInterceptor" class="org.nimbustools.ctxbroker.rest.OutFaultInterceptor" />   
-
-
     <security:authentication-manager alias="authenticationManager">
         <security:authentication-provider user-service-ref="userDetailsService"/>
     </security:authentication-manager>
 
-    <!--<bean id="exceptionTranslationFilter"
-          class="org.springframework.security.web.access.ExceptionTranslationFilter">
-        <property name="authenticationEntryPoint" ref="authenticationEntryPoint"/>
-        <property name="accessDeniedHandler" ref="accessDeniedHandler"/>
-    </bean> -->
-
     <bean id="authenticationEntryPoint"
-          class="org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint">
-        <property name="realmName" value="Nimbus Context Broker"/>
+          class="org.nimbustools.ctxbroker.rest.FailAuthenticationEntryPoint">
+        <property name="responseUtil" ref="responseUtil"/>
     </bean>
+
+    <bean name="outFaultInterceptor" class="org.nimbustools.ctxbroker.rest.OutFaultInterceptor">
+        <property name="responseUtil" ref="responseUtil"/>
+    </bean>
+
+    <bean id="responseUtil" class="org.nimbustools.ctxbroker.rest.ResponseUtil"/>
+
+    <security:http auto-config="false" create-session="never" entry-point-ref="authenticationEntryPoint" >
+        <security:custom-filter ref="basicAuthenticationFilter" position="BASIC_AUTH_FILTER" />
+        <security:intercept-url pattern="/**" access="ROLE_USER"/>
+        <security:access-denied-handler ref="accessDeniedHandler"/>
+    </security:http>
+
+    <bean id="accessDeniedHandler" class="org.nimbustools.ctxbroker.rest.FailAccessDeniedHandler">
+        <property name="responseUtil" ref="responseUtil"/>
+    </bean>
+
 
     <!--
         property sources are concentrated in this file

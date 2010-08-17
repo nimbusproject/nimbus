@@ -15,6 +15,8 @@
  */
 package org.nimbustools.ctxbroker.rest;
 
+import java.util.UUID;
+
 /**
  * Simple error container shipped across the wire
  */
@@ -22,6 +24,11 @@ public class ErrorMessage {
 
     private final String message;
     private final String requestId;
+
+    public ErrorMessage(String message) {
+        this.message = message;
+        this.requestId = UUID.randomUUID().toString();
+    }
 
     public ErrorMessage(String msg, String requestId) {
         this.message = msg;
@@ -34,5 +41,13 @@ public class ErrorMessage {
 
     public String getRequestId() {
         return requestId;
+    }
+
+    @Override
+    public String toString() {
+        return "ErrorMessage{" +
+                "message='" + message + '\'' +
+                ", requestId='" + requestId + '\'' +
+                '}';
     }
 }

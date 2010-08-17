@@ -94,8 +94,6 @@ public class RestHttp implements Initializable {
         servletHolder.setName("CXFServlet");
         servletHolder.setDisplayName("CXF Servlet");
         context.addServlet(servletHolder, "/*");
-        WebAppContext webappcontext = new WebAppContext();
-        webappcontext.setContextPath("/");
         server.start();
     }
 

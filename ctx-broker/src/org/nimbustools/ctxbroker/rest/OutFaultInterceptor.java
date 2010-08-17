@@ -15,22 +15,18 @@
  */
 package org.nimbustools.ctxbroker.rest;
 
-import java.io.IOException;
-import java.util.UUID;
-
-import javax.servlet.http.HttpServletResponse;
-
-import com.google.gson.Gson;
-import net.sf.ehcache.constructs.web.ResponseUtil;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.security.access.AccessDeniedException;
+import org.springframework.util.Assert;
+
+import javax.servlet.http.HttpServletResponse;
+import java.util.UUID;
 
 
 public class OutFaultInterceptor
@@ -45,18 +41,17 @@ public class OutFaultInterceptor
 
     private boolean handleMessageCalled;
 
-    private Gson gson;
+    private ResponseUtil responseUtil;
+
 
     public OutFaultInterceptor() {
         this(Phase.PRE_STREAM);
 
-        this.gson = new Gson();
     }
 
     public OutFaultInterceptor(String s) {
         super(Phase.MARSHAL);
 
-        this.gson = new Gson();
     }
 
     @SuppressWarnings({"ThrowableResultOfMethodCallIgnored"})
@@ -67,55 +62,33 @@ public class OutFaultInterceptor
             throw new RuntimeException("Exception is expected");
         }
         Fault fault = (Fault)ex;
-
         final Throwable t = fault.getCause();
 
-        ErrorMessage error;
-        int status;
+        final int status = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+        String requestId = UUID.randomUUID().toString();
+        final ErrorMessage error = new ErrorMessage(ERROR_TEXT, requestId);
 
-        // note that these exceptions are probably handled by NimbusWebExceptionMapper.
-        // leaving this logic in case that is disabled..
-        if (t instanceof AccessDeniedException) {
+        logger.error("Caught unhandled exception! This may be a bug. " +
+                "RequestID: "+requestId, t);
 
-            error = new ErrorMessage("Access denied", UUID.randomUUID().toString());
-            status = 401;
-
-        } else {
-
-            // otherwise it is some unhandled error condition;
-            // likely a bug somewhere.
-
-            String requestId = UUID.randomUUID().toString();
-
-            error = new ErrorMessage(ERROR_TEXT, requestId);
-            status = 500;
-
-            logger.error("Caught unhandled exception! This may be a bug. " +
-                    "RequestID: "+requestId, t);
-        }
-
-        // deal with the actual exception : fault.getCause()
         HttpServletResponse response = (HttpServletResponse)message.getExchange()
             .getInMessage().get(AbstractHTTPDestination.HTTP_RESPONSE);
-        response.setStatus(status);
-        response.setContentType("application/json");
-        try {
 
-            final String s = this.gson.toJson(error);
+        this.responseUtil.sendServletError(response, error, status);
 
-            response.getOutputStream().write(s.getBytes());
-            response.getOutputStream().flush();
-            message.getInterceptorChain().abort();
-        } catch (IOException ioex) {
-            throw new RuntimeException("Error writing the response");
-        }
+        message.getInterceptorChain().abort();
     }
 
     protected boolean handleMessageCalled() {
         return handleMessageCalled;
     }
 
-    public void afterPropertiesSet() {
+    public void afterPropertiesSet() throws Exception {
+        Assert.notNull(responseUtil);
+    }
+
+    public void setResponseUtil(org.nimbustools.ctxbroker.rest.ResponseUtil responseUtil) {
+        this.responseUtil = responseUtil;
     }
 }
 
