@@ -11,7 +11,7 @@ logfile = sys.stdout
 common_image = str(uuid.uuid1()).replace("-", "")
 
 cmd = "%s/bin/nimbus-public-image /etc/group %s" % (nh, common_image)
-(x, rc)=pexpect.run(nh, withexitstatus=1, logfile=logfile)
+(x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile)
 if rc != 0:
     print "failed create the public image"
     sys.exit(1)
