@@ -108,6 +108,8 @@ cp -r $HOME/.nimbus $HOME/.globus
 
 ./bin/grid-proxy-init.sh
 
+echo "localhost 10240" >> $install_dir/services/etc/nimbus/workspace-service/vmm-pools/testpool
+
 echo $work_dir
 export NIMBUS_HOME=$install_dir
 export NIMBUS_WORKSPACE_CONTROL_HOME="$work_dir/control"

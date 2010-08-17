@@ -40,6 +40,16 @@ def get_nimbus_home():
 
 class TestEC2Submit(unittest.TestCase):
 
+    def killall_running(self):
+	instances = self.ec2conn.get_all_instances()
+        print instances
+        for reserv in instances:
+            for inst in reserv.instances:
+                if inst.state == u'running':
+                    print "Terminating instance %s" % inst
+                    inst.stop()
+
+
     def cb_random_bucketname(self, len):
         chars = string.letters + string.digits
         newpasswd = ""
@@ -69,6 +79,7 @@ class TestEC2Submit(unittest.TestCase):
         cf = OrdinaryCallingFormat()
         self.s3conn = S3Connection(self.s3id, self.s3pw, host=host, port=cumport, is_secure=False, calling_format=cf)
         self.db.commit()
+        self.killall_running()
 
 
     def tearDown(self):
@@ -84,6 +95,8 @@ class TestEC2Submit(unittest.TestCase):
             self.can_user.destroy_brutally()
         if self.db != None:
             self.db.close()
+        self.killall_running()
+
 
     def test_ec2_submit_name_format(self):
         bucket = self.s3conn.get_bucket("Repo")
