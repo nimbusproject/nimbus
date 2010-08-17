@@ -20,8 +20,6 @@ if [ -e $HOME/.nimbus ]; then
     exit 1
 fi
 
-
-
 bd=`dirname $0`
 cd $bd
 src_dir=`pwd`
@@ -31,8 +29,10 @@ mkdir $repo_dir
 cd $repo_dir
 
 repo="git://github.com/nimbusproject/nimbus.git"
-#repo="/home/bresnaha/Dev/Nimbus/nimbus"
-git clone $repo
+if [ "X$NIMBUS_REPO" != "X" ]; then
+    repo=$NIMBUS_REPO
+fi
+git clone --depth 1 $repo
 
 install_dir=$work_dir/NIMBUSINSTALL
 
