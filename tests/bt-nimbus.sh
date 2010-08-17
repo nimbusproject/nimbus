@@ -10,21 +10,21 @@ function on_exit()
     echo "Cleaning up! $bkdate"
     if [ "X$work_dir" == "X" ]; then
         rm -rf $work_dir
+        echo "deleting the checkout"
     fi
-    rm -rf $HOME/.nimbus
-    rm -rf $HOME/.globus
-    rm -rf $HOME/.ssh
-    mv $HOME/.nimbus.$bkdate $HOME/.nimbus
-    mv $HOME/.globus.$bkdate $HOME/.globus
-    mv $HOME/.ssh.$bkdate $HOME/.ssh
+    if [ "X$2" != "Xno" ]; then
+        rm -rf $HOME/.nimbus
+        rm -rf $HOME/.globus
+        rm -rf $HOME/.ssh
+        mv $HOME/.nimbus.$bkdate $HOME/.nimbus
+        mv $HOME/.globus.$bkdate $HOME/.globus
+        mv $HOME/.ssh.$bkdate $HOME/.ssh
+        echo "put everything back"
+    fi
 }
 
 if [ "X$work_dir" == "X" ]; then
     work_dir=`mktemp --tmpdir=$HOME -d -t tmp.XXXXXXXXXX`
-    mv $HOME/.ssh $HOME/.ssh.$bkdate
-    mv $HOME/.nimbus $HOME/.nimbus.$bkdate
-    mv $HOME/.globus $HOME/.globus.$bkdate
-    trap on_exit EXIT
 fi
 
 bd=`dirname $0`
@@ -34,6 +34,10 @@ src_dir=`pwd`
 if [ "X$2" == "Xno" ]; then
     echo "we are kiping the build and just running the tests"
 else
+    mv $HOME/.ssh $HOME/.ssh.$bkdate
+    mv $HOME/.nimbus $HOME/.nimbus.$bkdate
+    mv $HOME/.globus $HOME/.globus.$bkdate
+    trap on_exit EXIT
     echo "Building a Nimbus env at $work_dir"
     ./make-test-env.sh $work_dir | tee bandt.log
 fi
