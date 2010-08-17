@@ -139,6 +139,16 @@ $ ./bin/cloud-client.sh --terminate --handle vm-001
     that are contextualized into clusters.
 </p>
 
+<div class="note">
+    <p class="note-title">Metadata server</p>
+    <p>
+        This test will fail if you have not configured the
+        <a href="networking-setup.html#metadata-server">metadata server</a>. The VM will launch
+        but get stuck in the phase "<tt class="literal">Waiting for context broker updates</tt>".
+    </p>
+
+</div>
+
 
 <p>
     The <tt class="literal">nimbus-z2c</tt> image supports simple contextualization.
@@ -224,6 +234,14 @@ SSH trusts new key for x001.nimbus.example.edu  [[ node1 ]]
     check out the
     <a href="../../clouds/clusters.html">cluster guide</a>
     for more information.
+</p>
+
+<p>
+    If the VM successfully launches but the cloud client gets stuck with the
+    message "<tt class="literal">Waiting for context broker updates</tt>",
+    try logging into the VM with SSH and examining the context agent log file
+    <tt class="literal">/opt/nimbus/ctxlog.txt</tt>. There may be a problem
+    with the context broker or metadata server.
 </p>
 
 <a name="whatnext"> </a>
