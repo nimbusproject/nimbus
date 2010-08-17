@@ -3,6 +3,7 @@
 import pexpect
 import sys
 import os
+import uuid
 
 cc_home=os.environ['CLOUD_CLIENT_HOME']
 nh=os.environ['NIMBUS_HOME']
