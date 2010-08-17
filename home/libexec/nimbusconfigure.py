@@ -447,7 +447,7 @@ class NimbusSetup(object):
         lines.append("\n")
         
         lines.append("cumulus.authz.db=%s\n" % cumulus_authz_db)
-        lines.append("cumulus.repo.dir=$NIMBUS_HOME/cumulus/posixdata\n")
+        lines.append("cumulus.repo.dir=%s/cumulus/posixdata\n" % (self.basedir))
         lines.append("cumulus.host=%s\n" % self['hostname'])
         lines.append("cumulus.repo.bucket=%s\n" % repo_bucket)
         lines.append("cumulus.repo.prefix=VMS\n")
