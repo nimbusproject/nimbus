@@ -223,6 +223,7 @@ public class CumulusRepositoryUtil
         String ID = this.args.getXferCanonicalID();
 
         String path = this.cumulusTask.getImagePath(imageName);
+        System.out.println(path);
         return "cumulus://" + this.args.getXferHostPort() + "/" + this.args.getS3Bucket() + "/" + path;
     }
 
