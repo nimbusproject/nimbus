@@ -1,0 +1,44 @@
+{
+    "destinations": [
+        {
+            "block_size": "131072", 
+            "file": "//home/bresnaha/FIRST.1\n", 
+            "host": "localhost", 
+            "id": "f935987a-9da8-11df-a88c-001e378a7ce9", 
+            "port": "2893"
+        }, 
+        {
+            "block_size": "131072", 
+            "file": "//home/bresnaha/FIRST.2\n", 
+            "host": "localhost", 
+            "id": "f935d22c-9da8-11df-a88c-001e378a7ce9", 
+            "port": "2893"
+        }, 
+        {
+            "block_size": "131072", 
+            "file": "//home/bresnaha/FIRST.3\n", 
+            "host": "localhost", 
+            "id": "f9360a76-9da8-11df-a88c-001e378a7ce9", 
+            "port": "2893"
+        }, 
+        {
+            "block_size": "131072", 
+            "file": "//home/bresnaha/FIRST.4\n", 
+            "host": "localhost", 
+            "id": "f9364176-9da8-11df-a88c-001e378a7ce9", 
+            "port": "2893"
+        }, 
+        {
+            "block_size": "131072", 
+            "file": "//home/bresnaha/FIRST.5\n", 
+            "host": "localhost", 
+            "id": "f9367af6-9da8-11df-a88c-001e378a7ce9", 
+            "port": "2893"
+        }
+    ], 
+    "file": "/dev/null", 
+    "host": "localhost", 
+    "id": "f93680a0-9da8-11df-a88c-001e378a7ce9", 
+    "port": "2893"
+}
+EOH : bLSbr4uinA/XfK+eziRHlDJuruE=
