@@ -55,7 +55,7 @@ class VConnection(object):
             return
 
         header = {}
-        header['files'] = [self.file,]
+        header[files] = self.file
         header['host'] = self.host
         header['port'] = self.port
         header['id'] = self.rid
