@@ -4,10 +4,11 @@ import pexpect
 import sys
 import os
 import filecmp
+import uuid
 
 cc_home=os.environ['CLOUD_CLIENT_HOME']
 logfile = sys.stdout
-newname="YYYY"
+newname=str(uuid.uuid1()).replace("-", "")
 try:
     os.remove(newname)
 except:
