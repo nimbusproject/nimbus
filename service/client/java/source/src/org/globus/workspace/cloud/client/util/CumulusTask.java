@@ -395,14 +395,17 @@ class CloudProgressPrinter
         bar = bar + "] " + percent + "% ";
 
         return bar;
-    }
-
+    }       
 
     public void updateBytesTransferred(
         long                            byteCount)
     {
         super.updateBytesTransferred(byteCount);
+        this.flush();
+    }
 
+    public void flush()
+    {
         long total = getBytesToTransfer();
            
         long sent = getBytesTransferred();
@@ -746,14 +749,14 @@ public class CumulusTask
 
     private boolean keyExists(
         S3Service                   s3Service,
-        String                      bucket,
+        String                      baseBucketName,
         String                      keyName)
             throws S3ServiceException
     {
         boolean exists = false;
         try
         {
-            exists = s3Service.isObjectInBucket(baseBucketName, keyNameOwner);
+            exists = s3Service.isObjectInBucket(baseBucketName, keyName);
         }
         catch(S3ServiceException s3ex)
         {
@@ -786,7 +789,7 @@ public class CumulusTask
                 return keyNameOwner;
             }
             // if not found check to see if the image is in the common space
-            keyNameCommon = this.makeKey(vmName, "common");
+            String keyNameCommon = this.makeKey(vmName, "common");
             exists = this.keyExists(s3Service, baseBucketName, keyNameCommon);
             if(exists)
             {
