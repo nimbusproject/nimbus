@@ -744,6 +744,31 @@ public class CumulusTask
         return s3Service;
     }
 
+    private boolean keyExists(
+        S3Service                   s3Service,
+        String                      bucket,
+        String                      keyName)
+            throws S3ServiceException
+    {
+        boolean exists = false;
+        try
+        {
+            exists = s3Service.isObjectInBucket(baseBucketName, keyNameOwner);
+        }
+        catch(S3ServiceException s3ex)
+        {
+            if(s3ex.getResponseCode() == 404)
+            {
+                exists = false;
+            }
+            else
+            {
+                throw s3ex;
+            }
+        }
+        return exists;
+    }
+
     public String getImagePath(
             String                      vmName)
                 throws ExecutionProblem
@@ -752,34 +777,24 @@ public class CumulusTask
         {
             S3Service s3Service = this.getService();
             String baseBucketName = this.args.getS3Bucket();
-            String keyName = this.makeKey(vmName, null);
-            boolean exists = false;
-            try
-            {
-                exists = s3Service.isObjectInBucket(baseBucketName, keyName);
-            }
-            catch(S3ServiceException s3ex)
-            {
-                if(s3ex.getResponseCode() == 404)
-                {
-                    exists = false;
-                }
-                else
-                {
-                    throw s3ex;
-                }
-            }
+
+            // first check to see if the owner has the image
+            String keyNameOwner = this.makeKey(vmName, null);
+            boolean exists = this.keyExists(s3Service, baseBucketName, keyNameOwner);
             if(exists)
             {
-                return keyName;
+                return keyNameOwner;
             }
-            keyName = this.makeKey(vmName, "common");
-            exists = s3Service.isObjectInBucket(baseBucketName, keyName);
+            // if not found check to see if the image is in the common space
+            keyNameCommon = this.makeKey(vmName, "common");
+            exists = this.keyExists(s3Service, baseBucketName, keyNameCommon);
             if(exists)
             {
-                return keyName;
+                return keyNameCommon;
             }
-            throw new ExecutionProblem("We cannot find the VM " + vmName);
+            // if the image still is not found it may be a new image, in which case return the
+            // owner name
+            return keyNameOwner;
          }
         catch(S3ServiceException s3ex)
         {

@@ -222,7 +222,7 @@ public class CumulusRepositoryUtil
         String baseKey = this.args.getXferS3BaseKey();
         String ID = this.args.getXferCanonicalID();
 
-        String path = this.cumulusTask.getImagePath(imageName);
+r        String path = this.cumulusTask.getImagePath(imageName);
         return "cumulus://" + this.args.getXferHostPort() + "/" + this.args.getS3Bucket() + "/" + path;
     }
 
