@@ -13,13 +13,13 @@ function on_exit()
         echo "deleting the checkout"
     fi
     if [ "X$2" != "Xno" ]; then
-#        rm -rf $HOME/.nimbus
-#        rm -rf $HOME/.globus
-#        rm -rf $HOME/.ssh
-#        mv $HOME/.nimbus.$bkdate $HOME/.nimbus
-#        mv $HOME/.globus.$bkdate $HOME/.globus
-#        mv $HOME/.ssh.$bkdate $HOME/.ssh
-#        mv $HOME/.s3cfg.$bkdate $HOME/.s3cfg
+        rm -rf $HOME/.nimbus
+        rm -rf $HOME/.globus
+        rm -rf $HOME/.ssh
+        mv $HOME/.nimbus.$bkdate $HOME/.nimbus
+        mv $HOME/.globus.$bkdate $HOME/.globus
+        mv $HOME/.ssh.$bkdate $HOME/.ssh
+        mv $HOME/.s3cfg.$bkdate $HOME/.s3cfg
         echo "put everything back"
     fi
 }
@@ -32,17 +32,13 @@ bd=`dirname $0`
 cd $bd
 src_dir=`pwd`
 
-if [ "X$2" == "Xno" ]; then
-    echo "we are skiping the build and just running the tests"
-else
-    mv $HOME/.ssh $HOME/.ssh.$bkdate
-    mv $HOME/.nimbus $HOME/.nimbus.$bkdate
-    mv $HOME/.globus $HOME/.globus.$bkdate
-    mv $HOME/.s3cfg $HOME/.s3cfg.$bkdate
-    trap on_exit EXIT
-    echo "Building a Nimbus env at $work_dir"
-    ./make-test-env.sh $work_dir | tee bandt.log
-fi
+mv $HOME/.ssh $HOME/.ssh.$bkdate
+mv $HOME/.nimbus $HOME/.nimbus.$bkdate
+mv $HOME/.globus $HOME/.globus.$bkdate
+mv $HOME/.s3cfg $HOME/.s3cfg.$bkdate
+trap on_exit EXIT
+echo "Building a Nimbus env at $work_dir"
+./make-test-env.sh $work_dir | tee bandt.log
 source env.sh
 
 cd $CLOUD_CLIENT_HOME
