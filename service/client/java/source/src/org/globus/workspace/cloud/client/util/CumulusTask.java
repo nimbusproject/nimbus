@@ -242,7 +242,7 @@ class CumulusInputStream
     public void   close()
         throws java.io.IOException
     {
-        
+        this.progress.flush();
         this.is.close();
     }
  
@@ -562,7 +562,8 @@ public class CumulusTask
                 file.length(), pr, s3Object.getDataInputStream());
             s3Object.setDataInputStream(cis);
             s3Service.putObject(baseBucketName, s3Object);
-            s3Object.closeDataInputStream();            
+            s3Object.closeDataInputStream();
+
             if (pr != null) {
                 pr.println("\n\nDone.");
             }
