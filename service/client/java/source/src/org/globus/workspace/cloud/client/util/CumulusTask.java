@@ -561,6 +561,7 @@ public class CumulusTask
                 file.length(), pr, s3Object.getDataInputStream());
             s3Object.setDataInputStream(cis);
             s3Service.putObject(baseBucketName, s3Object);
+            cis.close();
             if (pr != null) {
                 pr.println("\n\nDone.");
             }
