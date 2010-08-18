@@ -852,7 +852,7 @@ public class CumulusTask
     private String convertDate(
         Calendar                        cal)
     {
-        int m = cal.get(Calendar.MONTH);
+        int m = cal.get(MONTH) + 1;
         int d = cal.get(Calendar.DAY_OF_MONTH);
         int y = cal.get(Calendar.YEAR);
 
