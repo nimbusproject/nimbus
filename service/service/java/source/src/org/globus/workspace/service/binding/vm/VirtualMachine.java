@@ -50,6 +50,8 @@ public class VirtualMachine extends WorkspaceInstantiation {
 
     private String mdUserData;
 
+    private int groupCount;
+    private String groupTransferID;
    //requested vmm type
     private String vmm;
     //requested vmm version
@@ -143,6 +145,23 @@ public class VirtualMachine extends WorkspaceInstantiation {
 
     public void setMdUserData(String mdUserData) {
         this.mdUserData = mdUserData;
+    }
+
+    public String getGroupTransferID() {
+       return this.groupTransferID;
+    }
+
+    public void setGroupTransferID(String groupTransferID) {
+        this.groupTransferID = groupTransferID;
+    }
+
+
+    public int getGroupCount() {
+        return this.groupCount;
+    }
+
+    public void setGroupCount(int groupCount) {
+        this.groupCount = groupCount;
     }
 
     public synchronized void addCustomizationNeed(CustomizationNeed need) {

@@ -12,6 +12,7 @@ import json
 import traceback
 import uuid
 import time
+import datetime
 
 def getrows(c, group_id):
     s = "select hostname,port,src_filename,dst_filename,rid from requests where group_id = ? and state = 0"
@@ -104,14 +105,33 @@ def wait_until_sent(con, host, port, group_id):
             return state
 
 def main(argv=sys.argv[1:]):
+    """
+    This program allows a file to be requested from the virga system.  The
+    file will be sent out of band.  When the file has been delived the 
+    database entry for this request will be updated.  This program will
+    block until that entry is update.
+
+    As options, the program takes the source file, the
+    target file location, the group_id and the group count.
+
+    The virga config file must have the ip and port that the requester
+    is using for virga delivery.
+    """
 
     pyvirga.log(logging.INFO, "enter")
-    host = argv[0]
-    port = int(argv[1])
-    src_filename = argv[2]
-    dst_filename = argv[3]
-    group_id = int(argv[4])
-    group_count = int(argv[5])
+
+    # host and port need to come from conf file
+    host = pyvirga.config.host
+    port = pyvirga.config.port
+
+    src_filename = argv[0]
+    dst_filename = argv[1]
+    group_id = int(argv[2])
+    group_count = int(argv[3])
+
+    # the user provides the rid.  that way we know they have it to look
+    # things up later if needed
+    rid = argv[4]
 
     con_str = None
     try:
@@ -121,11 +141,11 @@ def main(argv=sys.argv[1:]):
     if con_str == None:
         pyvirga.config.dbfile
 
+    now = datetime.datetime.now()
     con = sqlite3.connect(con_str)
-    rid = str(uuid.uuid1())
 
-    i = "insert into requests(src_filename, dst_filename, group_id, group_count, hostname, port, rid) values (?, ?, ?, ?, ?, ?, ?)"
-    data = (src_filename, dst_filename, group_id, group_count, host, port, rid,)
+    i = "insert into requests(src_filename, dst_filename, group_id, group_count, hostname, port, rid, entry_time) values (?, ?, ?, ?, ?, ?, ?, ?)"
+    data = (src_filename, dst_filename, group_id, group_count, host, port, rid, now,)
 
     c = con.cursor()
     c.execute(i, data)
@@ -149,7 +169,3 @@ def main(argv=sys.argv[1:]):
 if __name__ == "__main__":
     rc = main()
     sys.exit(rc)
-
-
-    
-

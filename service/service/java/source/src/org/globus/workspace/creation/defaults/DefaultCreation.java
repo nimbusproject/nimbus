@@ -724,6 +724,14 @@ public class DefaultCreation implements Creation {
         result.setGroupID(groupID);
         final VM[] createdVMs = new VM[ids.length];
 
+        // make sure all group information is set on the VMs
+        if (bindings.length > 1 && bindings[0].isPropagateRequired()) {
+            for (int i = 0; i < bindings.length; i++) {
+                bindings[i].setGroupTransferID(groupID);
+                bindings[i].setGroupCount(bindings.length);
+            }
+        }
+
         int bailed = -1;
         Throwable failure = null;
         for (int i = 0; i < ids.length; i++) {

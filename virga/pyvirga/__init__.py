@@ -59,6 +59,8 @@ class VConfig(object):
         s.readfp(open(ini_file, "r"))
         self.pw = s.get("security", "password")
         self.logfile = s.get("log", "file")
+        self.host = s.get("host", "host")
+        self.port = s.getint("port", "port")
         try:
             log_level_str = s.get("log", "level")
             self.log_level = log_levels[log_level_str]
