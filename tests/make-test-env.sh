@@ -126,7 +126,7 @@ echo "Your test environment is:"
 echo "NIMBUS_HOME:          $NIMBUS_HOME"
 echo "NIMBUS_TEST_USER:     $NIMBUS_TEST_USER"
 echo "CLOUD_CLIENT_HOME:    $CLOUD_CLIENT_HOME"
-echo "NIMBUS_WORKSPACE_CONTROL_HOME:          $NIMBUS_HOME"
+echo "NIMBUS_WORKSPACE_CONTROL_HOME:          $NIMBUS_WORKSPACE_CONTROL_HOME"
 
 
 echo "export NIMBUS_HOME=$NIMBUS_HOME" > $src_dir/env.sh
