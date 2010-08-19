@@ -23,9 +23,9 @@ import boto
 from boto.s3.connection import OrdinaryCallingFormat
 from boto.s3.connection import VHostCallingFormat
 from boto.s3.connection import SubdomainCallingFormat
-from nimbusweb.setup.setuperrors import *
 from pynimbusauthz.cmd_opts import cbOpts
 from boto.s3.connection import S3Connection
+from boto.ec2.connection import EC2Connection
 
 DEBUG = False
 
@@ -40,35 +40,12 @@ def get_nimbus_home():
     if not nimbus_home:
         script_dir = os.path.dirname(__file__)
         nimbus_home = os.path.dirname(script_dir)
-    if not os.path.exists(nimbus_home):
-        raise CLIError('ENIMBUSHOME', "NIMBUS_HOME must refer to a valid path")
     return nimbus_home
-
-def setup_options(argv):
-
-    u = """[options] <filename> <image name>
-Upload an image to the public repository.  The program uses ~/.s3cfg to
-get your configuration information.
-    """
-    (parser, all_opts) = pynimbusauthz.get_default_options(u)
-    opt = cbOpts("repo", "r", "The bucket where cloud client images are stored", "Repo")
-    all_opts.append(opt)
-    opt = cbOpts("prefix", "p", "The prefix used for images in the cloud client bucket", "VMS")
-    all_opts.append(opt)
-
-    (o, args) = pynimbusauthz.parse_args(parser, all_opts, argv)
-
-    # def verify_opts(o, args, parser):
-    if len(args) != 2:
-        pynimbusauthz.parse_args(parser, [], ["--help"])
-
-    return (o, args, parser)
 
 def main(argv=sys.argv[1:]):
 
     try:
-        (o, args, p) = setup_options(argv)
-        imagename = args[0]
+        imagename = argv[0]
 
         try:
             s = SafeConfigParser()
@@ -90,17 +67,17 @@ def main(argv=sys.argv[1:]):
             print ex
             sys.exit(1)
 
+        print "getting connection"
         ec2conn = EC2Connection(s3id, pw, host='locahost', port=8444, debug=2)
+        print "getting image"
         image = ec2conn.get_image(imagename)
+        print "running"
         res = image.run(min_count=2, max_count=4)
         dir(res)
         res.stop_all()
 
-    except CLIError, clie:
-        if DEBUG:
-            traceback.print_exc(file=sys.stdout)
-        print clie
-        return clie.get_rc()
+    except:
+        raise
 
     return 0
 
