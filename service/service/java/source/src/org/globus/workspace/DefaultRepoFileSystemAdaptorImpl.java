@@ -1,5 +1,7 @@
 package org.globus.workspace;
 
+import org.globus.workspace.service.binding.vm.VirtualMachine;
+
 /**
  * Created by John Bresnahan
  * User: bresnaha
@@ -11,7 +13,8 @@ package org.globus.workspace;
 public class DefaultRepoFileSystemAdaptorImpl implements RepoFileSystemAdaptor
 {
     public String translateExternaltoInternal(
-        String                          publicName)
+        String                          publicName,
+        VirtualMachine                  vm)
             throws WorkspaceException
     {
          return publicName;

@@ -164,7 +164,7 @@ public class XenUtil implements WorkspaceConstants {
                 if (partitions[i].isRootdisk()) {
                     String img = partitions[i].getImage();
                     if(nsTrans != null) {
-                        img = nsTrans.translateExternaltoInternal(img);
+                        img = nsTrans.translateExternaltoInternal(img, vm);
                     }
                     cmd.add(img);
                     break;
@@ -229,7 +229,7 @@ public class XenUtil implements WorkspaceConstants {
                 if (partitions[i].isRootdisk()) {
                     String img = partitions[i].getImage();
                     if(nsTrans != null) {
-                        img = nsTrans.translateExternaltoInternal(img);
+                        img = nsTrans.translateExternaltoInternal(img, vm);
                     }
                     cmd.add(img);
                     altTargets = partitions[i].getAlternateUnpropTarget();
@@ -242,7 +242,7 @@ public class XenUtil implements WorkspaceConstants {
             cmd.add("--unproptargets");
             String img = altTargets;
             if(nsTrans != null) {
-                img = nsTrans.translateExternaltoInternal(altTargets);
+                img = nsTrans.translateExternaltoInternal(altTargets, vm);
             }
             cmd.add(img);
         }
@@ -263,12 +263,12 @@ public class XenUtil implements WorkspaceConstants {
     }
 
 
-    private static String convertToAlreadyPropagated(String name)
+    private static String convertToAlreadyPropagated(String name, VirtualMachine vm)
             throws WorkspaceException {
 
         String img = name;
         if(nsTrans != null) {
-            img = nsTrans.translateExternaltoInternal(img);
+            img = nsTrans.translateExternaltoInternal(img, vm);
         }
         int ndx = img.lastIndexOf('/');
 
@@ -386,7 +386,7 @@ public class XenUtil implements WorkspaceConstants {
             // secureimage directory to be consulted first
 
             if (vm.isPropagateRequired() && notificationInfo == null) {
-                final String newURI = convertToAlreadyPropagated(rootImageURI);
+                final String newURI = convertToAlreadyPropagated(rootImageURI, vm);
 
                 logger.debug("turned '" + rootImageURI + "' into '" +
                             newURI + "' because file was already propagated");
@@ -476,7 +476,7 @@ public class XenUtil implements WorkspaceConstants {
         cmd.add("'" + imagemountString + "'");
 
         if (notificationInfo != null) {
-            cmd.add("--notify");
+            cmd.add("--notify");                                           
             cmd.add(notificationInfo);
         }
 

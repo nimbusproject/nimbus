@@ -8,6 +8,7 @@ import org.globus.workspace.groupauthz.DecisionLogic;
 import org.globus.workspace.groupauthz.GroupRights;
 import org.globus.workspace.persistence.WorkspaceDatabaseException;
 import org.globus.workspace.service.binding.authorization.Decision;
+import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.globus.workspace.service.binding.vm.VirtualMachinePartition;
 import org.nimbustools.api.services.rm.AuthorizationException;
 import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
@@ -37,6 +38,8 @@ public class AuthzDecisionLogic extends DecisionLogic
     private String                      repoHost = null;
     private String                      repoDir = null;
     private boolean                     schemePassthrough;
+    private String                      passthroughSchemes = null;
+    private String                      urlParams;
 
     public  AuthzDecisionLogic(
         DataSource ds,
@@ -48,8 +51,15 @@ public class AuthzDecisionLogic extends DecisionLogic
                     && schemePassthroughStr.trim().equalsIgnoreCase("true");
     }
 
+    private String [] getPassThroughSchemeList()
+    {
+        String [] list = passthroughSchemes.split(",");
+        return list;
+    }
+
     public String translateExternaltoInternal(
-        String                          publicUrl)
+        String                          publicUrl,
+        VirtualMachine                  vm)
             throws WorkspaceException
     {
         String rc = null;
@@ -64,11 +74,18 @@ public class AuthzDecisionLogic extends DecisionLogic
             // hinge on scheme, perhaps set up fancy interface plugin decision later
             if(scheme.equals("cumulus"))
             {
-                rc = this.translateCumulus(hostport, objectname);
+                rc = this.translateCumulus(hostport, objectname, vm);
             }
             else
             {
-                rc = publicUrl;
+                String [] sl = getPassThroughSchemeList();
+                for(int i = 0; i < sl.length; i++)
+                {
+                    if(scheme.equals(sl[i]))
+                    {
+                        rc = publicUrl;
+                    }
+                }
             }
         }
         catch(Exception ex)
@@ -85,7 +102,8 @@ public class AuthzDecisionLogic extends DecisionLogic
 
     protected String translateCumulus(
         String                          hostport,
-        String                          objectName)
+        String                          objectName,
+        VirtualMachine                  vm)
             throws AuthorizationException
     {
         try
@@ -97,9 +115,21 @@ public class AuthzDecisionLogic extends DecisionLogic
                 throw new AuthorizationException("The file is not found and thus cannot be translated " + objectName);
             }
 
+            String scheme = this.getRepoScheme();
+            String rc = null;
             String dataKey = this.authDB.getDataKey(fileIds[1]);
-            String rc = this.getRepoScheme() + this.getRepoHost() + "/" + dataKey;
 
+            if(scheme.equals("scp"))
+            {                
+                rc = scheme + "://" + this.getRepoHost() + "/" + dataKey;
+            }
+            else if(scheme.equals("virga"))
+            {
+                rc = scheme + "://" + this.getRepoHost() + "/" + dataKey;
+                String params =  "groupid=" + vm.getGroupTransferID() + ";groupcount=" + vm.getGroupCount();
+                params = params + this.urlParams;
+                rc = rc + "?" + params;
+            }
             logger.debug("converted " + objectName + " to " + rc);
 
             return rc;
@@ -370,6 +400,26 @@ public class AuthzDecisionLogic extends DecisionLogic
     public String getRepoDir()
     {
         return this.repoDir;
+    }
+
+    public void setUrlParams(String up)
+    {
+        this.urlParams = up;
+    }
+
+    public String getUrlParams()
+    {
+        return this.urlParams;
+    }
+
+    public void setPassthroughSchemes(String passthroughSchemes)
+    {
+        this.passthroughSchemes = passthroughSchemes;
+    }
+
+    public String getPassthroughSchemes()
+    {
+        return this.passthroughSchemes;
     }
 
     public void unpropagationFinished(
