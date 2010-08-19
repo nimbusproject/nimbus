@@ -119,16 +119,23 @@ public class AuthzDecisionLogic extends DecisionLogic
             String rc = null;
             String dataKey = this.authDB.getDataKey(fileIds[1]);
 
+            if(scheme.equals("virga"))
+            {
+                if(vm.getGroupTransferID() == null || vm.getGroupCount() < 2)
+                {
+                    scheme = "scp";
+                }
+                else
+                {
+                    rc = scheme + "://" + this.getRepoHost() + "/" + dataKey;
+                    String params =  "groupid=" + vm.getGroupTransferID() + ";groupcount=" + vm.getGroupCount();
+                    params = params + this.urlParams;
+                    rc = rc + "?" + params;
+                }
+            }
             if(scheme.equals("scp"))
             {                
                 rc = scheme + "://" + this.getRepoHost() + "/" + dataKey;
-            }
-            else if(scheme.equals("virga"))
-            {
-                rc = scheme + "://" + this.getRepoHost() + "/" + dataKey;
-                String params =  "groupid=" + vm.getGroupTransferID() + ";groupcount=" + vm.getGroupCount();
-                params = params + this.urlParams;
-                rc = rc + "?" + params;
             }
             logger.debug("converted " + objectName + " to " + rc);
 
