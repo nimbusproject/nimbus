@@ -14,8 +14,7 @@ import org.nimbustools.api.services.rm.AuthorizationException;
 import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
 import org.nimbus.authz.AuthzDBAdapter;
 import org.nimbus.authz.AuthzDBException;
-
-
+import org.springframework.core.io.Resource;
 import javax.sql.DataSource;
 import java.io.File;
 import java.net.URI;
@@ -39,7 +38,7 @@ public class AuthzDecisionLogic extends DecisionLogic
     private String                      repoDir = null;
     private boolean                     schemePassthrough;
     private String                      passthroughSchemes = null;
-    private String                      urlParams;
+    private Resource                    urlParams;
 
     public  AuthzDecisionLogic(
         DataSource ds,
@@ -129,7 +128,7 @@ public class AuthzDecisionLogic extends DecisionLogic
                 {
                     rc = scheme + "://" + this.getRepoHost() + "/" + dataKey;
                     String params =  "groupid=" + vm.getGroupTransferID() + ";groupcount=" + vm.getGroupCount();
-                    params = params + ";" + this.urlParams;
+                    params = params + ";" + this.urlParams.toString();
                     rc = rc + "?" + params;
                 }
             }
@@ -409,12 +408,12 @@ public class AuthzDecisionLogic extends DecisionLogic
         return this.repoDir;
     }
 
-    public void setUrlParams(String up)
+    public void setUrlParams(Resource up)
     {
         this.urlParams = up;
     }
 
-    public String getUrlParams()
+    public Resource getUrlParams()
     {
         return this.urlParams;
     }

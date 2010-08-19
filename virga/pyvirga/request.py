@@ -133,14 +133,7 @@ def main(argv=sys.argv[1:]):
     # things up later if needed
     rid = argv[4]
 
-    con_str = None
-    try:
-        con_str = os.environ['VIRGA_REQ_DB']
-    except:
-        pass
-    if con_str == None:
-        pyvirga.config.dbfile
-
+    con_str = pyvirga.dbfile
     now = datetime.datetime.now()
     con = sqlite3.connect(con_str)
 

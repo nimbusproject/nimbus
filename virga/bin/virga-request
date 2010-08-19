@@ -8,9 +8,7 @@ if [ "X${PYTHONPATH}" == "X" ]; then
 else
     export PYTHONPATH=$pypath:${PYTHONPATH}
 fi
-VIRGA_REQ_DB=$pypath/req.db
-
-export NIMBUS_HOME=$pypath
-echo $NIMBUS_HOME
+# so that we pick up the ini file
+export VIRGA_HOME=$pypath
 
 exec python ./pyvirga/request.py "${@}"

@@ -28,7 +28,6 @@ import hashlib
 #       }, ]
 #  }
 #
-
 class Virga(object):
 
     def __init__(self, inf, outf):
