@@ -6,16 +6,16 @@ from workspacecontrol.api.exceptions import *
 import propagate_scp
 import urlparse
 
-class propadapter(propagate_scp.propadapter):
+class VirgaPropadapter(propagate_scp.propadapter):
         
     def __init__(self, params, common):
-        PropagationAdapter.__init__(self, params, common)
+        super(VirgaPropadapter, self).__init__(params, common)
         self.ssh = None
         self.scheme = "virga://"
 
     def validate(self):
         # validate scp adaptor 
-
+        super(VirgaPropadapter, self).validate()
         self.c.log.debug("validating virga propagation adapter")
     
         self.ssh = self.p.get_conf_or_none("propagation", "ssh")
@@ -36,6 +36,22 @@ class propadapter(propagate_scp.propadapter):
             self.c.log.debug("SSH default user: %s" % self.sshuser)
         else:
             self.c.log.debug("no SSH default user")
+
+    def translate_to_scp(self, imagestr)
+        if imagestr[:len(self.scheme)] != self.scheme:
+            raise InvalidInput("invalid virga url, not %s %s" % (self.scheme, remote))
+        url = "scp://" + imagestr[len(self.scheme):]
+        url_a = url.split("?")
+        return url_a[0]
+
+
+    def validate_unpropagate_target(self, imagestr):
+        imagestr = self.translate_to_scp(imagestr)
+        super(VirgaPropadapter, self).validate_unpropagate_target(imagestr)
+
+    def unpropagate(self, local_absolute_source, remote_target):
+        remote_target = self.translate_to_scp(remote_target)
+        super(VirgaPropadapter, self).unpropagate(local_absolute_source, remote_target)
 
     def validate_propagate_source(self, imagestr):
         # will throw errors if invalid

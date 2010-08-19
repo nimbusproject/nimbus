@@ -2,6 +2,7 @@ package org.globus.workspace.sqlauthz;
 
 import org.globus.workspace.RepoFileSystemAdaptor;
 import org.globus.workspace.WorkspaceException;
+import org.globus.workspace.service.binding.vm.VirtualMachine;
 
 /**
  * Created by John Bresnahan
@@ -22,10 +23,11 @@ public class CumulusRepoFileSystemAdaptor implements RepoFileSystemAdaptor
     }
 
     public String translateExternaltoInternal(
-        String                          publicName)
+        String                          publicName,
+        VirtualMachine                  vm)
             throws WorkspaceException
     {
-        return dl.translateExternaltoInternal(publicName);
+        return dl.translateExternaltoInternal(publicName, vm);
     }
 
     public void unpropagationFinished(
