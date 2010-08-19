@@ -76,8 +76,6 @@ class VirgaPropadapter(propagate_scp.propadapter):
         """
         Remote url: virga://hostname:port/path.
         """
-        group_transfer_id = self.p.get_arg_or_none(wc_args.GROUP_TRANSFER_ID)
-        group_count = self.p.get_arg_or_none(wc_args.GROUP_COUNT)        
 
         if remote[:len(self.scheme)] != self.scheme:
             raise InvalidInput("invalid virga url, not %s %s" % (self.scheme, remote))

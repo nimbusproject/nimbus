@@ -4,6 +4,7 @@ unset SSH_AGENT_PID
 unset SSH_AUTH_SOCK
 
 work_dir=$1
+cleanup=$2
 bkdate=`date +%s`
 function on_exit()
 {
@@ -12,7 +13,7 @@ function on_exit()
         rm -rf $work_dir
         echo "deleting the checkout"
     fi
-    if [ "X$2" != "Xno" ]; then
+    if [ "X$cleanup" != "Xno" ]; then
         rm -rf $HOME/.nimbus
         rm -rf $HOME/.globus
         rm -rf $HOME/.ssh
