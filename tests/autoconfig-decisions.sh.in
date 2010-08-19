@@ -26,10 +26,10 @@ export NIMBUS_CONFIG_TEST_VMM
 NIMBUS_CONFIG_TEST_VMM_RAM="256"
 export NIMBUS_CONFIG_TEST_VMM_RAM
 
-NIMBUS_CONFIG_VMM_CONTROL_EXE="/home/nimbus/nimbus-controls-2.5/workspace-control/bin/workspace-control.sh"
+NIMBUS_CONFIG_VMM_CONTROL_EXE="@NIMBUS_WORKSPACE_CONTROL_HOME@/bin/workspace-control.sh"
 export NIMBUS_CONFIG_VMM_CONTROL_EXE
 
-NIMBUS_CONFIG_VMM_CONTROL_TMPDIR="/home/nimbus/nimbus-controls-2.5/workspace-control/var/workspace-control/tmp"
+NIMBUS_CONFIG_VMM_CONTROL_TMPDIR="@NIMBUS_WORKSPACE_CONTROL_HOME@/var/workspace-control/tmp"
 export NIMBUS_CONFIG_VMM_CONTROL_TMPDIR
 
 
