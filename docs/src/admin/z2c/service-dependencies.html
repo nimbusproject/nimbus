@@ -30,13 +30,18 @@ $ javac -version
     Note that OpenJDK is not supported.
 </p>
 
-<h3>Python 2.5 or later</h3>
+<h3>Python 2.5 or later (but not 3.x)</h3>
 <p>
     You can check the version of your system Python with this command:
 </p>
 <pre class="panel">
-$ python --version
+$ python -V
 </pre>
+
+<p>
+    Note that Nimbus does not support the Python 3 development branch at this time. The most recent compatible Python
+    version is 2.7.
+</p>
 <p>
     If you cannot safely upgrade the system Python, you can use an alternate location such as
     <tt class="literal">/usr/local/bin/python2.5</tt>.
