@@ -28,11 +28,11 @@ class VConfig(object):
 
     def __init__(self):
         self.set_defaults()
-        if 'NIMBUS_HOME' not in os.environ:
-            emsg = "the env NIMBUS_HOME must be set"
+        if 'VIRGA_HOME' not in os.environ:
+            emsg = "the env VIRGA_HOME must be set"
             log(logging.WARNING, emsg)
         else:
-            ini_file = os.path.join(os.environ['NIMBUS_HOME'], "etc/virga.ini")
+            ini_file = os.path.join(os.environ['VIRGA_HOME'], "etc/virga.ini")
 
             try:
                 self.load_settings(ini_file)
