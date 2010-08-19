@@ -129,7 +129,7 @@ public class AuthzDecisionLogic extends DecisionLogic
                 {
                     rc = scheme + "://" + this.getRepoHost() + "/" + dataKey;
                     String params =  "groupid=" + vm.getGroupTransferID() + ";groupcount=" + vm.getGroupCount();
-                    params = params + this.urlParams;
+                    params = params + ";" + this.urlParams;
                     rc = rc + "?" + params;
                 }
             }
