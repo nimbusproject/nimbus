@@ -5,6 +5,7 @@ from propagate_adapter import PropagationAdapter
 from workspacecontrol.api.exceptions import *
 import propagate_scp
 import urlparse
+import workspacecontrol.main.wc_args as wc_args
 
 class VirgaPropadapter(propagate_scp.propadapter):
         
@@ -80,12 +81,12 @@ class VirgaPropadapter(propagate_scp.propadapter):
         if remote[:len(self.scheme)] != self.scheme:
             raise InvalidInput("invalid virga url, not %s %s" % (self.scheme, remote))
 
-        ra = remote.split("?", 1)
+        rc = remote.split("?", 1)
         if len(ra) != 2:
             raise InvalidInput("invalid virga url, %s.  It must contain parameters for groupid groupcount and remoteexe" % (remote))
 
         url = ra[0]
-        args = ra[1]
+        virga_exe = ra[1]
 
         up = urlparse.urlparse(url)
         xfer_host = up.hostname
@@ -107,11 +108,9 @@ class VirgaPropadapter(propagate_scp.propadapter):
             else:
                 self.c.log.debug("using the program runner for ssh account") 
 
-        ap = urlparse.parse_qs(args)
         try:
-            virga_exe = ap['remoteexe'][0]
-            group_id = ap['groupid'][0]
-            group_count = int(ap['groupcount'][0])
+            group_id = self.p.get_arg_or_none(wc_args.GROUP_TRANSFER_ID)
+            group_count = self.p.get_arg_or_none(wc_args.GROUP_COUNT)
         except Exception, ex:
             self.c.log.debug("error parsing query string for virga %s" % (str(ex)))
             raise InvalidInput("invalid virga url %s.  You must have parametes for remoteexe,groupid, and groupcount." % (remote))

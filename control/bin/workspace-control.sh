@@ -20,4 +20,4 @@ export PYTHONPATH
 
 # -----------------------------------------------------------------------------
 
-$PYTHON_EXE $NIMBUS_CONTROL_PYSRC/workspacecontrol/main/wc_cmdline.py -c $NIMBUS_CONTROL_MAINCONF $@
+$PYTHON_EXE $NIMBUS_CONTROL_PYSRC/workspacecontrol/main/wc_cmdline.py -c $NIMBUS_CONTROL_MAINCONF "$@"
