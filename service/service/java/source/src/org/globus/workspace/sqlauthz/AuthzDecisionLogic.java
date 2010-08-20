@@ -10,6 +10,7 @@ import org.globus.workspace.persistence.WorkspaceDatabaseException;
 import org.globus.workspace.service.binding.authorization.Decision;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.globus.workspace.service.binding.vm.VirtualMachinePartition;
+import org.nimbustools.api.brain.NimbusHomePathResolver;
 import org.nimbustools.api.services.rm.AuthorizationException;
 import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
 import org.nimbus.authz.AuthzDBAdapter;
@@ -38,12 +39,14 @@ public class AuthzDecisionLogic extends DecisionLogic
     private String                      repoDir = null;
     private boolean                     schemePassthrough;
     private String                      passthroughSchemes = null;
-    private Resource                    urlParams;
+    private Resource                    virgaFetchPathResouce;
 
     public  AuthzDecisionLogic(
         DataSource ds,
         String schemePassthroughStr)
     {
+        // String nh = System.getProperty(NimbusHomePathResolver.NIMBUS_HOME_ENV_NAME);
+       // might want to set default path some time
         this.authDB = new AuthzDBAdapter(ds);
         this.schemePassthrough =
                 schemePassthroughStr != null
@@ -128,7 +131,7 @@ public class AuthzDecisionLogic extends DecisionLogic
                 {
                     rc = scheme + "://" + this.getRepoHost() + "/" + dataKey;
                     String params =  "groupid=" + vm.getGroupTransferID() + ";groupcount=" + vm.getGroupCount();
-                    params = params + ";" + this.urlParams.toString();
+                    params = params + ";remoteexe=" + this.virgaFetchPathResouce.getFilename();
                     rc = rc + "?" + params;
                 }
             }
@@ -408,14 +411,14 @@ public class AuthzDecisionLogic extends DecisionLogic
         return this.repoDir;
     }
 
-    public void setUrlParams(Resource up)
+    public void setVirgaFetchPath(Resource up)
     {
-        this.urlParams = up;
+        this.virgaFetchPathResouce = up;
     }
 
-    public Resource getUrlParams()
+    public Resource getVirgaFetchPath()
     {
-        return this.urlParams;
+        return this.virgaFetchPathResouce;
     }
 
     public void setPassthroughSchemes(String passthroughSchemes)

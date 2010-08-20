@@ -12,7 +12,6 @@ import sys
 import ConfigParser
 from ConfigParser import SafeConfigParser
 import time
-import pynimbusauthz
 import tempfile
 import traceback
 import filecmp
@@ -23,7 +22,6 @@ import boto
 from boto.s3.connection import OrdinaryCallingFormat
 from boto.s3.connection import VHostCallingFormat
 from boto.s3.connection import SubdomainCallingFormat
-from pynimbusauthz.cmd_opts import cbOpts
 from boto.s3.connection import S3Connection
 from boto.ec2.connection import EC2Connection
 
@@ -69,6 +67,7 @@ def main(argv=sys.argv[1:]):
 
         print "getting connection"
         ec2conn = EC2Connection(s3id, pw, host='locahost', port=8444, debug=2)
+        ec2conn.host = 'localhost'
         print "getting image"
         image = ec2conn.get_image(imagename)
         print "running"

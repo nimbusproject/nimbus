@@ -39,7 +39,7 @@
         <property name="repoHost" value="$SSH{service.sshd.contact.string}" />
         <property name="repoScheme" value="scp" />
         <property name="passthroughSchemes" value="file,hdfs" />
-        <property name="urlParams" value="remoteexe=$COMMON{virga.fetch.path}" />
+        <property name="virgaFetchPath" value="$COMMON{virga.fetch.path}" />
      </bean>
 
     <bean id="nimbus-rm.service.binding.RepoAdaptor"
