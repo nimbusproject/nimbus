@@ -40,7 +40,7 @@ class VirgaPropadapter(propagate_scp.propadapter):
 
     def translate_to_scp(self, imagestr):
         if imagestr[:len(self.scheme)] != self.scheme:
-            raise InvalidInput("invalid virga url, not %s %s" % (self.scheme, imagestr))
+            raise InvalidInput("scp trans invalid virga url, not %s %s" % (self.scheme, imagestr))
         url = "scp://" + imagestr[len(self.scheme):]
         url_a = url.split("?")
         return url_a[0]
@@ -62,7 +62,7 @@ class VirgaPropadapter(propagate_scp.propadapter):
         self.c.log.info("VIRGA propagation - remote source: %s" % remote_source)
         self.c.log.info("VIRGA propagation - local target: %s" % local_absolute_target)
         
-        cmd = self._virga_command(remote_source, local_absolute_target)
+        cmd = self._virga_command(local_absolute_target, remote_source)
         self.c.log.info("Running VIRGA command: %s" % cmd)
         
         ret,output = getstatusoutput(cmd)
@@ -79,9 +79,9 @@ class VirgaPropadapter(propagate_scp.propadapter):
         """
 
         if remote[:len(self.scheme)] != self.scheme:
-            raise InvalidInput("invalid virga url, not %s %s" % (self.scheme, remote))
+            raise InvalidInput("get command invalid virga url, not %s %s" % (self.scheme, remote))
 
-        rc = remote.split("?", 1)
+        ra = remote.split("?", 1)
         if len(ra) != 2:
             raise InvalidInput("invalid virga url, %s.  It must contain parameters for groupid groupcount and remoteexe" % (remote))
 
@@ -91,7 +91,7 @@ class VirgaPropadapter(propagate_scp.propadapter):
         up = urlparse.urlparse(url)
         xfer_host = up.hostname
         xfer_user = up.username
-        xfer_port = up.port
+        xfer_port = int(up.port)
         if xfer_port == None:
             xfer_port = 22
         xfer_path = up.path
@@ -111,6 +111,7 @@ class VirgaPropadapter(propagate_scp.propadapter):
         try:
             group_id = self.p.get_arg_or_none(wc_args.GROUP_TRANSFER_ID)
             group_count = self.p.get_arg_or_none(wc_args.GROUP_COUNT)
+            group_count = int(group_count)
         except Exception, ex:
             self.c.log.debug("error parsing query string for virga %s" % (str(ex)))
             raise InvalidInput("invalid virga url %s.  You must have parametes for remoteexe,groupid, and groupcount." % (remote))

@@ -73,7 +73,7 @@ GROUP_TRANSFER_ID = ControlArg("group-transfer-id", None)
 GROUP_TRANSFER_ID.help = "Group transfer ID for cluster deployment"
 a.append(GROUP_TRANSFER_ID)
 
-GROUP_COUNT = ControlArg("group-transfer-id", None)
+GROUP_COUNT = ControlArg("group-count", None)
 GROUP_COUNT.help = "Total nimber of members of a cluster group"
 a.append(GROUP_COUNT)
 
