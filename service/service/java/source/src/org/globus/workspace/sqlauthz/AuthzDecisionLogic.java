@@ -130,9 +130,15 @@ public class AuthzDecisionLogic extends DecisionLogic
                 else
                 {
                     rc = scheme + "://" + this.getRepoHost() + "/" + dataKey;
-                    String params =  "groupid=" + vm.getGroupTransferID() + ";groupcount=" + vm.getGroupCount();
-                    params = params + ";remoteexe=" + this.virgaFetchPathResouce.getFilename();
-                    rc = rc + "?" + params;
+                    try
+                    {
+                        String params = this.virgaFetchPathResouce.getFile().getAbsolutePath();
+                        rc = rc + "?" + params;
+                    }
+                    catch(Exception ex)
+                    {
+                        throw new AuthorizationException("fetch file doesnt exist");
+                    }
                 }
             }
             if(scheme.equals("scp"))
