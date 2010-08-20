@@ -100,8 +100,8 @@ class DefaultImageProcurement:
             try:
                 import propagate_virga
                 self.adapters[PROP_ADAPTER_VIRGA] = propagate_virga.VirgaPropadapter(self.p, self.c)
-            except:
-                msg = "VIRGA configuration present (propagation->virga) but cannot load a suitable virga implementation in the code"
+            except Exception, ex:
+                msg = "VIRGA configuration present (propagation->virga) but cannot load a suitable virga implementation in the code: " + str(ex)
                 self.c.log.exception(msg + ": ")
                 raise InvalidConfig(msg)
             

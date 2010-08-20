@@ -9,13 +9,13 @@ import urlparse
 class VirgaPropadapter(propagate_scp.propadapter):
         
     def __init__(self, params, common):
-        super(VirgaPropadapter, self).__init__(params, common)
+        propagate_scp.propadapter.__init__(self, params, common)
         self.ssh = None
         self.scheme = "virga://"
 
     def validate(self):
         # validate scp adaptor 
-        super(VirgaPropadapter, self).validate()
+        propagate_scp.propadapter.validate(self)
         self.c.log.debug("validating virga propagation adapter")
     
         self.ssh = self.p.get_conf_or_none("propagation", "ssh")
@@ -37,9 +37,9 @@ class VirgaPropadapter(propagate_scp.propadapter):
         else:
             self.c.log.debug("no SSH default user")
 
-    def translate_to_scp(self, imagestr)
+    def translate_to_scp(self, imagestr):
         if imagestr[:len(self.scheme)] != self.scheme:
-            raise InvalidInput("invalid virga url, not %s %s" % (self.scheme, remote))
+            raise InvalidInput("invalid virga url, not %s %s" % (self.scheme, imagestr))
         url = "scp://" + imagestr[len(self.scheme):]
         url_a = url.split("?")
         return url_a[0]
@@ -47,15 +47,15 @@ class VirgaPropadapter(propagate_scp.propadapter):
 
     def validate_unpropagate_target(self, imagestr):
         imagestr = self.translate_to_scp(imagestr)
-        super(VirgaPropadapter, self).validate_unpropagate_target(imagestr)
+        propagate_scp.propadapter.validate_unpropagate_target(self, imagestr)
 
     def unpropagate(self, local_absolute_source, remote_target):
         remote_target = self.translate_to_scp(remote_target)
-        super(VirgaPropadapter, self).unpropagate(local_absolute_source, remote_target)
+        propagate_scp.propadapter.unpropagate(self, local_absolute_source, remote_target)
 
     def validate_propagate_source(self, imagestr):
         # will throw errors if invalid
-        self._virga_command(imagestr, "fake")
+        self._virga_command("fake", imagestr)
     
     def propagate(self, remote_source, local_absolute_target):
         self.c.log.info("VIRGA propagation - remote source: %s" % remote_source)
@@ -88,8 +88,6 @@ class VirgaPropadapter(propagate_scp.propadapter):
         args = ra[1]
 
         up = urlparse.urlparse(url)
-        if up.scheme != self.scheme:
-            raise InvalidInput("invalid virga url, not %s %s" % (self.scheme, remote))
         xfer_host = up.hostname
         xfer_user = up.username
         xfer_port = up.port
@@ -110,7 +108,7 @@ class VirgaPropadapter(propagate_scp.propadapter):
                 self.c.log.debug("using the program runner for ssh account") 
 
         ap = urlparse.parse_qs(args)
-        try
+        try:
             virga_exe = ap['remoteexe'][0]
             group_id = ap['groupid'][0]
             group_count = int(ap['groupcount'][0])
