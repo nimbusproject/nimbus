@@ -166,7 +166,7 @@ public class XenUtil implements WorkspaceConstants {
                     if(nsTrans != null) {
                         img = nsTrans.translateExternaltoInternal(img, vm);
                     }
-                    cmd.add(img);
+                    cmd.add("'"+img+"'");
                     break;
                 }
             }
@@ -222,7 +222,7 @@ public class XenUtil implements WorkspaceConstants {
                     if(nsTrans != null) {
                         img = nsTrans.translateExternaltoInternal(img, vm);
                     }
-                    cmd.add(img);
+                    cmd.add("'"+img+"'");
                     altTargets = partitions[i].getAlternateUnpropTarget();
                     break;
                 }
@@ -235,7 +235,7 @@ public class XenUtil implements WorkspaceConstants {
             if(nsTrans != null) {
                 img = nsTrans.translateExternaltoInternal(altTargets, vm);
             }
-            cmd.add(img);
+            cmd.add("'"+img+"'");
         }
 
         if (notificationInfo != null) {
