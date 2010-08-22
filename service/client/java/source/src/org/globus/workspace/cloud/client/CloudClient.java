@@ -577,6 +577,7 @@ public class CloudClient {
         }
 
         final String actionString = "Saving";
+        CloudClientUtil.checkX509Credential(actionString, this.print);
         this._translateHandle(actionString);
         this._checkSpecificEPR(actionString);
         this.repoUtil.paramterCheck(this.args, actionString);
