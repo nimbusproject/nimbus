@@ -37,6 +37,7 @@ def all_groups(groupauthz_dir):
 def one_group(groupauthz_dir, group_id):
     """Returns the specified group, or raises an InvalidGroupError
     """
+    group_id = _assure_group_id(group_id)
     # inefficient, meh
     for group in all_groups(groupauthz_dir):
         if group.group_id == group_id:
@@ -46,6 +47,7 @@ def one_group(groupauthz_dir, group_id):
 def group_members(groupauthz_dir, group_id):
     """Returns a list of DNs authorized in specified group
     """
+    group_id = _assure_group_id(group_id)
     g = one_group(groupauthz_dir, group_id)
     return g.get_members()
 
@@ -60,6 +62,7 @@ def find_member(groupauthz_dir, dn):
 def add_member(groupauthz_dir, dn, group_id=1):
     """Adds a DN to a group. if the group already contains DN, do nothing
     """
+    group_id = _assure_group_id(group_id)
     g = one_group(groupauthz_dir, group_id)
     return g.add_member(dn)
 
@@ -68,6 +71,7 @@ def remove_member(groupauthz_dir, dn, group_id=None):
     """
 
     if group_id:
+        group_id = _assure_group_id(group_id)
         g = one_group(groupauthz_dir, group_id)
         return g.remove_member(dn)
     removed = False
@@ -75,6 +79,14 @@ def remove_member(groupauthz_dir, dn, group_id=None):
         if group.remove_member(dn):
             removed = True
     return removed
+
+def _assure_group_id(group_id):
+    """Ensures that group ID is an integer
+    """
+    try:
+        return int(group_id)
+    except (ValueError, TypeError):
+        raise InvalidGroupError("Group ID is invalid, must be an integer")
 
 
 class Group(object):

@@ -70,7 +70,7 @@ Create/edit a nimbus user
     all_opts.append(opt)
     opt = cbOpts("delim", "D", "Character between columns in the report", ",")
     all_opts.append(opt)
-    opt = cbOpts("group", "g", "Change the users group", None, vals=(None, "01", "02", "03", "04"))
+    opt = cbOpts("group", "g", "Change the users group", None)
     all_opts.append(opt)
 
     opt = cbOpts("report", "r", "Report the selected columns from the following: " + pycb.tools.report_options_to_string(g_report_options), pycb.tools.report_options_to_string(g_report_options))
@@ -186,10 +186,13 @@ def edit_user(o, db):
         if dnu == None:
             raise CLIError('EUSER', "There is x509 entry for: %s" % (o.emailaddr))
         dn = dnu.get_name()
-        group = find_member(groupauthz_dir, dn)
-        if group != None:
-            remove_member(groupauthz_dir, dn)
-        add_member(groupauthz_dir, dn, int(o.group))
+        oldgroup = find_member(groupauthz_dir, dn)
+        try:
+            add_member(groupauthz_dir, dn, o.group)
+        except InvalidGroupError:
+            raise CLIError('EUSER', "Authz group '%s' does not exist" % o.group)
+        if oldgroup:
+            oldgroup.remove_member(dn)
 
     if o.dn != None:
         if dnu == None:

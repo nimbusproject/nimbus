@@ -206,7 +206,7 @@ Create/edit a nimbus user
     all_opts.append(opt)
     opt = cbOpts("dest", "d", "The directory to put all of the new files into.", None)
     all_opts.append(opt)
-    opt = cbOpts("group", "g", "Put this user in the given group", "01", vals=("01", "02", "03", "04"))
+    opt = cbOpts("group", "g", "Put this user in the given group", "01")
     all_opts.append(opt)
     opt = cbOpts("web_id", "w", "Set the web user name.  If not set and a web user is desired a username will be created from the email address.", None)
     all_opts.append(opt)
@@ -370,9 +370,15 @@ def do_group_bidnes(o):
     nh = get_nimbus_home()
     groupauthz_dir = os.path.join(nh, "services/etc/nimbus/workspace-service/group-authz/")
     if o.group:
-        add_member(groupauthz_dir, o.dn, int(o.group))
+        try:
+            add_member(groupauthz_dir, o.dn, o.group)
+        except InvalidGroupError:
+            raise CLIError('EUSER', "Authz group '%s' does not exist" % o.group)
     else:
-        add_member(groupauthz_dir, o.dn)
+        try:
+            add_member(groupauthz_dir, o.dn)
+        except InvalidGroupError, e:
+            raise CLIError('EUSER', "Problem adding user to default authz group: " + str(e))
 
 def report_results(o, db):
     user = User.get_user_by_friendly(db, o.emailaddr)
