@@ -24,6 +24,7 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+./bin/cloud-client.sh --delete --name group --localfile $backf
 rm $backf
 exit 0
 
