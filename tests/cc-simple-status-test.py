@@ -24,7 +24,7 @@ if rc != 0:
 
 cmd = "%s/bin/cloud-client.sh --status" % (cc_home)
 child = pexpect.spawn (cmd, timeout=30, maxread=20000, logfile=logfile)
-rc = child.expect ('Running:')
+rc = child.expect ('State:')
 if rc != 0:
     print "group not found in the list"
     sys.exit(1)
