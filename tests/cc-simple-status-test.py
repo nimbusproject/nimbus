@@ -28,8 +28,6 @@ rc = child.expect ('State:')
 if rc != 0:
     print "group not found in the list"
     sys.exit(1)
-rc = child.expect ('State:')
-
 
 cmd = "%s/bin/cloud-client.sh --terminate --handle %s" % (cc_home, handle)
 print cmd
