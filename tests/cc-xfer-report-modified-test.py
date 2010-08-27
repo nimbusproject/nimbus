@@ -3,6 +3,7 @@
 import pexpect
 import sys
 import os
+import datetime
 
 cc_home=os.environ['CLOUD_CLIENT_HOME']
 logfile = sys.stdout
@@ -10,7 +11,8 @@ logfile = sys.stdout
 src_file = "/etc/group"
 sfa = src_file.split("/")
 image_name = sfa[len(sfa) - 1]
-size = os.path.getsize(src_file)
+
+upload_time = datetime.datetime.now()
 cmd = "%s/bin/cloud-client.sh --transfer --sourcefile %s" % (cc_home, src_file)
 (x, rc)=pexpect.run(cmd, withexitstatus=1)
 
@@ -21,6 +23,7 @@ if rc != 0:
     print "%s not found in the list" % (image_name)
     sys.exit(1)
 
+line = child.readline()
 line = child.readline()
 token = "Modified: "
 ndx = line.find(token)
@@ -35,6 +38,23 @@ if ndx < 0:
 line = line[0:ndx].strip()
 
 print "modified at %s" % (line)
+
+MONTHS   = {"Jan" : 1, "Feb" : 2, "Mar" : 3, "Apr" : 4, "May" : 5, "Jun" : 6, "Jul" : 7, "Aug" : 8, "Sep" : 9, "Oct" : 10, "Nov" : 11, "Dec" : 12}
+ndx = line.find(" ")
+month = line[:ndx].strip()
+m = MONTHS[month]
+line = str(m) + " " + line[len(month):]
+mod_time = datetime.datetime.strptime(line, "%m %d %Y @ %H:%M")
+
+dt = abs(mod_time - upload_time)
+if dt.seconds > 60:
+    print "The modification time presented may be wrong"
+    print mod_time
+    print upload_time
+    print dt
+    print dt.seconds
+    sys.exit(1)
+
 
 rc = child.expect(pexpect.EOF)
 if rc != 0:
