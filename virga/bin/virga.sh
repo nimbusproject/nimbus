@@ -9,5 +9,5 @@ else
     export PYTHONPATH=$pypath:${PYTHONPATH}
 fi
 
-export NIMBUS_HOME=$pypath
+export VIRGA_HOME=$pypath
 exec python ./pyvirga/virga.py "${@}"

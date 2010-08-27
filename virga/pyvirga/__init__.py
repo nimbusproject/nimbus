@@ -30,9 +30,11 @@ class VConfig(object):
         self.set_defaults()
         if 'VIRGA_HOME' not in os.environ:
             emsg = "the env VIRGA_HOME must be set"
+            self.virga_home = os.path.expanduser("virga")
             log(logging.WARNING, emsg)
         else:
-            ini_file = os.path.join(os.environ['VIRGA_HOME'], "etc/virga.ini")
+            self.virga_home = os.environ['VIRGA_HOME'] 
+            ini_file = os.path.join(self.virga_home, "etc/virga.ini")
 
             try:
                 self.load_settings(ini_file)
@@ -58,7 +60,7 @@ class VConfig(object):
         s = SafeConfigParser()
         s.readfp(open(ini_file, "r"))
         self.pw = s.get("security", "password")
-        self.logfile = s.get("log", "file")
+        self.logfile = s.get("log", "file").replace("@VIRGA@", self.virga_home)
         self.host = s.get("host", "host")
         self.port = s.getint("port", "port")
         try:
@@ -67,7 +69,7 @@ class VConfig(object):
         except Exception, ex:
             pass
         try:
-            self.dbfile = s.get("db", "file")
+            self.dbfile = s.get("db", "file").replace("@VIRGA@", self.virga_home)
         except:
             pass
 
