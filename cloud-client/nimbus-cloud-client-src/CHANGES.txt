@@ -1,3 +1,14 @@
+nimbus-cloud-client-017
+-----------------------
+
+[*] Fixed a bug when running common images from cumulus.
+    https://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7087
+
+[*] Fixed need to have a grid proxy when running --save and key is
+    unencrypted.
+    https://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7090
+
+
 nimbus-cloud-client-016
 -----------------------
 
