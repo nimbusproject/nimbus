@@ -83,7 +83,7 @@ def main(argv=sys.argv[1:]):
         cnt = cnt + 1
 
     # for the sake of code resuse this will just be piped into an
-    # virga daemon processor.  /dev/null is used to supress a local write
+    # lt daemon processor.  /dev/null is used to supress a local write
     final = pylantorrent.create_endpoint_entry("localhost", "/dev/null")
     final['destinations'] = dests
 

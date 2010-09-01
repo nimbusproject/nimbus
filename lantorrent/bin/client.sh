@@ -9,4 +9,4 @@ else
     export PYTHONPATH=$pypath:${PYTHONPATH}
 fi
 
-exec python ./pyvirga/client.py "${@}"
+exec python ./pylantorrent/client.py "${@}"

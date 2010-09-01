@@ -24,7 +24,7 @@ class LTException(Exception):
         self.port = port
         self.filename = filename
         self.rid = rid
-        self.msg = VirgaException.errorsCode[code] % (msg)
+        self.msg = LTException.errorsCode[code] % (msg)
 
     def __str__(self):
          return "%s %d %s:%s%s %s\r\n" % (self.rid, self.code, str(self.host), str(self.port), self.filename, self.msg)

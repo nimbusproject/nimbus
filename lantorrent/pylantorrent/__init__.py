@@ -44,8 +44,8 @@ class VConfig(object):
 
     def __init__(self):
         self.set_defaults()
-        if 'VIRGA_HOME' not in os.environ:
-            emsg = "the env VIRGA_HOME must be set"
+        if 'LANTORRENT_HOME' not in os.environ:
+            emsg = "the env LAN_TORRENT_HOME must be set"
             self.lt_home = os.path.expanduser("lantorrent")
             log(logging.WARNING, emsg)
         else:
@@ -76,7 +76,7 @@ class VConfig(object):
         s = SafeConfigParser()
         s.readfp(open(ini_file, "r"))
         self.pw = s.get("security", "password")
-        self.logfile = s.get("log", "file").replace("@VIRGA@", self.lt_home)
+        self.logfile = s.get("log", "file").replace("@LANTORRENT@", self.lt_home)
         self.host = s.get("host", "host")
         self.port = s.getint("port", "port")
         try:
@@ -85,7 +85,7 @@ class VConfig(object):
         except Exception, ex:
             pass
         try:
-            self.dbfile = s.get("db", "file").replace("@VIRGA@", self.lt_home)
+            self.dbfile = s.get("db", "file").replace("@LANTORRENT@", self.lt_home)
         except:
             pass
 

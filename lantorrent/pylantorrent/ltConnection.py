@@ -4,7 +4,7 @@ import json
 import socket
 import logging
 import traceback
-from pylantorrent.vException import LTException
+from pylantorrent.ltException import LTException
 import pylantorrent
 import threading
 
