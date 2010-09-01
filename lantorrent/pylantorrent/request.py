@@ -3,11 +3,9 @@ import sys
 import os
 from socket import *
 import logging
-import pyvirga
-from pyvirga.virga import Virga
-from pyvirga.vException import VirgaException
-from pyvirga.vConnection import VConnection
-from pyvirga.client import VClient
+import pylantorrent
+from pylantorrent.server import LTServer
+from pylantorrent.client import LTClient
 import json
 import traceback
 import uuid
@@ -46,7 +44,7 @@ def do_it_live(con, group_id):
 
         final = {}
         # for the sake of code resuse this will just be piped into an
-        # virga daemon processor.  /dev/null is used to supress a local write
+        # lt daemon processor.  /dev/null is used to supress a local write
         final['file'] = "/dev/null"
         final['host'] = "localhost"
         final['port'] = 2893
@@ -55,11 +53,11 @@ def do_it_live(con, group_id):
         final['id'] = str(uuid.uuid1())
         final['destinations'] = dests
 
-        pyvirga.log(logging.INFO, "request send %s" % (str(final)))
-        pyvirga.log(logging.INFO, "sending em!")
+        pylantorrent.log(logging.INFO, "request send %s" % (str(final)))
+        pylantorrent.log(logging.INFO, "sending em!")
 
-        client = VClient(src_filename, final)
-        v = Virga(client, client)
+        client = LTClient(src_filename, final)
+        v = LTServer(client, client)
         v.store_and_forward()
 
         u = "update requests set state = ? where group_id = ?"
@@ -76,9 +74,9 @@ def do_it_live(con, group_id):
             rc = rc + 1
             e = es[k]
             if state != 2:
-                pyvirga.log(logging.WARNING, "error trying to send %s" % (str(e)))
+                pylantorrent.log(logging.WARNING, "error trying to send %s" % (str(e)))
             else:
-                pyvirga.log(logging.ERROR, "error trying to send %s" % (str(e)))
+                pylantorrent.log(logging.ERROR, "error trying to send %s" % (str(e)))
             rid = e['id']
             bad_rid.append(rid)
             u = "update requests set state = ? where rid = ? and group_id = ?"
@@ -98,7 +96,7 @@ def wait_until_sent(con, host, port, group_id):
         rs = c.fetchone()
         con.commit()
         state = int(rs[0])
-        pyvirga.log(logging.INFO, "my state %d" % (state))
+        pylantorrent.log(logging.INFO, "my state %d" % (state))
         if state == 0:
             time.sleep(1)
         else:
@@ -106,7 +104,7 @@ def wait_until_sent(con, host, port, group_id):
 
 def main(argv=sys.argv[1:]):
     """
-    This program allows a file to be requested from the virga system.  The
+    This program allows a file to be requested from the lantorrent system.  The
     file will be sent out of band.  When the file has been delived the 
     database entry for this request will be updated.  This program will
     block until that entry is update.
@@ -114,15 +112,15 @@ def main(argv=sys.argv[1:]):
     As options, the program takes the source file, the
     target file location, the group_id and the group count.
 
-    The virga config file must have the ip and port that the requester
-    is using for virga delivery.
+    The lantorrent config file must have the ip and port that the requester
+    is using for lantorrent delivery.
     """
 
-    pyvirga.log(logging.INFO, "enter")
+    pylantorrent.log(logging.INFO, "enter")
 
     # host and port need to come from conf file
-    host = pyvirga.config.host
-    port = pyvirga.config.port
+    host = pylantorrent.config.host
+    port = pylantorrent.config.port
 
     src_filename = argv[0]
     dst_filename = argv[1]
@@ -133,7 +131,7 @@ def main(argv=sys.argv[1:]):
     # things up later if needed
     rid = argv[4]
 
-    con_str = pyvirga.dbfile
+    con_str = pylantorrent.dbfile
     now = datetime.datetime.now()
     con = sqlite3.connect(con_str)
 

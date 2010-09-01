@@ -2,15 +2,14 @@ import sys
 import os
 from socket import *
 import logging
-import pyvirga
-from pyvirga.virga import Virga
-from pyvirga.vException import VirgaException
-from pyvirga.vConnection import VConnection
+import pylantorrent
+from pylantorrent.server import LTServer
+from pylantorrent.ltException import LTException
 import json
 import traceback
 import uuid
 
-class VClient(object):
+class LTClient(object):
 
     def __init__(self, filename, json_header):
         self.data_size = os.path.getsize(filename)
@@ -19,7 +18,7 @@ class VClient(object):
 
         json_header['length'] = self.data_size
         outs = json.dumps(json_header)
-        auth_hash = pyvirga.get_auth_hash(outs)
+        auth_hash = pylantorrent.get_auth_hash(outs)
         self.header_lines = outs.split("\n")
         self.header_lines.append("EOH : %s" % (auth_hash))
         self.errors = []
@@ -77,32 +76,19 @@ def main(argv=sys.argv[1:]):
         filename = "/" + a[1].strip()
         rid = str(uuid.uuid1())
 
-        json_dest = {}
-        json_dest['host'] = host
-        json_dest['port'] = port
-        json_dest['file'] = filename
-        json_dest['id'] = rid
-        json_dest['block_size'] = 129*1023
-        json_dest['degree'] = 1
-        json_dest['length'] = data_size
+        json_dest = pylantorrent.create_endpoint_entry(host, filename, data_size, port, block_size, degree, rid)
         dests.append(json_dest)
 
         l = sys.stdin.readline()
         cnt = cnt + 1
 
-    final = {}
     # for the sake of code resuse this will just be piped into an
     # virga daemon processor.  /dev/null is used to supress a local write
-    final['file'] = "/dev/null"
-    final['host'] = "localhost"
-    final['port'] = 2893
-    final['block_size'] = 128*1024
-    final['degree'] = 1
-    final['id'] = str(uuid.uuid1())
+    final = pylantorrent.create_endpoint_entry("localhost", "/dev/null")
     final['destinations'] = dests
 
-    c = VClient(argv[0], final)
-    v = Virga(c, c)
+    c = LTClient(argv[0], final)
+    v = LTServer(c, c)
     v.store_and_forward()
 
     es = c.get_incomplete()
