@@ -4,12 +4,12 @@ import json
 import socket
 import logging
 import traceback
-from pyvirga.vException import VirgaException
-import pyvirga
+from pylantorrent.vException import LTException
+import pylantorrent
 import threading
 
 
-class VConnection(object):
+class LTConnection(object):
 
     def __init__(self, json_ent, output_printer):
         self.ex = None
@@ -28,8 +28,8 @@ class VConnection(object):
             self.degree = int(json_ent['degree'])
             self.data_length = int(json_ent['length'])
         except Exception, ex:
-            vex = VirgaException(504, str(json_ent) + " :: " + str(ex))
-            pyvirga.log(logging.ERROR, str(vex), traceback)
+            vex = LTException(504, str(json_ent) + " :: " + str(ex))
+            pylantorrent.log(logging.ERROR, str(vex), traceback)
             raise vex
 
         try:
@@ -37,8 +37,8 @@ class VConnection(object):
             s.connect((self.host, self.port))
             self.socket = s
         except Exception, ex:
-            vex = VirgaException(505, "%s:%d" % (self.host, self.port), self.host, self.port, self.file, self.rid)
-            pyvirga.log(logging.ERROR, str(vex), traceback)
+            vex = LTException(505, "%s:%d" % (self.host, self.port), self.host, self.port, self.file, self.rid)
+            pylantorrent.log(logging.ERROR, str(vex), traceback)
             raise vex
 
         self.valid = True
@@ -65,8 +65,8 @@ class VConnection(object):
         header['destinations'] = destinations
         send_str = json.dumps(header)
         send_str = send_str + "\n"
-        pyvirga.log(logging.DEBUG, "sending header %s" % (send_str))
-        signature = pyvirga.get_auth_hash(send_str)
+        pylantorrent.log(logging.DEBUG, "sending header %s" % (send_str))
+        signature = pylantorrent.get_auth_hash(send_str)
         self.send(send_str)
         self.send("EOH : %s\r\n" % (signature))
 
@@ -78,8 +78,8 @@ class VConnection(object):
             self.socket.send(data)
         except Exception, ex:
             self.valid = False
-            self.ex = VirgaException(506, "%s:%d %s" % (self.host, self.port, str(ex)), self.host, self.port, self.file, self.rid)
-            pyvirga.log(logging.WARNING, "send error " + str(self.ex), traceback)
+            self.ex = LTException(506, "%s:%d %s" % (self.host, self.port, str(ex)), self.host, self.port, self.file, self.rid)
+            pylantorrent.log(logging.WARNING, "send error " + str(self.ex), traceback)
             j = vex.get_json()
             s = json.dumps(j)
             self.output_printer.print_results(s)
@@ -95,7 +95,7 @@ class VConnection(object):
             la = line.split('\n')
             while len(la) > 1:
                 z = la.pop(0)
-                pyvirga.log(logging.DEBUG, "got resutls %s" % (z))
+                pylantorrent.log(logging.DEBUG, "got resutls %s" % (z))
                 if z.strip() == "EOD":
                     break
                 self.output_printer.print_results(z)

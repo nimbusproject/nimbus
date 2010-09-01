@@ -10,6 +10,7 @@ try:
 except ImportError:
     import sha
 import base64
+import uuid
 
 Version = "0.1"
 
@@ -23,6 +24,21 @@ def log(level, msg, tb=None):
         logging.log(level, "===========")
         logging.log(level, sys.exc_info()[0])
 
+def create_endpoint_entry(host, dest_file, data_size, port=2893, block_size=128*1024, degree=1, rid=None):
+    if rid == None:
+        rid = str(uuid.uuid1())
+
+    final = {}
+    final['file'] = dest_file
+    final['host'] = host
+    final['port'] = port
+    final['block_size'] = block_size
+    final['degree'] = degree
+    final['id'] = rid
+    final['length'] = data_size
+
+    return final
+
 
 class VConfig(object):
 
@@ -30,11 +46,11 @@ class VConfig(object):
         self.set_defaults()
         if 'VIRGA_HOME' not in os.environ:
             emsg = "the env VIRGA_HOME must be set"
-            self.virga_home = os.path.expanduser("virga")
+            self.lt_home = os.path.expanduser("lantorrent")
             log(logging.WARNING, emsg)
         else:
-            self.virga_home = os.environ['VIRGA_HOME'] 
-            ini_file = os.path.join(self.virga_home, "etc/virga.ini")
+            self.lt_home = os.environ['LANTORRENT_HOME'] 
+            ini_file = os.path.join(self.lt_home, "etc/lt.ini")
 
             try:
                 self.load_settings(ini_file)
@@ -45,7 +61,7 @@ class VConfig(object):
 
     def set_defaults(self):
         self.pw = "nimbus"
-        self.logfile = "virga.log"
+        self.logfile = "lantorrent.log"
         self.log_level = logging.DEBUG
         self.dbfile = None
 
@@ -60,7 +76,7 @@ class VConfig(object):
         s = SafeConfigParser()
         s.readfp(open(ini_file, "r"))
         self.pw = s.get("security", "password")
-        self.logfile = s.get("log", "file").replace("@VIRGA@", self.virga_home)
+        self.logfile = s.get("log", "file").replace("@VIRGA@", self.lt_home)
         self.host = s.get("host", "host")
         self.port = s.getint("port", "port")
         try:
@@ -69,7 +85,7 @@ class VConfig(object):
         except Exception, ex:
             pass
         try:
-            self.dbfile = s.get("db", "file").replace("@VIRGA@", self.virga_home)
+            self.dbfile = s.get("db", "file").replace("@VIRGA@", self.lt_home)
         except:
             pass
 

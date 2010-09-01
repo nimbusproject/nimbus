@@ -2,7 +2,7 @@ import sys
 import socket
 import json
 
-class VirgaException(Exception):
+class LTException(Exception):
 
     errorsCode = {}
 

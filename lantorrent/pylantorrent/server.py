@@ -2,9 +2,9 @@ import sys
 import os
 from socket import *
 import logging
-import pyvirga
-from pyvirga.vException import VirgaException
-from pyvirga.vConnection import VConnection
+import pylantorrent
+from pylantorrent.ltException import LTException
+from pylantorrent.ltConnection import LTConnection
 import json
 import traceback
 import threading
@@ -28,7 +28,7 @@ import hashlib
 #       }, ]
 #  }
 #
-class Virga(object):
+class LTServer(object):
 
     def __init__(self, inf, outf):
         self.lock = threading.Lock()
@@ -43,7 +43,7 @@ class Virga(object):
 
     def read_header(self):
         max_header_lines = 256
-        pyvirga.log(logging.INFO, "reading a new header")
+        pylantorrent.log(logging.INFO, "reading a new header")
 
         count = 0
         lines = ""
@@ -56,16 +56,16 @@ class Virga(object):
             l = self.inf.readline()
             count = count + 1
             if count == self.max_header_lines:
-                raise VirgaException(501, "%d lines long, only %d allowed" % (count, max_header_lines))
+                raise LTException(501, "%d lines long, only %d allowed" % (count, max_header_lines))
         if l == None:
-            raise VirgaException(501, "No signature found")
+            raise LTException(501, "No signature found")
         signature = l[len("EOH : "):].strip()
 
-        auth_hash = pyvirga.get_auth_hash(lines)
+        auth_hash = pylantorrent.get_auth_hash(lines)
 
         if auth_hash != signature:
-            pyvirga.log(logging.INFO, "ACCESS DENIED |%s| != |%s| -->%s<---" % (auth_hash, signature, lines))
-            #raise VirgaException(508, "%s is a bad signature" % (auth_hash))
+            pylantorrent.log(logging.INFO, "ACCESS DENIED |%s| != |%s| -->%s<---" % (auth_hash, signature, lines))
+            #raise LTException(508, "%s is a bad signature" % (auth_hash))
 
         self.json_header = json.loads(lines)
 
@@ -81,7 +81,7 @@ class Virga(object):
             self.degree = int(self.json_header['degree'])
             self.data_length = long(self.json_header['length'])
         except Exception, ex:
-            raise VirgaException(502, str(ex), traceback)
+            raise LTException(502, str(ex), traceback)
 
     def create_dest_table(self, destinations):
         dests = {}
@@ -92,12 +92,12 @@ class Virga(object):
                 port = d['port']
                 filename = d['file']
             except Exception, ex:
-                raise VirgaException(504, str(ex))
+                raise LTException(504, str(ex))
             dests[rid] = d
         return dests    
 
     def print_results(self, s):
-        pyvirga.log(logging.DEBUG, "printing %s" % (s))
+        pylantorrent.log(logging.DEBUG, "printing %s" % (s))
 #        self.lock.acquire()
         try:
             self.outf.write(s)
@@ -112,9 +112,9 @@ class Virga(object):
         while len(destinations) > 0 and len(v_con_array) < self.degree:
             ep = destinations.pop(0)
             try:
-                v_con = VConnection(ep, self)
+                v_con = LTConnection(ep, self)
                 v_con_array.append(v_con)
-            except VirgaException, vex:
+            except LTException, vex:
                 # i think this is the only recoverable error
                 # keep track of them and return in output
                 j = vex.get_json()
@@ -140,7 +140,7 @@ class Virga(object):
             filename = header['file']
             f = open(filename, "w")
         except Exception, ex:
-            raise VirgaException(503, str(ex), header['host'], int(header['port']), header['file'], header['id'])
+            raise LTException(503, str(ex), header['host'], int(header['port']), header['file'], header['id'])
 
         destinations = header['destinations']
         v_con_array = self.get_valid_vcons(destinations)
@@ -168,10 +168,10 @@ class Virga(object):
             raise ex
         f.close()
 
-        pyvirga.log(logging.DEBUG, "All data sent %s" % (md5str))
+        pylantorrent.log(logging.DEBUG, "All data sent %s" % (md5str))
         # if we got to here it was successfully written to a file
         # and we can call it success
-        vex = VirgaException(0, filename, header['host'], int(header['port']), header['file'], header['id'])
+        vex = LTException(0, filename, header['host'], int(header['port']), header['file'], header['id'])
         j = vex.get_json()
         s = json.dumps(j)
         self.print_results(s)
@@ -182,15 +182,15 @@ class Virga(object):
 def main(argv=sys.argv[1:]):
 
     try:
-        v = Virga(sys.stdin, sys.stdout)
+        v = LTServer(sys.stdin, sys.stdout)
         v.store_and_forward()
-    except VirgaException, ve:
-        pyvirga.log(logging.ERROR, "error %s" % (str(ve)), traceback)
+    except LTException, ve:
+        pylantorrent.log(logging.ERROR, "error %s" % (str(ve)), traceback)
         s = json.dumps(ve.get_json())
         print s
     except Exception, ex:
-        pyvirga.log(logging.ERROR, "error %s" % (str(ex)), traceback)
-        vex = VirgaException(500, str(ex))
+        pylantorrent.log(logging.ERROR, "error %s" % (str(ex)), traceback)
+        vex = LTException(500, str(ex))
         s = json.dumps(vex.get_json())
         print s
     finally:
