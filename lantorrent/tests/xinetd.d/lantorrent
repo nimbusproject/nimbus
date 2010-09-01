@@ -11,5 +11,6 @@ service lantorrent
 	protocol	= tcp
 	user		= bresnaha
 	wait		= no
-    server      = @LANTORRENT_HOME@/bin/lt.sh
+    port = 9765
+    server      = /home/bresnaha/Dev/Nimbus/nimbus/lantorrent/bin/lt.sh
 }                                                                               

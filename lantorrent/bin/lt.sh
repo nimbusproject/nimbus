@@ -8,7 +8,6 @@ if [ "X${PYTHONPATH}" == "X" ]; then
 else
     export PYTHONPATH=$pypath:${PYTHONPATH}
 fi
-# so that we pick up the ini file
-export VIRGA_HOME=$pypath
 
-exec python ./pyvirga/request.py "${@}"
+export LANTORRENT_HOME=$pypath
+exec python ./pylantorrent/server.py "${@}"
