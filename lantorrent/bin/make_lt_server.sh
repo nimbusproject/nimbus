@@ -4,6 +4,7 @@ count=$1
 if [ "X$1" == "X" ]; then
     count=1
 fi
+pidfile=$2
 
 dir=`dirname $0`
 cd $dir/..
@@ -16,7 +17,8 @@ fi
 # so that we pick up the ini file
 export LANTORRENT_HOME=$pypath
 
-
+delim=""
+ports_str=""
 rm -f $LANTORRENT_HOME/tests/xinetd.d/*
 for i in `seq 1 $count`
 do
@@ -24,7 +26,7 @@ do
     PORT=$RANDOM
     while [ $PORT -lt 2048 ];
     do
-        $PORT=$RANDOM
+        PORT=$RANDOM
         x=`netstat -l --tcp --numeric-ports | grep $PORT`
         if [ "X$x" != "X" ]; then
             $PORT=0
@@ -33,6 +35,8 @@ do
 
     SERVNAME="lantorrent$PORT"
 
+    ports_str="$ports_str$delim$PORT"
+    delim=","
     echo "s/@PORT@/$PORT/"
     echo "s/@SERVICENAME@/$SERVNAME/"
     echo "s^@LANTORRENT_HOME@^$LANTORRENT_HOME^" 
@@ -40,9 +44,12 @@ do
 
 done
 
+echo "export LANTORRENT_TEST_PORTS=$ports_str" > $LANTORRENT_HOME/tests/ports_env.sh
+
 ls -l $LANTORRENT_HOME/tests/xinetd.d/
 echo "s^@LANTORRENT_HOME@^$LANTORRENT_HOME^"
 sed "s^@LANTORRENT_HOME@^$LANTORRENT_HOME^" $LANTORRENT_HOME/etc/xinetd.conf.in | tee $LANTORRENT_HOME/tests/xinetd.conf
 
 
-exec xinetd -d -f $LANTORRENT_HOME/tests/xinetd.conf -dontfork
+pidfile=$2
+exec xinetd -f $LANTORRENT_HOME/tests/xinetd.conf -pidfile $pidfile 

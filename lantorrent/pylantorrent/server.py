@@ -181,6 +181,7 @@ class LTServer(object):
 
 def main(argv=sys.argv[1:]):
 
+    pylantorrent.log(logging.INFO, "server starting")
     try:
         v = LTServer(sys.stdin, sys.stdout)
         v.store_and_forward()
