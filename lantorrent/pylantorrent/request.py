@@ -138,7 +138,7 @@ def main(argv=sys.argv[1:]):
     else:
         port = 5893
 
-    con_str = pylantorrent.dbfile
+    con_str = pylantorrent.config.dbfile
     now = datetime.datetime.now()
     con = sqlite3.connect(con_str)
 
