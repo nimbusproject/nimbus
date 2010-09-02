@@ -80,7 +80,7 @@ class LTConnection(object):
             self.valid = False
             self.ex = LTException(506, "%s:%d %s" % (self.host, self.port, str(ex)), self.host, self.port, self.file, self.rid)
             pylantorrent.log(logging.WARNING, "send error " + str(self.ex), traceback)
-            j = vex.get_json()
+            j = self.ex.get_json()
             s = json.dumps(j)
             self.output_printer.print_results(s)
 
