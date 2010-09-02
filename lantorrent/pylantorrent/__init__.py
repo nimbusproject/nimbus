@@ -79,11 +79,11 @@ class VConfig(object):
         self.pw = s.get("security", "password")
         self.logfile = s.get("log", "file").replace("@LANTORRENT_HOME@", self.lt_home)
         try:
-            self.host = s.get("host", "host")
+            self.host = s.get("request", "host")
         except Exception, ex:
             pass
         try:
-            self.port = s.getint("port", "port")
+            self.port = s.getint("request", "port")
         except Exception, ex:
             pass
         try:
