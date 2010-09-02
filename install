@@ -146,6 +146,7 @@ if [ $rc -ne 0 ]; then
 fi
 
 echo "installing lantorrent"
+export NIMBUS_HOME
 $NIMBUS_SRC/lantorrent/install.sh | tee -a $NIMBUS_HOME/install.log
 rc=$PIPESTATUS
 if [ $rc -ne 0 ]; then
