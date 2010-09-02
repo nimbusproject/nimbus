@@ -122,14 +122,21 @@ def main(argv=sys.argv[1:]):
     dst_filename = argv[1]
     group_id = int(argv[2])
     group_count = int(argv[3])
-
-    host = argv[4]
-    port = int(argv[5]) 
-
-
     # the user provides the rid.  that way we know they have it to look
     # things up later if needed
     rid = argv[4]
+
+    hostport = argv[5]
+    ha = hostport.split(":")
+    host = ha[0]
+    if host == "":
+        hostport = os.environ['SSH_CLIENT']
+        ha = hostport.split(" ")
+        host = ha[0]
+    if len(ha) > 1:
+        port = int(ha[1])
+    else:
+        port = 5893
 
     con_str = pylantorrent.dbfile
     now = datetime.datetime.now()
