@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# most users will not have xinetd in their path even if it is installed
+export PATH=/usr/sbin/:$PATH
 dir=`dirname $0`
 cd $dir/..
 pypath=`pwd`
