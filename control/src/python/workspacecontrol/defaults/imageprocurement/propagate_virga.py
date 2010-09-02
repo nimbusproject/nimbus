@@ -7,17 +7,17 @@ import propagate_scp
 import urlparse
 import workspacecontrol.main.wc_args as wc_args
 
-class VirgaPropadapter(propagate_scp.propadapter):
+class LantorrentPropadapter(propagate_scp.propadapter):
         
     def __init__(self, params, common):
         propagate_scp.propadapter.__init__(self, params, common)
         self.ssh = None
-        self.scheme = "virga://"
+        self.scheme = "lantorrent://"
 
     def validate(self):
         # validate scp adaptor 
         propagate_scp.propadapter.validate(self)
-        self.c.log.debug("validating virga propagation adapter")
+        self.c.log.debug("validating lantorrent propagation adapter")
     
         self.ssh = self.p.get_conf_or_none("propagation", "ssh")
         if not self.ssh:
@@ -40,7 +40,7 @@ class VirgaPropadapter(propagate_scp.propadapter):
 
     def translate_to_scp(self, imagestr):
         if imagestr[:len(self.scheme)] != self.scheme:
-            raise InvalidInput("scp trans invalid virga url, not %s %s" % (self.scheme, imagestr))
+            raise InvalidInput("scp trans invalid lantorrent url, not %s %s" % (self.scheme, imagestr))
         url = "scp://" + imagestr[len(self.scheme):]
         url_a = url.split("?")
         return url_a[0]
@@ -56,14 +56,14 @@ class VirgaPropadapter(propagate_scp.propadapter):
 
     def validate_propagate_source(self, imagestr):
         # will throw errors if invalid
-        self._virga_command("fake", imagestr)
+        self._lt_command("fake", imagestr)
     
     def propagate(self, remote_source, local_absolute_target):
-        self.c.log.info("VIRGA propagation - remote source: %s" % remote_source)
-        self.c.log.info("VIRGA propagation - local target: %s" % local_absolute_target)
+        self.c.log.info("lantorrent propagation - remote source: %s" % remote_source)
+        self.c.log.info("lantorrent propagation - local target: %s" % local_absolute_target)
         
-        cmd = self._virga_command(local_absolute_target, remote_source)
-        self.c.log.info("Running VIRGA command: %s" % cmd)
+        cmd = self._lt_command(local_absolute_target, remote_source)
+        self.c.log.info("Running lantorrent command: %s" % cmd)
         
         ret,output = getstatusoutput(cmd)
         if ret:
@@ -73,20 +73,20 @@ class VirgaPropadapter(propagate_scp.propadapter):
             raise UnexpectedError(errmsg)
         self.c.log.info("Transfer complete.")
     
-    def _virga_command(self, local, remote):
+    def _lt_command(self, local, remote):
         """
-        Remote url: virga://hostname:port/path.
+        Remote url: lantorrent://hostname:port/path.
         """
 
         if remote[:len(self.scheme)] != self.scheme:
-            raise InvalidInput("get command invalid virga url, not %s %s" % (self.scheme, remote))
+            raise InvalidInput("get command invalid lantorrent url, not %s %s" % (self.scheme, remote))
 
         ra = remote.split("?", 1)
         if len(ra) != 2:
-            raise InvalidInput("invalid virga url, %s.  It must contain parameters for groupid groupcount and remoteexe" % (remote))
+            raise InvalidInput("invalid lantorrent url, %s.  It must contain parameters for groupid groupcount and remoteexe" % (remote))
 
         url = ra[0]
-        virga_exe = ra[1]
+        lt_exe = ra[1]
 
         up = urlparse.urlparse(url)
         xfer_host = up.hostname
@@ -113,16 +113,16 @@ class VirgaPropadapter(propagate_scp.propadapter):
             group_count = self.p.get_arg_or_none(wc_args.GROUP_COUNT)
             group_count = int(group_count)
         except Exception, ex:
-            self.c.log.debug("error parsing query string for virga %s" % (str(ex)))
-            raise InvalidInput("invalid virga url %s.  You must have parametes for remoteexe,groupid, and groupcount." % (remote))
+            self.c.log.debug("error parsing query string for lantorrent %s" % (str(ex)))
+            raise InvalidInput("invalid lantorrent url %s.  You must have parametes for remoteexe,groupid, and groupcount." % (remote))
 
 
         if xfer_user:
             xfer_user = xfer_user + "@"
         else:
             xfer_user = ""
-        cmd = self.ssh + " -p %d %s%s %s %s %s %s %d" % (xfer_port, xfer_user, xfer_host, virga_exe, xfer_path, local, group_id, group_count)
+        cmd = self.ssh + " -p %d %s%s %s %s %s %s %d" % (xfer_port, xfer_user, xfer_host, lt_exe, xfer_path, local, group_id, group_count)
 
-        self.c.log.debug("virga command %s " % (cmd))
+        self.c.log.debug("lantorrent command %s " % (cmd))
 
         return cmd

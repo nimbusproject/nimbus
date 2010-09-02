@@ -39,7 +39,7 @@ public class AuthzDecisionLogic extends DecisionLogic
     private String                      repoDir = null;
     private boolean                     schemePassthrough;
     private String                      passthroughSchemes = null;
-    private Resource                    virgaFetchPathResouce;
+    private Resource                    lantorrentFetchPathResouce;
 
     public  AuthzDecisionLogic(
         DataSource ds,
@@ -121,7 +121,7 @@ public class AuthzDecisionLogic extends DecisionLogic
             String rc = null;
             String dataKey = this.authDB.getDataKey(fileIds[1]);
 
-            if(scheme.equals("virga"))
+            if(scheme.equals("lantorrent"))
             {
                 if(vm.getGroupTransferID() == null || vm.getGroupCount() < 2)
                 {
@@ -132,7 +132,7 @@ public class AuthzDecisionLogic extends DecisionLogic
                     rc = scheme + "://" + this.getRepoHost() + "/" + dataKey;
                     try
                     {
-                        String params = this.virgaFetchPathResouce.getFile().getAbsolutePath();
+                        String params = this.lantorrentFetchPathResouce.getFile().getAbsolutePath();
                         rc = rc + "?" + params;
                     }
                     catch(Exception ex)
@@ -417,14 +417,14 @@ public class AuthzDecisionLogic extends DecisionLogic
         return this.repoDir;
     }
 
-    public void setVirgaFetchPath(Resource up)
+    public void setLantorrentFetchPath(Resource up)
     {
-        this.virgaFetchPathResouce = up;
+        this.lantorrentFetchPathResouce = up;
     }
 
-    public Resource getVirgaFetchPath()
+    public Resource getLantorrentFetchPath()
     {
-        return this.virgaFetchPathResouce;
+        return this.lantorrentFetchPathResouce;
     }
 
     public void setPassthroughSchemes(String passthroughSchemes)
