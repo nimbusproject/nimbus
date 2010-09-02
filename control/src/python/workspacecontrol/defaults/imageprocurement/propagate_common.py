@@ -17,7 +17,7 @@ PROP_ADAPTER_SCP = "scp"
 PROP_ADAPTER_GUC = "gsiftp"
 PROP_ADAPTER_HDFS = "hdfs"
 PROP_ADAPTER_HTTP = "http"
-PROP_ADAPTER_VIRGA = "virga"
+PROP_ADAPTER_LANTORRENT = "lantorrent"
 
 class DefaultImageProcurement:
     """ImageProcurement is the wcmodule responsible for making files accessible
@@ -95,13 +95,13 @@ class DefaultImageProcurement:
             return
 
 
-        virga_path = self.p.get_conf_or_none("propagation", "virga")
-        if virga_path:
+        lt_path = self.p.get_conf_or_none("propagation", "lantorrent")
+        if lt_path:
             try:
-                import propagate_virga
-                self.adapters[PROP_ADAPTER_VIRGA] = propagate_virga.VirgaPropadapter(self.p, self.c)
+                import propagate_lantorrent
+                self.adapters[PROP_ADAPTER_LANTORRENT] = propagate_lantorrent.LantorrentPropadapter(self.p, self.c)
             except Exception, ex:
-                msg = "VIRGA configuration present (propagation->virga) but cannot load a suitable virga implementation in the code: " + str(ex)
+                msg = "lantorrent configuration present (propagation->lantorrent) but cannot load a suitable lantorrent implementation in the code: " + str(ex)
                 self.c.log.exception(msg + ": ")
                 raise InvalidConfig(msg)
             
