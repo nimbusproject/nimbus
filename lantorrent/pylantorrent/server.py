@@ -65,7 +65,7 @@ class LTServer(object):
 
         if auth_hash != signature:
             pylantorrent.log(logging.INFO, "ACCESS DENIED |%s| != |%s| -->%s<---" % (auth_hash, signature, lines))
-            #raise LTException(508, "%s is a bad signature" % (auth_hash))
+            raise LTException(508, "%s is a bad signature" % (auth_hash))
 
         self.json_header = json.loads(lines)
 
