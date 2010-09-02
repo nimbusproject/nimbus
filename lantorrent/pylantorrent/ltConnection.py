@@ -55,7 +55,7 @@ class LTConnection(object):
             return
 
         header = {}
-        header[files] = self.file
+        header['file'] = self.file
         header['host'] = self.host
         header['port'] = self.port
         header['id'] = self.rid

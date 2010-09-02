@@ -56,8 +56,9 @@ class VConfig(object):
                 self.load_settings(ini_file)
             except:
                 emsg = "failed to load %s, using defaults" % (ini_file)
-                log(logging.WARNING, emsg)
+                log(logging.WARNING, emsg, traceback)
         logging.basicConfig(filename=self.logfile, level=self.log_level)
+        log(logging.WARNING, "logging to %s at %d" % (self.logfile, self.log_level))
 
     def set_defaults(self):
         self.pw = "nimbus"
@@ -76,9 +77,15 @@ class VConfig(object):
         s = SafeConfigParser()
         s.readfp(open(ini_file, "r"))
         self.pw = s.get("security", "password")
-        self.logfile = s.get("log", "file").replace("@LANTORRENT@", self.lt_home)
-        self.host = s.get("host", "host")
-        self.port = s.getint("port", "port")
+        self.logfile = s.get("log", "file").replace("@LANTORRENT_HOME@", self.lt_home)
+        try:
+            self.host = s.get("host", "host")
+        except Exception, ex:
+            pass
+        try:
+            self.port = s.getint("port", "port")
+        except Exception, ex:
+            pass
         try:
             log_level_str = s.get("log", "level")
             self.log_level = log_levels[log_level_str]
