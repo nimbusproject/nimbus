@@ -8,6 +8,10 @@ nimbus-cloud-client-017
     unencrypted.
     https://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7090
 
+[*] nimbus.cert and nimbus.key properties are now resolved relative
+    to the properties file they are read from, if they are not
+    absolute paths.
+
 
 nimbus-cloud-client-016
 -----------------------

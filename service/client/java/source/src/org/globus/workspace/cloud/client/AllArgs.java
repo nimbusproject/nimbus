@@ -576,7 +576,7 @@ public class AllArgs {
             }
         }
 
-        this.intakeProperties(userProps, "user-supplied properties");
+        this.intakeProperties(userProps, "user-supplied properties", f.getAbsolutePath());
 
         CommonPrint.printDebugSectionEnd(this.print, sectionTitle);
     }
@@ -602,13 +602,14 @@ public class AllArgs {
             }
         }
 
-        this.intakeProperties(defaultProps, "default properties");
+        this.intakeProperties(defaultProps, "default properties", null);
 
         CommonPrint.printDebugSectionEnd(this.print, sectionTitle);
     }
 
     public void intakeProperties(Properties props,
-                                  String sourceName) throws ParameterProblem {
+                                 String sourceName,
+                                 String sourcePath) throws ParameterProblem {
 
         this.print.dbg("\nAll properties in " + sourceName + " file:\n");
         final Enumeration e = props.keys();
@@ -871,8 +872,9 @@ public class AllArgs {
             final String key = Props.KEY_NIMBUS_CERT;
             final String val = CloudClientUtil.getProp(props, key);
             if (val != null) {
-                this.nimbusCertFile = val;
-                this.gotProp(key, val, sourceName);
+                final String path = resolvePathProperty(key, val, sourcePath);
+                this.nimbusCertFile = path;
+                this.gotProp(key, path, sourceName);
             }
         }
 
@@ -880,8 +882,9 @@ public class AllArgs {
             final String key = Props.KEY_NIMBUS_KEY;
             final String val = CloudClientUtil.getProp(props, key);
             if (val != null) {
-                this.nimbusKeyFile = val;
-                this.gotProp(key, val, sourceName);
+                final String path = resolvePathProperty(key, val, sourcePath);
+                this.nimbusKeyFile = path;
+                this.gotProp(key, path, sourceName);
             }
         }
 
@@ -974,7 +977,19 @@ public class AllArgs {
         }
     }
 
-    
+    private String resolvePathProperty(String key, String val, String sourcePath) {
+        File f = new File(val);
+        if (!f.isAbsolute() && sourcePath != null) {
+            f = new File(new File(sourcePath).getParent(), val);
+            String path = f.getAbsolutePath();
+            this.print.dbg("Resolved " + key + " property relative to config file: "+
+            val + " -> " + path);
+            return path;
+        }
+        return val;
+    }
+
+
     // -------------------------------------------------------------------------
     // GET/SET
     // -------------------------------------------------------------------------

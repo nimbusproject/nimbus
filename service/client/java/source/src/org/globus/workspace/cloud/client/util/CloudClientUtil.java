@@ -818,7 +818,9 @@ public class CloudClientUtil {
             String msg = actionTxt + " requires an X509 credential.\n\n";
 
             msg += "If you point to an unencrypted X509 key with the \"nimbus.cert\"\n" +
-                   "and \"nimbus.key\" properties, that will be used.\n\n";
+                   "and \"nimbus.key\" properties, that will be used. If these properties\n" +
+                    "are not absolute, they will be resolved relative to the\n"+
+                    "configuration file they are found in.\n\n";
             msg += "If your X509 key file is encrypted on disk, you will need to\n" +
                    "first run \"./bin/grid-proxy-init.sh\" and the program will use\n" +
                    "the created \"/tmp/x509up_$unix_id\" proxy certificate file.\n\n";

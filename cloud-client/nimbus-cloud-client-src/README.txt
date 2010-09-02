@@ -35,7 +35,8 @@ The search path the cloud client uses is as follows:
     If "nimbus.cert" and "nimbus.key" are in the properties file and point to
     an unencrypted credential, they trump all.  These are not present by default
     but allow an advanced user to easily toggle between clouds by using the
-    --conf switch.
+    --conf switch. If these values are relative paths, they will be resolved
+    relative to the configuration file they are read from.
 
     B. proxy
   
