@@ -12,6 +12,8 @@ class LantorrentPropadapter(propagate_scp.propadapter):
     def __init__(self, params, common):
         propagate_scp.propadapter.__init__(self, params, common)
         self.ssh = None
+        self.ltport = 5893
+        self.ltip = None
         self.scheme = "lantorrent://"
 
     def validate(self):
@@ -19,6 +21,14 @@ class LantorrentPropadapter(propagate_scp.propadapter):
         propagate_scp.propadapter.validate(self)
         self.c.log.debug("validating lantorrent propagation adapter")
     
+        self.ltip = self.p.get_conf_or_none("propagation", "lantorrentip")
+        if not self.ltip:
+            self.ltip = socket.gethostbyname(socket.gethostname())
+
+        self.ltport = self.p.get_conf_or_none("propagation", "lantorrentport")
+        if not self.ltport:
+            self.ltport = 5893
+
         self.ssh = self.p.get_conf_or_none("propagation", "ssh")
         if not self.ssh:
             raise InvalidConfig("no path to ssh")
@@ -121,7 +131,7 @@ class LantorrentPropadapter(propagate_scp.propadapter):
             xfer_user = xfer_user + "@"
         else:
             xfer_user = ""
-        cmd = self.ssh + " -p %d %s%s %s %s %s %s %d" % (xfer_port, xfer_user, xfer_host, lt_exe, xfer_path, local, group_id, group_count)
+        cmd = self.ssh + " -p %d %s%s %s %s %s %s %d %s %d" % (xfer_port, xfer_user, xfer_host, lt_exe, xfer_path, local, group_id, group_count, self.ltip, self.ltport)
 
         self.c.log.debug("lantorrent command %s " % (cmd))
 

@@ -140,4 +140,16 @@ fi
 
 $NIMBUS_SRC/libexec/install-real.sh  "${@}" 2>&1 | tee -a $NIMBUS_HOME/install.log
 # need PIPESTATUS because tee is not the exit code of interest
-exit $PIPESTATUS
+rc=$PIPESTATUS
+if [ $rc -ne 0 ]; then
+    exit $rc
+fi
+
+echo "installing lantorrent"
+$NIMBUS_SRC/lantorrent/install.sh | tee -a $NIMBUS_HOME/install.log
+rc=$PIPESTATUS
+if [ $rc -ne 0 ]; then
+    echo "lantorrent install failed"
+    exit $rc
+fi
+exit 0
