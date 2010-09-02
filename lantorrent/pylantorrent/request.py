@@ -120,7 +120,7 @@ def main(argv=sys.argv[1:]):
 
     src_filename = argv[0]
     dst_filename = argv[1]
-    group_id = int(argv[2])
+    group_id = argv[2]
     group_count = int(argv[3])
     # the user provides the rid.  that way we know they have it to look
     # things up later if needed

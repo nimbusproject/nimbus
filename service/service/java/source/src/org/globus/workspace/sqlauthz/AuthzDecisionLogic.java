@@ -145,7 +145,7 @@ public class AuthzDecisionLogic extends DecisionLogic
             {                
                 rc = scheme + "://" + this.getRepoHost() + "/" + dataKey;
             }
-            logger.debug("converted " + objectName + " to " + rc);
+            logger.debug("converted " + objectName + " to " + rc + "scheme " + scheme);
 
             return rc;
         }
