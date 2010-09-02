@@ -17,6 +17,7 @@ fi
 # so that we pick up the ini file
 export LANTORRENT_HOME=$pypath
 
+who=`whoami`
 delim=""
 ports_str=""
 rm -f $LANTORRENT_HOME/tests/xinetd.d/*
@@ -40,7 +41,7 @@ do
     echo "s/@PORT@/$PORT/"
     echo "s/@SERVICENAME@/$SERVNAME/"
     echo "s^@LANTORRENT_HOME@^$LANTORRENT_HOME^" 
-    sed -e "s/@PORT@/$PORT/" -e "s/@SERVICENAME@/$SERVNAME/" -e "s^@LANTORRENT_HOME@^$LANTORRENT_HOME^" $LANTORRENT_HOME/etc/lantorrent.inet.in | tee $LANTORRENT_HOME/tests/xinetd.d/$SERVNAME
+    sed -e "s/@WHO@/$who/" -e "s/@PORT@/$PORT/" -e "s/@SERVICENAME@/$SERVNAME/" -e "s^@LANTORRENT_HOME@^$LANTORRENT_HOME^" $LANTORRENT_HOME/etc/lantorrent.inet.in | tee $LANTORRENT_HOME/tests/xinetd.d/$SERVNAME
 
 done
 

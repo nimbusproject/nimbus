@@ -10,7 +10,7 @@ service @SERVICENAME@
 	disable		= no
 	socket_type	= stream
 	protocol	= tcp
-	user		= bresnaha
+	user		= @WHO@
 	wait		= no
     port = @PORT@
     server      = @LANTORRENT_HOME@/bin/lt.sh
