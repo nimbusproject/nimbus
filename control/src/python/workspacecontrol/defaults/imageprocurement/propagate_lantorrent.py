@@ -6,6 +6,7 @@ from workspacecontrol.api.exceptions import *
 import propagate_scp
 import urlparse
 import workspacecontrol.main.wc_args as wc_args
+import socket
 
 class LantorrentPropadapter(propagate_scp.propadapter):
         
