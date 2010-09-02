@@ -151,6 +151,12 @@ def new_user(user, opts):
 
 def remove_user(user_name, opts):
     args = [user_name]
+    
+    if not opts.remove:
+        pynimbusauthz.print_msg(opts, 2, 
+                "Not removing extra user %s: --remove is not specified" %
+                user_name)
+        return "EXTRA"
 
     pynimbusauthz.print_msg(opts, 2, "Calling nimbus-remove-user with args: " +
             str(args))
