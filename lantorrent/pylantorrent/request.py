@@ -118,14 +118,14 @@ def main(argv=sys.argv[1:]):
 
     pylantorrent.log(logging.INFO, "enter")
 
-    # host and port need to come from conf file
-    host = pylantorrent.config.host
-    port = pylantorrent.config.port
-
     src_filename = argv[0]
     dst_filename = argv[1]
     group_id = int(argv[2])
     group_count = int(argv[3])
+
+    host = argv[4]
+    port = int(argv[5]) 
+
 
     # the user provides the rid.  that way we know they have it to look
     # things up later if needed

@@ -73,19 +73,10 @@ class VConfig(object):
             'error': logging.ERROR,
             'critical': logging.CRITICAL}
 
-
         s = SafeConfigParser()
         s.readfp(open(ini_file, "r"))
         self.pw = s.get("security", "password")
         self.logfile = s.get("log", "file").replace("@LANTORRENT_HOME@", self.lt_home)
-        try:
-            self.host = s.get("request", "host")
-        except Exception, ex:
-            pass
-        try:
-            self.port = s.getint("request", "port")
-        except Exception, ex:
-            pass
         try:
             log_level_str = s.get("log", "level")
             self.log_level = log_levels[log_level_str]
