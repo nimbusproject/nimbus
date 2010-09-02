@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# this is the only end that will be located with the nimbus service
 dir=`dirname $0`
 cd $dir/..
 pypath=`pwd`
@@ -10,5 +11,8 @@ else
 fi
 # so that we pick up the ini file
 export LANTORRENT_HOME=$pypath
+cd ../
+export NIMBUS_HOME=`pwd`
+source $NIMBUS_HOME/ve/bin/activate
 
-exec python ./pylantorrent/request.py "${@}"
+exec python $LANTORRENT_HOME/pylantorrent/request.py "${@}"
