@@ -13,7 +13,7 @@ class LantorrentPropadapter(propagate_scp.propadapter):
     def __init__(self, params, common):
         propagate_scp.propadapter.__init__(self, params, common)
         self.ssh = None
-        self.ltport = 5893
+        self.ltport = None
         self.ltip = None
         self.scheme = "lantorrent://"
 
@@ -24,7 +24,7 @@ class LantorrentPropadapter(propagate_scp.propadapter):
     
         self.ltip = self.p.get_conf_or_none("propagation", "lantorrentip")
         if not self.ltip:
-            self.ltip = socket.gethostbyname(socket.gethostname())
+            self.ltip = ""
 
         self.ltport = self.p.get_conf_or_none("propagation", "lantorrentport")
         if not self.ltport:
@@ -132,7 +132,8 @@ class LantorrentPropadapter(propagate_scp.propadapter):
             xfer_user = xfer_user + "@"
         else:
             xfer_user = ""
-        cmd = self.ssh + " -p %d %s%s %s %s %s %s %d %s %d" % (xfer_port, xfer_user, xfer_host, lt_exe, xfer_path, local, group_id, group_count, self.ltip, self.ltport)
+        rid = str(uuid.uuid1())
+        cmd = self.ssh + " -p %d %s%s %s %s %s %s %d %s:%d" % (xfer_port, xfer_user, xfer_host, lt_exe, xfer_path, local, group_id, group_count, self.ltip, self.ltport, rid)
 
         self.c.log.debug("lantorrent command %s " % (cmd))
 
