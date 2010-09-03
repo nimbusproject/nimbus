@@ -1,8 +1,18 @@
 #!/bin/bash
 
+if [ "X$1" == "X-h" ]; then
+    echo "<install dir> <user to run the service under>"
+    exit 0
+fi
 if [ "X$1" == "X" ]; then
     echo "please specify a target directory"
-    exit 
+    exit 1
+fi
+if [ "X$2" == "X" ]; then
+    who=`whoami`
+    exit 1
+else
+    who=$2
 fi
 installdir=$1
 
@@ -26,7 +36,6 @@ if [ $rc -ne 0 ]; then
     exit $rc
 fi
 
-who=`whoami`
 sed -e "s/@PORT@/2893/" -e "s/@SERVICENAME@/lantorrent/" -e "s/@WHO@/$who/" -e "s^@LANTORRENT_HOME@^$LANTORRENT_HOME^" etc/lantorrent.inet.in > lantorrent.inet
 
 rm etc/req.db
