@@ -26,7 +26,7 @@ class TestManyXfer(unittest.TestCase):
     def tearDown(self):
         while len(self.files) > 0:
             f = self.files.pop(0)
-        ##    os.remove(f)
+            os.remove(f)
 
     def _t_new_dest(self, host, port, sz=128*1024): 
         (osf, fname) = tempfile.mkstemp()
