@@ -12,11 +12,11 @@ import uuid
 import time
 import datetime
 
-def wait_until_sent(con, host, port, group_id):
+def wait_until_sent(con, rid):
     done = False
     while not done:
-        s = "select state,messsage from requests where group_id = ? and hostname = ? and port = ?"
-        data = (group_id,host,port,)
+        s = "select state,messsage from requests where rid = ?"
+        data = (rid,)
         c = con.cursor()
         c.execute(s, data)
         rs = c.fetchone()
@@ -81,7 +81,7 @@ def main(argv=sys.argv[1:]):
     con.commit()
     cnt = int(rs[0])
 
-    (rc, message) = wait_until_sent(con, host, port, group_id)
+    (rc, message) = wait_until_sent(con, rid)
     if rc == 0:
         print "Success"
     else:

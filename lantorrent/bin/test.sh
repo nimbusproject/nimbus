@@ -18,6 +18,9 @@ $LANTORRENT_HOME/bin/make_lt_server.sh 4 $pidfile
 xinet_pid=`cat $pidfile`
 echo "xinet on $xinet_pid"
 
-trap "kill $xinet_pid; sleep 10; kill -9 $xinet_pid" EXIT
+$dir/lt-daemon &
+ltd_pid=$!
+
+trap "kill $xinet_pid $ltd_pid; sleep 10; kill -9 $xinet_pid $ltd_pid" EXIT
 source $LANTORRENT_HOME/tests/ports_env.sh
 nosetests tests/*_test.py
