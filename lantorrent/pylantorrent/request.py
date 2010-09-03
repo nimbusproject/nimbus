@@ -65,7 +65,7 @@ def do_it_live(con, group_id):
         c.execute(u, data)
         state = 0
         degree = degree + 1
-        if degree == maxd:
+        if degree > maxd:
             state = 2
         rc = 0
         es = client.get_incomplete()
@@ -79,8 +79,8 @@ def do_it_live(con, group_id):
                 pylantorrent.log(logging.ERROR, "error trying to send %s" % (str(e)))
             rid = e['id']
             bad_rid.append(rid)
-            u = "update requests set state = ? where rid = ? and group_id = ?"
-            data = (state,rid,group_id,)
+            u = "update requests set state = ?, message = ? where rid = ? and group_id = ?"
+            data = (state,str(e),rid,group_id,)
             c.execute(u, data)
         con.commit()
     return rc
@@ -89,18 +89,18 @@ def do_it_live(con, group_id):
 def wait_until_sent(con, host, port, group_id):
     done = False
     while not done:
-        s = "select state from requests where group_id = ? and hostname = ? and port = ?"
+        s = "select state,messsage from requests where group_id = ? and hostname = ? and port = ?"
         data = (group_id,host,port,)
         c = con.cursor()
         c.execute(s, data)
         rs = c.fetchone()
         con.commit()
         state = int(rs[0])
-        pylantorrent.log(logging.INFO, "my state %d" % (state))
+        message = rs[1]
         if state == 0:
             time.sleep(1)
         else:
-            return state
+            return (state, message)
 
 def main(argv=sys.argv[1:]):
     """
@@ -131,8 +131,8 @@ def main(argv=sys.argv[1:]):
     host = ha[0]
     if host == "":
         hostport = os.environ['SSH_CLIENT']
-        ha = hostport.split(" ")
-        host = ha[0]
+        ha2 = hostport.split(" ")
+        host = ha2[0]
     if len(ha) > 1:
         port = int(ha[1])
     else:
@@ -160,7 +160,11 @@ def main(argv=sys.argv[1:]):
     if cnt == group_count:
         do_it_live(con, group_id)
 
-    rc = wait_until_sent(con, host, port, group_id)
+    (rc, message) = wait_until_sent(con, host, port, group_id)
+    if rc == 0:
+        print "Success"
+    else:
+        print "Failure: %s" % (message)
 
     return rc
 
