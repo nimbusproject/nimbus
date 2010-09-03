@@ -13,15 +13,22 @@ echo "---------------------"
 echo "installing lantorrent"
 echo "---------------------"
 
+src_dir=`dirname $0`
+cd $src_dir
+rc=$?
+if [ $rc -ne 0 ]; then
+    echo "could not change directories"
+    exit $rc
+fi
+src_dir=`pwd`
+
 installdir=$1
+mkdir $installdir
 cd $installdir
 installdir=`pwd`
 
-dir=`dirname $0`
-cd $dir
-src_dir=`pwd`
 
-mkdir $installdir
+echo "copying from $src_dir to $installdir"
 cp -r $src_dir/* $installdir/
 rc=$?
 if [ $rc -ne 0 ]; then
@@ -43,4 +50,5 @@ if [ $rc -ne 0 ]; then
     echo "could not create the database"
     exit $rc
 fi
+echo "Success"
 exit 0
