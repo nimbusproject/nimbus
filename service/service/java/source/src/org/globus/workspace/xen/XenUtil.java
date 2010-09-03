@@ -170,17 +170,7 @@ public class XenUtil implements WorkspaceConstants {
                     break;
                 }
             }
-        }
-
-        final String groupTransferID = vm.getGroupTransferID();
-  	    if (groupTransferID != null) {
-            cmd.add("--group-transfer-id");
-            cmd.add(vm.getGroupTransferID());
-
-            cmd.add("--group-count");
-            String gc = new Integer(vm.getGroupCount()).toString();
-            cmd.add(gc);
-        }
+        }     
 
         if (notificationInfo != null) {
             cmd.add("--notify");

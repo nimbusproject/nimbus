@@ -94,7 +94,7 @@ class LantorrentPropadapter(propagate_scp.propadapter):
 
         ra = remote.split("?", 1)
         if len(ra) != 2:
-            raise InvalidInput("invalid lantorrent url, %s.  It must contain parameters for groupid groupcount and remoteexe" % (remote))
+            raise InvalidInput("invalid lantorrent url, %s.  It must contain parameters the remoteexe" % (remote))
 
         url = ra[0]
         lt_exe = ra[1]
@@ -119,21 +119,12 @@ class LantorrentPropadapter(propagate_scp.propadapter):
             else:
                 self.c.log.debug("using the program runner for ssh account") 
 
-        try:
-            group_id = self.p.get_arg_or_none(wc_args.GROUP_TRANSFER_ID)
-            group_count = self.p.get_arg_or_none(wc_args.GROUP_COUNT)
-            group_count = int(group_count)
-        except Exception, ex:
-            self.c.log.debug("error parsing query string for lantorrent %s" % (str(ex)))
-            raise InvalidInput("invalid lantorrent url %s.  You must have parametes for remoteexe,groupid, and groupcount." % (remote))
-
-
         if xfer_user:
             xfer_user = xfer_user + "@"
         else:
             xfer_user = ""
         rid = str(uuid.uuid1())
-        cmd = self.ssh + " -p %d %s%s %s %s %s %s %d %s:%d" % (xfer_port, xfer_user, xfer_host, lt_exe, xfer_path, local, group_id, group_count, self.ltip, self.ltport, rid)
+        cmd = self.ssh + " -p %d %s%s %s %s %s %s:%d" % (xfer_port, xfer_user, xfer_host, lt_exe, xfer_path, local, rid, self.ltip, self.ltport)
 
         self.c.log.debug("lantorrent command %s " % (cmd))
 

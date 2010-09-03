@@ -39,7 +39,7 @@ public class AuthzDecisionLogic extends DecisionLogic
     private String                      repoDir = null;
     private boolean                     schemePassthrough;
     private String                      passthroughSchemes = null;
-    private Resource                    lantorrentFetchPathResouce;
+    private Resource                    lantorrentFetchPathResouce = null;
 
     public  AuthzDecisionLogic(
         DataSource ds,
@@ -121,29 +121,18 @@ public class AuthzDecisionLogic extends DecisionLogic
             String rc = null;
             String dataKey = this.authDB.getDataKey(fileIds[1]);
 
-            if(scheme.equals("lantorrent"))
+            rc = scheme + "://" + this.getRepoHost() + "/" + dataKey;
+            if(lantorrentFetchPathResouce != null)
             {
-                if(vm.getGroupTransferID() == null || vm.getGroupCount() < 2)
+                try
                 {
-                    scheme = "scp";
+                    String params = this.lantorrentFetchPathResouce.getFile().getAbsolutePath();
+                    rc = rc + "?" + params;
                 }
-                else
+                catch(Exception ex)
                 {
-                    rc = scheme + "://" + this.getRepoHost() + "/" + dataKey;
-                    try
-                    {
-                        String params = this.lantorrentFetchPathResouce.getFile().getAbsolutePath();
-                        rc = rc + "?" + params;
-                    }
-                    catch(Exception ex)
-                    {
-                        throw new AuthorizationException("fetch file doesnt exist");
-                    }
+                    throw new AuthorizationException("fetch file doesnt exist");
                 }
-            }
-            if(scheme.equals("scp"))
-            {                
-                rc = scheme + "://" + this.getRepoHost() + "/" + dataKey;
             }
             logger.debug("converted " + objectName + " to " + rc + "scheme " + scheme);
 
