@@ -21,5 +21,5 @@ export DJANGO_SETTINGS_MODULE
 
 source $NIMBUS_HOME/ve/bin/activate
 
-nosetests user_tests.py user_failures_tests.py
+nosetests user_tests.py user_failures_tests.py "$@"
 exit $?
