@@ -10,6 +10,7 @@ dir=`dirname $0`
 cd $dir
 LANTORRENT_HOME=`pwd`
 
+rm -rf $installdir
 mkdir $installdir
 cp -r `pwd`/* $installdir
 rc=$?
@@ -26,8 +27,9 @@ if [ $rc -ne 0 ]; then
 fi
 
 who=`whoami`
-sed -e "s/@PORT@/2893/" -e "s/@SERVICENAME@/lantorrent/" -e "s/@WHO@/$who/" -e "s^@LANTORRENT_HOME@/$LANTORRENT_HOME/" etc/lantorrent.inet.in > lantorrent.inet
+sed -e "s/@PORT@/2893/" -e "s/@SERVICENAME@/lantorrent/" -e "s/@WHO@/$who/" -e "s^@LANTORRENT_HOME@^$LANTORRENT_HOME^" etc/lantorrent.inet.in > lantorrent.inet
 
+rm etc/req.db
 sqlite3 etc/req.db  < etc/lt.sql
 rc=$?
 if [ $rc -ne 0 ]; then
