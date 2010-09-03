@@ -1,28 +1,28 @@
 #!/bin/bash
 
 if [ "X$1" == "X-h" ]; then
-    echo "<install dir> <user to run the service under>"
+    echo "<install dir>"
     exit 0
 fi
 if [ "X$1" == "X" ]; then
     echo "please specify a target directory"
     exit 1
 fi
-if [ "X$2" == "X" ]; then
-    who=`whoami`
-    exit 1
-else
-    who=$2
-fi
+
+echo "---------------------"
+echo "installing lantorrent"
+echo "---------------------"
+
 installdir=$1
+cd $installdir
+installdir=`pwd`
 
 dir=`dirname $0`
 cd $dir
-LANTORRENT_HOME=`pwd`
+src_dir=`pwd`
 
-rm -rf $installdir
 mkdir $installdir
-cp -r `pwd`/* $installdir
+cp -r $src_dir/* $installdir/
 rc=$?
 if [ $rc -ne 0 ]; then
     echo "failed to copy over lantorrent"
@@ -35,8 +35,6 @@ if [ $rc -ne 0 ]; then
     echo "could not change to the installation directory"
     exit $rc
 fi
-
-sed -e "s/@PORT@/2893/" -e "s/@SERVICENAME@/lantorrent/" -e "s/@WHO@/$who/" -e "s^@LANTORRENT_HOME@^$LANTORRENT_HOME^" etc/lantorrent.inet.in > lantorrent.inet
 
 rm etc/req.db
 sqlite3 etc/req.db  < etc/lt.sql
