@@ -34,6 +34,7 @@ services.enabled: True
 services.wait: 10
 web.enabled: False
 cumulus.enabled: True
+lantorrent.enabled: False
 """
 CONFIG_STATE_PATH = 'nimbus-setup.conf'
 
