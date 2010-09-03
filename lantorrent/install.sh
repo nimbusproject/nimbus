@@ -9,7 +9,12 @@ fi
 
 dir=`dirname $0`
 cd $dir
+LANTORRENT_HOME=`pwd`
 cp -r `pwd` $NIMBUS_HOME/
 cd $NIMBUS_HOME/lantorrent
+
+who=`whoami`
+sed -e "s/@PORT@/2893/" -e "s/@SERVICENAME@/lantorrent/" -e "s/@WHO@/$who/" -e "s^@LANTORRENT_HOME@/$LANTORRENT_HOME/" etc/lantorrent.inet.in > lantorrent.inet
+
 sqlite3 etc/req.db  < etc/lt.sql
 exit $?

@@ -83,7 +83,7 @@ class VConfig(object):
         except Exception, ex:
             pass
         try:
-            self.dbfile = s.get("db", "file").replace("@LANTORRENT@", self.lt_home)
+            self.dbfile = s.get("db", "file").replace("@LANTORRENT_HOME@", self.lt_home)
         except:
             pass
 
