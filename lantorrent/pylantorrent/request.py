@@ -111,9 +111,9 @@ def main(argv=sys.argv[1:]):
     con_str = pylantorrent.config.dbfile
     con = sqlite3.connect(con_str)
 
+    rc = 0
     if o.reattach == None:
         rid = request(args, con)
-        rc = 0
     else:
         rid = o.reattach
 
