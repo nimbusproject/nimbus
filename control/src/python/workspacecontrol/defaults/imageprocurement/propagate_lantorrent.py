@@ -7,6 +7,7 @@ import propagate_scp
 import urlparse
 import workspacecontrol.main.wc_args as wc_args
 import socket
+import uuid
 
 class LantorrentPropadapter(propagate_scp.propadapter):
         
