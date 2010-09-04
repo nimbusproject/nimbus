@@ -32,6 +32,7 @@ def getrows(con):
 
 def do_it_live(con, rows):
 
+    pylantorrent.log(logging.INFO, "lan torrent daemon setting up to send")
     degree = 1
     maxd = 3
 
