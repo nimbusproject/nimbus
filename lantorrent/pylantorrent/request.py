@@ -11,11 +11,29 @@ import traceback
 import uuid
 import time
 import datetime
+import pynimbusauthz
+from pynimbusauthz.cmd_opts import cbOpts
+
+def setup_options(argv):
+
+    u = """[options]
+Submit a transfer request
+    """
+    (parser, all_opts) = pynimbusauthz.get_default_options(u)
+
+    opt = cbOpts("nonblock", "n", "Do not block waiting for completion", False, flag=True)
+    all_opts.append(opt)
+    opt = cbOpts("reattach", "a", "Reattach", None)
+    all_opts.append(opt)
+
+    (o, args) = pynimbusauthz.parse_args(parser, all_opts, argv)
+    return (o, args, parser)
+
 
 def wait_until_sent(con, rid):
     done = False
     while not done:
-        s = "select state,messsage from requests where rid = ?"
+        s = "select state,message from requests where rid = ?"
         data = (rid,)
         c = con.cursor()
         c.execute(s, data)
@@ -26,24 +44,23 @@ def wait_until_sent(con, rid):
         if state == 0:
             time.sleep(1)
         else:
-            return (state, message)
+            done = True
 
-def main(argv=sys.argv[1:]):
-    """
-    This program allows a file to be requested from the lantorrent system.  The
-    file will be sent out of band.  When the file has been delived the 
-    database entry for this request will be updated.  This program will
-    block until that entry is update.
+    # cleanup
+    d = "delete from requests where rid = ?"
+    data = (rid,)
+    c = con.cursor()
+    c.execute(d, data)
+    con.commit()
 
-    As options, the program takes the source file, the
-    target file location, the group_id and the group count.
+    if state == 1:
+        rc = 0
+    else:
+        rc = 1
+    return (rc, message)
 
-    The lantorrent config file must have the ip and port that the requester
-    is using for lantorrent delivery.
-    """
 
-    pylantorrent.log(logging.INFO, "enter")
-
+def request(argv, con):
     src_filename = argv[0]
     dst_filename = argv[1]
     # the user provides the rid.  that way we know they have it to look
@@ -62,10 +79,7 @@ def main(argv=sys.argv[1:]):
     else:
         port = 5893
 
-    con_str = pylantorrent.config.dbfile
     now = datetime.datetime.now()
-    con = sqlite3.connect(con_str)
-
     i = "insert into requests(src_filename, dst_filename, hostname, port, rid, entry_time) values (?, ?, ?, ?, ?, ?)"
     data = (src_filename, dst_filename, host, port, rid, now,)
 
@@ -73,21 +87,46 @@ def main(argv=sys.argv[1:]):
     c.execute(i, data)
     con.commit()
 
-    s = "select count(*) from requests where group_id = ?"
-    data = (group_id,)
-    c = con.cursor()
-    c.execute(s, data)
-    rs = c.fetchone()
-    con.commit()
-    cnt = int(rs[0])
+    return rid
 
-    (rc, message) = wait_until_sent(con, rid)
+
+def main(argv=sys.argv[1:]):
+    """
+    This program allows a file to be requested from the lantorrent system.  The
+    file will be sent out of band.  When the file has been delived the 
+    database entry for this request will be updated.  This program will
+    block until that entry is update.
+
+    As options, the program takes the source file, the
+    target file location, the group_id and the group count.
+
+    The lantorrent config file must have the ip and port that the requester
+    is using for lantorrent delivery.
+    """
+
+    pylantorrent.log(logging.INFO, "enter")
+
+    (o, args, p) = setup_options(argv)
+
+    con_str = pylantorrent.config.dbfile
+    con = sqlite3.connect(con_str)
+
+    if o.reattach == None:
+        rid = request(args, con)
+        rc = 0
+    else:
+        rid = o.reattach
+
+    if not o.nonblock:
+        (rc, message) = wait_until_sent(con, rid)
+
     if rc == 0:
         print "Success"
     else:
         print "Failure: %s" % (message)
 
     return rc
+
 
 if __name__ == "__main__":
     rc = main()

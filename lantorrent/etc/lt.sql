@@ -9,6 +9,6 @@ create table requests(
     state INTEGER DEFAULT 0,
     message TEXT,
     entry_time DATETIME,
-    UNIQUE(group_id, hostname, port, dst_filename)
+    UNIQUE(hostname, port, dst_filename)
 );
 
