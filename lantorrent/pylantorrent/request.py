@@ -120,12 +120,14 @@ def main(argv=sys.argv[1:]):
     if not o.nonblock:
         (rc, message) = wait_until_sent(con, rid)
     else:
-        print "request id: %s" % (rid)
+        msg = "request id: %s" % (rid)
+        pynimbusauthz.print_msg(o, 0,  msg)
 
     if rc == 0:
-        print "Success"
+        pynimbusauthz.print_msg(o, 0,  "Success")
     else:
-        print "Failure: %s" % (message)
+        msg = "Failure: %s" % (message)
+        pynimbusauthz.print_msg(o, 0,  msg)
 
     return rc
 
