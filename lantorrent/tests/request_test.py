@@ -62,6 +62,8 @@ class TestRequestXfer(unittest.TestCase):
         f = open(out_file, "r")
         lines = f.readlines()
         l = len(lines)
+        print "lines %d" % (l)
+        print lines
         rid_line = lines[l-2]
         ra = rid_line.split(":", 1)
         rid = ra[1].strip()
