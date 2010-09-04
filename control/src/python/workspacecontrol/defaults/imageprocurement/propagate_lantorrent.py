@@ -28,6 +28,7 @@ class LantorrentPropadapter(propagate_scp.propadapter):
             self.ltip = ""
 
         self.ltport = self.p.get_conf_or_none("propagation", "lantorrentport")
+        self.ltport = int(self.ltport)
         if not self.ltport:
             self.ltport = 5893
 
