@@ -70,8 +70,13 @@ def do_it_live(con, rows):
         v = LTServer(client, client)
         v.store_and_forward()
 
-        u = "update requests set state = ? where group_id = ?"
-        data = (1,group_id,)
+        rids_str = ""
+        delim = ""
+        for r in rows:
+            rids_str = rids_str + delim + "'" + r[4] + "'"
+            delim = ", "
+        u = "update requests set state = ? where rid in (" + rids_str + ")"
+        data = (1,)
         c.execute(u, data)
         state = 0
         degree = degree + 1
@@ -89,8 +94,8 @@ def do_it_live(con, rows):
                 pylantorrent.log(logging.ERROR, "error trying to send %s" % (str(e)))
             rid = e['id']
             bad_rid.append(rid)
-            u = "update requests set state = ?, message = ? where rid = ? and group_id = ?"
-            data = (state,str(e),rid,group_id,)
+            u = "update requests set state = ?, message = ? where rid = ?"
+            data = (state,str(e),rid,)
             c.execute(u, data)
         con.commit()
 

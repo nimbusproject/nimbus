@@ -29,6 +29,12 @@ class TestRequestXfer(unittest.TestCase):
             f = self.files.pop(0)
             os.remove(f)
 
+    def _get_temp_file(self):
+        (osf, fname) = tempfile.mkstemp()
+        os.close(osf)
+        self.files.append(fname)
+        return fname
+
     def _t_file_compare(self, f):
         rc = filecmp.cmp(self.src_file, f)
         self.assertTrue(rc)
@@ -36,12 +42,22 @@ class TestRequestXfer(unittest.TestCase):
     def test_request_one(self):
         port = int(self.ports_a[0])
         host = "localhost:%d" % (port)
-        (osf, fname) = tempfile.mkstemp()
-        os.close(osf)
+        fname = self._get_temp_file()
 
         rc = pylantorrent.request.main([self.src_file, fname, str(uuid.uuid1()), host])
         self.assertEqual(rc, 0, "rc should be 0 but is %d" % (rc))
         self._t_file_compare(fname)
+
+    def test_request_many_block(self):
+        port = int(self.ports_a[0])
+        host = "localhost:%d" % (port)
+
+        for i in range(0, 10):
+            fname = self._get_temp_file()
+            rc = pylantorrent.request.main([self.src_file, fname, str(uuid.uuid1()), host])
+            self.assertEqual(rc, 0, "rc should be 0 but is %d" % (rc))
+            self._t_file_compare(fname)
+
 
 
 
