@@ -5,6 +5,11 @@ export PATH=/usr/sbin/:$PATH
 dir=`dirname $0`
 cd $dir/..
 pypath=`pwd`
+
+cd ../
+export NIMBUS_HOME=`pwd`
+source $NIMBUS_HOME/ve/bin/activate
+
 if [ "X${PYTHONPATH}" == "X" ]; then
     export PYTHONPATH=$pypath
 else
@@ -18,6 +23,7 @@ $LANTORRENT_HOME/bin/make_lt_server.sh 4 $pidfile
 xinet_pid=`cat $pidfile`
 echo "xinet on $xinet_pid"
 
+cd $LANTORRENT_HOME
 $dir/lt-daemon &
 ltd_pid=$!
 

@@ -119,6 +119,8 @@ def main(argv=sys.argv[1:]):
 
     if not o.nonblock:
         (rc, message) = wait_until_sent(con, rid)
+    else:
+        print "request id: %s" % (rid)
 
     if rc == 0:
         print "Success"
