@@ -77,7 +77,7 @@ def request(argv, con):
     if len(ha) > 1:
         port = int(ha[1])
     else:
-        port = 5893
+        port = 2893
 
     now = datetime.datetime.now()
     i = "insert into requests(src_filename, dst_filename, hostname, port, rid, entry_time) values (?, ?, ?, ?, ?, ?)"
