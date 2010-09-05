@@ -39,7 +39,6 @@ public class AuthzDecisionLogic extends DecisionLogic
     private String                      repoDir = null;
     private boolean                     schemePassthrough;
     private String                      passthroughSchemes = null;
-    private Resource                    lantorrentFetchPathResouce = null;
 
     public  AuthzDecisionLogic(
         DataSource ds,
@@ -122,18 +121,6 @@ public class AuthzDecisionLogic extends DecisionLogic
             String dataKey = this.authDB.getDataKey(fileIds[1]);
 
             rc = scheme + "://" + this.getRepoHost() + "/" + dataKey;
-            if(lantorrentFetchPathResouce != null)
-            {
-                try
-                {
-                    String params = this.lantorrentFetchPathResouce.getFile().getAbsolutePath();
-                    rc = rc + "?" + params;
-                }
-                catch(Exception ex)
-                {
-                    throw new AuthorizationException("fetch file doesnt exist");
-                }
-            }
             logger.debug("converted " + objectName + " to " + rc + "scheme " + scheme);
 
             return rc;
@@ -404,16 +391,6 @@ public class AuthzDecisionLogic extends DecisionLogic
     public String getRepoDir()
     {
         return this.repoDir;
-    }
-
-    public void setLantorrentFetchPath(Resource up)
-    {
-        this.lantorrentFetchPathResouce = up;
-    }
-
-    public Resource getLantorrentFetchPath()
-    {
-        return this.lantorrentFetchPathResouce;
     }
 
     public void setPassthroughSchemes(String passthroughSchemes)

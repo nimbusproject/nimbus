@@ -68,6 +68,8 @@ public class PropagationAdapterImpl implements PropagationAdapter,
     private boolean enabled;
     private long watcherDelay = 2000;
 
+    private String extraArgs = null;
+
     // -------------------------------------------------------------------------
     // CONSTRUCTOR
     // -------------------------------------------------------------------------
@@ -114,9 +116,18 @@ public class PropagationAdapterImpl implements PropagationAdapter,
     // SET CONFIGS
     // -------------------------------------------------------------------------
 
-    public void setNotificationInfo(String notifInfo) {
-        this.notificationInfo = notifInfo;
+
+    public void setExtraArgs(String extraArgs) {
+        this.extraArgs = extraArgs;
     }
+
+    public String getExtraArgs() {
+        return this.extraArgs;
+    }
+
+    public void setNotificationInfo(String notifInfo) {
+            this.notificationInfo = notifInfo;
+        }
 
     public void setPollScript(Resource pollScript) {
         this.pollScript = pollScript;
@@ -253,7 +264,13 @@ public class PropagationAdapterImpl implements PropagationAdapter,
 
     public ArrayList constructPropagateCommand(VirtualMachine vm) {
         try {
-            return XenUtil.constructPropagateCommand(vm, this.notify);
+            ArrayList al = XenUtil.constructPropagateCommand(vm, this.notify);
+            if(this.extraArgs != null && !this.extraArgs.trim().equals(""))
+            {
+                al.add("--prop-extra-args");
+                al.add(this.extraArgs);
+            }
+            return al;
         } catch (WorkspaceException e) {
             return null;
         }
