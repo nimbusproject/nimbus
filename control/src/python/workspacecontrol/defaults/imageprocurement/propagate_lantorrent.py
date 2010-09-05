@@ -32,7 +32,7 @@ class LantorrentPropadapter(propagate_scp.propadapter):
         if not self.ltport:
             self.ltport = 2893
 
-        self.ssh = self.p.get_conf_or_none("propagation", "ssh")
+        self.ssh = self.p.get_conf_or_none("propagation", "lantorrent")
         if not self.ssh:
             raise InvalidConfig("no path to ssh")
             
@@ -94,12 +94,10 @@ class LantorrentPropadapter(propagate_scp.propadapter):
         if remote[:len(self.scheme)] != self.scheme:
             raise InvalidInput("get command invalid lantorrent url, not %s %s" % (self.scheme, remote))
 
-        ra = remote.split("?", 1)
-        if len(ra) != 2:
-            raise InvalidInput("invalid lantorrent url, %s.  It must contain parameters the remoteexe" % (remote))
-
-        url = ra[0]
-        lt_exe = ra[1]
+        url = remote
+        lt_exe = self.p.get_arg_or_none(wc_args.EXTRA_ARGS)
+        if lt_exe == None:
+            raise InvalidInput("the extra-args parameter must be used and be a path to the remote execution script")
 
         up = urlparse.urlparse(url)
         xfer_host = up.hostname

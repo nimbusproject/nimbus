@@ -454,7 +454,7 @@
         -->
         <property name="pollScript"
                   value="$COMMON{msgsinks.dir}/notifications" />
-
+        <property name="extraArgs" value="$COMMON{propagate.extraargs}" />
 
         <!--
             Milliseconds between polls to find new notifications from
@@ -462,7 +462,6 @@
 
         -->
         <property name="watcherDelay" value="500" />
-        
         
         <!-- dependencies -->
         <constructor-arg ref="nimbus-rm.persistence.PersistenceAdapter" />
