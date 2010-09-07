@@ -69,7 +69,7 @@ DRYRUN = ControlArg("dryrun", None, createarg=False, noval=True)
 DRYRUN.help = "Do as little as possible 'for real', will still affect filesystem, for example logs and information persistence"
 a.append(DRYRUN)
 
-EXTRA_ARGS = ControlArg("extra-args", None)
+EXTRA_ARGS = ControlArg("prop-extra-args", None)
 EXTRA_ARGS.help = "addition arguments passed to the propagation adapter.  The format is deterimed by the propagation adapter in use."
 a.append(EXTRA_ARGS)
 
