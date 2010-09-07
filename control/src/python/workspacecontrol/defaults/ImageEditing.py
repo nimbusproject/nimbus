@@ -507,6 +507,7 @@ fdisk, but that did not work either:
                 
     def _guess_offset(self, imagepath):
         
+        self.c.log.debug("guessing offset for HD image %s" % (imagepath))
         if not self.fdisk_path:
             raise InvalidConfig("image editing is being requested but that functionality has been disabled for HD images due to the lack of an fdisk program configuration")
         

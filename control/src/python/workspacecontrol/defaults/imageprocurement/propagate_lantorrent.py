@@ -84,6 +84,9 @@ class LantorrentPropadapter(propagate_scp.propadapter):
             errmsg += ": %d ::: output:\n%s" % (ret, output)
             self.c.log.error(errmsg)
             raise UnexpectedError(errmsg)
+        else:
+            self.c.log.error("Successfully ran %.  output %s" % (cmd, output))
+
         self.c.log.info("Transfer complete.")
     
     def _lt_command(self, local, remote):
