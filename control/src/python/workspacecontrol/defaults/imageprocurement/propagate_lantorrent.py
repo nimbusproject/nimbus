@@ -32,7 +32,7 @@ class LantorrentPropadapter(propagate_scp.propadapter):
         if not self.ltport:
             self.ltport = 2893
 
-        self.ssh = self.p.get_conf_or_none("propagation", "lantorrent")
+        self.ssh = self.p.get_conf_or_none("propagation", "ssh")
         if not self.ssh:
             raise InvalidConfig("no path to ssh")
             
