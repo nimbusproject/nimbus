@@ -93,7 +93,8 @@ def main(argv=sys.argv[1:]):
         filename = "/" + a[1].strip()
         rid = str(uuid.uuid1())
 
-        json_dest = pylantorrent.create_endpoint_entry(host, filename, data_size, port, block_size, degree, rid)
+        filenames = [filename,]
+        json_dest = pylantorrent.create_endpoint_entry(host, filenames, data_size, port, block_size, degree, rid)
         dests.append(json_dest)
 
         l = sys.stdin.readline()
@@ -101,7 +102,7 @@ def main(argv=sys.argv[1:]):
 
     # for the sake of code resuse this will just be piped into an
     # lt daemon processor.  /dev/null is used to supress a local write
-    final = pylantorrent.create_endpoint_entry("localhost", "/dev/null")
+    final = pylantorrent.create_endpoint_entry("localhost", ["/dev/null",])
     final['destinations'] = dests
 
     c = LTClient(argv[0], final)
@@ -117,7 +118,7 @@ def main(argv=sys.argv[1:]):
             e['message'] = "Unknown error.  Please retry"
         else:
             e = e['emsg']
-        print "ERROR: %s:%s%s %s" % (e['host'], e['port'], e['file'], e['message'])       
+        print "ERROR: %s:%s%s %s" % (e['host'], e['port'], str(e['files']), e['message'])       
     print "Succesfully sent to %d" % (c.success_count)
 
     return 0

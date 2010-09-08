@@ -32,7 +32,7 @@ class TestManyXfer(unittest.TestCase):
         (osf, fname) = tempfile.mkstemp()
         self.files.append(fname)
 
-        ent = pylantorrent.create_endpoint_entry(host, fname, self.src_size, port=int(port), block_size=sz)
+        ent = pylantorrent.create_endpoint_entry(host, [fname], self.src_size, port=int(port), block_size=sz)
 
         os.close(osf)
         return (fname, ent)

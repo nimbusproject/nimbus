@@ -71,7 +71,7 @@ class LTServer(object):
 
         # verify the header
         try:
-            file_name = self.json_header['file']
+            file_names = self.json_header['files']
             host = self.json_header['host']
             port = int(self.json_header['port'])
             id = self.json_header['id']
@@ -90,7 +90,7 @@ class LTServer(object):
                 rid = d['id']
                 host = d['host']
                 port = d['port']
-                filename = d['file']
+                filenames = d['files']
             except Exception, ex:
                 raise LTException(504, str(ex))
             dests[rid] = d
@@ -136,11 +136,16 @@ class LTServer(object):
 
         header = self.json_header
         ex_array = []
-        try:
-            filename = header['file']
-            f = open(filename, "w")
-        except Exception, ex:
-            raise LTException(503, str(ex), header['host'], int(header['port']), header['file'], header['id'])
+        filenames_a = header['files']
+
+        files_a = []
+        for filename in filenames_a: 
+            try:
+                f = open(filename, "w")
+                files_a.append(f)
+            except Exception, ex:
+                pylantorrent.log(logging.ERROR, "Failed to open %s" % (filename))
+                raise LTException(503, str(ex), header['host'], int(header['port']), filenames_a, header['id'])
 
         destinations = header['destinations']
         v_con_array = self.get_valid_vcons(destinations)
@@ -158,20 +163,23 @@ class LTServer(object):
                     md5er.update(data)
                     for v_con in v_con_array:
                         v_con.send(data)
-                    f.write(data)
+                    for f in files_a:
+                        f.write(data)
                     read_count = read_count + len(data)
             md5str = str(md5er.hexdigest()).strip()
         except Exception, ex:
             for v_con in v_con_array:
                 v_con.close()
-            f.close()
+            for f in files_a:
+                f.close()
             raise ex
-        f.close()
+        for f in files_a:
+            f.close()
 
         pylantorrent.log(logging.DEBUG, "All data sent %s" % (md5str))
         # if we got to here it was successfully written to a file
         # and we can call it success
-        vex = LTException(0, filename, header['host'], int(header['port']), header['file'], header['id'], md5sum=md5str)
+        vex = LTException(0, filename, header['host'], int(header['port']), header['files'], header['id'], md5sum=md5str)
         j = vex.get_json()
         s = json.dumps(j)
         self.print_results(s)

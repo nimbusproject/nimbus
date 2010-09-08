@@ -10,8 +10,4 @@ ltcs=$8
 
 ssh "$@"
 rc=$?
-
-if [ $rc -eq 0 ]; then
-    md5sum $localpath
-fi
 exit $rc
