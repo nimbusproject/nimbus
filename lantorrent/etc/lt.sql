@@ -9,6 +9,7 @@ create table requests(
     state INTEGER DEFAULT 0,
     message TEXT,
     entry_time DATETIME,
+    attempt_count INTEGER DEFAULT 0,
     UNIQUE(hostname, port, dst_filename)
 );
 

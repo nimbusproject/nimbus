@@ -33,78 +33,72 @@ def getrows(con):
 def do_it_live(con, rows):
 
     pylantorrent.log(logging.INFO, "lan torrent daemon setting up to send")
-    degree = 1
-    maxd = 3
 
-    while len(rows) > 0 and degree <= maxd:
-        c = con.cursor()
-        dests = []
-        for r in rows:
-            src_filename = r[2]
-            dst_filename = r[3]
-            sz = os.path.getsize(src_filename)
-            json_dest = {}
-            json_dest['host'] = r[0]
-            json_dest['port'] = int(r[1])
-            json_dest['file'] = dst_filename
-            json_dest['id'] = r[4]
-            json_dest['block_size'] = 128*1024
-            json_dest['degree'] = degree
-            json_dest['length'] = sz
-            dests.append(json_dest)
+    c = con.cursor()
+    dests = []
+    for r in rows:
+        src_filename = r[2]
+        dst_filename = r[3]
+        sz = os.path.getsize(src_filename)
+        json_dest = {}
+        json_dest['host'] = r[0]
+        json_dest['port'] = int(r[1])
+        json_dest['file'] = dst_filename
+        json_dest['id'] = r[4]
+        json_dest['block_size'] = 128*1024
+        json_dest['degree'] = 1
+        json_dest['length'] = sz
+        dests.append(json_dest)
 
-        final = {}
-        # for the sake of code resuse this will just be piped into an
-        # lt daemon processor.  /dev/null is used to supress a local write
-        final['file'] = "/dev/null"
-        final['host'] = "localhost"
-        final['port'] = 2893
-        final['block_size'] = 131072
-        final['degree'] = 1
-        final['id'] = str(uuid.uuid1())
-        final['destinations'] = dests
+    final = {}
+    # for the sake of code resuse this will just be piped into an
+    # lt daemon processor.  /dev/null is used to supress a local write
+    final['file'] = "/dev/null"
+    final['host'] = "localhost"
+    final['port'] = 2893
+    final['block_size'] = 131072
+    final['degree'] = 1
+    final['id'] = str(uuid.uuid1())
+    final['destinations'] = dests
 
-        pylantorrent.log(logging.INFO, "request send %s" % (str(final)))
-        pylantorrent.log(logging.INFO, "sending em!")
+    pylantorrent.log(logging.INFO, "request send %s" % (str(final)))
+    pylantorrent.log(logging.INFO, "sending em!")
 
-        client = LTClient(src_filename, final)
-        v = LTServer(client, client)
-        v.store_and_forward()
+    client = LTClient(src_filename, final)
+    v = LTServer(client, client)
+    v.store_and_forward()
 
-        rids_str = ""
-        delim = ""
-        for r in rows:
-            rids_str = rids_str + delim + "'" + r[4] + "'"
-            delim = ", "
-        u = "update requests set state = ? where rid in (" + rids_str + ")"
-        data = (1,)
+    rids_all = []
+    for r in rows:
+        rids_all.append(r[4])
+    rc = 0
+    es = client.get_incomplete()
+    bad_rid = []
+    for k in es:
+        rc = rc + 1
+        e = es[k]
+        pylantorrent.log(logging.ERROR, "error trying to send %s" % (str(e)))
+        rid = e['id']
+        bad_rid.append(rid)
+        # set to retry
+        u = "update requests set state = ?, message = ?, attempt_count = attempt_count + 1 where rid = ?"
+        data = (0,str(e),rid,)
         c.execute(u, data)
-        state = 0
-        degree = degree + 1
-        if degree > maxd:
-            state = 2
-        rc = 0
-        es = client.get_incomplete()
-        bad_rid = []
-        for k in es:
-            rc = rc + 1
-            e = es[k]
-            if state != 2:
-                pylantorrent.log(logging.WARNING, "error trying to send %s" % (str(e)))
-            else:
-                pylantorrent.log(logging.ERROR, "error trying to send %s" % (str(e)))
-            rid = e['id']
-            bad_rid.append(rid)
-            u = "update requests set state = ?, message = ? where rid = ?"
-            data = (state,str(e),rid,)
-            c.execute(u, data)
-        con.commit()
+        rids_all.remove(rid)
 
-        if len(bad_rid) > 0:
-            # wait for soemthing in the system to change
-            # obviously we need something more sophisticated than this
-            # eventually
-            time.sleep(5)
+    for rid in rids_all:
+        # set to compelte
+        u = "update requests set state = ?, message = ? where rid = ?"
+        data = (1,"Success",rid,)
+        c.execute(u, data)
+
+    con.commit()
+
+    if len(bad_rid) > 0:
+        # wait for soemthing in the system to change
+        # obviously we need something more sophisticated than this
+        # eventually
+        time.sleep(5)
     return rc
 
 
@@ -119,7 +113,7 @@ def main(argv=sys.argv[1:]):
 
     con_str = pylantorrent.config.dbfile
     now = datetime.datetime.now()
-    con = sqlite3.connect(con_str)
+    con = sqlite3.connect(con_str, isolation_level="EXCLUSIVE")
 
     done = False
     while not done:

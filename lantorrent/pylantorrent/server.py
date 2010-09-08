@@ -171,7 +171,7 @@ class LTServer(object):
         pylantorrent.log(logging.DEBUG, "All data sent %s" % (md5str))
         # if we got to here it was successfully written to a file
         # and we can call it success
-        vex = LTException(0, filename, header['host'], int(header['port']), header['file'], header['id'])
+        vex = LTException(0, filename, header['host'], int(header['port']), header['file'], header['id'], md5sum=md5str)
         j = vex.get_json()
         s = json.dumps(j)
         self.print_results(s)

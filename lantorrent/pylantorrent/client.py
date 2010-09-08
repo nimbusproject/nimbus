@@ -8,6 +8,7 @@ from pylantorrent.ltException import LTException
 import json
 import traceback
 import uuid
+import hashlib
 
 class LTClient(object):
 
@@ -15,6 +16,7 @@ class LTClient(object):
         self.data_size = os.path.getsize(filename)
         self.data_file = open(filename, "r")
         self.success_count = 0
+        self.md5str = None
 
         json_header['length'] = self.data_size
         outs = json.dumps(json_header)
@@ -22,12 +24,14 @@ class LTClient(object):
         self.header_lines = outs.split("\n")
         self.header_lines.append("EOH : %s" % (auth_hash))
         self.errors = []
+        self.complete = {}
 
         self.dest = {}
         ld = json_header['destinations']
         for d in ld:
             d['emsg'] = None
             self.dest[d['id']] = d
+        self.md5er = hashlib.md5()
 
     def readline(self):
         if len(self.header_lines) == 0:
@@ -36,20 +40,33 @@ class LTClient(object):
         return l
 
     def read(self, blocksize):
-        return self.data_file.read(blocksize)
+        d = self.data_file.read(blocksize)
+        self.md5er.update(d)
+        return d
+
+    def close(self):
+        self.md5str = str(md5er.hexdigest()).strip()
+        close(self.data_file)
 
     def write(self, data):
         try:
             json_outs = json.loads(data)
             rid = json_outs['id']
             if int(json_outs['code']) == 0:
-                self.dest.pop(rid)
+                c = self.dest.pop(rid)
+                self.complete[rid] = json_out
                 self.success_count = self.success_count + 1
             else:
                 d = self.dest[rid]
                 d['emsg'] = json_outs
         except Exception, ex:
             pass
+
+    def check_sum(self):
+        for rid in self.complete.keys():
+            c = self.complete[rid]
+            if c['md5sum'] != self.md5str:
+                raise Exception("There was data corruption in the chain")
 
     def get_incomplete(self):
         return self.dest
@@ -90,6 +107,8 @@ def main(argv=sys.argv[1:]):
     c = LTClient(argv[0], final)
     v = LTServer(c, c)
     v.store_and_forward()
+    c.close()
+    c.check_sum()
 
     es = c.get_incomplete()
     for k in es:
