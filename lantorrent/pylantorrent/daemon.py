@@ -22,8 +22,12 @@ def getrows(con):
     if r == None or len(r) < 1:
         return None
     src_file = r[0]
+    # do a commit here.  THe assumption is that jsut one daemon is pulling
+    # from the db.  better to grab any that came in since the initial
+    # select
+    con.commit()
 
-    s = "select hostname,port,src_filename,dst_filename,rid from requests where src_filename = ? and state = 0"
+    s = "select hostname,port,src_filename,dst_filename,rid from requests where src_filename = ? and state = 0 order by hostname,port"
     data = (src_file, )
     c.execute(s, data)
     rows = c.fetchall()
