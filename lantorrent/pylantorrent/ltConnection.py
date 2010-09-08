@@ -13,6 +13,7 @@ class LTConnection(object):
 
     def __init__(self, json_ent, output_printer):
         self.ex = None
+        self.read_buffer_len = 1024
         self.output_printer = output_printer
 
         if json_ent == None:
@@ -88,7 +89,7 @@ class LTConnection(object):
         line = ""
         while True:
             try:
-                data = self.socket.recv(1024)
+                data = self.socket.recv(self.read_buffer_len)
             except:
                 data = ""
             line = line + str(data)

@@ -33,7 +33,7 @@ Submit a transfer request
 def wait_until_sent(con, rid):
     done = False
     while not done:
-        s = "select state,message from requests where rid = ?"
+        s = "select state,message,attempt_count from requests where rid = ?"
         data = (rid,)
         c = con.cursor()
         c.execute(s, data)
@@ -41,10 +41,14 @@ def wait_until_sent(con, rid):
         con.commit()
         state = int(rs[0])
         message = rs[1]
-        if state == 0:
-            time.sleep(1)
-        else:
+        attempt_count = rs[2]
+        if attempt_count > 2:
             done = True
+            state = 2
+        elif state == 1:
+            done = True
+        else:
+            time.sleep(1)
 
     # cleanup
     d = "delete from requests where rid = ?"
@@ -109,7 +113,7 @@ def main(argv=sys.argv[1:]):
     (o, args, p) = setup_options(argv)
 
     con_str = pylantorrent.config.dbfile
-    con = sqlite3.connect(con_str)
+    con = sqlite3.connect(con_str, isolation_level="EXCLUSIVE")
 
     rc = 0
     if o.reattach == None:

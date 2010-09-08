@@ -17,14 +17,16 @@ class LTException(Exception):
     errorsCode[507] = "A peer returned non json output %s"
     errorsCode[508] = "Access denied: %s"
     errorsCode[509] = "completion status never recieved %s"
+    errorsCode[510] = "Incorrect checksum %s"
 
-    def __init__(self, code, msg, host=None, port=None, filename=None, rid=None):
+    def __init__(self, code, msg, host=None, port=None, filename=None, rid=None, md5sum=""):
         self.code = code
         self.host = host
         self.port = port
         self.filename = filename
         self.rid = rid
         self.msg = LTException.errorsCode[code] % (msg)
+        self.md5sum = md5sum
 
     def __str__(self):
          return "%s %d %s:%s%s %s\r\n" % (self.rid, self.code, str(self.host), str(self.port), self.filename, self.msg)
@@ -53,6 +55,7 @@ class LTException(Exception):
         header['file'] = self.filename
         header['id'] = self.rid
         header['message'] = self.msg
+        header['md5sum'] = self.md5sum
 
         return header
 
