@@ -43,7 +43,7 @@ def do_it_live(con, rows):
         json_dest = {}
         json_dest['host'] = r[0]
         json_dest['port'] = int(r[1])
-        json_dest['file'] = dst_filename
+        json_dest['files'] = [dst_filename]
         json_dest['id'] = r[4]
         json_dest['block_size'] = 128*1024
         json_dest['degree'] = 1
@@ -53,7 +53,7 @@ def do_it_live(con, rows):
     final = {}
     # for the sake of code resuse this will just be piped into an
     # lt daemon processor.  /dev/null is used to supress a local write
-    final['file'] = "/dev/null"
+    final['files'] = ["/dev/null"]
     final['host'] = "localhost"
     final['port'] = 2893
     final['block_size'] = 131072

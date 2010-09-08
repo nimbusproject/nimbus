@@ -19,17 +19,17 @@ class LTException(Exception):
     errorsCode[509] = "completion status never recieved %s"
     errorsCode[510] = "Incorrect checksum %s"
 
-    def __init__(self, code, msg, host=None, port=None, filename=None, rid=None, md5sum=""):
+    def __init__(self, code, msg, host=None, port=None, filenames=None, rid=None, md5sum=""):
         self.code = code
         self.host = host
         self.port = port
-        self.filename = filename
+        self.filenames = filenames
         self.rid = rid
         self.msg = LTException.errorsCode[code] % (msg)
         self.md5sum = md5sum
 
     def __str__(self):
-         return "%s %d %s:%s%s %s\r\n" % (self.rid, self.code, str(self.host), str(self.port), self.filename, self.msg)
+         return "%s %d %s:%s%s %s\r\n" % (self.rid, self.code, str(self.host), str(self.port), str(self.filenames), self.msg)
 
     #
     #  results json
@@ -52,7 +52,7 @@ class LTException(Exception):
         header['code'] = self.code
         header['host'] = self.host
         header['port'] = self.port
-        header['file'] = self.filename
+        header['files'] = self.filenames
         header['id'] = self.rid
         header['message'] = self.msg
         header['md5sum'] = self.md5sum

@@ -24,12 +24,12 @@ def log(level, msg, tb=None):
         logging.log(level, "===========")
         logging.log(level, sys.exc_info()[0])
 
-def create_endpoint_entry(host, dest_file, data_size, port=2893, block_size=128*1024, degree=1, rid=None):
+def create_endpoint_entry(host, dest_files, data_size, port=2893, block_size=128*1024, degree=1, rid=None):
     if rid == None:
         rid = str(uuid.uuid1())
 
     final = {}
-    final['file'] = dest_file
+    final['files'] = dest_files
     final['host'] = host
     final['port'] = port
     final['block_size'] = block_size
