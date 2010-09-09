@@ -40,6 +40,7 @@ def wait_until_sent(con, rid):
 
 #
 def is_done(con, rid):
+    pylantorrent.log(logging.INFO, "checking for done on  %s" % (rid))
     done = False
     rc = 0
     s = "select state,message,attempt_count from requests where rid = ?"
@@ -99,6 +100,7 @@ def request(argv, con):
     c = con.cursor()
     c.execute(i, data)
     con.commit()
+    pylantorrent.log(logging.INFO, "new request %s %d" % (rid, sz))
 
     return (rid, sz)
 
@@ -125,37 +127,30 @@ def main(argv=sys.argv[1:]):
     con = sqlite3.connect(con_str, isolation_level="EXCLUSIVE")
 
     rc = 0
+    sz = -1
     done = False
+    message = ""
     if o.reattach == None:
         (rid, sz) = request(args, con)
     else:
         rid = o.reattach
-        (done, rc, message) = is_done(con, rid)
-        rid = o.reattach
-        sz = -1
-        if not done:
-            print "still working"
 
-    if not o.nonblock:
-        if not done:
-            (rc, message) = wait_until_sent(con, rid)
-            done = True
-    else:
-        msg = "size: %s" % (sz)
-        pynimbusauthz.print_msg(o, 0,  msg)
+    (done, rc, message) = is_done(con, rid)
 
-    if rc == 0:
-        pynimbusauthz.print_msg(o, 0,  "Success")
-    else:
-        msg = "Failure: %s" % (message)
-        pynimbusauthz.print_msg(o, 0,  msg)
+    if not o.nonblock and not done:
+        (rc, message) = wait_until_sent(con, rid)
+        done = True
 
     if done:
         delete_rid(con, rid)
+
+    msg = "%d,%s,%s" % (rc, str(done), message)
+    pynimbusauthz.print_msg(o, 0,  msg)
 
     return rc
 
 
 if __name__ == "__main__":
     rc = main()
-    sys.exit(rc)
+    # always return 0.  an non 0 return code will mean an ssh error
+    sys.exit(0)
