@@ -25,7 +25,7 @@ do
     if [ $cnt -gt 30 ]; then
         cnt=0
         ssh -p $port $userhost "$remoteexe" --nonblock --reattach "$rid"
-        if [ "X$rc" -ne 0 ]; then
+        if [ $? -ne 0 ]; then
             exit $rc
         fi
     fi
