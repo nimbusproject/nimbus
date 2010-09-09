@@ -23,8 +23,7 @@ class LTConnection(object):
         try:
             self.host = json_ent['host']
             self.port = int(json_ent['port'])
-            self.files = json_ent['files']
-            self.rid = json_ent['id']
+            self.requests = json_ent['requests']
             self.block_size = int(json_ent['block_size'])
             self.degree = int(json_ent['degree'])
             self.data_length = int(json_ent['length'])
@@ -38,7 +37,7 @@ class LTConnection(object):
             s.connect((self.host, self.port))
             self.socket = s
         except Exception, ex:
-            vex = LTException(505, "%s:%d" % (self.host, self.port), self.host, self.port, self.files, self.rid)
+            vex = LTException(505, "%s:%d" % (self.host, self.port), self.host, self.port, reqs=self.requests)
             pylantorrent.log(logging.ERROR, str(vex), traceback)
             raise vex
 
@@ -56,10 +55,9 @@ class LTConnection(object):
             return
 
         header = {}
-        header['files'] = self.files
+        header['requests'] = self.requests
         header['host'] = self.host
         header['port'] = self.port
-        header['id'] = self.rid
         header['block_size'] = self.block_size
         header['degree'] = self.degree
         header['length'] = self.data_length
@@ -79,7 +77,7 @@ class LTConnection(object):
             self.socket.send(data)
         except Exception, ex:
             self.valid = False
-            self.ex = LTException(506, "%s:%d %s" % (self.host, self.port, str(ex)), self.host, self.port, self.files, self.rid)
+            self.ex = LTException(506, "%s:%d %s" % (self.host, self.port, str(ex)), self.host, self.port, self.requests)
             pylantorrent.log(logging.WARNING, "send error " + str(self.ex), traceback)
             j = self.ex.get_json()
             s = json.dumps(j)

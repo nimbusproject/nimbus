@@ -29,8 +29,19 @@ class LTClient(object):
         self.dest = {}
         ld = json_header['destinations']
         for d in ld:
-            d['emsg'] = None
-            self.dest[d['id']] = d
+            for req in d['requests']:
+                rid = req['id']
+                fname = req['filename']
+
+                # create an object to track the request info
+                ep = {}
+                ep['host'] = d['host']
+                ep['port'] = d['port']
+                ep['id'] = rid
+                ep['filename'] = fname  
+                ep['emsg'] = None
+                self.dest[rid] = ep
+
         self.md5er = hashlib.md5()
 
     def readline(self):
@@ -118,7 +129,7 @@ def main(argv=sys.argv[1:]):
             e['message'] = "Unknown error.  Please retry"
         else:
             e = e['emsg']
-        print "ERROR: %s:%s%s %s" % (e['host'], e['port'], str(e['files']), e['message'])       
+        print "ERROR: %s:%s%s %s" % (e['host'], e['port'], str(e['filename']), e['message'])       
     print "Succesfully sent to %d" % (c.success_count)
 
     return 0
