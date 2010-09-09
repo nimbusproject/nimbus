@@ -1,16 +1,16 @@
 #!/bin/bash
 
-port=$2
-userhost=$3
-remoteexe=$4
-remotepath=$5
-localpath=$6
-rid=$7
-ltcs=$8
+port=$1
+userhost=$2
+remoteexe=$3
+remotepath=$4
+localpath=$5
+rid=$6
+ltcs=$7
 
 ssh -p $port $userhost "$remoteexe" --nonblock "$remotepath" "$localpath" "$rid" "$ltcs"
 rc=$?
-if [ "X$rc" -ne 0 ]; then
+if [ $rc -ne 0 ]; then
     exit $rc
 fi
 
