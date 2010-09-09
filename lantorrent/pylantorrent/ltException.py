@@ -69,6 +69,6 @@ class LTException(Exception):
         for req in self.reqs:
             s = self.get_json(rid=req['id'], filename=req['filename'])
             s = json.dumps(s)
-            str_out = s + os.linesep
+            str_out = str_out + s + os.linesep
 
-        return s
+        return str_out

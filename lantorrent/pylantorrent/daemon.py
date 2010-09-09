@@ -43,12 +43,14 @@ def do_it_live(con, rows):
     last_host = None
     last_port = None
     json_dest = None
+    rids_all = []
     for r in rows:
         new_host = r[0]
         new_port = int(r[1])
         dst_filename = r[3]
         src_filename = r[2]
         rid = r[4]
+        rids_all.append(rid)
         sz = os.path.getsize(src_filename)
         # if it is the same host just tack on another dest file
         if new_host == last_host and last_port == new_port:
@@ -69,7 +71,7 @@ def do_it_live(con, rows):
             json_dest['block_size'] = 128*1024
             json_dest['degree'] = 1
             json_dest['length'] = sz
-        
+    
     if json_dest != None:
         dests.append(json_dest)
 
@@ -90,9 +92,6 @@ def do_it_live(con, rows):
     v = LTServer(client, client)
     v.store_and_forward()
 
-    rids_all = []
-    for r in rows:
-        rids_all.append(r[4])
     rc = 0
     es = client.get_incomplete()
     bad_rid = []

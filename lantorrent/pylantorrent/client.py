@@ -39,7 +39,7 @@ class LTClient(object):
                 ep['port'] = d['port']
                 ep['id'] = rid
                 ep['filename'] = fname  
-                ep['emsg'] = None
+                ep['emsg'] = "Success was never reported, nor was a specific error"
                 self.dest[rid] = ep
 
         self.md5er = hashlib.md5()
@@ -102,10 +102,9 @@ def main(argv=sys.argv[1:]):
         port = a[0]
         x = int(port)
         filename = "/" + a[1].strip()
-        rid = str(uuid.uuid1())
 
         filenames = [filename,]
-        json_dest = pylantorrent.create_endpoint_entry(host, filenames, data_size, port, block_size, degree, rid)
+        json_dest = pylantorrent.create_endpoint_entry(host, filenames, data_size, port, block_size, degree)
         dests.append(json_dest)
 
         l = sys.stdin.readline()
@@ -113,7 +112,7 @@ def main(argv=sys.argv[1:]):
 
     # for the sake of code resuse this will just be piped into an
     # lt daemon processor.  /dev/null is used to supress a local write
-    final = pylantorrent.create_endpoint_entry("localhost", ["/dev/null",])
+    final = pylantorrent.create_endpoint_entry("localhost", ["/dev/null",], data_size)
     final['destinations'] = dests
 
     c = LTClient(argv[0], final)

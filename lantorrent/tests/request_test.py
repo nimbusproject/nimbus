@@ -52,7 +52,7 @@ class TestRequestXfer(unittest.TestCase):
         port = int(self.ports_a[0])
         host = "localhost:%d" % (port)
 
-        for i in range(0, 10):
+        for i in range(0, 7):
             fname = self._get_temp_file()
             rc = pylantorrent.request.main([self.src_file, fname, str(uuid.uuid1()), host])
             self.assertEqual(rc, 0, "rc should be 0 but is %d" % (rc))
@@ -71,7 +71,7 @@ class TestRequestXfer(unittest.TestCase):
         return rid
 
 
-    def test_request_many_nonblock(self):
+    def test_request_same_host_nonblock(self):
         port = int(self.ports_a[0])
         host = "localhost:%d" % (port)
 
@@ -88,6 +88,32 @@ class TestRequestXfer(unittest.TestCase):
 
         print "waiting on all the files"
         for rid in rids:
+            print "waiting on %s" % (rid)
+            rc = pylantorrent.request.main(["-a", rid])
+            self.assertEqual(rc, 0, "rc should be 0 but is %d" % (rc))
+
+        print "checking all the files"
+        for f in self.files:
+            self._t_file_compare(f)
+
+    def test_request_many_host_nonblock(self):
+
+        print "requesting all the files"
+        rids = []
+        for i in range(0, len(self.ports_a) * 2):
+            port = int(self.ports_a[i%len(self.ports_a)])
+            host = "localhost:%d" % (port)
+            (osf, out_file) = tempfile.mkstemp()
+            os.close(osf)
+            fname = self._get_temp_file()
+            rc = pylantorrent.request.main(["-O", out_file, "-n", self.src_file, fname, str(uuid.uuid1()), host])
+            self.assertEqual(rc, 0, "rc should be 0 but is %d" % (rc))
+            rid = self.get_rid(out_file)
+            rids.append(rid)
+
+        print "waiting on all the files"
+        for rid in rids:
+            print "waiting on %s" % (rid)
             rc = pylantorrent.request.main(["-a", rid])
             self.assertEqual(rc, 0, "rc should be 0 but is %d" % (rc))
 
