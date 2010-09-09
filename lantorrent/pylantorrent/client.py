@@ -112,7 +112,7 @@ def main(argv=sys.argv[1:]):
 
     # for the sake of code resuse this will just be piped into an
     # lt daemon processor.  /dev/null is used to supress a local write
-    final = pylantorrent.create_endpoint_entry("localhost", ["/dev/null",], data_size)
+    final = pylantorrent.create_endpoint_entry("localhost", ["/dev/null",], data_size, rename=False)
     final['destinations'] = dests
 
     c = LTClient(argv[0], final)

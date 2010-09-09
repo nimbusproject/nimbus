@@ -55,7 +55,7 @@ def do_it_live(con, rows):
         # if it is the same host just tack on another dest file
         if new_host == last_host and last_port == new_port:
             reqs = json_dest['requests']
-            new_req = {"filename" : dst_filename, "id" : rid}
+            new_req = {"filename" : dst_filename, "id" : rid, 'rename' : True}
             reqs.append(new_req)
             json_dest['requests'] = reqs
         else:
@@ -67,7 +67,7 @@ def do_it_live(con, rows):
             json_dest = {}
             json_dest['host'] = new_host
             json_dest['port'] = new_port
-            json_dest['requests'] = [{"filename" : dst_filename, "id" : rid}]
+            json_dest['requests'] = [{"filename" : dst_filename, "id" : rid, 'rename' : True}]
             json_dest['block_size'] = 128*1024
             json_dest['degree'] = 1
             json_dest['length'] = sz
@@ -78,7 +78,7 @@ def do_it_live(con, rows):
     final = {}
     # for the sake of code resuse this will just be piped into an
     # lt daemon processor.  /dev/null is used to supress a local write
-    final['requests'] = [{'filename' : "/dev/null", 'id' : str(uuid.uuid1())}]
+    final['requests'] = [{'filename' : "/dev/null", 'id' : str(uuid.uuid1()), 'rename' : False}]
     final['host'] = "localhost"
     final['port'] = 2893
     final['block_size'] = 131072
