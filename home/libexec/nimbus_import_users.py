@@ -217,7 +217,8 @@ def main(argv=sys.argv[1:]):
         pynimbusauthz.print_msg(opts, 2, "Using temp file: " + path) 
 
         try:
-            nimbus_list_users.main(['-b', '-r', _fields_csv, '-O', path, '%'])
+            nimbus_list_users.main(['-b', '-D', opts.delim, '-r', _fields_csv,
+                '-O', path, '%'])
             current_users = read_users(path, delimiter=opts.delim)
         finally:
             os.remove(path)
