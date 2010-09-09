@@ -58,19 +58,6 @@ class TestRequestXfer(unittest.TestCase):
             self.assertEqual(rc, 0, "rc should be 0 but is %d" % (rc))
             self._t_file_compare(fname)
 
-    def get_rid(self, out_file):
-        f = open(out_file, "r")
-        lines = f.readlines()
-        l = len(lines)
-        print "lines %d" % (l)
-        print lines
-        rid_line = lines[l-2]
-        ra = rid_line.split(":", 1)
-        rid = ra[1].strip()
-        f.close()
-        return rid
-
-
     def test_request_same_host_nonblock(self):
         port = int(self.ports_a[0])
         host = "localhost:%d" % (port)
@@ -78,12 +65,10 @@ class TestRequestXfer(unittest.TestCase):
         print "requesting all the files"
         rids = []
         for i in range(0, 10):
-            (osf, out_file) = tempfile.mkstemp()
-            os.close(osf)
             fname = self._get_temp_file()
-            rc = pylantorrent.request.main(["-O", out_file, "-n", self.src_file, fname, str(uuid.uuid1()), host])
+            rid = str(uuid.uuid1())
+            rc = pylantorrent.request.main(["-n", self.src_file, fname, rid, host])
             self.assertEqual(rc, 0, "rc should be 0 but is %d" % (rc))
-            rid = self.get_rid(out_file)
             rids.append(rid)
 
         print "waiting on all the files"
@@ -103,12 +88,10 @@ class TestRequestXfer(unittest.TestCase):
         for i in range(0, len(self.ports_a) * 2):
             port = int(self.ports_a[i%len(self.ports_a)])
             host = "localhost:%d" % (port)
-            (osf, out_file) = tempfile.mkstemp()
-            os.close(osf)
             fname = self._get_temp_file()
-            rc = pylantorrent.request.main(["-O", out_file, "-n", self.src_file, fname, str(uuid.uuid1()), host])
+            rid = str(uuid.uuid1())
+            rc = pylantorrent.request.main(["-n", self.src_file, fname, rid, host])
             self.assertEqual(rc, 0, "rc should be 0 but is %d" % (rc))
-            rid = self.get_rid(out_file)
             rids.append(rid)
 
         print "waiting on all the files"

@@ -16,12 +16,12 @@ import hashlib
 #  {
 #      host
 #      port
-#      requests = [ {filename, id}, ]
+#      requests = [ {filename, id, rename}, ]
 #      destinations =
 #       [ {
 #           host
 #           port
-#           requests = [ { filename, id } ]
+#           requests = [ { filename, id, rename } ]
 #           block_size
 #       }, ]
 #  }
@@ -35,8 +35,16 @@ class LTServer(object):
         self.outf = outf
         self.max_header_lines = 102400
         self.block_size = 128*1024
-
         self.read_header()
+        self.suffix = ".lattorrent"
+        self.created_files = []
+
+    def clean_up(self):
+        for f in self.created_files:
+            try:
+                os.remove(f)
+            except:
+                pass
 
     def read_header(self):
         max_header_lines = 256
@@ -72,6 +80,7 @@ class LTServer(object):
             for r in reqs:
                 filename = r['filename']
                 rid = r['id']
+                rn = r['rename']
 
             host = self.json_header['host']
             port = int(self.json_header['port'])
@@ -127,8 +136,12 @@ class LTServer(object):
             filename = req['filename']
             rid = req['id']
             try:
+                rn = req['rename']
+                if rn:
+                    filename = filename + self.suffix
                 f = open(filename, "w")
                 files_a.append(f)
+                self.created_files.append(filename)
             except Exception, ex:
                 pylantorrent.log(logging.ERROR, "Failed to open %s" % (filename))
                 raise LTException(503, str(ex), header['host'], int(header['port']), reqs=requests_a)
@@ -162,6 +175,14 @@ class LTServer(object):
         for f in files_a:
             f.close()
 
+        for req in requests_a:
+            realname = req['filename']
+            rn = req['rename']
+            if rn:
+                tmpname = realname + self.suffix
+                os.rename(tmpname, realname)
+                self.created_files.remove(tmpname)
+
         # close all the connections
         for v_con in v_con_array:
             v_con.read_output()
@@ -179,9 +200,12 @@ class LTServer(object):
 def main(argv=sys.argv[1:]):
 
     pylantorrent.log(logging.INFO, "server starting")
+    v = None
+    rc = 1
     try:
         v = LTServer(sys.stdin, sys.stdout)
         v.store_and_forward()
+        rc = 0
     except LTException, ve:
         pylantorrent.log(logging.ERROR, "error %s" % (str(ve)), traceback)
         s = ve.get_printable()
@@ -192,9 +216,11 @@ def main(argv=sys.argv[1:]):
         s = vex.get_printable()
         print s
     finally:
+        if v != None:
+            v.clean_up()
         print "EOD"
 
-    return 0
+    return rc
 
 if __name__ == "__main__":
     rc = main()

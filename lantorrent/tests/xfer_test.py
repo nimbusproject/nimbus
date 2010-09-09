@@ -26,7 +26,7 @@ class TestXfer(unittest.TestCase):
         pass
 
     def test_xfer_one_null_no_check(self): 
-        final = pylantorrent.create_endpoint_entry(self.host, ["/dev/null"], self.src_size)
+        final = pylantorrent.create_endpoint_entry(self.host, ["/dev/null"], self.src_size, rename=False)
         final['destinations'] = []
         c = LTClient(self.src_file, final)
         v = LTServer(c, c)

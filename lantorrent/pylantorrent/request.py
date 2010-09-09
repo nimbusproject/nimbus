@@ -33,38 +33,42 @@ Submit a transfer request
 def wait_until_sent(con, rid):
     done = False
     while not done:
-        s = "select state,message,attempt_count from requests where rid = ?"
-        data = (rid,)
-        c = con.cursor()
-        c.execute(s, data)
-        rs = c.fetchone()
-        con.commit()
-        state = int(rs[0])
-        message = rs[1]
-        attempt_count = rs[2]
-        if attempt_count > 2:
-            done = True
-            state = 2
-            if message == None:
-                message = "too many attempts %d" % (attempt_count)
-        elif state == 1:
-            done = True
-        else:
-            time.sleep(1)
+        (done, rc, message) = is_done(con, rid)
+        if not done:
+            time.sleep(5)
+    return (rc, message)
 
+#
+def is_done(con, rid):
+    done = False
+    rc = 0
+    s = "select state,message,attempt_count from requests where rid = ?"
+    data = (rid,)
+    c = con.cursor()
+    c.execute(s, data)
+    rs = c.fetchone()
+    con.commit()
+    state = int(rs[0])
+    message = rs[1]
+    attempt_count = rs[2]
+    if state == 1:
+        done = True
+    elif attempt_count > 2:
+        done = True
+        rc = 1
+        if message == None:
+            message = "too many attempts %d" % (attempt_count)
+    con.commit()
+    return (done, rc, message)
+
+def delete_rid(con, rid):
     # cleanup
+    c = con.cursor()
     d = "delete from requests where rid = ?"
     data = (rid,)
     c = con.cursor()
     c.execute(d, data)
     con.commit()
-
-    if state == 1:
-        rc = 0
-    else:
-        rc = 1
-    return (rc, message)
-
 
 def request(argv, con):
     src_filename = argv[0]
@@ -72,6 +76,9 @@ def request(argv, con):
     # the user provides the rid.  that way we know they have it to look
     # things up later if needed
     rid = argv[2]
+
+    # get the size of the file and verify that it exists
+    sz = os.path.getsize(src_filename)
 
     hostport = argv[3]
     ha = hostport.split(":")
@@ -93,7 +100,7 @@ def request(argv, con):
     c.execute(i, data)
     con.commit()
 
-    return rid
+    return (rid, sz)
 
 
 def main(argv=sys.argv[1:]):
@@ -118,15 +125,23 @@ def main(argv=sys.argv[1:]):
     con = sqlite3.connect(con_str, isolation_level="EXCLUSIVE")
 
     rc = 0
+    done = False
     if o.reattach == None:
-        rid = request(args, con)
+        (rid, sz) = request(args, con)
     else:
         rid = o.reattach
+        (done, rc, message) = is_done(con, rid)
+        rid = o.reattach
+        sz = -1
+        if not done:
+            print "still working"
 
     if not o.nonblock:
-        (rc, message) = wait_until_sent(con, rid)
+        if not done:
+            (rc, message) = wait_until_sent(con, rid)
+            done = True
     else:
-        msg = "request id: %s" % (rid)
+        msg = "size: %s" % (sz)
         pynimbusauthz.print_msg(o, 0,  msg)
 
     if rc == 0:
@@ -134,6 +149,9 @@ def main(argv=sys.argv[1:]):
     else:
         msg = "Failure: %s" % (message)
         pynimbusauthz.print_msg(o, 0,  msg)
+
+    if done:
+        delete_rid(con, rid)
 
     return rc
 

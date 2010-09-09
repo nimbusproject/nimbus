@@ -127,7 +127,7 @@ class LantorrentPropadapter(propagate_scp.propadapter):
         else:
             xfer_user = ""
         rid = str(uuid.uuid1())
-        cmd = self.ssh + " -p %d %s%s %s %s %s %s %s:%d" % (xfer_port, xfer_user, xfer_host, lt_exe, xfer_path, local, rid, self.ltip, self.ltport)
+        cmd = self.ssh + " %d %s%s %s %s %s %s %s:%d" % (xfer_port, xfer_user, xfer_host, lt_exe, xfer_path, local, rid, self.ltip, self.ltport)
 
         self.c.log.debug("lantorrent command %s " % (cmd))
 
