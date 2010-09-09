@@ -15,7 +15,7 @@ import datetime
 def getrows(con):
     c = con.cursor()
     tm = datetime.datetime.now() - datetime.timedelta(0, 5)
-    s = "select distinct src_filename from requests where state = 0 and entry_time < ? limit 1"
+    s = "select distinct src_filename from requests where state = 0 and attempt_count < 3 and entry_time < ? limit 1"
     data = (tm, )
     c.execute(s, data)
     r = c.fetchone()
@@ -27,7 +27,7 @@ def getrows(con):
     # select
     con.commit()
 
-    s = "select hostname,port,src_filename,dst_filename,rid from requests where src_filename = ? and state = 0 order by hostname,port"
+    s = "select hostname,port,src_filename,dst_filename,rid from requests where src_filename = ? and state = 0 and attempt_count < 3 order by hostname,port"
     data = (src_file, )
     c.execute(s, data)
     rows = c.fetchall()

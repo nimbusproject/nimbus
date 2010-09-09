@@ -24,10 +24,10 @@ do
     # if we have waited 30 seconds verify that there wasnt an error
     if [ $cnt -gt 30 ]; then
         cnt=0
-        ssh -p $port $userhost "$remoteexe" --nonblock --reattach "$rid"
-        if [ $? -ne 0 ]; then
-            exit $rc
-        fi
+#        ssh -p $port $userhost "$remoteexe" --nonblock --reattach "$rid"
+#        if [ $? -ne 0 ]; then
+#            exit $rc
+#        fi
     fi
 done
 
