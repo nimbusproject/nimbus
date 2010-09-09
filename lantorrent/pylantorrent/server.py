@@ -82,7 +82,7 @@ class LTServer(object):
             raise LTException(502, str(ex), traceback)
 
     def print_results(self, s):
-        pylantorrent.log(logging.DEBUG, "printing %s" % (s))
+        pylantorrent.log(logging.DEBUG, "printing\n--------- %s\n---------------" % (s))
 #        self.lock.acquire()
         try:
             self.outf.write(s)
@@ -167,7 +167,7 @@ class LTServer(object):
             v_con.read_output()
             v_con.close()
 
-        pylantorrent.log(logging.DEBUG, "All data sent %s" % (md5str))
+        pylantorrent.log(logging.DEBUG, "All data sent %s %d" % (md5str, len(requests_a)))
         # if we got to here it was successfully written to a file
         # and we can call it success.  Print out a success message for 
         # everyfile written
