@@ -40,29 +40,47 @@ def do_it_live(con, rows):
 
     c = con.cursor()
     dests = []
+    last_host = None
+    last_port = None
+    json_dest = None
     for r in rows:
-        src_filename = r[2]
+        new_host = r[0]
+        new_port = int(r[1])
         dst_filename = r[3]
+        src_filename = r[2]
+        rid = r[4]
         sz = os.path.getsize(src_filename)
-        json_dest = {}
-        json_dest['host'] = r[0]
-        json_dest['port'] = int(r[1])
-        json_dest['files'] = [dst_filename]
-        json_dest['id'] = r[4]
-        json_dest['block_size'] = 128*1024
-        json_dest['degree'] = 1
-        json_dest['length'] = sz
+        # if it is the same host just tack on another dest file
+        if new_host == last_host and last_port == new_port:
+            reqs = json_dest['requests']
+            new_req = {"filename" : dst_filename, "id" : rid}
+            reqs.append(new_req)
+            json_dest['requests'] = reqs
+        else:
+            if json_dest != None:
+                dests.append(json_dest)
+            last_host = new_host
+            last_port = new_port
+
+            json_dest = {}
+            json_dest['host'] = new_host
+            json_dest['port'] = new_port
+            json_dest['requests'] = [{"filename" : dst_filename, "id" : rid}]
+            json_dest['block_size'] = 128*1024
+            json_dest['degree'] = 1
+            json_dest['length'] = sz
+        
+    if json_dest != None:
         dests.append(json_dest)
 
     final = {}
     # for the sake of code resuse this will just be piped into an
     # lt daemon processor.  /dev/null is used to supress a local write
-    final['files'] = ["/dev/null"]
+    final['requests'] = [{'filename' : "/dev/null", 'id' : str(uuid.uuid1())}]
     final['host'] = "localhost"
     final['port'] = 2893
     final['block_size'] = 131072
     final['degree'] = 1
-    final['id'] = str(uuid.uuid1())
     final['destinations'] = dests
 
     pylantorrent.log(logging.INFO, "request send %s" % (str(final)))

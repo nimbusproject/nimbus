@@ -16,15 +16,13 @@ import hashlib
 #  {
 #      host
 #      port
-#      files = [ {filename} ]
-#      id
+#      requests = [ {filename, id}, ]
 #      destinations =
 #       [ {
 #           host
 #           port
-#           files = [ { filename } ]
+#           requests = [ { filename, id } ]
 #           block_size
-#           id
 #       }, ]
 #  }
 #
@@ -32,7 +30,6 @@ class LTServer(object):
 
     def __init__(self, inf, outf):
         self.lock = threading.Lock()
-        self.dests = {}
         self.json_header = {}
         self.inf = inf
         self.outf = outf
@@ -71,30 +68,18 @@ class LTServer(object):
 
         # verify the header
         try:
-            file_names = self.json_header['files']
+            reqs = self.json_header['requests']
+            for r in reqs:
+                filename = r['filename']
+                rid = r['id']
+
             host = self.json_header['host']
             port = int(self.json_header['port'])
-            id = self.json_header['id']
             urls = self.json_header['destinations']
-            self.dests = self.create_dest_table(urls)
-            self.block_size = int(self.json_header['block_size'])
             self.degree = int(self.json_header['degree'])
             self.data_length = long(self.json_header['length'])
         except Exception, ex:
             raise LTException(502, str(ex), traceback)
-
-    def create_dest_table(self, destinations):
-        dests = {}
-        for d in destinations:
-            try:
-                rid = d['id']
-                host = d['host']
-                port = d['port']
-                filenames = d['files']
-            except Exception, ex:
-                raise LTException(504, str(ex))
-            dests[rid] = d
-        return dests    
 
     def print_results(self, s):
         pylantorrent.log(logging.DEBUG, "printing %s" % (s))
@@ -117,8 +102,7 @@ class LTServer(object):
             except LTException, vex:
                 # i think this is the only recoverable error
                 # keep track of them and return in output
-                j = vex.get_json()
-                s = json.dumps(j)
+                s = vex.get_printable()
                 self.print_results(s)
 
         each = len(destinations) / self.degree
@@ -136,16 +120,18 @@ class LTServer(object):
 
         header = self.json_header
         ex_array = []
-        filenames_a = header['files']
+        requests_a = header['requests']
 
         files_a = []
-        for filename in filenames_a: 
+        for req in requests_a:
+            filename = req['filename']
+            rid = req['id']
             try:
                 f = open(filename, "w")
                 files_a.append(f)
             except Exception, ex:
                 pylantorrent.log(logging.ERROR, "Failed to open %s" % (filename))
-                raise LTException(503, str(ex), header['host'], int(header['port']), filenames_a, header['id'])
+                raise LTException(503, str(ex), header['host'], int(header['port']), reqs=requests_a)
 
         destinations = header['destinations']
         v_con_array = self.get_valid_vcons(destinations)
@@ -176,16 +162,19 @@ class LTServer(object):
         for f in files_a:
             f.close()
 
-        pylantorrent.log(logging.DEBUG, "All data sent %s" % (md5str))
-        # if we got to here it was successfully written to a file
-        # and we can call it success
-        vex = LTException(0, "Success", header['host'], int(header['port']), header['files'], header['id'], md5sum=md5str)
-        j = vex.get_json()
-        s = json.dumps(j)
-        self.print_results(s)
+        # close all the connections
         for v_con in v_con_array:
             v_con.read_output()
             v_con.close()
+
+        pylantorrent.log(logging.DEBUG, "All data sent %s" % (md5str))
+        # if we got to here it was successfully written to a file
+        # and we can call it success.  Print out a success message for 
+        # everyfile written
+        vex = LTException(0, "Success", header['host'], int(header['port']), requests_a, md5sum=md5str)
+        s = vex.get_printable()
+        self.print_results(s)
+
 
 def main(argv=sys.argv[1:]):
 
@@ -195,12 +184,12 @@ def main(argv=sys.argv[1:]):
         v.store_and_forward()
     except LTException, ve:
         pylantorrent.log(logging.ERROR, "error %s" % (str(ve)), traceback)
-        s = json.dumps(ve.get_json())
+        s = ve.get_printable()
         print s
     except Exception, ex:
         pylantorrent.log(logging.ERROR, "error %s" % (str(ex)), traceback)
         vex = LTException(500, str(ex))
-        s = json.dumps(vex.get_json())
+        s = vex.get_printable()
         print s
     finally:
         print "EOD"

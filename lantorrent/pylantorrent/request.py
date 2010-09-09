@@ -45,6 +45,8 @@ def wait_until_sent(con, rid):
         if attempt_count > 2:
             done = True
             state = 2
+            if message == None:
+                message = "too many attempts %d" % (attempt_count)
         elif state == 1:
             done = True
         else:

@@ -1,6 +1,7 @@
 import sys
 import socket
 import json
+import os
 
 class LTException(Exception):
 
@@ -19,17 +20,16 @@ class LTException(Exception):
     errorsCode[509] = "completion status never recieved %s"
     errorsCode[510] = "Incorrect checksum %s"
 
-    def __init__(self, code, msg, host=None, port=None, filenames=None, rid=None, md5sum=""):
+    def __init__(self, code, msg, host=None, port=None, reqs=None, md5sum=""):
         self.code = code
         self.host = host
         self.port = port
-        self.filenames = filenames
-        self.rid = rid
+        self.reqs = reqs
         self.msg = LTException.errorsCode[code] % (msg)
         self.md5sum = md5sum
 
     def __str__(self):
-         return "%s %d %s:%s%s %s\r\n" % (self.rid, self.code, str(self.host), str(self.port), str(self.filenames), self.msg)
+         return "%d %s:%s%s %s\r\n" % (self.code, str(self.host), str(self.port), str(self.reqs), self.msg)
 
     #
     #  results json
@@ -47,15 +47,28 @@ class LTException(Exception):
     #           }
     #       ]
     #  }
-    def get_json(self):
+    def get_json(self, rid=None, filename=None):
         header = {}
         header['code'] = self.code
         header['host'] = self.host
         header['port'] = self.port
-        header['files'] = self.filenames
-        header['id'] = self.rid
+        header['file'] = filename
+        header['id'] = rid
         header['message'] = self.msg
         header['md5sum'] = self.md5sum
 
         return header
 
+
+    def get_printable(self):
+        if self.reqs == None:
+            s = self.get_json()
+            return json.dumps(s)
+
+        str_out = ""
+        for req in self.reqs:
+            s = self.get_json(rid=req['id'], filename=req['filename'])
+            s = json.dumps(s)
+            str_out = s + os.linesep
+
+        return s
