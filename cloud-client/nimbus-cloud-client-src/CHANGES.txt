@@ -12,6 +12,10 @@ nimbus-cloud-client-017
     to the properties file they are read from, if they are not
     absolute paths.
 
+[*] Better error reporting
+
+[*] Fixed incorrect timestamp print.
+
 
 nimbus-cloud-client-016
 -----------------------
