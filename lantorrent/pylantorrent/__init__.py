@@ -81,7 +81,7 @@ class VConfig(object):
         s = SafeConfigParser()
         s.readfp(open(ini_file, "r"))
         self.pw = s.get("security", "password")
-        self.logfile = s.get("log", "file").replace("@LANTORRENT_HOME@", self.lt_home)
+        self.logfile = s.get("log", "file").replace("@LANTORRENT_HOME@", self.lt_home).replace("@PGM@", sys.argv[0])
         try:
             log_level_str = s.get("log", "level")
             self.log_level = log_levels[log_level_str]
