@@ -14,7 +14,7 @@ import datetime
 
 def getrows(con):
     c = con.cursor()
-    tm = datetime.datetime.now() - datetime.timedelta(0, 5)
+    tm = datetime.datetime.now() - datetime.timedelta(0, 10)
     s = "select distinct src_filename from requests where state = 0 and attempt_count < 3 and entry_time < ? order by entry_time limit 1"
     data = (tm, )
     c.execute(s, data)
@@ -26,19 +26,22 @@ def getrows(con):
     # from the db.  better to grab any that came in since the initial
     # select
     con.commit()
+    pylantorrent.log(logging.INFO, "selected rows with fname %s" % (src_file))
 
-    s = "select max(entry_time) from requests where src_filename = ? and state = 0 and attempt_count < 3"
-    data = (src_file, )
-    done = False
-    while not done:
-        c.execute(s, data)
-        row = c.fetchone()
-        con.commit()
-        td = datetime.datetime.now() - datetime.timedelta(0, 2)
-        if row[0] < td:
-            done = True
-        else:
-            time.sleep(0.1)
+    #  need to find a way to determine that nothing new has been added for this
+    #  file recently
+    #s = 'select max(entry_time) as "e [timestamp]" from requests where src_filename = ? and state = 0 and attempt_count < 3'
+    #data = (src_file, )
+    #done = False
+    #while not done:
+    #    c.execute(s, data)
+    #    row = c.fetchone()
+    #    con.commit()
+    #    td = datetime.datetime.now() - datetime.timedelta(0, 2)
+    #    if row[0] < td:
+    #        done = True
+    #    else:
+    #        time.sleep(0.1)
 
     s = "select hostname,port,src_filename,dst_filename,rid from requests where src_filename = ? and state = 0 and attempt_count < 3 order by hostname,port"
     data = (src_file, )
@@ -148,7 +151,7 @@ def main(argv=sys.argv[1:]):
     con_str = pylantorrent.config.dbfile
     now = datetime.datetime.now()
     #con = sqlite3.connect(con_str, isolation_level="EXCLUSIVE")
-    con = sqlite3.connect(con_str)
+    con = sqlite3.connect(con_str, detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
 
     done = False
     while not done:
