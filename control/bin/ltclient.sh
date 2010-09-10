@@ -16,6 +16,7 @@ fi
 
 # check for an error every 30 seconds.. this may need to be in a decent language
 cnt=0
+ssh_error_cnt=0
 done="False"
 thresh=`expr $RANDOM % 30`
 while [ ! -e $localpath ];
@@ -30,8 +31,12 @@ do
         cnt=0
         out=`ssh -p $port $userhost "$remoteexe" --nonblock --reattach "$rid"`
         if [ $? -ne 0 ]; then
+            ssh_error_cnt=`expr $ssh_error_cnt + 1`
             echo $out
             echo "ssh failed, we allow this to happen a few times"
+            if [ $ssh_error_cnt -gt 3 ]; then
+                exit 1
+            fi
         else
             rc=`echo $out | awk -F , '{ print $1 }'`
             done=`echo $out | awk -F , '{ print $2 }'`
