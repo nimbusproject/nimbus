@@ -49,7 +49,7 @@ def getrows(con):
 
 def do_it_live(con, rows):
 
-    pylantorrent.log(logging.INFO, "lan torrent daemon setting up to send %d in a group" % (len(rows))
+    pylantorrent.log(logging.INFO, "lan torrent daemon setting up to send %d in a group" % (len(rows)))
 
     c = con.cursor()
     dests = []
