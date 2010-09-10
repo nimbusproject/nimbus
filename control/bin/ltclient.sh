@@ -17,14 +17,16 @@ fi
 # check for an error every 30 seconds.. this may need to be in a decent language
 cnt=0
 done="False"
+thresh=`expr $RANDOM % 30`
 while [ ! -e $localpath ];
 do
     sleep 1
     cnt=`expr $cnt + 1`
 
     # if we have waited 30 seconds verify that there wasnt an error
-    if [ $cnt -gt 30 ]; then
+    if [ $cnt -gt $thresh ]; then
         echo "ltclient checking in..."
+        thresh=30
         cnt=0
         out=`ssh -p $port $userhost "$remoteexe" --nonblock --reattach "$rid"`
         if [ $? -ne 0 ]; then
