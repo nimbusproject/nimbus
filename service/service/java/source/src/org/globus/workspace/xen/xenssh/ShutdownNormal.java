@@ -48,32 +48,7 @@ public class ShutdownNormal extends XenTask {
         e = super.postExecute(e, fake);
         if(e != null) {
             return e;
-        }
-
-        try {
-            VirtualMachine vm = this.ctx.getVm();
-            
-            RepoFileSystemAdaptor nsTrans = XenUtil.getNsTrans();
-
-            VirtualMachinePartition[] parts = vm.getPartitions();            
-
-            for(int i = 0; i < parts.length; i++) {
-                if (parts[i].isRootdisk()) {
-                    String img = parts[i].getImage();
-                    if(parts[i].getAlternateUnpropTarget() != null)
-                    {
-                        img = parts[i].getAlternateUnpropTarget();
-                    }
-                    
-                    if(nsTrans != null) {
-                        nsTrans.unpropagationFinished(img);                        
-                    }
-                    break;
-                }
-            }
-        } catch(Exception ex) {
-            return ex;
-        }
+        }       
         return null;
     }
 }
