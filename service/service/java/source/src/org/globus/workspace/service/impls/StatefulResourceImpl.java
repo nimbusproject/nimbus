@@ -20,18 +20,16 @@ import commonj.timers.TimerManager;
 import edu.emory.mathcs.backport.java.util.concurrent.locks.Lock;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.globus.workspace.Lager;
-import org.globus.workspace.LockManager;
-import org.globus.workspace.WorkspaceConstants;
-import org.globus.workspace.WorkspaceUtil;
-import org.globus.workspace.LockAcquisitionFailure;
-import org.globus.workspace.ErrorUtil;
+import org.globus.workspace.*;
 import org.globus.workspace.persistence.PersistenceAdapter;
 import org.globus.workspace.persistence.DataConvert;
 import org.globus.workspace.scheduler.Scheduler;
 import org.globus.workspace.service.binding.BindingAdapter;
 import org.globus.workspace.service.binding.GlobalPolicies;
+import org.globus.workspace.service.binding.vm.VirtualMachine;
+import org.globus.workspace.service.binding.vm.VirtualMachinePartition;
 import org.globus.workspace.service.impls.async.TaskNotImplementedException;
+import org.globus.workspace.xen.XenUtil;
 import org.nimbustools.api.services.rm.ManageException;
 import org.nimbustools.api.services.rm.StateChangeCallback;
 import org.nimbustools.api.repr.vm.State;
@@ -195,6 +193,39 @@ public abstract class StatefulResourceImpl extends InstanceResourceImpl
         }
     }
 
+    private void updateCumulus()
+    {
+        VirtualMachine vm = this.getVM();
+
+        try
+        {
+            RepoFileSystemAdaptor nsTrans = XenUtil.getNsTrans();
+
+            VirtualMachinePartition[] parts = vm.getPartitions();
+
+            for(int i = 0; i < parts.length; i++) {
+                if (parts[i].isRootdisk()) {
+                    String img = parts[i].getImage();
+                    if(parts[i].getAlternateUnpropTarget() != null)
+                    {
+                        img = parts[i].getAlternateUnpropTarget();
+                    }
+
+                    if(nsTrans != null) {
+                        nsTrans.unpropagationFinished(img);
+                    }
+                    break;
+                }
+            }
+        }
+        catch(WorkspaceException wex)
+        {
+            logger.fatal("\nUnable to update the cumulus database about details on the unpropagated file.  The information in cumulus will be wrong!\n"
+                    + wex.getMessage() + "\n" + wex.toString());            
+        }
+    }
+
+
     private void setStateImpl(int newstate,
                               Throwable t,
                               boolean evaluate) {
@@ -228,6 +259,11 @@ public abstract class StatefulResourceImpl extends InstanceResourceImpl
         if (newstate >= STATE_READYING_FOR_TRANSPORT) {
             // it is not expensive to call this when it is already disabled
             this.setOpsEnabled(false);
+        }
+
+        if (newstate == STATE_READY_FOR_TRANSPORT)
+        {
+            updateCumulus();
         }
 
         // Some notifications of completed tasks are ignored if we are in
