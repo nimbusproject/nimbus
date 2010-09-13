@@ -63,7 +63,7 @@ echo "Attempting to ssh"
 ssh localhost hostname
 
 cp -r $repo_dir/nimbus/control/  $work_dir
-sed -e "s^@KEY@^$new_key^" -e "s/@WHO@/$user/" $src_dir/autoconfig-decisions.sh.in > $install_dir/services/share/nimbus-autoconfig/autoconfig-decisions.sh
+sed -e "s^@NIMBUS_WORKSPACE_CONTROL_HOME@^$work_dir/control^" -e "s^@KEY@^$new_key^" -e "s/@WHO@/$user/" $src_dir/autoconfig-decisions.sh.in > $install_dir/services/share/nimbus-autoconfig/autoconfig-decisions.sh
 
 cat $install_dir/services/share/nimbus-autoconfig/autoconfig-decisions.sh
 
