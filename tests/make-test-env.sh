@@ -62,8 +62,9 @@ ls -l $HOME/.ssh
 echo "Attempting to ssh"
 ssh localhost hostname
 
+export NIMBUS_WORKSPACE_CONTROL_HOME="$work_dir/control"
 cp -r $repo_dir/nimbus/control/  $work_dir
-sed -e "s^@NIMBUS_WORKSPACE_CONTROL_HOME@^$work_dir/control^" -e "s^@KEY@^$new_key^" -e "s/@WHO@/$user/" $src_dir/autoconfig-decisions.sh.in > $install_dir/services/share/nimbus-autoconfig/autoconfig-decisions.sh
+sed -e "s^@NIMBUS_WORKSPACE_CONTROL_HOME@^$NIMBUS_WORKSPACE_CONTROL_HOME^" -e "s^@KEY@^$new_key^" -e "s/@WHO@/$user/" $src_dir/autoconfig-decisions.sh.in > $install_dir/services/share/nimbus-autoconfig/autoconfig-decisions.sh
 
 cat $install_dir/services/share/nimbus-autoconfig/autoconfig-decisions.sh
 
@@ -119,7 +120,6 @@ echo "localhost 10240" >> $install_dir/services/etc/nimbus/workspace-service/vmm
 
 echo $work_dir
 export NIMBUS_HOME=$install_dir
-export NIMBUS_WORKSPACE_CONTROL_HOME="$work_dir/control"
 export NIMBUS_TEST_USER=$user_name
 
 echo "Your test environment is:"
