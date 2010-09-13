@@ -120,6 +120,15 @@ DHCP_CONF_ALTER="dhcp-conf-alter.py"
 
 DIRNAME="dirname"
 
+# Path to flock and the lock file it will create.
+FLOCKFILE=/var/lock/dhcp-config.lock
+FLOCK=/usr/bin/flock
+if [ ! -O $FLOCK ]; then
+  echo "*** can not find flock program, disabling"
+  echo "*** disabling flock might result in problems with your dchpd configuration"
+  FLOCK=/bin/true
+fi
+
 function die_dirname() {
   echo "ERROR: DIRNAME invocation failed.  Suggestion: use hardcoded"
   echo "       path to $DHCP_CONF_ALTER"
@@ -228,49 +237,10 @@ LOCKFILE="$0.lock"
 
 set +e
 
-function my_lockfile ()
-{
-    echo $$ > $TEMPFILE || {
-            echo "You don't have permission to access `dirname $TEMPFILE`"
-            return 1
-    }
-
-    ln $TEMPFILE $LOCKFILE && {
-            rm -f $TEMPFILE
-            return 0
-    }
-
-    rm -f $TEMPFILE
-    return 1
-}
-
-function stale_check ()
-{
-  PID=""
-  PID=`cat $LOCKFILE`
-  if [ "X$PID" != "X" ]; then
-    echo "checking if LOCKFILE pid $PID is stale"
-    kill -0 $PID
-    if [ $? != 0 ]; then
-      echo "pid $PID does not exist, removing lockfile"
-      rm -f $LOCKFILE
-    fi
-  fi
-}
-
-# wait for a lock
-num=5
-until my_lockfile ; do
-    sleep 0.1
-
-    num=`expr $num - 1`
-    if [ $num = 0 ]; then
-      stale_check
-      num=5
-    fi
-done
-
 SUCCESS="y"
+
+(
+$FLOCK -x 200
 
 if [ "$ADDREM" = "rem" ]; then
   echo "CMD: $DHCPD_STOP"
@@ -339,7 +309,7 @@ if [ "$ADDREM" = "add" ]; then
   $DHCPD_START || die_dhcpd_start
 fi
 
-rm -f $LOCKFILE
+) 200<$FLOCKFILE
 
 if [ "$SUCCESS" = "n" ]; then
   exit 1
