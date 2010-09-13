@@ -42,9 +42,9 @@ if rc != 0:
 # check the various params
 cmd = "%s/bin/cloud-client.sh --list" % (cc_home)
 child = pexpect.spawn (cmd, timeout=30, maxread=20000, logfile=logfile)
-rc = child.expect (image_name)
+rc = child.expect (newname)
 if rc != 0:
-    print "%s not found in the list" % (image_name)
+    print "%s not found in the list" % (newname)
     sys.exit(1)
 
 line = child.readline()
@@ -67,7 +67,7 @@ if show_size != size:
     print "%s not found in line %s" % (token, line)
     sys.exit(1)
 
-print "sizes match! %d" % (show_size)
+print "sizes match! %d %s %s" % (show_size, newname, image_name)
 
 
 
