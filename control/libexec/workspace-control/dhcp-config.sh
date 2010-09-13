@@ -230,10 +230,6 @@ function die_dhcpd_alter() {
   SUCCESS="n" # still restart
 }
 
-# LOCKING 
-
-TEMPFILE="$0.$$"
-LOCKFILE="$0.lock"
 
 set +e
 
