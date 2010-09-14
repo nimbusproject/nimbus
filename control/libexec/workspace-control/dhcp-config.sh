@@ -230,9 +230,6 @@ function die_dhcpd_alter() {
   SUCCESS="n" # still restart
 }
 
-
-set +e
-
 SUCCESS="y"
 
 (
