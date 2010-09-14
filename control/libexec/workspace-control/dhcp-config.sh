@@ -125,7 +125,7 @@ FLOCKFILE=/var/lock/dhcp-config.lock
 FLOCK=/usr/bin/flock
 if [ ! -O $FLOCK ]; then
   echo "*** can not find flock program, disabling"
-  echo "*** disabling flock might result in problems with your dchpd configuration"
+  echo "*** disabling flock might result in problems with your dhcpd configuration"
   FLOCK=/bin/true
 fi
 
