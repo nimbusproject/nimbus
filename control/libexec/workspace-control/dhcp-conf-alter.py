@@ -26,9 +26,6 @@ import stat
 import sys
 import time
 
-# lockfile's default path is conf file + suffix
-LOCKSUFFIX=".lock"
-
 log = logging.getLogger("dhcp-conf-alter")
 ch = logging.StreamHandler()
 ch.setLevel(logging.DEBUG)
@@ -400,14 +397,6 @@ def validate(opts):
         else:
             log.debug("    hostname = %s" % opts.hostname)
 
-
-    if opts.lockfilepath:
-        if not os.path.isabs(opts.lockfilepath):
-            raise InvalidInput("You must specify the lockfile with an absolute path.")
-        else:
-            opts.lockfilepath = os.path.realpath(opts.lockfilepath)
-            log.debug("    lockfile = %s" % opts.lockfilepath)
-
     if opts.subnetmask:
         if not IPRE.match(opts.subnetmask):
             raise InvalidInput("subnet is not a valid address (note that /# addresses are not supported yet): %s" % opts.subnetmask)
@@ -462,40 +451,6 @@ def validate(opts):
 
         log.debug("    default lease time = %d" % opts.leasetime[0])
         log.debug("    max lease time     = %d" % opts.leasetime[1])
-
-# --------------------------- LOCKING -------------------------- #
-
-def lock(opts):
-
-    opts.lockfile = None
-    lockfilepath = None
-
-    # validate() checked if abs path already
-    if opts.lockfilepath:
-        lockfilepath = opts.lockfilepath
-    else:
-        (confdir, f) = os.path.split(opts.policyfile)
-        lockfilepath = os.path.join(confdir, "%s%s" % (f, LOCKSUFFIX))
-
-    log.debug("about to lock, lockfile = %s" % lockfilepath)
-
-    if not os.path.exists(lockfilepath):
-        f = open(lockfilepath, "w")
-        f.write("\n")
-        f.close()
-
-    opts.lockfile = open(lockfilepath, "r+")
-    fcntl.flock(opts.lockfile.fileno(), fcntl.LOCK_EX)
-    log.debug("acquired lock")
-
-def unlock(opts):
-    if not opts.lockfile:
-        raise Exception("unlocking without a lock")
-
-    opts.lockfile.close()
-    log.debug("lock released")
-
-
 
 # ----------------------- ARGPARSE SETUP ----------------------- #
 
@@ -588,17 +543,6 @@ def setup():
 
     # ----
 
-    group = optparse.OptionGroup(parser, "Optional arguments")
-
-    group.add_option("-l", "--lockfile", dest="lockfilepath", metavar="FILE",
-                  help="Optionally override absolute path to the default "
-                       "lockfile (used to ensure only one process is editing "
-                       "the DHCP configuration file at a time).  The default "
-                       "lockfile is the supplied --policyfile file with a "
-                       "suffix of '.lock'")
-
-    parser.add_option_group(group)
-
     return parser
 
 
@@ -625,9 +569,6 @@ def run(argv=None):
         # only other source of InvalidInput exceptions
         validate(opts)
 
-        # Make sure this is the only process editing the policy file
-        lock(opts)
-
         conf = parse(opts)
 
         if opts.add:
@@ -639,8 +580,6 @@ def run(argv=None):
                 pass
                 write(opts, conf)
 
-        unlock(opts)
-
     except InvalidInput, e:
         sys.exit("FATAL: %s" % e.msg)
         return 1
@@ -648,15 +587,9 @@ def run(argv=None):
     except Exception, e:
         # a problem we did not case for
         log.exception("Problem:")
-        try:
-            unlock(opts)
-        except:
-            pass
         return 2
 
 def main():
-    if os.name != 'posix':
-        sys.exit("only runs on posix systems") # because of locking mechanism
     return run()
 
 if __name__ == "__main__":
