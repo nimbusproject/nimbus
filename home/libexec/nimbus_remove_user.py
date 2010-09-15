@@ -86,7 +86,7 @@ def remove_gridmap(dn):
             os.write(nf, os.linesep)
 
     if not found:
-        print "WARNING! user not found in %s" % (dn)
+        print "WARNING! user DN not found in gridmap: %s" % (dn)
     os.close(nf)
     f.close()
     os.unlink(gmf)
