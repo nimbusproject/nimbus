@@ -10,6 +10,7 @@ from fileinput import FileInput
 import csv
 from itertools import izip
 import tempfile
+import traceback
 
 import pynimbusauthz
 import pycb.tools
@@ -124,11 +125,12 @@ def update_user(current, desired, opts):
         if opts.dryrun:
             return "UPDATED"
 
-        ret = nimbus_edit_user.main(args)
-        if ret != 0:
-            return "UPDATE_FAILED"
-        else:
-            return "UPDATED"
+        ok = False
+        try:
+            ok = nimbus_edit_user.main(args) == 0
+        except:
+            pynimbusauthz.print_msg(opts, 2, "Error: " + traceback.format_exc())
+        return ok and "UPDATED" or "UPDATE_FAILED" 
 
     return "UNCHANGED"
 
@@ -143,11 +145,12 @@ def new_user(user, opts):
     if opts.dryrun:
         return "ADDED"
 
-    ret = nimbus_new_user.main(args)
-    if ret != 0:
-        return "ADD_FAILED"
-    else:
-        return "ADDED"
+    ok = False
+    try:
+        ok = nimbus_new_user.main(args) == 0
+    except:
+        pynimbusauthz.print_msg(opts, 2, "Error: " + traceback.format_exc())
+    return ok and "ADDED" or "ADD_FAILED"
 
 def remove_user(user_name, opts):
     args = [user_name]
@@ -164,11 +167,12 @@ def remove_user(user_name, opts):
     if opts.dryrun:
         return "REMOVED"
 
-    ret = nimbus_remove_user.main(args)
-    if ret != 0:
-        return "REMOVED_FAILED"
-    else:
-        return "REMOVED"
+    ok = False
+    try:
+        ok = nimbus_remove_user.main(args) == 0
+    except:
+        pynimbusauthz.print_msg(opts, 2, "Error: " + traceback.format_exc())
+    return ok and "REMOVED" or "REMOVE_FAILED"
 
 def walk_users(current, desired, opts):
 
