@@ -299,12 +299,16 @@ if [ "$ADDREM" = "add" ]; then
   fi
   
   echo "CMD: $DHCPD_START"
-  $DHCPD_START || die_dhcpd_start
+  (
+    # Close the lock file descriptor now, otherwise it stays locked in the
+    # dhcpd process which is daemonized
+    exec 200>&-
+    $DHCPD_START || die_dhcpd_start
+  )
 fi
 
-) 200<$FLOCKFILE
+) 200>>$FLOCKFILE || exit $?
 
 if [ "$SUCCESS" = "n" ]; then
   exit 1
 fi
-
