@@ -72,7 +72,6 @@ def main(argv=sys.argv[1:]):
         image = ec2conn.get_image(imagename)
         print "running"
         res = image.run(min_count=2, max_count=4)
-        dir(res)
         res.stop_all()
 
     except:

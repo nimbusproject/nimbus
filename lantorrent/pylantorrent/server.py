@@ -16,6 +16,7 @@ import hashlib
 #  {
 #      host
 #      port
+#      length
 #      requests = [ {filename, id, rename}, ]
 #      destinations =
 #       [ {

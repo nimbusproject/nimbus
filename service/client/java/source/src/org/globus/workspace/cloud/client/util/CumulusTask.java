@@ -748,7 +748,7 @@ public class CumulusTask
             j3p,
             hc);
 
-        return s3Service;
+        return s3Service;                                           
     }
 
     private boolean keyExists(
@@ -795,6 +795,7 @@ public class CumulusTask
             // if not found check to see if the image is in the common space
             String keyNameCommon = this.makeKey(vmName, "common");
             exists = this.keyExists(s3Service, baseBucketName, keyNameCommon);
+            s3Service.shutdown();            
             if(exists)
             {
                 return keyNameCommon;

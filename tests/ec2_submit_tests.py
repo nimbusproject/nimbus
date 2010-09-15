@@ -106,7 +106,6 @@ class TestEC2Submit(unittest.TestCase):
         k.set_contents_from_filename("/etc/group")
         image = self.ec2conn.get_image(image_name)
         res = image.run() 
-        dir(res)
         res.stop_all()
 
     def test_ec2_submit_url(self):
