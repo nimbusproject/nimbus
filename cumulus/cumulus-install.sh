@@ -105,6 +105,25 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+echo "installing authz"
+echo "----------------"
+cd authz
+$PYVE setup.py install
+if [ $? -ne 0 ]; then
+    echo "$PIP failed to install authz"
+    exit 1
+fi
+cd $source_dir
+echo "installing cb"
+echo "-------------"
+cd cb
+$PYVE setup.py install
+if [ $? -ne 0 ]; then
+    echo "$PIP failed to install authz"
+    exit 1
+fi
+
+
 echo ""
 echo "-----------------------------------------------------------------"
 echo "Configuring the environment"
