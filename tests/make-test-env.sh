@@ -1,5 +1,6 @@
 #!/bin/bash
 
+echo "home directory in use is $HOME"
 bkdate=`date +%s`
 work_dir=$1
 if [ "X$work_dir" == "X" ]; then
@@ -55,12 +56,15 @@ echo "========================================="
 echo "Configuring propagation only mode"
 echo "========================================="
 
+ls -l $HOME/.ssh/
 new_key=$HOME/.ssh/id_rsa
 python $src_dir/ssh.py $new_key
 user=`whoami`
 ls -l $HOME/.ssh
 echo "Attempting to ssh"
 ssh localhost hostname
+rc=$?
+echo "ssh return code $rc"
 
 cp -r $repo_dir/nimbus/control/  $work_dir
 sed -e "s^@NIMBUS_WORKSPACE_CONTROL_HOME@^$work_dir/control^" -e "s^@KEY@^$new_key^" -e "s/@WHO@/$user/" $src_dir/autoconfig-decisions.sh.in > $install_dir/services/share/nimbus-autoconfig/autoconfig-decisions.sh
@@ -112,6 +116,10 @@ mkdir $HOME/.nimbus
 cp $cert  $HOME/.nimbus/
 cp $key  $HOME/.nimbus/
 cp -r $HOME/.nimbus $HOME/.globus
+
+echo "reporitng contents of dot nimbus and globus"
+ls -l $HOME/.nimbus/
+ls -l $HOME/.globus/
 
 ./bin/grid-proxy-init.sh
 

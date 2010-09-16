@@ -10,15 +10,13 @@ logfile = sys.stdout
 print "try ssh"
 try:
     cmd="ssh-keygen -f %s" % (sys.argv[1])
+    cmd="ssh-keygen"
     child = pexpect.spawn (cmd, timeout=30, maxread=20000, logfile=logfile)
     child.expect (':')
-#    print child.before
     child.sendline ('')
     child.expect (':')
-#    print child.before
     child.sendline ('')
     rc = child.expect(pexpect.EOF)
-#    print child.before
 
     cmd = "cp %s.pub %s/.ssh/authorized_keys" % (sys.argv[1], os.environ['HOME'])
     print cmd
