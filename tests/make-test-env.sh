@@ -59,6 +59,10 @@ echo "========================================="
 ls -l $HOME/.ssh/
 new_key=$HOME/.ssh/id_rsa
 python $src_dir/ssh.py $new_key
+if [ $? -ne 0 ]; then
+    echo "failed to make the ssh key"
+    exit 1
+fi
 user=`whoami`
 ls -l $HOME/.ssh
 echo "Attempting to ssh"
