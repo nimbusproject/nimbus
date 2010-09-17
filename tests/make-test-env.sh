@@ -37,6 +37,7 @@ repo="git://github.com/nimbusproject/nimbus.git"
 if [ "X$NIMBUS_REPO" != "X" ]; then
     repo=$NIMBUS_REPO
 fi
+echo "Checking out nimbus from $repo"
 git clone --depth 1 $repo
 
 install_dir=$work_dir/NIMBUSINSTALL

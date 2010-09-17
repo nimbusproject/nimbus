@@ -39,6 +39,10 @@ mv $HOME/.s3cfg $HOME/.s3cfg.$bkdate
 trap on_exit EXIT
 echo "Building a Nimbus env at $work_dir"
 ./make-test-env.sh $work_dir | tee bandt.log
+if [ $? -ne 0 ]; then
+    echo "nimbus install failed"
+    exit 1
+fi
 source env.sh
 
 cd $CLOUD_CLIENT_HOME
