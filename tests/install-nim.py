@@ -6,6 +6,7 @@ from ConfigParser import SafeConfigParser
 
 
 cmd = "%s %s" % (sys.argv[1], sys.argv[2])
+print cmd
 logfile = sys.stdout
 child = pexpect.spawn (cmd, timeout=800, maxread=200000, logfile=logfile)
 child.expect ('CA Name:')

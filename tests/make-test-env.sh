@@ -49,6 +49,8 @@ echo "========================================="
 python $src_dir/install-nim.py ./install $install_dir "$work_dir/install.log"
 rc=$?
 if [ $rc -ne 0 ]; then
+    ls -l $src_dir/install-nim.py
+    ls -l 
     echo "nimbus install failed"
     exit 1
 fi
