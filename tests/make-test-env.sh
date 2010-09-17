@@ -25,6 +25,14 @@ if [ -e $HOME/.s3cfg ]; then
     exit 1
 fi
 
+mkdir $HOME/.ssh
+mkdir $HOME/.globus
+mkdir $HOME/.nimbus
+chmod 700 $HOME/.ssh
+chmod 700 $HOME/.globus
+chmod 700 $HOME/.nimbus
+
+
 bd=`dirname $0`
 cd $bd
 src_dir=`pwd`
