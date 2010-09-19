@@ -55,11 +55,13 @@ get your configuration information.
     all_opts.append(opt)
     opt = cbOpts("prefix", "p", "The prefix used for images in the cloud client bucket", "VMS")
     all_opts.append(opt)
+    opt = cbOpts("delete", "d", "Remove the image", False, flag=True)
+    all_opts.append(opt)
 
     (o, args) = pynimbusauthz.parse_args(parser, all_opts, argv)
 
     # def verify_opts(o, args, parser):
-    if len(args) != 2:
+    if len(args) < 1:
         pynimbusauthz.parse_args(parser, [], ["--help"])
 
     return (o, args, parser)
@@ -68,8 +70,6 @@ def main(argv=sys.argv[1:]):
 
     try:
         (o, args, p) = setup_options(argv)
-        filename = args[0]
-        imagename = args[1]
 
         try:
             s = SafeConfigParser()
@@ -97,10 +97,19 @@ def main(argv=sys.argv[1:]):
 
         bucket = conn.get_bucket(o.repo)
 
-        k = boto.s3.key.Key(bucket)
-        key = "%s/common/%s" % (o.prefix, imagename)
-        k.key = key
-        k.set_contents_from_filename(filename, policy='public-read')
+        if o.delete:
+            imagename = args[0]
+            k = boto.s3.key.Key(bucket)
+            key = "%s/common/%s" % (o.prefix, imagename)
+            k.key = key
+            k.delete()
+        else:
+            filename = args[0]
+            imagename = args[1]
+            k = boto.s3.key.Key(bucket)
+            key = "%s/common/%s" % (o.prefix, imagename)
+            k.key = key
+            k.set_contents_from_filename(filename, policy='public-read')
 
     except CLIError, clie:
         if DEBUG:

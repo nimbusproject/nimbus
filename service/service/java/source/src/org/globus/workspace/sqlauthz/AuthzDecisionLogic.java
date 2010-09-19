@@ -273,24 +273,25 @@ public class AuthzDecisionLogic extends DecisionLogic
                 String bucketName = results[0];
                 String keyName = results[1];
                 boolean checkSpace = false;
+                String perms = "";
 
                 if(fileIds[0] < 0)
                 {
                     throw new ResourceRequestDeniedException("The bucket name " + bucketName + " was not found.");
-                }
-                String perms = "";
+                }                
                 if(fileIds[1] < 0 && write)
                 {
                     String dataKey = this.getRepoDir() + "/" + objectName.replace("/", "__");
                     logger.debug("Adding new datakey " + dataKey);
                     fileIds[1] = authDB.newFile(keyName, fileIds[0], canUser, dataKey, schemeType);
-                }
-                perms = authDB.getPermissions(fileIds[1], canUser);
+                }                
                 if(fileIds[1] < 0)
                 {
                     throw new ResourceRequestDeniedException("the object " + objectName + " was not found.");
                 }
-                
+
+                String pubPerms = perms + authDB.getPermissionsPublic(fileIds[1]);
+                perms = authDB.getPermissions(fileIds[1], canUser) + pubPerms;
                 int ndx = perms.indexOf('r');
                 if(ndx < 0)
                 {
@@ -319,7 +320,6 @@ public class AuthzDecisionLogic extends DecisionLogic
                         }
                     }
                 }
-
                 return size;
             }
             catch(AuthzDBException wsdbex)

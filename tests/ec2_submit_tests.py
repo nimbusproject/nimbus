@@ -87,12 +87,6 @@ class TestEC2Submit(unittest.TestCase):
             pass
         if self.ec2conn != None:
             pass
-        if self.s3user != None:
-            self.s3user.remove()
-        if self.dnuser != None:
-            self.dnuser.remove()
-        if self.can_user != None:
-            self.can_user.destroy_brutally()
         if self.db != None:
             self.db.close()
         self.killall_running()
@@ -106,7 +100,6 @@ class TestEC2Submit(unittest.TestCase):
         k.set_contents_from_filename("/etc/group")
         image = self.ec2conn.get_image(image_name)
         res = image.run() 
-        dir(res)
         res.stop_all()
 
     def test_ec2_submit_url(self):

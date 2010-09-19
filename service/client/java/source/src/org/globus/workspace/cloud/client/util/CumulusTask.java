@@ -830,29 +830,39 @@ public class CumulusTask
             String                      vmName)
                 throws ExecutionProblem
     {
+        String baseBucketName;
+        String keyNameOwner;
         S3Service s3Service = null;
         try
         {
             s3Service = this.getService();
-            String baseBucketName = this.args.getS3Bucket();
-
-            // first check to see if the owner has the image
-            String keyNameOwner = this.makeKey(vmName, null);
-            boolean exists = this.keyExists(s3Service, baseBucketName, keyNameOwner);
-            if(exists)
+            int ndx = vmName.indexOf("cumulus://");
+            if(ndx >= 0)
             {
+                return vmName;
+            }
+            else
+            {
+                baseBucketName = this.args.getS3Bucket();
+                // first check to see if the owner has the image
+                keyNameOwner = this.makeKey(vmName, null);
+            
+                boolean exists = this.keyExists(s3Service, baseBucketName, keyNameOwner);
+                if(exists)
+                {
+                    return keyNameOwner;
+                }
+                // if not found check to see if the image is in the common space
+                String keyNameCommon = this.makeKey(vmName, "common");
+                exists = this.keyExists(s3Service, baseBucketName, keyNameCommon);
+                if(exists)
+                {
+                    return keyNameCommon;
+                }
+                // if the image still is not found it may be a new image, in which case return the
+                // owner name
                 return keyNameOwner;
             }
-            // if not found check to see if the image is in the common space
-            String keyNameCommon = this.makeKey(vmName, "common");
-            exists = this.keyExists(s3Service, baseBucketName, keyNameCommon);
-            if(exists)
-            {
-                return keyNameCommon;
-            }
-            // if the image still is not found it may be a new image, in which case return the
-            // owner name
-            return keyNameOwner;
          }
         catch(S3ServiceException s3ex)
         {
