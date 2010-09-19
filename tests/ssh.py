@@ -5,8 +5,17 @@ import sys
 import shutil
 import os
 
-
 logfile = sys.stdout
+def ssh_in():
+    cmd = "ssh -i %s localhost hostname" % (sys.argv[1])
+    child = pexpect.spawn (cmd, timeout=10, maxread=20000, logfile=logfile)
+    child.expect ('(yes/no)?')
+#    print child.before
+    child.sendline ('yes')
+    rc = child.expect(pexpect.EOF)
+    return rc
+
+
 print "try ssh"
 try:
     cmd="ssh-keygen -f %s" % (sys.argv[1])
@@ -28,17 +37,11 @@ try:
 #    print child.before
 
     print "setting up ssh knowhosts"
-    cmd = "ssh -v -i %s localhost hostname" % (sys.argv[1])
-    child = pexpect.spawn (cmd, timeout=10, maxread=20000, logfile=logfile)
-    child.expect ('(yes/no)?')
-#    print child.before
-    child.sendline ('yes')
-    rc = child.expect(pexpect.EOF)
-#    print child.before
-    if rc != 0:
-        print "ssh failed"
-        sys.exit(rc)
-    sys.exit(0)
+    try:
+        rc = ssh_in()
+    except:
+        rc = ssh_in()
+    sys.exit(rc)
 
 except Exception, ex:
     print ex
