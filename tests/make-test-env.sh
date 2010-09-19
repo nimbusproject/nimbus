@@ -71,7 +71,7 @@ ls -l $HOME/.ssh/
 new_key=$HOME/.ssh/id_rsa
 python $src_dir/ssh.py $new_key
 rc=$?
-ls -l $HOME/.ssh
+ls -l $HOME/.ssh/
 if [ $rc -ne 0 ]; then
     echo "failed to make the ssh key"
     exit 1
