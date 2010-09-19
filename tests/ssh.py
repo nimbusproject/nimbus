@@ -28,7 +28,7 @@ try:
 #    print child.before
 
     print "setting up ssh knowhosts"
-    cmd = "ssh -i %s localhost hostname" % (sys.argv[1])
+    cmd = "ssh -v -i %s localhost hostname" % (sys.argv[1])
     child = pexpect.spawn (cmd, timeout=10, maxread=20000, logfile=logfile)
     child.expect ('(yes/no)?')
 #    print child.before
