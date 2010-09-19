@@ -115,3 +115,4 @@ class TestEC2SubmitCommon(unittest.TestCase):
         rc = nimbus_public_image.main("--delete", image_name)
         self.assertEqual(rc, 0, "public image upload return code should be 0 is %d" % (rc))
 
+   
