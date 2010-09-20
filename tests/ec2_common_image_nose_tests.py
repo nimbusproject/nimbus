@@ -73,32 +73,18 @@ class TestEC2Submit(unittest.TestCase):
         cumport = 8888
         ec2port = 8444
         self.db = DB(pycb.config.authzdb)
-        self.friendly = os.environ['NIMBUS_TEST_USER']
-        self.can_user = User.get_user_by_friendly(self.db, self.friendly)
-        s3a = self.can_user.get_alias_by_friendly(self.friendly, pynimbusauthz.alias_type_s3)
-        x509a = self.can_user.get_alias_by_friendly(self.friendly, pynimbusauthz.alias_type_x509)
-
-        self.subject = x509a.get_name()
-        self.s3id = s3a.get_name()
-        self.s3pw = s3a.get_data()
-        self.s3user = s3a
-        self.dnuser = x509a
 
         self._make_user()
 
-        self.ec2conn = EC2Connection(self.s3id2, self.s3pw2, host=host, port=ec2port, debug=2)
-        self.ec2conn.host = host
+        self.ec2conn2 = EC2Connection(self.s3id2, self.s3pw2, host=host, port=ec2port, debug=2)
+        self.ec2conn2.host = host
 
         cf = OrdinaryCallingFormat()
-        self.s3conn = S3Connection(self.s3id, self.s3pw2, host=host, port=cumport, is_secure=False, calling_format=cf)
+        self.s3conn = S3Connection(self.s3id2, self.s3pw2, host=host, port=cumport, is_secure=False, calling_format=cf)
         self.db.commit()
         self.killall_running()
 
     def tearDown(self):
-        if self.s3conn != None:
-            pass
-        if self.ec2conn != None:
-            pass
         if self.s3user2 != None:
             self.s3user.remove()
         if self.dnuser2 != None:
@@ -121,7 +107,7 @@ class TestEC2Submit(unittest.TestCase):
         rc = nimbus_public_image.main(["/etc/group", image_name])
         self.assertEqual(rc, 0, "public image upload return code should be 0 is %d" % (rc))
 
-        image = self.ec2conn.get_image(image_name)
+        image = self.ec2conn2.get_image(image_name)
         res = image.run()
         res.stop_all()
 
