@@ -59,12 +59,13 @@ class TestEC2SubmitCommon(unittest.TestCase):
         return newpasswd
 
     def _make_user(self):
-        self.can_user2 = User(self.db, friendly=self.friendly, create=True)
+        self.friendly2 = str(uuid.uuid1())
+        self.can_user2 = User(self.db, friendly=self.friendly2, create=True)
         self.subject2 = self.cb_random_bucketname(21)
         self.s3id2 = self.cb_random_bucketname(21)
         self.s3pw2 = self.cb_random_bucketname(42)
-        self.s3user2 = self.can_user.create_alias(self.s3id, pynimbusauthz.alias_type_s3, self.friendly, self.s3pw)
-        self.dnuser2 = self.can_user.create_alias(self.subject, pynimbusauthz.alias_type_x509, self.friendly)
+        self.s3user2 = self.can_user.create_alias(self.s3id, pynimbusauthz.alias_type_s3, self.friendly2, self.s3pw)
+        self.dnuser2 = self.can_user.create_alias(self.subject, pynimbusauthz.alias_type_x509, self.friendly2)
 
 
     def setUp(self):
