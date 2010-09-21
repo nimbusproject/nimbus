@@ -36,8 +36,9 @@ if rc != 0:
     print "failed to terminate"
     sys.exit(1)
 
-(x, rc)=pexpect.run("%s/bin/cloud-client.sh --delete --name %s" % (cc_home, common_image) , withexitstatus=1, logfile=logfile)
+cmd = "%s/bin/nimbus-public-image --delete %s" % (nh, common_image)
+(x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile)
 if rc != 0:
-    print "failed to delete after test"
+    print "failed create the public image"
     sys.exit(1)
 sys.exit(0)

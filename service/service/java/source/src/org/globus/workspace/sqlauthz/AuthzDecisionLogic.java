@@ -215,12 +215,12 @@ public class AuthzDecisionLogic extends DecisionLogic
                 if(unPropImageName == null)
                 {
                     unPropImageName = incomingImageName;
-
-                    String commonPath = "cumulus://" + this.repoHost + "/" + this.repoDir + "/common";
-                    if(incomingImageName.indexOf(commonPath) == 0)
+                    
+                    String commonPath = "/common/";
+                    if(incomingImageName.indexOf(commonPath) > 0)
                     {
                         // replace common path with user path
-                        String userPath = "cumulus://" + this.repoHost + "/" + this.repoDir + "/" + ownerID;
+                        String userPath = "/" + ownerID + "/";
                         unPropImageName = unPropImageName.replaceFirst(commonPath, userPath);
                     }                                                                        
                 }
