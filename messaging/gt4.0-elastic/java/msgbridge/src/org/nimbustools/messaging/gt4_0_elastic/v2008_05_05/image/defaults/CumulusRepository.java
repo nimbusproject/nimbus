@@ -29,6 +29,7 @@ import org.nimbustools.api.repr.CannotTranslateException;
 import org.nimbustools.api.repr.ReprFactory;
 import org.nimbustools.api.repr.vm.ResourceAllocation;
 import org.nimbustools.api.repr.vm.VMFile;
+import org.nimbustools.api.services.rm.AuthorizationException;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.image.FileListing;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.image.ListingException;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.image.Repository;
@@ -196,8 +197,8 @@ public class CumulusRepository implements Repository {
     // implements Repository
     // -------------------------------------------------------------------------
 
-    // XXXX  not sure what to do here
-    public String getImageLocation(Caller caller)
+
+    private String getImageLocation(Caller caller, String vmname)
             throws CannotTranslateException
     {
         final String dn = caller.getIdentity();
@@ -214,10 +215,55 @@ public class CumulusRepository implements Repository {
         {
             throw new CannotTranslateException("No caller/ownerID?");
         }
+        try
+        {
+            int parentId = authDB.getFileID(this.repoBucket , -1, AuthzDBAdapter.OBJECT_TYPE_S3);
+            if (parentId < 0)
+            {
+                throw new CannotTranslateException("No such bucket " + this.repoBucket);
+            }
 
-        return "cumulus://" + this.cumulusHost + "/" + this.repoBucket + "/" + this.prefix + "/" + ownerID;
+            String userKeyName = this.prefix + "/" + ownerID + "/" + vmname;
+            String commonKeyName = this.prefix + "/common/" + vmname;
+            String keyName = userKeyName;
+            
+            int fileId = authDB.getFileID(userKeyName, parentId, AuthzDBAdapter.OBJECT_TYPE_S3);
+            if(fileId < 0)
+            {
+                fileId = authDB.getFileID(commonKeyName, parentId, AuthzDBAdapter.OBJECT_TYPE_S3);
+                if(fileId >= 0)
+                {
+                    keyName = commonKeyName;
+                }
+            }
+            return "cumulus://" + this.cumulusHost + "/" + this.repoBucket + "/" + keyName;
+        }
+        catch(AuthzDBException wsdbex)
+        {
+            logger.error("trouble looking up the cumulus information ", wsdbex);
+            throw new CannotTranslateException("Trouble with the database " + wsdbex.toString());
+        }
     }
 
+    public String getImageLocation(Caller caller)
+                throws CannotTranslateException
+    {
+        final String dn = caller.getIdentity();
+        String ownerID;
+        try
+        {
+            ownerID = this.authDB.getCanonicalUserIdFromDn(dn);
+        }
+        catch(AuthzDBException ex)
+        {
+            throw new CannotTranslateException(ex.toString(), ex);
+        }
+        if (ownerID == null)
+        {
+            throw new CannotTranslateException("No caller/ownerID?");
+        }
+        return "cumulus://" + this.cumulusHost + "/" + this.repoBucket + "/" + this.prefix + "/" + ownerID;
+    }
 
     public VMFile[] constructFileRequest(String imageID,
                                          ResourceAllocation ra,
@@ -251,7 +297,7 @@ public class CumulusRepository implements Repository {
             }
             else
             {
-                urlStr = getImageLocation(caller) + "/" + imageID;
+                urlStr = getImageLocation(caller, imageID);
             }
             file.setMountAs(this.getRootFileMountAs());
             URI imageURI = new URI(urlStr);
