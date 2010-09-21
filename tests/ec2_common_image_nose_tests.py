@@ -64,8 +64,8 @@ class TestEC2Submit(unittest.TestCase):
         self.subject2 = self.cb_random_bucketname(21)
         self.s3id2 = self.cb_random_bucketname(21)
         self.s3pw2 = self.cb_random_bucketname(42)
-        self.s3user2 = self.can_user.create_alias(self.s3id2, pynimbusauthz.alias_type_s3, fn, self.s3pw2)
-        self.dnuser2 = self.can_user.create_alias(self.subject2, pynimbusauthz.alias_type_x509, fn)
+        self.s3user2 = self.can_user2.create_alias(self.s3id2, pynimbusauthz.alias_type_s3, fn, self.s3pw2)
+        self.dnuser2 = self.can_user2.create_alias(self.subject2, pynimbusauthz.alias_type_x509, fn)
 
 
     def setUp(self):
