@@ -198,7 +198,7 @@ public class CumulusRepository implements Repository {
     // -------------------------------------------------------------------------
 
 
-    private String getImageLocation(Caller caller, String vmname)
+    public String getImageLocation(Caller caller, String vmname)
             throws CannotTranslateException
     {
         final String dn = caller.getIdentity();

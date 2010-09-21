@@ -120,15 +120,7 @@ public class ServiceImageImpl extends UnimplementedOperations
                     "Problem contacting repository: " + e.getMessage(), e);
         }
 
-        final String locationBase;
-        try {
-            // all from same place currently
-            locationBase = this.repository.getImageLocation(caller);
-        } catch (CannotTranslateException e) {
-            throw new RuntimeException("Unexpected: " + e.getMessage(), e);
-        }
-
-        return this.convertFileListings(listings, ownerID, locationBase);
+        return this.convertFileListings(listings, ownerID, caller);
     }
 
     
@@ -222,7 +214,7 @@ public class ServiceImageImpl extends UnimplementedOperations
     protected DescribeImagesResponseType convertFileListings(
                             FileListing[] listings,
                             String ownerID,
-                            String givenLocationBase) {
+                            Caller caller) {
 
         final DescribeImagesResponseType dirt = new DescribeImagesResponseType();
         final DescribeImagesResponseInfoType dirits =
@@ -233,13 +225,8 @@ public class ServiceImageImpl extends UnimplementedOperations
             dirits.setItem(EMPTY_RESP_ITEM_TYPE);
             return dirt; // *** EARLY RETURN ***
         }
-        
-        if (givenLocationBase == null) {
-            throw new IllegalArgumentException(
-                    "givenLocationBase may not be null");
-        }
 
-        final String locationBase = cleanLocationBase(givenLocationBase);
+        String givenLocationBase;
 
         final List retList = new LinkedList();
         for (int i = 0; i < listings.length; i++) {
@@ -252,7 +239,20 @@ public class ServiceImageImpl extends UnimplementedOperations
                                     new DescribeImagesResponseItemType();
             dirit.setArchitecture("i386"); // todo
 
+
             final String name = listing.getName();
+            try {
+                // all from same place currently
+                givenLocationBase = this.repository.getImageLocation(caller, name);
+            } catch (CannotTranslateException e) {
+                throw new RuntimeException("Unexpected: " + e.getMessage(), e);
+            }
+            if (givenLocationBase == null) {
+                throw new IllegalArgumentException(
+                    "givenLocationBase may not be null");
+            }
+            String locationBase = cleanLocationBase(givenLocationBase);
+
             dirit.setImageId(name);
             dirit.setImageLocation(locationBase);
             dirit.setImageOwnerId(ownerID);
