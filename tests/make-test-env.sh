@@ -121,6 +121,8 @@ aid=`echo $user_stuff | awk -F , '{ print $4 }'`
 apw=`echo $user_stuff | awk -F , '{ print $5 }'` 
 sed -e "s^@ID@^$aid^" -e "s/@KEY@/$apw/" $src_dir/s3cfg.in > $HOME/.s3cfg
 
+cat $HOME/.s3cfg
+
 echo $cp
 echo $cert
 echo $key
