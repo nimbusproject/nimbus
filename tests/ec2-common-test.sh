@@ -21,5 +21,5 @@ export DJANGO_SETTINGS_MODULE
 
 source $NIMBUS_HOME/ve/bin/activate
 
-nosetests ec2_common_image_tests.py "$@"
+nosetests ec2_common_image_nose_tests.py "$@"
 exit $?
