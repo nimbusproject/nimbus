@@ -35,6 +35,8 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
 
     <bean id="authzDBAdapter" class="org.nimbus.authz.AuthzDBAdapter">
         <constructor-arg ref="other.AuthzDataSource"/>
+
+        <property name="cumulusPublicUser" value="CumulusPublicUser" />
     </bean>
 
     <bean id="userDetailsService" class="org.nimbustools.messaging.query.security.NimbusAuthzUserDetailsService">

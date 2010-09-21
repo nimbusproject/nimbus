@@ -42,7 +42,7 @@ def get_nimbus_home():
 class TestEC2Submit(unittest.TestCase):
 
     def killall_running(self):
-	instances = self.ec2conn.get_all_instances()
+	instances = self.ec2conn2.get_all_instances()
         print instances
         for reserv in instances:
             for inst in reserv.instances:
@@ -86,9 +86,9 @@ class TestEC2Submit(unittest.TestCase):
 
     def tearDown(self):
         if self.s3user2 != None:
-            self.s3user.remove()
+            self.s3user2.remove()
         if self.dnuser2 != None:
-            self.dnuser.remove()
+            self.dnuser2.remove()
         if self.can_user2 != None:
             self.can_user2.destroy_brutally()
         if self.db != None:
