@@ -223,14 +223,14 @@ public class CumulusRepository implements Repository {
                 throw new CannotTranslateException("No such bucket " + this.repoBucket);
             }
 
-            String userKeyName = this.prefix + "/" + ownerID + "/" + vmname;
-            String commonKeyName = this.prefix + "/common/" + vmname;
+            String userKeyName = this.prefix + "/" + ownerID;
+            String commonKeyName = this.prefix + "/common";
             String keyName = userKeyName;
             
-            int fileId = authDB.getFileID(userKeyName, parentId, AuthzDBAdapter.OBJECT_TYPE_S3);
+            int fileId = authDB.getFileID(userKeyName + "/" + vmname, parentId, AuthzDBAdapter.OBJECT_TYPE_S3);
             if(fileId < 0)
             {
-                fileId = authDB.getFileID(commonKeyName, parentId, AuthzDBAdapter.OBJECT_TYPE_S3);
+                fileId = authDB.getFileID(commonKeyName + "/" + vmname, parentId, AuthzDBAdapter.OBJECT_TYPE_S3);
                 if(fileId >= 0)
                 {
                     keyName = commonKeyName;
