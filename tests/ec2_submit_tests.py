@@ -73,7 +73,7 @@ class TestEC2Submit(unittest.TestCase):
         self.s3user = s3a
         self.dnuser = x509a
 
-        self.ec2conn = EC2Connection(self.s3id, self.s3pw, host=host, port=ec2port, debug=2)
+        self.ec2conn = EC2Connection(self.s3id, self.s3pw, host=host, port=ec2port)
         self.ec2conn.host = host
 
         cf = OrdinaryCallingFormat()
@@ -99,18 +99,13 @@ class TestEC2Submit(unittest.TestCase):
         k.key = "VMS/" + self.can_user.get_id() + "/" + image_name
         k.set_contents_from_filename("/etc/group")
         image = self.ec2conn.get_image(image_name)
-        res = image.run() 
-        res.stop_all()
+        self.assertEqual(image.name, image_name)
+        print "==================================="
+        print image.name
+        print image.location
+        print image_name
+        print "==================================="
 
-    def test_ec2_submit_url(self):
-        bucket_name = "Repo"
-        bucket = self.s3conn.get_bucket(bucket_name)
-        k = boto.s3.key.Key(bucket)
-        image_name = self.cb_random_bucketname(10)
-        k.key = "WHATEVER/" + image_name
-        k.set_contents_from_filename("/etc/group")
-        url = "cumulus://HOST/" + bucket_name + "/" + k.key
-        print url
-        res = self.ec2conn.run_instances(url)
+        res = image.run() 
         res.stop_all()
 

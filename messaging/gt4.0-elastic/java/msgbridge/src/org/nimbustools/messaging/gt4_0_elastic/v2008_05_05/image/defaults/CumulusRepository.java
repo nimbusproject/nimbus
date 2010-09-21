@@ -311,6 +311,38 @@ public class CumulusRepository implements Repository {
         }                
     }
 
+    private ArrayList objectList(List<ObjectWrapper> objList, boolean readwrite)
+    {
+        ArrayList files  = new ArrayList();
+        for (ObjectWrapper ow : objList)
+        {
+            FileListing fl = new FileListing();
+            String name = ow.getName();
+            String [] parts = name.split("/", 3);
+            if(parts.length != 3)
+            {
+                // if a bad name jsut skip this file... they may have uploaded baddness
+                logger.error("The filename " + name + " is not in the proper format");
+                continue;
+            }
+            name = parts[2];
+            fl.setName(name);
+            fl.setSize(ow.getSize());
+
+            long tm = ow.getTime();
+            Date dt = new Date(tm);
+            Calendar cl = Calendar.getInstance();
+            cl.setTime(dt);
+            String tStr = new Integer(cl.get(Calendar.HOUR_OF_DAY)).toString() + ":" + new Integer(cl.get(Calendar.MINUTE)).toString();
+            fl.setTime(tStr);
+            String dStr = getMonthStr(cl.get(Calendar.MONTH)) + " " + new Integer(cl.get(Calendar.DAY_OF_MONTH)).toString();
+            fl.setDate(dStr);
+            fl.setReadWrite(readwrite);
+            files.add(fl);
+        }
+        return files;
+    }
+
     // return a list of all the images owned by this user
     public FileListing[] listFiles(Caller caller,
                                    String[] nameScoped,
@@ -332,40 +364,19 @@ public class CumulusRepository implements Repository {
         {
             String ownerID = this.authDB.getCanonicalUserIdFromDn(dn);
 
-            final ArrayList files = new ArrayList();
+            final ArrayList files;
             //String canUser = this.authDB.getCanonicalUserIdFromS3(ownerID);
             keyName = this.prefix + "/" + ownerID + '%';
             String commonkeyName =  this.prefix + "/common/%";
 
             List<ObjectWrapper> objList = this.authDB.searchParentFilesByKey(this.repo_id, keyName);
             List<ObjectWrapper> objCommonList = this.authDB.searchParentFilesByKey(this.repo_id, commonkeyName);
-            objList.addAll(objCommonList);
-            for (ObjectWrapper ow : objList)
-            {
-                FileListing fl = new FileListing();
-                String name = ow.getName();
-                String [] parts = name.split("/", 3);
-                if(parts.length != 3)
-                {
-                    // if a bad name jsut skip this file... they may have uploaded baddness
-                    logger.error("The filename " + name + " is not in the proper format");
-                    continue;
-                }
-                name = parts[2];
-                fl.setName(name);
-                fl.setSize(ow.getSize());
 
-                long tm = ow.getTime();
-                Date dt = new Date(tm);
-                Calendar cl = Calendar.getInstance();
-                cl.setTime(dt);
-                String tStr = new Integer(cl.get(Calendar.HOUR_OF_DAY)).toString() + ":" + new Integer(cl.get(Calendar.MINUTE)).toString();
-                fl.setTime(tStr);
-                String dStr = getMonthStr(cl.get(Calendar.MONTH)) + " " + new Integer(cl.get(Calendar.DAY_OF_MONTH)).toString();
-                fl.setDate(dStr);                
-                fl.setReadWrite(true);
-                files.add(fl);
-            }
+            files = objectList(objList, true);
+            ArrayList filescommon = objectList(objList, false);
+
+            files.addAll(filescommon);
+
             return (FileListing[]) files.toArray(new FileListing[files.size()]);
         }
         catch(AuthzDBException ex)
