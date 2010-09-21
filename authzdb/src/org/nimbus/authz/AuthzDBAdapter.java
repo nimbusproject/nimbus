@@ -41,7 +41,7 @@ public class AuthzDBAdapter
 
 
     private final DataSource            dataSource;
-    private String                      cumulusPublicUser;
+    private String                      cumulusPublicUser= "CumulusPublicUser";
 
     private static final Log logger =
             LogFactory.getLog(AuthzDBAdapter.class.getName());

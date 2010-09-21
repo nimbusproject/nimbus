@@ -69,7 +69,6 @@ public class CumulusRepository implements Repository {
     protected int repo_id = -1;
     protected String rootFileMountAs = null;
 
-
     // -------------------------------------------------------------------------
     // CONSTRUCTOR
     // -------------------------------------------------------------------------
@@ -98,6 +97,18 @@ public class CumulusRepository implements Repository {
         }
 
         this.repr = locator.getReprFactory();
+    }
+
+
+    public String getCumulusPublicUser()
+    {
+        return this.authDB.getCumulusPublicUser();
+    }
+
+    public void setCumulusPublicUser(
+        String                          pubUser)
+    {
+        this.authDB.setCumulusPublicUser(pubUser);
     }
 
     

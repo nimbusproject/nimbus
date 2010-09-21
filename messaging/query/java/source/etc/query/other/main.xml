@@ -66,7 +66,7 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
     <bean id="authzDBAdapter" class="org.nimbus.authz.AuthzDBAdapter">
         <constructor-arg ref="other.AuthzDataSource"/>
 
-        <property name="cumulusPublicUser" value="CumulusPublicUser" />
+        <property name="cumulusPublicUser" value="$CUMULUS{cumulus.publicuser}" />
     </bean>
 
     <bean id="userDetailsService" class="org.nimbustools.messaging.query.security.NimbusAuthzUserDetailsService">
@@ -280,7 +280,7 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
          <constructor-arg ref="nimbus-query.rm.modulelocator" />
          <constructor-arg ref="other.AuthzDataSource" />
 
-
+        <property name="cumulusPublicUser" value="$CUMULUS{cumulus.publicuser}" />
         <property name="repoBucket" value="$CUMULUS{cumulus.repo.bucket}" />
         <property name="prefix" value="$CUMULUS{cumulus.repo.prefix}" />
         <property name="cumulusHost" value="$CUMULUS{cumulus.host}" />
