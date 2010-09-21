@@ -187,6 +187,16 @@ public class AuthzDecisionLogic extends DecisionLogic
     {
         boolean different_target = false;
         String unPropImageName = null;
+        String ownerID;
+
+        try
+        {
+            ownerID = this.authDB.getCanonicalUserIdFromDn(dn);
+        }
+        catch(AuthzDBException aex)
+        {
+            throw new AuthorizationException("Could not find the user " + dn, aex);
+        }
 
         for (int i = 0; i < parts.length; i++)
         {
@@ -205,6 +215,14 @@ public class AuthzDecisionLogic extends DecisionLogic
                 if(unPropImageName == null)
                 {
                     unPropImageName = incomingImageName;
+
+                    String commonPath = "cumulus://" + this.repoHost + "/" + this.repoDir + "/common";
+                    if(incomingImageName.indexOf(commonPath) == 0)
+                    {
+                        // replace common path with user path
+                        String userPath = "cumulus://" + this.repoHost + "/" + this.repoDir + "/" + ownerID;
+                        unPropImageName = unPropImageName.replaceFirst(commonPath, userPath);
+                    }                                                                        
                 }
                 else
                 {
