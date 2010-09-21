@@ -251,10 +251,10 @@ public class ServiceImageImpl extends UnimplementedOperations
                 throw new IllegalArgumentException(
                     "givenLocationBase may not be null");
             }
-            String locationBase = cleanLocationBase(givenLocationBase);
+            //String locationBase = cleanLocationBase(givenLocationBase);
 
             dirit.setImageId(name);
-            dirit.setImageLocation(locationBase);
+            dirit.setImageLocation(givenLocationBase);
             dirit.setImageOwnerId(ownerID);
             dirit.setImageState("available"); // todo
             dirit.setImageType("machine"); // todo
