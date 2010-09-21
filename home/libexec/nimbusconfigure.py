@@ -451,6 +451,7 @@ class NimbusSetup(object):
         lines.append("cumulus.host=%s\n" % self['hostname'])
         lines.append("cumulus.repo.bucket=%s\n" % repo_bucket)
         lines.append("cumulus.repo.prefix=VMS\n")
+        lines.append("cumulus.publicuser=CumulusPublicUser\n")
         
         cumulus_conf_path = os.path.join(self.gtdir, 'etc/nimbus/workspace-service/cumulus.conf')
         f = None
