@@ -198,8 +198,8 @@ public class AuthzDecisionLogic extends DecisionLogic
             }
 
             String incomingImageName = parts[i].getImage();
-            
-            if(parts[i].isPropRequired())
+
+            if(parts[i].isUnPropRequired())
             {
                 unPropImageName = parts[i].getAlternateUnpropTarget();
                 if(unPropImageName == null)

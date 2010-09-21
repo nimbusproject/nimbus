@@ -107,11 +107,21 @@ cd nimbus-cloud-client*
 export CLOUD_CLIENT_HOME=`pwd`
 
 echo "========================================="
+echo "Making a common user"
+echo "========================================="
+user_name="nimbus@$RANDOM"
+user_stuff=`$install_dir/bin/nimbus-new-user --group 04 --batch -r cloud_properties,cert,key,access_id,access_secret $user_name`
+aid=`echo $user_stuff | awk -F , '{ print $4 }'` 
+apw=`echo $user_stuff | awk -F , '{ print $5 }'` 
+
+sed -e "s^@ID@^$aid^" -e "s/@KEY@/$apw/" $src_dir/s3cfg.in > $HOME/.s3cfg
+
+echo "========================================="
 echo "Making a new user"
 echo "========================================="
 
 user_name="nimbus@$RANDOM"
-user_stuff=`$install_dir/bin/nimbus-new-user --group 04 --batch -r cloud_properties,cert,key,access_id,access_secret $user_name```
+user_stuff=`$install_dir/bin/nimbus-new-user --group 04 --batch -r cloud_properties,cert,key,access_id,access_secret $user_name`
 
 echo $user_stuff
 cp=`echo $user_stuff | awk -F , '{ print $1 }'` 
@@ -119,7 +129,6 @@ cert=`echo $user_stuff | awk -F , '{ print $2 }'`
 key=`echo $user_stuff | awk -F , '{ print $3 }'` 
 aid=`echo $user_stuff | awk -F , '{ print $4 }'` 
 apw=`echo $user_stuff | awk -F , '{ print $5 }'` 
-sed -e "s^@ID@^$aid^" -e "s/@KEY@/$apw/" $src_dir/s3cfg.in > $HOME/.s3cfg
 
 cat $HOME/.s3cfg
 

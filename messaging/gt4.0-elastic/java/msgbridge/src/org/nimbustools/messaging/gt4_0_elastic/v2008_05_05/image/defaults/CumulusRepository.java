@@ -335,8 +335,11 @@ public class CumulusRepository implements Repository {
             final ArrayList files = new ArrayList();
             //String canUser = this.authDB.getCanonicalUserIdFromS3(ownerID);
             keyName = this.prefix + "/" + ownerID + '%';
+            String commonkeyName =  this.prefix + "/common/%";
 
-            final List<ObjectWrapper> objList = this.authDB.searchParentFilesByKey(this.repo_id, keyName);
+            List<ObjectWrapper> objList = this.authDB.searchParentFilesByKey(this.repo_id, keyName);
+            List<ObjectWrapper> objCommonList = this.authDB.searchParentFilesByKey(this.repo_id, commonkeyName);
+            objList.addAll(objCommonList);
             for (ObjectWrapper ow : objList)
             {
                 FileListing fl = new FileListing();
