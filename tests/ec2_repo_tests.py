@@ -75,15 +75,21 @@ class TestEC2List(unittest.TestCase):
         # obviously this will not work if the default name changes
         bucket = self.s3conn.get_bucket("Repo")
         k = boto.s3.key.Key(bucket)
-        k.key = "VMS/" + self.can_user.get_id() + "/" + self.cb_random_bucketname(25)
+        image_id = self.cb_random_bucketname(25)
+        k.key = "VMS/" + self.can_user.get_id() + "/" + image_id
         k.set_contents_from_filename("/etc/group")
 
         images = self.ec2conn.get_all_images()
-        self.assertEqual(len(images), 1, "should be 1 image %d" % len(images))
+        self.assertTrue(len(images) >= 1, "should be 1 image %d" % len(images))
+        found = False
+        for i in images:
+            if i.id == image_id:
+                found = True
 
         for i in images:
             print "+++++++++++++++++++++++++"
             print i
+        self.assertTrue(found, "The image should have been found %s" % (image_id))
 
 
     
