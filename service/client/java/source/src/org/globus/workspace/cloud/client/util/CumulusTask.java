@@ -786,7 +786,7 @@ public class CumulusTask
             j3p,
             hc);
 
-        return s3Service;
+        return s3Service;                                           
     }
 
     private void shutdownService(S3Service service)

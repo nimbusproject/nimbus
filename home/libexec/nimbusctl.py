@@ -42,7 +42,8 @@ if not config.read(CONFIG_PATH):
     sys.exit(_NO_CONFIG_ERROR)
 web_enabled = config.getboolean('nimbussetup', 'web.enabled')
 services_enabled = config.getboolean('nimbussetup', 'services.enabled')
-cumulus_enabled = config.getboolean('nimbussetup', 'services.enabled')
+cumulus_enabled = config.getboolean('nimbussetup', 'cumulus.enabled')
+lantorrent_enabled = config.getboolean('nimbussetup', 'lantorrent.enabled')
 
 if not (web_enabled or services_enabled or cumulus_enabled):
     sys.exit("Neither Nimbus services nor Nimbus web are enabled. "+
@@ -105,6 +106,21 @@ if cumulus_enabled:
       args = [],
       workingDir = CUMULUS_HOME,
       postStartDelay=5
+      ))
+
+if lantorrent_enabled:
+    LT_HOME = os.path.join(NIMBUS_HOME, "lantorrent/")
+    LT_SERVICE_EXE = os.path.join(LT_HOME, "bin/lt-daemon")
+    if not os.path.exists(LT_SERVICE_EXE):
+        sys.exit("The services executable does not exist: " +
+                LT_SERVICE_EXE)
+    ProcessManager.add( Process(
+      name = "lantorrent",
+      desc = "Lantorrent services",
+      program = LT_SERVICE_EXE,
+      args = [],
+      workingDir = LT_HOME,
+      postStartDelay=2
       ))
 
 

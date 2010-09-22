@@ -723,7 +723,7 @@ public class DefaultCreation implements Creation {
         result.setCoscheduledID(coschedID);
         result.setGroupID(groupID);
         final VM[] createdVMs = new VM[ids.length];
-
+      
         int bailed = -1;
         Throwable failure = null;
         for (int i = 0; i < ids.length; i++) {

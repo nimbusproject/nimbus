@@ -49,7 +49,6 @@ public class VirtualMachine extends WorkspaceInstantiation {
     private CustomizationNeed[] customizationNeeds;
 
     private String mdUserData;
-
    //requested vmm type
     private String vmm;
     //requested vmm version

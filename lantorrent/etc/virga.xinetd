@@ -1,0 +1,15 @@
+# default: off
+# description: An RFC 868 time server. This protocol provides a
+# site-independent, machine readable date and time. The Time service sends back
+# to the originating source the time in seconds since midnight on January first
+# 1900.
+# This is the tcp version.
+service lantorrent
+{
+	disable		= no
+	socket_type	= stream
+	protocol	= tcp
+	user		= bresnaha
+	wait		= no
+    server      = @LANTORRENT_HOME@/bin/lt.sh
+}                                                                               

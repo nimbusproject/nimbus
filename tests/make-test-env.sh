@@ -82,8 +82,9 @@ ssh localhost hostname
 rc=$?
 echo "ssh return code $rc"
 
+export NIMBUS_WORKSPACE_CONTROL_HOME="$work_dir/control"
 cp -r $repo_dir/nimbus/control/  $work_dir
-sed -e "s^@NIMBUS_WORKSPACE_CONTROL_HOME@^$work_dir/control^" -e "s^@KEY@^$new_key^" -e "s/@WHO@/$user/" $src_dir/autoconfig-decisions.sh.in > $install_dir/services/share/nimbus-autoconfig/autoconfig-decisions.sh
+sed -e "s^@NIMBUS_WORKSPACE_CONTROL_HOME@^$NIMBUS_WORKSPACE_CONTROL_HOME^" -e "s^@KEY@^$new_key^" -e "s/@WHO@/$user/" $src_dir/autoconfig-decisions.sh.in > $install_dir/services/share/nimbus-autoconfig/autoconfig-decisions.sh
 
 cat $install_dir/services/share/nimbus-autoconfig/autoconfig-decisions.sh
 
@@ -154,14 +155,13 @@ echo "localhost 10240" >> $install_dir/services/etc/nimbus/workspace-service/vmm
 
 echo $work_dir
 export NIMBUS_HOME=$install_dir
-export NIMBUS_WORKSPACE_CONTROL_HOME="$work_dir/control"
 export NIMBUS_TEST_USER=$user_name
 
 echo "Your test environment is:"
 echo "NIMBUS_HOME:          $NIMBUS_HOME"
 echo "NIMBUS_TEST_USER:     $NIMBUS_TEST_USER"
 echo "CLOUD_CLIENT_HOME:    $CLOUD_CLIENT_HOME"
-echo "NIMBUS_WORKSPACE_CONTROL_HOME:          $NIMBUS_HOME"
+echo "NIMBUS_WORKSPACE_CONTROL_HOME:          $NIMBUS_WORKSPACE_CONTROL_HOME"
 
 
 echo "export NIMBUS_HOME=$NIMBUS_HOME" > $src_dir/env.sh

@@ -17,6 +17,7 @@ PROP_ADAPTER_SCP = "scp"
 PROP_ADAPTER_GUC = "gsiftp"
 PROP_ADAPTER_HDFS = "hdfs"
 PROP_ADAPTER_HTTP = "http"
+PROP_ADAPTER_LANTORRENT = "lantorrent"
 
 class DefaultImageProcurement:
     """ImageProcurement is the wcmodule responsible for making files accessible
@@ -80,7 +81,7 @@ class DefaultImageProcurement:
                 import propagate_hdfs
                 self.adapters[PROP_ADAPTER_HDFS] = propagate_hdfs.propadapter(self.p, self.c)
             except:
-                msg = "HDFS configuration present (propagation->hdfs) but cannot load a suitable HDFS implimentation in the code"
+                msg = "HDFS configuration present (propagation->hdfs) but cannot load a suitable HDFS implementation in the code"
                 self.c.log.exception(msg + ": ")
                 raise InvalidConfig(msg)    
         
@@ -92,6 +93,17 @@ class DefaultImageProcurement:
         if len(self.adapters) == 0:
             self.c.log.warn("There are no propagation adapters configured, propagation is disabled")
             return
+
+
+        lt_path = self.p.get_conf_or_none("propagation", "lantorrent")
+        if lt_path:
+            try:
+                import propagate_lantorrent
+                self.adapters[PROP_ADAPTER_LANTORRENT] = propagate_lantorrent.LantorrentPropadapter(self.p, self.c)
+            except Exception, ex:
+                msg = "lantorrent configuration present (propagation->lantorrent) but cannot load a suitable lantorrent implementation in the code: " + str(ex)
+                self.c.log.exception(msg + ": ")
+                raise InvalidConfig(msg)
             
         for keyword in self.adapters.keys():
             adapter = self.adapters[keyword]

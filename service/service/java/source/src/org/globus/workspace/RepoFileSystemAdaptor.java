@@ -1,5 +1,6 @@
 package org.globus.workspace;
 
+import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.nimbustools.api.services.rm.AuthorizationException;
 
 /**
@@ -13,7 +14,8 @@ import org.nimbustools.api.services.rm.AuthorizationException;
 public interface RepoFileSystemAdaptor
 {
     public String translateExternaltoInternal(
-        String                          publicName)
+        String                          publicName,
+        VirtualMachine                  vm)
             throws WorkspaceException;
 
     public void unpropagationFinished(
