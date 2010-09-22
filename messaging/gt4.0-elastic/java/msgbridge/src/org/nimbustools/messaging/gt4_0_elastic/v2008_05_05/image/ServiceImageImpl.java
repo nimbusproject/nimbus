@@ -254,7 +254,7 @@ public class ServiceImageImpl extends UnimplementedOperations
             //String locationBase = cleanLocationBase(givenLocationBase);
 
             dirit.setImageId(name);
-            dirit.setImageLocation(givenLocationBase);
+            dirit.setImageLocation(givenLocationBase + "/");
             dirit.setImageOwnerId(ownerID);
             dirit.setImageState("available"); // todo
             dirit.setImageType("machine"); // todo

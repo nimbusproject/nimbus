@@ -327,7 +327,7 @@ public class CumulusRepository implements Repository {
             }
             name = parts[2];
             fl.setName(name);
-            fl.setSize(ow.getSize());
+            fl.setSize(ow.getSize());            
 
             long tm = ow.getTime();
             Date dt = new Date(tm);
