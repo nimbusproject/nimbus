@@ -373,7 +373,7 @@ public class CumulusRepository implements Repository {
             List<ObjectWrapper> objCommonList = this.authDB.searchParentFilesByKey(this.repo_id, commonkeyName);
 
             files = objectList(objList, true);
-            ArrayList filescommon = objectList(objList, false);
+            ArrayList filescommon = objectList(objCommonList, false);
 
             files.addAll(filescommon);
 
