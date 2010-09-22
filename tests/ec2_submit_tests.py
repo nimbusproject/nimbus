@@ -99,7 +99,6 @@ class TestEC2Submit(unittest.TestCase):
         k.key = "VMS/" + self.can_user.get_id() + "/" + image_name
         k.set_contents_from_filename("/etc/group")
         image = self.ec2conn.get_image(image_name)
-        self.assertEqual(image.name, image_name)
         print "==================================="
         print image.name
         print image.location
