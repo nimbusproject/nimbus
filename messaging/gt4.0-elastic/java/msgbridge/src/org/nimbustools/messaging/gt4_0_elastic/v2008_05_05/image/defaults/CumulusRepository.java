@@ -297,7 +297,7 @@ public class CumulusRepository implements Repository {
             }
             else
             {
-                urlStr = getImageLocation(caller, imageID);
+                urlStr = getImageLocation(caller, imageID) + "/" + imageID;
             }
             file.setMountAs(this.getRootFileMountAs());
             URI imageURI = new URI(urlStr);
