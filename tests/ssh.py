@@ -8,11 +8,16 @@ import os
 logfile = sys.stdout
 def ssh_in():
     cmd = "ssh -i %s localhost hostname" % (sys.argv[1])
+    print cmd
     child = pexpect.spawn (cmd, timeout=10, maxread=20000, logfile=logfile)
     child.expect ('(yes/no)?')
-#    print child.before
     child.sendline ('yes')
-    rc = child.expect(pexpect.EOF)
+    try:
+        child.expect ('(yes/no)?')
+        child.sendline ('yes')
+        rc = child.expect(pexpect.EOF)
+    except:
+        rc = 0
     return rc
 
 
@@ -34,7 +39,6 @@ try:
     print cmd
     child = pexpect.spawn (cmd, timeout=10, maxread=20000, logfile=logfile)
     rc = child.expect(pexpect.EOF)
-#    print child.before
 
     print "setting up ssh knowhosts"
     try:
