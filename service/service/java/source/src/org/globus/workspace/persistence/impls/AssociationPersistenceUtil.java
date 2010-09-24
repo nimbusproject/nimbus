@@ -31,6 +31,8 @@ import java.util.List;
 public class AssociationPersistenceUtil
                         implements PersistenceAdapterConstants {
 
+    public static final String EXPLICIT_MAC_PREFIX = "X";
+
     // not necessary to switch to prep statement, this only happens at startup
     public static String[] insertAllAssociationsSQL(Hashtable associations) {
 
@@ -79,7 +81,9 @@ public class AssociationPersistenceUtil
                     append("'");
 
                 if (entry.getMac() != null) {
+                    // Prefix explicit MAC addresses so they can be detected on load
                     buf.append(", '").
+                        append(entry.isExplicitMac() ? EXPLICIT_MAC_PREFIX : "").
                         append(entry.getMac()).
                         append("'");
                 } else {

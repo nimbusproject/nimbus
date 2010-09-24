@@ -1741,6 +1741,16 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
                                                      rs2.getString(6),
                                                      rs2.getString(7));
                     entry.setInUse(rs2.getBoolean(8));
+
+                    // Encoding that MAC is explicit in the MAC field itself.
+                    // better to introduce a new field to schema?
+                    String mac = entry.getMac();
+                    if (mac.startsWith(AssociationPersistenceUtil.EXPLICIT_MAC_PREFIX)) {
+                        mac = mac.substring(AssociationPersistenceUtil.EXPLICIT_MAC_PREFIX.length());
+                        entry.setMac(mac);
+                        entry.setExplicitMac(true);
+                    }
+
                     entries.add(entry);
                 }
                 assoc.setEntries(entries);
