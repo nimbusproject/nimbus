@@ -7,6 +7,7 @@ import filecmp
 import uuid
 import datetime
 
+to=90
 cc_home=os.environ['CLOUD_CLIENT_HOME']
 logfile = sys.stdout
 newname=str(uuid.uuid1()).replace("-", "")
@@ -20,7 +21,7 @@ cmd = "%s/bin/cloud-client.sh --transfer --sourcefile %s" % (cc_home, src_file)
 (x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile)
 
 cmd = "%s/bin/cloud-client.sh --run --name %s --hours .25" % (cc_home, image_name)
-child = pexpect.spawn (cmd, timeout=30, maxread=20000, logfile=logfile)
+child = pexpect.spawn (cmd, timeout=to, maxread=20000, logfile=logfile)
 rc = child.expect ('Running:')
 if rc != 0:
     print "group not found in the list"
@@ -41,7 +42,7 @@ if rc != 0:
 
 # check the various params
 cmd = "%s/bin/cloud-client.sh --list" % (cc_home)
-child = pexpect.spawn (cmd, timeout=30, maxread=20000, logfile=logfile)
+child = pexpect.spawn (cmd, timeout=to, maxread=20000, logfile=logfile)
 rc = child.expect (newname)
 if rc != 0:
     print "%s not found in the list" % (newname)

@@ -5,6 +5,8 @@ import sys
 import os
 import uuid
 
+to=90
+
 cc_home=os.environ['CLOUD_CLIENT_HOME']
 nh=os.environ['NIMBUS_HOME']
 logfile = sys.stdout
@@ -17,7 +19,7 @@ if rc != 0:
     sys.exit(1)
 
 cmd = "%s/bin/cloud-client.sh --list" % (cc_home)
-child = pexpect.spawn (cmd, timeout=30, maxread=20000, logfile=logfile)
+child = pexpect.spawn (cmd, timeout=to, maxread=20000, logfile=logfile)
 rc = child.expect (common_image)
 if rc != 0:
     print "common image not found"

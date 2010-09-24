@@ -4,11 +4,12 @@ import pexpect
 import sys
 import os
 
+to=90
 cc_home=os.environ['CLOUD_CLIENT_HOME']
 logfile = sys.stdout
 
 cmd = "%s/bin/cloud-client.sh --security" % (cc_home)
-child = pexpect.spawn (cmd, timeout=30, maxread=20000, logfile=logfile)
+child = pexpect.spawn (cmd, timeout=to, maxread=20000, logfile=logfile)
 rc = child.expect ('Identity:')
 if rc != 0:
     print "group not found in the list"
