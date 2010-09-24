@@ -14,4 +14,4 @@ PORT="8443"
 
 cd $GLOBUS_LOCATION
 
-exec $NIMBUS_HOME/services/bin/globus-start-container -p $PORT > $LOGFILE 2>&1
+exec $NIMBUS_HOME/services/bin/globus-start-container -p $PORT >> $LOGFILE 2>&1
