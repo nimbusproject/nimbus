@@ -8,11 +8,23 @@ localpath=$5
 rid=$6
 ltcs=$7
 
-ssh -p $port $userhost "$remoteexe" --nonblock "$remotepath" "$localpath" "$rid" "$ltcs"
-rc=$?
-if [ $rc -ne 0 ]; then
-    exit $rc
-fi
+retry_count=3
+cnt=0
+done_req=0
+while [ $done_req -eq 0 ];
+do
+    done_req=1
+    ssh -p $port $userhost "$remoteexe" --nonblock "$remotepath" "$localpath" "$rid" "$ltcs"
+    rc=$?
+    cnt=`expr $cnt + 1`
+    if [ $rc -ne 0 ]; then
+        if [ $cnt -gt $retry_count ]; then
+            echo "could not submit request adter $cnt tries"
+            exit $rc
+        fi
+        done_req=0
+    fi
+done
 
 # check for an error every 30 seconds.. this may need to be in a decent language
 cnt=0
