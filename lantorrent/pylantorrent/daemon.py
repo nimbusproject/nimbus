@@ -14,7 +14,7 @@ import datetime
 
 def getrows(con):
     c = con.cursor()
-    tm = datetime.datetime.now() - datetime.timedelta(0, 10)
+    tm = datetime.datetime.now() - datetime.timedelta(0, pylantorrent.config.insert_delay)
     s = "select distinct src_filename from requests where state = 0 and attempt_count < 3 and entry_time < ? order by entry_time limit 1"
     data = (tm, )
     c.execute(s, data)
