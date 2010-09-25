@@ -22,6 +22,7 @@ do
             echo "could not submit request adter $cnt tries"
             exit $rc
         fi
+        sleep 0.$RANDOM
         done_req=0
     fi
 done
