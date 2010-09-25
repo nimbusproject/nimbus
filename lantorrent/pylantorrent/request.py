@@ -97,10 +97,18 @@ def request(argv, con):
     i = "insert into requests(src_filename, dst_filename, hostname, port, rid, entry_time) values (?, ?, ?, ?, ?, ?)"
     data = (src_filename, dst_filename, host, port, rid, now,)
 
-    c = con.cursor()
-    c.execute(i, data)
-    con.commit()
-    pylantorrent.log(logging.INFO, "new request %s %d" % (rid, sz))
+    error_ctr = 0
+    while error_ctr < 3:
+        try:
+            c = con.cursor()
+            c.execute(i, data)
+            con.commit()
+            pylantorrent.log(logging.INFO, "new request %s %d" % (rid, sz))
+        except Exception, ex:
+            pylantorrent.log(logging.ERROR, "an error occured on request %s", str(ex))
+            if error_ctr > 2:
+                raise ex
+            error_ctr = error_ctr + 1
 
     return (rid, sz)
 
