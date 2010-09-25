@@ -104,14 +104,14 @@ def request(argv, con):
             c.execute(i, data)
             con.commit()
             pylantorrent.log(logging.INFO, "new request %s %d" % (rid, sz))
+            return (rid, sz)
         except Exception, ex:
-            pylantorrent.log(logging.ERROR, "an error occured on request %s", str(ex))
+            pylantorrent.log(logging.ERROR, "an error occured on request %s" % str(ex))
             if error_ctr > 2:
                 raise ex
             error_ctr = error_ctr + 1
             time.sleep(1)
 
-    return (rid, sz)
 
 
 def main(argv=sys.argv[1:]):
