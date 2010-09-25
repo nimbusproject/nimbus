@@ -71,7 +71,7 @@ class VConfig(object):
         self.log_level = logging.DEBUG
         self.dbfile = None
         self.db_error_max = 5
-        self.insert_delay = 15
+        self.insert_delay = 30
 
     def load_settings(self, ini_file):
         log_levels = {'debug': logging.DEBUG,
