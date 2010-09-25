@@ -149,17 +149,20 @@ def main(argv=sys.argv[1:]):
     pylantorrent.log(logging.INFO, "enter %s" % (sys.argv[0]))
 
     con_str = pylantorrent.config.dbfile
-    now = datetime.datetime.now()
     #con = sqlite3.connect(con_str, isolation_level="EXCLUSIVE")
     con = sqlite3.connect(con_str, detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
 
     done = False
     while not done:
-        rows = getrows(con)
-        if rows and len(rows) > 0:
-            do_it_live(con, rows)
-        else:
-            time.sleep(5)
+        try:
+            rows = getrows(con)
+            if rows and len(rows) > 0:
+                do_it_live(con, rows)
+            else:
+                time.sleep(5)
+        except Exception, ex:
+            pylantorrent.log(logging.ERROR, "top level error %s" % (str(ex)))
+            con = sqlite3.connect(con_str, detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
 
     return 0
 

@@ -72,13 +72,22 @@ def is_done(con, rid):
             time.sleep(random.random())
 
 def delete_rid(con, rid):
-    # cleanup
-    c = con.cursor()
-    d = "delete from requests where rid = ?"
-    data = (rid,)
-    c = con.cursor()
-    c.execute(d, data)
-    con.commit()
+    error_cnt = 0
+    while True:
+        try:
+            # cleanup
+            c = con.cursor()
+            d = "delete from requests where rid = ?"
+            data = (rid,)
+            c = con.cursor()
+            c.execute(d, data)
+            con.commit()
+            return 
+        except sqlite3.OperationalError, sqlex:
+            error_cnt = error_cnt + 1
+            if error_cnt >= pylantorrent.config.db_error_max:
+                raise sqlex
+            time.sleep(random.random())
 
 def request(argv, con):
     src_filename = argv[0]
