@@ -109,6 +109,7 @@ def request(argv, con):
             if error_ctr > 2:
                 raise ex
             error_ctr = error_ctr + 1
+            time.sleep(1)
 
     return (rid, sz)
 
