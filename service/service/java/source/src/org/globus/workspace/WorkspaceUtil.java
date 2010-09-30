@@ -32,6 +32,8 @@ import edu.emory.mathcs.backport.java.util.concurrent.Executors;
 import edu.emory.mathcs.backport.java.util.concurrent.Callable;
 import edu.emory.mathcs.backport.java.util.concurrent.FutureTask;
 import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
+import edu.emory.mathcs.backport.java.util.concurrent.Semaphore;
+
 
 public class WorkspaceUtil {
 
@@ -40,6 +42,7 @@ public class WorkspaceUtil {
 
     // TODO: shutdown if container is asking for exit
     private static ExecutorService executor = Executors.newCachedThreadPool();
+    private static Semaphore sem = new Semaphore(8, true);
 
     public static boolean isInvalidState(int newstate) {
         return newstate < WorkspaceConstants.STATE_FIRST_LEGAL
@@ -157,7 +160,19 @@ public class WorkspaceUtil {
         InputStream processStderrStream = null;
         
         try {
-            final Process process = runtime.exec(command);
+
+            // limiting the number of processes that can fork/exec at once.  This solves the problem of
+            // forking all of the memory associated with the running java service only to exec something
+            // with a much lower memory print.
+            // copy on write fork should make this unneeded, however sometimes the OS checks available memory before
+            // 
+            final Process process;
+            try {
+                sem.acquire();
+                process = runtime.exec(command);
+            } finally {
+                sem.release();
+            }
 
             // Unfortunately there can be buffer overflow problems if there are
             // not threads consuming stdout/stderr, seen that with workspace-
@@ -271,6 +286,9 @@ public class WorkspaceUtil {
                     }
                 }
             }
+        } catch( InterruptedException ie) {
+            logger.error(ie);
+            throw new WorkspaceException("The thread was interupted so we could not get the semaphore", ie);
         } catch (IOException ioe) {
             logger.error(ioe);
             throw new WorkspaceException("", ioe);
