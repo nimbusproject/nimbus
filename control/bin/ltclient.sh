@@ -58,7 +58,7 @@ do
             done=`echo $out | awk -F , '{ print $2 }'`
             message=`echo $out | awk -F , '{ print $3 }'`
 
-            echo $message
+            echo $out
             if [ "X$done" == "XTrue" ]; then
                 if [ $rc -ne 0 ]; then
                     exit $rc
