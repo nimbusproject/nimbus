@@ -20,3 +20,4 @@ derby.log
 tmp/
 workspace.persistence.conf
 cloud-client/nimbus-cloud-client-0*
+out/
