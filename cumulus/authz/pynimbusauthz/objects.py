@@ -54,6 +54,7 @@ class File(object):
         self.object_size = row[File.cols['object_size']]
         ctm = row[File.cols['creation_time']]
         if ctm != None:
+            ctm = str(ctm)
             ndx = ctm.rfind(".")
             if ndx > 0:
                 ctm = ctm[:ndx]
@@ -186,7 +187,8 @@ class File(object):
         s = s + " parent_id = ?"
         data.append(self.id)
         if match_str != None:
-            s = s + " and name LIKE '" + match_str + "'"
+            s = s + " and name LIKE ? "
+            data.append(match_str)
 
         if clause != None:
             s = s + clause
@@ -201,10 +203,11 @@ class File(object):
         ot = pynimbusauthz.object_types[object_type]
         s = "SELECT " + File.get_select_str() + """
             FROM objects
-            WHERE name LIKE '%%%s%%' and object_type = %d""" % (pattern, ot)
-        data = []
+            WHERE name LIKE ? and object_type = ?""" 
+        data = [pattern, ot,]
         if parent != None:
-            s = s + " and parent_id = " + parent.get_id()
+            s = s + " and parent_id = ?"
+            data.append(parent.get_id())
 
         c = db_obj._run_fetch_iterator(s, data, _convert_alias_row_to_File)
         return c
