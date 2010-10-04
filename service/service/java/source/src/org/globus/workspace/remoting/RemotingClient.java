@@ -36,7 +36,7 @@ public class RemotingClient {
     private Registry rmiRegistry;
 
 
-    public void initialize() throws Exception {
+    public void initialize() throws RemoteException {
         if (this.socketDirectory == null) {
             throw new IllegalStateException("socketDirectory must be specified");
         }

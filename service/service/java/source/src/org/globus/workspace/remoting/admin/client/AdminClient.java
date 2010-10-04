@@ -19,6 +19,16 @@ import org.apache.commons.cli.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.BasicConfigurator;
+import org.globus.workspace.remoting.RemotingClient;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 
 
 public class AdminClient {
@@ -31,12 +41,30 @@ public class AdminClient {
     public static final int EXIT_EXECUTION_PROBLEM = 2;
     public static final int EXIT_UNKNOWN_PROBLEM = 3;
 
-    public static void main(String argv[]) {
+    public static final String PROP_SOCKET_DIR = "socket.dir";
+    public static final String PROP_RMI_BINDING_NODEPOOL_DIR = "rmi.binding.nodepool";
+    private static final String PROP_DEFAULT_MEMORY = "node.memory.default";
+    private static final String PROP_DEFAULT_NETWORKS = "node.networks.default";
+    private static final String PROP_DEFAULT_POOL = "node.pool.default";
+
+
+    private AdminAction action;
+    private List<String> hosts;
+    private int nodeMemory;
+    private boolean nodeMemoryConfigured;
+    private List<String> nodeNetworks;
+    private String nodePool;
+    private String configPath;
+    private boolean debug;
+    private File socketDirectory;
+    private RemotingClient remotingClient;
+
+    public static void main(String args[]) {
 
         // early check for debug options
         boolean isDebug = false;
         final String debugFlag = "--" + Opts.DEBUG_LONG;
-        for (String arg : argv) {
+        for (String arg : args) {
             if (debugFlag.equals(arg)) {
                 isDebug = true;
                 break;
@@ -53,8 +81,8 @@ public class AdminClient {
         ExecutionProblem execError = null;
         int ret = EXIT_OK;
         try {
-
-            mainImpl(argv);
+            final AdminClient adminClient = new AdminClient();
+            adminClient.run(args);
 
         } catch (ParameterProblem e) {
             paramError = e;
@@ -91,139 +119,266 @@ public class AdminClient {
 
     }
 
-    private static void mainImpl(String[] argv)
+    public void run(String[] args)
             throws ExecutionProblem, ParameterProblem {
 
+        this.loadArgs(args);
+
+        if (this.action == AdminAction.Help) {
+            printHelp();
+            return;
+        }
+
+        this.loadConfig(this.configPath);
+        this.setupRemoting();
+
+
+    }
+
+    private void setupRemoting() throws ExecutionProblem {
+        final RemotingClient client = new RemotingClient();
+        client.setSocketDirectory(this.socketDirectory);
+
+        try {
+            client.initialize();
+        } catch (RemoteException e) {
+            throw new ExecutionProblem("Failed to connect to remoting socket. "+
+                    "Is the service running? Socket directory: '" +
+                    this.socketDirectory.getAbsolutePath() + "'. Error: " +
+                    e.getMessage(), e);
+        }
+
+        this.remotingClient = client;
+    }
+
+    private void loadConfig(String configPath)
+            throws ParameterProblem, ExecutionProblem {
+        if (configPath == null) {
+            throw new ParameterProblem("Config path is invalid");
+        }
+        final File configFile = new File(configPath);
+
+        if (!configFile.canRead()) {
+            throw new ParameterProblem(
+                    "Specified config file path does not exist or is not readable: " +
+                            configFile.getAbsolutePath());
+        }
+
+        final Properties props = new Properties();
+        try {
+            FileInputStream inputStream = null;
+            try {
+                inputStream = new FileInputStream(configFile);
+                props.load(inputStream);
+            } finally {
+                if (inputStream != null) {
+                    inputStream.close();
+                }
+            }
+        } catch (IOException e) {
+            throw new ParameterProblem("Failed to load config file: " +
+                    configFile.getAbsolutePath() + ": " + e.getMessage(), e);
+        }
+
+        final String sockDir = props.getProperty(PROP_SOCKET_DIR);
+        if (sockDir == null) {
+            throw new ExecutionProblem("Configuration file is missing "+
+                    PROP_SOCKET_DIR + " entry: " + configFile.getAbsolutePath());
+        }
+        this.socketDirectory = new File(sockDir);
+
+        final String nodePoolBinding = props.getProperty(PROP_RMI_BINDING_NODEPOOL_DIR);
+        if (nodePoolBinding == null) {
+            throw new ExecutionProblem("Configuration file is missing " +
+                    PROP_RMI_BINDING_NODEPOOL_DIR + " entry: "+
+                    configFile.getAbsolutePath());
+        }
+
+        if (!this.nodeMemoryConfigured) {
+            final String memString = props.getProperty(PROP_DEFAULT_MEMORY);
+            if (memString != null) {
+                this.nodeMemory = parseMemory(memString);
+                this.nodeMemoryConfigured = true;
+            }
+        }
+
+        if (this.nodeNetworks == null) {
+            final String networks = props.getProperty(PROP_DEFAULT_NETWORKS);
+            if (networks != null) {
+                this.nodeNetworks = parseNetworks(networks);
+            }
+        }
+
+        if (this.nodePool == null) {
+            // if missing or invalid, error will come later if this value is actually needed
+            this.nodePool = props.getProperty(PROP_DEFAULT_POOL);
+        }
+    }
+
+    private void loadArgs(String[] args) throws ParameterProblem {
         final CommandLineParser parser = new PosixParser();
 
         final Opts opts = new Opts();
         final CommandLine line;
         try {
-            line = parser.parse(opts.getOptions(), argv);
+            line = parser.parse(opts.getOptions(), args);
         } catch (ParseException e) {
             throw new ParameterProblem(e.getMessage(), e);
         }
 
-        if (line.hasOption(Opts.HELP)) {
-            printHelp();
+        // figure action first
+        AdminAction theAction = null;
+        for (AdminAction a : AdminAction.values()) {
+            if (line.hasOption(a.option())) {
+                if (theAction == null) {
+                    theAction = a;
+                } else {
+                    throw new ParameterProblem("You may only specify a single action");
+                }
+            }
         }
 
-        AdminClient client = new AdminClient();
+        if (theAction == null) {
+            throw new ParameterProblem("You must specify an action");
+        }
 
+        this.action = theAction;
+
+
+        // short circuit for --help arg
+        if (theAction == AdminAction.Help) {
+            return;
+        }
+
+        // then action-specific arguments
+        if (theAction == AdminAction.AddNodes || theAction == AdminAction.UpdateNodes) {
+            this.hosts = parseHosts(line.getOptionValue(theAction.option()));
+            
+            if (line.hasOption(Opts.MEMORY)) {
+                final String memString = line.getOptionValue(Opts.MEMORY);
+                if (memString == null || memString.trim().length() == 0) {
+                    throw new ParameterProblem("Node memory value is empty");
+                }
+                this.nodeMemory = parseMemory(memString);
+                this.nodeMemoryConfigured = true;
+            }
+
+            if (line.hasOption(Opts.NETWORKS)) {
+                this.nodeNetworks = parseNetworks(line.getOptionValue(Opts.NETWORKS));
+            }
+
+            if (line.hasOption(Opts.POOL)) {
+                String pool = line.getOptionValue(Opts.POOL);
+                if (pool == null || pool.trim().length() == 0) {
+                    throw new ParameterProblem("Node pool value is empty");
+                }
+                this.nodePool = pool.trim();
+            }
+        } else if (theAction == AdminAction.RemoveNodes) {
+            this.hosts = parseHosts(line.getOptionValue(theAction.option()));
+        } else if (theAction == AdminAction.ListNodes) {
+            final String hostArg = line.getOptionValue(AdminAction.ListNodes.option());
+            if (hostArg != null) {
+                this.hosts = parseHosts(hostArg);
+            }
+        }
+
+        //finally everything else
+        if (!line.hasOption(Opts.CONFIG)) {
+            throw new ParameterProblem(Opts.CONFIG_LONG + " option is required");
+        }
+        String config = line.getOptionValue(Opts.CONFIG);
+        if (config == null || config.trim().length() == 0) {
+            throw new ParameterProblem("Config file path is invalid");
+        }
+        this.configPath = config.trim();
+
+        this.debug = line.hasOption(Opts.DEBUG_LONG);
+
+        final List leftovers = line.getArgList();
+		if (leftovers != null && !leftovers.isEmpty()) {
+			throw new ParameterProblem("There are unrecognized arguments, check -h to make " +
+					"sure you are doing the intended thing: " + leftovers.toString());
+		}
 
     }
 
+    private int parseMemory(String memoryString) throws ParameterProblem {
+        final int memory;
+        try {
+            memory = Integer.valueOf(memoryString.trim());
+        } catch (NumberFormatException e) {
+            throw new ParameterProblem("Node memory value must be numeric");
+        }
+        if (memory < 0) {
+            throw new ParameterProblem("Node memory value must be non-negative");
+        }
+        return memory;
+    }
+
+    public static List<String> parseNetworks(String networkString)
+            throws ParameterProblem {
+        if (networkString == null) {
+            throw new ParameterProblem("Network list is invalid");
+        }
+
+        final String[] networkArray = networkString.trim().split("\\s*,\\s*");
+        if (networkArray.length == 0) {
+            throw new ParameterProblem("Network list is empty");
+        }
+
+        final List<String> networks = new ArrayList<String>(networkArray.length);
+        for (final String network : networkArray) {
+            //validation?
+            networks.add(network);
+        }
+        return networks;
+    }
+
+    public static List<String> parseHosts(String hostString)
+            throws ParameterProblem {
+        if (hostString == null) {
+            throw new ParameterProblem("Hosts list is invalid");
+        }
+
+        final String[] hostArray = hostString.trim().split("\\s*,\\s*");
+        if (hostArray.length == 0) {
+            throw new ParameterProblem("Hosts list is empty");
+        }
+
+        final List<String> hosts = new ArrayList<String>(hostArray.length);
+        for (final String host : hostArray) {
+            if (!host.matches("^[\\w-\\.]+$")) {
+                throw new ParameterProblem("Invalid node hostname specified: " + host);
+            }
+            hosts.add(host);
+        }
+        return hosts;
+    }
+
     private static void printHelp() {
+        // TODO
+        System.out.println("TODO print help text");
 
     }
 }
 
 enum AdminAction {
-    AddNodes, ListNodes, RemoveNodes, UpdateNodes
-}
 
-class Opts {
+    AddNodes(Opts.ADD_NODES_LONG),
+    ListNodes(Opts.LIST_NODES_LONG),
+    RemoveNodes(Opts.REMOVE_NODES_LONG),
+    UpdateNodes(Opts.UPDATE_NODES_LONG),
+    Help(Opts.HELP_LONG);
 
-    private final Options options;
+    private final String option;
 
-    public Opts() {
-        options = new Options();
-        for (Option o : ALL_ENABLED_OPTIONS) {
-            options.addOption(o);
-        }
+    AdminAction(String option) {
+        this.option = option;
     }
 
-    public Options getOptions() {
-        return options;
+    public String option() {
+        return option;
     }
-
-    //*************************************************************************
-    // GENERAL
-    //*************************************************************************
-
-    public static final String HELP = "h";
-    public static final String HELP_LONG = "help";
-    public final Option HELP_OPT =
-            OptionBuilder.withLongOpt(HELP_LONG).create(HELP);
-
-    public static final String DEBUG_LONG = "debug";
-    public final Option DEBUG_OPT =
-            OptionBuilder.withLongOpt(DEBUG_LONG).create();
-    
-    public static final String DRYRUN_LONG = "dryrun";
-    public final Option DRYRUN_OPT =
-            OptionBuilder.withLongOpt(DRYRUN_LONG).create();
-
-    public static final String CONFIG = "c";
-    public static final String CONFIG_LONG = "conf";
-    public final Option CONFIG_OPT =
-                OptionBuilder.withLongOpt(CONFIG_LONG).create(CONFIG);
-
-    public static final String BATCH = "b";
-    public static final String BATCH_LONG = "batch";
-    public final Option BATCH_OPT =
-                OptionBuilder.withLongOpt(BATCH_LONG).create(BATCH);
-
-    public static final String REPORT = "r";
-    public static final String REPORT_LONG = "report";
-    public final Option REPORT_OPT =
-                OptionBuilder.withLongOpt(REPORT_LONG).create(REPORT);
-
-    public static final String JSON = "j";
-    public static final String JSON_LONG = "json";
-    public final Option JSON_OPT =
-                OptionBuilder.withLongOpt(JSON_LONG).create(JSON);
-
-
-    //*************************************************************************
-    // ACTIONS
-    //*************************************************************************
-
-    public static final String ADD_NODES = "a";
-    public static final String ADD_NODES_LONG = "add-nodes";
-    public final Option ADD_NODES_OPT =
-                OptionBuilder.withLongOpt(ADD_NODES_LONG).create(ADD_NODES);
-
-    public static final String LIST_NODES = "l";
-    public static final String LIST_NODES_LONG = "list-nodes";
-    public final Option LIST_NODES_OPT =
-                OptionBuilder.withLongOpt(LIST_NODES_LONG).create(LIST_NODES);
-
-    public static final String REMOVE_NODES = "d";
-    public static final String REMOVE_NODES_LONG = "remove-nodes";
-    public final Option REMOVE_NODES_OPT =
-                OptionBuilder.withLongOpt(REMOVE_NODES_LONG).create(REMOVE_NODES);
-
-    public static final String UPDATE_NODES = "u";
-    public static final String UPDATE_NODES_LONG = "update-nodes";
-    public final Option UPDATE_NODES_OPT =
-                OptionBuilder.withLongOpt(UPDATE_NODES_LONG).create(UPDATE_NODES);
-
-
-    //*************************************************************************
-    // NODE SETTINGS
-    //*************************************************************************
-
-    public static final String NETWORKS = "n";
-    public static final String NETWORKS_LONG = "networks";
-    public final Option NETWORKS_OPT =
-                OptionBuilder.withLongOpt(NETWORKS_LONG).create(NETWORKS);
-
-    public static final String MEMORY = "m";
-    public static final String MEMORY_LONG = "memory";
-    public final Option MEMORY_OPT =
-                OptionBuilder.withLongOpt(MEMORY_LONG).create(MEMORY);
-
-    public static final String POOL = "p";
-    public static final String POOL_LONG = "pool";
-    public final Option POOL_OPT =
-                OptionBuilder.withLongOpt(POOL_LONG).create(POOL);
-
-
-    public final Option[] ALL_ENABLED_OPTIONS = {
-            HELP_OPT, DEBUG_OPT, DRYRUN_OPT, CONFIG_OPT, BATCH_OPT, REPORT_OPT,
-            JSON_OPT, ADD_NODES_OPT, LIST_NODES_OPT, REMOVE_NODES_OPT,
-            UPDATE_NODES_OPT, NETWORKS_OPT, MEMORY_OPT, POOL_OPT
-    };
-
 }
+
