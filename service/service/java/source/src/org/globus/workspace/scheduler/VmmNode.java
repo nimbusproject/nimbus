@@ -15,11 +15,13 @@
  */
 package org.globus.workspace.scheduler;
 
+import java.util.Collection;
+
 public interface VmmNode {
 
     public String getHostname();
     public String getPoolName();
     public int getMemory();
-    public String getNetworkAssociations();
+    public Collection<String> getNetworkAssociations();
     public boolean isVacant();
 }
