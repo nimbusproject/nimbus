@@ -20,11 +20,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.BasicConfigurator;
 import org.globus.workspace.remoting.RemotingClient;
+import org.globus.workspace.scheduler.NodePool;
+import org.globus.workspace.scheduler.VmmNode;
+import org.globus.workspace.scheduler.defaults.DefaultVmmNode;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,6 +61,8 @@ public class AdminClient {
     private boolean debug;
     private File socketDirectory;
     private RemotingClient remotingClient;
+    private String nodePoolBindingName;
+    private NodePool vmmNodePool;
 
     public static void main(String args[]) {
 
@@ -132,7 +137,61 @@ public class AdminClient {
         this.loadConfig(this.configPath);
         this.setupRemoting();
 
+        switch (this.action) {
+            case AddNodes:
+                run_addNodes();
+                break;
+            case ListNodes:
+                run_listNodes();
+                break;
+            case RemoveNodes:
+                run_removeNodes();
+                break;
+            case UpdateNodes:
+                run_updateNodes();
+                break;
+        }
+    }
 
+
+    private void run_addNodes() throws ParameterProblem {
+        if (!this.nodeMemoryConfigured) {
+            throw new ParameterProblem(
+                    "Node max memory must be specified as an argument ("+
+                            Opts.MEMORY_LONG +") or config value");
+        }
+
+        if (this.nodeNetworks == null) {
+            throw new ParameterProblem(
+                    "Node network associations must be specified as an argument ("+
+                            Opts.NETWORKS_LONG +") or config value");
+        }
+
+        if (this.nodePool == null) {
+            throw new ParameterProblem(
+                    "Node pool name must be specified as an argument ("+
+                            Opts.POOL_LONG +") or config value");
+        }
+
+        final List<VmmNode> nodes = new ArrayList<VmmNode>(this.hosts.size());
+        for (String hostname : this.hosts) {
+            nodes.add(new DefaultVmmNode(hostname, this.nodePool,
+                    this.nodeMemory, this.nodeNetworks, true));
+        }
+        this.vmmNodePool.addNodes(nodes);
+    }
+
+
+    private void run_listNodes() {
+        //TODO
+    }
+
+    private void run_removeNodes() {
+        //TODO
+    }
+
+    private void run_updateNodes() {
+        //TODO
     }
 
     private void setupRemoting() throws ExecutionProblem {
@@ -142,13 +201,28 @@ public class AdminClient {
         try {
             client.initialize();
         } catch (RemoteException e) {
-            throw new ExecutionProblem("Failed to connect to remoting socket. "+
-                    "Is the service running? Socket directory: '" +
-                    this.socketDirectory.getAbsolutePath() + "'. Error: " +
-                    e.getMessage(), e);
+            handleRemoteException(e);
         }
 
         this.remotingClient = client;
+
+        try {
+            this.vmmNodePool = (NodePool) client.lookup(this.nodePoolBindingName);
+        } catch (RemoteException e) {
+            handleRemoteException(e);
+        } catch (NotBoundException e) {
+            throw new ExecutionProblem("Failed to bind to object '" +
+                    this.nodePoolBindingName +
+                    "'. There may be a configuration problem between the "+
+                    "client and service. Error: "+ e.getMessage(), e);
+        }
+    }
+
+    private void handleRemoteException(RemoteException e) throws ExecutionProblem {
+        throw new ExecutionProblem("Failed to connect to remoting socket. "+
+                "Is the service running? Socket directory: '" +
+                this.socketDirectory.getAbsolutePath() + "'. Error: " +
+                e.getMessage(), e);
     }
 
     private void loadConfig(String configPath)
@@ -193,6 +267,7 @@ public class AdminClient {
                     PROP_RMI_BINDING_NODEPOOL_DIR + " entry: "+
                     configFile.getAbsolutePath());
         }
+        this.nodePoolBindingName = nodePoolBinding;
 
         if (!this.nodeMemoryConfigured) {
             final String memString = props.getProperty(PROP_DEFAULT_MEMORY);
