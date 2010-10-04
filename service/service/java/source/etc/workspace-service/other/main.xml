@@ -600,6 +600,25 @@
     </bean>
 
     <!-- ===================================================================
+         Remoting related
+         =================================================================== -->
+
+    <bean id="nimbus-remoting-server"
+          class="org.globus.workspace.remoting.RemotingServer"
+          init-method="initialize">
+        <property name="socketResource" value="$ADMIN{socket.dir}" />
+        <property name="bindings">
+            <map>
+                <entry key="$ADMIN{rmi.binding.nodepool}"
+                       value-ref="nimbus-remoting-nodepool" />
+            </map>
+        </property>
+    </bean>
+
+    <bean id="nimbus-remoting-nodepool"
+          class="org.globus.workspace.remoting.admin.defaults.FakeRemoteNodePool"/>
+
+    <!-- ===================================================================
          Externally written classes that are brought in as beans
          =================================================================== -->
 

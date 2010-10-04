@@ -126,5 +126,12 @@
                   value="$DERBY{" />
         
     </bean>
-
+    
+    <bean id="adminSettings"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="location"
+                  value="$NIMBUS_HOME/services/etc/nimbus/workspace-service/admin.conf" />
+        <property name="placeholderPrefix"
+                  value="$ADMIN{" />
+    </bean>
 </beans>
