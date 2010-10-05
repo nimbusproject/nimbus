@@ -15,14 +15,16 @@
  */
 package org.globus.workspace.remoting.admin.client;
 
+import com.google.gson.Gson;
 import org.apache.commons.cli.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.*;
 import org.globus.workspace.remoting.RemotingClient;
-import org.globus.workspace.scheduler.NodePool;
+import org.globus.workspace.remoting.admin.RemoteNodePool;
 import org.globus.workspace.scheduler.VmmNode;
 import org.globus.workspace.scheduler.defaults.DefaultVmmNode;
+import org.nimbustools.api.brain.NimbusHomePathResolver;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -39,6 +41,7 @@ public class AdminClient {
     private static final Log logger =
             LogFactory.getLog(AdminClient.class.getName());
 
+
     public static final int EXIT_OK = 0;
     public static final int EXIT_PARAMETER_PROBLEM = 1;
     public static final int EXIT_EXECUTION_PROBLEM = 2;
@@ -50,6 +53,7 @@ public class AdminClient {
     private static final String PROP_DEFAULT_NETWORKS = "node.networks.default";
     private static final String PROP_DEFAULT_POOL = "node.pool.default";
 
+    private final Gson gson = new Gson();
 
     private AdminAction action;
     private List<String> hosts;
@@ -62,7 +66,7 @@ public class AdminClient {
     private File socketDirectory;
     private RemotingClient remotingClient;
     private String nodePoolBindingName;
-    private NodePool vmmNodePool;
+    private RemoteNodePool remoteNodePool;
 
     public static void main(String args[]) {
 
@@ -77,7 +81,14 @@ public class AdminClient {
         }
 
         if (isDebug) {
-            BasicConfigurator.configure();
+            System.out.println("sandwiches");
+
+            //TODO uggggh something is configuring log4j first
+            BasicConfigurator.resetConfiguration();
+
+            final PatternLayout layout = new PatternLayout("%C{1}:%L - %m%n");
+            BasicConfigurator.configure(new ConsoleAppender(layout));
+
             logger.info("Debug mode enabled");
         }
 
@@ -154,7 +165,7 @@ public class AdminClient {
     }
 
 
-    private void run_addNodes() throws ParameterProblem {
+    private void run_addNodes() throws ParameterProblem, ExecutionProblem {
         if (!this.nodeMemoryConfigured) {
             throw new ParameterProblem(
                     "Node max memory must be specified as an argument ("+
@@ -178,20 +189,76 @@ public class AdminClient {
             nodes.add(new DefaultVmmNode(hostname, this.nodePool,
                     this.nodeMemory, this.nodeNetworks, true));
         }
-        this.vmmNodePool.addNodes(nodes);
+        try {
+            this.remoteNodePool.addNodes(gson.toJson(nodes));
+        } catch (IOException e) {
+            handleRemoteException(e);
+        }
+
+        reportNodes(nodes.toArray(new VmmNode[nodes.size()]));
     }
 
-
-    private void run_listNodes() {
-        //TODO
+    private void run_listNodes() throws ExecutionProblem {
+        try {
+            final String nodesJson = this.remoteNodePool.listNodes();
+            final VmmNode[] nodes = this.gson.fromJson(nodesJson, DefaultVmmNode[].class);
+            this.reportNodes(nodes);
+        } catch (IOException e) {
+            handleRemoteException(e);
+        }
     }
 
-    private void run_removeNodes() {
-        //TODO
+    private void run_removeNodes() throws ExecutionProblem {
+        try {
+            final String[] hostnames = this.hosts.toArray(new String[this.hosts.size()]);
+            this.remoteNodePool.removeNodes(hostnames);
+        } catch (IOException e) {
+            handleRemoteException(e);
+        }
     }
 
-    private void run_updateNodes() {
+    private void run_updateNodes() throws ExecutionProblem {
+
         //TODO
+
+        final List<VmmNode> nodes = new ArrayList<VmmNode>(this.hosts.size());
+        for (String hostname : this.hosts) {
+            nodes.add(new DefaultVmmNode(hostname, this.nodePool,
+                    this.nodeMemory, this.nodeNetworks, true));
+        }
+        try {
+            this.remoteNodePool.updateNodes(gson.toJson(nodes));
+        } catch (IOException e) {
+            handleRemoteException(e);
+        }
+    }
+
+    private void handleRemoteException(Throwable t) throws ExecutionProblem {
+        throw new ExecutionProblem("Failed to communicate with Nimbus service. "+
+                "Is it running? Error: " + t.getMessage(), t);
+    }
+
+    private void reportNodes(VmmNode[] nodes) {
+        StringBuilder sb = new StringBuilder();
+        for (VmmNode node : nodes) {
+            for (String network : node.getNetworkAssociations()) {
+                if (sb.length() > 0) {
+                    sb.append(", ");
+                }
+                sb.append(network);
+            }
+            if (sb.length() == 0) {
+                sb.append("*");
+            }
+
+            System.out.println("Host:\t" + node.getHostname());
+            System.out.println("Pool:\t" + node.getPoolName());
+            System.out.println("Memory:\t" + node.getMemory());
+            System.out.println("Networks:\t" + sb.toString());
+            System.out.println();
+
+            sb.delete(0, sb.length());
+        }
     }
 
     private void setupRemoting() throws ExecutionProblem {
@@ -207,7 +274,7 @@ public class AdminClient {
         this.remotingClient = client;
 
         try {
-            this.vmmNodePool = (NodePool) client.lookup(this.nodePoolBindingName);
+            this.remoteNodePool = (RemoteNodePool) client.lookup(this.nodePoolBindingName);
         } catch (RemoteException e) {
             handleRemoteException(e);
         } catch (NotBoundException e) {
@@ -259,7 +326,9 @@ public class AdminClient {
             throw new ExecutionProblem("Configuration file is missing "+
                     PROP_SOCKET_DIR + " entry: " + configFile.getAbsolutePath());
         }
-        this.socketDirectory = new File(sockDir);
+
+        final NimbusHomePathResolver resolver = new NimbusHomePathResolver();
+         this.socketDirectory = new File(resolver.resolvePath(sockDir));
 
         final String nodePoolBinding = props.getProperty(PROP_RMI_BINDING_NODEPOOL_DIR);
         if (nodePoolBinding == null) {
@@ -291,6 +360,8 @@ public class AdminClient {
     }
 
     private void loadArgs(String[] args) throws ParameterProblem {
+
+        logger.debug("Parsing command line arguments");
         final CommandLineParser parser = new PosixParser();
 
         final Opts opts = new Opts();
@@ -318,6 +389,7 @@ public class AdminClient {
         }
 
         this.action = theAction;
+        logger.debug("Action: " + theAction);
 
 
         // short circuit for --help arg
@@ -440,11 +512,11 @@ public class AdminClient {
 
 enum AdminAction {
 
-    AddNodes(Opts.ADD_NODES_LONG),
-    ListNodes(Opts.LIST_NODES_LONG),
-    RemoveNodes(Opts.REMOVE_NODES_LONG),
-    UpdateNodes(Opts.UPDATE_NODES_LONG),
-    Help(Opts.HELP_LONG);
+    AddNodes(Opts.ADD_NODES),
+    ListNodes(Opts.LIST_NODES),
+    RemoveNodes(Opts.REMOVE_NODES),
+    UpdateNodes(Opts.UPDATE_NODES),
+    Help(Opts.HELP);
 
     private final String option;
 
