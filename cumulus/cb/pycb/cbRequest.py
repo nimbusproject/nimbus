@@ -368,10 +368,6 @@ class cbGetBucket(cbRequest):
         xNameText = doc.createTextNode(str(self.bucketName))
         xName.appendChild(xNameText)
 
-#  XXX add options to headers
-#        if 'max-keys' in self.request.args.keys():
-#
-
         xIsTruncated = doc.createElement("IsTruncated")
         xList.appendChild(xIsTruncated)
         xIsTText = doc.createTextNode('false')
@@ -655,6 +651,9 @@ class cbPutObject(cbRequest):
             gdEx = cbException('InvalidArgument')
             gdEx.sendErrorResponse(self.request, self.requestId)
 
+    #  recveive object looks strange because twisted has alrady received
+    #  the enitre file and put it in a temp location.  we now just have 
+    #  to recognize that we have it all
     def recvObject(self, request, dataObj):
         self.set_common_headers()
         self.setHeader(request, 'Connection', 'close')
@@ -704,3 +703,125 @@ class cbHeadObject(cbGetObject):
         self.setResponseCode(self.request, 200, 'OK')
         self.finish(self.request)
 
+class cbCopyObject(cbRequest):
+
+    def __init__(self, request, user, requestId, bucketIface, srcBucket, srcObject, dstBucket, dstObject):
+
+        cbRequest.__init__(self, request, user, requestId, bucketIface)
+
+        ndx = dstObject.find("cumulus:/")
+        if ndx >= 0:
+            pycb.log(logging.ERROR, "someone tried to make a key named cumulus://... why would someone do that? %d" % (ndx))
+            raise cbException('InvalidURI')
+
+        self.dstBucketName = dstBucket
+        self.dstObjectName = dstObject
+        self.srcBucketName = srcBucket
+        self.srcObjectName = srcObject
+
+
+    def check_permissions(self):
+        srcExists = self.user.exists(self.srcBucketName, self.srcObjectName)
+        if not srcExists:
+            raise cbException('NoSuchKey')
+        (perms, src_data_key) = self.user.get_perms(self.srcBucketName, self.srcObjectName)
+        # make sure that we can read the source
+        ndx = perms.find("r")
+        if ndx < 0:
+            raise cbException('AccessDenied')
+
+        # make sure we can write to the destination
+        dstExists = self.user.exists(self.dstBucketName, self.dstObjectName)
+
+        (bperms, bdata_key) = self.user.get_perms(self.dstBucketName)
+        ndx = bperms.find("w")
+        if ndx < 0:
+            raise cbException('AccessDenied')
+
+        dst_data_key = None
+        dst_size = 0
+        if dstExists:
+            (perms, dst_data_key) = self.user.get_perms(self.dstBucketName, self.dstObjectName)
+            ndx = perms.find("w")
+            if ndx < 0:
+                raise cbException('AccessDenied')
+
+            (dst_size, ctm, md5) = self.user.get_info(self.dstBucketName, self.dstObjectName)
+        (src_size, self.src_ctm, self.src_md5) = self.user.get_info(self.srcBucketName, self.srcObjectName)
+
+        # check the quota
+        remaining_quota = self.user.get_remaining_quota()
+        if remaining_quota != User.UNLIMITED:
+            if remaining_quota < src_size - dst_size:
+                pycb.log(logging.INFO, "user %s did not pass quota.  file size %d quota %d" % (self.user, src_size, remaining_quota))
+                raise cbException('AccountProblem')
+
+        # if we get to here we are allowed to do the copy
+        if dst_data_key == None:
+            self.dst_file = self.bucketIface.put_object(self.dstBucketName, self.dstObjectName)
+        else:
+            self.dst_file = self.bucketIface.get_object(dst_data_key)
+        self.dst_file.set_delete_on_close(True)
+        self.src_file = self.bucketIface.get_object(src_data_key) 
+
+    def copy_file(self):
+        try:
+            done = False
+            while not done:
+                b = self.src_file.read()
+                if len(b) > 0:
+                    self.dst_file.write(b)
+                else:
+                    done = True
+
+            self.dst_file.set_delete_on_close(False)
+            self.dst_file.close()
+            reactor.callFromThread(self.end_copy)
+        except cbException, (ex):
+            ex.sendErrorResponse(self.request, self.requestId)
+            traceback.print_exc(file=sys.stdout)
+        except:
+            traceback.print_exc(file=sys.stdout)
+            gdEx = cbException('InvalidArgument')
+            gdEx.sendErrorResponse(self.request, self.requestId)
+
+
+
+    def end_copy(self):
+
+        try:
+            self.user.put_object(self.dst_file, self.dstBucketName, self.dstObjectName)
+
+            doc = Document()
+            cor = doc.createElement("CopyObjectResult")
+            doc.appendChild(cor)
+
+            lm = doc.createElement("LastModified")
+            cor.appendChild(lm)
+            lmText = doc.createTextNode(str(self.src_ctm))
+            lm.appendChild(lmText)
+
+            lm = doc.createElement("ETag")
+            cor.appendChild(lm)
+            lmText = doc.createTextNode(str(self.src_md5))
+            lm.appendChild(lmText)
+
+            x = doc.toxml();
+            self.setHeader(self.request, 'x-amz-copy-source-version-id', "1")
+            self.setHeader(self.request, 'x-amz-version-id', "1")
+            self.send_xml(x)
+            self.request.finish()
+
+        except cbException, (ex):
+            ex.sendErrorResponse(self.request, self.requestId)
+            traceback.print_exc(file=sys.stdout)
+        except:
+            traceback.print_exc(file=sys.stdout)
+            gdEx = cbException('InvalidArgument')
+            gdEx.sendErrorResponse(self.request, self.requestId)
+
+
+    def work(self):
+        self.check_permissions()
+
+        reactor.callInThread(self.copy_file)
