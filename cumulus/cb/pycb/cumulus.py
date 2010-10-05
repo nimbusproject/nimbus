@@ -32,6 +32,17 @@ import threading
 count_lock = threading.Lock()
 g_connection_count = 0
 
+def connection_count_inc(req):
+    global count_locks
+    global g_connection_count
+    count_lock.acquire()
+    try:
+        g_connection_count = g_connection_count + 1
+        d = req.notifyFinish()
+        d.addBoth(cb_expired)
+    finally:
+        count_lock.release()
+
 def cb_expired(fail=None):
     global count_lock
     global g_connection_count
@@ -54,7 +65,7 @@ def check_load(req, bucketName, objectName):
         if g_connection_count > pycb.config.lb_max:
             pycb.log(logging.INFO, "REDIRECT %s" % (next_host))
             ex = cbException('TemporaryRedirect')
-            req.setHeader('location', "http://%s/%s" % (next_host, bucketName))
+            req.setHeader('location', "http://%s%s" % (next_host, req.uri))
             ex.add_custom_xml("Bucket", bucketName)
             ex.add_custom_xml("Endpoint", next_host)
             raise ex
@@ -98,7 +109,7 @@ def authorize(headers, message_type, path, uri):
     user = pycb.config.auth.get_user(id)
     key = user.get_password()
 
-    pycb.log(logging.INFO, "%s %s %s" % (message_type, path, headers))
+    pycb.log(logging.INFO, "AUTHORIZING %s %s %s" % (message_type, path, headers))
     b64_hmac = pycb.get_auth_hash(key, message_type, path, headers, uri)
 
     if auth_hash == b64_hmac:
@@ -129,6 +140,7 @@ class CBService(resource.Resource):
 
     #  object
     def request_object_factory(self, request, user, path, requestId):
+        connection_count_inc(request)
         pycb.log(logging.INFO, "path %s" % (path))
         # handle the one service operation
         if path == "/":
@@ -235,7 +247,7 @@ class CumulusHTTPChannel(http.HTTPChannel):
             headers[k.lower()] = v[-1]
         return headers
 
-    def send_access_error(self):
+    def send_access_error(self, req):
         ex = cbException('AccessDenied')
         m_msg = "HTTP/1.1 %s %s\r\n" % (ex.httpCode, ex.httpDesc)
         self.transport.write(m_msg)
@@ -271,30 +283,19 @@ class CumulusHTTPChannel(http.HTTPChannel):
         if ndx >= 0:
             rPath = rPath[0:ndx]
         rPath = createPath(h, rPath)
-        try:
-            user = authorize(h, self._command, rPath, self._path)
-        except:
-            self.send_access_error()
-            return
+#        try:
+#            user = authorize(h, self._command, rPath, self._path)
+#        except:
+#            self.send_access_error(req)
+#            return
 
         if 'expect' in h:
             if h['expect'].lower() == '100-continue':
                 self.transport.write("HTTP/1.1 100 Continue\r\n\r\n")
 
-        global count_locks
-        global g_connection_count
-        count_lock.acquire()
-        try:
-            g_connection_count = g_connection_count + 1
-            d = req.notifyFinish()
-            d.addBoth(cb_expired)
-        finally:
-            count_lock.release()
-
-
         (bucketName, objectName) = path_to_bucket_object(rPath)
         # if we are putting an object
-        if objectName != None:
+        if objectName != None and self._command == "PUT":
             #  free up the temp object that we will not be using
             req.content.close()
             # give twisted our own file like object
