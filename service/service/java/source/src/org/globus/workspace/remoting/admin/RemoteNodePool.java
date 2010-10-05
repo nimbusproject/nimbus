@@ -15,9 +15,20 @@
  */
 package org.globus.workspace.remoting.admin;
 
-import org.globus.workspace.scheduler.NodePool;
-
+import java.io.IOException;
 import java.rmi.Remote;
 
-public interface RemoteNodePool extends NodePool, Remote {
+public interface RemoteNodePool extends Remote {
+    //Create
+    public void addNodes(String nodeJson) throws IOException;
+
+    //Read
+    public String listNodes() throws IOException;
+    public String getNode(String hostname) throws IOException;
+
+    //Update
+    public void updateNodes(String nodeJson) throws IOException;
+
+    //Delete
+    public void removeNodes(String[] hostnames) throws IOException;
 }

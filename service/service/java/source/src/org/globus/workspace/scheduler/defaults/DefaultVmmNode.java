@@ -21,6 +21,9 @@ import java.util.Collection;
 
 public class DefaultVmmNode implements VmmNode {
 
+    @SuppressWarnings({"UnusedDeclaration"}) // used by GSON deserialization
+    DefaultVmmNode() {}
+
     public DefaultVmmNode(String hostname, String poolName,
                           int memory, Collection<String> networkAssociations,
                           boolean vacant) {
