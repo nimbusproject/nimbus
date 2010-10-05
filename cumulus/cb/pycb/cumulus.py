@@ -283,26 +283,15 @@ class CumulusHTTPChannel(http.HTTPChannel):
         if ndx >= 0:
             rPath = rPath[0:ndx]
         rPath = createPath(h, rPath)
-        try:
-            user = authorize(h, self._command, rPath, self._path)
-        except:
-            self.send_access_error()
-            return
+#        try:
+#            user = authorize(h, self._command, rPath, self._path)
+#        except:
+#            self.send_access_error(req)
+#            return
 
         if 'expect' in h:
             if h['expect'].lower() == '100-continue':
                 self.transport.write("HTTP/1.1 100 Continue\r\n\r\n")
-
-        global count_locks
-        global g_connection_count
-        count_lock.acquire()
-        try:
-            g_connection_count = g_connection_count + 1
-            d = req.notifyFinish()
-            d.addBoth(cb_expired)
-        finally:
-            count_lock.release()
-
 
         (bucketName, objectName) = path_to_bucket_object(rPath)
         # if we are putting an object
