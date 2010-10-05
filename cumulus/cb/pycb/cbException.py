@@ -336,6 +336,9 @@ class cbException(Exception):
             self.httpDesc = 'ERROR'
             self.eMsg = 'something bad happened when creating the error message'
 
+    def __str__(self):
+        return self.eMsg
+
     def getCode(self):
         return self.code
 
