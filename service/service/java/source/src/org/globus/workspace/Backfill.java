@@ -181,12 +181,6 @@ public class Backfill {
         this.manager = manager;
     }
 
-    public void cancelBackfillRequest() {
-        logger.info("Cancelling backfill request");
-        this.backfillTimer.cancel();
-        this.backfillReqFile.delete();
-    }
-
     /**
      * This method should be called on service startup. It is responsible for
      * starting the backfill timer (if the backfill feature is enabled).
@@ -196,7 +190,7 @@ public class Backfill {
      * changed then it cancels the previous backfill request and submits a new
      * one.
      */
-    public void initiateBackfill() throws Exception {
+    public void initiateBackfill() {
 
         if (this.backfillDisabled == false) {
             logger.debug("Backfill is enabled");
@@ -204,6 +198,7 @@ public class Backfill {
             if (this.backfillReqFile.exists()) {
                 String curBackfillStr = buildCurBackfillReqStrB().toString();
                 String prevBackfillStr = readPrevBackfillReqStrB().toString();
+
                 if ((curBackfillStr.compareTo(prevBackfillStr)) == 0) {
                     logger.debug("Current and previous backfill requests " +
                                  "match");
@@ -213,12 +208,17 @@ public class Backfill {
 
                     this.cancelBackfillRequest();
                     this.writeCurBackfillReq();
+
+                    logger.debug("New backfill request file written.");
                 }
             } else {
                 this.writeCurBackfillReq();
             }
 
+            logger.debug("Launching backfill timer.");
             this.launchBackfillTimer();
+            logger.debug("Backfill timer launched.");
+
         } else {
             logger.info("Backfill is disabled");
         }
@@ -233,6 +233,7 @@ public class Backfill {
         if (this.backfillTimer != null) {
             this.backfillTimer.cancel();
         }
+
         BackfillTimer backfillTimer;
         backfillTimer = new BackfillTimer(this);
         Date backfillStart = new Date();
@@ -241,8 +242,27 @@ public class Backfill {
                 this.retryPeriod * 1000);
     }
 
-    // Returns true if a backfill node was successfully killed.
-    // False, if it wasn't able to kill a backfill node.
+    public void cancelBackfillRequest() {
+        logger.info("Cancelling backfill request");
+
+        try {
+            this.backfillTimer.cancel();
+        } catch (Exception e) {
+            logger.debug("Failed to kill backfill timer, error: " +
+                    e.getMessage());
+        }
+
+        try {
+            this.backfillReqFile.delete();
+        } catch (Exception e) {
+            logger.debug("Problem deleting backfill request file: " +
+                    e.getMessage());
+        }
+
+        logger.debug("Backfill request cancelled.");
+    }
+
+    // Returns the number of nodes successfully terminated
     public int terminateBackfillNode(int numNodes) {
 
         int vmid;
@@ -258,18 +278,23 @@ public class Backfill {
                 vmid = this.slotManager.getMostRecentBackfillVMID();
             }
 
-            String vmidStr = Integer.toString(vmid);
-            logger.debug("Terminating backfill node with ID: " + vmidStr);
+            if (vmid != -1) {
+                String vmidStr = Integer.toString(vmid);
+                logger.debug("Terminating backfill node with ID: " + vmidStr);
 
-            Caller caller = this.getBackfillCaller();
-            try {
-                this.manager.trash(vmidStr, 0, caller);
-                this.subCurInstances(1);
-                successfulTerminations += 1;
-            } catch (Exception e) {
-                logger.error("Problem terminating backfill node: " +
-                        e.getMessage());
+                Caller caller = this.getBackfillCaller();
+                try {
+                    this.manager.trash(vmidStr, 0, caller);
+                    this.subCurInstances(1);
+                    successfulTerminations += 1;
+                } catch (Exception e) {
+                    logger.error("Problem terminating backfill node: " +
+                            e.getMessage());
+                }
+            } else {
+                logger.debug("No backfill VM to terminate");
             }
+
             count += 1;
         }
 
@@ -305,7 +330,7 @@ public class Backfill {
      * obsolete once the backfill feature is integrated with support for Spot
      * Instances.
      */
-    private void writeCurBackfillReq() throws Exception {
+    private void writeCurBackfillReq() {
 
         if (this.backfillReqFile.exists()) {
             logger.debug("Backfill request file already exists");
@@ -313,21 +338,31 @@ public class Backfill {
         } else {
             logger.debug("Attempting to write backfill file:\n" +
                          this.backfillReqFile.toString());
-            this.backfillReqFile.createNewFile();
-            FileWriter backfillFW = new FileWriter(this.backfillReqFile);
-            BufferedWriter backfillBW = new BufferedWriter(backfillFW);
-            backfillBW.write(this.buildCurBackfillReqStrB().toString());
-            backfillBW.close();
+
+            try {
+                FileWriter backfillFW = new FileWriter(this.backfillReqFile);
+                BufferedWriter backfillBW = new BufferedWriter(backfillFW);
+
+                this.backfillReqFile.createNewFile();
+
+                backfillBW.write(this.buildCurBackfillReqStrB().toString());
+
+                backfillBW.close();
+            } catch (Exception e) {
+                logger.debug("Error creating and writing a new backfill " +
+                             "request file: " + e.getMessage());
+            }
         }
     }
 
-    private StringBuilder readPrevBackfillReqStrB() throws Exception {
+    private StringBuilder readPrevBackfillReqStrB() {
 
         StringBuilder prevBackfillStrB = new StringBuilder();
 
         try {
             logger.debug("Attempting to read backfill request file:\n" +
                          this.backfillReqFile.toString());
+
             FileReader backfillFR = new FileReader(this.backfillReqFile);
             BufferedReader backfillBR = new BufferedReader(backfillFR);
             String line;
@@ -336,12 +371,17 @@ public class Backfill {
                 prevBackfillStrB.append(line);
                 prevBackfillStrB.append("\n");
             }
+
             logger.debug("For the previous backfill request file," +
                          " we read:\n" + prevBackfillStrB.toString());
+
             backfillBR.close();
         } catch (FileNotFoundException e) {
             logger.debug("Can't read a file that doesn't exist:\n" +
                          this.backfillReqFile.toString());
+        } catch (Exception e) {
+            logger.info("Unknown problem reading backfill request file: " +
+                        e.getMessage());
         }
 
         return prevBackfillStrB;
