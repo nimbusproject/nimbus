@@ -130,6 +130,7 @@ def request(argv, con):
                 raise ex
             time.sleep(random.random())
 
+    # should never get here
 
 
 def main(argv=sys.argv[1:]):
