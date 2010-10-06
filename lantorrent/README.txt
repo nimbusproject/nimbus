@@ -77,7 +77,16 @@ changes that must be made.
       file is ready to be copied into /etc/xinetd.d/.  Once this is done
       restart xinetd (/etc/init.d/xinetd restart).
 
-5) [optional] if the path to nimbus on the workspace control nodes (VMMs)
+5) change the propagation method.
+    - edit the file: 
+        $NIMBUS_HOME/services/etc/nimbus/workspace-service/other/authz-callout-ACTIVE.xml
+
+        and change:
+            <property name="repoScheme" value="scp" />
+        to:
+            <property name="repoScheme" value="lantorrent" />
+
+6) [optional] if the path to nimbus on the workspace control nodes (VMMs)
     is not /opt/nimbus you will also need to edit a configuration file on 
     all backends.
 
