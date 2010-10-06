@@ -63,6 +63,8 @@ changes that must be made.
 
     be sure to expand $NIMBUS_HOME to its full and actual path.
 
+2.1) restart the service: $NIMBUS_HOME/bin/nimbusctl restart
+
 3) xinetd
     Lantorrent is run out of xinetd thus it must be installed on all VMMs.  
     
