@@ -54,20 +54,23 @@ However, due to system administrative overhead it is not enabled by
 default.  To enable Lantorrent in nimbus there are a few configurations 
 changes that must be made.
 
-1) edit $NIMBUS_HOME/nimbus-setup.conf
+1) install Lantorrent dependencies
+    - Lantorrent is run out of xinetd thus it must be installed on all VMMs.
+    - Lantorrent depends on the Python simplejson module, and must be installed
+      on both the service node and the VMMs:
+      - on Debian, package python-simplejson
+
+2) edit $NIMBUS_HOME/nimbus-setup.conf
     change lantorrent.enabled: False -> lantorrent.enabled: True
 
-2) edit $NIMBUS_HOME/services/etc/nimbus/workspace-service/other/common.conf
+3) edit $NIMBUS_HOME/services/etc/nimbus/workspace-service/other/common.conf
     change the value of propagate.extraargs:
     propagate.extraargs=$NIMBUS_HOME/lantorrent/bin/lt-request
 
     be sure to expand $NIMBUS_HOME to its full and actual path.
 
-2.1) restart the service: $NIMBUS_HOME/bin/nimbusctl restart
+3.1) restart the service: $NIMBUS_HOME/bin/nimbusctl restart
 
-3) xinetd
-    Lantorrent is run out of xinetd thus it must be installed on all VMMs.  
-    
 4) install lantorrent on VMM
     - recursively copy $NIMBUS_HOME/lantorrent to /opt/nimbus/lantorrent.
     - run ./vmm-install.sh on each node
@@ -163,5 +166,3 @@ The value of signature is the hmac signature of everything that came
 before the literal EOH.  The password for that signature is found in the 
 lt.ini file.  Every endpoint and the master repo must have the same 
 value for that password.
-
-
