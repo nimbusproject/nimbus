@@ -78,7 +78,7 @@ changes that must be made.
         control user as the first and only argument to the script.
 
 4.1) install lantorrent into xinetd
-    - the vmm-install,sh script creates the file lantorrent.inet.  This 
+    - the vmm-install,sh script creates the file lantorrent.  This
       file is ready to be copied into /etc/xinetd.d/.  Once this is done
       restart xinetd (/etc/init.d/xinetd restart).
 
