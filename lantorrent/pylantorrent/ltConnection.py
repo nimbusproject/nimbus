@@ -1,6 +1,6 @@
 import sys
 import os
-import json
+import simplejson as json
 import socket
 import logging
 import traceback

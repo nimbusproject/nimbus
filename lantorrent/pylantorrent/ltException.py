@@ -1,6 +1,6 @@
 import sys
 import socket
-import json
+import simplejson as json
 import os
 
 class LTException(Exception):

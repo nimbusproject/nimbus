@@ -6,7 +6,7 @@ import logging
 import pylantorrent
 from pylantorrent.server import LTServer
 from pylantorrent.client import LTClient
-import json
+import simplejson as json
 import traceback
 import uuid
 import time

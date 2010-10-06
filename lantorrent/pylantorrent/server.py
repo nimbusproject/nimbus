@@ -5,7 +5,7 @@ import logging
 import pylantorrent
 from pylantorrent.ltException import LTException
 from pylantorrent.ltConnection import LTConnection
-import json
+import simplejson as json
 import traceback
 import threading
 import hashlib
