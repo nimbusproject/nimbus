@@ -57,12 +57,8 @@ do
             rc=`echo $out | awk -F , '{ print $1 }'`
             done=`echo $out | awk -F , '{ print $2 }'`
             message=`echo $out | awk -F , '{ print $3 }'`
-
-<<<<<<< HEAD
             echo $out
-=======
             echo $message
->>>>>>> i want to see the output message in all cases not just error
             if [ "X$done" == "XTrue" ]; then
                 if [ $rc -ne 0 ]; then
                     exit $rc
