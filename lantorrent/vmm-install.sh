@@ -1,12 +1,11 @@
 #!/bin/bash
 
 if [ "X$1" == "X-h" ]; then
-    echo "[<user to run the service under>]"
+    echo "usage: vmm-install.sh [<user to run the service under>]"
     exit 0
 fi
 if [ "X$1" == "X" ]; then
     who=`whoami`
-    exit 1
 else
     who=$1
 fi
