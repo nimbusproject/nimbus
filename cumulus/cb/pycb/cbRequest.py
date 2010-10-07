@@ -791,6 +791,7 @@ class cbCopyObject(cbRequest):
 
         try:
             self.user.put_object(self.dst_file, self.dstBucketName, self.dstObjectName)
+            grant_public_permissions(self.dstBucketName, self.dstObjectName)
 
             doc = Document()
             cor = doc.createElement("CopyObjectResult")
