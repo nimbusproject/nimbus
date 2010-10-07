@@ -81,6 +81,8 @@ def random_string_gen(len):
 
 def get_db_connection_string():
     con_str = os.environ['NIMBUS_AUTHZ_DB']
+    if con_str[0] == "/":
+        con_str = "sqlite:///" + con_str
     return con_str
 
 def parse_args(p, all_opts, argv):

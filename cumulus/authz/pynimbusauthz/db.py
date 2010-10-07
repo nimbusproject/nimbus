@@ -27,10 +27,18 @@ class DB(object):
         self.replace_char = None
 
         if con_str != None:
-            url = urlparse.urlparse(con_str)
-            if url.scheme == "sqlite" or url.scheme == '':
+            parts_a = con_str.split("://", 1)
+
+            if len(parts_a) > 1:
+                scheme = parts_a[0]
+                rest = parts_a[1]
+            else:
+                rest = con_str
+                scheme = ""
+            url = urlparse.urlparse("http://" + rest)
+            if scheme == "sqlite" or scheme == '':
                 self.con = sqlite3.connect(url.path)
-            elif url.scheme == "psycopg2":
+            elif scheme == "psycopg2":
                 import psycopg2
 
                 self.replace_char = '%s'
