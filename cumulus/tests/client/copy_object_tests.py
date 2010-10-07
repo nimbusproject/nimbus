@@ -56,7 +56,7 @@ class TestCopyObjectAuthWithBoto(unittest.TestCase):
             newpasswd = newpasswd + random.choice(chars)
         return newpasswd
 
-    def test_get_and_compare_copy(self, type):
+    def test_get_and_compare_copy(self):
         (id, pw) = self.make_user()
         conn = pycb.test_common.cb_get_conn(self.host, self.port, id, pw)
         bucketname = self.cb_random_bucketname(20)
@@ -65,7 +65,6 @@ class TestCopyObjectAuthWithBoto(unittest.TestCase):
         k = boto.s3.key.Key(bucket)
         k.key = key
         k.set_contents_from_filename("/etc/group")
-        bucket.set_acl(type, key)
 
         (osf, filename) = tempfile.mkstemp()
         os.close(osf)
@@ -74,7 +73,7 @@ class TestCopyObjectAuthWithBoto(unittest.TestCase):
         rc = filecmp.cmp("/etc/group", filename)
         self.assertTrue(rc)
 
-    def cp_object_perm_read(self, type):
+    def cp_object_perm_read(self, type, delete=False):
         (id, pw) = self.make_user()
         conn = pycb.test_common.cb_get_conn(self.host, self.port, id, pw)
         bucketname = self.cb_random_bucketname(20)
@@ -82,7 +81,7 @@ class TestCopyObjectAuthWithBoto(unittest.TestCase):
         key = self.cb_random_bucketname(20)
         k = boto.s3.key.Key(bucket)
         k.key = key
-        k.set_contents_from_filename("/etc/group")
+        k.set_contents_from_filename("/etc/group", policy='private')
 
         new_key = self.cb_random_bucketname(20)
         new_k = boto.s3.key.Key(bucket)
@@ -90,23 +89,58 @@ class TestCopyObjectAuthWithBoto(unittest.TestCase):
 
         k.copy(bucket, new_key)
 
+        (id, pw) = self.make_user()
         for t in type:
             new_k.add_user_grant(t, id)
 
-        (id, pw) = self.make_user()
         conn = pycb.test_common.cb_get_conn(self.host, self.port, id, pw)
         bucket2 = conn.get_bucket(bucketname)
         k = bucket2.get_key(new_key)
         k.get_contents_to_filename("/dev/null")
 
+        if delete:
+            k.delete()
 
-    def test_cp_object_perm_authed(self):
+
+    def test_cp_object_perm_none(self):
+        passed = True
+        try:
+            self.cp_object_perm_read([])
+            passed = False
+        except:
+            pass
+        self.assertTrue(passed)
+
+    def test_cp_object_perm_read(self):
         self.cp_object_perm_read(["READ",])
 
-    def test_cp_object_perm_authed(self):
-        self.cp_object_perm_read(["WRITE",])
+    def test_cp_object_perm_read_write(self):
+        self.cp_object_perm_read(["READ","WRITE",])
 
-    def test_cp_object_perm_authed(self):
+    def test_cp_object_perm_write(self):
+        passed = True
+        try:
+            self.cp_object_perm_read(["WRITE",])
+            passed = False
+        except:
+            pass
+        self.assertTrue(passed)
+
+    def test_cp_object_perm_full(self):
         self.cp_object_perm_read(["FULL_CONTROL",])
 
+    def test_cp_object_perm_read_write_delete(self, delete=True):
+        self.cp_object_perm_read(["READ","WRITE",])
+
+    def test_cp_object_perm_full_delete(self, delete=True):
+        self.cp_object_perm_read(["FULL_CONTROL",])
+
+    def test_cp_object_perm_read_delete(self, delete=True):
+        passed = True
+        try:
+            self.cp_object_perm_read(["READ",], delete=True)
+            passed = False
+        except:
+            pass
+        self.assertTrue(passed)
 

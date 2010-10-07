@@ -29,8 +29,8 @@ if [ "X$?" != "X0" ]; then
 fi
 
 s3cmd del s3://$bucket_name/$fname
-if [ "X$?" != "X0" ]; then
-    echo "ERROR: delete failed"
+if [ $? -eq 0 ]; then
+    echo "ERROR: hould have been moved, should not be able to delete"
     exit 1
 fi
 s3cmd del s3://$bucket_name/$fname.copy
