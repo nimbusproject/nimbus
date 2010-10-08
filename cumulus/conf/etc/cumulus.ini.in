@@ -13,7 +13,8 @@ block_size=524288
 [security]
 type=authz
 security_dir=@INSTALLDIR@/posixauth
-authzdb=@AUTHZDB@
+authzdb=sqlite:///@AUTHZDB@
+#authzdb=psycopg2://bresnaha:nimbus@localhost:5432/cumulus
 
 
 [log]

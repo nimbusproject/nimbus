@@ -10,6 +10,7 @@ import simplejson as json
 import traceback
 import uuid
 import time
+import random
 import datetime
 import pynimbusauthz
 from pynimbusauthz.cmd_opts import cbOpts
@@ -40,36 +41,53 @@ def wait_until_sent(con, rid):
 
 #
 def is_done(con, rid):
-    pylantorrent.log(logging.INFO, "checking for done on  %s" % (rid))
-    done = False
-    rc = 0
-    s = "select state,message,attempt_count from requests where rid = ?"
-    data = (rid,)
-    c = con.cursor()
-    c.execute(s, data)
-    rs = c.fetchone()
-    con.commit()
-    state = int(rs[0])
-    message = rs[1]
-    attempt_count = rs[2]
-    if state == 1:
-        done = True
-    elif attempt_count > 2:
-        done = True
-        rc = 1
-        if message == None:
-            message = "too many attempts %d" % (attempt_count)
-    con.commit()
-    return (done, rc, message)
+    error_cnt = 0
+    while True:
+        try:
+            pylantorrent.log(logging.INFO, "checking for done on  %s" % (rid))
+            done = False
+            rc = 0
+            s = "select state,message,attempt_count from requests where rid = ?"
+            data = (rid,)
+            c = con.cursor()
+            c.execute(s, data)
+            rs = c.fetchone()
+            con.commit()
+            state = int(rs[0])
+            message = rs[1]
+            attempt_count = rs[2]
+            if state == 1:
+                done = True
+            elif attempt_count > 2:
+                done = True
+                rc = 1
+                if message == None:
+                    message = "too many attempts %d" % (attempt_count)
+            con.commit()
+            return (done, rc, message)
+        except sqlite3.OperationalError, sqlex:
+            error_cnt = error_cnt + 1
+            if error_cnt >= pylantorrent.config.db_error_max:
+                raise sqlex
+            time.sleep(random.random())
 
 def delete_rid(con, rid):
-    # cleanup
-    c = con.cursor()
-    d = "delete from requests where rid = ?"
-    data = (rid,)
-    c = con.cursor()
-    c.execute(d, data)
-    con.commit()
+    error_cnt = 0
+    while True:
+        try:
+            # cleanup
+            c = con.cursor()
+            d = "delete from requests where rid = ?"
+            data = (rid,)
+            c = con.cursor()
+            c.execute(d, data)
+            con.commit()
+            return 
+        except sqlite3.OperationalError, sqlex:
+            error_cnt = error_cnt + 1
+            if error_cnt >= pylantorrent.config.db_error_max:
+                raise sqlex
+            time.sleep(random.random())
 
 def request(argv, con):
     src_filename = argv[0]
@@ -97,12 +115,22 @@ def request(argv, con):
     i = "insert into requests(src_filename, dst_filename, hostname, port, rid, entry_time) values (?, ?, ?, ?, ?, ?)"
     data = (src_filename, dst_filename, host, port, rid, now,)
 
-    c = con.cursor()
-    c.execute(i, data)
-    con.commit()
-    pylantorrent.log(logging.INFO, "new request %s %d" % (rid, sz))
+    error_ctr = 0
+    while True:
+        try:
+            c = con.cursor()
+            c.execute(i, data)
+            con.commit()
+            pylantorrent.log(logging.INFO, "new request %s %d" % (rid, sz))
+            return (rid, sz)
+        except Exception, ex:
+            pylantorrent.log(logging.ERROR, "an error occured on request %s" % str(ex))
+            error_ctr = error_ctr + 1
+            if error_ctr >= pylantorrent.config.db_error_max:
+                raise ex
+            time.sleep(random.random())
 
-    return (rid, sz)
+    # should never get here
 
 
 def main(argv=sys.argv[1:]):
@@ -132,10 +160,15 @@ def main(argv=sys.argv[1:]):
     message = ""
     if o.reattach == None:
         (rid, sz) = request(args, con)
+        try:
+            (done, rc, message) = is_done(con, rid)
+        except:
+            done = False
+            rc = 0
+            message = "Check on status later, db not ready for polling"
     else:
         rid = o.reattach
-
-    (done, rc, message) = is_done(con, rid)
+        (done, rc, message) = is_done(con, rid)
 
     if not o.nonblock and not done:
         (rc, message) = wait_until_sent(con, rid)

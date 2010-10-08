@@ -326,6 +326,7 @@ class cbException(Exception):
     def __init__(self, code, ex=None):
         self.code = code 
         self.ex = ex
+        self.custom_xml = {}
         try:
             self.httpCode = cbException.errorsHttpCode[code]
             self.httpDesc = cbException.errorsHttpMsg[code]
@@ -335,8 +336,14 @@ class cbException(Exception):
             self.httpDesc = 'ERROR'
             self.eMsg = 'something bad happened when creating the error message'
 
+    def __str__(self):
+        return self.eMsg
+
     def getCode(self):
         return self.code
+
+    def add_custom_xml(self, k, v):
+        self.custom_xml[k] = v
 
     def make_xml_string(self, path, requestId):
         doc = Document()
@@ -365,6 +372,13 @@ class cbException(Exception):
         xRIdText = doc.createTextNode(str(requestId))
         xRId.appendChild(xRIdText)
         xError.appendChild(xRId)
+
+        for k in self.custom_xml.keys():
+            xId = doc.createElement(k)
+            xText = doc.createTextNode(self.custom_xml[k])
+            xId.appendChild(xText)
+            xError.appendChild(xId)
+
         return doc.toxml()
 
 

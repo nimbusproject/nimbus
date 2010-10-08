@@ -9,7 +9,7 @@ from cbPosixBackend import cbPosixBackend
 from ConfigParser import SafeConfigParser
 from pycb.cbAuthzSecurity import cbAuthzUser
 from pycb.cbAuthzSecurity import cbAuthzSec
-
+import random
 from optparse import OptionParser
 import hmac
 try:
@@ -107,6 +107,8 @@ The search path for cumulus.ini is:
         self.https_cert = None
         self.use_https = False
         self.block_size = 1024*512
+        self.lb_file = None
+        self.lb_max = 0
 
     def get_contact(self):
         return (self.hostname, self.port)
@@ -191,6 +193,13 @@ The search path for cumulus.ini is:
             except:
                 pass
 
+            try:
+                self.lb_file = s.get("load_balanced", "hostfile")
+                self.lb_max = int(s.get("load_balanced", "max"))
+
+            except:
+                pass
+
 
     def parse_cmdline(self, argv):
         global Version
@@ -233,3 +242,27 @@ def get_auth_hash(key, method, path, headers, uri):
     return auth_hash
 
 config = CBConfig()
+
+# this is not a long term solution
+def get_next_host():
+    if not config.lb_file:
+        return None
+
+    try:
+        hosts = []
+        f = open(config.lb_file, "r")
+        for l in f.readlines():
+            hosts.append(l.strip())
+        f.close()
+
+        my_host = "%s:%d" % (config.hostname, config.port)
+
+        for i in range(0, 10):
+            ndx = random.randint(0, len(hosts)-1)
+            h = hosts[ndx]
+            if h != my_host:
+                return h
+        return h
+    except Exception, ex:
+        log(logging.ERROR, "get next host error %s" % (str(ex)))
+        return None
