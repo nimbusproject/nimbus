@@ -616,7 +616,10 @@
     </bean>
 
     <bean id="nimbus-remoting-nodepool"
-          class="org.globus.workspace.remoting.admin.defaults.FakeRemoteNodePool"/>
+          class="org.globus.workspace.remoting.admin.defaults.DefaultRemoteNodeManagement"
+            init-method="initialize">
+        <property name="nodeManagement" ref="nimbus-rm.scheduler.SlotManagement"/>
+    </bean>
 
     <!-- ===================================================================
          Externally written classes that are brought in as beans

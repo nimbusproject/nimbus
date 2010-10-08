@@ -172,7 +172,7 @@ file_time BIGINT NOT NULL
 CREATE TABLE resourcepool_entries
 (
 resourcepool VARCHAR(128) NOT NULL,
-hostname VARCHAR(128) NOT NULL,
+hostname VARCHAR(128) UNIQUE NOT NULL,
 associations VARCHAR(512) NOT NULL,
 maximum_memory REAL,
 available_memory REAL,

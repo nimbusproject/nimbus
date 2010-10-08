@@ -92,7 +92,7 @@ public class ResourcepoolPersistenceUtil
             throws SQLException {
 
         PreparedStatement pstmt =
-                c.prepareStatement(SQL_UPDATE_RESOURCE_POOL_ENTRY);
+                c.prepareStatement(SQL_UPDATE_RESOURCE_POOL_ENTRY_MEMORY);
 
         pstmt.setInt(1, entry.getMemCurrent());
         pstmt.setString(2, name);

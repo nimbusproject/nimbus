@@ -13,22 +13,25 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package org.globus.workspace.remoting.admin;
+package org.globus.workspace.scheduler;
 
-import java.io.IOException;
-import java.rmi.Remote;
+import org.globus.workspace.WorkspaceException;
 
-public interface RemoteNodePool extends Remote {
-    //Create
-    public void addNodes(String nodeJson) throws IOException;
+public class NodeExistsException extends WorkspaceException {
+    public NodeExistsException() {
+        super();
+    }
 
-    //Read
-    public String listNodes() throws IOException;
-    public String getNode(String hostname) throws IOException;
+    public NodeExistsException(String message) {
+        super(message);
+    }
 
-    //Update
-    public void updateNodes(String nodeJson) throws IOException;
+    public NodeExistsException(String message, Exception e) {
+        super(message, e);
 
-    //Delete
-    public void removeNodes(String[] hostnames) throws IOException;
+    }
+
+    public NodeExistsException(Exception e) {
+        super("", e);
+    }
 }

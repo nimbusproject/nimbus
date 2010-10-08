@@ -20,8 +20,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.globus.workspace.Lager;
 import org.globus.workspace.ProgrammingError;
-import org.globus.workspace.scheduler.Reservation;
-import org.globus.workspace.scheduler.Scheduler;
+import org.globus.workspace.persistence.WorkspaceDatabaseException;
+import org.globus.workspace.scheduler.*;
 import org.globus.workspace.persistence.PersistenceAdapter;
 import org.globus.workspace.service.InstanceResource;
 import org.globus.workspace.service.WorkspaceHome;
@@ -33,18 +33,12 @@ import org.nimbustools.api.services.rm.ManageException;
 import org.springframework.core.io.Resource;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.ArrayList;
+import java.util.*;
 
 /**
  * Needs dependency cleanups
  */
-public class DefaultSlotManagement implements SlotManagement {
+public class DefaultSlotManagement implements SlotManagement, NodeManagement {
 
     // -------------------------------------------------------------------------
     // STATIC VARIABLES
@@ -542,5 +536,107 @@ public class DefaultSlotManagement implements SlotManagement {
         }
 
         this.db.replaceResourcepools(new_resourcepools);
+    }
+
+
+    public synchronized ResourcepoolEntry addNode(String hostname,
+                                                  String pool,
+                                                  String associations,
+                                                  int memory)
+            throws NodeExistsException {
+
+        try {
+            final ResourcepoolEntry existing =
+                    this.db.getResourcepoolEntry(hostname);
+
+            if (existing != null) {
+                throw new NodeExistsException("A VMM node with the hostname "+
+                        hostname+" already exists in the pool");
+            }
+
+            // This will catch the corner case of one or many VMs being started
+            // on a node, the node being deleted from the configuration, the node
+            // being RE-inserted into the configuration, all the while with no
+            // VM memory being retired.
+
+            final int memInUse =
+                        this.db.memoryUsedOnPoolnode(hostname);
+
+            final int correctCurrentMem = memory - memInUse;
+
+            if (correctCurrentMem == memory) {
+                if (lager.traceLog) {
+                    logger.trace("curmem for VMM '" + hostname +
+                            "' matches VM records");
+                }
+            } else {
+                logger.info("Reconfiguration corner case, current " +
+                        "memory-in-use record for VMM '" +
+                        hostname +
+                        "' was wrong, old value was " +
+                        "0 MB, new value is " +
+                        correctCurrentMem + " MB.");
+            }
+
+            final ResourcepoolEntry entry =
+                    new ResourcepoolEntry(pool, hostname, memory,
+                            correctCurrentMem, associations);
+
+            //check then act protected by lock
+            this.db.addResourcepoolEntry(entry);
+
+            return entry;
+
+        } catch (WorkspaceDatabaseException e) {
+            // TODO ???
+            throw new RuntimeException(e);
+        }
+    }
+
+    public List<ResourcepoolEntry> getNodes() {
+        try {
+            return this.db.currentResourcepoolEntries();
+        } catch (WorkspaceDatabaseException e) {
+            // TODO ???
+            throw new RuntimeException(e);
+        }
+    }
+
+    public ResourcepoolEntry getNode(String hostname) {
+        try {
+            return this.db.getResourcepoolEntry(hostname);
+        } catch (WorkspaceDatabaseException e) {
+            // TODO ???
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void updateNode(ResourcepoolEntry node) {
+        //TODO
+    }
+
+    public synchronized boolean removeNode(String hostname)
+            throws NodeInUseException {
+
+        try {
+            final ResourcepoolEntry entry =
+                    this.db.getResourcepoolEntry(hostname);
+
+            if (entry == null) {
+                return false;
+            }
+
+            if (!entry.isVacant()) {
+                throw new NodeInUseException("The VMM node "+ hostname +
+                        " is in use and cannot be removed from the pool");
+            }
+
+            return this.db.removeResourcepoolEntry(hostname);
+
+        } catch (WorkspaceDatabaseException e) {
+            // TODO ???
+            throw new RuntimeException(e);
+        }
+
     }
 }
