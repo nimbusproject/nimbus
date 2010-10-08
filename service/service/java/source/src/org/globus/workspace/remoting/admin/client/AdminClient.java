@@ -16,22 +16,25 @@
 package org.globus.workspace.remoting.admin.client;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import org.apache.commons.cli.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.*;
 import org.globus.workspace.remoting.RemotingClient;
-import org.globus.workspace.remoting.admin.RemoteNodePool;
-import org.globus.workspace.scheduler.VmmNode;
-import org.globus.workspace.scheduler.defaults.DefaultVmmNode;
+import org.globus.workspace.remoting.admin.NodeReport;
+import org.globus.workspace.remoting.admin.VmmNode;
+import org.globus.workspace.remoting.admin.RemoteNodeManagement;
 import org.nimbustools.api.brain.NimbusHomePathResolver;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.rmi.NotBoundException;
+import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 
@@ -59,14 +62,14 @@ public class AdminClient {
     private List<String> hosts;
     private int nodeMemory;
     private boolean nodeMemoryConfigured;
-    private List<String> nodeNetworks;
+    private String nodeNetworks;
     private String nodePool;
     private String configPath;
     private boolean debug;
     private File socketDirectory;
     private RemotingClient remotingClient;
     private String nodePoolBindingName;
-    private RemoteNodePool remoteNodePool;
+    private RemoteNodeManagement remoteNodeManagement;
 
     public static void main(String args[]) {
 
@@ -81,7 +84,6 @@ public class AdminClient {
         }
 
         if (isDebug) {
-            System.out.println("sandwiches");
 
             //TODO uggggh something is configuring log4j first
             BasicConfigurator.resetConfiguration();
@@ -164,7 +166,6 @@ public class AdminClient {
         }
     }
 
-
     private void run_addNodes() throws ParameterProblem, ExecutionProblem {
         if (!this.nodeMemoryConfigured) {
             throw new ParameterProblem(
@@ -186,11 +187,20 @@ public class AdminClient {
 
         final List<VmmNode> nodes = new ArrayList<VmmNode>(this.hosts.size());
         for (String hostname : this.hosts) {
-            nodes.add(new DefaultVmmNode(hostname, this.nodePool,
+            nodes.add(new VmmNode(hostname, this.nodePool,
                     this.nodeMemory, this.nodeNetworks, true));
         }
         try {
-            this.remoteNodePool.addNodes(gson.toJson(nodes));
+            String report = this.remoteNodeManagement.addNodes(gson.toJson(nodes));
+
+            final TypeToken<Collection<NodeReport>> typeToken = new TypeToken<Collection<NodeReport>>() {
+            };
+
+            Collection<NodeReport> reports = gson.fromJson(report, typeToken.getType());
+            for (NodeReport r : reports) {
+                System.out.println(r.getState() + " " + r.getNode().getHostname());
+            }
+
         } catch (IOException e) {
             handleRemoteException(e);
         }
@@ -200,8 +210,8 @@ public class AdminClient {
 
     private void run_listNodes() throws ExecutionProblem {
         try {
-            final String nodesJson = this.remoteNodePool.listNodes();
-            final VmmNode[] nodes = this.gson.fromJson(nodesJson, DefaultVmmNode[].class);
+            final String nodesJson = this.remoteNodeManagement.listNodes();
+            final VmmNode[] nodes = this.gson.fromJson(nodesJson, VmmNode[].class);
             this.reportNodes(nodes);
         } catch (IOException e) {
             handleRemoteException(e);
@@ -211,7 +221,7 @@ public class AdminClient {
     private void run_removeNodes() throws ExecutionProblem {
         try {
             final String[] hostnames = this.hosts.toArray(new String[this.hosts.size()]);
-            this.remoteNodePool.removeNodes(hostnames);
+            this.remoteNodeManagement.removeNodes(hostnames);
         } catch (IOException e) {
             handleRemoteException(e);
         }
@@ -223,11 +233,11 @@ public class AdminClient {
 
         final List<VmmNode> nodes = new ArrayList<VmmNode>(this.hosts.size());
         for (String hostname : this.hosts) {
-            nodes.add(new DefaultVmmNode(hostname, this.nodePool,
+            nodes.add(new VmmNode(hostname, this.nodePool,
                     this.nodeMemory, this.nodeNetworks, true));
         }
         try {
-            this.remoteNodePool.updateNodes(gson.toJson(nodes));
+            this.remoteNodeManagement.updateNodes(gson.toJson(nodes));
         } catch (IOException e) {
             handleRemoteException(e);
         }
@@ -241,20 +251,16 @@ public class AdminClient {
     private void reportNodes(VmmNode[] nodes) {
         StringBuilder sb = new StringBuilder();
         for (VmmNode node : nodes) {
-            for (String network : node.getNetworkAssociations()) {
-                if (sb.length() > 0) {
-                    sb.append(", ");
-                }
-                sb.append(network);
-            }
-            if (sb.length() == 0) {
-                sb.append("*");
+
+            String networks = node.getNetworkAssociations();
+            if (networks == null || networks.length() == 0) {
+                networks = "*";
             }
 
             System.out.println("Host:\t" + node.getHostname());
             System.out.println("Pool:\t" + node.getPoolName());
             System.out.println("Memory:\t" + node.getMemory());
-            System.out.println("Networks:\t" + sb.toString());
+            System.out.println("Networks:\t" + networks);
             System.out.println();
 
             sb.delete(0, sb.length());
@@ -274,7 +280,9 @@ public class AdminClient {
         this.remotingClient = client;
 
         try {
-            this.remoteNodePool = (RemoteNodePool) client.lookup(this.nodePoolBindingName);
+            final Remote remote = client.lookup(this.nodePoolBindingName);
+            logger.debug("Found remote object " + remote.toString());
+            this.remoteNodeManagement = (RemoteNodeManagement) remote;
         } catch (RemoteException e) {
             handleRemoteException(e);
         } catch (NotBoundException e) {
@@ -347,10 +355,7 @@ public class AdminClient {
         }
 
         if (this.nodeNetworks == null) {
-            final String networks = props.getProperty(PROP_DEFAULT_NETWORKS);
-            if (networks != null) {
-                this.nodeNetworks = parseNetworks(networks);
-            }
+            this.nodeNetworks = props.getProperty(PROP_DEFAULT_NETWORKS);
         }
 
         if (this.nodePool == null) {
@@ -411,7 +416,7 @@ public class AdminClient {
             }
 
             if (line.hasOption(Opts.NETWORKS)) {
-                this.nodeNetworks = parseNetworks(line.getOptionValue(Opts.NETWORKS));
+                this.nodeNetworks = line.getOptionValue(Opts.NETWORKS);
             }
 
             if (line.hasOption(Opts.POOL)) {
@@ -461,25 +466,6 @@ public class AdminClient {
             throw new ParameterProblem("Node memory value must be non-negative");
         }
         return memory;
-    }
-
-    public static List<String> parseNetworks(String networkString)
-            throws ParameterProblem {
-        if (networkString == null) {
-            throw new ParameterProblem("Network list is invalid");
-        }
-
-        final String[] networkArray = networkString.trim().split("\\s*,\\s*");
-        if (networkArray.length == 0) {
-            throw new ParameterProblem("Network list is empty");
-        }
-
-        final List<String> networks = new ArrayList<String>(networkArray.length);
-        for (final String network : networkArray) {
-            //validation?
-            networks.add(network);
-        }
-        return networks;
     }
 
     public static List<String> parseHosts(String hostString)

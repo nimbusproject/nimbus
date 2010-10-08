@@ -17,32 +17,37 @@ package org.globus.workspace.remoting.admin.defaults;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import org.globus.workspace.remoting.admin.RemoteNodePool;
-import org.globus.workspace.scheduler.VmmNode;
-import org.globus.workspace.scheduler.defaults.DefaultVmmNode;
+import org.globus.workspace.remoting.admin.NodeReport;
+import org.globus.workspace.remoting.admin.RemoteNodeManagement;
+import org.globus.workspace.remoting.admin.VmmNode;
 
-import java.io.IOException;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class FakeRemoteNodePool implements RemoteNodePool {
+public class FakeRemoteNodeManagement implements RemoteNodeManagement {
     private final Gson gson;
-    private final TypeToken<Collection<DefaultVmmNode>> vmmNodeCollectionTypeToken;
+    private final TypeToken<Collection<VmmNode>> vmmNodeCollectionTypeToken;
 
-    public FakeRemoteNodePool() {
+    public FakeRemoteNodeManagement() {
         this.gson = new Gson();
-        this.vmmNodeCollectionTypeToken = new TypeToken<Collection<DefaultVmmNode>>(){};
+        this.vmmNodeCollectionTypeToken = new TypeToken<Collection<VmmNode>>(){};
     }
 
     private List<VmmNode> nodeList = new ArrayList<VmmNode>();
 
-    public void addNodes(String nodeJson) throws IOException {
+    public String addNodes(String nodeJson) throws RemoteException {
         Collection<VmmNode> nodes = gson.fromJson(nodeJson,
                 vmmNodeCollectionTypeToken.getType());
+
+        List<NodeReport> reports = new ArrayList<NodeReport>(nodes.size());
         for (VmmNode node : nodes) {
             this.nodeList.add(node);
+
+            reports.add(new NodeReport(node.getHostname(), "ADDED", node));
         }
+        return gson.toJson(reports);
     }
 
     public String listNodes() {
@@ -58,30 +63,46 @@ public class FakeRemoteNodePool implements RemoteNodePool {
         return null;
     }
 
-    public void updateNodes(String nodeJson) {
+    public String updateNodes(String nodeJson) {
         final Collection<VmmNode> nodes = gson.fromJson(nodeJson,
                 this.vmmNodeCollectionTypeToken.getType());
+        List<NodeReport> reports = new ArrayList<NodeReport>(nodes.size());
         for (VmmNode node : nodes) {
-        final String hostname = node.getHostname();
+            final String hostname = node.getHostname();
             for (int i = 0; i < this.nodeList.size(); i++) {
                 if (nodeList.get(i).getHostname().equals(hostname)) {
                     nodeList.set(i, node);
                 }
+                reports.add(new NodeReport(hostname, "UPDATED", node));
             }
         }
+        return gson.toJson(reports);
     }
 
-    public void removeNode(String hostname) {
+    public String removeNode(String hostname) {
+        NodeReport report = _removeNode(hostname);
+        return gson.toJson(report);
+    }
+
+    private NodeReport _removeNode(String hostname) {
+        NodeReport report = null;
         for (int i = 0; i < this.nodeList.size(); i++) {
             if (nodeList.get(i).getHostname().equals(hostname)) {
                 nodeList.remove(i);
+                report = new NodeReport(hostname, "REMOVED", null);
             }
         }
+        if (report == null) {
+            report = new NodeReport(hostname, "NOT_FOUND", null);
+        }
+        return report;
     }
 
-    public void removeNodes(String[] hostnames) {
+    public String removeNodes(String[] hostnames) {
+        List<NodeReport> reports = new ArrayList<NodeReport>(hostnames.length);
         for (String hostname : hostnames) {
-            this.removeNode(hostname);
+            reports.add(this._removeNode(hostname));
         }
+        return gson.toJson(reports);
     }
 }

@@ -13,19 +13,17 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package org.globus.workspace.scheduler.defaults;
-
-import org.globus.workspace.scheduler.VmmNode;
+package org.globus.workspace.remoting.admin;
 
 import java.util.Collection;
 
-public class DefaultVmmNode implements VmmNode {
+public class VmmNode {
 
     @SuppressWarnings({"UnusedDeclaration"}) // used by GSON deserialization
-    DefaultVmmNode() {}
+    VmmNode() {}
 
-    public DefaultVmmNode(String hostname, String poolName,
-                          int memory, Collection<String> networkAssociations,
+    public VmmNode(String hostname, String poolName,
+                          int memory, String networkAssociations,
                           boolean vacant) {
         this.hostname = hostname;
         this.poolName = poolName;
@@ -37,7 +35,7 @@ public class DefaultVmmNode implements VmmNode {
     private String hostname;
     private String poolName;
     private int memory;
-    private Collection<String> networkAssociations;
+    private String networkAssociations;
     private boolean vacant;
 
 
@@ -53,7 +51,7 @@ public class DefaultVmmNode implements VmmNode {
         return memory;
     }
 
-    public Collection<String> getNetworkAssociations() {
+    public String getNetworkAssociations() {
         return networkAssociations;
     }
 

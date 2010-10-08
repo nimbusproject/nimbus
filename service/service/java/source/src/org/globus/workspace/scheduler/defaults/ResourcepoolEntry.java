@@ -84,6 +84,10 @@ public class ResourcepoolEntry {
         return this.supportedAssociations;
     }
 
+    public boolean isVacant() {
+        return this.memCurrent == this.memMax;
+    }
+
     public void setSupportedAssociations(String supportedAssociations) {
         this.supportedAssociations = supportedAssociations;
     }

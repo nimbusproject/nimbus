@@ -15,13 +15,23 @@
  */
 package org.globus.workspace.scheduler;
 
-import java.util.Collection;
+import org.globus.workspace.WorkspaceException;
 
-public interface VmmNode {
+public class NodeInUseException extends WorkspaceException {
+    public NodeInUseException() {
+        super();
+    }
 
-    public String getHostname();
-    public String getPoolName();
-    public int getMemory();
-    public Collection<String> getNetworkAssociations();
-    public boolean isVacant();
+    public NodeInUseException(String message) {
+        super(message);
+    }
+
+    public NodeInUseException(String message, Exception e) {
+        super(message, e);
+
+    }
+
+    public NodeInUseException(Exception e) {
+        super("", e);
+    }
 }
