@@ -24,10 +24,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Hashtable;
-import java.util.List;
+import java.util.*;
 
 import javax.sql.DataSource;
 
@@ -2095,6 +2092,192 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
                 if (rs != null) {
                     rs.close();
                 }
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+                if (c != null) {
+                    returnConnection(c);
+                }
+            } catch (SQLException sql) {
+                logger.error("SQLException in finally cleanup", sql);
+            }
+        }
+    }
+
+
+    public List<ResourcepoolEntry> currentResourcepoolEntries()
+            throws WorkspaceDatabaseException {
+        Connection c = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            c = getConnection();
+            pstmt = c.prepareStatement(SQL_SELECT_ALL_RESOURCE_POOL_ENTRIES);
+            rs = pstmt.executeQuery();
+
+            if (rs == null || !rs.next()) {
+                return Collections.emptyList();
+            }
+
+            List<ResourcepoolEntry> list = new ArrayList<ResourcepoolEntry>();
+
+            do {
+                final ResourcepoolEntry entry = new ResourcepoolEntry(rs.getString(1),
+                        rs.getString(2),
+                        rs.getInt(4),
+                        rs.getInt(5),
+                        rs.getString(3));
+                list.add(entry);
+            }   while (rs.next());
+
+            return list;
+
+        } catch(SQLException e) {
+            logger.error("",e);
+            throw new WorkspaceDatabaseException(e);
+        } finally {
+            try {
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+                if (rs != null) {
+                    rs.close();
+                }
+                if (c != null) {
+                    returnConnection(c);
+                }
+            } catch (SQLException sql) {
+                this.resourcepools = null;
+                logger.error("SQLException in finally cleanup", sql);
+            }
+        }
+
+    }
+
+    public ResourcepoolEntry getResourcepoolEntry(String hostname)
+            throws WorkspaceDatabaseException {
+
+        Connection c = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            c = getConnection();
+            pstmt = c.prepareStatement(SQL_SELECT_RESOURCE_POOL_ENTRY);
+            pstmt.setString(1, hostname);
+            rs = pstmt.executeQuery();
+
+            if (rs == null || !rs.next()) {
+                return null;
+            }
+
+            return new ResourcepoolEntry(rs.getString(1),
+                    rs.getString(2),
+                    rs.getInt(4),
+                    rs.getInt(5),
+                    rs.getString(3));
+
+        } catch(SQLException e) {
+            logger.error("",e);
+            throw new WorkspaceDatabaseException(e);
+        } finally {
+            try {
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+                if (rs != null) {
+                    rs.close();
+                }
+                if (c != null) {
+                    returnConnection(c);
+                }
+            } catch (SQLException sql) {
+                this.resourcepools = null;
+                logger.error("SQLException in finally cleanup", sql);
+            }
+        }
+    }
+
+    public void addResourcepoolEntry(ResourcepoolEntry entry)
+            throws WorkspaceDatabaseException {
+
+        if (entry == null) {
+            throw new IllegalArgumentException("entry may not be null");
+        }
+
+        if (this.dbTrace) {
+            logger.trace("addResourcepoolEntry(): hostname = " + entry.getHostname());
+        }
+
+        Connection c = null;
+        PreparedStatement pstmt = null;
+        try {
+            c = getConnection();
+            pstmt = c.prepareStatement(SQL_INSERT_RESOURCE_POOL_ENTRY);
+
+            pstmt.setString(1, entry.getResourcePool());
+            pstmt.setString(2, entry.getHostname());
+            pstmt.setString(3, entry.getSupportedAssociations());
+            pstmt.setInt(4, entry.getMemMax());
+            pstmt.setInt(5, entry.getMemCurrent());
+
+            final int updated = pstmt.executeUpdate();
+
+            if (this.dbTrace) {
+                logger.trace("Inserted " + updated + " row(s)");
+            }
+
+        } catch(SQLException e) {
+            logger.error("",e);
+            throw new WorkspaceDatabaseException(e);
+        } finally {
+            this.resourcepools = null; //invalidate cache
+            try {
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+                if (c != null) {
+                    returnConnection(c);
+                }
+            } catch (SQLException sql) {
+                logger.error("SQLException in finally cleanup", sql);
+            }
+        }
+    }
+
+    public boolean removeResourcepoolEntry(String hostname)
+            throws WorkspaceDatabaseException {
+        if (hostname == null) {
+            throw new IllegalArgumentException("hostname may not be null");
+        }
+
+        if (this.dbTrace) {
+            logger.trace("removeResourcepoolEntry(): hostname = " + hostname);
+        }
+
+        Connection c = null;
+        PreparedStatement pstmt = null;
+        try {
+            c = getConnection();
+            pstmt = c.prepareStatement(SQL_DELETE_RESOURCE_POOL_ENTRY);
+
+            pstmt.setString(1, hostname);
+
+            final int updated = pstmt.executeUpdate();
+
+            if (this.dbTrace) {
+                logger.trace("Deleted " + updated + " row(s)");
+            }
+
+            return updated > 0;
+
+        } catch(SQLException e) {
+            logger.error("",e);
+            throw new WorkspaceDatabaseException(e);
+        } finally {
+            this.resourcepools = null; //invalidate cache
+            try {
                 if (pstmt != null) {
                     pstmt.close();
                 }

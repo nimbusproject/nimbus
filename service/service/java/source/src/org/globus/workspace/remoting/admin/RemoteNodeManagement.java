@@ -13,25 +13,22 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package org.globus.workspace.scheduler;
+package org.globus.workspace.remoting.admin;
 
-import java.util.Collection;
-import java.util.List;
+import java.rmi.Remote;
+import java.rmi.RemoteException;
 
-public interface NodePool {
-
+public interface RemoteNodeManagement extends Remote {
     //Create
-    public void addNode(VmmNode node);
-    public void addNodes(Collection<VmmNode> nodes);
+    public String addNodes(String nodeJson) throws RemoteException;
 
     //Read
-    public List<VmmNode> listNodes();
-    public VmmNode getNode(String hostname);
+    public String listNodes() throws RemoteException;
+    public String getNode(String hostname) throws RemoteException;
 
     //Update
-    public void updateNode(VmmNode node);
+    public String updateNodes(String nodeJson) throws RemoteException;
 
     //Delete
-    public void removeNode(String hostname);
-    public void removeNodes(Collection<String> hostnames);
+    public String removeNodes(String[] hostnames) throws RemoteException;
 }

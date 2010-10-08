@@ -153,7 +153,18 @@ public interface PersistenceAdapterConstants {
     public static final String SQL_SELECT_ASSOCIATION =
             "SELECT * FROM association_entries WHERE association=?";
 
-    public static final String SQL_UPDATE_RESOURCE_POOL_ENTRY =
+    public static final String SQL_SELECT_ALL_RESOURCE_POOL_ENTRIES =
+                "SELECT * FROM resourcepool_entries ORDER BY hostname";
+
+    public static final String SQL_SELECT_RESOURCE_POOL_ENTRY =
+            "SELECT * FROM resourcepool_entries WHERE hostname = ?";
+
+    public static final String SQL_INSERT_RESOURCE_POOL_ENTRY =
+            "INSERT INTO resourcepool_entries (resourcepool,hostname," +
+                    "associations,maximum_memory,available_memory) " +
+                    "VALUES(?,?,?,?,?)";
+
+    public static final String SQL_UPDATE_RESOURCE_POOL_ENTRY_MEMORY =
             "UPDATE resourcepool_entries SET available_memory=? " +
             "WHERE resourcepool=? AND hostname=?";
 
@@ -162,6 +173,9 @@ public interface PersistenceAdapterConstants {
 
     public static final String SQL_DELETE_ALL_RESOURCE_POOL_ENTRIES =
             "DELETE FROM resourcepool_entries";
+
+    public static final String SQL_DELETE_RESOURCE_POOL_ENTRY =
+            "DELETE FROM resourcepool_entries WHERE hostname = ?";
 
     public static final String SQL_SELECT_RESOURCE_POOL =
             "SELECT * FROM resourcepool_entries WHERE resourcepool=?";
@@ -180,7 +194,7 @@ public interface PersistenceAdapterConstants {
             "SELECT id FROM resources WHERE creator_dn=?";
     
     public static final String SQL_SELECT_AVAILABLE_ENTRIES =
-        "SELECT * FROM resourcepool_entries WHERE available_memory >= ? ORDER BY (available_memory/maximum_memory) ASC";    
+        "SELECT * FROM resourcepool_entries WHERE available_memory >= ? ORDER BY (available_memory/maximum_memory) ASC";
 
     public static final String[] PREPARED_STATEMENTS = {
                                     SQL_SELECT_RESOURCES,
@@ -218,9 +232,13 @@ public interface PersistenceAdapterConstants {
                                     SQL_DELETE_ALL_ASSOCIATIONS,
                                     SQL_DELETE_ALL_ASSOCIATION_ENTRIES,
                                     SQL_SELECT_ASSOCIATION,
-                                    SQL_UPDATE_RESOURCE_POOL_ENTRY,
+                                    SQL_SELECT_ALL_RESOURCE_POOL_ENTRIES,
+                                    SQL_SELECT_RESOURCE_POOL_ENTRY,
+                                    SQL_INSERT_RESOURCE_POOL_ENTRY,
+                                    SQL_UPDATE_RESOURCE_POOL_ENTRY_MEMORY,
                                     SQL_DELETE_ALL_RESOURCE_POOLS,
                                     SQL_DELETE_ALL_RESOURCE_POOL_ENTRIES,
+                                    SQL_DELETE_RESOURCE_POOL_ENTRY,
                                     SQL_SELECT_RESOURCE_POOL,
                                     SQL_JOIN_SELECT_RESOURCE_POOL_MEMORY,
                                     SQL_SELECT_ALL_VMS_IN_GROUP,

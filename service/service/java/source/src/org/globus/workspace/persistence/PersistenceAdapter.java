@@ -170,6 +170,20 @@ public interface PersistenceAdapter {
 
             throws WorkspaceDatabaseException;
 
+    public List<ResourcepoolEntry> currentResourcepoolEntries() throws WorkspaceDatabaseException;
+
+    public ResourcepoolEntry getResourcepoolEntry(String hostname)
+
+            throws WorkspaceDatabaseException;
+
+    public void addResourcepoolEntry(ResourcepoolEntry entry)
+
+            throws WorkspaceDatabaseException;
+
+    public boolean removeResourcepoolEntry(String hostname)
+
+            throws WorkspaceDatabaseException;
+
     public void addCustomizationNeed(int id, CustomizationNeed need)
 
             throws WorkspaceDatabaseException;
