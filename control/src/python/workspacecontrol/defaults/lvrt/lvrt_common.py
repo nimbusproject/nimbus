@@ -64,8 +64,14 @@ class Platform:
         vmm = self._vmm()
         domainIds = vmm.listDomainsID()
         for did in domainIds:
-            avm = vmm.lookupByID(did)
-            self.c.log.debug("Found VM: id #%s, name '%s'" % (did, avm.name()))
+            try:
+                avm = vmm.lookupByID(did)
+                self.c.log.debug("Found VM: id #%s, name '%s'" % (did, avm.name()))
+            except libvirt.libvirtError,e:
+                if e.get_error_code() == libvirt.VIR_ERR_NO_DOMAIN:
+                    self.c.log.debug("VM disappeared: id #%s, name '%s'" % (did, avm.name()))
+                else:
+                    raise
             
     def create(self, local_file_set, nic_set, kernel):
         """create launches a VM"""
