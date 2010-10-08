@@ -86,6 +86,9 @@ public class AdminClient {
         if (isDebug) {
 
             //TODO uggggh something is configuring log4j first
+            // fine to do this for now, but if AdminClient is ever called directly
+            // within another JVM, this will blow away their logging config
+            // and everyone will say wtf
             BasicConfigurator.resetConfiguration();
 
             final PatternLayout layout = new PatternLayout("%C{1}:%L - %m%n");
@@ -190,18 +193,12 @@ public class AdminClient {
             nodes.add(new VmmNode(hostname, this.nodePool,
                     this.nodeMemory, this.nodeNetworks, true));
         }
+        final String nodesJson = gson.toJson(nodes);
+        NodeReport[] reports;
         try {
-            String report = this.remoteNodeManagement.addNodes(gson.toJson(nodes));
-
-            final TypeToken<Collection<NodeReport>> typeToken = new TypeToken<Collection<NodeReport>>() {
-            };
-
-            Collection<NodeReport> reports = gson.fromJson(report, typeToken.getType());
-            for (NodeReport r : reports) {
-                System.out.println(r.getState() + " " + r.getNode().getHostname());
-            }
-
-        } catch (IOException e) {
+            final String reportJson = this.remoteNodeManagement.addNodes(nodesJson);
+            reports = gson.fromJson(reportJson, NodeReport[].class);
+        } catch (RemoteException e) {
             handleRemoteException(e);
         }
 
@@ -213,7 +210,7 @@ public class AdminClient {
             final String nodesJson = this.remoteNodeManagement.listNodes();
             final VmmNode[] nodes = this.gson.fromJson(nodesJson, VmmNode[].class);
             this.reportNodes(nodes);
-        } catch (IOException e) {
+        } catch (RemoteException e) {
             handleRemoteException(e);
         }
     }
@@ -222,7 +219,7 @@ public class AdminClient {
         try {
             final String[] hostnames = this.hosts.toArray(new String[this.hosts.size()]);
             this.remoteNodeManagement.removeNodes(hostnames);
-        } catch (IOException e) {
+        } catch (RemoteException e) {
             handleRemoteException(e);
         }
     }
@@ -238,14 +235,9 @@ public class AdminClient {
         }
         try {
             this.remoteNodeManagement.updateNodes(gson.toJson(nodes));
-        } catch (IOException e) {
+        } catch (RemoteException e) {
             handleRemoteException(e);
         }
-    }
-
-    private void handleRemoteException(Throwable t) throws ExecutionProblem {
-        throw new ExecutionProblem("Failed to communicate with Nimbus service. "+
-                "Is it running? Error: " + t.getMessage(), t);
     }
 
     private void reportNodes(VmmNode[] nodes) {
@@ -305,7 +297,10 @@ public class AdminClient {
         if (configPath == null) {
             throw new ParameterProblem("Config path is invalid");
         }
+
         final File configFile = new File(configPath);
+
+        logger.debug("Loading config file: " + configFile.getAbsolutePath());
 
         if (!configFile.canRead()) {
             throw new ParameterProblem(
@@ -325,6 +320,7 @@ public class AdminClient {
                 }
             }
         } catch (IOException e) {
+            logger.debug("Caught error reading config file " + configFile.getAbsolutePath(), e);
             throw new ParameterProblem("Failed to load config file: " +
                     configFile.getAbsolutePath() + ": " + e.getMessage(), e);
         }
