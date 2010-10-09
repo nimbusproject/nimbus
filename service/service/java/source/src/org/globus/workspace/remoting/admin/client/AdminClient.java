@@ -16,7 +16,6 @@
 package org.globus.workspace.remoting.admin.client;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import org.apache.commons.cli.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -33,17 +32,13 @@ import java.io.IOException;
 import java.rmi.NotBoundException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 
 public class AdminClient {
 
     private static final Log logger =
             LogFactory.getLog(AdminClient.class.getName());
-
 
     public static final int EXIT_OK = 0;
     public static final int EXIT_PARAMETER_PROBLEM = 1;
@@ -55,6 +50,22 @@ public class AdminClient {
     private static final String PROP_DEFAULT_MEMORY = "node.memory.default";
     private static final String PROP_DEFAULT_NETWORKS = "node.networks.default";
     private static final String PROP_DEFAULT_POOL = "node.pool.default";
+
+    private static final String FIELD_HOSTNAME = "hostname";
+    private static final String FIELD_POOL = "pool";
+    private static final String FIELD_MEMORY = "memory";
+    private static final String FIELD_NETWORKS = "networks";
+    private static final String FIELD_IN_USE = "in_use";
+    private static final String FIELD_STATUS = "status";
+
+
+    final static String[] NODE_FIELDS = new String[] {
+            FIELD_HOSTNAME, FIELD_POOL, FIELD_MEMORY,
+            FIELD_NETWORKS, FIELD_IN_USE
+    };
+
+    final static String[] NODE_REPORT_FIELDS =
+            new String[] {FIELD_STATUS, FIELD_HOSTNAME};
 
     private final Gson gson = new Gson();
 
@@ -70,6 +81,7 @@ public class AdminClient {
     private RemotingClient remotingClient;
     private String nodePoolBindingName;
     private RemoteNodeManagement remoteNodeManagement;
+    private Reporter reporter;
 
     public static void main(String args[]) {
 
@@ -194,7 +206,7 @@ public class AdminClient {
                     this.nodeMemory, this.nodeNetworks, true));
         }
         final String nodesJson = gson.toJson(nodes);
-        NodeReport[] reports;
+        NodeReport[] reports = null;
         try {
             final String reportJson = this.remoteNodeManagement.addNodes(nodesJson);
             reports = gson.fromJson(reportJson, NodeReport[].class);
@@ -202,16 +214,26 @@ public class AdminClient {
             handleRemoteException(e);
         }
 
-        reportNodes(nodes.toArray(new VmmNode[nodes.size()]));
+        try {
+            reporter.report(nodeReportsToMaps(reports), System.out);
+        } catch (IOException e) {
+            throw new ExecutionProblem("Problem writing output: " + e.getMessage(), e);
+        }
     }
 
     private void run_listNodes() throws ExecutionProblem {
+        VmmNode[] nodes = null;
         try {
             final String nodesJson = this.remoteNodeManagement.listNodes();
-            final VmmNode[] nodes = this.gson.fromJson(nodesJson, VmmNode[].class);
-            this.reportNodes(nodes);
+            nodes = this.gson.fromJson(nodesJson, VmmNode[].class);
         } catch (RemoteException e) {
             handleRemoteException(e);
+        }
+
+        try {
+            reporter.report(nodesToMaps(nodes), System.out);
+        } catch (IOException e) {
+            throw new ExecutionProblem("Problem writing output: " + e.getMessage(), e);
         }
     }
 
@@ -237,25 +259,6 @@ public class AdminClient {
             this.remoteNodeManagement.updateNodes(gson.toJson(nodes));
         } catch (RemoteException e) {
             handleRemoteException(e);
-        }
-    }
-
-    private void reportNodes(VmmNode[] nodes) {
-        StringBuilder sb = new StringBuilder();
-        for (VmmNode node : nodes) {
-
-            String networks = node.getNetworkAssociations();
-            if (networks == null || networks.length() == 0) {
-                networks = "*";
-            }
-
-            System.out.println("Host:\t" + node.getHostname());
-            System.out.println("Pool:\t" + node.getPoolName());
-            System.out.println("Memory:\t" + node.getMemory());
-            System.out.println("Networks:\t" + networks);
-            System.out.println();
-
-            sb.delete(0, sb.length());
         }
     }
 
@@ -443,6 +446,29 @@ public class AdminClient {
 
         this.debug = line.hasOption(Opts.DEBUG_LONG);
 
+        final boolean batchMode = line.hasOption(Opts.BATCH);
+        final boolean json = line.hasOption(Opts.JSON);
+
+        final Reporter.OutputMode mode;
+        if (batchMode && json) {
+            throw new ParameterProblem("You cannot specify both " +
+                    Opts.BATCH_LONG + " and " + Opts.JSON_LONG);
+        } else if (batchMode) {
+            mode = Reporter.OutputMode.Batch;
+        } else if (json) {
+            mode = Reporter.OutputMode.Json;
+        } else {
+            mode = Reporter.OutputMode.Friendly;
+        }
+
+        final String[] fields;
+        if (line.hasOption(Opts.REPORT)) {
+            fields = parseFields(line.getOptionValue(Opts.REPORT), theAction);
+        } else {
+            fields = theAction.fields();
+        }
+        this.reporter = new Reporter(mode, fields, null);
+
         final List leftovers = line.getArgList();
 		if (leftovers != null && !leftovers.isEmpty()) {
 			throw new ParameterProblem("There are unrecognized arguments, check -h to make " +
@@ -464,7 +490,42 @@ public class AdminClient {
         return memory;
     }
 
-    public static List<String> parseHosts(String hostString)
+    private static String[] parseFields(String fieldsString, AdminAction action)
+            throws ParameterProblem {
+        final String[] fieldsArray = fieldsString.trim().split("\\s*,\\s*");
+        if (fieldsArray.length == 0) {
+            throw new ParameterProblem("Report fields list is empty");
+        }
+
+        for (String field : fieldsArray) {
+            boolean found = false;
+            for (String actionField : action.fields()) {
+                if (field.equals(actionField)) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                throw new ParameterProblem("Report field '"+ field +
+                        "' is not allowed for this action. Allowed fields are: " +
+                        csvString(action.fields()));
+            }
+        }
+
+        return fieldsArray;
+    }
+
+    private static String csvString(String[] fields) {
+        final StringBuilder sb = new StringBuilder();
+        for (String f : fields) {
+            if (sb.length() != 0) {
+                sb.append(", ");
+            }
+            sb.append(f);
+        }
+        return sb.toString();
+    }
+    private static List<String> parseHosts(String hostString)
             throws ParameterProblem {
         if (hostString == null) {
             throw new ParameterProblem("Hosts list is invalid");
@@ -490,24 +551,67 @@ public class AdminClient {
         System.out.println("TODO print help text");
 
     }
+
+    private static List<Map<String,String>> nodesToMaps(VmmNode[] nodes) {
+        List<Map<String,String>> maps = new ArrayList<Map<String, String>>(nodes.length);
+        for (VmmNode node : nodes) {
+            maps.add(nodeToMap(node));
+        }
+        return maps;
+    }
+
+    private static Map<String,String> nodeToMap(VmmNode node) {
+        final HashMap<String, String> map =
+                new HashMap<String, String>(5);
+        map.put(FIELD_HOSTNAME, node.getHostname());
+        map.put(FIELD_POOL, node.getPoolName());
+        map.put(FIELD_MEMORY, String.valueOf(node.getMemory()));
+        map.put(FIELD_NETWORKS, node.getNetworkAssociations());
+        map.put(FIELD_IN_USE, String.valueOf(!node.isVacant()));
+        return map;
+    }
+
+    private static List<Map<String,String>> nodeReportsToMaps(NodeReport[] nodeReports) {
+        List<Map<String,String>> maps = new ArrayList<Map<String, String>>(nodeReports.length);
+        for (NodeReport nodeReport : nodeReports) {
+            maps.add(nodeReportToMap(nodeReport));
+        }
+        return maps;
+    }
+
+    private static Map<String,String> nodeReportToMap(NodeReport nodeReport) {
+        final HashMap<String, String> map =
+                new HashMap<String, String>(2);
+        map.put(FIELD_HOSTNAME, nodeReport.getHostname());
+        map.put(FIELD_STATUS, nodeReport.getState());
+        return map;
+    }
 }
 
 enum AdminAction {
 
-    AddNodes(Opts.ADD_NODES),
-    ListNodes(Opts.LIST_NODES),
-    RemoveNodes(Opts.REMOVE_NODES),
-    UpdateNodes(Opts.UPDATE_NODES),
-    Help(Opts.HELP);
+    AddNodes(Opts.ADD_NODES, AdminClient.NODE_REPORT_FIELDS),
+    ListNodes(Opts.LIST_NODES, AdminClient.NODE_FIELDS),
+    RemoveNodes(Opts.REMOVE_NODES, AdminClient.NODE_REPORT_FIELDS),
+    UpdateNodes(Opts.UPDATE_NODES, AdminClient.NODE_REPORT_FIELDS),
+    Help(Opts.HELP, null);
+
+
 
     private final String option;
+    private final String[] fields;
 
-    AdminAction(String option) {
+    AdminAction(String option, String[] fields) {
         this.option = option;
+        this.fields = fields;
     }
 
     public String option() {
         return option;
+    }
+
+    public String[] fields() {
+        return fields;
     }
 }
 
