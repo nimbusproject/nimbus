@@ -42,7 +42,8 @@ public class RemotingServer {
             throw new IllegalStateException("socketDirectory must be specified");
         }
         if (!this.socketDirectory.isDirectory()) {
-            throw new IllegalStateException("socketDirectory must be an existing directory");
+            throw new IllegalStateException("socketDirectory must be an existing directory: " +
+                    this.socketDirectory.getAbsolutePath());
         }
 
         if (this.bindings == null || this.bindings.isEmpty()) {
@@ -54,6 +55,11 @@ public class RemotingServer {
 
         final Registry registry = naming.createRegistry();
 
+        final StringBuilder logMessage = new StringBuilder();
+        logMessage.append("Nimbus remoting server listening on domain socket: \"").
+                append(this.socketDirectory.getAbsolutePath()).append("\". Bindings:");
+
+        boolean first = true;
         for (final String bindingName : bindings.keySet()) {
             final Remote obj = bindings.get(bindingName);
             if (obj == null) {
@@ -65,7 +71,17 @@ public class RemotingServer {
             final Remote remote = UnicastRemoteObject.exportObject(obj, 0,
                 naming.getSocketFactory(), naming.getSocketFactory());
             registry.bind(bindingName, remote);
+
+            if (first) {
+                first = false;
+            } else {
+                logMessage.append(",");
+            }
+            logMessage.append(" ").append(bindingName).append(" (").
+                    append(obj.getClass().getCanonicalName()).append(")");
         }
+
+        logger.info(logMessage.toString());
     }
 
     public File getSocketDirectory() {
