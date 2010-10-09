@@ -609,13 +609,13 @@
         <property name="socketResource" value="$ADMIN{socket.dir}" />
         <property name="bindings">
             <map>
-                <entry key="$ADMIN{rmi.binding.nodepool}"
-                       value-ref="nimbus-remoting-nodepool" />
+                <entry key="$ADMIN{rmi.binding.nodemgmt}"
+                       value-ref="nimbus-remoting-nodemgmt" />
             </map>
         </property>
     </bean>
 
-    <bean id="nimbus-remoting-nodepool"
+    <bean id="nimbus-remoting-nodemgmt"
           class="org.globus.workspace.remoting.admin.defaults.DefaultRemoteNodeManagement"
             init-method="initialize">
         <property name="nodeManagement" ref="nimbus-rm.scheduler.SlotManagement"/>
