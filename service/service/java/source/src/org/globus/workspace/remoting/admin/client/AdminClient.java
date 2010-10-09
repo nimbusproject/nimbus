@@ -50,8 +50,8 @@ public class AdminClient {
     public static final int EXIT_EXECUTION_PROBLEM = 2;
     public static final int EXIT_UNKNOWN_PROBLEM = 3;
 
-    public static final String PROP_SOCKET_DIR = "socket.dir";
-    public static final String PROP_RMI_BINDING_NODEPOOL_DIR = "rmi.binding.nodepool";
+    private static final String PROP_SOCKET_DIR = "socket.dir";
+    private static final String PROP_RMI_BINDING_NODEMGMT_DIR = "rmi.binding.nodemgmt";
     private static final String PROP_DEFAULT_MEMORY = "node.memory.default";
     private static final String PROP_DEFAULT_NETWORKS = "node.networks.default";
     private static final String PROP_DEFAULT_POOL = "node.pool.default";
@@ -334,10 +334,10 @@ public class AdminClient {
         final NimbusHomePathResolver resolver = new NimbusHomePathResolver();
          this.socketDirectory = new File(resolver.resolvePath(sockDir));
 
-        final String nodePoolBinding = props.getProperty(PROP_RMI_BINDING_NODEPOOL_DIR);
+        final String nodePoolBinding = props.getProperty(PROP_RMI_BINDING_NODEMGMT_DIR);
         if (nodePoolBinding == null) {
             throw new ExecutionProblem("Configuration file is missing " +
-                    PROP_RMI_BINDING_NODEPOOL_DIR + " entry: "+
+                    PROP_RMI_BINDING_NODEMGMT_DIR + " entry: "+
                     configFile.getAbsolutePath());
         }
         this.nodePoolBindingName = nodePoolBinding;
