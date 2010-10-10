@@ -97,7 +97,7 @@ changes that must be made.
     
     lantorrentexe: /opt/nimbus/bin/ltclient.sh 
 
-    points to the proper location of you ltclinet.sh script.  This should
+    points to the proper location of you ltclient.sh script.  This should
     be a simple matter of changing /opt/nimbus to the path where you chose
     to install workspace control.
 
