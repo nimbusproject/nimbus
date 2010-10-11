@@ -58,4 +58,15 @@ public class VmmNode {
     public boolean isVacant() {
         return vacant;
     }
+
+    @Override
+    public String toString() {
+        return "VmmNode{" +
+                "hostname='" + hostname + '\'' +
+                ", poolName='" + poolName + '\'' +
+                ", memory=" + memory +
+                ", networkAssociations='" + networkAssociations + '\'' +
+                ", vacant=" + vacant +
+                '}';
+    }
 }

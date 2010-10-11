@@ -60,12 +60,16 @@ public class AdminClient {
 
 
     final static String[] NODE_FIELDS = new String[] {
-            FIELD_HOSTNAME, FIELD_POOL, FIELD_MEMORY,
-            FIELD_NETWORKS, FIELD_IN_USE
-    };
+            FIELD_HOSTNAME, FIELD_POOL, FIELD_MEMORY, FIELD_NETWORKS,
+            FIELD_IN_USE };
 
-    final static String[] NODE_REPORT_FIELDS =
-            new String[] {FIELD_STATUS, FIELD_HOSTNAME};
+
+    final static String[] NODE_REPORT_FIELDS = new String[] {
+            FIELD_HOSTNAME, FIELD_STATUS, FIELD_POOL,
+            FIELD_MEMORY, FIELD_NETWORKS, FIELD_IN_USE };
+
+    final static String[] NODE_REPORT_FIELDS_SHORT = new String[] {
+            FIELD_HOSTNAME, FIELD_STATUS };
 
     private final Gson gson = new Gson();
 
@@ -78,7 +82,6 @@ public class AdminClient {
     private String configPath;
     private boolean debug;
     private File socketDirectory;
-    private RemotingClient remotingClient;
     private String nodePoolBindingName;
     private RemoteNodeManagement remoteNodeManagement;
     private Reporter reporter;
@@ -135,11 +138,11 @@ public class AdminClient {
         }
 
         if (paramError != null) {
-            System.err.println("Parameter Problem: " + paramError.getMessage());
+            System.err.println("Parameter Problem:\n" + paramError.getMessage());
             System.err.println("See --help");
 
         } else if (execError != null) {
-            System.err.println("Execution Problem: " + execError.getMessage());
+            System.err.println("Execution Problem:\n" + execError.getMessage());
         } else {
             System.err.println("An unexpected error was encountered. Please report this!");
             System.err.println(anyError.getMessage());
@@ -238,27 +241,41 @@ public class AdminClient {
     }
 
     private void run_removeNodes() throws ExecutionProblem {
+        NodeReport[] reports = null;
         try {
             final String[] hostnames = this.hosts.toArray(new String[this.hosts.size()]);
-            this.remoteNodeManagement.removeNodes(hostnames);
+            final String reportJson = this.remoteNodeManagement.removeNodes(hostnames);
+            reports = gson.fromJson(reportJson, NodeReport[].class);
         } catch (RemoteException e) {
             handleRemoteException(e);
+        }
+
+        try {
+            reporter.report(nodeReportsToMaps(reports), System.out);
+        } catch (IOException e) {
+            throw new ExecutionProblem("Problem writing output: " + e.getMessage(), e);
         }
     }
 
     private void run_updateNodes() throws ExecutionProblem {
-
-        //TODO
 
         final List<VmmNode> nodes = new ArrayList<VmmNode>(this.hosts.size());
         for (String hostname : this.hosts) {
             nodes.add(new VmmNode(hostname, this.nodePool,
                     this.nodeMemory, this.nodeNetworks, true));
         }
+        NodeReport[] reports = null;
         try {
-            this.remoteNodeManagement.updateNodes(gson.toJson(nodes));
+            final String reportJson = this.remoteNodeManagement.updateNodes(gson.toJson(nodes));
+            reports = gson.fromJson(reportJson, NodeReport[].class);
         } catch (RemoteException e) {
             handleRemoteException(e);
+        }
+
+        try {
+            reporter.report(nodeReportsToMaps(reports), System.out);
+        } catch (IOException e) {
+            throw new ExecutionProblem("Problem writing output: " + e.getMessage(), e);
         }
     }
 
@@ -271,8 +288,6 @@ public class AdminClient {
         } catch (RemoteException e) {
             handleRemoteException(e);
         }
-
-        this.remotingClient = client;
 
         try {
             final Remote remote = client.lookup(this.nodePoolBindingName);
@@ -345,21 +360,25 @@ public class AdminClient {
         }
         this.nodePoolBindingName = nodePoolBinding;
 
-        if (!this.nodeMemoryConfigured) {
-            final String memString = props.getProperty(PROP_DEFAULT_MEMORY);
-            if (memString != null) {
-                this.nodeMemory = parseMemory(memString);
-                this.nodeMemoryConfigured = true;
+
+        // only need node parameter values if doing add-nodes
+        if (this.action == AdminAction.AddNodes) {
+            if (!this.nodeMemoryConfigured) {
+                final String memString = props.getProperty(PROP_DEFAULT_MEMORY);
+                if (memString != null) {
+                    this.nodeMemory = parseMemory(memString);
+                    this.nodeMemoryConfigured = true;
+                }
             }
-        }
 
-        if (this.nodeNetworks == null) {
-            this.nodeNetworks = props.getProperty(PROP_DEFAULT_NETWORKS);
-        }
+            if (this.nodeNetworks == null) {
+                this.nodeNetworks = props.getProperty(PROP_DEFAULT_NETWORKS);
+            }
 
-        if (this.nodePool == null) {
-            // if missing or invalid, error will come later if this value is actually needed
-            this.nodePool = props.getProperty(PROP_DEFAULT_POOL);
+            if (this.nodePool == null) {
+                // if missing or invalid, error will come later if this value is actually needed
+                this.nodePool = props.getProperty(PROP_DEFAULT_POOL);
+            }
         }
     }
 
@@ -584,18 +603,28 @@ public class AdminClient {
                 new HashMap<String, String>(2);
         map.put(FIELD_HOSTNAME, nodeReport.getHostname());
         map.put(FIELD_STATUS, nodeReport.getState());
+        final VmmNode node = nodeReport.getNode();
+        if (node == null) {
+            map.put(FIELD_POOL, null);
+            map.put(FIELD_MEMORY, null);
+            map.put(FIELD_NETWORKS, null);
+            map.put(FIELD_IN_USE, null);
+        } else {
+            map.put(FIELD_POOL, node.getPoolName());
+            map.put(FIELD_MEMORY, String.valueOf(node.getMemory()));
+            map.put(FIELD_NETWORKS, node.getNetworkAssociations());
+            map.put(FIELD_IN_USE, String.valueOf(!node.isVacant()));
+        }
         return map;
     }
 }
 
 enum AdminAction {
-
     AddNodes(Opts.ADD_NODES, AdminClient.NODE_REPORT_FIELDS),
     ListNodes(Opts.LIST_NODES, AdminClient.NODE_FIELDS),
-    RemoveNodes(Opts.REMOVE_NODES, AdminClient.NODE_REPORT_FIELDS),
+    RemoveNodes(Opts.REMOVE_NODES, AdminClient.NODE_REPORT_FIELDS_SHORT),
     UpdateNodes(Opts.UPDATE_NODES, AdminClient.NODE_REPORT_FIELDS),
     Help(Opts.HELP, null);
-
 
 
     private final String option;
