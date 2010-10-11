@@ -51,15 +51,15 @@ class cbBasicRedirector(object):
                 hosts.append(l.strip())
             f.close()
 
-        my_host = "%s:%d" % (pycb.config.hostname, pycb.config.port)
+            my_host = "%s:%d" % (pycb.config.hostname, pycb.config.port)
 
-        for i in range(0, 10):
-            ndx = random.randint(0, len(hosts)-1)
-            h = hosts[ndx]
-            if h != my_host:
-                return h
-        return h
-    except Exception, ex:
-        log(logging.ERROR, "get next host error %s" % (str(ex)))
-        return None
+            for i in range(0, 10):
+                ndx = random.randint(0, len(hosts)-1)
+                h = hosts[ndx]
+                if h != my_host:
+                    return h
+            return h
+        except Exception, ex:
+            log(logging.ERROR, "get next host error %s" % (str(ex)))
+            return None
  
