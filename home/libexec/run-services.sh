@@ -14,4 +14,6 @@ PORT="8443"
 
 cd $GLOBUS_LOCATION
 
+export GLOBUS_OPTIONS="$GLOBUS_OPTIONS -Dorg.newsclub.net.unix.library.path=$NIMBUS_HOME/services/lib-native"
+
 exec $NIMBUS_HOME/services/bin/globus-start-container -p $PORT >> $LOGFILE 2>&1
