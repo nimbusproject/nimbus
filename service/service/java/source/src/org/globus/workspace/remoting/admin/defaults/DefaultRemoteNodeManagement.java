@@ -17,6 +17,8 @@ package org.globus.workspace.remoting.admin.defaults;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.globus.workspace.remoting.admin.NodeReport;
 import org.globus.workspace.remoting.admin.RemoteNodeManagement;
 import org.globus.workspace.remoting.admin.VmmNode;
@@ -31,6 +33,10 @@ import java.util.Collection;
 import java.util.List;
 
 public class DefaultRemoteNodeManagement implements RemoteNodeManagement {
+
+    private static final Log logger =
+            LogFactory.getLog(DefaultRemoteNodeManagement.class.getName());
+
     private final Gson gson;
     private final TypeToken<Collection<VmmNode>> vmmNodeCollectionTypeToken;
 
@@ -48,12 +54,28 @@ public class DefaultRemoteNodeManagement implements RemoteNodeManagement {
     }
 
     public String addNodes(String nodeJson) throws RemoteException {
+
+        if (nodeJson == null) {
+            throw new IllegalArgumentException("nodeJson may not be null");
+        }
+
         Collection<VmmNode> nodes = gson.fromJson(nodeJson,
                 vmmNodeCollectionTypeToken.getType());
 
+        if (nodes == null || nodes.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "you must specify at least one node to add");
+        }
+
         List<NodeReport> reports = new ArrayList<NodeReport>(nodes.size());
         for (VmmNode node : nodes) {
-            final String hostname = node.getHostname();
+            String hostname = node.getHostname();
+
+            if (hostname == null) {
+                throw new IllegalArgumentException("hostname may not be null");
+            }
+
+            logger.info("Adding VMM node " + hostname);
 
             try {
                 final ResourcepoolEntry entry =
@@ -67,6 +89,7 @@ public class DefaultRemoteNodeManagement implements RemoteNodeManagement {
                         NodeReport.STATE_ADDED, resultNode));
 
             } catch (NodeExistsException e) {
+                logger.info("VMM node " + hostname + " already existed");
                 reports.add(new NodeReport(hostname,
                         NodeReport.STATE_NODE_EXISTS, null));
             }
@@ -75,6 +98,8 @@ public class DefaultRemoteNodeManagement implements RemoteNodeManagement {
     }
 
     public String listNodes() {
+
+        logger.debug("Listing VMM nodes");
 
         final List<ResourcepoolEntry> entries = nodeManagement.getNodes();
         final List<VmmNode> nodes = new ArrayList<VmmNode>(entries.size());
@@ -87,22 +112,44 @@ public class DefaultRemoteNodeManagement implements RemoteNodeManagement {
 
     public String getNode(String hostname) {
 
+        if (hostname == null) {
+            throw new IllegalArgumentException("hostname may not be null");
+        }
+
+        logger.debug("Listing VMM node " + hostname);
+
+
         final ResourcepoolEntry entry = nodeManagement.getNode(hostname);
         return gson.toJson(translateResourcepoolEntry(entry));
     }
 
     public String updateNodes(String nodeJson) {
+        if (nodeJson == null) {
+            throw new IllegalArgumentException("nodeJson may not be null");
+        }
         final Collection<VmmNode> nodes = gson.fromJson(nodeJson,
                 this.vmmNodeCollectionTypeToken.getType());
+
+        if (nodes.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "You must specify at least one VMM node to update");
+        }
+
         List<NodeReport> reports = new ArrayList<NodeReport>(nodes.size());
         for (VmmNode node : nodes) {
+            if (node == null) {
+                throw new IllegalArgumentException("update request has null node");
+            }
             final String hostname = node.getHostname();
+
+            logger.info("Updating VMM node: " + node.toString());
 
             try {
                 nodeManagement.updateNode(translateVmmNode(node));
                 reports.add(new NodeReport(hostname, NodeReport.STATE_UPDATED,
                         node));
             } catch (NodeInUseException e) {
+                logger.info("VMM node was in use, failed to update: " + hostname);
                 reports.add(
                         new NodeReport(hostname,
                                 NodeReport.STATE_NODE_IN_USE, null));
@@ -118,6 +165,14 @@ public class DefaultRemoteNodeManagement implements RemoteNodeManagement {
     }
 
     private NodeReport _removeNode(String hostname) {
+        if (hostname == null) {
+            throw new IllegalArgumentException("hostname may not be null");
+        }
+        hostname = hostname.trim();
+        if (hostname.length() == 0) {
+            throw new IllegalArgumentException("hostname may not be empty");
+        }
+        logger.info("Removing VMM node: " + hostname);
         String state;
         try {
 
@@ -134,6 +189,9 @@ public class DefaultRemoteNodeManagement implements RemoteNodeManagement {
     }
 
     public String removeNodes(String[] hostnames) {
+        if (hostnames == null || hostnames.length == 0) {
+            throw new IllegalArgumentException("hostnames may not be null or empty");
+        }
         List<NodeReport> reports = new ArrayList<NodeReport>(hostnames.length);
         for (String hostname : hostnames) {
             reports.add(this._removeNode(hostname));
