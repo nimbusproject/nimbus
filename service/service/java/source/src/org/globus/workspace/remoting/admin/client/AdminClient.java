@@ -20,6 +20,7 @@ import org.apache.commons.cli.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.*;
+import org.apache.log4j.varia.NullAppender;
 import org.globus.workspace.remoting.RemotingClient;
 import org.globus.workspace.remoting.admin.NodeReport;
 import org.globus.workspace.remoting.admin.VmmNode;
@@ -100,16 +101,13 @@ public class AdminClient {
 
         if (isDebug) {
 
-            //TODO uggggh something is configuring log4j first
-            // fine to do this for now, but if AdminClient is ever called directly
-            // within another JVM, this will blow away their logging config
-            // and everyone will say wtf
-            BasicConfigurator.resetConfiguration();
-
             final PatternLayout layout = new PatternLayout("%C{1}:%L - %m%n");
-            BasicConfigurator.configure(new ConsoleAppender(layout));
+            final ConsoleAppender consoleAppender = new ConsoleAppender(layout, "System.err");
+            BasicConfigurator.configure(consoleAppender);
 
             logger.info("Debug mode enabled");
+        } else {
+            BasicConfigurator.configure(new NullAppender());
         }
 
         Throwable anyError = null;

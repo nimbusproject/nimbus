@@ -139,4 +139,30 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+# add in native libraries
+LIBNATIVE="$CONTAINER_DIR/lib-native"
+mkdir -p $LIBNATIVE
+if [ $? -ne 0 ]; then
+    echo "Creation of $LIBNATIVE directory failed"
+    exit 1
+fi
+cp $NIMBUS_SRC/lib/native/* $LIBNATIVE/
+if [ $? -ne 0 ]; then
+    echo "Deployment of native libs failed"
+    exit 1
+fi
+
+# create domain sockets privileged directory
+PRIVILEGED="$NIMBUS_HOME/var/run/privileged"
+mkdir -p $PRIVILEGED
+if [ $? -ne 0 ]; then
+    echo "Creation of privileged domain sockets directory failed: $PRIVILEGED"
+    exit 1
+fi
+chmod 700 $PRIVILEGED
+if [ $? -ne 0 ]; then
+    echo "chmod of privileged domain sockets directory failed: $PRIVILEGED"
+    exit 1
+fi
+
 echo ""
