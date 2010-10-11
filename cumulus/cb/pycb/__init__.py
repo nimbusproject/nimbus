@@ -12,6 +12,8 @@ from pycb.cbAuthzSecurity import cbAuthzSec
 import random
 from optparse import OptionParser
 import hmac
+from pycb.cbRedirector import *
+
 try:
     from hashlib import sha1 as sha
     from hashlib import sha256 as sha256
