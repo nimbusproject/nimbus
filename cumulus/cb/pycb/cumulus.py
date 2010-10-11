@@ -15,6 +15,7 @@ from pycb.cbRequest import cbPutBucket
 from pycb.cbRequest import cbPutObject
 from pycb.cbRequest import cbHeadObject
 from pycb.cbRequest import cbCopyObject
+from pycb.cbRedirector import *
 from datetime import date, datetime
 from xml.dom.minidom import Document
 import uuid
@@ -29,11 +30,11 @@ import threading
 import tempfile
 import threading
 
-def end_redirector(request):
-    self.redirector.end_connection()
+def end_redirector(result, request):
+    pycb.config.redirector.end_connection(request)
 
 def init_redirector(req, bucketName, objectName):
-    redir_host = self.redirector.new_connection(request)
+    redir_host = pycb.config.redirector.new_connection(req)
     req.notifyFinish().addBoth(end_redirector, req)
 
     if redir_host:
