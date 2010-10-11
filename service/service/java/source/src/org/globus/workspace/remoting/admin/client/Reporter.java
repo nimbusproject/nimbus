@@ -25,7 +25,7 @@ import java.util.*;
 
 class Reporter {
 
-    public static final String DEFAULT_DELIMITER = ",";
+    public static final String DEFAULT_DELIMITER = " ";
 
     private final Gson gson;
 
@@ -50,7 +50,8 @@ class Reporter {
         }
 
         if (mode == OutputMode.Json) {
-            this.gson = new GsonBuilder().setPrettyPrinting().create();
+            this.gson = new GsonBuilder().setPrettyPrinting().
+                    serializeNulls().create();
         } else {
             this.gson = null;
         }
@@ -114,12 +115,18 @@ class Reporter {
         if (this.mode == OutputMode.Friendly) {
             final String formatString = "%1$-" + keyLength + "s :  ";
             for (Map.Entry<String, String> pair : entry.entrySet()) {
-                final String key = String.format(formatString, pair.getKey());
-                writer.append(key).append(pair.getValue()).append("\n");
+                // skip output of null value entries
+                if (pair.getValue() != null) {
+                    final String key = String.format(formatString, pair.getKey());
+                    writer.append(key).append(pair.getValue()).append("\n");
+                }
             }
         } else if (this.mode == OutputMode.Batch) {
             boolean first = true;
             for (String value : entry.values()) {
+                if (value == null) {
+                    value = "";
+                }
                 if (first) {
                     first = false;
                 } else {
@@ -144,10 +151,10 @@ class Reporter {
              throw new IllegalArgumentException("destination map is not empty!");
         }
         for (String field : fields) {
-            final String value = src.get(field);
-            if (value == null) {
+            if (!src.containsKey(field)) {
                 throw new IllegalArgumentException("map is missing '"+field+"' field");
             }
+            final String value = src.get(field);
             dest.put(field, value);
         }
         return dest;

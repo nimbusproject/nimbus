@@ -545,6 +545,14 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
                                                   int memory)
             throws NodeExistsException {
 
+        if (hostname == null) {
+            throw new IllegalArgumentException("hostname may not be null");
+        }
+        hostname = hostname.trim();
+        if (hostname.length() == 0) {
+            throw new IllegalArgumentException("hostname may not be empty");
+        }
+
         try {
             final ResourcepoolEntry existing =
                     this.db.getResourcepoolEntry(hostname);
@@ -603,6 +611,13 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
     }
 
     public ResourcepoolEntry getNode(String hostname) {
+        if (hostname == null) {
+            throw new IllegalArgumentException("hostname may not be null");
+        }
+        hostname = hostname.trim();
+        if (hostname.length() == 0) {
+            throw new IllegalArgumentException("hostname may not be empty");
+        }
         try {
             return this.db.getResourcepoolEntry(hostname);
         } catch (WorkspaceDatabaseException e) {
@@ -617,6 +632,13 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
 
     public synchronized boolean removeNode(String hostname)
             throws NodeInUseException {
+        if (hostname == null) {
+            throw new IllegalArgumentException("hostname may not be null");
+        }
+        hostname = hostname.trim();
+        if (hostname.length() == 0) {
+            throw new IllegalArgumentException("hostname may not be empty");
+        }
 
         try {
             final ResourcepoolEntry entry =
