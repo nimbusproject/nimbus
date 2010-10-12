@@ -1925,7 +1925,8 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
                         rs.getString(2),
                         rs.getInt(4),
                         rs.getInt(5),
-                        rs.getString(3));
+                        rs.getString(3),
+                        rs.getBoolean(6));
                 list.add(entry);
             }   while (rs.next());
 
@@ -1973,7 +1974,8 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
                     rs.getString(2),
                     rs.getInt(4),
                     rs.getInt(5),
-                    rs.getString(3));
+                    rs.getString(3),
+                    rs.getBoolean(6));
 
         } catch(SQLException e) {
             logger.error("",e);
@@ -2017,6 +2019,7 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
             pstmt.setString(3, entry.getSupportedAssociations());
             pstmt.setInt(4, entry.getMemMax());
             pstmt.setInt(5, entry.getMemCurrent());
+            pstmt.setInt(6, entry.isActive() ? 1 : 0);
 
             final int updated = pstmt.executeUpdate();
 
@@ -2278,7 +2281,8 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
         }
     }
     
-    public List<ResourcepoolEntry> getAvailableEntriesSortedByFreeMemoryPercentage(int requestedMem) throws WorkspaceDatabaseException{
+    public List<ResourcepoolEntry> getAvailableEntriesSortedByFreeMemoryPercentage(int requestedMem)
+            throws WorkspaceDatabaseException{
 
         Connection c = null;
         PreparedStatement pstmt = null;
@@ -2317,7 +2321,8 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
                             hostname,
                             rs.getInt(4),
                             rs.getInt(5),
-                            assocs);
+                            assocs,
+                            rs.getBoolean(6));
                 entries.add(entry);
 
             } while (rs.next());

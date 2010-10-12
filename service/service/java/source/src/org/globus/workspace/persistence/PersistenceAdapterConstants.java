@@ -158,8 +158,8 @@ public interface PersistenceAdapterConstants {
 
     public static final String SQL_INSERT_RESOURCE_POOL_ENTRY =
             "INSERT INTO resourcepool_entries (resourcepool,hostname," +
-                    "associations,maximum_memory,available_memory) " +
-                    "VALUES(?,?,?,?,?)";
+                    "associations,maximum_memory,available_memory,active) " +
+                    "VALUES(?,?,?,?,?,?)";
 
     public static final String SQL_UPDATE_RESOURCE_POOL_ENTRY_MEMORY =
             "UPDATE resourcepool_entries SET available_memory=? " +
@@ -185,7 +185,9 @@ public interface PersistenceAdapterConstants {
             "SELECT id FROM resources WHERE creator_dn=?";
     
     public static final String SQL_SELECT_AVAILABLE_ENTRIES =
-        "SELECT * FROM resourcepool_entries WHERE available_memory >= ? ORDER BY (available_memory/maximum_memory) ASC";
+        "SELECT * FROM resourcepool_entries WHERE active = 1 AND " +
+                "available_memory >= ? " +
+                "ORDER BY (available_memory/maximum_memory) ASC";
 
     public static final String[] PREPARED_STATEMENTS = {
                                     SQL_SELECT_RESOURCES,

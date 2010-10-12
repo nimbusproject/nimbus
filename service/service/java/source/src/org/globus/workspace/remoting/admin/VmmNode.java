@@ -22,10 +22,11 @@ public class VmmNode {
     @SuppressWarnings({"UnusedDeclaration"}) // used by GSON deserialization
     VmmNode() {}
 
-    public VmmNode(String hostname, String poolName,
+    public VmmNode(String hostname, boolean active, String poolName,
                           int memory, String networkAssociations,
                           boolean vacant) {
         this.hostname = hostname;
+        this.active = active;
         this.poolName = poolName;
         this.memory = memory;
         this.networkAssociations = networkAssociations;
@@ -33,6 +34,7 @@ public class VmmNode {
     }
 
     private String hostname;
+    private boolean active;
     private String poolName;
     private int memory;
     private String networkAssociations;
@@ -41,6 +43,10 @@ public class VmmNode {
 
     public String getHostname() {
         return hostname;
+    }
+
+    public boolean isActive() {
+        return active;
     }
 
     public String getPoolName() {
@@ -63,6 +69,7 @@ public class VmmNode {
     public String toString() {
         return "VmmNode{" +
                 "hostname='" + hostname + '\'' +
+                ", active=" + active +
                 ", poolName='" + poolName + '\'' +
                 ", memory=" + memory +
                 ", networkAssociations='" + networkAssociations + '\'' +

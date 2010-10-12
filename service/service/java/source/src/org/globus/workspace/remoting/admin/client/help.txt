@@ -35,6 +35,13 @@ Actions
 -----------------------------------------------------------------------------
 VMM Node Parameters                      Values used in adding/updating nodes
 
+    --active (-A)     Allow VMM nodes to take on new VMs. This is the default
+                      for new nodes.
+
+    --inactive (-i)   Prevent VMM nodes from accepting any new VMs. Note that
+                      any running VMs will not be terminated when a node goes
+                      inactive.
+
     --memory (-m)     Maximum memory available on node for virtual machines.
 
     --networks (-n)   List of networks associated with a node. A value of '*'

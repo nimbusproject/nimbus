@@ -54,18 +54,19 @@ public class AdminClient {
     private static final String FIELD_POOL = "pool";
     private static final String FIELD_MEMORY = "memory";
     private static final String FIELD_NETWORKS = "networks";
+    private static final String FIELD_ACTIVE = "active";
     private static final String FIELD_IN_USE = "in_use";
     private static final String FIELD_STATUS = "status";
 
 
     final static String[] NODE_FIELDS = new String[] {
             FIELD_HOSTNAME, FIELD_POOL, FIELD_MEMORY, FIELD_NETWORKS,
-            FIELD_IN_USE };
+            FIELD_IN_USE, FIELD_ACTIVE };
 
 
     final static String[] NODE_REPORT_FIELDS = new String[] {
             FIELD_HOSTNAME, FIELD_STATUS, FIELD_POOL,
-            FIELD_MEMORY, FIELD_NETWORKS, FIELD_IN_USE };
+            FIELD_MEMORY, FIELD_NETWORKS, FIELD_IN_USE, FIELD_ACTIVE };
 
     final static String[] NODE_REPORT_FIELDS_SHORT = new String[] {
             FIELD_HOSTNAME, FIELD_STATUS };
@@ -74,12 +75,16 @@ public class AdminClient {
 
     private AdminAction action;
     private List<String> hosts;
+
+    // node options for adding/updating
     private int nodeMemory;
     private boolean nodeMemoryConfigured;
     private String nodeNetworks;
     private String nodePool;
+    private boolean nodeActive = true;
+    private boolean nodeActiveConfigured;
+
     private String configPath;
-    private boolean debug;
     private File socketDirectory;
     private String nodePoolBindingName;
     private RemoteNodeManagement remoteNodeManagement;
@@ -204,7 +209,7 @@ public class AdminClient {
 
         final List<VmmNode> nodes = new ArrayList<VmmNode>(this.hosts.size());
         for (String hostname : this.hosts) {
-            nodes.add(new VmmNode(hostname, this.nodePool,
+            nodes.add(new VmmNode(hostname, this.nodeActive, this.nodePool,
                     this.nodeMemory, this.nodeNetworks, true));
         }
         final String nodesJson = gson.toJson(nodes);
@@ -259,10 +264,11 @@ public class AdminClient {
     private void run_updateNodes() throws ExecutionProblem {
 
         final List<VmmNode> nodes = new ArrayList<VmmNode>(this.hosts.size());
-        for (String hostname : this.hosts) {
-            nodes.add(new VmmNode(hostname, this.nodePool,
-                    this.nodeMemory, this.nodeNetworks, true));
-        }
+        //TODO
+//        for (String hostname : this.hosts) {
+//            nodes.add(new VmmNode(hostname, this.nodePool,
+//                    this.nodeMemory, this.nodeNetworks, true));
+//        }
         NodeReport[] reports = null;
         try {
             final String reportJson = this.remoteNodeManagement.updateNodes(gson.toJson(nodes));
@@ -444,6 +450,24 @@ public class AdminClient {
                 }
                 this.nodePool = pool.trim();
             }
+
+            final boolean active = line.hasOption(Opts.ACTIVE);
+            final boolean inactive = line.hasOption(Opts.INACTIVE);
+
+            if (active && inactive) {
+                throw new ParameterProblem("You cannot specify both " +
+                        Opts.ACTIVE_LONG + " and " + Opts.INACTIVE_LONG);
+            }
+
+            if (active) {
+                this.nodeActiveConfigured = true;
+            }
+            if (inactive) {
+                this.nodeActive = false;
+                this.nodeActiveConfigured = true;
+            }
+
+
         } else if (theAction == AdminAction.RemoveNodes) {
             this.hosts = parseHosts(line.getOptionValue(theAction.option()));
         } else if (theAction == AdminAction.ListNodes) {
@@ -462,8 +486,6 @@ public class AdminClient {
             throw new ParameterProblem("Config file path is invalid");
         }
         this.configPath = config.trim();
-
-        this.debug = line.hasOption(Opts.DEBUG_LONG);
 
         final boolean batchMode = line.hasOption(Opts.BATCH);
         final boolean json = line.hasOption(Opts.JSON);
@@ -638,6 +660,7 @@ public class AdminClient {
         map.put(FIELD_MEMORY, String.valueOf(node.getMemory()));
         map.put(FIELD_NETWORKS, node.getNetworkAssociations());
         map.put(FIELD_IN_USE, String.valueOf(!node.isVacant()));
+        map.put(FIELD_ACTIVE, String.valueOf(node.isActive()));
         return map;
     }
 
@@ -660,11 +683,13 @@ public class AdminClient {
             map.put(FIELD_MEMORY, null);
             map.put(FIELD_NETWORKS, null);
             map.put(FIELD_IN_USE, null);
+            map.put(FIELD_ACTIVE, null);
         } else {
             map.put(FIELD_POOL, node.getPoolName());
             map.put(FIELD_MEMORY, String.valueOf(node.getMemory()));
             map.put(FIELD_NETWORKS, node.getNetworkAssociations());
             map.put(FIELD_IN_USE, String.valueOf(!node.isVacant()));
+            map.put(FIELD_ACTIVE, String.valueOf(node.isActive()));
         }
         return map;
     }
