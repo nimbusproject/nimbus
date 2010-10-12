@@ -30,9 +30,6 @@ public interface PersistenceAdapterConstants {
     public static final String SQL_SELECT_ALL_ASSOCIATIONS =
             "SELECT * FROM associations";
 
-    public static final String SQL_SELECT_ALL_RESOURCE_POOLS =
-            "SELECT * FROM resourcepools";
-
     /* Prepared Statements with dynamic markers */
 
     public static final String SQL_SET_STATE =
@@ -168,12 +165,6 @@ public interface PersistenceAdapterConstants {
             "UPDATE resourcepool_entries SET available_memory=? " +
             "WHERE resourcepool=? AND hostname=?";
 
-    public static final String SQL_DELETE_ALL_RESOURCE_POOLS =
-            "DELETE FROM resourcepools";
-
-    public static final String SQL_DELETE_ALL_RESOURCE_POOL_ENTRIES =
-            "DELETE FROM resourcepool_entries";
-
     public static final String SQL_DELETE_RESOURCE_POOL_ENTRY =
             "DELETE FROM resourcepool_entries WHERE hostname = ?";
 
@@ -199,7 +190,6 @@ public interface PersistenceAdapterConstants {
     public static final String[] PREPARED_STATEMENTS = {
                                     SQL_SELECT_RESOURCES,
                                     SQL_SELECT_ALL_ASSOCIATIONS,
-                                    SQL_SELECT_ALL_RESOURCE_POOLS,
                                     SQL_SET_STATE,
                                     SQL_SET_OPS_ENABLED,
                                     SQL_SET_NETWORKING,
@@ -236,8 +226,6 @@ public interface PersistenceAdapterConstants {
                                     SQL_SELECT_RESOURCE_POOL_ENTRY,
                                     SQL_INSERT_RESOURCE_POOL_ENTRY,
                                     SQL_UPDATE_RESOURCE_POOL_ENTRY_MEMORY,
-                                    SQL_DELETE_ALL_RESOURCE_POOLS,
-                                    SQL_DELETE_ALL_RESOURCE_POOL_ENTRIES,
                                     SQL_DELETE_RESOURCE_POOL_ENTRY,
                                     SQL_SELECT_RESOURCE_POOL,
                                     SQL_JOIN_SELECT_RESOURCE_POOL_MEMORY,
