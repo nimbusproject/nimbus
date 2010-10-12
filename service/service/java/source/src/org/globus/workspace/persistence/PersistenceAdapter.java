@@ -150,10 +150,6 @@ public interface PersistenceAdapter {
 
             throws WorkspaceDatabaseException;
 
-    public void replaceResourcepools(Hashtable resourcepools)
-
-            throws WorkspaceDatabaseException;
-
     public void replaceResourcepoolEntry(ResourcepoolEntry entry)
 
             throws WorkspaceDatabaseException;
