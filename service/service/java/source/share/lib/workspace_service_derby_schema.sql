@@ -176,6 +176,7 @@ hostname VARCHAR(128) UNIQUE NOT NULL,
 associations VARCHAR(512) NOT NULL,
 maximum_memory REAL,
 available_memory REAL,
+active SMALLINT NOT NULL DEFAULT 1,
 PRIMARY KEY(resourcepool, hostname)
 );
 

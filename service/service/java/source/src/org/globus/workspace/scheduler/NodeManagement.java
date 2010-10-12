@@ -25,7 +25,8 @@ public interface NodeManagement {
     public ResourcepoolEntry addNode(String hostname,
                                      String pool,
                                      String associations,
-                                     int memory)
+                                     int memory,
+                                     boolean active)
             throws NodeExistsException;
 
     //Read

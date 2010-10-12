@@ -295,7 +295,7 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
         for (int i = 0; i < vmids.length; i++) {
 
             try {
-                nodes[i] = ResourcepoolUtil.getResourcePoolEntryImproved(memory,
+                nodes[i] = ResourcepoolUtil.getResourcePoolEntry(memory,
                                                                  assocs,
                                                                  this.db,
                                                                  this.lager,
@@ -373,7 +373,7 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
         return true;
     }
 
-    public void releaseSpace(final int vmid) throws ManageException {
+    public synchronized void releaseSpace(final int vmid) throws ManageException {
 
         if (lager.traceLog) {
             logger.trace("releaseSpace(): " + Lager.id(vmid));
@@ -450,7 +450,8 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
     public synchronized ResourcepoolEntry addNode(String hostname,
                                                   String pool,
                                                   String associations,
-                                                  int memory)
+                                                  int memory,
+                                                  boolean active)
             throws NodeExistsException {
 
         if (hostname == null) {
@@ -496,7 +497,7 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
 
             final ResourcepoolEntry entry =
                     new ResourcepoolEntry(pool, hostname, memory,
-                            correctCurrentMem, associations);
+                            correctCurrentMem, associations, active);
 
             //check then act protected by lock
             this.db.addResourcepoolEntry(entry);
@@ -534,7 +535,7 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
         }
     }
 
-    public void updateNode(ResourcepoolEntry node) {
+    public synchronized void updateNode(ResourcepoolEntry node) {
         //TODO
     }
 
