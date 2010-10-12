@@ -198,7 +198,7 @@ class ResourcepoolUtil {
      * @throws ResourceRequestDeniedException exc
      * @throws WorkspaceDatabaseException exc
      */
-    static String getResourcePoolEntryImproved(int mem,
+    static String getResourcePoolEntry(int mem,
             String[] neededAssociations,
             final PersistenceAdapter db,
             Lager lager,

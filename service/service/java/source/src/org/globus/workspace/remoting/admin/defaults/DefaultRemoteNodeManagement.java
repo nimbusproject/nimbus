@@ -80,9 +80,10 @@ public class DefaultRemoteNodeManagement implements RemoteNodeManagement {
             try {
                 final ResourcepoolEntry entry =
                         nodeManagement.addNode(hostname,
-                        node.getPoolName(),
-                        node.getNetworkAssociations(),
-                        node.getMemory());
+                                node.getPoolName(),
+                                node.getNetworkAssociations(),
+                                node.getMemory(),
+                                node.isActive());
 
                 final VmmNode resultNode = translateResourcepoolEntry(entry);
                 reports.add(new NodeReport(hostname,
@@ -211,9 +212,9 @@ public class DefaultRemoteNodeManagement implements RemoteNodeManagement {
         if (entry == null) {
              return null;
         }
-        return new VmmNode(entry.getHostname(), entry.getResourcePool(),
-                entry.getMemMax(), entry.getSupportedAssociations(),
-                entry.isVacant());
+        return new VmmNode(entry.getHostname(), entry.isActive(),
+                entry.getResourcePool(), entry.getMemMax(),
+                entry.getSupportedAssociations(), entry.isVacant());
     }
 
     private static ResourcepoolEntry translateVmmNode(VmmNode node) {
@@ -221,6 +222,7 @@ public class DefaultRemoteNodeManagement implements RemoteNodeManagement {
             return null;
         }
         return new ResourcepoolEntry(node.getPoolName(), node.getHostname(),
-                node.getMemory(), node.getMemory(), node.getNetworkAssociations());
+                node.getMemory(), node.getMemory(),
+                node.getNetworkAssociations(), node.isActive());
     }
 }
