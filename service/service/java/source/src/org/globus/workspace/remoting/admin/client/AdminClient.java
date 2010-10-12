@@ -56,7 +56,7 @@ public class AdminClient {
     private static final String FIELD_NETWORKS = "networks";
     private static final String FIELD_ACTIVE = "active";
     private static final String FIELD_IN_USE = "in_use";
-    private static final String FIELD_STATUS = "status";
+    private static final String FIELD_RESULT = "result";
 
 
     final static String[] NODE_FIELDS = new String[] {
@@ -65,11 +65,12 @@ public class AdminClient {
 
 
     final static String[] NODE_REPORT_FIELDS = new String[] {
-            FIELD_HOSTNAME, FIELD_STATUS, FIELD_POOL,
-            FIELD_MEMORY, FIELD_NETWORKS, FIELD_IN_USE, FIELD_ACTIVE };
+            FIELD_HOSTNAME, FIELD_POOL, FIELD_MEMORY, FIELD_NETWORKS,
+            FIELD_IN_USE, FIELD_ACTIVE, FIELD_RESULT,
+    };
 
     final static String[] NODE_REPORT_FIELDS_SHORT = new String[] {
-            FIELD_HOSTNAME, FIELD_STATUS };
+            FIELD_HOSTNAME, FIELD_RESULT};
 
     private final Gson gson = new Gson();
 
@@ -676,7 +677,7 @@ public class AdminClient {
         final HashMap<String, String> map =
                 new HashMap<String, String>(2);
         map.put(FIELD_HOSTNAME, nodeReport.getHostname());
-        map.put(FIELD_STATUS, nodeReport.getState());
+        map.put(FIELD_RESULT, nodeReport.getState());
         final VmmNode node = nodeReport.getNode();
         if (node == null) {
             map.put(FIELD_POOL, null);
