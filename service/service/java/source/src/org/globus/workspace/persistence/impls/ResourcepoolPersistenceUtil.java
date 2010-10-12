@@ -16,74 +16,15 @@
 
 package org.globus.workspace.persistence.impls;
 
-import org.globus.workspace.scheduler.defaults.Resourcepool;
 import org.globus.workspace.scheduler.defaults.ResourcepoolEntry;
 import org.globus.workspace.persistence.PersistenceAdapterConstants;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.Iterator;
 
 public class ResourcepoolPersistenceUtil
                                 implements PersistenceAdapterConstants {
-
-    // Prepared statement not necessary, this only happens at startup
-    public static String[] insertAllResourcepoolsSQL(Hashtable resourcepools) {
-
-        final ArrayList inserts = new ArrayList();
-        Iterator iter = resourcepools.keySet().iterator();
-        while (iter.hasNext()) {
-            String name = (String) iter.next();
-            Resourcepool resourcepool = (Resourcepool)resourcepools.get(name);
-            StringBuffer buf = new StringBuffer();
-            buf.append("INSERT INTO resourcepools VALUES ('").
-                append(name).
-                append("'");
-
-            buf.append(", ").
-                append(resourcepool.getFileTime()).
-                append(")");
-
-            inserts.add(buf.toString());
-
-            if (resourcepool.getEntries() == null) {
-                continue;
-            }
-
-            Iterator innerIter = resourcepool.getEntries().values().iterator();
-            while (innerIter.hasNext()) {
-                buf = new StringBuffer();
-                ResourcepoolEntry entry = (ResourcepoolEntry)innerIter.next();
-                buf.append("INSERT INTO resourcepool_entries VALUES (");
-
-                buf.append("'").
-                    append(name).
-                    append("'");
-
-                buf.append(", '").
-                    append(entry.getHostname()).
-                    append("'");
-
-                buf.append(", '").
-                    append(entry.getSupportedAssociations()).
-                    append("'");
-
-                buf.append(", ").
-                    append(entry.getMemMax());
-
-                buf.append(", ").
-                    append(entry.getMemCurrent());
-
-                buf.append(")");
-                inserts.add(buf.toString());
-            }
-        }
-
-        return (String[])inserts.toArray(new String[inserts.size()]);
-    }
 
     public static PreparedStatement updateAvailableMemory(
                                                    String name,

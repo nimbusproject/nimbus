@@ -346,59 +346,37 @@ class ResourcepoolUtil {
             throw new IllegalArgumentException("null persistence adapter");
         }
 
-        final Hashtable resourcepools = db.currentResourcepools();
-
-        boolean returned = false;
-        
-        final Enumeration en = resourcepools.keys();
-        while (en.hasMoreElements()) {
-
-            // get name for logging
-            String poolname = (String) en.nextElement();
-
-            Resourcepool pool = (Resourcepool) resourcepools.get(poolname);
-            if (pool == null) {
-                throw new ProgrammingError("all resource pools " +
-                                    "in the hashmap should be non-null");
-            }
-
-            Hashtable entries = pool.getEntries();
-            if (entries == null) {
-                throw new ProgrammingError("all entries in the resource " +
-                                    "pool should be non-null");
-            }
-
-            if (entries.containsKey(hostname)) {
-
-                ResourcepoolEntry entry =
-                                (ResourcepoolEntry)entries.get(hostname);
-
-                entry.addMemCurrent(mem);
-
-                // If the node's memory capacity was changed during this VM's
-                // deployment, there can be a situation when this addition
-                // will make the current memory exceed the maximum.  If this
-                // happens, the current memory is adjusted to be the maximum.
-                if (entry.getMemCurrent() > entry.getMemMax()) {
-                    entry.setMemCurrent(entry.getMemMax());
-                }
-
-                db.replaceResourcepoolEntry(entry);
-
-                returned = true;
-
-                if (eventLog) {
-                    logger.info(Lager.ev(vmid) + "'" + poolname +
-                    "' resource pool entry '" + hostname + "': " + mem +
-                    " MB given back, now has " + entry.getMemCurrent() +
-                    " MB available");
-                }
-
-                break;
-            }
+        if (hostname == null) {
+            throw new IllegalArgumentException("hostname may not be null");
         }
 
-        if (!returned) {
+        final ResourcepoolEntry entry = db.getResourcepoolEntry(hostname);
+
+        if (entry != null) {
+
+            final String poolname = entry.getResourcePool();
+
+            entry.addMemCurrent(mem);
+
+            // If the node's memory capacity was changed during this VM's
+            // deployment, there can be a situation when this addition
+            // will make the current memory exceed the maximum.  If this
+            // happens, the current memory is adjusted to be the maximum.
+            if (entry.getMemCurrent() > entry.getMemMax()) {
+                entry.setMemCurrent(entry.getMemMax());
+            }
+
+            db.replaceResourcepoolEntry(entry);
+
+            if (eventLog) {
+                logger.info(Lager.ev(vmid) + "'" + poolname +
+                        "' resource pool entry '" + hostname + "': " + mem +
+                        " MB given back, now has " + entry.getMemCurrent() +
+                        " MB available");
+            }
+
+        } else {
+
             logger.warn(Lager.id(vmid) +
                     "could not find a resource pool entry to return " +
                     "lease -- the only way this should be possible is " +
