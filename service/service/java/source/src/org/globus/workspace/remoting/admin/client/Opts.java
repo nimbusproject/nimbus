@@ -47,10 +47,6 @@ public class Opts {
     public final Option DEBUG_OPT =
             OptionBuilder.withLongOpt(DEBUG_LONG).create();
 
-    public static final String DRYRUN_LONG = "dryrun";
-    public final Option DRYRUN_OPT =
-            OptionBuilder.withLongOpt(DRYRUN_LONG).create();
-
     public static final String CONFIG = "c";
     public static final String CONFIG_LONG = "conf";
     public final Option CONFIG_OPT =
@@ -61,6 +57,16 @@ public class Opts {
     public final Option BATCH_OPT =
                 OptionBuilder.withLongOpt(BATCH_LONG).create(BATCH);
 
+    public static final String DELIMITER = "D";
+    public static final String DELIMITER_LONG = "delimiter";
+    public final Option DELIMITER_OPT =
+                OptionBuilder.withLongOpt(DELIMITER_LONG).hasArg().create(DELIMITER);
+
+    public static final String ALL = "A";
+    public static final String ALL_LONG = "all";
+    public final Option ALL_OPT =
+                OptionBuilder.withLongOpt(ALL_LONG).create(ALL);
+
     public static final String REPORT = "r";
     public static final String REPORT_LONG = "report";
     public final Option REPORT_OPT =
@@ -70,6 +76,11 @@ public class Opts {
     public static final String JSON_LONG = "json";
     public final Option JSON_OPT =
                 OptionBuilder.withLongOpt(JSON_LONG).create(JSON);
+
+    public static final String OUTPUT = "o";
+    public static final String OUTPUT_LONG = "output";
+    public final Option OUTPUT_OPT =
+                OptionBuilder.withLongOpt(OUTPUT_LONG).hasArg().create(OUTPUT);
 
 
     //*************************************************************************
@@ -118,9 +129,9 @@ public class Opts {
 
 
     public final Option[] ALL_ENABLED_OPTIONS = {
-            HELP_OPT, DEBUG_OPT, DRYRUN_OPT, CONFIG_OPT, BATCH_OPT, REPORT_OPT,
-            JSON_OPT, ADD_NODES_OPT, LIST_NODES_OPT, REMOVE_NODES_OPT,
-            UPDATE_NODES_OPT, NETWORKS_OPT, MEMORY_OPT, POOL_OPT
+            HELP_OPT, DEBUG_OPT, CONFIG_OPT, BATCH_OPT, DELIMITER_OPT, ALL_OPT,
+            REPORT_OPT, JSON_OPT, OUTPUT_OPT, ADD_NODES_OPT, LIST_NODES_OPT,
+            REMOVE_NODES_OPT, UPDATE_NODES_OPT, NETWORKS_OPT, MEMORY_OPT, POOL_OPT
     };
 
 }
