@@ -38,7 +38,6 @@ import org.globus.workspace.persistence.impls.AssociationPersistenceUtil;
 import org.globus.workspace.persistence.impls.ResourcepoolPersistenceUtil;
 import org.globus.workspace.persistence.impls.VMPersistence;
 import org.globus.workspace.persistence.impls.VirtualMachinePersistenceUtil;
-import org.globus.workspace.scheduler.defaults.Resourcepool;
 import org.globus.workspace.scheduler.defaults.ResourcepoolEntry;
 import org.globus.workspace.service.CoschedResource;
 import org.globus.workspace.service.GroupResource;
@@ -73,8 +72,7 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
 
     // caches, todo: ehcache
     private Hashtable associations;
-    private Hashtable resourcepools;
-    
+
 
     // -------------------------------------------------------------------------
     // CONSTRUCTOR
@@ -1819,9 +1817,7 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
             pstmt = ResourcepoolPersistenceUtil.
                                         updateAvailableMemory(entry.getResourcePool(), entry, c);
             final int updated = pstmt.executeUpdate();
-            if(updated == 1){
-                this.resourcepools = null; //clean cache
-            } else {
+            if (updated != 1) {
                 throw new WorkspaceDatabaseException("expected row update");
             }
         } catch(SQLException e) {
@@ -1836,122 +1832,6 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
                     returnConnection(c);
                 }
             } catch (SQLException sql) {
-                logger.error("SQLException in finally cleanup", sql);
-            }
-        }
-
-    }
-
-    public Hashtable currentResourcepools()
-                            throws WorkspaceDatabaseException {
-        return currentResourcepools(true);
-    }
-
-    public synchronized Hashtable currentResourcepools(boolean cachedIsFine)
-                            throws WorkspaceDatabaseException {
-
-        if (cachedIsFine) {
-            if (this.resourcepools != null) {
-                return this.resourcepools;
-            }
-        }
-
-        Connection c = null;
-        PreparedStatement pstmt = null;
-        PreparedStatement pstmt2 = null;
-        ResultSet rs = null;
-        ResultSet rs2 = null;
-
-        try {
-            c = getConnection();
-            pstmt = c.prepareStatement(SQL_SELECT_ALL_RESOURCE_POOLS);
-            rs = pstmt.executeQuery();
-
-            if (rs == null || !rs.next()) {
-                if (lager.traceLog) {
-                    logger.debug("no previous resourcepools");
-                }
-                return new Hashtable();
-            }
-
-            Hashtable pools = new Hashtable();
-            do {
-                // rs was next'd above already
-                String name = rs.getString(1);
-                long fileTime = rs.getLong(2);
-                Resourcepool resourcepool = new Resourcepool();
-                resourcepool.setFileTime(fileTime);
-
-                pstmt2 = c.prepareStatement(SQL_SELECT_RESOURCE_POOL);
-                pstmt2.setString(1, name);
-                rs2 = pstmt2.executeQuery();
-
-                Hashtable entries = new Hashtable();
-                while (rs2.next()) {
-                    String hostname = rs2.getString(2);
-                    String assocs = rs2.getString(3);
-                    if (hostname == null) {
-                        logger.error("hostname should never be null here");
-                        continue;
-                    }
-                    if (assocs == null) {
-                        logger.error("assocs should never be null here");
-                        continue;
-                    }
-                    ResourcepoolEntry entry =
-                                new ResourcepoolEntry(name,
-                                                      hostname,
-                                                      rs2.getInt(4),
-                                                      rs2.getInt(5),
-                                                      assocs);
-                    entries.put(hostname, entry);
-                }
-                resourcepool.setEntries(entries);
-                pools.put(name,resourcepool);
-                if (this.dbTrace) {
-                    logger.trace("found previously stored Resourcepool '" +
-                            name + "':\n" + resourcepool);
-                }
-
-                pstmt2.close();
-                rs2.close();
-
-            } while (rs.next());
-
-            // We do not want finally to clean these up, but need the finally protection
-            // because of the while loop.  Once out of the while loop, these _are_ closed
-            // so make them null so they are not re-closed which causes
-            // "SQLException: Already closed"
-            rs2 = null;
-            pstmt2 = null;
-
-            this.resourcepools = pools;
-
-            return pools;
-
-        } catch(SQLException e) {
-            this.resourcepools = null;
-            logger.error("",e);
-            throw new WorkspaceDatabaseException(e);
-        } finally {
-            try {
-                if (pstmt != null) {
-                    pstmt.close();
-                }
-                if (pstmt2 != null) {
-                    pstmt2.close();
-                }
-                if (rs != null) {
-                    rs.close();
-                }
-                if (rs2 != null) {
-                    rs2.close();
-                }
-                if (c != null) {
-                    returnConnection(c);
-                }
-            } catch (SQLException sql) {
-                this.resourcepools = null;
                 logger.error("SQLException in finally cleanup", sql);
             }
         }
@@ -2066,7 +1946,6 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
                     returnConnection(c);
                 }
             } catch (SQLException sql) {
-                this.resourcepools = null;
                 logger.error("SQLException in finally cleanup", sql);
             }
         }
@@ -2111,7 +1990,6 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
                     returnConnection(c);
                 }
             } catch (SQLException sql) {
-                this.resourcepools = null;
                 logger.error("SQLException in finally cleanup", sql);
             }
         }
@@ -2150,7 +2028,6 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
             logger.error("",e);
             throw new WorkspaceDatabaseException(e);
         } finally {
-            this.resourcepools = null; //invalidate cache
             try {
                 if (pstmt != null) {
                     pstmt.close();
@@ -2194,7 +2071,6 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
             logger.error("",e);
             throw new WorkspaceDatabaseException(e);
         } finally {
-            this.resourcepools = null; //invalidate cache
             try {
                 if (pstmt != null) {
                     pstmt.close();

@@ -154,14 +154,6 @@ public interface PersistenceAdapter {
 
             throws WorkspaceDatabaseException;
 
-    public Hashtable currentResourcepools()
-
-            throws WorkspaceDatabaseException;
-
-    public Hashtable currentResourcepools(boolean cachedIsFine)
-
-            throws WorkspaceDatabaseException;
-
     public int memoryUsedOnPoolnode(String poolnode)
 
             throws WorkspaceDatabaseException;
