@@ -1,0 +1,62 @@
+Nimbus Admin Tool
+
+Queries and configures the running Nimbus IaaS service
+
+-----------------------------------------------------------------------------
+General
+
+    --help (-h)    Print this help information.
+
+    --conf (-c)    Specify an alternate configuration file.
+
+    --debug        Enable debug output
+
+
+-----------------------------------------------------------------------------
+Actions
+
+    --list-nodes (-l)          List the VMM nodes known to the Nimbus service
+
+    --add-nodes (-a) HOSTS     Add the specified VMM nodes to the pool.
+                               HOSTS is a comma-separated list of hostnames
+                               or IP addresses. Node parameters can be
+                               specified in additional arguments, see below.
+                               If a parameter is unspecified, a default will
+                               be read from the configuration file.
+
+    --update-nodes (-u) HOSTS  Updates configuration values of VMM nodes. At
+                               least one node parameter must be specified in
+                               additional arguments, see below.
+
+    --remove-nodes (-d) HOSTS  Removes VMM nodes from the Nimbus resource
+                               pool. Nodes that are in use cannot be removed.
+
+
+-----------------------------------------------------------------------------
+VMM Node Parameters                      Values used in adding/updating nodes
+
+    --memory (-m)     Maximum memory available on node for virtual machines.
+
+    --networks (-n)   List of networks associated with a node. A value of '*'
+                      means all available networks.
+
+    --pool (-p)       Resource pool name for this VMM node. This option is
+                      purely organizational at this time.
+
+
+-----------------------------------------------------------------------------
+Output options
+
+    --report (-r) FIELDS   Only report specified fields. Argument is a comma-
+                           separated list.
+
+    --batch (-b)           Report results with one record per line, using an
+                           optional delimiter.
+
+    --delimiter (-D)       Delimiter between fields in batch mode. Default is
+                           a single space.
+
+    --json (-j)            Report results in JSON format.
+
+    --output (-o) FILE     Write results to FILE instead of stdout.
+

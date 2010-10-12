@@ -27,9 +27,7 @@ import org.globus.workspace.remoting.admin.VmmNode;
 import org.globus.workspace.remoting.admin.RemoteNodeManagement;
 import org.nimbustools.api.brain.NimbusHomePathResolver;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.rmi.NotBoundException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -86,6 +84,7 @@ public class AdminClient {
     private String nodePoolBindingName;
     private RemoteNodeManagement remoteNodeManagement;
     private Reporter reporter;
+    private OutputStream outStream;
 
     public static void main(String args[]) {
 
@@ -133,14 +132,16 @@ public class AdminClient {
 
         if (anyError == null) {
             System.exit(ret);
+        } else {
+            logger.debug("Got error", anyError);
         }
 
         if (paramError != null) {
-            System.err.println("Parameter Problem:\n" + paramError.getMessage());
+            System.err.println("Parameter Problem:\n\n" + paramError.getMessage());
             System.err.println("See --help");
 
         } else if (execError != null) {
-            System.err.println("Execution Problem:\n" + execError.getMessage());
+            System.err.println(execError.getMessage());
         } else {
             System.err.println("An unexpected error was encountered. Please report this!");
             System.err.println(anyError.getMessage());
@@ -159,7 +160,7 @@ public class AdminClient {
         this.loadArgs(args);
 
         if (this.action == AdminAction.Help) {
-            printHelp();
+            System.out.println(getHelpText());
             return;
         }
 
@@ -216,7 +217,7 @@ public class AdminClient {
         }
 
         try {
-            reporter.report(nodeReportsToMaps(reports), System.out);
+            reporter.report(nodeReportsToMaps(reports), this.outStream);
         } catch (IOException e) {
             throw new ExecutionProblem("Problem writing output: " + e.getMessage(), e);
         }
@@ -232,7 +233,7 @@ public class AdminClient {
         }
 
         try {
-            reporter.report(nodesToMaps(nodes), System.out);
+            reporter.report(nodesToMaps(nodes), this.outStream);
         } catch (IOException e) {
             throw new ExecutionProblem("Problem writing output: " + e.getMessage(), e);
         }
@@ -249,7 +250,7 @@ public class AdminClient {
         }
 
         try {
-            reporter.report(nodeReportsToMaps(reports), System.out);
+            reporter.report(nodeReportsToMaps(reports), this.outStream);
         } catch (IOException e) {
             throw new ExecutionProblem("Problem writing output: " + e.getMessage(), e);
         }
@@ -271,7 +272,7 @@ public class AdminClient {
         }
 
         try {
-            reporter.report(nodeReportsToMaps(reports), System.out);
+            reporter.report(nodeReportsToMaps(reports), this.outStream);
         } catch (IOException e) {
             throw new ExecutionProblem("Problem writing output: " + e.getMessage(), e);
         }
@@ -302,9 +303,10 @@ public class AdminClient {
     }
 
     private void handleRemoteException(RemoteException e) throws ExecutionProblem {
-        throw new ExecutionProblem("Failed to connect to remoting socket. "+
-                "Is the service running? Socket directory: '" +
-                this.socketDirectory.getAbsolutePath() + "'. Error: " +
+        throw new ExecutionProblem(
+                "Failed to connect to Nimbus service over domain sockets. "+
+                "Is the service running?\n\nSocket directory: " +
+                this.socketDirectory.getAbsolutePath() + "\n\nError: " +
                 e.getMessage(), e);
     }
 
@@ -484,7 +486,27 @@ public class AdminClient {
         } else {
             fields = theAction.fields();
         }
-        this.reporter = new Reporter(mode, fields, null);
+
+        String delimiter = null;
+        if (line.hasOption(Opts.DELIMITER)) {
+            delimiter = line.getOptionValue(Opts.DELIMITER);
+        }
+
+        this.reporter = new Reporter(mode, fields, delimiter);
+
+        if (line.hasOption(Opts.OUTPUT)) {
+            final String filename = line.getOptionValue(Opts.OUTPUT);
+            final File f = new File(filename);
+            try {
+                this.outStream = new FileOutputStream(f);
+            } catch (FileNotFoundException e) {
+                throw new ParameterProblem(
+                        "Specified output file could not be opened for writing: " +
+                                f.getAbsolutePath(), e);
+            }
+        } else {
+            this.outStream = System.out;
+        }
 
         final List leftovers = line.getArgList();
 		if (leftovers != null && !leftovers.isEmpty()) {
@@ -563,10 +585,41 @@ public class AdminClient {
         return hosts;
     }
 
-    private static void printHelp() {
-        // TODO
-        System.out.println("TODO print help text");
+    private static String getHelpText() {
 
+        InputStream is = null;
+        BufferedInputStream bis = null;
+        try {
+            is = AdminClient.class.getResourceAsStream("help.txt");
+            if (is == null) {
+                return "";
+            }
+
+            bis = new BufferedInputStream(is);
+            StringBuilder sb = new StringBuilder();
+            byte[] chars = new byte[1024];
+            int bytesRead = 0;
+            while( (bytesRead = bis.read(chars)) > -1){
+                sb.append(new String(chars, 0, bytesRead));
+            }
+            return sb.toString();
+
+        } catch (IOException e) {
+            logger.error("Error reading help text", e);
+            return "";
+        } finally {
+            try {
+            if (bis != null) {
+                bis.close();
+            }
+
+            if (is != null) {
+                is.close();
+            }
+            } catch (IOException e) {
+                logger.error("Error reading help text", e);
+            }
+        }
     }
 
     private static List<Map<String,String>> nodesToMaps(VmmNode[] nodes) {
