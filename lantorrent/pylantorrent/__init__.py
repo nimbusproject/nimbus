@@ -70,7 +70,7 @@ class VConfig(object):
         self.logfile = "lantorrent.log"
         self.log_level = logging.DEBUG
         self.dbfile = None
-        self.db_error_max = 5
+        self.db_error_max = 10
         self.insert_delay = 30
 
     def load_settings(self, ini_file):
