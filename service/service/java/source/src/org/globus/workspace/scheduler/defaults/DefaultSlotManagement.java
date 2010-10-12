@@ -30,9 +30,7 @@ import org.globus.workspace.service.binding.vm.VirtualMachineDeployment;
 import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
 import org.nimbustools.api.services.rm.DoesNotExistException;
 import org.nimbustools.api.services.rm.ManageException;
-import org.springframework.core.io.Resource;
 
-import java.io.IOException;
 import java.util.*;
 
 /**
@@ -56,7 +54,6 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
     private final Lager lager;
     private WorkspaceHome home;
 
-    private String vmmpoolDirectory;
     private boolean greedy;
 
 
@@ -95,10 +92,6 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
     // SET
     // -------------------------------------------------------------------------
 
-    public void setVmmpoolDirectoryResource(Resource vmmpoolDirectoryResource)
-            throws IOException {
-        this.vmmpoolDirectory = vmmpoolDirectoryResource.getFile().getAbsolutePath();
-    }
 
     public void setSelectionStrategy(String selectionStrategy) {
 
@@ -448,94 +441,9 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
 
     public synchronized void validate() throws Exception {
 
-        if (this.vmmpoolDirectory == null) {
-            throw new Exception("no resourcepoolDirectory configuration");
+        if (home == null) {
+            throw new Exception("home may not be null");
         }
-
-        Hashtable previous_resourcepools;
-        try {
-            previous_resourcepools =
-                            this.db.currentResourcepools(false);
-        } catch (ManageException e) {
-            logger.error("",e);
-            previous_resourcepools = null;
-        }
-
-        final Hashtable new_resourcepools =
-                            ResourcepoolUtil.loadResourcepools(
-                                               this.vmmpoolDirectory,
-                                               previous_resourcepools,
-                                               this.lager.traceLog);
-
-        // This will catch the corner case of one or many VMs being started
-        // on a node, the node being deleted from the configuration, the node
-        // being RE-inserted into the configuration, all the while with no
-        // VM memory being retired.
-
-        // It will also catch duplicate hostnames listed in different pools.
-        final Set hostnamesSeen = new HashSet(64);
-
-        final Enumeration en = new_resourcepools.keys();
-        while (en.hasMoreElements()) {
-            final String poolName = (String) en.nextElement();
-            final Resourcepool pool =
-                    (Resourcepool) new_resourcepools.get(poolName);
-
-            final Hashtable entries = pool.getEntries();
-            if (entries == null || entries.isEmpty()) {
-                logger.info("Resource pool '" +
-                        poolName + "' had no VMMs.");
-                continue;
-            }
-            
-            final Collection coll = entries.values();
-            final Iterator iter = coll.iterator();
-            while (iter.hasNext()) {
-                final ResourcepoolEntry entry =
-                                (ResourcepoolEntry) iter.next();
-
-                if (!hostnamesSeen.add(entry.getHostname())) {
-                    throw new Exception("Duplicate hostname '" +
-                                entry.getHostname() + "' in resource pools");
-                }
-
-                final int memInUse =
-                        this.db.memoryUsedOnPoolnode(entry.getHostname());
-                
-                final int correctCurrentMem = entry.getMemMax() - memInUse;
-
-                if (correctCurrentMem == entry.getMemCurrent()) {
-                    if (lager.traceLog) {
-                        logger.trace("curmem for VMM '" + entry.getHostname() +
-                                "' matches VM records");
-                    }
-                } else {
-                    logger.info("Reconfiguration corner case, current " +
-                            "memory-in-use record for VMM '" +
-                            entry.getHostname() +
-                            "' was wrong, old value was " +
-                            entry.getMemCurrent() + " MB, new value is " +
-                            correctCurrentMem + " MB.");
-                    entry.setMemCurrent(correctCurrentMem);
-                }
-            }
-
-            int numEntries = 0;
-            if (pool.getEntries() != null) {
-                numEntries = pool.getEntries().size();
-            }
-
-            if (numEntries == 1) {
-                logger.info("Resource pool '" +
-                        poolName + "' loaded with one VMM.");
-            } else {
-                logger.info("Resource pool '" +
-                        poolName + "' loaded with " + numEntries +
-                        " VMMs.");
-            }
-        }
-
-        this.db.replaceResourcepools(new_resourcepools);
     }
 
 
