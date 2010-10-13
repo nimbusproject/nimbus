@@ -559,8 +559,24 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
             throws NodeInUseException, NodeNotFoundException {
 
         try {
+
+            Integer availMemory = null;
+            if (memory != null) {
+                final ResourcepoolEntry entry = getNode(hostname);
+                if (entry == null) {
+                    throw new NodeNotFoundException();
+                }
+
+                if (!entry.isVacant()) {
+                    logger.info("Refusing to update VMM node "+ hostname+
+                            " memory max while VMs are running");
+                    throw new NodeInUseException();
+                }
+                availMemory = memory;
+            }
+
             boolean updated = this.db.updateResourcepoolEntry(hostname,
-                    pool, networks, memory, active);
+                    pool, networks, memory, availMemory, active);
             if (!updated) {
                 throw new NodeNotFoundException();
             }

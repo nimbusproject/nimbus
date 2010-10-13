@@ -201,7 +201,8 @@ public interface PersistenceAdapter {
     boolean updateResourcepoolEntry(String hostname,
                                         String pool,
                                         String networks,
-                                        Integer memory,
+                                        Integer memoryMax,
+                                        Integer memoryAvail,
                                         Boolean active)
             throws WorkspaceDatabaseException;
 }
