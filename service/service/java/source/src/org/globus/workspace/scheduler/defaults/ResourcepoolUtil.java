@@ -19,7 +19,6 @@ package org.globus.workspace.scheduler.defaults;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.globus.workspace.Lager;
-import org.globus.workspace.ProgrammingError;
 import org.globus.workspace.persistence.PersistenceAdapter;
 import org.globus.workspace.persistence.WorkspaceDatabaseException;
 import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
@@ -29,8 +28,6 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
@@ -237,7 +234,8 @@ class ResourcepoolUtil {
         }
 
         entry.addMemCurrent(-mem);
-        db.replaceResourcepoolEntry(entry);
+        db.updateResourcepoolEntryAvailableMemory(entry.getHostname(),
+                entry.getMemCurrent());
 
         if (eventLog) {
             logger.info(Lager.ev(vmid) + "'" + entry.getResourcePool() +
@@ -366,7 +364,8 @@ class ResourcepoolUtil {
                 entry.setMemCurrent(entry.getMemMax());
             }
 
-            db.replaceResourcepoolEntry(entry);
+            db.updateResourcepoolEntryAvailableMemory(entry.getHostname(),
+                entry.getMemCurrent());
 
             if (eventLog) {
                 logger.info(Lager.ev(vmid) + "'" + poolname +

@@ -27,7 +27,17 @@ public interface RemoteNodeManagement extends Remote {
     public String getNode(String hostname) throws RemoteException;
 
     //Update
-    public String updateNodes(String nodeJson) throws RemoteException;
+
+    // this rather sucks. null values mean no update of that field.
+    // but all fields need to be part of signature, so this won't
+    // scale to well. also it is not parallel with how howNodes()
+    // works
+    public String updateNodes(String[] hostnames,
+                              Boolean active,
+                              String pool,
+                              Integer memory,
+                              String networks)
+            throws RemoteException;
 
     //Delete
     public String removeNodes(String[] hostnames) throws RemoteException;

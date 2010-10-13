@@ -264,15 +264,17 @@ public class AdminClient {
 
     private void run_updateNodes() throws ExecutionProblem {
 
-        final List<VmmNode> nodes = new ArrayList<VmmNode>(this.hosts.size());
-        //TODO
-//        for (String hostname : this.hosts) {
-//            nodes.add(new VmmNode(hostname, this.nodePool,
-//                    this.nodeMemory, this.nodeNetworks, true));
-//        }
+        final String[] hostnames = this.hosts.toArray(new String[this.hosts.size()]);
+        final Boolean active = this.nodeActiveConfigured ? this.nodeActive : null;
+        final String resourcepool = this.nodePool;
+        final Integer memory = this.nodeMemoryConfigured ? this.nodeMemory : null;
+        final String networks = this.nodeNetworks;
+
+
         NodeReport[] reports = null;
         try {
-            final String reportJson = this.remoteNodeManagement.updateNodes(gson.toJson(nodes));
+            final String reportJson = this.remoteNodeManagement.updateNodes(
+                    hostnames, active, resourcepool, memory, networks);
             reports = gson.fromJson(reportJson, NodeReport[].class);
         } catch (RemoteException e) {
             handleRemoteException(e);
@@ -621,7 +623,7 @@ public class AdminClient {
             bis = new BufferedInputStream(is);
             StringBuilder sb = new StringBuilder();
             byte[] chars = new byte[1024];
-            int bytesRead = 0;
+            int bytesRead;
             while( (bytesRead = bis.read(chars)) > -1){
                 sb.append(new String(chars, 0, bytesRead));
             }
