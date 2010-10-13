@@ -1848,7 +1848,8 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
     public boolean updateResourcepoolEntry(String hostname,
                                         String pool,
                                         String networks,
-                                        Integer memory,
+                                        Integer memoryMax,
+                                        Integer memoryAvail,
                                         Boolean active)
             throws WorkspaceDatabaseException {
 
@@ -1860,7 +1861,7 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
         }
 
         final StringBuilder sb = new StringBuilder();
-        final List<Object> params = new ArrayList<Object>(4);
+        final List<Object> params = new ArrayList<Object>(5);
         if (pool != null) {
             appendUpdatePair(sb, "resourcepool");
             params.add(pool);
@@ -1869,10 +1870,15 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
             appendUpdatePair(sb, "associations");
             params.add(networks);
         }
-        if (memory != null) {
+        if (memoryMax != null) {
             appendUpdatePair(sb, "maximum_memory");
-            params.add(memory);
+            params.add(memoryMax);
         }
+        if (memoryAvail != null) {
+            appendUpdatePair(sb, "available_memory");
+            params.add(memoryAvail);
+        }
+
         if (active != null) {
             appendUpdatePair(sb, "active");
             params.add(active);
