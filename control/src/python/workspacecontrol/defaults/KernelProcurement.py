@@ -37,7 +37,8 @@ class DefaultKernelProcurement:
             
         authz_conf = self.p.get_conf_or_none("kernels", "authz_kernels")
         if not authz_conf:
-            raise InvalidConfig("no kernels->authz_kernels configuration")
+            # no specified kernels means only hdimages can be run
+            authz_conf = ""
         
         self.authz_kernels = []
         ak_list = authz_conf.split(",")
