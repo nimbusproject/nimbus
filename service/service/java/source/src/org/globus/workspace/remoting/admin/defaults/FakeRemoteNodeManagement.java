@@ -63,20 +63,15 @@ public class FakeRemoteNodeManagement implements RemoteNodeManagement {
         return null;
     }
 
-    public String updateNodes(String nodeJson) {
-        final Collection<VmmNode> nodes = gson.fromJson(nodeJson,
-                this.vmmNodeCollectionTypeToken.getType());
-        List<NodeReport> reports = new ArrayList<NodeReport>(nodes.size());
-        for (VmmNode node : nodes) {
-            final String hostname = node.getHostname();
-            for (int i = 0; i < this.nodeList.size(); i++) {
-                if (nodeList.get(i).getHostname().equals(hostname)) {
-                    nodeList.set(i, node);
-                }
-                reports.add(new NodeReport(hostname, "UPDATED", node));
-            }
-        }
-        return gson.toJson(reports);
+    public String updateNodes(String[] hostnames,
+                              Boolean active,
+                              String pool,
+                              Integer memory,
+                              String networks)
+            throws RemoteException {
+
+        //not implemented
+        return null;
     }
 
     public String removeNode(String hostname) {

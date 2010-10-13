@@ -25,6 +25,7 @@ import org.globus.workspace.remoting.admin.VmmNode;
 import org.globus.workspace.scheduler.NodeExistsException;
 import org.globus.workspace.scheduler.NodeInUseException;
 import org.globus.workspace.scheduler.NodeManagement;
+import org.globus.workspace.scheduler.NodeNotFoundException;
 import org.globus.workspace.scheduler.defaults.ResourcepoolEntry;
 
 import java.rmi.RemoteException;
@@ -124,29 +125,38 @@ public class DefaultRemoteNodeManagement implements RemoteNodeManagement {
         return gson.toJson(translateResourcepoolEntry(entry));
     }
 
-    public String updateNodes(String nodeJson) {
-        if (nodeJson == null) {
-            throw new IllegalArgumentException("nodeJson may not be null");
+    public String updateNodes(String[] hostnames,
+                              Boolean active,
+                              String pool,
+                              Integer memory,
+                              String networks) {
+        if (hostnames == null) {
+            throw new IllegalArgumentException("hostnames may not be null");
         }
-        final Collection<VmmNode> nodes = gson.fromJson(nodeJson,
-                this.vmmNodeCollectionTypeToken.getType());
-
-        if (nodes.isEmpty()) {
+        if (hostnames.length == 0) {
             throw new IllegalArgumentException(
                     "You must specify at least one VMM node to update");
         }
 
-        List<NodeReport> reports = new ArrayList<NodeReport>(nodes.size());
-        for (VmmNode node : nodes) {
-            if (node == null) {
-                throw new IllegalArgumentException("update request has null node");
-            }
-            final String hostname = node.getHostname();
+        if (active == null && pool == null && memory == null && networks == null) {
+            throw new IllegalArgumentException(
+                    "You must specify at least one node parameter to update");
+        }
 
-            logger.info("Updating VMM node: " + node.toString());
+        final List<NodeReport> reports = new ArrayList<NodeReport>(hostnames.length);
+
+        for (String hostname : hostnames) {
+            if (hostname == null) {
+                throw new IllegalArgumentException("update request has null node hostname");
+            }
+
+            logger.info("Updating VMM node: " + hostname);
 
             try {
-                nodeManagement.updateNode(translateVmmNode(node));
+                final ResourcepoolEntry entry = nodeManagement.updateNode(
+                        hostname, pool, networks, memory, active);
+
+                final VmmNode node = translateResourcepoolEntry(entry);
                 reports.add(new NodeReport(hostname, NodeReport.STATE_UPDATED,
                         node));
             } catch (NodeInUseException e) {
@@ -154,6 +164,11 @@ public class DefaultRemoteNodeManagement implements RemoteNodeManagement {
                 reports.add(
                         new NodeReport(hostname,
                                 NodeReport.STATE_NODE_IN_USE, null));
+            } catch (NodeNotFoundException e) {
+                logger.info("VMM node not found, failed to update: " + hostname);
+                reports.add(
+                        new NodeReport(hostname,
+                                NodeReport.STATE_NODE_NOT_FOUND, null));
             }
 
         }
@@ -215,14 +230,5 @@ public class DefaultRemoteNodeManagement implements RemoteNodeManagement {
         return new VmmNode(entry.getHostname(), entry.isActive(),
                 entry.getResourcePool(), entry.getMemMax(),
                 entry.getSupportedAssociations(), entry.isVacant());
-    }
-
-    private static ResourcepoolEntry translateVmmNode(VmmNode node) {
-        if (node == null) {
-            return null;
-        }
-        return new ResourcepoolEntry(node.getPoolName(), node.getHostname(),
-                node.getMemory(), node.getMemory(),
-                node.getNetworkAssociations(), node.isActive());
     }
 }
