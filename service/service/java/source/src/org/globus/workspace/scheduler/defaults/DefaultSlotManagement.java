@@ -535,8 +535,41 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
         }
     }
 
-    public synchronized void updateNode(ResourcepoolEntry node) {
-        //TODO
+    /**
+     * Updates an existing pool entry.
+     *
+     * Null values for any of the parameters mean no update to that field.
+     * But at least one field must be specified.
+     * @param hostname the node to be updated, required
+     * @param pool the new resourcepool name, can be null
+     * @param networks the new networks association list, can be null
+     * @param memory the new max memory value for the node, can be null
+     * @param active the new active state for the node, can be null
+     * @return the updated ResourcepoolEntry
+     * @throws NodeInUseException
+     * @throws NodeNotFoundException
+     */
+    
+    public synchronized ResourcepoolEntry updateNode(
+            String hostname,
+            String pool,
+            String networks,
+            Integer memory,
+            Boolean active)
+            throws NodeInUseException, NodeNotFoundException {
+
+        try {
+            boolean updated = this.db.updateResourcepoolEntry(hostname,
+                    pool, networks, memory, active);
+            if (!updated) {
+                throw new NodeNotFoundException();
+            }
+
+            return getNode(hostname);
+            
+        } catch (WorkspaceDatabaseException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public synchronized boolean removeNode(String hostname)

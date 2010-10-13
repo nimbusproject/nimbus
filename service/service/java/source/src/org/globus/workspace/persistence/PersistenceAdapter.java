@@ -150,7 +150,7 @@ public interface PersistenceAdapter {
 
             throws WorkspaceDatabaseException;
 
-    public void replaceResourcepoolEntry(ResourcepoolEntry entry)
+    public void updateResourcepoolEntryAvailableMemory(String hostname, int newAvailMemory)
 
             throws WorkspaceDatabaseException;
 
@@ -196,6 +196,12 @@ public interface PersistenceAdapter {
     
     public List<ResourcepoolEntry> getAvailableEntriesSortedByFreeMemoryPercentage(int requestedMem) 
     
-            throws WorkspaceDatabaseException;    
+            throws WorkspaceDatabaseException;
 
+    boolean updateResourcepoolEntry(String hostname,
+                                        String pool,
+                                        String networks,
+                                        Integer memory,
+                                        Boolean active)
+            throws WorkspaceDatabaseException;
 }

@@ -35,7 +35,6 @@ import org.globus.workspace.WorkspaceConstants;
 import org.globus.workspace.network.Association;
 import org.globus.workspace.network.AssociationEntry;
 import org.globus.workspace.persistence.impls.AssociationPersistenceUtil;
-import org.globus.workspace.persistence.impls.ResourcepoolPersistenceUtil;
 import org.globus.workspace.persistence.impls.VMPersistence;
 import org.globus.workspace.persistence.impls.VirtualMachinePersistenceUtil;
 import org.globus.workspace.scheduler.defaults.ResourcepoolEntry;
@@ -1798,24 +1797,32 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
 
     }
 
-
-    /**
-     * For now, only available_memory is replaceable.
-     * @param entry pool entry
-     */
-    public void replaceResourcepoolEntry(ResourcepoolEntry entry)
+    public void updateResourcepoolEntryAvailableMemory(String hostname, int newAvailMemory)
             throws WorkspaceDatabaseException {
 
         if (this.dbTrace) {
-            logger.trace("replaceResourcepoolEntry()");
+            logger.trace("updateResourcepoolEntryAvailableMemory()");
+        }
+
+        if (hostname == null) {
+            throw new IllegalArgumentException("hostname may not be null");
+        }
+
+        if (newAvailMemory < 0) {
+            throw new IllegalArgumentException("newAvailMemory must be non-negative");
         }
 
         Connection c = null;
         PreparedStatement pstmt = null;
         try {
             c = getConnection();
-            pstmt = ResourcepoolPersistenceUtil.
-                                        updateAvailableMemory(entry.getResourcePool(), entry, c);
+
+            pstmt =
+                    c.prepareStatement(SQL_UPDATE_RESOURCE_POOL_ENTRY_MEMORY);
+
+            pstmt.setInt(1, newAvailMemory);
+            pstmt.setString(2, hostname);
+
             final int updated = pstmt.executeUpdate();
             if (updated != 1) {
                 throw new WorkspaceDatabaseException("expected row update");
@@ -1836,6 +1843,91 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
             }
         }
 
+    }
+
+    public boolean updateResourcepoolEntry(String hostname,
+                                        String pool,
+                                        String networks,
+                                        Integer memory,
+                                        Boolean active)
+            throws WorkspaceDatabaseException {
+
+        if (this.dbTrace) {
+            logger.trace("updateResourcepoolEntry()");
+        }
+        if (hostname == null) {
+            throw new IllegalArgumentException("hostname may not be null");
+        }
+
+        final StringBuilder sb = new StringBuilder();
+        final List<Object> params = new ArrayList<Object>(4);
+        if (pool != null) {
+            appendUpdatePair(sb, "resourcepool");
+            params.add(pool);
+        }
+        if (networks != null) {
+            appendUpdatePair(sb, "associations");
+            params.add(networks);
+        }
+        if (memory != null) {
+            appendUpdatePair(sb, "maximum_memory");
+            params.add(memory);
+        }
+        if (active != null) {
+            appendUpdatePair(sb, "active");
+            params.add(active);
+        }
+        if (params.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "at least one updated field must be specified");
+        }
+
+        Connection c = null;
+        PreparedStatement pstmt = null;
+        try {
+            c = getConnection();
+
+            final String q = String.format(
+                    SQL_UPDATE_RESOURCE_POOL_ENTRY_SKELETAL, sb.toString());
+            if (this.dbTrace) {
+                logger.trace("resourcepool_entry update query: "+ q);
+            }
+            pstmt = c.prepareStatement(q);
+
+            int paramIndex = 1;
+            for (Object p : params) {
+                pstmt.setObject(paramIndex, p);
+                paramIndex++;
+            }
+
+            // add on the hostname param
+            pstmt.setString(paramIndex, hostname);
+
+            final int updated = pstmt.executeUpdate();
+            return updated >= 1;
+            
+        } catch(SQLException e) {
+            logger.error("",e);
+            throw new WorkspaceDatabaseException(e);
+        } finally {
+            try {
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+                if (c != null) {
+                    returnConnection(c);
+                }
+            } catch (SQLException sql) {
+                logger.error("SQLException in finally cleanup", sql);
+            }
+        }
+    }
+
+    private void appendUpdatePair(StringBuilder stringBuilder, String columnName) {
+        if (stringBuilder.length() != 0) {
+            stringBuilder.append(",");
+        }
+        stringBuilder.append(columnName).append("=?");
     }
 
     // one can only use result of this safely during service initialization

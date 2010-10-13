@@ -163,7 +163,11 @@ public interface PersistenceAdapterConstants {
 
     public static final String SQL_UPDATE_RESOURCE_POOL_ENTRY_MEMORY =
             "UPDATE resourcepool_entries SET available_memory=? " +
-            "WHERE resourcepool=? AND hostname=?";
+            "WHERE hostname=?";
+
+    // not a prepared statement, the skeleton for custom update queries
+    public static final String SQL_UPDATE_RESOURCE_POOL_ENTRY_SKELETAL =
+            "UPDATE resourcepool_entries SET %s WHERE hostname=?";
 
     public static final String SQL_DELETE_RESOURCE_POOL_ENTRY =
             "DELETE FROM resourcepool_entries WHERE hostname = ?";
