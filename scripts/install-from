@@ -4,7 +4,7 @@ FORCE_FRESH_INSTALL="yes"
 
 START_DIR=`pwd`
 
-NIMBUS_SRC_REL="`dirname $0`"
+NIMBUS_SRC_REL="`dirname $0`/.."
 NIMBUS_SRC=`cd $NIMBUS_SRC_REL; pwd`
 
 function usagetxt {
