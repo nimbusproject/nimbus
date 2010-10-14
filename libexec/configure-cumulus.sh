@@ -60,24 +60,4 @@ if [ $? -ne 0 ]; then
 fi
 echo "Created repo admin."
 
-echo ""
-GUIDEURL=`$NIMBUS_HOME/bin/nimbus-version --guide`
-if [ $? -ne 0 ]; then
-    GUIDEURL="Development mode: no guide url"
-fi
-
-echo ""
-echo "-----------------------------------------------------------------"
-echo " Nimbus installation succeeded!"
-echo "-----------------------------------------------------------------"
-echo ""
-echo "Additional configuration may be necessary, refer to this URL for information:"
-echo ""
-echo "    $GUIDEURL"
-echo ""
-echo "You can start/stop Nimbus services with the nimbusctl command. e.g:"
-echo ""
-echo "    $NIMBUS_HOME/bin/nimbusctl start"
-echo ""
-
 exit 0

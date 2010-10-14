@@ -9,10 +9,11 @@ import traceback
 import ConfigParser
 from StringIO import StringIO
 import readline
+import shutil
 import string
 import time
 from random import Random
-from nimbusweb.setup import pathutil,javautil,checkssl,gtcontainer,autoca,derbyutil
+from nimbusweb.setup import pathutil,javautil,checkssl,gtcontainer,autoca,derbyutil,runutil
 from nimbusweb.setup.setuperrors import *
 
 CONFIGSECTION = 'nimbussetup'
@@ -37,6 +38,13 @@ cumulus.enabled: True
 lantorrent.enabled: False
 """
 CONFIG_STATE_PATH = 'nimbus-setup.conf'
+
+CONFIG_KEY_CA_DIR="ca.dir"
+CONFIG_KEY_HOSTCERT="hostcert"
+CONFIG_KEY_HOSTKEY="hostkey"
+CONFIG_KEY_KEYSTORE="keystore"
+CONFIG_KEY_GRIDMAP="gridmap"
+CONFIG_KEY_TRUSTED_CERTS="ca.trustedcerts.dir"
 
 CA_NAME_QUESTION = """
 Nimbus uses an internal Certificate Authority (CA) for some services. This CA
@@ -185,6 +193,12 @@ class ARGS:
     IMPORTDB_LONG= "--import-db"
     IMPORTDB_HELP = "Import a Nimbus accounting database from another install"
     
+    IMPORTPREV_LONG= "--import-prev"
+    IMPORTPREV_HELP = "[Only used programmatically]"
+
+    IMPORTVMMS_LONG= "--import-vmms"
+    IMPORTVMMS_HELP = "Import VMMs from an old-style 'vmm-pools' directory"
+    
     PRINT_HOSTNAME_LONG = "--print-hostname"
     PRINT_HOSTNAME = "-Z"
     PRINT_HOSTNAME_HELP = "Print chosen hostname or error if none chosen"
@@ -230,6 +244,13 @@ def parsersetup():
     
     group.add_option(ARGS.IMPORTDB_LONG,
             dest="importdb", metavar="PATH", help=ARGS.IMPORTDB_HELP)
+    
+    group.add_option(ARGS.IMPORTVMMS_LONG,
+            dest="importvmms", metavar="PATH", help=ARGS.IMPORTVMMS_HELP)
+    
+    group.add_option(ARGS.IMPORTPREV_LONG,
+            action="store_true", dest="importprev", default=False,
+            help=ARGS.IMPORTPREV_HELP)
 
     group.add_option(ARGS.PRINT_HOSTNAME, ARGS.PRINT_HOSTNAME_LONG,
                     action="store_true", dest="print_chosen_hostname",
@@ -280,9 +301,9 @@ def fold_opts_to_config(opts, config):
     if opts.ca_name:
         config.set(CONFIGSECTION, 'ca.name', opts.ca_name)
     if opts.hostkey:
-        config.set(CONFIGSECTION, 'hostkey', opts.hostkey)
+        config.set(CONFIGSECTION, CONFIG_KEY_HOSTKEY, opts.hostkey)
     if opts.hostcert:
-        config.set(CONFIGSECTION, 'hostcert', opts.hostcert)
+        config.set(CONFIGSECTION, CONFIG_KEY_HOSTCERT, opts.hostcert)
 
 def get_user_input(valuename, default=None, required=True):
     answer = None
@@ -309,12 +330,12 @@ class NimbusSetup(object):
 
         self.webdir = self.resolve_path('web/')
         self.gtdir = self.resolve_path('services/')
-        self.cadir = self.resolve_config_path('ca.dir')
-        self.trustedcertsdir = self.resolve_config_path('ca.trustedcerts.dir')
-        self.hostcert_path = self.resolve_config_path('hostcert')
-        self.hostkey_path = self.resolve_config_path('hostkey')
-        self.keystore_path = self.resolve_config_path('keystore')
-        self.gridmap_path = self.resolve_config_path('gridmap')
+        self.cadir = self.resolve_config_path(CONFIG_KEY_CA_DIR)
+        self.trustedcertsdir = self.resolve_config_path(CONFIG_KEY_TRUSTED_CERTS)
+        self.hostcert_path = self.resolve_config_path(CONFIG_KEY_HOSTCERT)
+        self.hostkey_path = self.resolve_config_path(CONFIG_KEY_HOSTKEY)
+        self.keystore_path = self.resolve_config_path(CONFIG_KEY_KEYSTORE)
+        self.gridmap_path = self.resolve_config_path(CONFIG_KEY_GRIDMAP)
         self.envfile_path = self.resolve_path('libexec/environment.sh')
     
     def __getitem__(self, key):
@@ -354,6 +375,22 @@ class NimbusSetup(object):
         if path:
             return self.resolve_path(path)
         return None
+        
+    def is_config_present(self, configkey):
+        path = self[configkey]
+        if path:
+            return True
+        else:
+            return False
+        
+    def is_config_relative(self, configkey):
+        """
+        Resolves if a config is a relative path or not.
+        """
+        path = self[configkey]
+        if not path:
+            return False
+        return not os.path.isabs(path)
     
     def ask_hostname(self):
         hostguess = self['hostname']
@@ -373,7 +410,7 @@ class NimbusSetup(object):
         ca_name_config = self['ca.name']
 
         if self.interactive:
-            print CA_NAME_QUESTION % {'ca.dir' : self.cadir}
+            print CA_NAME_QUESTION % {CONFIG_KEY_CA_DIR : self.cadir}
             ca_name = get_user_input("CA Name", default=ca_name_config,
                     required=False)
             if not ca_name:
@@ -544,7 +581,7 @@ class NimbusSetup(object):
                 relpath(self.hostcert_path, self.webdir))
         webconf.set('nimbusweb', 'ssl.key', 
                 relpath(self.hostkey_path, self.webdir))
-        webconf.set('nimbusweb', 'ca.dir', relpath(self.cadir, self.webdir))
+        webconf.set('nimbusweb', CONFIG_KEY_CA_DIR, relpath(self.cadir, self.webdir))
 
         webconffile = open(webconfpath, 'wb')
         try:
@@ -582,6 +619,10 @@ class NimbusSetup(object):
         self.write_cumulus_props()
         self.write_cumulus_init()
 
+def generate_password(length=25):
+    okchars = string.letters + string.digits + "!@^_&*+-"
+    return ''.join(Random().sample(okchars, length))
+
 def import_db(setup, old_db_path):
     derbyrun_path = os.path.join(setup.gtdir, 'lib/derbyrun.jar')
     if not os.path.exists(derbyrun_path):
@@ -600,10 +641,249 @@ def import_db(setup, old_db_path):
     if derbyutil.update_db(ij_path, old_db_path, new_db_path) == 1:
         raise UnexpectedError("Failed to update Accounting DB")
 
-def generate_password(length=25):
-    okchars = string.letters + string.digits + "!@^_&*+-"
-    return ''.join(Random().sample(okchars, length))
 
+def get_oldsetup(config):
+    old_nimbus_home = os.getenv("PREVIOUS_NIMBUS_HOME_VALIDATED")
+    if not old_nimbus_home:
+        raise IncompatibleEnvironment("Could not find the old Nimbus home environment variable: PREVIOUS_NIMBUS_HOME_VALIDATED")
+        
+    # Represent the old config in an object:
+    oldsetup = NimbusSetup(old_nimbus_home, config)
+    return oldsetup
+
+def import_relatives(setup, config, oldversion):
+    """Look for conf paths from a previous config that are relative.
+    The old nimbus home (where the relative paths are taken from) must be
+    provided via environment variable currently.
+    """
+    
+    oldsetup = get_oldsetup(config)
+    
+    acknowledge = "\nAcknowledge (type any key) "
+    
+    print "CA directory configuration: %s" % setup.cadir
+    if oldsetup.is_config_relative(CONFIG_KEY_CA_DIR):
+        print "Importing previous CA directory: %s ... " % oldsetup.cadir
+        if os.path.isdir(setup.cadir):
+            raise IncompatibleEnvironment("Directory exists already: %s" %  setup.cadir)
+        shutil.copytree(oldsetup.cadir, setup.cadir, symlinks=True)
+        print " - Done."
+    else:
+        print >>sys.stderr, "* Did not import CA directory, it was an absolute path configuration which is a customization: %s" % oldsetup.cadir
+        
+        # re-running configure takes care of the X509_CERT_DIR in the
+        # $NIMBUS_HOME/libexec/environment.sh file.
+        
+        value = raw_input(acknowledge)
+        
+    print "\nTrusted certificate configuration: %s" % setup.trustedcertsdir
+    if oldsetup.is_config_relative(CONFIG_KEY_TRUSTED_CERTS):
+        print "Checking trusted certificates exists: %s" % setup.trustedcertsdir
+        if not os.path.isdir(setup.trustedcertsdir):
+            print "Does not exist as part of the CA directory, importing: %s ..." % oldsetup.trustedcertsdir
+            shutil.copytree(oldsetup.trustedcertsdir, setup.trustedcertsdir, symlinks=True)
+            print " - Done."
+    else:
+        print >>sys.stderr, "* Did not import trusted certificate directory, it was an absolute path configuration which is a customization: %s" % oldsetup.trustedcertsdir
+        value = raw_input(acknowledge)
+
+    print "\nHost certificate configuration: %s" % setup.hostcert_path
+    if oldsetup.is_config_relative(CONFIG_KEY_HOSTCERT):
+        print "Importing previous host certificate: %s ... " % oldsetup.hostcert_path
+        if os.path.exists(setup.hostcert_path):
+            raise IncompatibleEnvironment("File exists already: %s" %  setup.hostcert_path)
+        shutil.copy(oldsetup.hostcert_path, setup.hostcert_path)
+        print " - Done."
+    else:
+        print >>sys.stderr, "* Did not import host certificate, it was an absolute path configuration which is a customization: %s" % oldsetup.hostcert_path
+        value = raw_input(acknowledge)
+        
+    print "\nHost key configuration: %s" % setup.hostkey_path
+    if oldsetup.is_config_relative(CONFIG_KEY_HOSTKEY):
+        print "Importing previous host key: %s ... " % oldsetup.hostkey_path
+        if os.path.exists(setup.hostkey_path):
+            raise IncompatibleEnvironment("File exists already: %s" %  setup.hostkey_path)
+        shutil.copy(oldsetup.hostkey_path, setup.hostkey_path)
+        print " - Done."
+    else:
+        print >>sys.stderr, "* Did not import host key, it was an absolute path configuration which is a customization: %s" % oldsetup.hostkey_path
+        value = raw_input(acknowledge)
+    
+    print "\nKeystore configuration: %s" % setup.keystore_path
+    if oldsetup.is_config_relative(CONFIG_KEY_KEYSTORE):
+        print "Importing previous keystore: %s ... " % oldsetup.keystore_path
+        if os.path.exists(setup.keystore_path):
+            raise IncompatibleEnvironment("File exists already: %s" %  setup.keystore_path)
+        shutil.copy(oldsetup.keystore_path, setup.keystore_path)
+        print " - Done."
+    else:
+        print >>sys.stderr, "* Did not import keystore, it was an absolute path configuration which is a customization: %s" % oldsetup.keystore_path
+        value = raw_input(acknowledge)
+        
+    print "\nGridmap configuration: %s" % setup.gridmap_path
+    if oldsetup.is_config_relative(CONFIG_KEY_GRIDMAP):
+        print "Importing previous ACL (gridmap): %s ... " % oldsetup.gridmap_path
+        shutil.copy(oldsetup.gridmap_path, setup.gridmap_path)
+        print " - Done."
+    else:
+        print >>sys.stderr, "* Did not import ACL (gridmap), it was an absolute path configuration which is a customization: %s" % oldsetup.gridmap_path
+        value = raw_input(acknowledge)
+
+def import_authz(setup, config, oldversion):
+    oldsetup = get_oldsetup(config)
+    
+    ws_dir = "services/etc/nimbus/workspace-service"
+    group_authz_dir = setup.resolve_path("%s/group-authz" % ws_dir)
+    group_authz_backup_dir = setup.resolve_path("%s/.prev-group-authz" % ws_dir)
+    if not os.path.isdir(group_authz_dir):
+        raise IncompatibleEnvironment("Not a directory: %s" % group_authz_dir)
+        
+    old_group_authz = oldsetup.resolve_path("%s/group-authz" % ws_dir)
+    if not os.path.isdir(old_group_authz):
+        raise IncompatibleEnvironment("Not a directory: %s" % old_group_authz)
+        
+    # back this up, just in case this script is used in an odd way
+    print "\nBacking up group-authz to: %s ... " % group_authz_backup_dir
+    shutil.move(group_authz_dir, group_authz_backup_dir)
+    print " - Done."
+    
+    print "\nImporting previous group-authz ..."
+    shutil.copytree(old_group_authz, group_authz_dir)
+    print " - Done."
+
+def import_net(setup, config, oldversion):
+    oldsetup = get_oldsetup(config)
+    
+    ws_dir = "services/etc/nimbus/workspace-service"
+    netpool_dir = setup.resolve_path("%s/network-pools" % ws_dir)
+    netpool_backup_dir = setup.resolve_path("%s/.prev-network-pools" % ws_dir)
+    if not os.path.isdir(netpool_dir):
+        raise IncompatibleEnvironment("Not a directory: %s" % netpool_dir)
+        
+    old_netpool_dir = oldsetup.resolve_path("%s/network-pools" % ws_dir)
+    if not os.path.isdir(old_netpool_dir):
+        raise IncompatibleEnvironment("Not a directory: %s" % old_netpool_dir)
+        
+    # back this up, just in case this script is used in an odd way
+    print "\nBacking up old_netpool_dir to: %s ... " % netpool_backup_dir
+    shutil.move(netpool_dir, netpool_backup_dir)
+    print " - Done."
+    
+    print "\nImporting previous network-pools to: %s ..." % netpool_dir
+    shutil.copytree(old_netpool_dir, netpool_dir)
+    print " - Done."
+
+def import_accounting(setup, config, oldversion):
+    oldsetup = get_oldsetup(config)
+    events_txt_relpath = "services/var/nimbus/accounting-events.txt"
+    old_events_txt = oldsetup.resolve_path(events_txt_relpath)
+    events_txt = setup.resolve_path(events_txt_relpath)
+    
+    print "\nImporting accounting events log: %s ... " % events_txt
+    if not os.path.exists(old_events_txt):
+        raise IncompatibleEnvironment("File does not exist: %s" %  old_events_txt)
+    shutil.copy(old_events_txt, events_txt)
+    print " - Done."
+    
+    events_db_relpath = "services/var/nimbus/WorkspaceAccountingDB/"
+    old_db_path = oldsetup.resolve_path(events_db_relpath)
+    if not os.path.isdir(old_db_path):
+        raise IncompatibleEnvironment("Not a directory: %s" % old_db_path)
+    
+    print "\nImporting accounting database ... "
+    import_db(setup, old_db_path)
+    print " - Done."
+
+def import_webapp(setup, config, oldversion):
+    oldsetup = get_oldsetup(config)
+    webconf_relpath = "web/nimbusweb.conf"
+    old_webconf = oldsetup.resolve_path(webconf_relpath)
+    webconf = setup.resolve_path(webconf_relpath)
+    
+    print "\nImporting webapp configuration to: %s ... " % webconf
+    if not os.path.exists(old_webconf):
+        raise IncompatibleEnvironment("File does not exist: %s" %  old_webconf)
+    shutil.copy(old_webconf, webconf)
+    print " - Done."
+    
+def _get_none_comment_lines(fullpath):
+    """Return a list of lines from this file that are not comments and not
+    empty lines"""
+    f = open(fullpath, 'r')
+    all_lines = f.readlines()
+    f.close()
+    
+    lines = []
+    for line in all_lines:
+        stripped = line.strip()
+        if len(stripped) == 0:
+            continue
+        if stripped.startswith("#"):
+            continue
+        lines.append(stripped)
+    return lines
+    
+def _one_vmm_file(directory, pool, nodestool):
+    print "  - Importing VMM pool '%s'" % pool
+    fullpath = os.path.join(directory, pool)
+    lines = _get_none_comment_lines(fullpath)
+    
+    for line in lines:
+        parts = line.split(" ")
+        if len(parts) < 2:
+            print "  **** Invalid Pool Entry: '%s'" % line
+            continue
+        vmm = parts[0]
+        ram = parts[1]
+        net = None
+        if len(parts) > 2:
+            net = parts[2]
+        cmd = "%s --add-nodes %s --memory %s" % (nodestool, vmm, ram)
+        if net:
+            cmd += " --networks '%s'" % net
+        cmd += " --pool %s" % pool
+        (exitcode, stdout, stderr) = runutil.runexe(cmd, log, killtime=0)
+        if exitcode:
+            err = "  **** Problem importing VMM '%s', command was '%s'\n\n" % (vmm, cmd)
+            err += "  %s\n\n" % stdout 
+            err += "  %s\n" % stderr 
+            raise UnexpectedError(err)
+
+def import_vmms(setup, old_vmmdir):
+    
+    nodestool = setup.resolve_path("bin/nimbus-admin")
+    
+    print "\nImporting VMM configuration ... "
+    if not os.path.isdir(old_vmmdir):
+        raise IncompatibleEnvironment("Directory does not exist: %s" %  old_vmmdir)
+    files = os.listdir(old_vmmdir)
+    for pool in files:
+        fullpath = os.path.join(old_vmmdir, pool)
+        if pool.startswith("."):
+            print "  - Ignoring '%s'" % fullpath
+        elif os.path.isdir(fullpath):
+            print "  - Ignoring directory '%s'" % fullpath
+        else:
+            _one_vmm_file(old_vmmdir, pool, nodestool)
+    print " - Done."
+
+def getoldversion(config):
+    oldsetup = get_oldsetup(config)
+    version_tool = oldsetup.resolve_path("bin/nimbus-version")
+    
+    if not os.path.exists(version_tool):
+        raise IncompatibleEnvironment("nimbus-version does not exist in the old installation, it must be too old to import: %s" % version_tool)
+    
+    cmd = "%s --majorminor" % (version_tool)
+    (exitcode, stdout, stderr) = runutil.runexe(cmd, log, killtime=0)
+    if exitcode:
+        err = "  **** Problem getting version, command was '%s'\n\n" % cmd
+        err += "  %s\n\n" % stdout 
+        err += "  %s\n" % stderr 
+        raise UnexpectedError(err)
+    
+    return stdout.strip()
+        
 def main(argv=None):
     if os.name != 'posix':
         print >>sys.stderr, "\nERROR: Only runs on POSIX systems."
@@ -654,6 +934,20 @@ def main(argv=None):
         elif opts.importdb:
             import_db(setup, opts.importdb)
             return 0
+        elif opts.importprev:
+            oldversion = getoldversion(config)
+            print "Old Nimbus version: %s\n" % oldversion
+            import_relatives(setup, config, oldversion)
+            import_authz(setup, config, oldversion)
+            import_net(setup, config, oldversion)
+            import_accounting(setup, config, oldversion)
+            import_webapp(setup, config, oldversion)
+            print ""
+            return 0
+        elif opts.importvmms:
+            import_vmms(setup, opts.importvmms)
+            print ""
+            return 0
         elif opts.print_repo_bucket:
             bucket = setup.get_repobucket_no_asking()
             if not bucket:
@@ -670,7 +964,7 @@ def main(argv=None):
                 return 0
         else:
             setup.perform_setup()
-
+            
         log.debug("saving settings to %s" % config_state_path)
         try:
             f = None

@@ -1,0 +1,79 @@
+#!/bin/bash
+
+FORCE_FRESH_INSTALL="yes"
+
+START_DIR=`pwd`
+
+NIMBUS_SRC_REL="`dirname $0`"
+NIMBUS_SRC=`cd $NIMBUS_SRC_REL; pwd`
+
+function usagetxt {
+    echo ""
+    echo "Usage: $0 old_dir destination_dir"
+    echo ""
+}
+
+# ---------------------------------------------------------------------------
+
+if [ "X$1" = "X" ]; then
+    usagetxt
+    echo "You must specify the previous Nimbus 2.5+ directory."
+    exit 1
+fi
+
+if [ "X$2" = "X" ]; then
+    usagetxt
+    echo "You must specify the destination directory."
+    exit 1
+fi
+
+OLDNIMBUS_BASE_HOME=`cd $1; pwd`
+if [ ! -e $OLDNIMBUS_BASE_HOME ]; then
+    echo "The old Nimbus installation must exist already: $1"
+    exit 1
+fi
+
+# ---------------------------------------------------------------------------
+
+# Validate that the old Nimbus directory is usable before proceeding
+
+NV=$OLDNIMBUS_BASE_HOME/bin/nimbus-version
+if [ ! -f $NV  ]; then
+    echo "The old Nimbus installation does not have a nimbus-version program,"
+    echo "looking for '$NV'"
+    echo ""
+    echo "This means it is broken or pre-2.5 and hence too old to work with $0"
+    exit 1
+fi
+
+# This is a proof of concept for later on, we know that this is 2.5+ already.
+fullversion=`$NV --fullversion`
+
+major=`$NV --major`
+if [ $major -lt 2 ]; then
+    echo "Nimbus $fullversion can not be upgraded anymore, please see the docs"
+    echo "or inquire why on the mailing list."
+    exit 1
+fi
+
+minor=`$NV --minor`
+if [ $minor -eq 2 ] && [ $minor -lt 5 ]; then
+    echo "Nimbus $fullversion can not be upgraded anymore, please see the docs"
+    echo "or inquire why on the mailing list."
+    exit 1
+fi
+
+
+# ---------------------------------------------------------------------------
+
+# Launch the installation which proceeds as normal until the end when we pick
+# back up with configuration tasks.
+
+export PREVIOUS_NIMBUS_HOME_VALIDATED=$OLDNIMBUS_BASE_HOME
+
+if [ ! -f $NIMBUS_SRC/install ]; then
+    echo "Cannot find the installation program? $NIMBUS_SRC/install"
+    exit 1
+fi
+
+exec $NIMBUS_SRC/install $2
