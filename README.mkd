@@ -17,6 +17,18 @@ Run this command to build, install, and configure Nimbus to a specified path:
 
     ./install /path/to/destination
 
+NOTE: This is an interactive program, you will be asked a few questions at
+      the end.
+    
+Run this command to do the same thing but use a previously installed Nimbus
+service as the basis for the configuration of the new one.
+
+    ./install-from /path/to/old/install /path/to/destination
+
+NOTE: 1) This will only work if the old install is Nimbus 2.5 or higher.
+      2) The old installation needs to be taken offline first and no VMs
+         should be running.
+
 Advanced users may also want to build and deploy to an existing GT4.0 
 container. Refer to the readme and scripts in the `scripts/` directory 
 for more information.

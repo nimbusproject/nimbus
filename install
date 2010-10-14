@@ -116,6 +116,15 @@ if [ ! -f $CUMULUS_ENV ]; then
 fi
 
 echo ""
+export NIMBUS_HOME
+$NIMBUS_SRC/lantorrent/install.sh $NIMBUS_HOME/lantorrent | tee -a $NIMBUS_HOME/install.log
+rc=$PIPESTATUS
+if [ $rc -ne 0 ]; then
+    echo "lantorrent install failed"
+    exit $rc
+fi
+
+echo ""
 echo "-----------------------------------------------------------------"
 echo " Configuring installed services"
 echo "-----------------------------------------------------------------"
@@ -127,8 +136,44 @@ if [ ! -f $CONFIG_SCRIPT ]; then
     exit 1
 fi
 
-$CONFIG_SCRIPT
+vmm_cmd="Programmer. Error."
+EXTRA_CONFIG_SCRIPT_ARGS=""
+if [ "X" != "X$PREVIOUS_NIMBUS_HOME_VALIDATED" ]; then
+    echo ""
+    echo "Beginning the configuration with values from the old Nimbus installation: $PREVIOUS_NIMBUS_HOME_VALIDATED"
+    echo ""
+    
+    oldnimbusconf=$PREVIOUS_NIMBUS_HOME_VALIDATED/nimbus-setup.conf
+    if [ ! -f $oldnimbusconf ]; then
+        echo "The old Nimbus installation does not have a configuration file, expecting to find: $oldnimbusconf"
+        exit 1
+    fi
+    
+    cp $oldnimbusconf $NIMBUS_HOME/nimbus-setup.conf
+    if [ $? -ne 0 ]; then
+        echo "Could not copy the old configuration file: cp $oldnimbusconf $NIMBUS_HOME/nimbus-setup.conf"
+        exit 1
+    fi
+    
+    EXTRA_CONFIG_SCRIPT_ARGS="--conf $NIMBUS_HOME/nimbus-setup.conf"
+    
+    # We know that a fresh installation will have missing things specified in
+    # that conf file.  Any relative path configuratoin in that previous conf
+    # file will be copied over here.  Any absolute path will be noted but not
+    # touched.
+    
+    $CONFIG_SCRIPT $EXTRA_CONFIG_SCRIPT_ARGS --import-prev
+    if [ $? -ne 0 ]; then
+        echo ""
+        echo "Could not import something specified in the old configuration file: $oldnimbusconf"
+        exit 1
+    fi
+    
+    old_vmmdir = "$PREVIOUS_NIMBUS_HOME_VALIDATED/services/etc/nimbus/workspace-service/vmm-pools"
+    vmm_cmd="$CONFIG_SCRIPT $EXTRA_CONFIG_SCRIPT_ARGS --import-vmms $old_vmmdir"
+fi
 
+$CONFIG_SCRIPT $EXTRA_CONFIG_SCRIPT_ARGS
 if [ $? -ne 0 ]; then
     echo "Nimbus configuration script failed! You may try running it manually:"
     echo "    $CONFIG_SCRIPT"
@@ -137,19 +182,58 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-
-$NIMBUS_SRC/libexec/install-real.sh  "${@}" 2>&1 | tee -a $NIMBUS_HOME/install.log
+$NIMBUS_SRC/libexec/configure-cumulus.sh  "${@}" 2>&1 | tee -a $NIMBUS_HOME/install.log
 # need PIPESTATUS because tee is not the exit code of interest
 rc=$PIPESTATUS
 if [ $rc -ne 0 ]; then
     exit $rc
 fi
 
-export NIMBUS_HOME
-$NIMBUS_SRC/lantorrent/install.sh $NIMBUS_HOME/lantorrent | tee -a $NIMBUS_HOME/install.log
-rc=$PIPESTATUS
-if [ $rc -ne 0 ]; then
-    echo "lantorrent install failed"
-    exit $rc
+if [ "X" != "X$PREVIOUS_NIMBUS_HOME_VALIDATED" ]; then
+    echo "TODO: import cumulus settings"
 fi
+
+echo ""
+GUIDEURL=`$NIMBUS_HOME/bin/nimbus-version --guide`
+if [ $? -ne 0 ]; then
+    GUIDEURL="Development mode: no guide url"
+fi
+
+echo ""
+echo "-----------------------------------------------------------------"
+echo " Nimbus installation succeeded!"
+echo "-----------------------------------------------------------------"
+echo ""
+echo "Additional configuration may be necessary, refer to this URL for information:"
+echo ""
+echo "    $GUIDEURL"
+echo ""
+echo "You can start/stop Nimbus services with the nimbusctl command. e.g:"
+echo ""
+echo "    $NIMBUS_HOME/bin/nimbusctl start"
+echo ""
+
+if [ "X" != "X$PREVIOUS_NIMBUS_HOME_VALIDATED" ]; then
+    old_etc_dir=$PREVIOUS_NIMBUS_HOME_VALIDATED/services/etc/nimbus
+    new_etc_dir=$NIMBUS_HOME/services/etc/nimbus
+    echo "-----------------------------------------------------------------"
+    echo " ** Upgrade configuration still needed **"
+    echo "-----------------------------------------------------------------"
+    echo ""
+    echo "While key settings have been transferred from your old install,"
+    echo "you still need to do a manual confirmation and transfer of"
+    echo "customizations."
+    echo ""
+    echo "Run the following command to look for customizations:"
+    echo ""
+    echo "    diff -u -r $old_etc_dir $new_etc_dir"
+    echo ""
+    echo "After using nimbusctl to start the services, use the following"
+    echo "command to import VMM configurations.  This can only be done "
+    echo "with a running service:"
+    echo ""
+    echo "    $vmm_cmd"
+    echo ""
+fi
+
 exit 0
