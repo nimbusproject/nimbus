@@ -43,7 +43,7 @@ if [ $rc -ne 0 ]; then
     exit $rc
 fi
 
-rm etc/req.db
+rm -f etc/req.db
 sqlite3 etc/req.db  < etc/lt.sql
 rc=$?
 if [ $rc -ne 0 ]; then
