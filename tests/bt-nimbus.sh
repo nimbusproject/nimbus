@@ -5,6 +5,7 @@ unset SSH_AUTH_SOCK
 
 work_dir=$1
 clean_up=$2
+run_tests=$3
 bkdate=`date +%s`
 function on_exit()
 {
@@ -67,9 +68,12 @@ echo "Run tests...."
 echo "========================================="
 cd $src_dir
 
-./bt-tests.sh
-rc=$?
-
+if [ "X$run_tests" == "Xno" ]; then
+    ./bt-tests.sh
+    rc=$?
+else
+    rc=0
+fi
 $NIMBUS_HOME/bin/nimbusctl stop
 exit $rc
 
