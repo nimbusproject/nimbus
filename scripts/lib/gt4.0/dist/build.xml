@@ -123,6 +123,9 @@
         <copy todir="${distbuild.dir}/${nimbus.main}/home">
             <fileset dir="${nimbus.basedir}/home"/>
         </copy>
+        <copy todir="${distbuild.dir}/${nimbus.main}/lantorrent">
+            <fileset dir="${nimbus.basedir}/lantorrent"/>
+        </copy>
         <copy todir="${distbuild.dir}/${nimbus.main}/lib">
             <fileset dir="${nimbus.basedir}/lib"/>
         </copy>
@@ -156,6 +159,7 @@
             <include name="${nimbus.main}/home/**"/>
             <exclude name="${nimbus.main}/home/bin/*"/>
             <exclude name="${nimbus.main}/home/sbin/*"/>
+            <include name="${nimbus.main}/lantorrent/**"/>
             <include name="${nimbus.main}/lib/**"/>
             <include name="${nimbus.main}/authzdb/**"/>
             <include name="${nimbus.main}/messaging/**"/>
@@ -184,6 +188,7 @@
                 <include name="${nimbus.main}/home/sbin/*" />
                 <include name="${nimbus.main}/web/bin/*" />
                 <include name="${nimbus.main}/web/sbin/*" />
+                <include name="${nimbus.main}/lantorrent/**"/>
                 <include name="${nimbus.main}/libexec/**"/>
             </tarfileset>
             <tarfileset dir="${distbuild.dir}">
