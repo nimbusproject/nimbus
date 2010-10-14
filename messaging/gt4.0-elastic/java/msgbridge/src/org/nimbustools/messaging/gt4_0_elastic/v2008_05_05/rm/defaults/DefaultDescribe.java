@@ -522,8 +522,10 @@ public class DefaultDescribe implements Describe {
             return; // *** EARLY RETURN ***
         }
 
-        String publicAssigned = null;
-        String privateAssigned = null;
+        String privateAssignedHostname = null;
+        String publicAssignedHostname = null;
+        String privateAssignedIp = null;
+        String publicAssignedIp = null;
 
         for (int i = 0; i < nics.length; i++) {
 
@@ -540,23 +542,33 @@ public class DefaultDescribe implements Describe {
                     "missing hostname in NIC");
                 continue; // *** GOTO NEXT VM ***
             }
+            final String ipAddress = nic.getIpAddress();
+            if (ipAddress == null) {
+                logger.error("Invalid Manager implementation, " +
+                    "missing IP address in NIC");
+                continue; // *** GOTO NEXT VM ***
+            }
 
             final String networkName = nic.getNetworkName();
             if (this.networks.isPublicNetwork(networkName)) {
-                if (publicAssigned != null) {
+                if (publicAssignedHostname != null) {
                     logger.warn("Can't understand real NICs from duplicate " +
                             "networks yet, treating second one as unknown NIC");
                 } else {
                     riit.setDnsName(hostname);
-                    publicAssigned = hostname;
+                    publicAssignedHostname = hostname;
+                    riit.setIpAddress(ipAddress);
+                    publicAssignedIp = ipAddress;
                 }
             } else if (this.networks.isPrivateNetwork(networkName)) {
-                if (privateAssigned != null) {
+                if (privateAssignedHostname != null) {
                     logger.warn("Can't understand real NICs from duplicate " +
                             "networks yet, treating second one as unknown NIC");
                 } else {
                     riit.setPrivateDnsName(hostname);
-                    privateAssigned = hostname;
+                    privateAssignedHostname = hostname;
+                    riit.setPrivateIpAddress(ipAddress);
+                    privateAssignedIp = ipAddress;
                 }
             } else {
                 logger.warn("Hostname is neither private nor public " +
@@ -567,10 +579,12 @@ public class DefaultDescribe implements Describe {
 
         if (this.networks.getManagerPublicNetworkName().equals(
                 this.networks.getManagerPrivateNetworkName())) {
-            if (publicAssigned != null && privateAssigned == null) {
-                riit.setPrivateDnsName(publicAssigned);
-            } else if (publicAssigned == null && privateAssigned != null) {
-                riit.setDnsName(privateAssigned);
+            if (publicAssignedHostname != null && privateAssignedHostname == null) {
+                riit.setPrivateDnsName(publicAssignedHostname);
+                riit.setPrivateIpAddress(publicAssignedIp);
+            } else if (publicAssignedHostname == null && privateAssignedHostname != null) {
+                riit.setDnsName(privateAssignedHostname);
+                riit.setIpAddress(privateAssignedIp);
             }
         }
 
