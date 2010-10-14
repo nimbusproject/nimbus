@@ -168,7 +168,7 @@ if [ "X" != "X$PREVIOUS_NIMBUS_HOME_VALIDATED" ]; then
         exit 1
     fi
     
-    old_vmmdir = "$PREVIOUS_NIMBUS_HOME_VALIDATED/services/etc/nimbus/workspace-service/vmm-pools"
+    old_vmmdir="$PREVIOUS_NIMBUS_HOME_VALIDATED/services/etc/nimbus/workspace-service/vmm-pools"
     vmm_cmd="$CONFIG_SCRIPT $EXTRA_CONFIG_SCRIPT_ARGS --import-vmms $old_vmmdir"
 fi
 
@@ -189,7 +189,13 @@ if [ $rc -ne 0 ]; then
 fi
 
 if [ "X" != "X$PREVIOUS_NIMBUS_HOME_VALIDATED" ]; then
-    echo "TODO: import cumulus settings"
+    echo ""
+    $CONFIG_SCRIPT $EXTRA_CONFIG_SCRIPT_ARGS --import-cumulusdb
+    if [ $? -ne 0 ]; then
+        echo ""
+        echo "Could not import Cumulus DB from the old configuration file: $oldnimbusconf"
+        exit 1
+    fi
 fi
 
 echo ""
@@ -216,7 +222,7 @@ if [ "X" != "X$PREVIOUS_NIMBUS_HOME_VALIDATED" ]; then
     old_etc_dir=$PREVIOUS_NIMBUS_HOME_VALIDATED/services/etc/nimbus
     new_etc_dir=$NIMBUS_HOME/services/etc/nimbus
     echo "-----------------------------------------------------------------"
-    echo " ** Upgrade configuration still needed **"
+    echo " ** Upgrade work still needed **"
     echo "-----------------------------------------------------------------"
     echo ""
     echo "While key settings have been transferred from your old install,"
