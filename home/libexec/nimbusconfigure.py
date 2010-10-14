@@ -199,6 +199,9 @@ class ARGS:
     IMPORTVMMS_LONG= "--import-vmms"
     IMPORTVMMS_HELP = "Import VMMs from an old-style 'vmm-pools' directory"
     
+    IMPORTCUMUDB_LONG= "--import-cumulusdb"
+    IMPORTCUMUDB_HELP = "[Only used programmatically]"
+    
     PRINT_HOSTNAME_LONG = "--print-hostname"
     PRINT_HOSTNAME = "-Z"
     PRINT_HOSTNAME_HELP = "Print chosen hostname or error if none chosen"
@@ -251,6 +254,10 @@ def parsersetup():
     group.add_option(ARGS.IMPORTPREV_LONG,
             action="store_true", dest="importprev", default=False,
             help=ARGS.IMPORTPREV_HELP)
+    
+    group.add_option(ARGS.IMPORTCUMUDB_LONG,
+            action="store_true", dest="importcumulusdb", default=False,
+            help=ARGS.IMPORTCUMUDB_HELP)
 
     group.add_option(ARGS.PRINT_HOSTNAME, ARGS.PRINT_HOSTNAME_LONG,
                     action="store_true", dest="print_chosen_hostname",
@@ -641,6 +648,41 @@ def import_db(setup, old_db_path):
     if derbyutil.update_db(ij_path, old_db_path, new_db_path) == 1:
         raise UnexpectedError("Failed to update Accounting DB")
 
+def copy_accounting_db(setup, old_db_path):
+    
+    # The one we're about to replace
+    new_db_path = os.path.join(setup.gtdir, 'var/nimbus/WorkspaceAccountingDB')
+    if not os.path.isdir(new_db_path):
+        raise IncompatibleEnvironment("Could not find current Accounting DB: %s"
+                % new_db_path)
+
+    # back this up, just in case this script is used in an odd way
+    backup_db_path = os.path.join(setup.gtdir, 'var/nimbus/.prev-accountingDB')
+    print "\nBacking up accounting DB to: %s ... " % backup_db_path
+    shutil.move(new_db_path, backup_db_path)
+    print " - Done."
+
+    print "\nImporting accounting DB to: %s ... " % new_db_path
+    shutil.copytree(old_db_path, new_db_path)
+    print " - Done."
+
+def copy_cumulus_db(setup, old_db_path):
+    
+    # The one we're about to replace
+    new_db_path = setup.resolve_path("cumulus/etc/authz.db")
+    if not os.path.exists(new_db_path):
+        raise IncompatibleEnvironment("Could not find Cumulus DB to replace: %s"
+                % new_db_path)
+    
+    # back this up, just in case this script is used in an odd way
+    backup_db_path = setup.resolve_path("cumulus/etc/.prev-authz.db")
+    print "Backing up Cumulus DB to: %s ... " % backup_db_path
+    shutil.move(new_db_path, backup_db_path)
+    print " - Done."
+
+    print "\nImporting Cumulus DB to: %s ... " % new_db_path
+    shutil.copy(old_db_path, new_db_path)
+    print " - Done."
 
 def get_oldsetup(config):
     old_nimbus_home = os.getenv("PREVIOUS_NIMBUS_HOME_VALIDATED")
@@ -790,9 +832,14 @@ def import_accounting(setup, config, oldversion):
     if not os.path.isdir(old_db_path):
         raise IncompatibleEnvironment("Not a directory: %s" % old_db_path)
     
-    print "\nImporting accounting database ... "
-    import_db(setup, old_db_path)
-    print " - Done."
+    copy_accounting_db(setup, old_db_path)
+    
+def import_cumulus(setup, config, oldversion):
+    oldsetup = get_oldsetup(config)
+    old_db_path = oldsetup.resolve_path("cumulus/etc/authz.db")
+    if not os.path.exists(old_db_path):
+        raise IncompatibleEnvironment("Not a file: %s" % old_db_path)
+    copy_cumulus_db(setup, old_db_path)
 
 def import_webapp(setup, config, oldversion):
     oldsetup = get_oldsetup(config)
@@ -806,7 +853,7 @@ def import_webapp(setup, config, oldversion):
     shutil.copy(old_webconf, webconf)
     print " - Done."
     
-def _get_none_comment_lines(fullpath):
+def _get_noncomment_lines(fullpath):
     """Return a list of lines from this file that are not comments and not
     empty lines"""
     f = open(fullpath, 'r')
@@ -826,7 +873,7 @@ def _get_none_comment_lines(fullpath):
 def _one_vmm_file(directory, pool, nodestool):
     print "  - Importing VMM pool '%s'" % pool
     fullpath = os.path.join(directory, pool)
-    lines = _get_none_comment_lines(fullpath)
+    lines = _get_noncomment_lines(fullpath)
     
     for line in lines:
         parts = line.split(" ")
@@ -942,10 +989,15 @@ def main(argv=None):
             import_net(setup, config, oldversion)
             import_accounting(setup, config, oldversion)
             import_webapp(setup, config, oldversion)
-            print ""
             return 0
         elif opts.importvmms:
             import_vmms(setup, opts.importvmms)
+            print ""
+            return 0
+        elif opts.importcumulusdb:
+            oldversion = getoldversion(config)
+            print "Old Nimbus version: %s\n" % oldversion
+            import_cumulus(setup, config, oldversion)
             print ""
             return 0
         elif opts.print_repo_bucket:
