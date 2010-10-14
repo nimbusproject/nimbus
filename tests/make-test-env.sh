@@ -151,7 +151,27 @@ ls -l $HOME/.globus/
 
 ./bin/grid-proxy-init.sh
 
-echo "localhost 10240" >> $install_dir/services/etc/nimbus/workspace-service/vmm-pools/testpool
+echo "========================================="
+echo "Setting up VMM and network pools"
+echo "========================================="
+
+$install_dir/bin/nimbusctl services start
+if [ $? -ne 0 ]; then
+    echo "Starting Nimbus services failed"
+    exit 1
+fi
+$install_dir/bin/nimbus-admin --add-nodes localhost
+if [ $? -ne 0 ]; then
+    echo "Adding VMM node failed"
+    exit 1
+fi
+$install_dir/bin/nimbusctl services stop
+if [ $? -ne 0 ]; then
+    echo "Stopping Nimbus services failed"
+    exit 1
+fi
+
+
 cp $src_dir/public  $install_dir/services/etc/nimbus/workspace-service/network-pools/public
 
 
