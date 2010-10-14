@@ -35,7 +35,8 @@ class Reporter {
 
     public Reporter(OutputMode mode, String[] fields, String delimiter) {
         this.mode = mode;
-        this.fields = Arrays.copyOf(fields, fields.length);
+        this.fields = new String[fields.length];
+        System.arraycopy(fields, 0, this.fields, 0, fields.length);
 
         if (delimiter != null) {
             if (mode != OutputMode.Batch) {
