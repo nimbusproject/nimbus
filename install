@@ -115,7 +115,6 @@ if [ ! -f $CUMULUS_ENV ]; then
     exit 1
 fi
 
-echo ""
 export NIMBUS_HOME
 $NIMBUS_SRC/lantorrent/install.sh $NIMBUS_HOME/lantorrent | tee -a $NIMBUS_HOME/install.log
 rc=$PIPESTATUS
