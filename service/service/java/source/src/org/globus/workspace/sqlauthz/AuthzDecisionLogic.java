@@ -325,7 +325,7 @@ public class AuthzDecisionLogic extends DecisionLogic
                     fileIds[1] = authDB.newFile(keyName, fileIds[0], canUser, dataKey, schemeType);
                 }                
                 if(fileIds[1] < 0)
-                {
+                {                                                                                                 AuthzDBAdapter
                     throw new ResourceRequestDeniedException("the object " + objectName + " was not found.");
                 }
 
