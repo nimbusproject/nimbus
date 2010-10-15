@@ -714,7 +714,6 @@ public class AuthzDBAdapter
             {
                 throw new AuthzDBException("did not insert the row properly");
             }
-            c.commit();
         }
         catch(SQLException e)
         {
