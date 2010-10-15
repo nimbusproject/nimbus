@@ -1256,23 +1256,7 @@ service.sshd.contact.string=REPLACE_WITH_SERVICE_NODE_HOSTNAME:22</pre>
 
 <h4>* VMM names:</h4>
 <p>
-    Navigate to the workspace service VMM pools directory:
-</p>
-
-_EXAMPLE_CMD_BEGIN
-cd $NIMBUS_HOME/services/etc/nimbus/workspace-service/vmm-pools
-_EXAMPLE_CMD_END
-
-<p>
-    Each file in this directory represents a distinct pool of VMM nodes that
-    are available for the service to run VMs on.  Leave this as one pool (one
-    file, the example file).
-</p>
-
-<p>
-    Edit the example "pool1" file to list only one test VMM node, the node
-    where you installed Xen above.  List the amount of memory you would like
-    allocated to the guest VMs.
+    TODO: redo this part with nimbus-admin instructions
 </p>
 
 
@@ -1378,6 +1362,8 @@ fakepub1 192.168.0.3 192.168.0.1 192.168.0.255 255.255.255.0</pre>
 <p>
     This is the default, see the <a href="#resource-pool-and-pilot">overview</a>.
 </p>
+
+<p>TODO: redo this part with nimbus-admin instructions</p>
 
 <p>
     A directory of files is located at
