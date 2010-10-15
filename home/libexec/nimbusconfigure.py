@@ -716,8 +716,6 @@ def import_relatives(setup, config, oldversion):
         # re-running configure takes care of the X509_CERT_DIR in the
         # $NIMBUS_HOME/libexec/environment.sh file.
         
-        value = raw_input(acknowledge)
-        
     print "\nTrusted certificate configuration: %s" % setup.trustedcertsdir
     if oldsetup.is_config_relative(CONFIG_KEY_TRUSTED_CERTS):
         print "Checking trusted certificates exists: %s" % setup.trustedcertsdir
@@ -727,7 +725,6 @@ def import_relatives(setup, config, oldversion):
             print " - Done."
     else:
         print >>sys.stderr, "* Did not import trusted certificate directory, it was an absolute path configuration which is a customization: %s" % oldsetup.trustedcertsdir
-        value = raw_input(acknowledge)
 
     print "\nHost certificate configuration: %s" % setup.hostcert_path
     if oldsetup.is_config_relative(CONFIG_KEY_HOSTCERT):
@@ -738,7 +735,6 @@ def import_relatives(setup, config, oldversion):
         print " - Done."
     else:
         print >>sys.stderr, "* Did not import host certificate, it was an absolute path configuration which is a customization: %s" % oldsetup.hostcert_path
-        value = raw_input(acknowledge)
         
     print "\nHost key configuration: %s" % setup.hostkey_path
     if oldsetup.is_config_relative(CONFIG_KEY_HOSTKEY):
@@ -749,7 +745,6 @@ def import_relatives(setup, config, oldversion):
         print " - Done."
     else:
         print >>sys.stderr, "* Did not import host key, it was an absolute path configuration which is a customization: %s" % oldsetup.hostkey_path
-        value = raw_input(acknowledge)
     
     print "\nKeystore configuration: %s" % setup.keystore_path
     if oldsetup.is_config_relative(CONFIG_KEY_KEYSTORE):
@@ -760,7 +755,6 @@ def import_relatives(setup, config, oldversion):
         print " - Done."
     else:
         print >>sys.stderr, "* Did not import keystore, it was an absolute path configuration which is a customization: %s" % oldsetup.keystore_path
-        value = raw_input(acknowledge)
         
     print "\nGridmap configuration: %s" % setup.gridmap_path
     if oldsetup.is_config_relative(CONFIG_KEY_GRIDMAP):
@@ -769,7 +763,6 @@ def import_relatives(setup, config, oldversion):
         print " - Done."
     else:
         print >>sys.stderr, "* Did not import ACL (gridmap), it was an absolute path configuration which is a customization: %s" % oldsetup.gridmap_path
-        value = raw_input(acknowledge)
 
 def import_authz(setup, config, oldversion):
     oldsetup = get_oldsetup(config)
