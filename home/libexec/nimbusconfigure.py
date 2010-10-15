@@ -871,7 +871,11 @@ def _get_noncomment_lines(fullpath):
     return lines
     
 def _one_vmm_file(directory, pool, nodestool):
-    print "  - Importing VMM pool '%s'" % pool
+    topr = "\nImporting VMMs from '%s'" % pool
+    dashes = "-" * (len(topr) - 1)
+    print topr
+    print dashes + "\n"
+    
     fullpath = os.path.join(directory, pool)
     lines = _get_noncomment_lines(fullpath)
     
@@ -895,12 +899,13 @@ def _one_vmm_file(directory, pool, nodestool):
             err += "  %s\n\n" % stdout 
             err += "  %s\n" % stderr 
             raise UnexpectedError(err)
+        else:
+            print stdout
 
 def import_vmms(setup, old_vmmdir):
     
     nodestool = setup.resolve_path("bin/nimbus-admin")
     
-    print "\nImporting VMM configuration ... "
     if not os.path.isdir(old_vmmdir):
         raise IncompatibleEnvironment("Directory does not exist: %s" %  old_vmmdir)
     files = os.listdir(old_vmmdir)
@@ -912,7 +917,7 @@ def import_vmms(setup, old_vmmdir):
             print "  - Ignoring directory '%s'" % fullpath
         else:
             _one_vmm_file(old_vmmdir, pool, nodestool)
-    print " - Done."
+    print "Done."
 
 def getoldversion(config):
     oldsetup = get_oldsetup(config)
