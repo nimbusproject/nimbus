@@ -146,7 +146,7 @@ _NIMBUS_2_6_DEPRECATED
 
     <li>
         <p>
-            <a href="#lantorrent">Lantorrent</a>
+            <a href="#lantorrent">LANTorrent</a>
         </p>
         <ul>
             <li>
@@ -2039,20 +2039,20 @@ some of these variables may been to be changed as well.
 </ul>
 
 <a name="lantorrent"> </a>
-<h2>Cumulus _NAMELINK(lantorrent)</h2>
+<h2>LANTorrent _NAMELINK(lantorrent)</h2>
 <p>
-    <a href="../faq.html#lantorrent">Lantorrent</a> is fast multicast file
+    <a href="../faq.html#lantorrent">LANTorrent</a> is fast multicast file
 distribution protocol designed to saturate all the links in a switch.  
-There are several optimizations planned for future releases of lan torrent.
+There are several optimizations planned for future releases of LANTorrent.
 </p>
 <p>
-Lantorrent works best for the following scenarios:
+LANTorrent works best for the following scenarios:
     <ol>
         <li>large file transfers (VM images are typically measured in gigabytes)</li>
         <li>local area switched network (typical for data center computer racks)</li>
         <li>file recipients are willing peers.</li>
             Unlike other peer to peer transfer protocol, bittorrent for 
-            example, lantorreent is not designed with leeches in mind.  It
+            example, LANTorrent is not designed with leeches in mind.  It
             is designed under the assumption that every peer is a willing
             and able participant.
         <li>many endpoints request the same file at roughly the same time</li>
@@ -2060,7 +2060,7 @@ Lantorrent works best for the following scenarios:
 </p>
 
 <a name="lantorrent-protocol"> </a>
-<h2>Cumulus _NAMELINK(lantorrent-protocol)</h2>
+<h2>LANTorrent _NAMELINK(lantorrent-protocol)</h2>
 <p>
 When an endpoint wants a file it submits a request to a central agent.
 This agent aggregates request for files so that they can be sent out in
@@ -2087,15 +2087,15 @@ multiple copies of the same file.  Each file is booted as a virtual
 machine and that virtual machine will make distinct changes to that file
 as it runs, thus it needs it own copy of the file.  However that file
 does not need to be transfered across the network more than once.
-Lantorrent will send the file to each endpoint once and instruct that
+LANTorrent will send the file to each endpoint once and instruct that
 endpoint to write it to multiple files if needed.
 </p>
 
 
 <a name="lantorrent-config"> </a>
-<h3>Cumulus Configuration _NAMELINK(lantorrent-config)</h3>
+<h3>LANTorrent Configuration _NAMELINK(lantorrent-config)</h3>
 <p>
-Lantorrent is not enabled in a default Nimbus installation.  A few 
+LANTorrent is not enabled in a default Nimbus installation.  A few 
 additional steps are required to enable it.
 </p>
 <p>
@@ -2107,7 +2107,7 @@ The following software is required on VMM nodes:
     </ol>
 </p>
 <p>
-To install lantorrent you must take the following steps:
+To install LANTorrent you must take the following steps:
 
 <ol>
 <li>edit $NIMBUS_HOME/nimbus-setup.conf</li>
@@ -2119,7 +2119,7 @@ To install lantorrent you must take the following steps:
     be sure to expand $NIMBUS_HOME to its full and actual path.
 
 <li>xinetd</li>
-    Lantorrent is run out of xinetd thus it must be installed on all VMMs.
+    LANTorrent is run out of xinetd thus it must be installed on all VMMs.
 
 <li>install lantorrent on VMM</li>
     <ul>
@@ -2129,7 +2129,7 @@ To install lantorrent you must take the following steps:
             control user as the first and only argument to the script.
     </ul>
 
-<li>install lantorrent into xinetd</li>
+<li>install LANTorrent into xinetd</li>
     the vmm-install,sh script creates the file lantorrent.inet.  This
     file is ready to be copied into /etc/xinetd.d/.  Once this is done
     restart xinetd (/etc/init.d/xinetd restart).
