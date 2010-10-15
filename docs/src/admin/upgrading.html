@@ -7,11 +7,84 @@ _NIMBUS_LEFT2_COLUMN_END
 _NIMBUS_CENTER2_COLUMN
 _NIMBUS_2_6_DEPRECATED
 
-<h2>Upgrading from Nimbus 2.4 to 2.5</h2>
+<h2>Upgrading from Nimbus 2.5 to 2.6</h2>
 
 <p>
-	TODO!
+	As of 2.6, Nimbus includes the <tt class="literal">./scripts/install-from</tt> program which aids in the migration from a previous Nimbus installation. 
 </p>
+<p>
+    Instead of installing with the normal method
+    (<tt class="literal">./install &lt;target_dir&gt;</tt>), you will give the
+    installer an initial configuration basis to work from.
+</p>
+<p>
+    Before using <tt class="literal">./scripts/install-from</tt> you must
+    have zero VM instances deployed.  This can be accomplished in a friendly
+    way to your users by temporarily moving the <tt class="literal">vmm-pools</tt> files to a safe location and replacing them with a blank file.  Restart the service and it will allow the current VMs to continue as usual but have zero VMM space to use for new leases. 
+</p>
+<p>
+    OK, so you have no VMs deployed and the services and Cumulus are <b>stopped</b>?
+</p>
+<p>
+    Time to run the 2.6 installation with <tt class="literal">./scripts/install-from</tt>.  After downloading and expanding the 2.6 services tarball, run:
+</p>
+<div class="screen"><pre>
+./scripts/install-from /home/nimbus/2.5 /home/nimbus/2.6
+</pre></div>
+
+<p>
+    ... where <tt class="literal">/home/nimbus/2.5</tt> is the NIMBUS_HOME of your previous installation and <tt class="literal">/home/nimbus/2.6</tt> is where you want to put the new one.
+</p>
+
+<p>
+    The script will install Nimbus 2.6 as normal but take into account configurations that were made in your previous installation.
+</p>
+
+<p>
+    When it is done running, there are still three tasks ahead of you:
+</p>
+
+<ul>
+    <li>
+        <p>The first thing to do is look over all of the "Configuring installed services" messages for any warnings about absolute paths.  If you are using non-standard configurations for things in the <tt class="literal">nimbus-setup.conf</tt> file, these will be left alone and not copied into the new Nimbus install.</p>
+        
+        <p>A diff command will be printed at the end of the <tt class="literal">install-from</tt> process which will allow you to look for any customizations you made to some of the service configurations.</p>
+        
+        <p>The <tt class="literal">install-from</tt> process will pick up most of the configurations, but not every last customization.  This diff command will assist you in the final touch-ups with the move.</p>
+    </li>
+    <li>
+        <p>Importing the VMM nodes that were configured.  Nimbus 2.6 introduces a new, more powerful way of configuring VMMs using a tool called <tt class="literal">nimbus-admin</tt>.  This requires the service to be running, though, so it cannot be used during the <tt class="literal">install-from</tt> process.</p>
+        
+        <p>The exact command to use (once you've started the service) is printed at the end of the <tt class="literal">install-from</tt> process.</p>
+    </li>
+    <li>
+        <p>Last but not least, notice that this is only a process that helps you with the services node.  If you want to get the latest changes in workspace-control, you will need to replace it.</p>
+        
+        <p>With a 2.5 to 2.6 transition, you can use the 2.5 <tt class="literal">workspace-control</tt> with the 2.6 service if you do not want to activate the new <a href="reference.html#lantorrent">LANTorrent</a> feature.  If you do want to activate <i>LANTorrent</i>, you will need to use the 2.6 <tt class="literal">workspace-control</tt> package.</p>
+    </li>
+</ul>
+
+<p>
+    <b>NOTE</b>: the Cumulus image and user database is migrated from the previous NIMBUS_HOME to the new one.  However, this database points to objects (files) that are being stored by absolute path.  The migration process <b>does not move all the Cumulus data objects</b>, only the metadata.
+</p>
+<p>
+    This has two ramifications.
+</p>
+<ul>
+    <li>
+        <p>As the default location of the data is under NIMBUS_HOME (in 'cumulus/posixdata'), <b>take care not to 'rm -rf'</b> the entire old NIMBUS_HOME once the new installation is working!</p>
+    </li>
+    <li>
+        <p>New uploads can be configured to continue to be sent to that directory but the default configuration is to put new data objects into the <b>new</b> NIMBUS_HOME's
+        'cumulus/posixdata' directory.</p>
+    </li>
+</ul>
+
+<p>
+    As you can see with the diff command, this process is not foolproof yet, it is however something that gets you most of the way.  If you have questions, as always do not hesitate to contact <a href="/contact/">the help list</a>.
+</p>
+
+
 <br />
 <br />
 <br />
