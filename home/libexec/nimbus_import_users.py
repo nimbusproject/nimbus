@@ -36,7 +36,7 @@ If file is not specified, standard input will be used"""
             flag=True)
     all_opts.append(opt)
 
-    opt = cbOpts('delim', 'D', 'Charactor between columns of input data', ',')
+    opt = cbOpts('delim', 'D', 'Character between columns of input data', ',')
     all_opts.append(opt)
     
     #opt = cbOpts('fields', 'f', 'Specify field order in output, from the following: '+
