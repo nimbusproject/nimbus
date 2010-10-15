@@ -897,7 +897,7 @@ def _one_vmm_file(directory, pool, nodestool):
 
 def import_vmms(setup, old_vmmdir):
     
-    nodestool = setup.resolve_path("bin/nimbus-admin")
+    nodestool = setup.resolve_path("bin/nimbus-nodes")
     
     if not os.path.isdir(old_vmmdir):
         raise IncompatibleEnvironment("Directory does not exist: %s" %  old_vmmdir)

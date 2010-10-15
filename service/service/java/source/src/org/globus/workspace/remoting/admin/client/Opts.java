@@ -83,22 +83,22 @@ public class Opts {
     //*************************************************************************
 
     public static final String ADD_NODES = "a";
-    public static final String ADD_NODES_LONG = "add-nodes";
+    public static final String ADD_NODES_LONG = "add";
     public final Option ADD_NODES_OPT =
                 OptionBuilder.withLongOpt(ADD_NODES_LONG).hasArg().create(ADD_NODES);
 
     public static final String LIST_NODES = "l";
-    public static final String LIST_NODES_LONG = "list-nodes";
+    public static final String LIST_NODES_LONG = "list";
     public final Option LIST_NODES_OPT =
                 OptionBuilder.withLongOpt(LIST_NODES_LONG).hasOptionalArg().create(LIST_NODES);
 
     public static final String REMOVE_NODES = "d";
-    public static final String REMOVE_NODES_LONG = "remove-nodes";
+    public static final String REMOVE_NODES_LONG = "remove";
     public final Option REMOVE_NODES_OPT =
                 OptionBuilder.withLongOpt(REMOVE_NODES_LONG).hasArg().create(REMOVE_NODES);
 
     public static final String UPDATE_NODES = "u";
-    public static final String UPDATE_NODES_LONG = "update-nodes";
+    public static final String UPDATE_NODES_LONG = "update";
     public final Option UPDATE_NODES_OPT =
                 OptionBuilder.withLongOpt(UPDATE_NODES_LONG).hasArg().create(UPDATE_NODES);
 

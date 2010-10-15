@@ -1,6 +1,6 @@
-Nimbus Admin Tool
+Nimbus Node Admin Tool
 
-Queries and configures the running Nimbus IaaS service
+Queries and configures VMM node pool in the running Nimbus IaaS service
 
 -----------------------------------------------------------------------------
 General
@@ -15,21 +15,20 @@ General
 -----------------------------------------------------------------------------
 Actions
 
-    --list-nodes (-l)          List the VMM nodes known to the Nimbus service
+    --list (-l)          List the VMM nodes known to the Nimbus service
 
-    --add-nodes (-a) HOSTS     Add the specified VMM nodes to the pool.
-                               HOSTS is a comma-separated list of hostnames
-                               or IP addresses. Node parameters can be
-                               specified in additional arguments, see below.
-                               If a parameter is unspecified, a default will
-                               be read from the configuration file.
+    --add (-a) HOSTS     Add the specified VMM nodes to the pool. HOSTS is a
+                         comma-separated list of hostnames or IP addresses.
+                         Node parameters can be specified in additional
+                         arguments, see below. If a parameter is unspecified,
+                         a default will be read from the configuration file.
 
-    --update-nodes (-u) HOSTS  Updates configuration values of VMM nodes. At
-                               least one node parameter must be specified in
-                               additional arguments, see below.
+    --update (-u) HOSTS  Updates configuration values of VMM nodes. At least
+                         one node parameter must be specified in additional
+                         arguments, see below.
 
-    --remove-nodes (-d) HOSTS  Removes VMM nodes from the Nimbus resource
-                               pool. Nodes that are in use cannot be removed.
+    --remove (-d) HOSTS  Removes VMM nodes from the Nimbus resource pool.
+                         Nodes that are in use cannot be removed.
 
 
 -----------------------------------------------------------------------------
