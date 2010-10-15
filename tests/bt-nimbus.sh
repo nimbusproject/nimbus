@@ -68,7 +68,7 @@ echo "Run tests...."
 echo "========================================="
 cd $src_dir
 
-if [ "X$run_tests" == "Xno" ]; then
+if [ "X$run_tests" != "Xno" ]; then
     ./bt-tests.sh
     rc=$?
 else
