@@ -14,6 +14,12 @@ PORT="8443"
 
 cd $GLOBUS_LOCATION
 
+# set up environment for the RMI over unix domain sockets communication done between
+# admin clients and the service
+
 export GLOBUS_OPTIONS="$GLOBUS_OPTIONS -Dorg.newsclub.net.unix.library.path=$NIMBUS_HOME/services/lib-native"
+
+# clear out stale RMI domain socket files
+rm -f $NIMBUS_HOME/var/run/privileged/*
 
 exec $NIMBUS_HOME/services/bin/globus-start-container -p $PORT >> $LOGFILE 2>&1
