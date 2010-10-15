@@ -36,6 +36,11 @@ _NIMBUS_2_6_DEPRECATED
     </li>
     <li>
         <p>
+            Cumulus now supports the S3 COPY operation.
+        </p>
+    </li>
+    <li>
+        <p>
             A new upgrade tool is introduced, <tt class="literal">install-from</tt>.  This assists with updating a previous Nimbus installations (2.5 and higher).  It currently requires that the old Nimbus services are all stopped and no VMs are deployed.
         </p>
     </li>
@@ -52,6 +57,199 @@ _NIMBUS_2_6_DEPRECATED
     <li>
         <p>
             As usual, some bug fixes and minor enhancements.
+        </p>
+    </li>
+</ul>
+
+<i>2.6 - Installer</i>
+<ul>
+    <li>
+        <p>
+            <i>install-from program</i>
+        </p>
+        <p>
+            A new upgrade tool is introduced, this assists with updating a previous Nimbus installations (2.5 and higher).  It currently requires that the old Nimbus services are all stopped and no VMs are deployed.
+        </p>
+        <p>
+            You use this program instead of the regular <tt class="literal">install</tt> instructions.  Most of the installation process is exactly as normal, but <tt class="literal">install-from</tt> will base most of the initial configurations on your old installation.
+        </p>
+        <p>
+            It is not yet entirely Magic&trade; so you will need to follow the instructions in the <a href="admin/upgrading.html">upgrade guide</a> to make it happen.
+        </p>
+    </li>
+</ul>
+
+<i>2.6 - IaaS Services</i>
+<ul>
+    <li>
+        <p>
+            <i>nimbus-nodes program</i>
+        </p>
+        <p>
+            Dynamic VMM configuration management is now possible with the new <tt class="literal">nimbus-nodes</tt> program.  This allows you to adjust the resource pool while the service is still running, adding and removing resources on the fly.
+        </p>
+        <p>
+            For information and instructions, see <a href="admin/reference.html#resource-pool">this section</a> of the administrator guide.
+        </p>
+    </li>
+    <li>
+        <p>
+            <i>nimbus-import-users</i>
+        </p>
+        <p>
+            This is a new program that allows multiple cloud installations to coordinate user information with each other.
+        </p>
+        <p>
+            You can "dump" user information into a text file and this allows you to import it elsewhere.  This allows administrators (or larger groups) to coordinate users across clusters/installations.
+        </p>
+        <p>
+            It is compatible with the <tt class="literal">nimbus-list-users</tt> tool, you can for example run things like <tt class="literal">ssh nimbus@othercloud nimbus-list-users % | nimbus-import-users</tt>
+        </p>
+    </li>
+    <li>
+        <p>
+            <i>nimbus-public-image</i>
+        </p>
+        <p>
+            This is a new program that allows administrators to register VM images in the local Cumulus repository that will be usable for all users of the system.
+        </p>
+        <p>
+            These are read-only images that all Nimbus users will see as an option in their "--list" output for running.
+        </p>
+        <p>
+            To save these images as new, derivative templates, the user would need to run "--save --new-name" and create a new object.
+        </p>
+    </li>
+    <li>
+        <p>
+            <i>Passthrough configuration</i>
+        </p>
+        <p>
+            When an image file URL scheme is not the normal "cumulus://", previously the service would always pass this along to the VMM to interpret on its own.  
+        </p>
+        <p>
+            Now you can explicitly set what propagation to use for "cumulus://" and what passthrough schemes are allowed (if any).
+        </p>
+        <p>
+            Enhancement <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7092">7092</a>
+            shows where to find the configuration.
+        </p>
+    </li>
+    <li>
+        <p>
+            <i>Bug Fixes</i>
+        </p>
+        <ul>
+            <li>
+                <p>
+                    <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7084">Bug 7084 - Explicit MAC->IP mappings are ignored after service restart</a>
+                </p>
+            </li>
+            <li>
+                <p>
+                    <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7088">Bug 7088 - newname/alternative unpropagated target fails</a>
+                </p>
+            </li>
+            <li>
+                <p>
+                    <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7096">Bug 7096 - User mgmt tools group number validation is excessive</a>
+                </p>
+            </li>
+        </ul>
+    </li>
+</ul>    
+
+<i>2.6 - Cumulus</i>
+<ul>
+    <li>
+        <p>
+            <i>COPY</i>
+        </p>
+        <p>
+            The <a href="http://docs.amazonwebservices.com/AmazonS3/2006-03-01/index.html?UsingCopyingObjects.html">COPY</a>
+            operation allows you to duplicate an object stored in the system without having to do any data transfer to your client machine.
+        </p>
+        <p>
+            It was tested with <tt class="literal">s3cmd</tt> and <tt class="literal">boto</tt>.  Future cloud-client versions could use this more natively for image duplication/rename.
+        </p>
+    </li>
+    <li>
+        <p>
+            <i>Bug Fixes</i>
+        </p>
+        <ul>
+            <li>
+                <p>
+                    <a href="http://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7083">Bug 7083 - s3cmd setacl public fails</a>
+                </p>
+            </li>
+        </ul>
+    </ul>
+    
+    
+</ul>
+
+<i>2.6 - LANTorrent</i>
+<ul>
+    <li>
+        <p>
+            <i>Introducing LANTorrent!</i>
+        </p>
+        <p>
+            This is the first release of LANTorrent, a fast multicast file distribution protocol designed to saturate all the links in a switch.
+        </p>
+        <p>
+            This works best for situations with a local area network, large files, and many cooperative peers that need the same file -- i.e., it is geared towards IaaS image propagation (but could work in other scenarios).
+        </p>
+        <p>
+            It is disabled by default and takes extra steps to activate.  See
+            <a href="admin/reference.html#lantorrent">this section</a> of
+            the administrator's guide for instructions as well as
+            <a href="admin/reference.html#lantorrent-protocol">detailed explanations</a> of how it works.
+        </p>
+    </li>
+</ul>
+
+<i>2.6 - Context Broker</i>
+<ul>
+    <li>
+        <p>
+            <i>HTTP/REST support</i>
+        </p>
+        <p>
+            The context broker has a new client-side HTTP/REST interface in addition to WSRF. Users authenticate with the same tokens they use for Cumulus and the Elastic Query API.  This opens up the context broker for several new client integrations including ones using alternate languages.
+        </p>
+        <p>
+            For example there is a 
+            <a href="http://github.com/nimbusproject/Nimboss">prototype
+            client api</a> being built that integrates with the REST broker. 
+        </p>
+    </li>
+</ul>
+
+<i>2.6 - Cloud Client</i>
+<ul>
+    <li>
+        <p>
+            <i>Use cloud-client 16 or higher</i>
+        </p>
+        <p>
+            As of this release, the latest cloud client is 
+            <a href="http://github.com/nimbusproject/nimbus/raw/master/cloud-client/nimbus-cloud-client-src/CHANGES.txt">number 
+            17</a>.  Cloud client 16 will also work, but 15 or before will not
+            due to the introduction of Cumulus in Nimbus 2.5.
+        </p>
+    </li>
+</ul>
+
+<i>2.6 - Additional Notes</i>
+<ul>
+    <li>
+        <p>
+            List of
+            <a href="http://github.com/nimbusproject/nimbus/compare/nimbus-release-2.4...nimbus-release-2.5">all
+            commits</a>
+            between Nimbus 2.5 final and the current 2.6 development branch.
         </p>
     </li>
 </ul>
