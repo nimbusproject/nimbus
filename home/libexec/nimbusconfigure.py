@@ -882,7 +882,7 @@ def _one_vmm_file(directory, pool, nodestool):
         net = None
         if len(parts) > 2:
             net = parts[2]
-        cmd = "%s --add-nodes %s --memory %s" % (nodestool, vmm, ram)
+        cmd = "%s --add %s --memory %s" % (nodestool, vmm, ram)
         if net:
             cmd += " --networks '%s'" % net
         cmd += " --pool %s" % pool
