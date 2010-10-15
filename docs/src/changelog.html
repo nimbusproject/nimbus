@@ -15,6 +15,48 @@ _NIMBUS_2_6_DEPRECATED
 <a href="http://github.com/nimbusproject/nimbus/raw/master/cloud-client/nimbus-cloud-client-src/CHANGES.txt">here.</a>
 </p>
 
+<a name="2.6"> </a>
+
+<i>2.6RC1 - Summary</i>
+<ul>
+    <li>
+        <p>
+            Nimbus 2.6 marks the first release of LANTorrent, a fast multicast file distribution protocol designed to saturate all the links in a switch.  This works best for situations with a local area network, large files, and many cooperative peers that need the same file -- i.e., it is geared towards IaaS image propagation (but could work in other scenarios).
+        </p>
+    </li>
+    <li>
+        <p>
+            Dynamic VMM configuration management is now possible with the new <tt class="literal">nimbus-admin</tt> program.  This allows you to adjust the resource pool while the service is still running, adding and removing resources on the fly.
+        </p>
+    </li>
+    <li>
+        <p>
+            The context broker has a new client-side HTTP/REST interface in addition to WSRF. Users authenticate with the same tokens they use for Cumulus and the Elastic Query API.  This opens up the context broker for several new client integrations including ones using alternate languages.
+        </p>
+    </li>
+    <li>
+        <p>
+            A new upgrade tool is introduced, <tt class="literal">install-from</tt>.  This assists with updating a previous Nimbus installations (2.5 and higher).  It currently requires that the old Nimbus services are all stopped and no VMs are deployed.
+        </p>
+    </li>
+    <li>
+        <p>
+            <tt class="literal">nimbus-import-users</tt> is a new program that allows multiple cloud installations to coordinate user information with each other.
+        </p>
+    </li>
+    <li>
+        <p>
+            <tt class="literal">nimbus-public-image</tt> is a new program that allows administrators to register VM images in the local Cumulus repository that will be usable for all users of the system (but of course only stored once on disk).
+        </p>
+    </li>
+    <li>
+        <p>
+            As usual, some bug fixes and minor enhancements.
+        </p>
+    </li>
+</ul>
+
+
 <a name="2.5"> </a>
 
 <i>2.5 - Summary</i>
