@@ -56,7 +56,7 @@ echo "========================================="
 cd $NIMBUS_HOME
 
 # change fake mode
-sed -i 's/fake.mode=false/fake.mode=true/' ./services/etc/nimbus/workspace-service/other/common.conf
+sed -i 's/fake.mode=true/fake.mode=false/' ./services/etc/nimbus/workspace-service/other/common.conf
 
 pkill cumulus
 ./bin/nimbusctl restart
