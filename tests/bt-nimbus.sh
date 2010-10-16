@@ -54,6 +54,10 @@ echo "========================================="
 echo "Starting the services"
 echo "========================================="
 cd $NIMBUS_HOME
+
+# change fake mode
+sed -i 's/fake.mode=false/fake.mode=true/' ./services/etc/nimbus/workspace-service/other/common.conf
+
 pkill cumulus
 ./bin/nimbusctl restart
 if [ $? -ne 0 ]; then
