@@ -447,6 +447,10 @@ public class AuthzDecisionLogic extends DecisionLogic
                 // need to calculate the md5sum and set the size
                 // for now lets just set the size
                 File f = new File(datakey);
+                if(!f.exists())
+                {
+                    throw new WorkspaceException("The unpropagated file does not exist " + publicName);
+                }
                 long size = f.length();
                 long expectedSize = authDB.getFileSize(fileIds[1]);
                 long sizeDiff = size - expectedSize;
