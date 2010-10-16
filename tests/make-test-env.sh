@@ -47,6 +47,10 @@ if [ "X$NIMBUS_REPO" != "X" ]; then
 fi
 echo "Checking out nimbus from $repo"
 git clone --depth 1 $repo
+if [ $? -ne 0 ]; then
+    echo "failed to checkout git from $NIMBUS_REPO"
+    exit 1
+fi
 
 install_dir=$work_dir/NIMBUSINSTALL
 
