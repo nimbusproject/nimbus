@@ -284,8 +284,8 @@ public class DefaultAuthorize implements Authorize {
 
         if (!arch.equals(fact)) {
             throw new ResourceRequestDeniedException(
-                    "incorrect CPU architecture, only '" + arch +
-                            "' supported, you request '" + fact + "'");
+                    "incorrect CPU architecture, only '" + fact +
+                            "' supported, you request '" + arch + "'");
         }
     }
 
