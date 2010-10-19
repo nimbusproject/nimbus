@@ -15,15 +15,17 @@ from boto.s3.connection import VHostCallingFormat
 from boto.s3.connection import SubdomainCallingFormat
 import sys
 from ConfigParser import SafeConfigParser
+import uuid
 
 g_lock = threading.Lock()
 g_ctr = 0
-g_bucket = "testbucket"
+g_bucket = "ScaleTest"
+g_key_name = "tst"
 g_times = []
 g_hostname = "c1.uc.futuregrid.org"
 g_port = 8888
-g_id = "y4OHqRh8PM10Khy7QuGmz" 
-g_pw = "QuqputK6HldcJxF0LnstOHvYM77qLJUfxYp7vGMbvU"
+g_id = "5xecKocxGi2DoCppttrnU"
+g_pw = "XXm4jIim2rw16QiiqyvB8rHt409pFUBxHm3oMXGDz6"
 
 def cb_get_conn(hostname, port):
     cf = OrdinaryCallingFormat()
@@ -32,15 +34,18 @@ def cb_get_conn(hostname, port):
     return conn
 
 def upload_file(filename):
+    global g_bucket
+    global g_key_name
     conn = cb_get_conn(g_hostname, g_port)
     try:
+        bucket = conn.get_bucket(g_bucket)
+    except Exception, ex:
         bucket = conn.create_bucket(g_bucket)
-    except:
-        pass
+    print bucket
 
     k = boto.s3.key.Key(bucket)
-    k.key = str(uuid.uuid1()).replace("-", "")
-    k.set_contents_from_filename(filename, cb=percent_cb, num_cb=10)
+    k.key = g_key_name
+    k.get_contents_to_filename(filename)
 
     return k.key
 
@@ -48,11 +53,10 @@ def time_upload(file):
     global g_lock
     global g_times
 
-    con = cb_get_conn(s)
     try:
         my_char = threading.current_thread().getName()
         start_tm = datetime.now()
-        (k, b) = upload_file(file)
+        key = upload_file(file)
         end_tm = datetime.now()
 
         delt = end_tm - start_tm
@@ -83,7 +87,7 @@ def main():
     t_a = []
     char = "abcdefghijklmnopqrstuvvxyz"
     for i in range(0, its):
-        t = threading.Thread(target=time_upload, args=(s, file), name=char[i%len(char)])
+        t = threading.Thread(target=time_upload, args=(file,), name=char[i%len(char)])
         t_a.append(t)
         t.start()
 
@@ -124,7 +128,7 @@ def main():
     print "%d,%d,%d,%f,%f,%f,%f,%f,%f" %(its, size, total_bytes, tm, total_bw, avg_tm, avg_bw, max, min)
     
     for tm in g_times:
-        sys.stdout.write(tm)
+        sys.stdout.write(str(tm))
         sys.stdout.write(",")
     sys.stdout.write("\n")
 
