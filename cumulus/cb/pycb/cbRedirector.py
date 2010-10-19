@@ -28,7 +28,6 @@ class cbRedirectorIface(object):
 class cbBasicRedirector(object):
 
     def __init__(self, parser):
-        self.max = max_connections
         self.connection_count = 0
         self.host_file = parser.get("load_balanced", "hostfile")
         self.max = int(parser.get("load_balanced", "max"))
@@ -36,7 +35,7 @@ class cbBasicRedirector(object):
     def new_connection(self, request):
         h = None
         self.connection_count = self.connection_count + 1
-        if g_connection_count >= self.max:
+        if self.connection_count >= self.max:
             h = self.get_next_host()
         return h
 
