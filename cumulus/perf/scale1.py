@@ -20,7 +20,7 @@ import uuid
 g_lock = threading.Lock()
 g_ctr = 0
 g_bucket = "ScaleTest"
-g_key_name = "tst"
+g_key_name = "100MB"
 g_times = []
 g_hostname = "c1.uc.futuregrid.org"
 g_port = 8888
@@ -56,7 +56,7 @@ def time_upload(file):
     try:
         my_char = threading.current_thread().getName()
         start_tm = datetime.now()
-        key = upload_file(file)
+        key = upload_file(file+"."+my_char)
         end_tm = datetime.now()
 
         delt = end_tm - start_tm
@@ -79,13 +79,11 @@ def main():
 
     its = int(sys.argv[1])
     file = sys.argv[2]
-    size = os.path.getsize(file)
-    print "file %s of %d bytes" % (file, size)
 
     start_tm = datetime.now()
 
     t_a = []
-    char = "abcdefghijklmnopqrstuvvxyz"
+    char = "abcdefghijklmnopqrstuvvxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     for i in range(0, its):
         t = threading.Thread(target=time_upload, args=(file,), name=char[i%len(char)])
         t_a.append(t)
@@ -105,11 +103,11 @@ def main():
     conn = cb_get_conn(g_hostname, g_port)
     bucket = conn.get_bucket(g_bucket)
     rs = bucket.list()
-    for k in rs:
-        try:
-            k.delete()
-        except:
-            pass
+#    for k in rs:
+#        try:
+#            k.delete()
+#        except:
+#            pass
 
     max = -1.0
     min = 99999999.0
@@ -119,6 +117,8 @@ def main():
         if tm < min:
             min = tm
 
+    size = os.path.getsize(file)
+    print "file %s of %d bytes" % (file, size)
     sizeMB = size * 1024*1024
     total_bytes = size * its 
     total_bw = float(total_bytes) / float(tm)
