@@ -486,7 +486,12 @@ public class AuthzDecisionLogic extends DecisionLogic
                     }
                     fis.close();
                     byte [] md5b = md5er.digest();
-                    md5string = new String(md5b);
+                    StringBuffer hexString = new StringBuffer();
+                    for (int i=0;i<md5b.length;i++)
+                    {
+                        hexString.append(Integer.toHexString(0xFF & md5b[i]));
+                    }
+                    md5string = hexString.toString();                    
                 }
                 catch(FileNotFoundException fnf)
                 {
