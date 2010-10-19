@@ -29,7 +29,7 @@ g_pw = "XXm4jIim2rw16QiiqyvB8rHt409pFUBxHm3oMXGDz6"
 
 def cb_get_conn(hostname, port):
     cf = OrdinaryCallingFormat()
-    conn = S3Connection(g_id, g_pw, host=hostname, port=port, is_secure=False, calling_format=cf)
+    conn = S3Connection(g_id, g_pw, host=hostname, port=port, is_secure=False, calling_format=cf, debug=15)
 
     return conn
 
@@ -41,7 +41,6 @@ def upload_file(filename):
         bucket = conn.get_bucket(g_bucket)
     except Exception, ex:
         bucket = conn.create_bucket(g_bucket)
-    print bucket
 
     k = boto.s3.key.Key(bucket)
     k.key = g_key_name
@@ -56,7 +55,8 @@ def time_upload(file):
     try:
         my_char = threading.current_thread().getName()
         start_tm = datetime.now()
-        key = upload_file(file+"."+my_char)
+        #key = upload_file(file+"."+my_char)
+        key = upload_file(file)
         end_tm = datetime.now()
 
         delt = end_tm - start_tm
@@ -90,7 +90,6 @@ def main():
         t.start()
 
     for i in range(0, its):
-        print "joining %s" % (t_a[i].getName())
         t_a[i].join()
 
     end_tm = datetime.now()
@@ -99,10 +98,9 @@ def main():
     us = float(delt.microseconds) / 1000000.0
     tm = float(delt.seconds) + us
 
-    print "cleaning up the keys"
-    conn = cb_get_conn(g_hostname, g_port)
-    bucket = conn.get_bucket(g_bucket)
-    rs = bucket.list()
+#    conn = cb_get_conn(g_hostname, g_port)
+#    bucket = conn.get_bucket(g_bucket)
+#    rs = bucket.list()
 #    for k in rs:
 #        try:
 #            k.delete()
@@ -117,8 +115,8 @@ def main():
         if tm < min:
             min = tm
 
-    size = os.path.getsize(file)
-    print "file %s of %d bytes" % (file, size)
+    #size = os.path.getsize(file)
+    size = 0
     sizeMB = size * 1024*1024
     total_bytes = size * its 
     total_bw = float(total_bytes) / float(tm)
