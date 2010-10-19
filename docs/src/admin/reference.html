@@ -1255,26 +1255,10 @@ service.sshd.contact.string=REPLACE_WITH_SERVICE_NODE_HOSTNAME:22</pre>
 
 
 <h4>* VMM names:</h4>
-<p>
-    TODO: redo this part with nimbus-nodes instructions
-</p>
-
-
-<div class="screen"><pre>
-some-vmm-node 1024</pre>
-</div>
 
 <p>
-    You can SSH there without password from the nimbus account, right?
+    See the <a href="#resource-pool">resource pool</a> section to learn how to add VMM names.
 </p>
-
-_EXAMPLE_CMD_BEGIN
-ssh some-vmm-node
-_EXAMPLE_CMD_END
-
-<div class="screen"><pre>
-nimbus@some-vmm-node $ ...</pre>
-</div>
 
 <a name="networks"> </a>
 <h4>* Networks:</h4>
@@ -1363,67 +1347,89 @@ fakepub1 192.168.0.3 192.168.0.1 192.168.0.255 255.255.255.0</pre>
     This is the default, see the <a href="#resource-pool-and-pilot">overview</a>.
 </p>
 
-<p>TODO: redo this part with nimbus-nodes instructions</p>
 
 <p>
-    A directory of files is located at
-    "services/etc/nimbus/workspace-service/<b>vmm-pools</b>/"
+    In the <a href="z2c/index.html">Zero to Cloud Guide</a>, the configuration script that you interacted with at end of the <a href="z2c/ssh-setup.html">SSH Setup</a> section took care of configuring the workspace service with the first VMM to use.
 </p>
+
 <p>
-   The pool file format is currently simple: for each node in the pool,
-   list the hostname and the amount of RAM it can spare for running guest VMs.
+    A cloud with one VMM is perfectly reasonable for a test setup, but when it comes time to offer resources to others for real use, we bet you might want to add a few more.  Maybe a few hundred more.
 </p>
+
 <p>
-   Optionally, you can also specify that certain hosts can only
-   support a subset of the available networks (see the
-   file comments for syntax).
+    As of Nimbus 2.6, it is possible to configure the running service dynamically.  You can interact with the scheduler and add and remove nodes on the fly.  The <tt class="literal">nimbus-nodes</tt> program is what you use to do this.
 </p>
+
 <p>
-   If you change these configuration files after starting the
-   container, only a fresh container reboot will actually incur the
-   changes.
+    Have a look at the help output:
 </p>
 
-<ul>
+<div class="screen"><pre>
+cd $NIMBUS_HOME
+./bin/nimbus-nodes -h</pre>
+</div>
 
-    <li>
-        If you <b>add</b> a node, this will be available
-        immediately after the container reboot.
-    </li>
+<p>
+    The following example assumes you have homogenous nodes.  Each node has, let's say, 8GB RAM and you want to dedicate the nodes exclusively to hosting VMs.  Some RAM needs to be saved for the system (in Xen for example this is "domain 0" memory), so we decide to offer 7.5GB to VMs.  For RAM, there is no overcommit possible with Nimbus.
+</p>
 
-    <li>
-        If you <b>remove</b> a node that is currently
-        in use, no new deployments will be mapped to this VMM.
-        However, this will not destroy (or migrate) any current VMs
-        running there.  If that is necessary it currently needs to be
-        accomplished explicitly.
-    </li>
+<div class="note">
+<p class="note-title">nimbus-nodes needs a running service</p>
+    If the service is not running, the nimbus-nodes program will fail to adjust anything.  Make sure the workspace service is running with "./bin/nimbusctl start".
+</p>
+</div>
 
-    <li>
-        If you <b>change</b> a node that is currently
-        in use, the change will take effect for the next lease.
+<p>
+    You can SSH to each node without password from the nimbus account, right?
+</p>
 
-        <p>
-        If you've removed support for an association on a VMM that
-        the current VM(s) is using, this change will not destroy (or
-        migrate) the VM(s) to adjust to this restriction.
-        If that is necessary it currently needs to be accomplished
-        explicitly.
-        </p>
+<div class="screen"><pre>
+service-node $ whoami
+nimbus
+service-node $ ssh nequals01</pre>
+</div>
 
+<div class="screen"><pre>
+nequals01 $ ...</pre>
+</div>
 
-        <p>
-        If you've reduced the memory allocation below what the
-        current VM(s) on the node is/are currently using, this will
-        not destroy (or migrate) the current VM(s) to adjust to this
-        restriction.
-        If that is necessary it currently needs to be accomplished
-        explicitly.  Once the VM(s) are gone, the maximum memory
-        available on that VMM will be the new, lower maximum.
-        </p>
-    </li>
+<p>
+    The nodes in the cluster are named based on numbers, so for example "nequals01", "nequals02", etc.  This means we can construct the command with a for loop.
+</p>
 
-</ul>
+<div class="screen"><pre>
+$ NODES="nequals01"
+$ for n in `seq 2 10`; do NODES="$NODES,nequals$n"; done
+$ echo $NODES
+nequals01,nequals2,nequals3,nequals4,nequals5,nequals6,nequals7,nequals8,nequals9,nequals10
+</pre>
+</div>
+
+<p>
+    With the <tt class="literal">$NODES</tt> variable in hand, we can make the node-addition call.
+</p>
+
+<div class="screen"><pre>
+$ ./bin/nimbus-nodes --add $NODES --memory 7680
+</pre>
+</div>
+
+<p>
+    At any time you can use the "--list" action to see what the current state of the pool is.
+</p>
+
+<p>
+    There are several other options discussed in the <tt class="literal">nimbus-nodes -h</tt> text, we will highlight one of the most important ones here.
+</p>
+
+<p>
+    If you ever want to disable a VMM, use the live-update feature.  After running the following command, no new VMs can be launched on the node.  Any current VMs, however, will continue running.  So this is a way to "drain" your nodes of work if there is maintenance coming up, etc.
+</p>
+
+<div class="screen"><pre>
+$ ./bin/nimbus-nodes --update nequals08 --inactive
+</pre>
+</div>
 
 
 <a name="pilot"> </a>
