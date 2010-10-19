@@ -1,5 +1,6 @@
 import os
 import sys
+import random
 from pycb.cbException import cbException
 import pycb
 import stat
@@ -35,7 +36,7 @@ class cbBasicRedirector(object):
     def new_connection(self, request):
         h = None
         self.connection_count = self.connection_count + 1
-        if self.connection_count >= self.max:
+        if self.connection_count > self.max:
             h = self.get_next_host()
         return h
 
@@ -51,14 +52,14 @@ class cbBasicRedirector(object):
             f.close()
 
             my_host = "%s:%d" % (pycb.config.hostname, pycb.config.port)
-
-            for i in range(0, 10):
+            for i in range(0, 5):
                 ndx = random.randint(0, len(hosts)-1)
                 h = hosts[ndx]
+                pycb.log(logging.INFO, "redirector found %s, my host %s" % (h, my_host))
                 if h != my_host:
                     return h
-            return h
+            return None
         except Exception, ex:
-            log(logging.ERROR, "get next host error %s" % (str(ex)))
+            pycb.log(logging.ERROR, "get next host error %s" % (str(ex)))
             return None
  

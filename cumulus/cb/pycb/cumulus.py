@@ -38,11 +38,11 @@ def init_redirector(req, bucketName, objectName):
     req.notifyFinish().addBoth(end_redirector, req)
 
     if redir_host:
-        pycb.log(logging.INFO, "REDIRECT %s" % (next_host))
+        pycb.log(logging.INFO, "REDIRECT %s" % (redir_host))
         ex = cbException('TemporaryRedirect')
-        req.setHeader('location', "http://%s%s" % (next_host, req.uri))
+        req.setHeader('location', "http://%s%s" % (redir_host, req.uri))
         ex.add_custom_xml("Bucket", bucketName)
-        ex.add_custom_xml("Endpoint", next_host)
+        ex.add_custom_xml("Endpoint", redir_host)
         raise ex
 
 def path_to_bucket_object(path):
