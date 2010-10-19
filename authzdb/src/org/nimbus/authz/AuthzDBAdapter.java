@@ -25,7 +25,7 @@ public class AuthzDBAdapter
     private static final String GET_DATA_KEY = "select data_key from objects where id = ?";
     private static final String CREATE_NEW_FILE = "insert into objects (name, owner_id, data_key, object_type, parent_id, creation_time) values(?, ?, ?, ?, ?, datetime('now'))";
     private static final String SET_NEW_FILE_PERMS = "insert into object_acl (user_id, object_id, access_type_id) values(?, ?, ?)";
-    private static final String UPDATE_FILE_INFO = "update objects set object_size=?, creation_time=datetime('now') where id = ?";
+    private static final String UPDATE_FILE_INFO = "update objects set object_size=?, md5sum=?, creation_time=datetime('now') where id = ?";
     private static final String GET_USER_USAGE = "SELECT SUM(object_size) FROM objects where owner_id = ? and object_type = ?";
     private static final String GET_USER_QUOTA = "SELECT quota from object_quota where user_id = ? and object_type = ?";
     private static final String GET_FILE_SIZE = "SELECT object_size FROM objects WHERE id = ?";
@@ -696,7 +696,8 @@ public class AuthzDBAdapter
 
     public void setFileSize(
         int                             objectId,
-        long                            size)
+        long                            size,
+        String                          md5string)
             throws AuthzDBException
     {
         Connection c = null;
@@ -707,9 +708,8 @@ public class AuthzDBAdapter
             c = getConnection();
             pstmt = c.prepareStatement(UPDATE_FILE_INFO);
             pstmt.setLong(1, size);
-            //long ms = new java.util.Date().getTime();
-            //pstmt.setDate(2, new Date(ms));
-            pstmt.setInt(2, objectId);
+            pstmt.setString(2, md5string);
+            pstmt.setInt(3, objectId);
 
             int rc = pstmt.executeUpdate();
             if(rc != 1)
