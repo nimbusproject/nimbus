@@ -17,8 +17,10 @@ import org.nimbus.authz.AuthzDBAdapter;
 import org.nimbus.authz.AuthzDBException;
 import org.springframework.core.io.Resource;
 import javax.sql.DataSource;
-import java.io.File;
+import java.io.*;
 import java.net.URI;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * Created by John Bresnahan
@@ -469,8 +471,37 @@ public class AuthzDecisionLogic extends DecisionLogic
                                 "avoid data loss (user '" + canUser + "').");
                     }
                 }
+                String md5string = "";
+                try
+                {
+                    InputStream fis =  new FileInputStream(f);
+                    byte[] md5_buffer = new byte[1024];
+                    MessageDigest md5er = MessageDigest.getInstance("MD5");
 
-                authDB.setFileSize(fileIds[1], size);
+                    int rc = fis.read(md5_buffer);
+                    while (rc > 0)
+                    {
+                        md5er.update(md5_buffer, 0, rc);
+                        rc = fis.read(md5_buffer);
+                    }
+                    fis.close();
+                    byte [] md5b = md5er.digest();
+                    md5string = new String(md5b);
+                }
+                catch(FileNotFoundException fnf)
+                {
+                    throw new WorkspaceException("Unpropagated file not found", fnf);  
+                }
+                catch(NoSuchAlgorithmException nsa)
+                {
+                    logger.error("There is no md5 digest", nsa);
+                }
+                catch(IOException ioe)
+                {
+                    logger.error("Error dealing with the unpropgated file", ioe);
+                }
+
+                authDB.setFileSize(fileIds[1], size, md5string);
             }
             else
             {
