@@ -69,7 +69,7 @@ def is_done(con, rid):
             error_cnt = error_cnt + 1
             if error_cnt >= pylantorrent.config.db_error_max:
                 raise sqlex
-            time.sleep(random.random())
+            time.sleep(random.random() * 2.0)
 
 def delete_rid(con, rid):
     error_cnt = 0
@@ -87,7 +87,7 @@ def delete_rid(con, rid):
             error_cnt = error_cnt + 1
             if error_cnt >= pylantorrent.config.db_error_max:
                 raise sqlex
-            time.sleep(random.random())
+            time.sleep(random.random() * 2.0)
 
 def request(argv, con):
     src_filename = argv[0]
@@ -128,7 +128,7 @@ def request(argv, con):
             error_ctr = error_ctr + 1
             if error_ctr >= pylantorrent.config.db_error_max:
                 raise ex
-            time.sleep(random.random())
+            time.sleep(random.random() * 2.0)
 
     # should never get here
 
@@ -148,6 +148,7 @@ def main(argv=sys.argv[1:]):
     """
 
     pylantorrent.log(logging.INFO, "enter")
+    random.seed()
 
     (o, args, p) = setup_options(argv)
 

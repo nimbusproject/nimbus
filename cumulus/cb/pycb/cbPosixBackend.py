@@ -121,6 +121,7 @@ class cbPosixData(object):
         self.hashValue = None
         self.delete_on_close = False
         self.md5er = hashlib.md5()
+        self.access = access
 
         if not openIt:
             return
@@ -144,8 +145,11 @@ class cbPosixData(object):
 
     def get_md5(self):
         if self.hashValue == None:
-            v = str(self.md5er.hexdigest()).strip()
-            return v
+            if self.access == 'r':
+                return None
+            else:
+                v = str(self.md5er.hexdigest()).strip()
+                return v
         return self.hashValue
 
     def get_data_key(self):

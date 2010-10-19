@@ -15,6 +15,7 @@ from pycb.cbRequest import cbPutBucket
 from pycb.cbRequest import cbPutObject
 from pycb.cbRequest import cbHeadObject
 from pycb.cbRequest import cbCopyObject
+from pycb.cbRedirector import *
 from datetime import date, datetime
 from xml.dom.minidom import Document
 import uuid
@@ -29,48 +30,20 @@ import threading
 import tempfile
 import threading
 
-count_lock = threading.Lock()
-g_connection_count = 0
+def end_redirector(result, request):
+    pycb.config.redirector.end_connection(request)
 
-def connection_count_inc(req):
-    global count_locks
-    global g_connection_count
-    count_lock.acquire()
-    try:
-        g_connection_count = g_connection_count + 1
-        d = req.notifyFinish()
-        d.addBoth(cb_expired)
-    finally:
-        count_lock.release()
+def init_redirector(req, bucketName, objectName):
+    redir_host = pycb.config.redirector.new_connection(req)
+    req.notifyFinish().addBoth(end_redirector, req)
 
-def cb_expired(fail=None):
-    global count_lock
-    global g_connection_count
-    count_lock.acquire()
-    try:
-        g_connection_count = g_connection_count - 1
-    finally:
-        count_lock.release()
-
-def check_load(req, bucketName, objectName):
-    next_host = pycb.get_next_host()
-    if next_host == None:
-        return
-
-    global count_locks
-    global g_connection_count
-    count_lock.acquire()
-    try:
-        pycb.log(logging.INFO, "REDIRECT check 2 %d %d %s" % (g_connection_count, pycb.config.lb_max, next_host))
-        if g_connection_count > pycb.config.lb_max:
-            pycb.log(logging.INFO, "REDIRECT %s" % (next_host))
-            ex = cbException('TemporaryRedirect')
-            req.setHeader('location', "http://%s%s" % (next_host, req.uri))
-            ex.add_custom_xml("Bucket", bucketName)
-            ex.add_custom_xml("Endpoint", next_host)
-            raise ex
-    finally:
-        count_lock.release()
+    if redir_host:
+        pycb.log(logging.INFO, "REDIRECT %s" % (redir_host))
+        ex = cbException('TemporaryRedirect')
+        req.setHeader('location', "http://%s%s" % (redir_host, req.uri))
+        ex.add_custom_xml("Bucket", bucketName)
+        ex.add_custom_xml("Endpoint", redir_host)
+        raise ex
 
 def path_to_bucket_object(path):
     if path == "/":
@@ -140,7 +113,6 @@ class CBService(resource.Resource):
 
     #  object
     def request_object_factory(self, request, user, path, requestId):
-        connection_count_inc(request)
         pycb.log(logging.INFO, "path %s" % (path))
         # handle the one service operation
         if path == "/":
@@ -150,7 +122,7 @@ class CBService(resource.Resource):
             raise cbException('InvalidArgument')
 
         (bucketName, objectName) = path_to_bucket_object(path)
-        check_load(request, bucketName, objectName)
+        init_redirector(request, bucketName, objectName)
 
         pycb.log(logging.INFO, "path %s bucket %s object %s" % (path, bucketName, str(objectName)))
         if request.method == 'GET':

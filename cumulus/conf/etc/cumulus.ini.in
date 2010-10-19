@@ -26,3 +26,10 @@ enabled=False
 #key=@@KEYFILE@@
 #cert=@@CERT_FILE
 
+#[redirector]
+#type=null
+
+#[load_balanced]
+#hostfile=
+#max=
+

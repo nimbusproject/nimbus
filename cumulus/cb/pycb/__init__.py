@@ -12,6 +12,8 @@ from pycb.cbAuthzSecurity import cbAuthzSec
 import random
 from optparse import OptionParser
 import hmac
+from pycb.cbRedirector import *
+
 try:
     from hashlib import sha1 as sha
     from hashlib import sha256 as sha256
@@ -109,6 +111,7 @@ The search path for cumulus.ini is:
         self.block_size = 1024*512
         self.lb_file = None
         self.lb_max = 0
+        self.redirector = cbRedirectorIface()
 
     def get_contact(self):
         return (self.hostname, self.port)
@@ -196,7 +199,13 @@ The search path for cumulus.ini is:
             try:
                 self.lb_file = s.get("load_balanced", "hostfile")
                 self.lb_max = int(s.get("load_balanced", "max"))
+            except:
+                pass
 
+            try:
+                redirector_name = s.get("redirector", "type")
+                if redirector_name == "basic":
+                    self.redirector = cbBasicRedirector(s)
             except:
                 pass
 
