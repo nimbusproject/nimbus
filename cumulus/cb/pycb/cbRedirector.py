@@ -42,7 +42,7 @@ class cbBasicRedirector(object):
     def end_connection(self, request):
         self.connection_count = self.connection_count - 1
  
-    def get_next_host():
+    def get_next_host(self):
         try:
             hosts = []
             f = open(self.host_file, "r")
