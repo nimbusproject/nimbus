@@ -433,6 +433,8 @@ class cbGetObject(cbRequest):
         try:
             etag = dataObj.get_md5()
             if etag == None:
+                etag = self.etag
+            if etag == None:
                 etag = self.calcMd5Sum(dataObj)
                 dataObj.set_md5(etag)
             self.setHeader(self.request, 'ETag', '"%s"' % (etag))
@@ -448,10 +450,12 @@ class cbGetObject(cbRequest):
         except cbException, (ex):
             ex.sendErrorResponse(self.request, self.requestId)
             traceback.print_exc(file=sys.stdout)
-        except:
+            pycb.log(logging.ERROR, "Error sending file %s" % (str(ex)), traceback)
+        except Exception, ex2:
             traceback.print_exc(file=sys.stdout)
             gdEx = cbException('InvalidArgument')
             gdEx.sendErrorResponse(self.request, self.requestId)
+            pycb.log(logging.ERROR, "Error sending file %s" % (str(ex2)), traceback)
 
 
     def sendObject(self, dataObj):
@@ -461,6 +465,8 @@ class cbGetObject(cbRequest):
         self.set_common_headers()
         self.setHeader(request, 'Content-Type', 'binary/octet-stream')
         self.setHeader(request, 'Content-Length', str(dataObj.get_size()))
+
+        (s,ct,self.etag) = self.user.get_info(self.bucketName, self.objectName)
 
         reactor.callInThread(self.sendFile, dataObj)
 
