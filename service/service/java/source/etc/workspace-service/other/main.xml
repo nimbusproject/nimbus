@@ -650,7 +650,9 @@
         
         <property name="maxActive" value="10" />
         <property name="maxIdle" value="4" />
-        <property name="maxWait" value="2000" />
+
+        <!-- ms to wait for database connection, 0 signals infinite -->
+        <property name="maxWait" value="0" />
         <property name="poolPreparedStatements" value="true" />
         <property name="driverClassName"
                   value="org.apache.derby.jdbc.EmbeddedDriver" />
