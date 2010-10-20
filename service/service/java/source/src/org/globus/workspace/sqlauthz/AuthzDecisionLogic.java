@@ -489,7 +489,12 @@ public class AuthzDecisionLogic extends DecisionLogic
                     StringBuffer hexString = new StringBuffer();
                     for (int i=0;i<md5b.length;i++)
                     {
-                        hexString.append(Integer.toHexString(0xFF & md5b[i]));
+                        String tmpS = Integer.toHexString(0xFF & md5b[i]);
+                        while(tmpS.length() != 2)
+                        {
+                            tmpS = "0" + tmpS;
+                        }
+                        hexString.append(tmpS);
                     }
                     md5string = hexString.toString();                    
                 }
