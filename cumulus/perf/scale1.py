@@ -98,15 +98,6 @@ def main():
     us = float(delt.microseconds) / 1000000.0
     tm = float(delt.seconds) + us
 
-#    conn = cb_get_conn(g_hostname, g_port)
-#    bucket = conn.get_bucket(g_bucket)
-#    rs = bucket.list()
-#    for k in rs:
-#        try:
-#            k.delete()
-#        except:
-#            pass
-
     max = -1.0
     min = 99999999.0
     for tm in g_times:
