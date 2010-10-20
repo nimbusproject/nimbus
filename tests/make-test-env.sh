@@ -119,7 +119,6 @@ user_stuff=`$install_dir/bin/nimbus-new-user --group 04 --batch -r cloud_propert
 aid=`echo $user_stuff | awk -F , '{ print $4 }'` 
 apw=`echo $user_stuff | awk -F , '{ print $5 }'` 
 
-sed -e "s^@ID@^$aid^" -e "s/@KEY@/$apw/" $src_dir/s3cfg.in > $HOME/.s3cfg
 
 echo "========================================="
 echo "Making a new user"
@@ -136,6 +135,7 @@ aid=`echo $user_stuff | awk -F , '{ print $4 }'`
 apw=`echo $user_stuff | awk -F , '{ print $5 }'` 
 can_id=`echo $user_stuff | awk -F , '{ print $6 }'` 
 
+sed -e "s^@ID@^$aid^" -e "s/@KEY@/$apw/" $src_dir/s3cfg.in > $HOME/.s3cfg
 cat $HOME/.s3cfg
 
 echo $cp
