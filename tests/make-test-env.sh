@@ -126,7 +126,7 @@ echo "Making a new user"
 echo "========================================="
 
 user_name="nimbus@$RANDOM"
-user_stuff=`$install_dir/bin/nimbus-new-user --group 04 --batch -r cloud_properties,cert,key,access_id,access_secret $user_name`
+user_stuff=`$install_dir/bin/nimbus-new-user --group 04 --batch -r cloud_properties,cert,key,access_id,access_secret,canonical_id $user_name`
 
 echo $user_stuff
 cp=`echo $user_stuff | awk -F , '{ print $1 }'` 
@@ -134,6 +134,7 @@ cert=`echo $user_stuff | awk -F , '{ print $2 }'`
 key=`echo $user_stuff | awk -F , '{ print $3 }'` 
 aid=`echo $user_stuff | awk -F , '{ print $4 }'` 
 apw=`echo $user_stuff | awk -F , '{ print $5 }'` 
+can_id=`echo $user_stuff | awk -F , '{ print $6 }'` 
 
 cat $HOME/.s3cfg
 
@@ -189,10 +190,12 @@ echo "NIMBUS_HOME:          $NIMBUS_HOME"
 echo "NIMBUS_TEST_USER:     $NIMBUS_TEST_USER"
 echo "CLOUD_CLIENT_HOME:    $CLOUD_CLIENT_HOME"
 echo "NIMBUS_WORKSPACE_CONTROL_HOME:          $NIMBUS_WORKSPACE_CONTROL_HOME"
+echo "NIMBUS_TEST_USER_CAN_ID:          $can_id"
 
 
 echo "export NIMBUS_HOME=$NIMBUS_HOME" > $src_dir/env.sh
 echo "export NIMBUS_TEST_USER=$NIMBUS_TEST_USER" >> $src_dir/env.sh
 echo "export CLOUD_CLIENT_HOME=$CLOUD_CLIENT_HOME" >> $src_dir/env.sh
 echo "export NIMBUS_WORKSPACE_CONTROL_HOME=$NIMBUS_WORKSPACE_CONTROL_HOME" >> $src_dir/env.sh
+echo "export NIMBUS_TEST_USER_CAN_ID=$can_id" >> $src_dir/env.sh
 
