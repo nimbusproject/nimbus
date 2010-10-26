@@ -175,6 +175,24 @@ _NIMBUS_2_6_DEPRECATED
     </li>
     <li>
         <p>
+            <i>Redirection</i>
+        </p>
+        <p>
+            In order to make Cumulus a scalabile service we added a feature
+            which takes advantage of the temporary redirection in error in
+            the
+            <a href="http://docs.amazonwebservices.com/AmazonS3/latest/index.html">Amazon S3 Protocol</a>.  A Cumulus administrator can create a text file 
+            full of cloned Cumulus server contact strings.  A maximum number
+            of allowed connected clients is associated with each replicated
+            Cumulus server.  If, after a client connects and authenticates,
+            that number is exceeded, then a <i>301 Temporary Redirect</i>
+            error is return to the client instructing it to try a different
+            Cumulus server.
+        </p>
+        
+    </li>
+    <li>
+        <p>
             <i>Bug Fixes</i>
         </p>
         <ul>
