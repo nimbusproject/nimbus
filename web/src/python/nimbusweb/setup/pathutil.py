@@ -2,6 +2,7 @@ import commands
 import os
 import stat
 import sys
+import uuid
 from commands import getstatusoutput
 from setuperrors import *
 
@@ -44,7 +45,7 @@ def pathjoin(above, below):
     return os.path.join(above, below)
 
 def uuidgen():
-    return commands.getoutput('uuidgen')
+    return str(uuid.uuid4())
         
 def make_path_rw_private(path):
     mode = stat.S_IRUSR | stat.S_IWUSR
