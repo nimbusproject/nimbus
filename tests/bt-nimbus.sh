@@ -42,6 +42,7 @@ trap on_exit EXIT
 echo "Building a Nimbus env at $work_dir"
 ./make-test-env.sh $work_dir | tee bandt.log
 if [ $PIPESTATUS -ne 0 ]; then
+    cat $NIMBUS_HOME/var/services.log
     echo "nimbus install failed"
     exit 1
 fi
