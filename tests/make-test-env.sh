@@ -167,8 +167,16 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 sleep 15 # make sure it is really started, uhhhhh
+echo "trying $install_dir/bin/nimbusctl services status"
+$install_dir/bin/nimbusctl services status
+if [ $? -ne 0 ]; then
+    echo "Starting Nimbus services failed"
+    cat $install_dir/var/services.log
+    exit 1
+fi
 $install_dir/bin/nimbus-nodes --add localhost --memory 10240
 if [ $? -ne 0 ]; then
+    cat $install_dir/var/services.log
     echo "Adding VMM node failed"
     exit 1
 fi
