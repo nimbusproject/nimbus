@@ -183,6 +183,7 @@ if [ $? -ne 0 ]; then
 fi
 $install_dir/bin/nimbus-nodes --add localhost --memory 10240
 if [ $? -ne 0 ]; then
+    ls -l $install_dir/var/services.log
     cat $install_dir/var/services.log
     echo "Adding VMM node failed"
     exit 1
