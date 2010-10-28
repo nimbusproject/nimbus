@@ -53,6 +53,7 @@ rc = child.expect(pexpect.EOF)
 if rc != 0:
     print "s3 info failed"
     sys.exit(1)
+<<<<<<< HEAD
 # down load the new name with s3cmd
 cmd="s3cmd get s3://Repo/VMS/%s/%s %s" % (os.environ['NIMBUS_TEST_USER_CAN_ID'], image_name, localfile)
 print cmd
@@ -67,6 +68,8 @@ os.remove(localfile)
 if not rc:
     print "files differ"
     sys.exit(1)
+=======
+>>>>>>> f57bf2a56314b132ba2545f73f152d02e3530038
 
 cmd="s3cmd info s3://Repo/VMS/%s/%s" % (os.environ['NIMBUS_TEST_USER_CAN_ID'], image_name)
 print cmd
