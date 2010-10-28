@@ -161,6 +161,9 @@ echo "========================================="
 echo "Setting up VMM and network pools"
 echo "========================================="
 
+sed -i 's^socket.dir=$NIMBUS_HOME/var/run/privileged/^/tmp^' $install_dir/services/etc/nimbus/workspace-service/admin.conf
+
+
 $install_dir/bin/nimbusctl services start
 if [ $? -ne 0 ]; then
     echo "Starting Nimbus services failed"
