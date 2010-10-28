@@ -161,7 +161,7 @@ echo "========================================="
 echo "Setting up VMM and network pools"
 echo "========================================="
 
-sed -i 's^socket.dir=$NIMBUS_HOME/var/run/privileged/^socket.dir=/tmp^' $install_dir/services/etc/nimbus/workspace-service/admin.conf
+sed -i 's^socket.dir=$NIMBUS_HOME/var/run/privileged/^socket.dir=//tmp^' $install_dir/services/etc/nimbus/workspace-service/admin.conf
 if [ $? -ne 0 ]; then
     echo "failed to sed admin file"
     exit 1
