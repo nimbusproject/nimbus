@@ -359,7 +359,11 @@ public class AdminClient {
         }
 
         final NimbusHomePathResolver resolver = new NimbusHomePathResolver();
-         this.socketDirectory = new File(resolver.resolvePath(sockDir));
+        String path = resolver.resolvePath(sockDir);
+        if (path == null) {
+            path = sockDir;
+        }
+        this.socketDirectory = new File(path);
 
         final String nodePoolBinding = props.getProperty(PROP_RMI_BINDING_NODEMGMT_DIR);
         if (nodePoolBinding == null) {
