@@ -179,8 +179,8 @@ public class DefaultBindDisks implements BindDisks {
             }
 
             if (!foundHost) {
-                final String err = "cannot propagate: supplied image '" +
-                    uri.toASCIIString() + "' is not in allowed.http.hosts";
+                final String err = "cannot propagate: supplied image is from '" +
+                    uri.getHost() + "' which is not in allowed.http.hosts";
                 throw new CreationException(err);
             }
         }

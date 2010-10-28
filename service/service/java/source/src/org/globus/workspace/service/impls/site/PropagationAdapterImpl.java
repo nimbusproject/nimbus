@@ -262,42 +262,28 @@ public class PropagationAdapterImpl implements PropagationAdapter,
     // implements PropagationAdapter
     // -------------------------------------------------------------------------
 
-    public ArrayList constructPropagateCommand(VirtualMachine vm) {
-        try {
-            ArrayList al = XenUtil.constructPropagateCommand(vm, this.notify);
-            if(this.extraArgs != null && !this.extraArgs.trim().equals(""))
-            {
-                al.add("--prop-extra-args");
-                al.add(this.extraArgs);
-            }
-            return al;
-        } catch (WorkspaceException e) {
-            return null;
+    public ArrayList constructPropagateCommand(VirtualMachine vm) throws WorkspaceException {
+        ArrayList al = XenUtil.constructPropagateCommand(vm, this.notify);
+        if(this.extraArgs != null && !this.extraArgs.trim().equals(""))
+        {
+            al.add("--prop-extra-args");
+            al.add(this.extraArgs);
         }
+        return al;
     }
 
-    public ArrayList constructPropagateToStartCommand(VirtualMachine vm) {
-        try {
-            return XenUtil.constructCreateCommand(vm, false, this.notify);
-        } catch (WorkspaceException e) {
-            return null;
-        }
+    public ArrayList constructPropagateToStartCommand(VirtualMachine vm)
+            throws WorkspaceException {
+        return XenUtil.constructCreateCommand(vm, false, this.notify);
     }
 
-    public ArrayList constructPropagateToPauseCommand(VirtualMachine vm) {
-        try {
-            return XenUtil.constructCreateCommand(vm, true, this.notify);
-        } catch (WorkspaceException e) {
-            return null;
-        }
+    public ArrayList constructPropagateToPauseCommand(VirtualMachine vm)
+            throws WorkspaceException {
+        return XenUtil.constructCreateCommand(vm, true, this.notify);
     }
 
-    public ArrayList constructUnpropagateCommand(VirtualMachine vm) {
-        try {
-            return XenUtil.constructUnpropagateCommand(vm, this.notify);
-        } catch (WorkspaceException e) {
-            return null;
-        }
+    public ArrayList constructUnpropagateCommand(VirtualMachine vm) throws WorkspaceException {
+        return XenUtil.constructUnpropagateCommand(vm, this.notify);
     }
 
     public void prePropagate() throws Exception {

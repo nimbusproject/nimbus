@@ -16,6 +16,7 @@
 
 package org.globus.workspace.service.impls.site;
 
+import org.globus.workspace.WorkspaceException;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
 
 import java.util.ArrayList;
@@ -34,7 +35,7 @@ public interface PropagationAdapter {
      * @param vm vm
      * @return commandline task
      */
-    public ArrayList constructPropagateCommand(VirtualMachine vm);
+    public ArrayList constructPropagateCommand(VirtualMachine vm) throws WorkspaceException;
 
     /**
      * Returns a command without no transport prefixes (for example,
@@ -50,7 +51,8 @@ public interface PropagationAdapter {
      * @param vm vm
      * @return commandline task
      */
-    public ArrayList constructPropagateToStartCommand(VirtualMachine vm);
+    public ArrayList constructPropagateToStartCommand(VirtualMachine vm)
+            throws WorkspaceException;
 
 
     /**
@@ -58,13 +60,14 @@ public interface PropagationAdapter {
      * @param vm vm
      * @return commandline task
      */
-    public ArrayList constructPropagateToPauseCommand(VirtualMachine vm);
+    public ArrayList constructPropagateToPauseCommand(VirtualMachine vm)
+            throws WorkspaceException;
 
     /**
      * @param vm vm
      * @return commandline task
      */
-    public ArrayList constructUnpropagateCommand(VirtualMachine vm);
+    public ArrayList constructUnpropagateCommand(VirtualMachine vm) throws WorkspaceException;
 
 
     // no cancel called here, currently we rely on receiving a cancelled
