@@ -182,13 +182,28 @@ if [ $? -ne 0 ]; then
     cat $install_dir/var/cumulus.log
     exit 1
 fi
-$install_dir/bin/nimbus-nodes --add localhost --memory 10240
-if [ $? -ne 0 ]; then
-    ls -l $install_dir/var/services.log
-    cat $install_dir/var/services.log
-    echo "Adding VMM node failed"
-    exit 1
-fi
+
+done=1
+try_count=0
+while [ $done -ne 0 ];
+do
+    $install_dir/bin/nimbus-nodes --add localhost --memory 10240
+    if [ $? -eq 0 ]; then
+        done=0
+    else
+        try_count=`expr $try_count + 1`
+     
+        if [ $try_count -gt 10 ]; then
+            echo "Adding VMM node failed"
+            cat $install_dir/var/services.log
+            cat $install_dir/var/cumulus.log
+            ls -l $install_dir/var/
+            exit 1
+        fi
+        sleep 30
+    fi
+done
+
 $install_dir/bin/nimbusctl services stop
 if [ $? -ne 0 ]; then
     echo "Stopping Nimbus services failed"
