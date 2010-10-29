@@ -66,7 +66,7 @@ class cbBasicRedirector(object):
             pycb.log(logging.ERROR, "get next host error %s" % (str(ex)))
             return None
  
-    def get_next_host_random(self):
+    def get_next_host(self):
         try:
             hosts = []
             f = open(self.host_file, "r")

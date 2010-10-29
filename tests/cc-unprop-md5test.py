@@ -11,6 +11,7 @@ to=90
 cc_home=os.environ['CLOUD_CLIENT_HOME']
 logfile = sys.stdout
 newname=str(uuid.uuid1()).replace("-", "")
+localfile=str(uuid.uuid1()).replace("-", "")
 
 src_file = "/etc/group"
 sfa = src_file.split("/")
@@ -51,6 +52,23 @@ sum1 = child.readline().strip()
 rc = child.expect(pexpect.EOF)
 if rc != 0:
     print "s3 info failed"
+    sys.exit(1)
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+# down load the new name with s3cmd
+cmd="s3cmd get s3://Repo/VMS/%s/%s %s" % (os.environ['NIMBUS_TEST_USER_CAN_ID'], image_name, localfile)
+print cmd
+(x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile)
+print x
+if rc != 0:
+    print "failed to save"
+    sys.exit(1)
+
+rc = filecmp.cmp(localfile, "/etc/group")
+os.remove(localfile)
+if not rc:
+    print "files differ"
     sys.exit(1)
 
 cmd="s3cmd info s3://Repo/VMS/%s/%s" % (os.environ['NIMBUS_TEST_USER_CAN_ID'], image_name)
