@@ -79,6 +79,8 @@ def read_users(input, delimiter=',', fields=_fields):
         u = dict([(k, v) for k, v in izip(fields, row)])
 
         name = u['display_name']
+        grp = _fix_group(u['group'])
+        u['group'] = grp
         if name in users:
             raise CLIError('EUSER', 'Duplicate entry present for user "%s"' % name)
         users[name] = u
