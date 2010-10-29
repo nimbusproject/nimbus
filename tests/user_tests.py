@@ -356,7 +356,7 @@ class TestUsers(unittest.TestCase):
     def _new_user_dict(self):
         return {'display_name' : self.get_user_name(), 'dn' : str(uuid.uuid4()),
                 'canonical_id' : str(uuid.uuid4()), 'access_id' : str(uuid.uuid4()),
-                'access_secret' : str(uuid.uuid4()), 'group' : '01'}
+                'access_secret' : str(uuid.uuid4()), 'group' : '1'}
     
     def _get_users(self):
         """Returns a dict of existing users keyed by display_name.

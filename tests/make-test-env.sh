@@ -179,6 +179,7 @@ $install_dir/bin/nimbusctl services status
 if [ $? -ne 0 ]; then
     echo "Starting Nimbus services failed"
     cat $install_dir/var/services.log
+    cat $install_dir/var/cumulus.log
     exit 1
 fi
 $install_dir/bin/nimbus-nodes --add localhost --memory 10240
