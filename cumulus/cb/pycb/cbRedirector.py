@@ -32,18 +32,41 @@ class cbBasicRedirector(object):
         self.connection_count = 0
         self.host_file = parser.get("load_balanced", "hostfile")
         self.max = int(parser.get("load_balanced", "max"))
+        self.last_host_ndx = 0
 
     def new_connection(self, request):
         h = None
         self.connection_count = self.connection_count + 1
         if self.connection_count > self.max:
-            h = self.get_next_host()
+            h = self.get_hosts_min()
         return h
 
     def end_connection(self, request):
         self.connection_count = self.connection_count - 1
+
+    def get_hosts_min(self):
+        try:
+            hosts = []
+            f = open(self.host_file, "r")
+            for l in f.readlines():
+                hosts.append(l.strip())
+            f.close()
+
+            self.last_host_ndx = self.last_host_ndx + 1
+            if self.last_host_ndx >= len(hosts):
+                self.last_host_ndx = 0
+            h = hosts[self.last_host_ndx]
+            pycb.log(logging.INFO, "redirect last host ndx = %d redir = %s" % (self.last_host_ndx, h))
+            my_host = "%s:%d" % (pycb.config.hostname, pycb.config.port)
+            if h == my_host:
+                h = None
+            return h
+
+        except Exception, ex:
+            pycb.log(logging.ERROR, "get next host error %s" % (str(ex)))
+            return None
  
-    def get_next_host(self):
+    def get_next_host_random(self):
         try:
             hosts = []
             f = open(self.host_file, "r")

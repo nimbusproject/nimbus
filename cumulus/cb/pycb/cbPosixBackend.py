@@ -206,9 +206,10 @@ class cbPosixData(object):
 
     def read(self, size=None):
         if size == None:
-            return self.file.read(self.blockSize)
-        else:
-            return self.file.read(size)
+            size = self.blockSize
+
+        #return ''.join(['a' for x in xrange(size)])
+        return self.file.read(size)
 
 #    def readline(self, size=None):
 #    def readlines(self, size=None):

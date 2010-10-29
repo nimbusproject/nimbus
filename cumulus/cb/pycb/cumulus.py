@@ -113,7 +113,7 @@ class CBService(resource.Resource):
 
     #  object
     def request_object_factory(self, request, user, path, requestId):
-        pycb.log(logging.INFO, "path %s" % (path))
+        pycb.log(logging.INFO, "New request on %s path %s" % (pycb.config.hostname, path))
         # handle the one service operation
         if path == "/":
             if request.method == 'GET':
