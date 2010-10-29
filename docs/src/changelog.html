@@ -17,7 +17,7 @@ _NIMBUS_2_6_DEPRECATED
 
 <a name="2.6"> </a>
 
-<i>2.6RC1 - Summary</i>
+<i>2.6RC2 - Summary</i>
 <ul>
     <li>
         <p>
@@ -61,7 +61,7 @@ _NIMBUS_2_6_DEPRECATED
     </li>
 </ul>
 
-<i>2.6RC1 - Installer</i>
+<i>2.6RC2 - Installer</i>
 <ul>
     <li>
         <p>
@@ -79,7 +79,7 @@ _NIMBUS_2_6_DEPRECATED
     </li>
 </ul>
 
-<i>2.6RC1 - IaaS Services</i>
+<i>2.6RC2 - IaaS Services</i>
 <ul>
     <li>
         <p>
@@ -159,7 +159,7 @@ _NIMBUS_2_6_DEPRECATED
     </li>
 </ul>    
 
-<i>2.6RC1 - Cumulus</i>
+<i>2.6RC2 - Cumulus</i>
 <ul>
     <li>
         <p>
@@ -214,7 +214,7 @@ _NIMBUS_2_6_DEPRECATED
     </ul>
 </ul>
 
-<i>2.6RC1 - LANTorrent</i>
+<i>2.6RC2 - LANTorrent</i>
 <ul>
     <li>
         <p>
@@ -235,7 +235,7 @@ _NIMBUS_2_6_DEPRECATED
     </li>
 </ul>
 
-<i>2.6RC1 - Context Broker</i>
+<i>2.6RC2 - Context Broker</i>
 <ul>
     <li>
         <p>
@@ -252,7 +252,7 @@ _NIMBUS_2_6_DEPRECATED
     </li>
 </ul>
 
-<i>2.6RC1 - Control Agents</i>
+<i>2.6RC2 - Control Agents</i>
 <ul>
     <li>
         Support for LANTorrent (see above).  The relevant configurations are
@@ -272,7 +272,7 @@ _NIMBUS_2_6_DEPRECATED
     </li>
 </ul>
 
-<i>2.6RC1 - Cloud Client</i>
+<i>2.6RC2 - Cloud Client</i>
 <ul>
     <li>
         <p>
@@ -287,7 +287,7 @@ _NIMBUS_2_6_DEPRECATED
     </li>
 </ul>
 
-<i>2.6RC1 - Additional Notes</i>
+<i>2.6RC2 - Additional Notes</i>
 <ul>
     <li>
         <p>
@@ -296,6 +296,61 @@ _NIMBUS_2_6_DEPRECATED
             commits</a>
             between Nimbus 2.5 final and the current 2.6 development branch.
         </p>
+    </li>
+    <li>
+        <p>
+            Problems addressed in RC2 vs. RC1
+            (<a href="http://github.com/nimbusproject/nimbus/compare/nimbus-release-2.6-RC1...nimbus-release-2.6-RC2">All commits</a>)
+        </p>
+        <ul>
+            <li>
+                <p>
+                    Issue with image md5sums not getting recorded in certain situations.
+                </p>
+            </li>
+            <li>
+                <p>
+                    Issue with new Cumulus redirect capability, 
+                </p>
+            </li>
+            <li>
+                <p>
+                    Ran into situations where two seconds was not enough time to get a database connection from a pool of connections.  Decided to make this infinite (for correctness purposes, the timeouts are not handled correctly).
+                </p>
+            </li>
+            <li>
+                <p>
+                    The "bad CPU architecture" remote error message was incorrectly stated.
+                </p>
+            </li>
+            <li>
+                <p>
+                    The build and test suite runs on more platforms now by using the /tmp directory for special files.
+                </p>
+            </li>
+            <li>
+                <p>
+                    Service support for the new admin client "nimbus-nodes" did not handle a missing configuration gracefully.
+                </p>
+            </li>
+            <li>
+                <p>
+                    Cumulus includes a new scalability test.
+                </p>
+            </li>
+            <li>
+                <p>
+                    The installer did not handle the lack of the "uuidgen"
+                    command well, using a library instead of relying on that
+                    commandline being there.
+                </p>
+            </li>
+            <li>
+                <p>
+                    The service was giving a bad error message for image URL schemes (besides 'file' or 'cumulus') that were not explicitly authorized.
+                </p>
+            </li>
+        </ul>
     </li>
 </ul>
 
