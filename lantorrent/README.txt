@@ -49,36 +49,36 @@ endpoint to write it to multiple files if needed.
 Enabling Lantorrent in Nimbus
 -----------------------------
 
-Lan torrent is part of the nimbus distribution as of Nimbus 2.XXX.  
-However, due to system administrative overhead it is not enabled by 
-default.  To enable Lantorrent in nimbus there are a few configurations 
+Lan torrent is part of the Nimbus distribution as of Nimbus 2.6.
+However, due to system administrative overhead it is not enabled by
+default.  To enable Lantorrent in Nimbus there are a few configurations
 changes that must be made.
 
-1) install Lantorrent dependencies
-    - Lantorrent is run out of xinetd thus it must be installed on all VMMs.
-    - Lantorrent depends on the Python simplejson module, and must be installed
-      on both the service node and the VMMs:
-      - on Debian, package python-simplejson
+The following software is required on both service and VMM nodes:
+  - python 2.4
+  - python simplejson
 
-2) edit $NIMBUS_HOME/nimbus-setup.conf
+Lantorrent is run out of xinetd thus it must also be installed on all VMMs.
+
+To install LANTorrent you must take the following steps:
+
+1) edit $NIMBUS_HOME/nimbus-setup.conf
     change lantorrent.enabled: False -> lantorrent.enabled: True
 
-3) edit $NIMBUS_HOME/services/etc/nimbus/workspace-service/other/common.conf
+2) edit $NIMBUS_HOME/services/etc/nimbus/workspace-service/other/common.conf
     change the value of propagate.extraargs:
     propagate.extraargs=$NIMBUS_HOME/lantorrent/bin/lt-request
 
     be sure to expand $NIMBUS_HOME to its full and actual path.
 
-3.1) restart the service: $NIMBUS_HOME/bin/nimbusctl restart
-
-4) install lantorrent on VMM
+3) install lantorrent on VMM
     - recursively copy $NIMBUS_HOME/lantorrent to /opt/nimbus/lantorrent.
     - run ./vmm-install.sh on each node
         either run it as your workspace control user or specify the workspace
         control user as the first and only argument to the script.
 
-4.1) install lantorrent into xinetd
-    - the vmm-install,sh script creates the file lantorrent.  This
+4) install lantorrent into xinetd
+    - the vmm-install.sh script creates the file lantorrent.  This
       file is ready to be copied into /etc/xinetd.d/.  Once this is done
       restart xinetd (/etc/init.d/xinetd restart).
 
@@ -91,7 +91,9 @@ changes that must be made.
         to:
             <property name="repoScheme" value="lantorrent" />
 
-6) [optional] if the path to nimbus on the workspace control nodes (VMMs)
+6) restart the service: $NIMBUS_HOME/bin/nimbusctl restart
+
+7) [optional] if the path to Nimbus on the workspace control nodes (VMMs)
     is not /opt/nimbus you will also need to edit a configuration file on 
     all backends.
 

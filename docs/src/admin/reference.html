@@ -2105,13 +2105,17 @@ LANTorrent is not enabled in a default Nimbus installation.  A few
 additional steps are required to enable it.
 </p>
 <p>
-The following software is required on VMM nodes:
+The following software is required on both service and VMM nodes:
     <ol>
-        <li>xinetd</li>
         <li>python2.4</li>
         <li>python simplejson</li>
     </ol>
 </p>
+
+<p>
+Lantorrent is run out of xinetd thus it must also be installed on all VMMs.
+</p>
+
 <p>
 To install LANTorrent you must take the following steps:
 
@@ -2122,10 +2126,8 @@ To install LANTorrent you must take the following steps:
 <li>edit $NIMBUS_HOME/services/etc/nimbus/workspace-service/other/common.conf</li>
     change the value of propagate.extraargs:
     propagate.extraargs=$NIMBUS_HOME/lantorrent/bin/lt-request
+    <br />
     be sure to expand $NIMBUS_HOME to its full and actual path.
-
-<li>xinetd</li>
-    LANTorrent is run out of xinetd thus it must be installed on all VMMs.
 
 <li>install lantorrent on VMM</li>
     <ul>
@@ -2136,7 +2138,7 @@ To install LANTorrent you must take the following steps:
     </ul>
 
 <li>install LANTorrent into xinetd</li>
-    the vmm-install,sh script creates the file lantorrent.inet.  This
+    the vmm-install.sh script creates the file lantorrent.  This
     file is ready to be copied into /etc/xinetd.d/.  Once this is done
     restart xinetd (/etc/init.d/xinetd restart).
 
@@ -2146,6 +2148,7 @@ To install LANTorrent you must take the following steps:
         $NIMBUS_HOME/services/etc/nimbus/workspace-service/other/authz-callout-ACTIVE.xml
 
         and change:
+    <ul>
         <li><tt class="literal">
             &lt;property name="repoScheme" value="scp" /&gt;
         </tt></li>
@@ -2153,11 +2156,16 @@ To install LANTorrent you must take the following steps:
         <li><tt class="literal">
             &lt;property name="repoScheme" value="lantorrent" /&gt;
         </tt></li>
+    </ul>
+
+<li>restart the service:</li>
+$NIMBUS_HOME/bin/nimbusctl restart
 
 <li>[optional] if the path to nimbus on the workspace control nodes (VMMs)
     is not /opt/nimbus you will also need to edit a configuration file on
     all backends.</li>
 
+    <ul>
     In the file:
         <li><tt class="literal">
     &lt;workspace control path&gt;/control/etc/workspace-control/propagation.conf
@@ -2172,9 +2180,7 @@ To install LANTorrent you must take the following steps:
     points to the proper location of you ltclinet.sh script.  This should
     be a simple matter of changing /opt/nimbus to the path where you chose
     to install workspace control.
-
-
-
+    </ul>
 
 <div class="note">
 <p class="note-title">cumulus.ini in Nimbus</p>
