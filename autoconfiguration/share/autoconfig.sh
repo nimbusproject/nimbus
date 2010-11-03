@@ -28,6 +28,12 @@ THISDIR=`cd $THISDIR_REL; pwd`
 GLOBUS_LOCATION=`cd $THISDIR/../../; pwd`
 export GLOBUS_LOCATION
 
+NIMBUS_HOME=`cd $GLOBUS_LOCATION/../; pwd`
+export NIMBUS_HOME
+
+NIMBUS_BIN="$NIMBUS_HOME/bin"
+NIMBUSCTL="$NIMBUS_BIN/nimbusctl"
+
 # -----------------------------------------------------------------------------
 # {{{  get nimbus-wizard environment
 # -----------------------------------------------------------------------------
@@ -789,6 +795,18 @@ append_nameval NIMBUS_CONFIG_VMM_CONTROL_EXE "$NIMBUS_CONFIG_VMM_CONTROL_EXE"
 append_nameval NIMBUS_CONFIG_VMM_CONTROL_TMPDIR "$NIMBUS_CONFIG_VMM_CONTROL_TMPDIR"
 
 echo "" >> $NIMWIZ_DECISIONS_FILE
+
+# check if service is running
+$NIMBUSCTL services status >/dev/null 2>&1
+if [ $? -ne 0 ]; then
+  echo "The Nimbus service does not appear to be running, which is required for us to add the VMM node to the resource pool. You can start it now with this command:"
+  echo "  $NIMBUSCTL start"
+  echo ""
+  echo "If you don't start the service, a command will be printed for you to run later and add the node."
+  echo ""
+  echo "Please optionally start the service and then hit enter."
+  read ignore_response
+fi
 
 echo ""
 echo "These settings are now stored in '$NIMWIZ_DECISIONS_FILE'"

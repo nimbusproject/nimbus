@@ -97,18 +97,6 @@ export EXE_ALTER_CONTROLEXE
 EXE_ALTER_CONTROLTMPDIR="org.nimbustools.auto_config.confmgr.AlterControlTmpDir"
 export EXE_ALTER_CONTROLTMPDIR
 
-EXE_GET_VMMDIR="org.nimbustools.auto_config.confmgr.GetVmmPoolDirectory"
-export EXE_GET_VMMDIR
-
-EXE_CREATE_BACKUP_DIR="org.nimbustools.auto_common.dirmgr.CreateNewNumberedDirectory"
-export EXE_CREATE_BACKUP_DIR
-
-RESOURCE_POOL_TEMPLATE_FILE="$NIMBUS_WIZARD_LIBDIR/resource-pool-template.txt"
-export RESOURCE_POOL_TEMPLATE_FILE
-
-NEW_POOL_NAME="testpool"
-export NEW_POOL_NAME
-
 EXE_ALTER_FAKEMODE="org.nimbustools.auto_config.confmgr.AlterFakeMode"
 export EXE_ALTER_FAKEMODE
 

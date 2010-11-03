@@ -30,6 +30,13 @@ THISDIR=`cd $THISDIR_REL; pwd`
 GLOBUS_LOCATION=`cd $THISDIR/../../; pwd`
 export GLOBUS_LOCATION
 
+NIMBUS_HOME=`cd $GLOBUS_LOCATION/../; pwd`
+export NIMBUS_HOME
+
+NIMBUS_BIN="$NIMBUS_HOME/bin"
+NIMBUS_NODES="$NIMBUS_BIN/nimbus-nodes"
+NIMBUSCTL="$NIMBUS_BIN/nimbusctl"
+
 LIBDIR="$THISDIR/lib/"
 if [ ! -f $LIBDIR/common-env.sh ]; then
   echo "Failure, cannot find environment definitions"
@@ -290,105 +297,6 @@ fi
 # }}}
 
 # -----------------------------------------------------------------------------
-# {{{  backup pool
-# -----------------------------------------------------------------------------
-
-if [ "$DO_POOL" = "y" ]; then
-  
-  VMMPOOLDIR=`$JAVA_BIN $NIMWIZ_JAVA_OPTS $EXE_GET_VMMDIR`
-  if [ $? -ne 0 ]; then
-    exit 1
-  fi
-  
-  echo "[*] Backing up old resource pool settings"
-  
-  if [ ! -d $VMMPOOLDIR ]; then
-    echo "Not a directory? '$VMMPOOLDIR'"
-    exit 1
-  fi
-  
-  BASE_BACKUP_DIR="$VMMPOOLDIR/.backups"
-  
-  if [ -d "$BASE_BACKUP_DIR" ]; then
-    #echo "    ... base backups directory exists already '$BASE_BACKUP_DIR'"
-    true
-  else
-    mkdir $BASE_BACKUP_DIR
-    if [ $? -ne 0 ]; then
-      echo ""
-      echo "Problem creating directory: $BASE_BACKUP_DIR"
-      exit 1
-    fi
-    #echo "    ... created base backup directory '$BASE_BACKUP_DIR'"
-  fi
-  
-  NEW_BACKUP_DIR=`$JAVA_BIN $NIMWIZ_JAVA_OPTS $EXE_CREATE_BACKUP_DIR $BASE_BACKUP_DIR old-pools-`
-  if [ $? -ne 0 ]; then
-    echo ""
-    echo "Problem, exiting."
-    exit 1
-  fi
-  echo "    ... created new directory '$NEW_BACKUP_DIR'"
-  
-  for f in `ls $VMMPOOLDIR`; do
-  
-    CMD="mv $VMMPOOLDIR/$f $NEW_BACKUP_DIR/"
-    $CMD
-    if [ $? -ne 0 ]; then
-      echo "This failed: $CMD"
-      exit 1
-    fi
-    echo "    ... moved '$f' to '$NEW_BACKUP_DIR'"
-  
-  done
-  
-  echo ""
-  echo "----------"
-  echo ""
-  
-fi
-
-# }}}
-
-# -----------------------------------------------------------------------------
-# {{{  create sample pool
-# -----------------------------------------------------------------------------
-
-if [ "$DO_POOL" = "y" ]; then
-
-  echo "[*] Creating new resource pool"
-  
-  POOLPATH="$VMMPOOLDIR/$NEW_POOL_NAME"
-  
-  cp $RESOURCE_POOL_TEMPLATE_FILE $POOLPATH
-  if [ $? -ne 0 ]; then
-    echo "Could not create '$POOLPATH' ?"
-    exit 1
-  fi
-  
-  DATE=`date`
-  echo "# File contents injected @ $DATE" >> $POOLPATH
-  if [ $? -ne 0 ]; then
-    echo "Could not write to '$POOLPATH' ?"
-    exit 1
-  fi
-  
-  echo "$NIMBUS_CONFIG_TEST_VMM $NIMBUS_CONFIG_TEST_VMM_RAM" >> $POOLPATH
-  if [ $? -ne 0 ]; then
-    echo "Could not write to '$POOLPATH' ?"
-    exit 1
-  fi
-  
-  echo "    ... created '$POOLPATH'"
-  
-  echo ""
-  echo "----------"
-  echo ""
-fi
-
-# }}}
-
-# -----------------------------------------------------------------------------
 # {{{  turn off fake mode;  other/common.conf --> fake.mode (set to false)
 # -----------------------------------------------------------------------------
 
@@ -407,5 +315,51 @@ echo ""
 
 # }}}
 
+# -----------------------------------------------------------------------------
+# {{{  add first VMM
+# -----------------------------------------------------------------------------
+
+if [ "$DO_POOL" = "y" ]; then
+
+  echo "[*] Adding first VMM node"
+  
+  ADD_CMD="$NIMBUS_NODES --add $NIMBUS_CONFIG_TEST_VMM --memory $NIMBUS_CONFIG_TEST_VMM_RAM"
+
+  $NIMBUSCTL services status >/dev/null 2>&1
+  if [ $? -ne 0 ]; then
+    echo ""
+    echo "The Nimbus service is not running. It must be started before your first VMM node can be added. You can start Nimbus with this command:"
+    echo "  $NIMBUSCTL start"
+    echo "And then add the VMM yourself:"
+    echo "  $ADD_CMD"
+    VMM_NOT_ADDED="yes"
+  
+  else
+    
+    echo "Running '$ADD_CMD'.."
+    $ADD_CMD
+    if [ $? -ne 0 ]; then
+      echo "Failed to add VMM node!"
+      echo "This could be because Nimbus is not running. Or it could be a problem communicating with the service, which happens via Unix domain sockets. If Nimbus is installed on a distributed or network filesystem, domain sockets may not be supported. In this case, you can configure a different socket directory that is on a local filesystem. Look at the admin.conf file for details."
+      echo ""
+      echo "Once you have resolved these issues, use this command to add the VMM node:"
+      echo "  $ADD_CMD"
+      VMM_NOT_ADDED="yes"
+    else
+      echo "Added node."
+    fi
+    
+  fi 
+  
+  echo ""
+  echo "----------"
+  echo ""
+fi
+
+# }}}
+
 echo "Finished."
+if [ "X$VMM_NOT_ADDED" = "Xyes" ]; then
+  echo "WARNING: No VMM nodes are configured! Please see above for instructions."
+fi
 echo ""
