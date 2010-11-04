@@ -8,7 +8,7 @@ from pynimbusauthz.user import UserAlias
 from pynimbusauthz.objects import File
 import unittest
 
-class TestUser(unittest.TestCase):
+class TestFile(unittest.TestCase):
 
     def setUp(self):
 #        os.environ['CUMULUS_AUTHZ_DDL'] = "/home/bresnaha/Dev/Nimbus/nimbus/cumulus/authz/etc/acl.sql"
@@ -84,4 +84,43 @@ class TestUser(unittest.TestCase):
         self.assertEqual(f2.get_id(), f4.get_id())
         self.assertNotEqual(f3.get_id(), f4.get_id())
         self.db.commit()
+
+    def test_change_key(self):
+        user1 = User(self.db)
+        name = "/file/name"
+        old_base = "/old/path/base"
+        fname = "/etc/group"
+        new_base = "/new/base/location/dir"
+        f = File.create_file(self.db, name, user1, old_base + fname, pynimbusauthz.object_type_s3)
+
+        self.assertEqual(old_base + fname, f.get_data_key(), "old value not euqal")
+
+        new_key = new_base + fname
+        f.set_data_key(new_key)
+        self.db.commit()
+
+        tst_new_key = f.get_data_key()
+        self.assertEqual(tst_new_key, new_key, "%s should equal %s" % (tst_new_key, new_key))
+
+        f2 = File.get_file(self.db, name, pynimbusauthz.object_type_s3)
+
+        tst_new_key = f2.get_data_key()
+        self.assertEqual(tst_new_key, new_key, "%s should equal %s" % (tst_new_key, new_key))
+
+
+    def test_find_by_key(self):
+        user1 = User(self.db)
+        name = "/file/name"
+        key = "/old/path/base"
+        f = File.create_file(self.db, name, user1, key, pynimbusauthz.object_type_s3)
+        self.db.commit()
+
+        f2a = File.find_files_from_data(self.db, key)
+
+        found = False
+        for f2 in f2a:
+            tst_key = f2.get_data_key()
+            if tst_key == key:
+                found = True
+        self.assertTrue(found, "key not found")
 

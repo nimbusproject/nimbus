@@ -108,6 +108,12 @@ class File(object):
         c = self.db_obj._run_fetch_iterator(s, data, _convert_object_row_to_UserFile, [self])
         return c
 
+    def set_data_key(self, data_key):
+        s = "UPDATE objects set data_key = ? where id = ?"
+        data = (data_key,self.id,)
+        self.db_obj._run_no_fetch(s, data)
+        self.data_key = data_key
+
     def get_file_from_db_id(db_obj, id):
         s = "SELECT " + File.get_select_str() + """
             FROM objects
@@ -213,6 +219,19 @@ class File(object):
         return c
 
     find_files = staticmethod(find_files)
+
+    def find_files_from_data(db_obj, pattern):
+        # look it up
+        s = "SELECT " + File.get_select_str() + """
+            FROM objects
+            WHERE data_key LIKE ?"""
+        data = [pattern,]
+        c = db_obj._run_fetch_iterator(s, data, _convert_alias_row_to_File)
+        return c
+
+    find_files_from_data = staticmethod(find_files_from_data)
+
+
 
     def __str__(self):
         return self.name + ":" + self.object_type + ":" + str(self.parent)
