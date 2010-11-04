@@ -38,6 +38,8 @@ import org.globus.workspace.service.binding.vm.CustomizationNeed;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.globus.workspace.service.binding.vm.VirtualMachineDeployment;
 
+import org.safehaus.uuid.UUIDGenerator;
+
 public class DefaultBindingAdapter implements BindingAdapter,
                                               WorkspaceConstants {
 
@@ -169,6 +171,13 @@ public class DefaultBindingAdapter implements BindingAdapter,
         // all in group get the same data
         if (req.getMdUserData() != null) {
             vm.setMdUserData(req.getMdUserData());
+        }
+
+        if (req.getCredential() != null) {
+            vm.setCredential(req.getCredential());
+            final UUIDGenerator uuidGen = UUIDGenerator.getInstance();
+            final String credentialName = uuidGen.generateRandomBasedUUID().toString();
+            vm.setCredentialName(credentialName);
         }
 
         final VirtualMachine[] vms = new VirtualMachine[numNodes];

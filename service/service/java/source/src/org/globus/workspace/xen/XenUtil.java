@@ -783,6 +783,7 @@ public class XenUtil implements WorkspaceConstants {
             return;
         }
 
+
         final ArrayList cmd;
         if (remoteTarget) {
             cmd = SSHUtil.constructScpCommandPrefix();
@@ -792,9 +793,17 @@ public class XenUtil implements WorkspaceConstants {
             cmd.add("-p");
         }
 
-        for (int i = 0; i < needs.length; i++) {
-            // TODO: clean up
-            final String path = localDirectory + "/" + needs[i].sourcePath;
+        if (needs != null) {
+            for (int i = 0; i < needs.length; i++) {
+                // TODO: clean up
+                final String path = localDirectory + "/" + needs[i].sourcePath;
+                cmd.add(path);
+            }
+        }
+        
+        if (credentialPath != null) {
+
+            final String path = localDirectory + "/" + credentialPath;
             cmd.add(path);
         }
 
@@ -809,6 +818,75 @@ public class XenUtil implements WorkspaceConstants {
 
         if (fake) {
             logger.debug("Would have run this for file push: " +
+                    WorkspaceUtil.printCmd(send));
+        } else {
+            WorkspaceUtil.runCommand(send, eventLog, traceLog, vm.getID().intValue());
+        }
+    }
+
+    public static void doCredentialPushLocalTarget(VirtualMachine vm,
+                                             String localDirectory,
+                                             String backendTargetDir,
+                                             boolean fake,
+                                             boolean eventLog,
+                                             boolean traceLog) throws Exception {
+        credentialPush(vm, localDirectory, backendTargetDir, fake, false, eventLog, traceLog);
+    }
+
+    // todo: relieve need for loglevels
+    public static void doCredentialPushRemoteTarget(VirtualMachine vm,
+                                              String localDirectory,
+                                              String backendTargetDir,
+                                              boolean fake,
+                                              boolean eventLog,
+                                              boolean traceLog) throws Exception {
+        credentialPush(vm, localDirectory, backendTargetDir, fake, true, eventLog, traceLog);
+    }
+
+    private static void credentialPush(VirtualMachine vm,
+                                 String localDirectory,
+                                 String backendTargetDir,
+                                 boolean fake,
+                                 boolean remoteTarget,
+                                 boolean eventLog,
+                                 boolean traceLog) throws Exception {
+
+        if (localDirectory == null) {
+            throw new Exception("localDirectory needed but missing");
+        }
+        if (backendTargetDir == null) {
+            throw new Exception("backendTargetDir needed but missing");
+        }
+
+        final String credentialPath = vm.getCredentialName();
+        if (credentialPath == null) {
+            logger.warn("credential push: nothing to do?");
+            return;
+        }
+
+        final ArrayList cmd;
+        if (remoteTarget) {
+            cmd = SSHUtil.constructScpCommandPrefix();
+        } else {
+            cmd = new ArrayList(4);
+            cmd.add("cp"); // hardcoded... TODO
+            cmd.add("-p");
+        }
+
+        final String path = localDirectory + "/" + credentialPath;
+        cmd.add(path);
+
+        if (remoteTarget) {
+            cmd.addAll(SSHUtil.constructScpCommandSuffix(
+                    vm.getNode(), backendTargetDir));
+        } else {
+            cmd.add(backendTargetDir);
+        }
+
+        final String[] send = (String[]) cmd.toArray(new String[cmd.size()]);
+
+        if (fake) {
+            logger.debug("Would have run this for credential push: " +
                     WorkspaceUtil.printCmd(send));
         } else {
             WorkspaceUtil.runCommand(send, eventLog, traceLog, vm.getID().intValue());
