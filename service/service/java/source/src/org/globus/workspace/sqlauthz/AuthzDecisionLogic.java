@@ -245,6 +245,7 @@ public class AuthzDecisionLogic extends DecisionLogic
                         // replace common path with user path
                         String userPath = "/" + ownerID + "/";
                         unPropImageName = unPropImageName.replaceFirst(commonPath, userPath);
+                        parts[i].setAlternateUnpropTarget(unPropImageName);
                     }                                                                        
                 }
                 else
