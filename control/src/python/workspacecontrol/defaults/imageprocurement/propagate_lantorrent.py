@@ -7,7 +7,6 @@ import propagate_scp
 import urlparse
 import workspacecontrol.main.wc_args as wc_args
 import socket
-import uuid
 
 class LantorrentPropadapter(propagate_scp.propadapter):
         
@@ -130,7 +129,12 @@ class LantorrentPropadapter(propagate_scp.propadapter):
             xfer_user = xfer_user + "@"
         else:
             xfer_user = ""
-        rid = str(uuid.uuid1())
+        try:
+            import uuid
+            rid = str(uuid.uuid1())
+        except:
+            import commands
+            rid = commands.getoutput("uuidgen")
         cmd = self.ssh + " %d %s%s %s %s %s %s %s:%d" % (xfer_port, xfer_user, xfer_host, lt_exe, xfer_path, local, rid, self.ltip, self.ltport)
 
         self.c.log.debug("lantorrent command %s " % (cmd))
