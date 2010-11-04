@@ -177,15 +177,18 @@ public class Translate extends BaseTranslate {
             net = log.getNetworking();
         }
 
+
         final CustomizeTask_Type[] customizes;
 
         final OptionalParameters_Type optional = wsreq.getOptionalParameters();
         if (optional != null) {
             customizes = optional.getFilewrite();
             req.setMdUserData(optional.getMdServerUserdata());
+            req.setCredential(optional.getCredentialToCopy());
         } else {
             customizes = null;
         }
+
 
         // Boolean object can be null for conversion like this (null==false)
         final boolean ensDone =

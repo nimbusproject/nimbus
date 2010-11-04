@@ -16,12 +16,15 @@
 
 package org.globus.workspace.xen.xenssh;
 
+import org.globus.workspace.PathConfigs;
 import org.globus.workspace.WorkspaceException;
 import org.globus.workspace.cmdutils.SSHUtil;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.globus.workspace.service.impls.site.PropagationAdapter;
 import org.globus.workspace.xen.XenTask;
+import org.globus.workspace.xen.XenUtil;
 
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 
 public class Propagate extends XenTask {
@@ -33,10 +36,47 @@ public class Propagate extends XenTask {
 
         final VirtualMachine vm = this.ctx.getVm();
         if (vm != null) {
+
             final ArrayList ssh = SSHUtil.constructSshCommand(vm.getNode());
-            final ArrayList exe = this.ctx.getLocator().
-                         getPropagationAdapter().constructPropagateCommand(vm);
+            logger.info("VM: " + vm);
+            final ArrayList exe = this.ctx.getLocator().getPropagationAdapter().constructPropagateCommand(vm);
             ssh.addAll(exe);
+
+            final String credentialName = vm.getCredentialName();
+            if (credentialName != null) {
+
+                final boolean eventLog = this.ctx.lager().eventLog;
+                final boolean traceLog = this.ctx.lager().traceLog;
+
+                logger.info("Pushing credential: " + credentialName);
+                final PathConfigs paths = this.ctx.getLocator().getPathConfigs();
+                final String backendDirectory = paths.getBackendTempDirPath();
+                final String localDirectory = paths.getLocalTempDirPath();
+
+                try {
+                    FileOutputStream out = new FileOutputStream(localDirectory + "/" + credentialName);
+                    out.write(vm.getCredential().getBytes());
+                    out.flush();
+                    out.close();
+                } catch (Exception e) {
+                    throw new WorkspaceException("Couldn't save credential to " + localDirectory);
+                }
+
+                try {
+                    XenUtil.doCredentialPushRemoteTarget(vm,
+                            localDirectory,
+                            backendDirectory,
+                            this.ctx.getLocator().getGlobalPolicies().isFake(),
+                            eventLog,
+                            traceLog);
+                } catch (Exception e) {
+                    throw new WorkspaceException("Couldn't push credential to " + backendDirectory);
+                }
+
+                ssh.add("--prop-extra-args");
+                ssh.add(credentialName);
+            }
+
             this.cmd = (String[]) ssh.toArray(new String[ssh.size()]);
         } else {
             throw new WorkspaceException("no VirtualMachine in request " +
@@ -45,6 +85,7 @@ public class Propagate extends XenTask {
     }
 
     protected Exception preExecute() {
+
         return _preExecute(
                     this.ctx.getLocator().getGlobalPolicies().isFake(),
                     this.ctx.getLocator().getPropagationAdapter());

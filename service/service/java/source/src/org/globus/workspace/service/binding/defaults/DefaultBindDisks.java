@@ -154,7 +154,7 @@ public class DefaultBindDisks implements BindDisks {
 
         final String rootDiskScheme = uri.getScheme();
         final boolean local = "file".equals(rootDiskScheme);
-        final boolean http = "http".equals(rootDiskScheme);
+        final boolean http = "http".equals(rootDiskScheme) || "https".equals(rootDiskScheme);
 
         if (!propagationEnabled && !local) {
             final String err = "cannot propagate: supplied image '" +
