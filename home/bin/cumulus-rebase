@@ -1,0 +1,20 @@
+#!/bin/bash
+
+PYTHON_EXE="/usr/bin/env python -Wignore::DeprecationWarning"
+
+NIMBUS_HOME_REL="`dirname $0`/.."
+NIMBUS_HOME=`cd $NIMBUS_HOME_REL; pwd`
+export NIMBUS_HOME
+NIMBUS_WEBDIR="$NIMBUS_HOME/web"
+
+NIMBUS_PYLIB="$NIMBUS_WEBDIR/lib/python"
+NIMBUS_PYSRC="$NIMBUS_WEBDIR/src/python"
+
+PYTHONPATH="$NIMBUS_PYSRC:$NIMBUS_PYLIB:$PYTHONPATH"
+export PYTHONPATH
+
+source $NIMBUS_HOME/cumulus/env.sh
+export CUMULUS_SETTINGS_FILE=$NIMBUS_HOME/cumulus/etc/cumulus.ini
+source $NIMBUS_HOME/ve/bin/activate
+nimbusauthz-rebase "${@}"
+exit $?
