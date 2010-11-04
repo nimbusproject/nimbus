@@ -95,8 +95,8 @@ class DefaultImageProcurement:
             return
 
 
-        lt_path = self.p.get_conf_or_none("propagation", "lantorrent")
-        if lt_path:
+        lt_enabled = self.p.get_conf_or_none("propagation", "lantorrent")
+        if lt_enabled and lt_enabled.strip().lower() == "true":
             try:
                 import propagate_lantorrent
                 self.adapters[PROP_ADAPTER_LANTORRENT] = propagate_lantorrent.LantorrentPropadapter(self.p, self.c)
