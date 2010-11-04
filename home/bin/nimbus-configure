@@ -19,12 +19,14 @@ NIMBUS_PYSRC="$NIMBUS_WEBDIR/src/python"
 PYTHONPATH="$NIMBUS_PYSRC:$NIMBUS_PYLIB:$PYTHONPATH"
 export PYTHONPATH
 
+source $NIMBUS_HOME/ve/bin/activate
+
 # ------------------------------------------------------------------------------
 
-# returns 0 if Python 2.4+
-$PYTHON_EXE -c "import sys; sys.exit(sys.version_info < (2,4))"
+# returns 0 if Python 2.5+
+$PYTHON_EXE -c "import sys; sys.exit(sys.version_info < (2,5))"
 if [ $? -ne 0 ]; then
-    echo "ERROR: Your system must have Python version 2.4 or later."
+    echo "ERROR: Your system must have Python version 2.5 or later."
     exit 1
 fi
 
