@@ -700,7 +700,10 @@ class DefaultImageProcurement:
                 self.c.log.debug("partition/HD is specified w/ %s" % schemestring)
                 
                 adapter = self.adapters[keyword]
-                adapter.validate_propagate_source(imgstr)
+                if unprop:
+                    adapter.validate_unpropagate_target(imgstr)
+                else:
+                    adapter.validate_propagate_source(imgstr)
                 
                 if unprop:
                     lf._unpropagate_needed = True
