@@ -17,11 +17,11 @@ def setup_options(argv):
     u = """<old path> <new path>
         This tool allows you to change the physical location of files
         in your repository.  It changes the base path where files are 
-        physically located.  The internal name and location is change 
+        physically located.  The internal name and location is changed
         leaving the external logical name in tact. 
 
         All instances of <old path> are substituted with <new path>.
-        Paths that do not match <old path> are left in tact.
+        Paths that do not match <old path> are left intact.
 """
 
     (parser, all_opts) = pynimbusauthz.get_default_options(u)
