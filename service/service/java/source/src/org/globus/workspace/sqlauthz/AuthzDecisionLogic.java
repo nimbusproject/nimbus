@@ -530,7 +530,10 @@ public class AuthzDecisionLogic extends DecisionLogic
                     logger.error("Error dealing with the unpropgated file", ioe);
                 }
 
-                fileIds[1] = authDB.newFile(keyName, fileIds[0], canUser, datakey, schemeType);
+                if(new_file)
+                {
+                    fileIds[1] = authDB.newFile(keyName, fileIds[0], canUser, datakey, schemeType);
+                }
                 authDB.setFileSize(fileIds[1], size, md5string);
             }
             else
