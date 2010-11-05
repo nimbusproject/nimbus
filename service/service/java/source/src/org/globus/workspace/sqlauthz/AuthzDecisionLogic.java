@@ -93,7 +93,7 @@ public class AuthzDecisionLogic extends DecisionLogic
         }
         catch(Exception ex)
         {
-            throw new WorkspaceException("error translating cumulus name", ex);
+            throw new WorkspaceException("error translating cumulus name " + publicUrl, ex);
         }
 
         if(rc == null)
@@ -115,7 +115,9 @@ public class AuthzDecisionLogic extends DecisionLogic
 
             if(fileIds[1] < 0)
             {
-                throw new AuthorizationException("The file is not found and thus cannot be translated " + objectName);
+                // if the file doesnt exist create  new one
+                String dataKey = this.getRepoDir() + "/" + objectName.replace("/", "__");
+                return dataKey;
             }
 
             String scheme = this.getRepoScheme();
