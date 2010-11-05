@@ -212,7 +212,7 @@ public abstract class StatefulResourceImpl extends InstanceResourceImpl
                     }
 
                     if(nsTrans != null) {
-                        nsTrans.unpropagationFinished(img);
+                        nsTrans.unpropagationFinished(img, this.getCreatorID(), vm);
                     }
                     break;
                 }

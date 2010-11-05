@@ -19,7 +19,9 @@ public interface RepoFileSystemAdaptor
             throws WorkspaceException;
 
     public void unpropagationFinished(
-        String                          publicName)
+        String                          publicName,
+        String                          creatorID,
+        VirtualMachine                  vm)
         throws WorkspaceException;
 
 }
