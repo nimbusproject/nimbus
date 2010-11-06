@@ -112,18 +112,19 @@ public class AuthzDecisionLogic extends DecisionLogic
         try
         {
             int [] fileIds = this.cumulusGetFileID(hostport, objectName);
+            String rc = null;
+            String scheme = this.getRepoScheme();
+            String dataKey;
 
             if(fileIds[1] < 0)
-            {
+            {                
                 // if the file doesnt exist create  new one
-                String dataKey = this.getRepoDir() + "/" + objectName.replace("/", "__");
-                return dataKey;
+                dataKey = this.getRepoDir() + "/" + objectName.replace("/", "__");
             }
-
-            String scheme = this.getRepoScheme();
-            String rc = null;
-            String dataKey = this.authDB.getDataKey(fileIds[1]);
-
+            else
+            {
+                dataKey = this.authDB.getDataKey(fileIds[1]);
+            }
             rc = scheme + "://" + this.getRepoHost() + "/" + dataKey;
             logger.debug("converted " + objectName + " to " + rc + "scheme " + scheme);
 

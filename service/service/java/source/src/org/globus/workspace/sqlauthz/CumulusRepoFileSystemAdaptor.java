@@ -35,8 +35,7 @@ public class CumulusRepoFileSystemAdaptor implements RepoFileSystemAdaptor
         String                          creatorID,
         VirtualMachine                  vm)
             throws WorkspaceException
-    {
-        dl.unpropagationFinished(publicName, creatorID, vm);
+    su        dl.unpropagationFinished(publicName, creatorID, vm);
     }
 }
 
