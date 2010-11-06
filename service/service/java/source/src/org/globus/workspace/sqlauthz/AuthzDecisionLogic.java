@@ -471,11 +471,7 @@ public class AuthzDecisionLogic extends DecisionLogic
                     datakey = authDB.getDataKey(fileIds[1]);
                     expectedSize = authDB.getFileSize(fileIds[1]);
                 }
-                File f = new File(datakey);
-                if(!f.exists())
-                {
-                    throw new WorkspaceException("The unpropagated file does not exist " + publicName);
-                }
+                File f = new File(datakey);               
                 long size = f.length();
                 long sizeDiff = size - expectedSize;
 
