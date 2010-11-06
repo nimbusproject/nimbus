@@ -465,7 +465,9 @@ public class AuthzDecisionLogic extends DecisionLogic
 
                 if (fileIds[1] < 0) {
                     new_file = true;
-                    datakey = translateExternaltoInternal(publicName, vm);
+                    String unpropurl = translateExternaltoInternal(publicName, vm);
+                    String [] unpropurlParts = this.parseUrl(unpropurl);
+                    datakey = unpropurlParts[2];
                 }
                 else
                 {
