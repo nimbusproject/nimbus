@@ -5,7 +5,7 @@ import sys
 import os
 import filecmp
 
-to=90
+to=180
 
 cc_home=os.environ['CLOUD_CLIENT_HOME']
 logfile = sys.stdout
@@ -31,7 +31,7 @@ if rc != 0:
 
 cmd = "%s/bin/cloud-client.sh --handle %s --save" % (cc_home, handle)
 print cmd
-(x, rc)=pexpect.run(cmd, withexitstatus=1)
+(x, rc)=pexpect.run(cmd, withexitstatus=1, timeout=to, logfile=logfile)
 print x
 if rc != 0:
     print "failed to save"
