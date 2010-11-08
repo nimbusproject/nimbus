@@ -25,10 +25,10 @@ m4_define([[[_BREADCRUMB_DA_TP4_1',<a href="/index.html">Home</a> -> <a href="/d
 m4_define([[[_BREADCRUMB_DA_TP5',<a href="/index.html">Home</a> -> <a href="/da/index.html">Dynamic Accounts</a> -> <a href="/da/TP5/index.html">TP5</a>)m4_dnl
 m4_dnl
 m4_define([[[_NIMBUS_TP2_1_DEPRECATED',<br><h1><font color="red"><b>DEPRECATED</b>: The most recent version is <a href="/vm/TP2.2/index.html">Nimbus TP2.2</a></font></h1><br>)m4_dnl
-m4_define([[[_NIMBUS_TP2_2_DEPRECATED',<h3><font color="red"><b>DEPRECATED</b>: This document describes an old release. Check <a href="_NIMBUS_WEBSITE/docs/">here</a> for the current version.</font></h3>)m4_dnl
-m4_define([[[_NIMBUS_2_3_DEPRECATED',<h3><font color="red"><b>DEPRECATED</b>: This document describes an old release. Check <a href="_NIMBUS_WEBSITE/docs/">here</a> for the current version.</font></h3>)m4_dnl
-m4_define([[[_NIMBUS_2_4_DEPRECATED',<h3><font color="red"><b>DEPRECATED</b>: This document describes an old release. Check <a href="_NIMBUS_WEBSITE/docs/">here</a> for the current version.</font></h3>)m4_dnl
-m4_define([[[_NIMBUS_2_5_DEPRECATED',<h3><font color="red"><b>DEPRECATED</b>: This document describes an old release. Check <a href="_NIMBUS_WEBSITE/docs/">here</a> for the current version.</font></h3>)m4_dnl
+m4_define([[[_NIMBUS_TP2_2_DEPRECATED',<h3><font color="red"><b>Warning</b>: This document describes an old release. Check <a href="_NIMBUS_WEBSITE/docs/">here</a> for the current version.</font></h3>)m4_dnl
+m4_define([[[_NIMBUS_2_3_DEPRECATED',<h3><font color="red"><b>Warning</b>: This document describes an old release. Check <a href="_NIMBUS_WEBSITE/docs/">here</a> for the current version.</font></h3>)m4_dnl
+m4_define([[[_NIMBUS_2_4_DEPRECATED',<h3><font color="red"><b>Warning</b>: This document describes an old release. Check <a href="_NIMBUS_WEBSITE/docs/">here</a> for the current version.</font></h3>)m4_dnl
+m4_define([[[_NIMBUS_2_5_DEPRECATED',<h3><font color="red"><b>Warning</b>: This document describes an old release. Check <a href="_NIMBUS_WEBSITE/docs/">here</a> for the current version.</font></h3>)m4_dnl
 m4_define([[[_NIMBUS_2_6_DEPRECATED',<!-- current release -->)m4_dnl
 m4_dnl
 m4_define([[[_WORKSP_DA_DEPRECATED',
