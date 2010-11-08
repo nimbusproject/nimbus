@@ -25,6 +25,7 @@ import org.globus.workspace.remoting.admin.VmmNode;
 import org.globus.workspace.scheduler.NodeExistsException;
 import org.globus.workspace.scheduler.NodeInUseException;
 import org.globus.workspace.scheduler.NodeManagement;
+import org.globus.workspace.scheduler.NodeManagementDisabled;
 import org.globus.workspace.scheduler.NodeNotFoundException;
 import org.globus.workspace.scheduler.defaults.ResourcepoolEntry;
 
@@ -41,7 +42,7 @@ public class DefaultRemoteNodeManagement implements RemoteNodeManagement {
     private final Gson gson;
     private final TypeToken<Collection<VmmNode>> vmmNodeCollectionTypeToken;
 
-    private NodeManagement nodeManagement;
+    private NodeManagement nodeManagement = null;
 
     public DefaultRemoteNodeManagement() {
         this.gson = new Gson();
@@ -50,7 +51,7 @@ public class DefaultRemoteNodeManagement implements RemoteNodeManagement {
 
     public void initialize() throws Exception {
          if (nodeManagement == null) {
-             throw new IllegalArgumentException("nodeManagement may not be null");
+             logger.warn("Node management disabled");
          }
     }
 
@@ -94,16 +95,36 @@ public class DefaultRemoteNodeManagement implements RemoteNodeManagement {
                 logger.info("VMM node " + hostname + " already existed");
                 reports.add(new NodeReport(hostname,
                         NodeReport.STATE_NODE_EXISTS, null));
+            } catch (NodeManagementDisabled e) {
+                throw new RemoteException(e.getMessage());
             }
         }
         return gson.toJson(reports);
     }
 
-    public String listNodes() {
+    /**
+     * If a mgmt ooperation is attempted and there is no active node management instance,
+     * return a disabled message.
+     */
+    private void checkActive() throws RemoteException {
+        if (this.nodeManagement == null) {
+            throw new RemoteException("Remote node administration is disabled. " +
+                    "Are you in pilot mode?");
+        }
+    }
 
+    public String listNodes() throws RemoteException {
+
+        checkActive();
+        
         logger.debug("Listing VMM nodes");
 
-        final List<ResourcepoolEntry> entries = nodeManagement.getNodes();
+        final List<ResourcepoolEntry> entries;
+        try {
+            entries = nodeManagement.getNodes();
+        } catch (NodeManagementDisabled e) {
+            throw new RemoteException(e.getMessage());
+        }
         final List<VmmNode> nodes = new ArrayList<VmmNode>(entries.size());
         for (ResourcepoolEntry entry : entries) {
             nodes.add(translateResourcepoolEntry(entry));
@@ -112,7 +133,7 @@ public class DefaultRemoteNodeManagement implements RemoteNodeManagement {
         return gson.toJson(nodes);
     }
 
-    public String getNode(String hostname) {
+    public String getNode(String hostname) throws RemoteException {
 
         if (hostname == null) {
             throw new IllegalArgumentException("hostname may not be null");
@@ -121,7 +142,12 @@ public class DefaultRemoteNodeManagement implements RemoteNodeManagement {
         logger.debug("Listing VMM node " + hostname);
 
 
-        final ResourcepoolEntry entry = nodeManagement.getNode(hostname);
+        final ResourcepoolEntry entry;
+        try {
+            entry = nodeManagement.getNode(hostname);
+        } catch (NodeManagementDisabled e) {
+            throw new RemoteException(e.getMessage());
+        }
         return gson.toJson(translateResourcepoolEntry(entry));
     }
 
@@ -129,7 +155,8 @@ public class DefaultRemoteNodeManagement implements RemoteNodeManagement {
                               Boolean active,
                               String pool,
                               Integer memory,
-                              String networks) {
+                              String networks) throws RemoteException {
+
         if (hostnames == null) {
             throw new IllegalArgumentException("hostnames may not be null");
         }
@@ -153,8 +180,13 @@ public class DefaultRemoteNodeManagement implements RemoteNodeManagement {
             logger.info("Updating VMM node: " + hostname);
 
             try {
-                final ResourcepoolEntry entry = nodeManagement.updateNode(
-                        hostname, pool, networks, memory, active);
+                final ResourcepoolEntry entry;
+                try {
+                    entry = nodeManagement.updateNode(
+                            hostname, pool, networks, memory, active);
+                } catch (NodeManagementDisabled e) {
+                    throw new RemoteException(e.getMessage());
+                }
 
                 final VmmNode node = translateResourcepoolEntry(entry);
                 reports.add(new NodeReport(hostname, NodeReport.STATE_UPDATED,
@@ -175,12 +207,12 @@ public class DefaultRemoteNodeManagement implements RemoteNodeManagement {
         return gson.toJson(reports);
     }
 
-    public String removeNode(String hostname) {
+    public String removeNode(String hostname) throws RemoteException {
         NodeReport report = _removeNode(hostname);
         return gson.toJson(report);
     }
 
-    private NodeReport _removeNode(String hostname) {
+    private NodeReport _removeNode(String hostname) throws RemoteException {
         if (hostname == null) {
             throw new IllegalArgumentException("hostname may not be null");
         }
@@ -199,12 +231,14 @@ public class DefaultRemoteNodeManagement implements RemoteNodeManagement {
             }
         } catch (NodeInUseException e) {
             state = NodeReport.STATE_NODE_IN_USE;
+        } catch (NodeManagementDisabled e) {
+            throw new RemoteException(e.getMessage());
         }
 
         return new NodeReport(hostname, state, null);
     }
 
-    public String removeNodes(String[] hostnames) {
+    public String removeNodes(String[] hostnames) throws RemoteException {
         if (hostnames == null || hostnames.length == 0) {
             throw new IllegalArgumentException("hostnames may not be null or empty");
         }

@@ -27,11 +27,11 @@ public interface NodeManagement {
                                      String networks,
                                      int memory,
                                      boolean active)
-            throws NodeExistsException;
+            throws NodeExistsException, NodeManagementDisabled;
 
     //Read
-    public List<ResourcepoolEntry> getNodes();
-    public ResourcepoolEntry getNode(String hostname);
+    public List<ResourcepoolEntry> getNodes() throws NodeManagementDisabled;
+    public ResourcepoolEntry getNode(String hostname) throws NodeManagementDisabled;
 
     //Update
 
@@ -54,9 +54,9 @@ public interface NodeManagement {
                               String networks,
                               Integer memory,
                               Boolean active)
-            throws NodeInUseException, NodeNotFoundException;
+            throws NodeInUseException, NodeNotFoundException, NodeManagementDisabled;
 
     //Delete                                                            `
     public boolean removeNode(String hostname)
-            throws NodeInUseException;
+            throws NodeInUseException, NodeManagementDisabled;
 }

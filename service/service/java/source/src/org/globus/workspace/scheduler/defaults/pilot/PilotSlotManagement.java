@@ -20,6 +20,12 @@ import commonj.timers.TimerManager;
 import edu.emory.mathcs.backport.java.util.concurrent.ExecutorService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.globus.workspace.scheduler.NodeExistsException;
+import org.globus.workspace.scheduler.NodeInUseException;
+import org.globus.workspace.scheduler.NodeManagement;
+import org.globus.workspace.scheduler.NodeManagementDisabled;
+import org.globus.workspace.scheduler.NodeNotFoundException;
+import org.globus.workspace.scheduler.defaults.ResourcepoolEntry;
 import org.nimbustools.api.services.rm.DoesNotExistException;
 import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
 import org.nimbustools.api.services.rm.ManageException;
@@ -51,9 +57,11 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
+import java.util.List;
 
 public class PilotSlotManagement implements SlotManagement,
-                                            SlotPollCallback {
+                                            SlotPollCallback,
+                                            NodeManagement {
 
     // -------------------------------------------------------------------------
     // STATIC VARIABLES
@@ -66,6 +74,9 @@ public class PilotSlotManagement implements SlotManagement,
             "issue with the workspace site scheduler interaction (worksapce " +
             "pilot).  Please contact your administrator with the time of " +
             "this problem and any relevant information";
+
+    private static final String REMOTE_NODE_MGR_DISABLED = "Pilot mode: node management " +
+            "is not possible, use the LRM for node management";
 
     private static final Exception SEVERE_PILOT_FAULT =
             new Exception(SEVERE_PILOT_ISSUE);
@@ -1629,5 +1640,30 @@ public class PilotSlotManagement implements SlotManagement,
                 logger.error(msg);
             }
         }
+    }
+
+    public ResourcepoolEntry addNode(String hostname, String pool, String networks, int memory,
+                                     boolean active)
+            throws NodeExistsException, NodeManagementDisabled {
+        throw new NodeManagementDisabled(REMOTE_NODE_MGR_DISABLED);
+    }
+
+    public List<ResourcepoolEntry> getNodes() throws NodeManagementDisabled {
+        throw new NodeManagementDisabled(REMOTE_NODE_MGR_DISABLED);
+    }
+
+    public ResourcepoolEntry getNode(String hostname) throws NodeManagementDisabled {
+        throw new NodeManagementDisabled(REMOTE_NODE_MGR_DISABLED);
+    }
+
+    public ResourcepoolEntry updateNode(String hostname, String pool, String networks,
+                                        Integer memory, Boolean active)
+            throws NodeInUseException, NodeNotFoundException, NodeManagementDisabled {
+        throw new NodeManagementDisabled(REMOTE_NODE_MGR_DISABLED);
+    }
+
+    public boolean removeNode(String hostname)
+            throws NodeInUseException, NodeManagementDisabled {
+        throw new NodeManagementDisabled(REMOTE_NODE_MGR_DISABLED);
     }
 }
