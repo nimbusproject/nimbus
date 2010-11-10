@@ -282,9 +282,9 @@ m4_define([[[_NIMBUS_LEFT2_DEV1_SIDEBAR',
         <li>
           <a href="../plugins/index.html" title="Extensibility" class="$2">Extensibility</a>
         </li>
-        <li>
+        <!-- <li>
           <a href="apis.html" title="APIs" class="$3">APIs</a>
-        </li>
+        </li> -->
         <li>
           <a href="sccs.html" title="Source Control" class="$4">Source Control</a>
         </li>
@@ -314,9 +314,9 @@ m4_define([[[_NIMBUS_LEFT2_DEV2_SIDEBAR',
         <li>
           <a href="index.html" title="Extensibility" class="$2">Extensibility</a>
         </li>
-        <li>
+        <!-- <li>
           <a href="../dev/apis.html" title="APIs" class="$3">APIs</a>
-        </li>
+        </li> -->
         <li>
           <a href="../dev/sccs.html" title="Source Control" class="$4">Source Control</a>
         </li>
