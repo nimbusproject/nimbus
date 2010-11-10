@@ -315,7 +315,7 @@ _NIMBUS_2_6_DEPRECATED
 <li>
     Edit that, add any string here (e.g. "fake") in order to activate SSH based notifications:
 <div class="screen">
-<pre><property name="sshNotificationInfo" value="fake" /></pre>
+&lt;property name="sshNotificationInfo" value="fake" /&gt;
 </div>
 </li>
 
@@ -353,7 +353,7 @@ log.trace=on
 Or in some cases you might even want to enable the scheduler logging in 
  "services/etc/nimbus/workspace-service/other/main.xml"
 <div class="screen">
-<pre><property name="scheduler" value="on" /></pre>
+&lt;property name="scheduler" value="on" /&gt;
 </div>
 </li>
 
@@ -369,7 +369,7 @@ Start service in fake mode (edit "services/etc/nimbus/workspace-service/other/co
 <li>
 Simulate reserved notification:
 <div class="screen">
-./services/var/nimbus/msg-sinks/pilotnotifications write 1e372dca-de93-4fd9-a125-9d66842804cc+++localhost pilot-reserved 0 2010-11-07-16-12-01
+<b>$</b> ./services/var/nimbus/msg-sinks/pilotnotifications write 1e372dca-de93-4fd9-a125-9d66842804cc+++localhost pilot-reserved 0 2010-11-07-16-12-01
 </div>
 <ul>
     <li>
