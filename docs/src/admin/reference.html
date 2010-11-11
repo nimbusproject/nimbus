@@ -1028,6 +1028,15 @@ hostname = &lt;hostname&gt;
 
 </p>
 
+<h3>Nimbus Context Broker REST frontend (default 8446</h3>
+<p>
+    The context broker also has a RESTful HTTP interface which listens on a separate port.
+    You can disable or change the port of this interface in a configuration file:
+    <tt class="literal">$NIMBUS_HOME/services/etc/nimbus-context-broker/jndi-config.xml</tt>.
+    Parameters under the <tt class="literal">rest</tt> resource control this interface.
+    Restart the service for changes to take effect.
+</p>
+
 <h3>Nimbus Web application (default 1443)</h3>
 <p>
     When enabled, the web application listens by default on port 1443. This and other configuration
