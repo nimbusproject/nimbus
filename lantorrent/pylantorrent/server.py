@@ -37,7 +37,7 @@ class LTServer(object):
         self.max_header_lines = 102400
         self.block_size = 128*1024
         self.read_header()
-        self.suffix = ".lattorrent"
+        self.suffix = ".lantorrent"
         self.created_files = []
 
     def clean_up(self):
