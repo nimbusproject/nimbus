@@ -18,7 +18,7 @@ Run this command to build, install, and configure Nimbus to a specified path:
     ./install /path/to/destination
 
 Note: This is an interactive program, you will be asked a few questions at
-      the end.
+the end.
 
 To upgrade from an existing Nimbus installation, visit the current upgrade
 guide to learn how to use the install-from command.
