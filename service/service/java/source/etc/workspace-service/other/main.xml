@@ -55,7 +55,7 @@
         <lookup-method name="getManager" bean="nimbus-rm.manager"/>
         <lookup-method name="getReprFactory" bean="nimbus-repr.ReprFactory"/>
         <lookup-method name="getMetadataServer" bean="nimbus-metadata-server"/>
-
+        <lookup-method name="getNodeManagement" bean="nimbus-remoting-nodemgmt" />
     </bean>
 
     

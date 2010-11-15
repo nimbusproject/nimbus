@@ -18,6 +18,7 @@ package org.nimbustools.api.defaults.brain;
 
 import org.nimbustools.api.brain.ModuleLocator;
 import org.nimbustools.api.repr.ReprFactory;
+import org.nimbustools.api.services.admin.RemoteNodeManagement;
 import org.nimbustools.api.services.rm.Manager;
 import org.nimbustools.api.services.metadata.MetadataServer;
 
@@ -30,5 +31,6 @@ public abstract class DefaultModuleLocator implements ModuleLocator {
     public abstract ReprFactory getReprFactory();
     public abstract MetadataServer getMetadataServer();
     public abstract SecurityManager getSecurityManager();
+    public abstract RemoteNodeManagement getNodeManagement();
     //public abstract ContextBroker getContextBroker();
 }

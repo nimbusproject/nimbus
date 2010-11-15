@@ -13,7 +13,8 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package org.globus.workspace.remoting.admin;
+
+package org.nimbustools.api.services.admin;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;

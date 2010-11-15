@@ -17,6 +17,7 @@
 package org.nimbustools.messaging.gt4_0.common;
 
 import org.nimbustools.api.brain.ModuleLocator;
+import org.nimbustools.api.services.admin.RemoteNodeManagement;
 import org.nimbustools.api.services.rm.Manager;
 import org.nimbustools.api.services.metadata.MetadataServer;
 import org.nimbustools.api.services.security.KeyManager;
@@ -38,6 +39,10 @@ public class NimbusLocalModuleLocator implements ModuleLocator {
 
     public KeyManager getKeyManager() {
         return this.getRealML().getKeyManager();
+    }
+
+    public RemoteNodeManagement getNodeManagement() {
+        return this.getRealML().getNodeManagement();
     }
 
     protected ModuleLocator getRealML() {
