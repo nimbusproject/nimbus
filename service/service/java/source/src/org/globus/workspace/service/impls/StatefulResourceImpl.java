@@ -24,6 +24,7 @@ import org.globus.workspace.*;
 import org.globus.workspace.persistence.PersistenceAdapter;
 import org.globus.workspace.persistence.DataConvert;
 import org.globus.workspace.scheduler.Scheduler;
+import org.globus.workspace.service.binding.BindNetwork;
 import org.globus.workspace.service.binding.BindingAdapter;
 import org.globus.workspace.service.binding.GlobalPolicies;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
@@ -80,13 +81,14 @@ public abstract class StatefulResourceImpl extends InstanceResourceImpl
                                    GlobalPolicies globalsImpl,
                                    DataConvert dataConvertImpl,
                                    Lager lagerImpl,
+                                   BindNetwork bindNetworkImpl,
                                    Scheduler schedulerImpl,
                                    LockManager lockMgrImpl,
                                    StateTransition transitionImpl,
                                    TimerManager timerManagerImpl) {
 
         super(persistenceImpl, bindingImpl, globalsImpl,
-              dataConvertImpl, lagerImpl);
+              dataConvertImpl, lagerImpl,bindNetworkImpl);
 
         if (schedulerImpl == null) {
             throw new IllegalArgumentException("schedulerImpl may not be null");

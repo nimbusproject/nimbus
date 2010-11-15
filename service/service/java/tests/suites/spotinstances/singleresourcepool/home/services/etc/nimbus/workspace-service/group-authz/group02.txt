@@ -1,0 +1,2 @@
+/DC=org/DC=example/OU=People/CN=Example
+/DC=org/DC=example/OU=People/CN=Example 2

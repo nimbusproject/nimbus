@@ -30,7 +30,7 @@ import org.nimbustools.api.services.metadata.MetadataServer;
 import org.nimbustools.api.services.rm.ManageException;
 import org.nimbustools.api.services.rm.Manager;
 import org.nimbustools.messaging.gt4_0.common.AddCustomizations;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.*;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.*;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.ServiceRM;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.service.UnimplementedOperations;
 
@@ -62,7 +62,12 @@ public class ServiceRMImpl extends UnimplementedOperations
     protected final Reboot reboot;
     protected final Describe describe;
     protected final ContainerInterface container;
-
+    
+    protected final RequestSI reqSI;
+    protected final CancelSI cancelSI;
+    protected final DescribeSI describeSI;
+    protected final DescribeSpotPriceHistory priceHistory;
+    
     
     // -------------------------------------------------------------------------
     // CONSTRUCTORS
@@ -72,6 +77,10 @@ public class ServiceRMImpl extends UnimplementedOperations
                          Terminate terminateImpl,
                          Reboot rebootImpl,
                          Describe describeImpl,
+                         RequestSI reqSIImpl,
+                         CancelSI cancelSIImpl,
+                         DescribeSI describeSIImpl,
+                         DescribeSpotPriceHistory priceHistoryImpl,
                          ContainerInterface containerImpl,
                          ModuleLocator locator) throws Exception {
 
@@ -94,11 +103,31 @@ public class ServiceRMImpl extends UnimplementedOperations
             throw new IllegalArgumentException("describeImpl may not be null");
         }
         this.describe = describeImpl;
+        
+        if (reqSIImpl == null) {
+            throw new IllegalArgumentException("reqSIImpl may not be null");
+        }
+        this.reqSI = reqSIImpl;        
 
+        if (cancelSIImpl == null) {
+            throw new IllegalArgumentException("reqSIImpl may not be null");
+        }
+        this.cancelSI = cancelSIImpl;
+        
+        if (describeSIImpl == null) {
+            throw new IllegalArgumentException("reqSIImpl may not be null");
+        }
+        this.describeSI = describeSIImpl;        
+        
         if (containerImpl == null) {
             throw new IllegalArgumentException("containerImpl may not be null");
         }
-        this.container = containerImpl;
+        this.container = containerImpl;        
+        
+        if (priceHistoryImpl == null) {
+            throw new IllegalArgumentException("priceHistoryImpl may not be null");
+        }
+        this.priceHistory = priceHistoryImpl;
 
         if (locator == null) {
             throw new IllegalArgumentException("locator may not be null");
@@ -208,4 +237,52 @@ public class ServiceRMImpl extends UnimplementedOperations
         final Caller caller = this.container.getCaller();
         return this.terminate.terminate(req, caller, this.manager);
     }
+    
+
+    // -------------------------------------------------------------------------
+    // SI OPERATIONS
+    // -------------------------------------------------------------------------  
+    
+    public RequestSpotInstancesResponseType requestSpotInstances(
+                        RequestSpotInstancesType req)
+            throws RemoteException {
+
+        if (req == null) {
+            throw new RemoteException("requestSpotInstances request is missing");
+        }
+        
+        final Caller caller = this.container.getCaller();
+
+        return this.reqSI.requestSpotInstances(req, caller, this.manager);        
+    }
+    
+    public CancelSpotInstanceRequestsResponseType cancelSpotInstanceRequests(
+            CancelSpotInstanceRequestsType req)
+            throws RemoteException {
+
+        if (req == null) {
+            throw new RemoteException("CancelSpotInstanceRequestsType request is missing");
+        }
+        final Caller caller = this.container.getCaller();
+        return this.cancelSI.cancelSIRequests(req, caller, this.manager);
+    }
+
+    public DescribeSpotInstanceRequestsResponseType describeSpotInstanceRequests(
+            DescribeSpotInstanceRequestsType req)
+            throws RemoteException {
+        if (req == null) {
+            throw new RemoteException("CancelSpotInstanceRequestsType request is missing");
+        }
+        final Caller caller = this.container.getCaller();
+        return this.describeSI.describeSIRequests(req, caller, manager);   
+    }
+
+    public DescribeSpotPriceHistoryResponseType describeSpotPriceHistory(
+            DescribeSpotPriceHistoryType req)
+            throws RemoteException {
+        if (req == null) {
+            throw new RemoteException("DescribeSpotPriceHistoryType request is missing");
+        }
+        return this.priceHistory.describeSpotPriceHistory(req, manager);   
+    }    
 }

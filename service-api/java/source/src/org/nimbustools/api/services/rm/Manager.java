@@ -16,16 +16,21 @@
 
 package org.nimbustools.api.services.rm;
 
+import java.util.Calendar;
+
 import org.nimbustools.api.NimbusModule;
 import org.nimbustools.api.repr.Advertised;
+import org.nimbustools.api.repr.AsyncCreateRequest;
 import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.CreateRequest;
 import org.nimbustools.api.repr.CreateResult;
+import org.nimbustools.api.repr.RequestInfo;
 import org.nimbustools.api.repr.ShutdownTasks;
+import org.nimbustools.api.repr.SpotCreateRequest;
+import org.nimbustools.api.repr.SpotPriceEntry;
+import org.nimbustools.api.repr.SpotRequestInfo;
 import org.nimbustools.api.repr.Usage;
 import org.nimbustools.api.repr.vm.VM;
-
-import java.util.Calendar;
 
 /**
  * <p><img src="http://www.nimbusproject.org/images/sh.png" alt="[Start here] " /> 
@@ -40,6 +45,7 @@ import java.util.Calendar;
  *
  * <ul>
  *  <li>create VMs</li>
+ *  <li>request spot instances</li>
  *  <li>manage VMs by instance handle or group handle</li>
  *  <li>destroy VMs by instance handle or group handle</li>
  *  <li>query for up to date information</li>
@@ -171,4 +177,63 @@ public interface Manager extends NimbusModule {
                                             int type,
                                             DestructionCallback listener)
             throws ManageException, DoesNotExistException;
+    
+    // -------------------------------------------------------------------------
+    // SPOT INSTANCES OPERATIONS
+    // -------------------------------------------------------------------------    
+    
+    public SpotRequestInfo requestSpotInstances(SpotCreateRequest req, Caller caller)
+            throws AuthorizationException,
+                   CoSchedulingException,
+                   CreationException,
+                   MetadataException,
+                   ResourceRequestDeniedException,
+                   SchedulingException;     
+    
+    public SpotRequestInfo getSpotRequest(String requestID, Caller caller)
+            throws DoesNotExistException, ManageException, AuthorizationException;
+    
+    public SpotRequestInfo[] getSpotRequests(String[] ids, Caller caller)
+            throws DoesNotExistException, ManageException, AuthorizationException;    
+    
+    public SpotRequestInfo[] getSpotRequestsByCaller(Caller caller)
+            throws ManageException;    
+    
+    public SpotRequestInfo[] cancelSpotInstanceRequests(String[] ids,
+                                                    Caller caller)
+            throws DoesNotExistException, AuthorizationException, ManageException;
+    
+    public Double getSpotPrice();
+
+    public SpotPriceEntry[] getSpotPriceHistory()
+            throws ManageException;
+    
+    public SpotPriceEntry[] getSpotPriceHistory(Calendar startDate, Calendar endDate)
+            throws ManageException; 
+    
+    // -------------------------------------------------------------------------
+    // BACKFILL OPERATIONS
+    // -------------------------------------------------------------------------    
+    
+    public RequestInfo addBackfillRequest(AsyncCreateRequest req, Caller caller)
+            throws AuthorizationException,
+                   CoSchedulingException,
+                   CreationException,
+                   MetadataException,
+                   ResourceRequestDeniedException,
+                   SchedulingException;     
+    
+    public RequestInfo getBackfillRequest(String requestID, Caller caller)
+            throws DoesNotExistException, ManageException, AuthorizationException;
+    
+    public RequestInfo[] getBackfillRequests(String[] ids, Caller caller)
+            throws DoesNotExistException, ManageException, AuthorizationException;    
+    
+    public RequestInfo[] getBackfillRequestsByCaller(Caller caller)
+            throws ManageException;    
+    
+    public RequestInfo[] cancelBackfillRequests(String[] ids,
+                                                    Caller caller)
+            throws DoesNotExistException, AuthorizationException, ManageException;
+    
 }

@@ -19,18 +19,25 @@ package org.globus.workspace.scheduler.defaults;
 public class ResourcepoolEntry {
 
     private String resourcePool;
+
     private String hostname;
     private boolean active;
     private int memMax = -1; // in MBytes
     private int memCurrent = -1; // in MBytes
+    private int memPreemptable = -1; // in MBytes    
     private String supportedAssociations;
 
     public ResourcepoolEntry(String resourcePool, String hostname, int memMax,
+<<<<<<< HEAD
                              int memCurrent, String sa, boolean active) {
+=======
+                             int memCurrent, int memPreemptable, String sa) {
+>>>>>>> paulo/spotinstances
         this.resourcePool = resourcePool;
         this.hostname = hostname;
         this.memMax = memMax;
         this.memCurrent = memCurrent;
+        this.memPreemptable = memPreemptable;
         this.supportedAssociations = sa;
         this.active = active;
     }
@@ -51,6 +58,14 @@ public class ResourcepoolEntry {
         this.memMax = memMax;
     }
 
+    public void setMemPreemptable(int memPreemptable) {
+        this.memPreemptable = memPreemptable;
+    }
+
+    public int getMemPreemptable() {
+        return memPreemptable;
+    }    
+    
     public int getMemCurrent() {
         return this.memCurrent;
     }
@@ -62,6 +77,18 @@ public class ResourcepoolEntry {
     public void addMemCurrent(int add) {
         this.memCurrent += add;
     }
+    
+    public void addMemPreemptable(int add) {
+        this.memPreemptable += add;
+    }    
+    
+    public String getResourcePool() {
+        return resourcePool;
+    }
+
+    public void setResourcePool(String resourcePool) {
+        this.resourcePool = resourcePool;
+    }    
 
     public int percentEmpty() {
         if (this.memCurrent == 0) {
@@ -99,12 +126,14 @@ public class ResourcepoolEntry {
                 "hostname='" + this.hostname + '\'' +
                 ", active=" + this.active +
                 ", memMax=" + this.memMax +
+                ", memPreemptable=" + this.getMemPreemptable() +
                 ", memCurrent=" + this.memCurrent +
                 ", supportedNetworks='" + this.supportedAssociations +
                 ", percentEmpty= " + this.percentEmpty() + '\'' +
                 '}';
     }
 
+<<<<<<< HEAD
     public void setResourcePool(String resourcePool) {
         this.resourcePool = resourcePool;
     }
@@ -120,4 +149,6 @@ public class ResourcepoolEntry {
     public void setActive(boolean active) {
         this.active = active;
     }
+=======
+>>>>>>> paulo/spotinstances
 }

@@ -16,36 +16,47 @@
 
 package org.globus.workspace.persistence;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Collection;
+import java.util.Hashtable;
+import java.util.Iterator;
+
 import org.globus.workspace.WorkspaceConstants;
 import org.globus.workspace.accounting.ElapsedAndReservedMinutes;
+import org.globus.workspace.async.AsyncRequest;
+import org.globus.workspace.async.AsyncRequestStatus;
+import org.globus.workspace.service.InstanceResource;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.globus.workspace.service.binding.vm.VirtualMachineDeployment;
 import org.globus.workspace.service.binding.vm.VirtualMachinePartition;
-import org.globus.workspace.service.InstanceResource;
 import org.globus.workspace.xen.XenUtil;
-
-import org.nimbustools.api.repr.vm.NIC;
-import org.nimbustools.api.repr.vm.ResourceAllocation;
-import org.nimbustools.api.repr.vm.Schedule;
-import org.nimbustools.api.repr.vm.State;
-import org.nimbustools.api.repr.vm.VM;
-import org.nimbustools.api.repr.vm.VMFile;
-import org.nimbustools.api.repr.ReprFactory;
-import org.nimbustools.api.repr.CannotTranslateException;
-import org.nimbustools.api.repr.Usage;
-import org.nimbustools.api.repr.Caller;
+import org.nimbustools.api._repr._Caller;
+import org.nimbustools.api._repr._RequestInfo;
+import org.nimbustools.api._repr._SpotRequestInfo;
+import org.nimbustools.api._repr._Usage;
+import org.nimbustools.api._repr.si._SIRequestState;
 import org.nimbustools.api._repr.vm._NIC;
 import org.nimbustools.api._repr.vm._ResourceAllocation;
 import org.nimbustools.api._repr.vm._Schedule;
 import org.nimbustools.api._repr.vm._State;
 import org.nimbustools.api._repr.vm._VM;
 import org.nimbustools.api._repr.vm._VMFile;
-import org.nimbustools.api._repr._Usage;
-import org.nimbustools.api._repr._Caller;
-
-import java.util.Hashtable;
-import java.net.URI;
-import java.net.URISyntaxException;
+import org.nimbustools.api.defaults.repr.si.DefaultSIRequestState;
+import org.nimbustools.api.repr.Caller;
+import org.nimbustools.api.repr.CannotTranslateException;
+import org.nimbustools.api.repr.ReprFactory;
+import org.nimbustools.api.repr.RequestInfo;
+import org.nimbustools.api.repr.SpotRequestInfo;
+import org.nimbustools.api.repr.Usage;
+import org.nimbustools.api.repr.si.RequestState;
+import org.nimbustools.api.repr.vm.NIC;
+import org.nimbustools.api.repr.vm.ResourceAllocation;
+import org.nimbustools.api.repr.vm.Schedule;
+import org.nimbustools.api.repr.vm.State;
+import org.nimbustools.api.repr.vm.VM;
+import org.nimbustools.api.repr.vm.VMConstants;
+import org.nimbustools.api.repr.vm.VMFile;
 
 /**
  * Most translation should be able to go away as we use the new RM API's
@@ -207,17 +218,105 @@ public class DataConvert implements WorkspaceConstants {
         vm.setNics(this.getNICs(resource.getVM()));
         vm.setMdUserData(resource.getVM().getMdUserData());
         vm.setVMFiles(this.getStorage(resource.getVM()));
-        vm.setResourceAllocation(this.getRA(resource));
+        vm.setResourceAllocation(this.getRA(resource.getVM()));
         vm.setSchedule(this.getSchedule(resource));
         vm.setState(this.getState(resource));
         vm.setCreator(this.getCreator(resource));
+        
+        if(resource.getVM().isPreemptable()){
+            vm.setLifeCycle(VMConstants.LIFE_CYCLE_SPOT);
+        }
+        
         return vm;
     }
+    
+    public RequestInfo getRequestInfo(AsyncRequest backfillRequest) throws CannotTranslateException {
+        VirtualMachine[] bindings = backfillRequest.getBindings();
+        
+        if (bindings == null || bindings.length == 0) {
+            throw new CannotTranslateException("no resource?");
+        }        
+        
+        final _RequestInfo result = repr._newRequestInfo();
+        
+        populate(backfillRequest, result);
+        
+        return result;
+    }    
+    
+    public SpotRequestInfo getSpotRequest(AsyncRequest siRequest) throws CannotTranslateException {
+
+        VirtualMachine[] bindings = siRequest.getBindings();
+        
+        if (bindings == null || bindings.length == 0) {
+            throw new CannotTranslateException("no resource?");
+        }        
+        
+        final _SpotRequestInfo result = repr._newSpotRequestInfo();
+
+        populate(siRequest, result);        
+        
+        result.setPersistent(siRequest.isPersistent());
+        result.setSpotPrice(siRequest.getMaxBid());        
+                
+        return result;
+    }
+
+
+    private void populate(AsyncRequest asyncReq, final _RequestInfo result) throws CannotTranslateException {
+        
+        VirtualMachine[] bindings = asyncReq.getBindings();        
+        
+        result.setInstanceCount(asyncReq.getRequestedInstances());
+        result.setCreationTime(asyncReq.getCreationTime());
+        result.setGroupID(asyncReq.getGroupID());
+        result.setRequestID(asyncReq.getId());
+        result.setVMFiles(this.getStorage(bindings[0]));
+        result.setSshKeyName(asyncReq.getSshKeyName());
+        result.setVMIds(getVMIDs(asyncReq.getVMIds()));
+        
+        _SIRequestState state = new DefaultSIRequestState();
+        state.setState(this.getSIRequestState(asyncReq.getStatus()));
+        result.setState(state);
+        
+        //FIXME remove if not used
+        //result.setMdUserData(bindings[0].getMdUserData());
+        //result.setResourceAllocation(this.getRA(bindings[0]));  
+        //result.setCreator(asyncReq.getCaller());        
+    }
+
+
+    private String[] getVMIDs(Collection<Integer> vmIds) {
+        String[] ids = new String[vmIds.size()];
+        Iterator<Integer> iterator = vmIds.iterator();
+        for (int i = 0; i < vmIds.size(); i++) {
+            ids[i] = String.valueOf(iterator.next());
+        }
+        return ids;
+    }    
     
     
     // -------------------------------------------------------------------------
     // STATE RELATED
     // -------------------------------------------------------------------------
+
+    private String getSIRequestState(AsyncRequestStatus status) {
+        switch(status){
+        case ACTIVE:
+            return RequestState.STATE_Active;
+        case CANCELLED:
+            return RequestState.STATE_Canceled;
+        case CLOSED:
+            return RequestState.STATE_Closed;
+        case FAILED:
+            return RequestState.STATE_Failed;
+        case OPEN:
+            return RequestState.STATE_Open;
+        }
+        
+        return null;
+    }
+
 
     /**
      * @param state internal state position
@@ -366,15 +465,10 @@ public class DataConvert implements WorkspaceConstants {
     // -------------------------------------------------------------------------
 
     // need for this will go away as we migrate
-    public ResourceAllocation getRA(InstanceResource resource)
+    public ResourceAllocation getRA(VirtualMachine vm)
 
             throws CannotTranslateException {
-
-        if (resource == null) {
-            throw new CannotTranslateException("no resource?");
-        }
         
-        final VirtualMachine vm = resource.getVM();
         if (vm == null) {
             throw new CannotTranslateException("null VirtualMachine?");
         }
@@ -387,6 +481,7 @@ public class DataConvert implements WorkspaceConstants {
             return ra; // *** EARLY RETURN ***
         }
 
+        ra.setSpotInstance(vm.isPreemptable());
         ra.setArchitecture(dep.getCPUArchitecture());
         ra.setCpuPercentage(dep.getCPUPercentage());
         ra.setIndCpuSpeed(dep.getIndividualCPUSpeed());

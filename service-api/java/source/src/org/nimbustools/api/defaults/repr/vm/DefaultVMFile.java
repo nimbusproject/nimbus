@@ -116,4 +116,64 @@ public class DefaultVMFile implements _VMFile {
                 ", blankSpaceSize=" + blankSpaceSize +
                 '}';
     }
+
+    // -------------------------------------------------------------------------
+    // EQUALS AND HASHCODE
+    // -------------------------------------------------------------------------       
+   
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + blankSpaceSize;
+        result = prime * result
+                + ((blankspaceName == null) ? 0 : blankspaceName.hashCode());
+        result = prime * result
+                + ((diskPerms == null) ? 0 : diskPerms.hashCode());
+        result = prime * result + ((mountAs == null) ? 0 : mountAs.hashCode());
+        result = prime * result + (rootFile ? 1231 : 1237);
+        result = prime * result
+                + ((unpropURI == null) ? 0 : unpropURI.hashCode());
+        result = prime * result + ((uri == null) ? 0 : uri.hashCode());
+        return result;
+    }
+
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        DefaultVMFile other = (DefaultVMFile) obj;
+        if (blankSpaceSize != other.blankSpaceSize)
+            return false;
+        if (blankspaceName == null) {
+            if (other.blankspaceName != null)
+                return false;
+        } else if (!blankspaceName.equals(other.blankspaceName))
+            return false;
+        if (diskPerms == null) {
+            if (other.diskPerms != null)
+                return false;
+        } else if (!diskPerms.equals(other.diskPerms))
+            return false;
+        if (mountAs == null) {
+            if (other.mountAs != null)
+                return false;
+        } else if (!mountAs.equals(other.mountAs))
+            return false;
+        if (rootFile != other.rootFile)
+            return false;
+        if (unpropURI == null) {
+            if (other.unpropURI != null)
+                return false;
+        } else if (!unpropURI.equals(other.unpropURI))
+            return false;
+        if (uri == null) {
+            if (other.uri != null)
+                return false;
+        } else if (!uri.equals(other.uri))
+            return false;
+        return true;
+    }    
 }

@@ -18,6 +18,10 @@
         <constructor-arg ref="nimbus-elastic.rm.terminate" />
         <constructor-arg ref="nimbus-elastic.rm.reboot" />
         <constructor-arg ref="nimbus-elastic.rm.describe" />
+        <constructor-arg ref="nimbus-elastic.rm.requestSI" />
+        <constructor-arg ref="nimbus-elastic.rm.cancelSI" />
+        <constructor-arg ref="nimbus-elastic.rm.describeSI" /> 
+        <constructor-arg ref="nimbus-elastic.rm.spHistory" />                               
         <constructor-arg ref="nimbus-elastic.rm.containerInterface" />
         <constructor-arg ref="nimbus-elastic.rm.modulelocator" />
 
@@ -76,6 +80,40 @@
 
     </bean>
 
+    <!-- ************ Spot Instances *********** -->
+
+    <bean id="nimbus-elastic.rm.requestSI"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultRequestSI">
+
+        <constructor-arg ref="nimbus-elastic.general.ra" />
+        <constructor-arg ref="nimbus-elastic.general.networks" />
+        <constructor-arg ref="nimbus-elastic.image.repository" />        
+        <constructor-arg ref="nimbus-elastic.rm.idmappings" />
+        <constructor-arg ref="nimbus-elastic.rm.describe" />
+        <constructor-arg ref="nimbus-elastic.rm.describeSI" />    
+        <constructor-arg ref="nimbus-elastic.rm.cancelSI" />                    
+        <constructor-arg ref="nimbus-elastic.rm.containerInterface" />
+        <constructor-arg ref="nimbus-elastic.security.sshkeys" />
+        <constructor-arg ref="nimbus-elastic.rm.modulelocator" />
+
+    </bean>
+
+    <bean id="nimbus-elastic.rm.cancelSI"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultCancelSI" />
+
+    <bean id="nimbus-elastic.rm.describeSI"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultDescribeSI">
+
+        <constructor-arg ref="nimbus-elastic.rm.idmappings" />
+        <constructor-arg ref="nimbus-elastic.rm.describe" />
+        <constructor-arg ref="nimbus-elastic.general.ra" />
+    </bean>
+    
+    <bean id="nimbus-elastic.rm.spHistory"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultDescribeSpotPriceHistory">
+          
+        <constructor-arg ref="nimbus-elastic.general.ra" />
+    </bean>
     
     <!-- ************ ServiceGeneral *********** -->
 
@@ -106,6 +144,7 @@
          <property name="cpuArch" value="$OTHER_ELASTIC{cpu.arch}" />
          <property name="vmmType" value="$OTHER_ELASTIC{vmm.type}" />
          <property name="vmmVersion" value="$OTHER_ELASTIC{vmm.version}" />
+         <property name="siType" value="$SI{si.instancetype}" />
 
     </bean>
     

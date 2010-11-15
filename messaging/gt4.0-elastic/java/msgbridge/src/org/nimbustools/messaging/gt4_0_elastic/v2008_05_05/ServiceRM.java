@@ -16,7 +16,7 @@
 
 package org.nimbustools.messaging.gt4_0_elastic.v2008_05_05;
 
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.*;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.*;
 
 import java.rmi.RemoteException;
 
@@ -43,10 +43,30 @@ public interface ServiceRM {
             throws RemoteException;
 
     public MonitorInstancesResponseType monitorInstances(
-            MonitorInstancesType monitorInstancesRequestMsg)
+                        MonitorInstancesType monitorInstancesRequestMsg)
             throws RemoteException;
 
     public MonitorInstancesResponseType unmonitorInstances(
-            MonitorInstancesType unmonitorInstancesRequestMsg)
+                        MonitorInstancesType unmonitorInstancesRequestMsg)
+            throws RemoteException;
+    
+    // -------------------------------------------------------------------------
+    // SI OPERATIONS
+    // -------------------------------------------------------------------------  
+    
+    public RequestSpotInstancesResponseType requestSpotInstances(
+                        RequestSpotInstancesType requestSpotInstancesMsg)
+            throws RemoteException;
+    
+    public CancelSpotInstanceRequestsResponseType cancelSpotInstanceRequests(
+                        CancelSpotInstanceRequestsType cancelSpotInstancesMsg)
+            throws RemoteException;
+    
+    public DescribeSpotInstanceRequestsResponseType describeSpotInstanceRequests(
+                        DescribeSpotInstanceRequestsType describeSpotInstancesMsg)
+            throws RemoteException;
+    
+    public DescribeSpotPriceHistoryResponseType describeSpotPriceHistory(
+                        DescribeSpotPriceHistoryType describeSpotPriceHistoryType)
             throws RemoteException;
 }

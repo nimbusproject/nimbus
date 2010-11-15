@@ -12,6 +12,7 @@
       <module fileurl="file://$PROJECT_DIR$/.idea-modules/ec2soap/ec2soap.iml" filepath="$PROJECT_DIR$/.idea-modules/ec2soap/ec2soap.iml" group="protocols" />
       <module fileurl="file://$PROJECT_DIR$/.idea-modules/installer/installer.iml" filepath="$PROJECT_DIR$/.idea-modules/installer/installer.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea-modules/rm-api/rm-api.iml" filepath="$PROJECT_DIR$/.idea-modules/rm-api/rm-api.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea-modules/service-suites//spotinstances.iml" filepath="$PROJECT_DIR$/.idea-modules/service-suites//spotinstances.iml" group="service-suites" />
       <module fileurl="file://$PROJECT_DIR$/.idea-modules/service-suites/tests-common.iml" filepath="$PROJECT_DIR$/.idea-modules/service-suites/tests-common.iml" group="service-suites" />
       <module fileurl="file://$PROJECT_DIR$/.idea-modules/wrksp-svc/workspace-service.iml" filepath="$PROJECT_DIR$/.idea-modules/wrksp-svc/workspace-service.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea-modules/wsrf/wsrf.iml" filepath="$PROJECT_DIR$/.idea-modules/wsrf/wsrf.iml" group="protocols" />

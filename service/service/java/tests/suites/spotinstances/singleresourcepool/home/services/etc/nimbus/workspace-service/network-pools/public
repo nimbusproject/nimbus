@@ -1,0 +1,32 @@
+# A sample network pool 'public'
+
+# The first non-blank, non-comment line must be the DNS server you would
+# like to tell the VMs receiving addresses from this network pool to use.
+
+# DNS server IP address (or 'none')
+192.168.0.1
+
+# The rest of the file's non-blank, non-comment lines are the addresses
+# that will be leased out to VMs requesting this network.
+
+# Currently there are no syntax shortcuts, each field must have an entry
+# or the keyword 'none'.
+
+# The IP address and hostname fields may not be 'none'.
+# If the gateway is 'none', no gateway is assigned.
+# If broadcast or subnetmask are 'none' they are derived from the IP
+#   - based on the normal subnet and broadcast for the IP class (A,B,C)
+
+
+# hostname ipaddress gateway broadcast subnetmask
+
+pub01 192.168.0.2 192.168.0.1 none 255.255.255.0
+pub02 192.168.0.3 192.168.0.1 none none
+pub03 192.168.0.4 192.168.0.1 192.168.0.255 255.255.255.0
+pub04 192.168.0.5 192.168.0.1 192.168.0.255 255.255.255.0
+pub05 192.168.0.6 192.168.0.1 none none
+pub06 192.168.0.7 none none none
+pub07 192.168.0.8 192.168.0.1 none 255.255.255.0
+pub08 192.168.0.9 192.168.0.1 192.168.0.255 255.255.255.0
+pub09 192.168.0.10 192.168.0.1 none none
+pub10 192.168.0.11 none none none

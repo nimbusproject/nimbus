@@ -61,7 +61,8 @@ kernel_parameters VARCHAR(128),
 vmm VARCHAR(32),
 vmm_version VARCHAR(32),
 assocs_needed VARCHAR(256),
-md_user_data VARCHAR(30720)
+md_user_data VARCHAR(30720),
+preemptable SMALLINT
 );
 
 --
@@ -176,6 +177,7 @@ hostname VARCHAR(128) NOT NULL,
 associations VARCHAR(512) NOT NULL,
 maximum_memory REAL,
 available_memory REAL,
+preemptable_memory REAL,
 PRIMARY KEY(resourcepool, hostname)
 );
 
@@ -204,6 +206,16 @@ vmid INT NOT NULL
 CREATE TABLE pilot_notification_position
 (
 position BIGINT
+);
+
+--
+-- Spot Instances:
+
+CREATE TABLE spot_prices
+(
+tstamp BIGINT NOT NULL,
+price DOUBLE NOT NULL,
+PRIMARY KEY(tstamp, price)
 );
 
 --

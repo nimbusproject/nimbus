@@ -26,6 +26,7 @@ import org.globus.workspace.service.CoschedResource;
 import org.globus.workspace.service.GroupResource;
 import org.globus.workspace.service.InstanceResource;
 import org.globus.workspace.service.binding.vm.CustomizationNeed;
+import org.nimbustools.api.repr.SpotPriceEntry;
 import org.nimbustools.api.services.rm.DoesNotExistException;
 
 /**
@@ -197,6 +198,63 @@ public interface PersistenceAdapter {
     public List<ResourcepoolEntry> getAvailableEntriesSortedByFreeMemoryPercentage(int requestedMem) 
     
             throws WorkspaceDatabaseException;
+<<<<<<< HEAD
+=======
+    
+    //Spot Instances
+    
+    public Integer getTotalMaxMemory()
+    
+            throws WorkspaceDatabaseException;
+    
+    public Integer getTotalAvailableMemory()
+    
+            throws WorkspaceDatabaseException;    
+    
+    /**
+     * Gets the total available memory as
+     * a sum of integer available chunks from 
+     * each  resource pool entry
+     * 
+     * This is useful for knowing the exact
+     * amount of memory that is readily available
+     * for allocations of that chunk size (ie. 128MB),
+     * and not incurring the risk of having
+     * 64MB in one VMM and 64MB in another,
+     * what will not suffice to allocate a 128MB
+     * VM (although 128MB are theoretically
+     * available)
+     * 
+     * @param multipleOf size of the chunk
+     * @return the total available memory as a 
+     * multiple of the chunk size (ie: result%multipleOf = 0)
+     * @throws WorkspaceDatabaseException DB error
+     */
+    public Integer getTotalAvailableMemory(Integer multipleOf)
+    
+            throws WorkspaceDatabaseException;
+    
+    public Integer getTotalPreemptableMemory()
+    
+            throws WorkspaceDatabaseException;   
+    
+    public Integer getUsedNonPreemptableMemory()
+    
+            throws WorkspaceDatabaseException;
+
+    public void addSpotPriceHistory(Calendar timeStamp, 
+                                  Double newPrice)
+    
+            throws WorkspaceDatabaseException;
+
+    public List<SpotPriceEntry> getSpotPriceHistory(Calendar startDate,
+                                                    Calendar endDate)
+                                                  
+            throws WorkspaceDatabaseException;
+    
+    public Double getLastSpotPrice()
+            throws WorkspaceDatabaseException;
+>>>>>>> paulo/spotinstances
 
     boolean updateResourcepoolEntry(String hostname,
                                         String pool,

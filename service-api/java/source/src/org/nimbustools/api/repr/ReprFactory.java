@@ -18,11 +18,16 @@ package org.nimbustools.api.repr;
 
 import org.nimbustools.api.NimbusModule;
 import org.nimbustools.api._repr._Advertised;
+import org.nimbustools.api._repr._AsyncCreateRequest;
 import org.nimbustools.api._repr._Caller;
 import org.nimbustools.api._repr._CreateRequest;
 import org.nimbustools.api._repr._CreateResult;
 import org.nimbustools.api._repr._CustomizationRequest;
+import org.nimbustools.api._repr._RequestInfo;
 import org.nimbustools.api._repr._ShutdownTasks;
+import org.nimbustools.api._repr._SpotCreateRequest;
+import org.nimbustools.api._repr._SpotPriceEntry;
+import org.nimbustools.api._repr._SpotRequestInfo;
 import org.nimbustools.api._repr._Usage;
 import org.nimbustools.api._repr.ctx._Context;
 import org.nimbustools.api._repr.vm._Kernel;
@@ -48,7 +53,11 @@ public interface ReprFactory extends NimbusModule {
     public _CustomizationRequest _newCustomizationRequest();
     public _ShutdownTasks _newShutdownTasks();
     public _Usage _newUsage();
-
+    public _RequestInfo _newRequestInfo();
+    public _SpotRequestInfo _newSpotRequestInfo();
+    public _SpotPriceEntry _newSpotPriceEntry();
+    public _AsyncCreateRequest _newBackfillRequest();
+    public _SpotCreateRequest _newSpotCreateRequest();
 
     // vm package
     public _Kernel _newKernel();
@@ -62,5 +71,6 @@ public interface ReprFactory extends NimbusModule {
 
     // ctx package
     public _Context _newContext();
+    
     
 }

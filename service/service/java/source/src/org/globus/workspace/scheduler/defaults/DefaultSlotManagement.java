@@ -16,23 +16,44 @@
 
 package org.globus.workspace.scheduler.defaults;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Set;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.globus.workspace.Lager;
 import org.globus.workspace.ProgrammingError;
+<<<<<<< HEAD
 import org.globus.workspace.persistence.WorkspaceDatabaseException;
 import org.globus.workspace.scheduler.*;
 import org.globus.workspace.persistence.PersistenceAdapter;
+=======
+import org.globus.workspace.persistence.PersistenceAdapter;
+import org.globus.workspace.scheduler.Reservation;
+import org.globus.workspace.scheduler.Scheduler;
+>>>>>>> paulo/spotinstances
 import org.globus.workspace.service.InstanceResource;
 import org.globus.workspace.service.WorkspaceHome;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.globus.workspace.service.binding.vm.VirtualMachineDeployment;
-import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
 import org.nimbustools.api.services.rm.DoesNotExistException;
 import org.nimbustools.api.services.rm.ManageException;
+<<<<<<< HEAD
 
 import java.util.*;
 
+=======
+import org.nimbustools.api.services.rm.NotEnoughMemoryException;
+import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
+import org.springframework.core.io.Resource;
+
+>>>>>>> paulo/spotinstances
 /**
  * Needs dependency cleanups
  */
@@ -53,6 +74,7 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
     private final PersistenceAdapter db;
     private final Lager lager;
     private WorkspaceHome home;
+    private PreemptableSpaceManager preempManager;    
 
     private boolean greedy;
 
@@ -86,6 +108,13 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
         }
         this.home = homeImpl;
     }
+    
+    public void setPreempManager(PreemptableSpaceManager preempManagerImpl) {
+        if (preempManagerImpl == null) {
+            throw new IllegalArgumentException("preempManagerImpl may not be null");
+        }
+        this.preempManager = preempManagerImpl;
+    }    
 
     
     // -------------------------------------------------------------------------
@@ -119,7 +148,7 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
      * @return Reservation res
      * @throws ResourceRequestDeniedException exc
      */
-    public synchronized Reservation reserveSpace(NodeRequest req)
+    public synchronized Reservation reserveSpace(NodeRequest req, boolean preemptable)
 
             throws ResourceRequestDeniedException {
 
@@ -131,7 +160,7 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
 
         final String[] hostnames =
                 this.reserveSpace(vmids, req.getMemory(),
-                                  req.getNeededAssociations());
+                                  req.getNeededAssociations(), preemptable);
 
         return new Reservation(vmids, hostnames);
     }
@@ -171,7 +200,7 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
                 final String[] hostnames =
                         this.reserveSpace(ids,
                                           request.getMemory(),
-                                          request.getNeededAssociations());
+                                          request.getNeededAssociations(), false);
 
                 final Integer duration = new Integer(request.getDuration());
 
@@ -211,7 +240,7 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
                                                this.db,
                                                this.lager.eventLog,
                                                this.lager.traceLog,
-                                               -1);
+                                               -1, false);
             } catch (Exception ee) {
                     logger.error(ee.getMessage());
                 }
@@ -246,6 +275,7 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
      *        assignment array will include duplicates.
      * @param memory megabytes needed
      * @param assocs array of needed associations, can be null
+     * @param preemptable indicates if the space can be pre-empted by higher priority reservations
      * @return Names of resources.  Must match length of vmids input and caller
      *         assumes the ordering in the assignemnt array maps to the input
      *         vmids array.
@@ -254,7 +284,8 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
      */
     private String[] reserveSpace(final int[] vmids,
                                   final int memory,
-                                  final String[] assocs)
+                                  final String[] assocs, 
+                                  boolean preemptable)
                   throws ResourceRequestDeniedException {
 
 
@@ -291,7 +322,7 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
         final String[] nodes = new String[vmids.length];
         int bailed = -1;
         Throwable failure = null;
-
+        
         for (int i = 0; i < vmids.length; i++) {
 
             try {
@@ -300,10 +331,45 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
                                                                  this.db,
                                                                  this.lager,
                                                                  vmids[i],
-                                                                 greedy);
+                                                                 greedy,
+                                                                 preemptable);
                 if (nodes[i] == null) {
                     throw new ProgrammingError(
                                     "returned node should not be null");
+                }
+            } catch (NotEnoughMemoryException e) {
+                if(!preemptable){
+                    try {
+                        //If there isn't available memory
+                        //for a non-preemptable reservation
+                        //ask preemptable space manager
+                        //to free needed space from
+                        //preemptable (lower priority)
+                        //reservations
+                        
+                        Integer availableMemory = this.db.getTotalAvailableMemory();    
+                        Integer usedPreemptable = this.db.getTotalPreemptableMemory();
+                        
+                        Integer realAvailable = availableMemory + usedPreemptable;
+                        
+                        Integer neededMem = (vmids.length-i)*memory;
+                        
+                        if(realAvailable >= neededMem){
+                            //There will be sufficient space to
+                            //fulfill this reservation
+                            //so, free preemptable space
+                            //and decrease i value, so 
+                            //previous entry can be reconsidered
+                            preempManager.releaseSpace(neededMem);
+                            i--;
+                        } else {
+                            throw e;
+                        }
+                    } catch (Throwable t) {
+                        bailed = i;
+                        failure = t;
+                        break;
+                    }                    
                 }
             } catch (Throwable t) {
                 bailed = i;
@@ -341,7 +407,7 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
                 ResourcepoolUtil.retireMem(nodes[i], memory, this.db,
                                            this.lager.eventLog,
                                            this.lager.traceLog,
-                                           vmids[i]);
+                                           vmids[i], preemptable);
             } catch (Throwable t) {
                 if (logger.isDebugEnabled()) {
                     logger.error(
@@ -419,15 +485,17 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
         if (vmdep == null) {
             throw new ProgrammingError("deployment is null");
         }
+        
+        boolean preemptable = vm.isPreemptable();
 
         final int mem = vmdep.getIndividualPhysicalMemory();
 
         logger.debug("releaseSpace() retiring mem = " + mem +
-                    ", node = '" + node + "' from " + Lager.id(vmid));
+                    ", node = '" + node + "' from " + Lager.id(vmid) + ". Preemptable: " + preemptable);
 
         ResourcepoolUtil.retireMem(node, mem, this.db,
                                    this.lager.eventLog, this.lager.traceLog,
-                                   vmid);
+                                   vmid, preemptable);
     }
 
     public void setScheduler(Scheduler adapter) {
@@ -618,5 +686,12 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
             throw new RuntimeException(e);
         }
 
+<<<<<<< HEAD
+=======
+        this.db.replaceResourcepools(new_resourcepools);
+        
+        preempManager.init();
+>>>>>>> paulo/spotinstances
     }
+    
 }

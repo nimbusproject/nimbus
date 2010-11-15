@@ -18,54 +18,57 @@ package org.globus.workspace.creation.defaults;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.globus.workspace.ErrorUtil;
 import org.globus.workspace.Lager;
 import org.globus.workspace.LockManager;
 import org.globus.workspace.ProgrammingError;
 import org.globus.workspace.WorkspaceConstants;
 import org.globus.workspace.WorkspaceUtil;
-import org.globus.workspace.network.AssociationAdapter;
 import org.globus.workspace.accounting.AccountingEventAdapter;
-import org.globus.workspace.creation.Creation;
+import org.globus.workspace.async.AsyncRequest;
+import org.globus.workspace.async.AsyncRequestManager;
+import org.globus.workspace.creation.CreationManager;
+import org.globus.workspace.network.AssociationAdapter;
 import org.globus.workspace.persistence.DataConvert;
 import org.globus.workspace.persistence.PersistenceAdapter;
 import org.globus.workspace.persistence.WorkspaceDatabaseException;
 import org.globus.workspace.scheduler.IdHostnameTuple;
 import org.globus.workspace.scheduler.Reservation;
 import org.globus.workspace.scheduler.Scheduler;
-import org.globus.workspace.scheduler.Event;
+import org.globus.workspace.scheduler.StateChangeEvent;
 import org.globus.workspace.service.InstanceResource;
-import org.globus.workspace.service.WorkspaceHome;
-import org.globus.workspace.service.WorkspaceGroupHome;
 import org.globus.workspace.service.WorkspaceCoschedHome;
+import org.globus.workspace.service.WorkspaceGroupHome;
+import org.globus.workspace.service.WorkspaceHome;
 import org.globus.workspace.service.binding.Authorize;
+import org.globus.workspace.service.binding.BindNetwork;
 import org.globus.workspace.service.binding.BindingAdapter;
 import org.globus.workspace.service.binding.GlobalPolicies;
+import org.globus.workspace.service.binding.vm.CustomizationNeed;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.globus.workspace.service.binding.vm.VirtualMachineDeployment;
-import org.globus.workspace.service.binding.vm.CustomizationNeed;
+import org.globus.workspace.creation.InternalCreationManager;
 
-import org.nimbustools.api._repr._CreateResult;
 import org.nimbustools.api._repr._Advertised;
-import org.nimbustools.api.repr.Caller;
-import org.nimbustools.api.repr.CreateRequest;
-import org.nimbustools.api.repr.CreateResult;
-import org.nimbustools.api.repr.ReprFactory;
-import org.nimbustools.api.repr.CannotTranslateException;
 import org.nimbustools.api.repr.Advertised;
+import org.nimbustools.api.repr.Caller;
+import org.nimbustools.api.repr.CannotTranslateException;
+import org.nimbustools.api.repr.CreateRequest;
+import org.nimbustools.api.repr.ReprFactory;
+import org.nimbustools.api.repr.AsyncCreateRequest;
+import org.nimbustools.api.repr.SpotCreateRequest;
 import org.nimbustools.api.repr.ctx.Context;
-import org.nimbustools.api.repr.vm.VM;
-import org.nimbustools.api.repr.vm.ResourceAllocation;
+import org.nimbustools.api.repr.si.SIConstants;
 import org.nimbustools.api.repr.vm.NIC;
+import org.nimbustools.api.repr.vm.ResourceAllocation;
 import org.nimbustools.api.services.rm.AuthorizationException;
 import org.nimbustools.api.services.rm.BasicLegality;
 import org.nimbustools.api.services.rm.CoSchedulingException;
 import org.nimbustools.api.services.rm.CreationException;
+import org.nimbustools.api.services.rm.ManageException;
 import org.nimbustools.api.services.rm.MetadataException;
 import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
 import org.nimbustools.api.services.rm.SchedulingException;
-import org.nimbustools.api.services.rm.ManageException;
 
 import org.safehaus.uuid.UUIDGenerator;
 
@@ -81,14 +84,14 @@ import commonj.timers.TimerManager;
  * Includes rollbacks (looking into dedicated transaction technology for the
  * future).
  */
-public class DefaultCreation implements Creation {
+public class CreationManagerImpl implements CreationManager, InternalCreationManager {
 
     // -------------------------------------------------------------------------
     // STATIC VARIABLES
     // -------------------------------------------------------------------------
 
     private static final Log logger =
-            LogFactory.getLog(DefaultCreation.class.getName());
+            LogFactory.getLog(CreationManagerImpl.class.getName());
     
 
     // -------------------------------------------------------------------------
@@ -112,15 +115,18 @@ public class DefaultCreation implements Creation {
     protected final TimerManager timerManager;
     protected final Lager lager;
     protected final DateFormat localFormat = DateFormat.getDateTimeInstance();
+    protected final BindNetwork bindNetwork;
 
     protected AccountingEventAdapter accounting;
+    
+    protected AsyncRequestManager asyncManager;
 
 
     // -------------------------------------------------------------------------
     // CONSTRUCTORS
     // -------------------------------------------------------------------------
 
-    public DefaultCreation(LockManager lockManagerImpl,
+    public CreationManagerImpl(LockManager lockManagerImpl,
                            BasicLegality legalsImpl,
                            BindingAdapter bindingImpl,
                            AssociationAdapter networkImpl,
@@ -134,7 +140,8 @@ public class DefaultCreation implements Creation {
                            PersistenceAdapter persistenceAdapter,
                            DataConvert dataConvertImpl,
                            TimerManager timerManagerImpl,
-                           Lager lagerImpl) {
+                           Lager lagerImpl,
+                           BindNetwork bindNetworkImpl) {
 
         if (lockManagerImpl == null) {
             throw new IllegalArgumentException("lockManager may not be null");
@@ -210,6 +217,11 @@ public class DefaultCreation implements Creation {
             throw new IllegalArgumentException("lagerImpl may not be null");
         }
         this.lager = lagerImpl;
+        
+        if (bindNetworkImpl == null) {
+            throw new IllegalArgumentException("bindNetworkImpl may not be null");
+        }
+        this.bindNetwork = bindNetworkImpl;     
     }
 
 
@@ -223,7 +235,7 @@ public class DefaultCreation implements Creation {
 
     
     // -------------------------------------------------------------------------
-    // implements Creation
+    // implements CreationManager
     // -------------------------------------------------------------------------
 
     public Advertised getAdvertised() {
@@ -256,14 +268,85 @@ public class DefaultCreation implements Creation {
 
         return adv;
     }
+    
+    
+    /**
+     * An asynchronous create request is not satisfied at the same time
+     * it is submitted, but when the Asynchronous Request Manager
+     * decides to fulfill that request based on policies.
+     * 
+     * Currently, asynchronous requests can be Spot Instance
+     * requests or backfill requests.
+     * 
+     * @param req the asynchronous create request
+     * @param caller the owner of the request
+     * @return the added asynchronous request
+     * @throws CreationException
+     * @throws MetadataException
+     * @throws ResourceRequestDeniedException
+     * @throws SchedulingException
+     */    
+    public AsyncRequest addAsyncRequest(AsyncCreateRequest req, Caller caller)
+            throws CreationException,
+                   MetadataException,
+                   ResourceRequestDeniedException,
+                   SchedulingException {
 
-    public CreateResult create(CreateRequest req, Caller caller)
+        
+        if (caller == null) {
+            throw new CreationException("no caller");
+        }
+
+        if (this.lager.eventLog) {
+            logger.info(Lager.ev(-1) + "Create request for " + this.getType(req) +
+                                    " from '" + caller.getIdentity() + "'");
+        }
+
+        //Check basic request errors
+        this.legals.checkCreateRequest(req);
+        
+        //Check site policies and constraints
+        final VirtualMachine[] bound = this.binding.processRequest(req);
+        if (bound == null || bound.length == 0) {
+            throw new CreationException("no binding result but no binding " +
+                    "error: illegal binding implementation");
+        }        
+
+        final String creatorID = caller.getIdentity();
+        if (creatorID == null || creatorID.trim().length() == 0) {
+            throw new CreationException("Cannot determine identity");
+        }       
+        
+        final String groupID = this.getGroupID(creatorID, bound.length);   
+        
+        final String reqiID = generateRequestID();
+        
+        AsyncRequest asyncReq;
+                
+        if(req instanceof SpotCreateRequest){
+            SpotCreateRequest spotReq = (SpotCreateRequest)req;
+            asyncReq = new AsyncRequest(reqiID, spotReq.getSpotPrice(), spotReq.isPersistent(), 
+                                        caller, groupID, bound, req.getContext(), req.getRequestedNics(), 
+                                        req.getSshKeyName(), Calendar.getInstance());   
+        } else {
+            asyncReq = new AsyncRequest(reqiID, caller, groupID, bound, 
+                                        req.getContext(), req.getRequestedNics(), 
+                                        Calendar.getInstance());               
+        }
+        
+        asyncManager.addRequest(asyncReq); 
+        
+        return asyncReq;
+    }    
+
+    public InstanceResource[] create(CreateRequest req, Caller caller)
 
             throws CoSchedulingException,
                    CreationException,
                    MetadataException,
                    ResourceRequestDeniedException,
-                   SchedulingException {
+                   SchedulingException,
+                   AuthorizationException {
 
         if (caller == null) {
             throw new CreationException("no caller");
@@ -275,9 +358,32 @@ public class DefaultCreation implements Creation {
         }
 
         this.legals.checkCreateRequest(req);
-
-        return this.create1(req, caller);
+        
+        final VirtualMachine[] bound = this.binding.processRequest(req);
+        if (bound == null || bound.length == 0) {
+            throw new CreationException("no binding result but no binding " +
+                    "error: illegal binding implementation");
+        }         
+        
+        final String creatorID = caller.getIdentity();
+        if (creatorID == null || creatorID.trim().length() == 0) {
+            throw new CreationException("Cannot determine identity");
+        }        
+        
+        final String coschedID = this.getCoschedID(req, creatorID);  
+        final String groupID = this.getGroupID(caller.getIdentity(), bound.length);        
+        
+        return this.createVMs(bound, req.getRequestedNics(), caller, req.getContext(), groupID, coschedID, false);
     }
+    
+    /**
+     * Generates a random Spot Instance request ID
+     * @return the generated ID
+     */
+    private String generateRequestID() {
+        
+        return SIConstants.SI_REQUEST_PREFIX + this.uuidGen.generateRandomBasedUUID().toString(); 
+    }    
 
     protected String getType(CreateRequest req) {
         if (req == null) {
@@ -300,59 +406,6 @@ public class DefaultCreation implements Creation {
             return "instance" + suffix;
         } else {
             return "group" + suffix;
-        }
-    }
-
-    
-    // -------------------------------------------------------------------------
-    // CREATE I
-    // -------------------------------------------------------------------------
-
-    protected CreateResult create1(CreateRequest req, Caller caller)
-
-            throws CoSchedulingException,
-                   CreationException,
-                   MetadataException,
-                   ResourceRequestDeniedException,
-                   SchedulingException {
-
-        final VirtualMachine[] bound = this.binding.processRequest(req);
-        if (bound == null || bound.length == 0) {
-            throw new CreationException("no binding result but no binding " +
-                    "error: illegal binding implementation");
-        }
-
-        final String creatorID = caller.getIdentity();
-        if (creatorID == null || creatorID.trim().length() == 0) {
-            throw new CreationException("Cannot determine identity");
-        }
-
-        final Context context = req.getContext();
-        final String groupID = this.getGroupID(creatorID, bound.length);
-        final String coschedID = this.getCoschedID(req, creatorID);
-
-        // From this point forward an error requires backOutAllocations
-        try {
-            return this.create2(bound, caller, context, groupID, coschedID);
-        } catch (CoSchedulingException e) {
-            this.backoutBound(bound);
-            throw e;
-        } catch (CreationException e) {
-            this.backoutBound(bound);
-            throw e;
-        } catch (MetadataException e) {
-            this.backoutBound(bound);
-            throw e;
-        } catch (ResourceRequestDeniedException e) {
-            this.backoutBound(bound);
-            throw e;
-        } catch (SchedulingException e) {
-            this.backoutBound(bound);
-            throw e;                    
-        } catch (Throwable t) {
-            this.backoutBound(bound);
-            throw new CreationException("Unknown problem occured: " +
-                    "'" + ErrorUtil.excString(t) + "'", t);
         }
     }
 
@@ -393,35 +446,66 @@ public class DefaultCreation implements Creation {
         }
 
     }
-
-    protected void backoutBound(VirtualMachine[] bound) {
-        try {
-            this.binding.backOutAllocations(bound);
-        } catch (Throwable t) {
-            final String err =
-                    "Error during bindings backout: " + t.getMessage();
-            logger.error(err, t);
-        }
-    }
-    
     
     // -------------------------------------------------------------------------
-    // CREATE II
+    // implements InternalCreationManager
     // -------------------------------------------------------------------------
 
-    // create #2 (wrapped, backOutAllocations required for failures)
-    protected CreateResult create2(VirtualMachine[] bindings,
-                                   Caller caller,
-                                   Context context,
-                                   String groupID,
-                                   String coschedID)
+//    public InstanceResource[] createVMs2(VirtualMachine[] bindings,
+//                                   NIC[] nics,
+//                                   Caller caller,
+//                                   Context context,
+//                                   String groupId,
+//                                   String coschedID,
+//                                   boolean spotInstances)
+//
+//            throws CoSchedulingException,
+//                   CreationException,
+//                   MetadataException,
+//                   ResourceRequestDeniedException,
+//                   SchedulingException {
+//        
+//        this.bindNetwork.consume(bindings, nics);
+//
+//        // From this point forward an error requires backOutIPAllocations
+//        try {
+//            return this.create1(bindings, caller, context, groupId, coschedID, spotInstances);
+//        } catch (CoSchedulingException e) {
+//            this.backoutBound(bindings);
+//            throw e;
+//        } catch (CreationException e) {
+//            this.backoutBound(bindings);
+//            throw e;
+//        } catch (MetadataException e) {
+//            this.backoutBound(bindings);
+//            throw e;
+//        } catch (ResourceRequestDeniedException e) {
+//            this.backoutBound(bindings);
+//            throw e;
+//        } catch (SchedulingException e) {
+//            this.backoutBound(bindings);
+//            throw e;                    
+//        } catch (Throwable t) {
+//            this.backoutBound(bindings);
+//            throw new CreationException("Unknown problem occured: " +
+//                    "'" + ErrorUtil.excString(t) + "'", t);
+//        }
+//    }
 
-            throws AuthorizationException,
-                   CoSchedulingException,
+    public InstanceResource[] createVMs(VirtualMachine[] bindings,
+                                        NIC[] nics,
+                                        Caller caller,
+                                        Context context,
+                                        String groupID,
+                                        String coschedID,
+                                        boolean spotInstances)
+
+            throws CoSchedulingException,
                    CreationException,
                    MetadataException,
                    ResourceRequestDeniedException,
-                   SchedulingException {
+                   SchedulingException,
+                   AuthorizationException {
 
         // msg for future extenders
         if (bindings == null) {
@@ -434,7 +518,8 @@ public class DefaultCreation implements Creation {
         // TODO: Would like to be able to get defaults (especially for running
         //       time request) on a per-group basis when using the group authz
         //       plugin.
-        if (!caller.isSuperUser()) {
+        //TODO: adjust policies for spot instances
+        if (!spotInstances &&!caller.isSuperUser()) {
             this.authorize.authz(bindings,
                                  caller.getIdentity(),
                                  caller.getSubject());
@@ -446,15 +531,20 @@ public class DefaultCreation implements Creation {
                                                   coschedID,
                                                   caller.getIdentity());
 
+        // From this point forward an error requires attempt to
+        // remove from scheduler        
+        
         if (res == null) {
             throw new SchedulingException("reservation is missing, illegal " +
                     "scheduling implementation");
         }
         
+        this.bindNetwork.consume(bindings, nics);        
+        
+        // From this point forward an error requires backOutIPAllocations
+        
+        
         final int[] ids = res.getIds();
-
-        // From this point forward an error requires attempt to
-        // remove from scheduler
 
         try {
 
@@ -472,35 +562,53 @@ public class DefaultCreation implements Creation {
                 }
             }
 
-            return create3(res,
+            return create1(res,
                            bindings,
                            caller.getIdentity(),
                            context,
                            groupID,
-                           coschedID);
+                           coschedID,
+                           spotInstances);
 
         } catch (CoSchedulingException e) {
             this.backoutScheduling(ids, groupID);
+            this.backoutBound(bindings);            
             throw e;
         } catch (CreationException e) {
             this.backoutScheduling(ids, groupID);
+            this.backoutBound(bindings);            
             throw e;
         } catch (MetadataException e) {
             this.backoutScheduling(ids, groupID);
+            this.backoutBound(bindings);
             throw e;
         } catch (ResourceRequestDeniedException e) {
             this.backoutScheduling(ids, groupID);
+            this.backoutBound(bindings);            
             throw e;
         } catch (SchedulingException e) {
             this.backoutScheduling(ids, groupID);
+            this.backoutBound(bindings);            
             throw e;
         } catch (Throwable t) {
             this.backoutScheduling(ids, groupID);
+            this.backoutBound(bindings);            
             throw new CreationException("Unknown problem occured: " +
                     "'" + ErrorUtil.excString(t) + "'", t);
         }
         
     }
+    
+    protected void backoutBound(VirtualMachine[] bound) {
+        try {
+            this.bindNetwork.backOutIPAllocations(bound);
+            //this.binding.backOutAllocations(bound);
+        } catch (Throwable t) {
+            final String err =
+                    "Error during bindings backout: " + t.getMessage();
+            logger.error(err, t);
+        }
+    }    
 
     protected Reservation scheduleImpl(VirtualMachine vm,
                                        int numNodes,
@@ -528,7 +636,7 @@ public class DefaultCreation implements Creation {
         }
 
         return this.scheduler.schedule(memory, duration, assocs, numNodes,
-                                       groupid, coschedid, callerID);
+                                       groupid, coschedid, vm.isPreemptable(), callerID);
     }
 
 
@@ -539,8 +647,7 @@ public class DefaultCreation implements Creation {
 
         for (int i = 0; i < ids.length; i++) {
             try {
-                this.scheduler.stateNotification(
-                            ids[i], WorkspaceConstants.STATE_DESTROYING);
+                this.scheduler.removeScheduling(ids[i]);
 
             } catch (Throwable t) {
                 logger.error("Problem with removing " + Lager.id(ids[i]) +
@@ -551,16 +658,18 @@ public class DefaultCreation implements Creation {
 
     
     // -------------------------------------------------------------------------
-    // CREATE III
+    // CREATE I
     // -------------------------------------------------------------------------
 
-    // create #3 (wrapped, scheduler notification required for failure)
-    protected CreateResult create3(Reservation res,
+    // create #1 (wrapped, backOutAllocations required for failures)    
+    // create #1 (wrapped, scheduler notification required for failure)
+    protected InstanceResource[] create1(Reservation res,
                                    VirtualMachine[] bindings,
                                    String callerID,
                                    Context context,
                                    String groupID,
-                                   String coschedID)
+                                   String coschedID,
+                                   boolean spotInstances)
             
             throws AuthorizationException,
                    CoSchedulingException,
@@ -580,7 +689,8 @@ public class DefaultCreation implements Creation {
 
         // accounting:
         // give check then act problem as small a window as possible
-        if (this.accounting != null) {
+        //TODO: adjust accounting for spot instances
+        if (!spotInstances && this.accounting != null) {
 
             final long requestSeconds;
             if (res.isConcrete()) {
@@ -616,12 +726,13 @@ public class DefaultCreation implements Creation {
         }
 
         try {
-            return create4(res,
+            return create2(res,
                            bindings,
                            callerID,
                            context,
                            groupID,
-                           coschedID);
+                           coschedID,
+                           spotInstances);
 
         } catch (CoSchedulingException e) {
             this.backoutAccounting(ids, callerID);
@@ -666,16 +777,17 @@ public class DefaultCreation implements Creation {
 
 
     // -------------------------------------------------------------------------
-    // CREATE IV
+    // CREATE II
     // -------------------------------------------------------------------------
 
-    // create #4 (wrapped, accounting destruction might be required for failure)
-    protected CreateResult create4(Reservation res,
+    // create #2 (wrapped, accounting destruction might be required for failure)
+    protected InstanceResource[] create2(Reservation res,
                                    VirtualMachine[] bindings,
                                    String callerID,
                                    Context context,
                                    String groupID,
-                                   String coschedID)
+                                   String coschedID,
+                                   boolean spotInstances)
             
             throws AuthorizationException,
                    CoSchedulingException,
@@ -719,17 +831,22 @@ public class DefaultCreation implements Creation {
                         "expecting ID assignments from reservation");
         }
 
+<<<<<<< HEAD:service/service/java/source/src/org/globus/workspace/creation/defaults/DefaultCreation.java
         final _CreateResult result = this.repr._newCreateResult();
         result.setCoscheduledID(coschedID);
         result.setGroupID(groupID);
         final VM[] createdVMs = new VM[ids.length];
       
+=======
+        final InstanceResource[] createdResources = new InstanceResource[ids.length];
+
+>>>>>>> paulo/spotinstances:service/service/java/source/src/org/globus/workspace/creation/defaults/CreationManagerImpl.java
         int bailed = -1;
         Throwable failure = null;
         for (int i = 0; i < ids.length; i++) {
 
             try {
-                createdVMs[i] =
+                createdResources[i] =
                         this.createOne(i, ids, res, bindings[i],
                                        callerID, context, coschedID, groupID,
                                        startTime, termTime);
@@ -748,8 +865,6 @@ public class DefaultCreation implements Creation {
 
         } else {
 
-            result.setVMs(createdVMs);
-
             final boolean eventLog = this.lager.eventLog;
             final boolean debugLog = logger.isDebugEnabled();
 
@@ -762,13 +877,13 @@ public class DefaultCreation implements Creation {
             }
 
             // go:
-            this.schedulerCreatedNotification(ids);
+            this.schedulerCreatedNotification(ids, spotInstances);
 
-            return result;
+            return createdResources;
         }
     }
 
-    protected void schedulerCreatedNotification(int[] ids) {
+    protected void schedulerCreatedNotification(int[] ids, boolean spotInstances) {
         
         // From here on, scheduler can do whatever it likes.  Instead
         // of letting the scheduler hijack this thread, launching this
@@ -778,20 +893,28 @@ public class DefaultCreation implements Creation {
         // immediately, not doing this could significantly delay the op
         // return to the client.
 
-        final Event event = new Event(ids,
+        final StateChangeEvent schedulerEvent = new StateChangeEvent(ids,
                                       WorkspaceConstants.STATE_FIRST_LEGAL,
                                       this.scheduler);
 
-        this.timerManager.schedule(event, 20);
+        this.timerManager.schedule(schedulerEvent, 20);
+        
+        if(!spotInstances){
+            final StateChangeEvent simEvent = new StateChangeEvent(ids,
+                    WorkspaceConstants.STATE_FIRST_LEGAL,
+                    this.asyncManager);
+
+            this.timerManager.schedule(simEvent, 50);            
+        }
     }
 
 
     // -------------------------------------------------------------------------
-    // INSTANCE CREATION/BACKOUT (called from CREATE IV)
+    // INSTANCE CREATION/BACKOUT (called from CREATE II)
     // -------------------------------------------------------------------------
 
     // always throws an exception, return is to satisfy compiler
-    protected CreateResult failure(int[] ids, int bailed, Throwable failure)
+    protected InstanceResource[] failure(int[] ids, int bailed, Throwable failure)
             throws CreationException {
 
         if (ids == null) {
@@ -841,16 +964,16 @@ public class DefaultCreation implements Creation {
         throw new CreationException(err, failure);
     }
 
-    protected VM createOne(int idx,
-                           int[] ids,
-                           Reservation res,
-                           VirtualMachine vm,
-                           String callerID,
-                           Context context,
-                           String coschedID,
-                           String groupID,
-                           Calendar startTime,
-                           Calendar termTime)
+    protected InstanceResource createOne(int idx,
+                                         int[] ids,
+                                         Reservation res,
+                                         VirtualMachine vm,
+                                         String callerID,
+                                         Context context,
+                                         String coschedID,
+                                         String groupID,
+                                         Calendar startTime,
+                                         Calendar termTime)
 
             throws CreationException,
                    WorkspaceDatabaseException,
@@ -900,7 +1023,7 @@ public class DefaultCreation implements Creation {
             }
         }
 
-        return this.dataConvert.getVM(resource);
+        return resource;
     }
 
     protected String addIPs(String bootstrapText, VirtualMachine vm)
@@ -1131,5 +1254,15 @@ public class DefaultCreation implements Creation {
         }
         buf.append("\n");
         return buf.toString();
+    }
+
+    // -------------------------------------------------------------------------
+    // MODULE SET (avoids circular dependency problem)
+    // -------------------------------------------------------------------------
+    public void setSiManager(AsyncRequestManager siManagerImpl) {
+        if (siManagerImpl == null) {
+            throw new IllegalArgumentException("siManagerImpl may not be null");
+        }
+        this.asyncManager = siManagerImpl;
     }
 }

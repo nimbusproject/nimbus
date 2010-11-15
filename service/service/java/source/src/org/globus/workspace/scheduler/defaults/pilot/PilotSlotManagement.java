@@ -487,7 +487,7 @@ public class PilotSlotManagement implements SlotManagement,
      * @return Reservation res
      * @throws ResourceRequestDeniedException exc
      */
-    public Reservation reserveSpace(NodeRequest request)
+    public Reservation reserveSpace(NodeRequest request, boolean preemptable)
             throws ResourceRequestDeniedException {
 
         this.reserveSpace(request.getIds(),

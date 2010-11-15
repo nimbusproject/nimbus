@@ -35,7 +35,7 @@ import org.nimbustools.api.repr.vm.ResourceAllocation;
 import org.nimbustools.api.repr.vm.State;
 import org.nimbustools.api.repr.vm.VM;
 import org.nimbustools.api.repr.vm.VMFile;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.*;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.*;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.Networks;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.ResourceAllocations;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.image.Repository;
@@ -184,7 +184,8 @@ public class DefaultRun implements Run {
         final String raType = req.getInstanceType();
         final ResourceAllocation ra = this.RAs.getMatchingRA(raType,
                                                              req.getMinCount(),
-                                                             req.getMaxCount());
+                                                             req.getMaxCount(),
+                                                             false);
 
         final RequiredVMM reqVMM = this.RAs.getRequiredVMM();
 
@@ -303,7 +304,7 @@ public class DefaultRun implements Run {
         logger.info(buf.toString());
 
         final RunInstancesResponseType ret = new RunInstancesResponseType();
-        ret.setGroupSet(this.getGroupStub());
+        ret.setGroupSet(getGroupStub());
         final String ownerID = this.container.getOwnerID(caller);
         if (ownerID == null) {
             throw new CannotTranslateException("Cannot find owner ID");
@@ -366,7 +367,7 @@ public class DefaultRun implements Run {
     // -------------------------------------------------------------------------
 
     // todo: duped code; support groups
-    protected GroupSetType getGroupStub() {
+    public static GroupSetType getGroupStub() {
         final GroupItemType[] groupItemTypes = new GroupItemType[1];
         groupItemTypes[0] = new GroupItemType("default");
         return new GroupSetType(groupItemTypes);
@@ -393,7 +394,7 @@ public class DefaultRun implements Run {
         riit.setInstanceState(this.describe.getState(vm));
         riit.setReason(this.describe.getReason(vm));
         riit.setPlacement(this.describe.getPlacement());
-        riit.setImageId(this.describe.getImageID(vm));
+        riit.setImageId(this.describe.getImageID(vm.getVMFiles()));
         riit.setInstanceType(this.describe.getInstanceType(vm));
         riit.setLaunchTime(this.describe.getLaunchTime(vm));
         

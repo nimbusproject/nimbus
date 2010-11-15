@@ -16,30 +16,42 @@
 
 package org.globus.workspace.manager;
 
+import java.util.Calendar;
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.globus.workspace.PathConfigs;
 import org.globus.workspace.Lager;
+import org.globus.workspace.PathConfigs;
 import org.globus.workspace.accounting.AccountingReaderAdapter;
 import org.globus.workspace.accounting.ElapsedAndReservedMinutes;
-import org.globus.workspace.creation.Creation;
+import org.globus.workspace.async.AsyncRequest;
+import org.globus.workspace.async.AsyncRequestHome;
+import org.globus.workspace.creation.CreationManager;
 import org.globus.workspace.persistence.DataConvert;
 import org.globus.workspace.service.InstanceResource;
 import org.globus.workspace.service.WorkspaceCoschedHome;
 import org.globus.workspace.service.WorkspaceGroupHome;
 import org.globus.workspace.service.WorkspaceHome;
-
 import org.nimbustools.api._repr._Caller;
+import org.nimbustools.api._repr._CreateResult;
+import org.nimbustools.api._repr.vm._VM;
 import org.nimbustools.api.repr.Advertised;
 import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.CannotTranslateException;
 import org.nimbustools.api.repr.CreateRequest;
 import org.nimbustools.api.repr.CreateResult;
 import org.nimbustools.api.repr.ReprFactory;
+import org.nimbustools.api.repr.AsyncCreateRequest;
+import org.nimbustools.api.repr.RequestInfo;
 import org.nimbustools.api.repr.ShutdownTasks;
+import org.nimbustools.api.repr.SpotCreateRequest;
+import org.nimbustools.api.repr.SpotPriceEntry;
+import org.nimbustools.api.repr.SpotRequestInfo;
 import org.nimbustools.api.repr.Usage;
 import org.nimbustools.api.repr.vm.VM;
+import org.nimbustools.api.repr.vm.VMConstants;
+import org.nimbustools.api.services.rm.AuthorizationException;
 import org.nimbustools.api.services.rm.CoSchedulingException;
 import org.nimbustools.api.services.rm.CreationException;
 import org.nimbustools.api.services.rm.DestructionCallback;
@@ -51,8 +63,6 @@ import org.nimbustools.api.services.rm.OperationDisabledException;
 import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
 import org.nimbustools.api.services.rm.SchedulingException;
 import org.nimbustools.api.services.rm.StateChangeCallback;
-
-import java.util.Calendar;
 
 /**
  * Link into the application from the messaging layer.
@@ -80,35 +90,31 @@ public class DelegatingManager implements Manager {
     // INSTANCE VARIABLES
     // -------------------------------------------------------------------------
 
-    protected final Creation creation;
+    protected CreationManager creation;
     protected final WorkspaceHome home;
     protected final WorkspaceGroupHome ghome;
     protected final WorkspaceCoschedHome cohome;
+    protected final AsyncRequestHome asyncHome;
     protected final PathConfigs paths;
     protected final ReprFactory repr;
     protected final DataConvert dataConvert;
     protected final Lager lager;
-
+    
     protected AccountingReaderAdapter accounting;
-
+    
     // -------------------------------------------------------------------------
     // CONSTRUCTOR
     // -------------------------------------------------------------------------
 
-    public DelegatingManager(Creation creationImpl,
-                             PathConfigs pathConfigs,
+    public DelegatingManager(PathConfigs pathConfigs,
                              WorkspaceHome instanceHome,
                              WorkspaceGroupHome groupHome,
                              WorkspaceCoschedHome coschedHome,
                              ReprFactory reprFactory,
                              DataConvert dataConvertImpl,
-                             Lager lagerImpl) {
+                             Lager lagerImpl,
+                             AsyncRequestHome siManagerImpl) {
         
-        if (creationImpl == null) {
-            throw new IllegalArgumentException("creationImpl may not be null");
-        }
-        this.creation = creationImpl;
-
         if (pathConfigs == null) {
             throw new IllegalArgumentException("pathConfigs may not be null");
         }
@@ -143,6 +149,11 @@ public class DelegatingManager implements Manager {
             throw new IllegalArgumentException("lagerImpl may not be null");
         }
         this.lager = lagerImpl;
+        
+        if (siManagerImpl == null) {
+            throw new IllegalArgumentException("siManagerImpl may not be null");
+        }
+        this.asyncHome = siManagerImpl;
     }
 
 
@@ -154,6 +165,16 @@ public class DelegatingManager implements Manager {
         this.accounting = accountingReader;
     }
 
+    // -------------------------------------------------------------------------
+    // MODULE SET (avoids circular dependency problem)
+    // -------------------------------------------------------------------------        
+
+    public void setCreation(CreationManager creationImpl) {
+        if (creationImpl == null) {
+            throw new IllegalArgumentException("creationImpl may not be null");
+        }
+        this.creation = creationImpl;
+    }
     
     // -------------------------------------------------------------------------
     // implements NimbusModule
@@ -204,9 +225,24 @@ public class DelegatingManager implements Manager {
                   CreationException,
                   MetadataException,
                   ResourceRequestDeniedException,
-                  SchedulingException {
+                  SchedulingException,
+                  AuthorizationException {
         
-        return this.creation.create(req, caller);
+        InstanceResource[] resources = this.creation.create(req, caller);
+        final _CreateResult result = this.repr._newCreateResult();        
+        if(resources.length > 0){
+            result.setCoscheduledID(resources[0].getEnsembleId());
+            result.setGroupID(resources[0].getGroupId());
+        }
+
+        try {
+            result.setVMs(getInstances(resources));
+        } catch (CannotTranslateException e) {
+            throw new MetadataException(e.getMessage(), e);
+        }
+        
+        
+        return result;
     }
 
     public void setDestructionTime(String id, int type, Calendar time)
@@ -679,7 +715,16 @@ public class DelegatingManager implements Manager {
             throw new CannotTranslateException("resource is missing");
         }
 
-        return this.dataConvert.getVM(resource);
+        VM vm = this.dataConvert.getVM(resource);
+        
+        if(VMConstants.LIFE_CYCLE_SPOT.equals(vm.getLifeCycle())){
+            AsyncRequest request = asyncHome.getRequestFromVM(Integer.valueOf(vm.getID()));
+            if(request != null){
+                ((_VM)vm).setSpotInstanceRequestID(request.getId());
+            }
+        }
+        
+        return vm;
     }
 
     protected VM[] getInstances(InstanceResource[] resources)
@@ -727,4 +772,194 @@ public class DelegatingManager implements Manager {
             throw new ManageException(e.getMessage(), e);
         }
     }
+
+    // -------------------------------------------------------------------------
+    // SPOT INSTANCES OPERATIONS
+    // -------------------------------------------------------------------------        
+
+    public SpotRequestInfo requestSpotInstances(SpotCreateRequest req, Caller caller)
+            throws AuthorizationException,
+                   CreationException,
+                   MetadataException,
+                   ResourceRequestDeniedException,
+                   SchedulingException {
+
+        AsyncRequest siRequest = this.creation.addAsyncRequest(req, caller);
+        
+        try {
+            return dataConvert.getSpotRequest(siRequest);
+        } catch (CannotTranslateException e) {
+            throw new MetadataException("Could not translate request from internal representation to RM API representation.", e);
+        }
+    }     
+    
+    public Double getSpotPrice() {
+        return asyncHome.getSpotPrice();
+    }
+
+
+    public SpotRequestInfo getSpotRequest(String requestID, Caller caller)
+            throws DoesNotExistException, ManageException, AuthorizationException {
+        return this.getSpotRequests(new String[]{requestID}, caller)[0];
+    }    
+    
+    public SpotRequestInfo[] getSpotRequests(String[] ids, Caller caller)
+            throws DoesNotExistException, ManageException, AuthorizationException {
+        
+        SpotRequestInfo[] result = new SpotRequestInfo[ids.length];
+        
+        for (int i = 0; i < ids.length; i++) {
+            AsyncRequest siReq = asyncHome.getRequest(ids[i]);
+            
+            authorizeCaller(caller, siReq);
+            
+            result[i] = getSpotRequest(siReq);
+        }
+        
+        return result;
+    }
+
+
+    public SpotRequestInfo[] getSpotRequestsByCaller(Caller caller)
+            throws ManageException {
+        
+        return this.getSpotRequests(asyncHome.getRequests(caller, true));
+    }
+
+
+    public SpotRequestInfo[] cancelSpotInstanceRequests(String[] ids, Caller caller) 
+            throws DoesNotExistException, AuthorizationException, ManageException {
+        SpotRequestInfo[] result = new SpotRequestInfo[ids.length];
+        
+        for (int i = 0; i < ids.length; i++) {
+            AsyncRequest siReq = asyncHome.getRequest(ids[i]);
+            
+            authorizeCaller(caller, siReq);
+            
+            result[i] = getSpotRequest(asyncHome.cancelRequest(ids[i]));
+        }
+        
+        return result;
+    }
+
+
+    private void authorizeCaller(Caller caller, AsyncRequest siReq)
+            throws AuthorizationException {
+        if(!caller.isSuperUser() && !siReq.getCaller().equals(caller)){
+            logger.warn("Caller " + caller + " is not authorized to gather information of asynchronous request from "
+                    + siReq.getCaller());
+            throw new AuthorizationException("Caller is not authorized to get information about this request");
+        }
+    }
+    
+    private SpotRequestInfo getSpotRequest(AsyncRequest siReq) throws ManageException {
+        try {
+            return dataConvert.getSpotRequest(siReq);
+        } catch (CannotTranslateException e) {
+            throw new ManageException(e.getMessage(), e);
+        }
+    }    
+    
+    private RequestInfo getRequestInfo(AsyncRequest backfillReq) throws ManageException {
+        try {
+            return dataConvert.getRequestInfo(backfillReq);
+        } catch (CannotTranslateException e) {
+            throw new ManageException(e.getMessage(), e);
+        }
+    }    
+    
+    private SpotRequestInfo[] getSpotRequests(AsyncRequest[] requests) throws ManageException{
+        SpotRequestInfo[] result = new SpotRequestInfo[requests.length];
+        
+        for (int i = 0; i < requests.length; i++) {
+            result[i] = getSpotRequest(requests[i]);
+        }
+        
+        return result;
+    }
+    
+    private RequestInfo[] getRequestInfos(AsyncRequest[] requests) throws ManageException{
+        RequestInfo[] result = new RequestInfo[requests.length];
+        
+        for (int i = 0; i < requests.length; i++) {
+            result[i] = getRequestInfo(requests[i]);
+        }
+        
+        return result;
+    }    
+
+    public SpotPriceEntry[] getSpotPriceHistory() throws ManageException {
+        
+        return getSpotPriceHistory(null, null);
+    }
+
+
+    public SpotPriceEntry[] getSpotPriceHistory(Calendar startDate,
+            Calendar endDate) throws ManageException {
+        List<SpotPriceEntry> result = asyncHome.getSpotPriceHistory(startDate, endDate);
+        
+        return result.toArray(new SpotPriceEntry[0]);
+    }
+
+    // -------------------------------------------------------------------------
+    // BACKFILL OPERATIONS
+    // -------------------------------------------------------------------------    
+    
+    public RequestInfo addBackfillRequest(AsyncCreateRequest req, Caller caller)
+            throws AuthorizationException, CoSchedulingException,
+            CreationException, MetadataException,
+            ResourceRequestDeniedException, SchedulingException {
+        AsyncRequest backfillRequest = this.creation.addAsyncRequest(req, caller);
+        
+        try {
+            return dataConvert.getRequestInfo(backfillRequest);
+        } catch (CannotTranslateException e) {
+            throw new MetadataException("Could not translate request from internal representation to RM API representation.", e);
+        }
+    }
+
+    public RequestInfo[] cancelBackfillRequests(String[] ids, Caller caller)
+            throws DoesNotExistException, AuthorizationException,
+            ManageException {
+        RequestInfo[] result = new RequestInfo[ids.length];
+        
+        for (int i = 0; i < ids.length; i++) {
+            AsyncRequest backfillReq = asyncHome.getRequest(ids[i]);
+            
+            authorizeCaller(caller, backfillReq);
+            
+            result[i] = getRequestInfo(asyncHome.cancelRequest(ids[i]));
+        }
+        
+        return result;
+    }
+
+    public RequestInfo getBackfillRequest(String requestID, Caller caller)
+            throws DoesNotExistException, ManageException,
+            AuthorizationException {
+        return this.getBackfillRequests(new String[]{requestID}, caller)[0];
+    }
+
+    public RequestInfo[] getBackfillRequests(String[] ids, Caller caller)
+            throws DoesNotExistException, ManageException,
+            AuthorizationException {
+        RequestInfo[] result = new RequestInfo[ids.length];
+        
+        for (int i = 0; i < ids.length; i++) {
+            AsyncRequest backfillReq = asyncHome.getRequest(ids[i]);
+            
+            authorizeCaller(caller, backfillReq);
+            
+            result[i] = getRequestInfo(backfillReq);
+        }
+        
+        return result;
+    }
+
+    public RequestInfo[] getBackfillRequestsByCaller(Caller caller)
+            throws ManageException {
+        
+        return this.getRequestInfos(asyncHome.getRequests(caller, false));
+    }    
+
 }

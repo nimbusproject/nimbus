@@ -41,6 +41,8 @@ public class VirtualMachine extends WorkspaceInstantiation {
     private String kernelParameters;
 
     private String node;
+    
+    private boolean preemptable;
 
     private String associationsNeeded;
 
@@ -142,6 +144,15 @@ public class VirtualMachine extends WorkspaceInstantiation {
 
     public void setMdUserData(String mdUserData) {
         this.mdUserData = mdUserData;
+    }
+
+    
+    public boolean isPreemptable() {
+        return preemptable;
+    }
+
+    public void setPreemptable(boolean preemptable) {
+        this.preemptable = preemptable;
     }
 
     public synchronized void addCustomizationNeed(CustomizationNeed need) {
@@ -279,6 +290,7 @@ public class VirtualMachine extends WorkspaceInstantiation {
                 ", partitions='" + parts + '\'' +
                 ", networksNeeded='" + this.associationsNeeded + '\'' +
                 ", customizationsNeeds length='" + custLen + '\'' +
+                ", preemptable: " + this.preemptable+ '\'' +
                 '}';
     }
 
@@ -320,6 +332,7 @@ public class VirtualMachine extends WorkspaceInstantiation {
         newvm.unPropagateRequired = vm.unPropagateRequired;
         newvm.vmm = vm.vmm;
         newvm.vmmVersion = vm.vmmVersion;
+        newvm.preemptable = vm.preemptable;
 
         if (vm.partitions != null) {
             newvm.partitions =

@@ -18,13 +18,19 @@ package org.nimbustools.api.defaults.services.rm;
 
 import org.nimbustools.api.brain.Logging;
 import org.nimbustools.api.repr.Advertised;
+import org.nimbustools.api.repr.AsyncCreateRequest;
 import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.CreateRequest;
 import org.nimbustools.api.repr.CreateResult;
 import org.nimbustools.api.repr.ReprFactory;
+import org.nimbustools.api.repr.RequestInfo;
+import org.nimbustools.api.repr.SpotCreateRequest;
+import org.nimbustools.api.repr.SpotPriceEntry;
+import org.nimbustools.api.repr.SpotRequestInfo;
 import org.nimbustools.api.repr.ShutdownTasks;
 import org.nimbustools.api.repr.Usage;
 import org.nimbustools.api.repr.vm.VM;
+import org.nimbustools.api.services.rm.AuthorizationException;
 import org.nimbustools.api.services.rm.BasicLegality;
 import org.nimbustools.api.services.rm.CoSchedulingException;
 import org.nimbustools.api.services.rm.CreationException;
@@ -39,6 +45,7 @@ import org.nimbustools.api.services.rm.SchedulingException;
 import org.nimbustools.api.services.rm.StateChangeCallback;
 
 import java.text.DateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 
 /**
@@ -122,7 +129,7 @@ public class DefaultManager implements Manager {
                                        "request:" + req);
         return null;
     }
-
+    
     public void setDestructionTime(String id, int type, Calendar time)
             throws DoesNotExistException, ManageException {
         Logging.debug("Manager.setDestructionTime() -- id '" + id +
@@ -269,4 +276,118 @@ public class DefaultManager implements Manager {
         Logging.debug("Manager.registerDestructionListener() -- id '" + id +
                 "', type '" + type + "', listener '" + listener + "'");
     }
+    
+    
+    // -------------------------------------------------------------------------
+    // SPOT INSTANCES OPERATIONS
+    // -------------------------------------------------------------------------        
+    
+    public SpotRequestInfo requestSpotInstances(SpotCreateRequest req, Caller caller) {
+
+        Logging.debug("Manager.requestSpotInstances() -- caller '" + caller + "', " +
+                "request:" + req);
+        
+        return null;
+    }        
+    
+    public Double getSpotPrice() {
+
+        Logging.debug("Manager.getSpotPrice()'");        
+        
+        return null;
+    }
+
+
+    public SpotRequestInfo getSpotRequest(String id, Caller caller) throws DoesNotExistException,
+            ManageException {
+        Logging.debug("Manager.getSpotRequest() -- caller '" + caller + "', " +
+                "id:" + id);
+        
+        return null;
+    }
+
+
+    public SpotRequestInfo[] getSpotRequestsByCaller(Caller caller)
+            throws ManageException {
+        Logging.debug("Manager.getSpotRequestsByCaller() -- caller '" + caller + "'");
+        
+        return null;
+    }
+
+
+    public SpotRequestInfo[] cancelSpotInstanceRequests(String[] ids, Caller caller) {
+        Logging.debug("Manager.cancelSpotInstanceRequests() -- caller '" + caller + "', " +
+                "ids:" + Arrays.toString(ids));
+        
+        return null;
+    }
+
+
+    public SpotRequestInfo[] getSpotRequests(String[] ids, Caller caller)
+            throws DoesNotExistException, ManageException,
+            AuthorizationException {
+        Logging.debug("Manager.getSpotRequest() -- caller '" + caller + "', " +
+                "ids:" + Arrays.toString(ids));
+        
+        return null;
+    }
+
+    public SpotPriceEntry[] getSpotPriceHistory() throws ManageException {
+        Logging.debug("Manager.getSpotPriceHistory()'");        
+        
+        return null;
+    }
+
+    public SpotPriceEntry[] getSpotPriceHistory(Calendar startDate,
+            Calendar endDate) throws ManageException {
+        Logging.debug("Manager.getSpotPriceHistory() startDate: " + startDate + ". endDate: " + endDate);
+        return null;
+    }
+
+    public RequestInfo addBackfillRequest(AsyncCreateRequest req, Caller caller)
+            throws AuthorizationException, CoSchedulingException,
+            CreationException, MetadataException,
+            ResourceRequestDeniedException, SchedulingException {
+        Logging.debug("Manager.addBackfillRequest() -- caller '" + caller + "', " +
+                "request:" + req);
+        
+        return null;
+    }
+
+    public RequestInfo[] cancelBackfillRequests(String[] ids, Caller caller)
+            throws DoesNotExistException, AuthorizationException,
+            ManageException {
+        Logging.debug("Manager.cancelBackfillRequests() -- caller '" + caller + "', " +
+                "ids:" + Arrays.toString(ids));
+        
+        return null;
+    }
+
+    public RequestInfo getBackfillRequest(String requestID, Caller caller)
+            throws DoesNotExistException, ManageException,
+            AuthorizationException {
+        Logging.debug("Manager.getBackfillRequest() -- caller '" + caller + "', " +
+                "id:" + requestID);
+        
+        return null;
+    }
+
+    public RequestInfo[] getBackfillRequestsByCaller(Caller caller)
+            throws ManageException {
+        Logging.debug("Manager.getBackfillRequestsByCaller() -- caller '" + caller + "'");
+        
+        return null;
+    }
+
+
+    public RequestInfo[] getBackfillRequests(String[] ids, Caller caller)
+            throws DoesNotExistException, ManageException,
+            AuthorizationException {
+
+        Logging.debug("Manager.getBackfillRequests() -- caller '" + caller + "', " +
+                "ids:" + Arrays.toString(ids));        
+        
+        return null;
+    }
+
 }

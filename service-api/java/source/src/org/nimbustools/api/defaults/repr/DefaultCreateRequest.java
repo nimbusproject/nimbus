@@ -34,22 +34,22 @@ public class DefaultCreateRequest implements _CreateRequest {
     // INSTANCE VARIABLES
     // -------------------------------------------------------------------------
 
-    private String name;
-    private VMFile[] vmFiles;
-    private NIC[] nics;
-    private Schedule schedule;
-    private String coscheduleID;
-    private boolean coscheduleDone;
-    private boolean coscheduleMember;
-    private ResourceAllocation ra;
-    private RequiredVMM requiredVMM;
-    private Kernel kernel;
-    private CustomizationRequest[] custRequests;
-    private String shutdownType;
-    private String initialStateRequest;
-    private Context context;
-    private String mdUserData;
-    private String sshKeyName;
+    protected String name;
+    protected VMFile[] vmFiles;
+    protected NIC[] nics;
+    protected Schedule schedule;
+    protected String coscheduleID;
+    protected boolean coscheduleDone;
+    protected boolean coscheduleMember;
+    protected ResourceAllocation ra;
+    protected RequiredVMM requiredVMM;
+    protected Kernel kernel;
+    protected CustomizationRequest[] custRequests;
+    protected String shutdownType;
+    protected String initialStateRequest;
+    protected Context context;
+    protected String mdUserData;
+    protected String sshKeyName;
     
 
     // -------------------------------------------------------------------------
@@ -119,7 +119,7 @@ public class DefaultCreateRequest implements _CreateRequest {
     public String getSshKeyName() {
         return sshKeyName;
     }
-
+    
     // -------------------------------------------------------------------------
     // implements org.nimbustools.api._repr._CreateRequest
     // -------------------------------------------------------------------------

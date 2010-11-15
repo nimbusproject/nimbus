@@ -24,7 +24,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
+<<<<<<< HEAD
 import java.util.*;
+=======
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Hashtable;
+import java.util.LinkedList;
+import java.util.List;
+>>>>>>> paulo/spotinstances
 
 import javax.sql.DataSource;
 
@@ -44,6 +52,9 @@ import org.globus.workspace.service.InstanceResource;
 import org.globus.workspace.service.binding.vm.CustomizationNeed;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.globus.workspace.service.binding.vm.VirtualMachinePartition;
+import org.nimbustools.api._repr._SpotPriceEntry;
+import org.nimbustools.api.repr.ReprFactory;
+import org.nimbustools.api.repr.SpotPriceEntry;
 import org.nimbustools.api.services.rm.DoesNotExistException;
 import org.nimbustools.api.services.rm.ManageException;
 
@@ -68,6 +79,7 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
     private final Lager lager;
     private final DataSource dataSource;
     private final boolean dbTrace;
+    private final ReprFactory repr;
 
     // caches, todo: ehcache
     private Hashtable associations;
@@ -79,7 +91,8 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
 
     public PersistenceAdapterImpl(DataSource dataSourceImpl,
                                   Lager lagerImpl,
-                                  DBLoader loader) throws Exception {
+                                  DBLoader loader,
+                                  ReprFactory reprImpl) throws Exception {
         
         if (dataSourceImpl == null) {
             throw new IllegalArgumentException("dataSource may not be null");
@@ -92,6 +105,11 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
         this.lager = lagerImpl;
         this.dbTrace = lagerImpl.dbLog;
 
+        if (reprImpl == null) {
+            throw new IllegalArgumentException("reprImpl may not be null");
+        }
+        this.repr = reprImpl;        
+        
         if (loader == null) {
             throw new IllegalArgumentException("loader may not be null");
         }
@@ -1969,6 +1987,32 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
                 int memory = rs.getInt(1);
                 total += memory;
 
+<<<<<<< HEAD
+=======
+                Hashtable entries = new Hashtable();
+                while (rs2.next()) {
+                    String hostname = rs2.getString(2);
+                    String assocs = rs2.getString(3);
+                    if (hostname == null) {
+                        logger.error("hostname should never be null here");
+                        continue;
+                    }
+                    if (assocs == null) {
+                        logger.error("assocs should never be null here");
+                        continue;
+                    }
+                    ResourcepoolEntry entry =
+                                new ResourcepoolEntry(name,
+                                                      hostname,
+                                                      rs2.getInt(4),
+                                                      rs2.getInt(5),
+                                                      rs2.getInt(6),
+                                                      assocs);
+                    entries.put(hostname, entry);
+                }
+                resourcepool.setEntries(entries);
+                pools.put(name,resourcepool);
+>>>>>>> paulo/spotinstances
                 if (this.dbTrace) {
                     logger.trace("memoryUsedOnPoolnode(): found " + memory +
                             " MB for one VM, new total is " + total);
@@ -2419,8 +2463,13 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
                             hostname,
                             rs.getInt(4),
                             rs.getInt(5),
+<<<<<<< HEAD
                             assocs,
                             rs.getBoolean(6));
+=======
+                            rs.getInt(6),
+                            assocs);
+>>>>>>> paulo/spotinstances
                 entries.add(entry);
 
             } while (rs.next());
@@ -2445,6 +2494,345 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
                 logger.error("SQLException in finally cleanup", sql);
             }
         }                
-    }    
+    }
 
+
+    private synchronized Integer getTotalMemory(String sql) throws WorkspaceDatabaseException {
+
+        Connection c = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            c = getConnection();
+
+            pstmt = c.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+            
+            if (rs == null) {
+                if (this.dbTrace) {
+                    logger.trace("getTotalMemory(): null result so " +
+                                 "total is 0 MB");
+                }
+                return 0;
+            }
+
+            Integer total = 0;
+
+            if(rs.next()){
+                total = rs.getInt(1);
+            } 
+            
+            return total;
+            
+        } catch(SQLException e) {
+            logger.error("",e);
+            throw new WorkspaceDatabaseException(e);
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+                if (c != null) {
+                    returnConnection(c);
+                }
+            } catch (SQLException e) {
+                logger.error("SQLException in finally cleanup", e);
+            }
+        }
+    }
+
+
+    public Integer getTotalAvailableMemory(Integer multipleOf) throws WorkspaceDatabaseException {
+        if (this.dbTrace) {
+            logger.trace("getTotalAvailableMemory(" + multipleOf + ")");
+        }
+                
+        Integer total = 0;
+        
+        Connection c = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            c = getConnection();
+
+            pstmt = c.prepareStatement(SQL_SELECT_MULTIPLE_OF_AVAILABLE_MEMORY);
+            pstmt.setInt(1, multipleOf);
+            rs = pstmt.executeQuery();
+            
+            if (rs == null) {
+                if (this.dbTrace) {
+                    logger.trace("getTotalMemory(): null result so " +
+                                 "total is 0 MB");
+                }
+                return 0;
+            }
+
+            if(rs.next()){
+                total = rs.getInt(1);
+            } 
+                        
+        } catch(SQLException e) {
+            logger.error("",e);
+            throw new WorkspaceDatabaseException(e);
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+                if (c != null) {
+                    returnConnection(c);
+                }
+            } catch (SQLException e) {
+                logger.error("SQLException in finally cleanup", e);
+            }
+        }        
+        
+        if (this.dbTrace) {
+            logger.trace("getTotalAvailableMemory(" + multipleOf + "): total available memory = " + total);
+        }
+
+        return total;
+    }
+
+    public Integer getTotalAvailableMemory() throws WorkspaceDatabaseException {
+        if (this.dbTrace) {
+            logger.trace("getTotalAvailableMemory()");
+        }
+        
+        Integer total = getTotalMemory(SQL_SELECT_TOTAL_AVAILABLE_MEMORY);
+        
+        if (this.dbTrace) {
+            logger.trace("getTotalAvailableMemory(): total max memory = " + total);
+        }
+
+        return total;
+    }
+    
+    public Integer getTotalMaxMemory() throws WorkspaceDatabaseException {
+        if (this.dbTrace) {
+            logger.trace("getTotalMaxMemory()");
+        }
+        
+        Integer total = getTotalMemory(SQL_SELECT_TOTAL_MAX_MEMORY);
+        
+        if (this.dbTrace) {
+            logger.trace("getTotalMaxMemory(): total max memory = " + total);
+        }
+
+        return total;
+    }
+
+
+    public Integer getTotalPreemptableMemory() throws WorkspaceDatabaseException {
+        if (this.dbTrace) {
+            logger.trace("getTotalPreemptableMemory()");
+        }
+        
+        Integer total = getTotalMemory(SQL_SELECT_TOTAL_PREEMPTABLE_MEMORY);
+        
+        if (this.dbTrace) {
+            logger.trace("getTotalPreemptableMemory(): total pre-emptable memory = " + total);
+        }
+
+        return total;
+    }
+    
+    public Integer getUsedNonPreemptableMemory() throws WorkspaceDatabaseException {
+        if (this.dbTrace) {
+            logger.trace("getUsedNonPreemptableMemory()");
+        }
+        
+        Integer total = getTotalMemory(SQL_SELECT_USED_NON_PREEMPTABLE_MEMORY);
+        
+        if (this.dbTrace) {
+            logger.trace("getUsedNonPreemptableMemory(): used non pre-emptable memory = " + total);
+        }
+
+        return total;
+    }
+
+
+    @Override
+    public void addSpotPriceHistory(Calendar timeStamp, Double newPrice) throws WorkspaceDatabaseException{
+        if (this.dbTrace) {
+            logger.trace("addSpotPriceHistory(): timeStamp = " + timeStamp + ", spot price = " + newPrice);
+        }
+
+        Connection c = null;
+        PreparedStatement pstmt = null;
+        try {
+            c = getConnection();
+            pstmt = c.prepareStatement(SQL_INSERT_SPOT_PRICE);
+
+            if (timeStamp != null) {
+                pstmt.setLong(1,
+                    new Long(timeStamp.getTimeInMillis()));
+            } else {
+                pstmt.setInt(1, 0);
+            }
+
+            pstmt.setDouble(2, newPrice);
+            final int updated = pstmt.executeUpdate();
+
+            if (this.dbTrace) {
+                logger.trace("addSpotPriceHistory(): updated " + updated + " rows");
+            }
+
+        } catch(SQLException e) {
+            logger.error("",e);
+            throw new WorkspaceDatabaseException(e);
+        } finally {
+            try {
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+                if (c != null) {
+                    returnConnection(c);
+                }
+            } catch (SQLException sql) {
+                logger.error("SQLException in finally cleanup", sql);
+            }
+        }
+    }
+
+
+    public List<SpotPriceEntry> getSpotPriceHistory(Calendar startDate,
+            Calendar endDate) throws WorkspaceDatabaseException {
+        if (this.dbTrace) {
+            logger.trace("getSpotPriceHistory() startDate: " + startDate == null? null : startDate.getTime() 
+                            + ". endDate: " + endDate == null? null : endDate.getTime());
+        }
+
+        Connection c = null;
+        Statement st = null;
+        ResultSet rs = null;
+
+        try {
+            c = getConnection();
+            st = c.createStatement();
+            
+            String statement = SQL_SELECT_SPOT_PRICE;
+            
+            if(startDate != null || endDate != null){
+                statement += " WHERE ";
+                
+                if(startDate != null){
+                    statement += "tstamp >= " + startDate.getTimeInMillis(); 
+                    if(endDate != null){
+                        statement += " AND";
+                    }
+                }
+                
+                if(endDate != null){
+                    statement += " tstamp <= " + endDate.getTimeInMillis();
+                }
+            }
+            
+            rs = st.executeQuery(statement);
+            
+            if (rs == null || !rs.next()) {
+                if (lager.traceLog) {
+                    logger.debug("no previous spot price history");
+                }
+                return new LinkedList<SpotPriceEntry>();
+            }
+
+            List<SpotPriceEntry> result = new LinkedList<SpotPriceEntry>();
+            do {
+                // rs was next'd above already
+                Long timeMillis = rs.getLong(1);                
+                Double spotPrice = rs.getDouble(2);
+                _SpotPriceEntry spotPriceEntry = repr._newSpotPriceEntry();
+                
+                Calendar timeStamp = Calendar.getInstance();
+                timeStamp.setTimeInMillis(timeMillis);
+
+                spotPriceEntry.setTimeStamp(timeStamp);
+                spotPriceEntry.setSpotPrice(spotPrice);
+                
+                result.add(spotPriceEntry);
+                
+                if (this.dbTrace) {
+                    logger.trace("found spot price entry: '" +
+                            timeStamp + " : " + spotPrice + "'");
+                }
+            } while (rs.next());
+
+            return result;
+            
+        } catch(SQLException e) {
+            logger.error("",e);
+            throw new WorkspaceDatabaseException(e);
+        } finally {
+            try {
+                if (st != null) {
+                    st.close();
+                }
+                if (rs != null) {
+                    rs.close();
+                }
+                if (c != null) {
+                    returnConnection(c);
+                }
+            } catch (SQLException sql) {
+                logger.error("SQLException in finally cleanup", sql);
+            }
+        }
+    }
+    
+    public Double getLastSpotPrice() throws WorkspaceDatabaseException {
+        if (this.dbTrace) {
+            logger.trace("getLastSpotPrice()");
+        }
+
+        Connection c = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            c = getConnection();
+            pstmt = c.prepareStatement(SQL_SELECT_LAST_SPOT_PRICE);
+            
+            rs = pstmt.executeQuery();
+            
+            if (rs == null || !rs.next()) {
+                if (lager.traceLog) {
+                    logger.debug("no previous spot price");
+                }
+                return null;
+            }
+
+            double result = rs.getDouble(1);
+            
+            if(rs.next()){
+                logger.warn("Wrong behavior: multiple spot prices from last time stamp.");
+            }
+            
+            return result;
+            
+        } catch(SQLException e) {
+            logger.error("",e);
+            throw new WorkspaceDatabaseException(e);
+        } finally {
+            try {
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+                if (rs != null) {
+                    rs.close();
+                }
+                if (c != null) {
+                    returnConnection(c);
+                }
+            } catch (SQLException sql) {
+                logger.error("SQLException in finally cleanup", sql);
+            }
+        }
+    }
 }

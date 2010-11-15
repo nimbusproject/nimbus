@@ -18,25 +18,24 @@ package org.globus.workspace.service.binding.defaults;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.globus.workspace.WorkspaceConstants;
+import org.globus.workspace.WorkspaceException;
+import org.globus.workspace.service.binding.BindCustomizations;
+import org.globus.workspace.service.binding.BindDisks;
+import org.globus.workspace.service.binding.BindInitialState;
+import org.globus.workspace.service.binding.BindKernel;
+import org.globus.workspace.service.binding.BindResourceRequest;
+import org.globus.workspace.service.binding.BindSchedule;
+import org.globus.workspace.service.binding.BindShutdownMechanism;
+import org.globus.workspace.service.binding.BindVMM;
+import org.globus.workspace.service.binding.BindingAdapter;
+import org.globus.workspace.service.binding.vm.CustomizationNeed;
+import org.globus.workspace.service.binding.vm.VirtualMachine;
+import org.globus.workspace.service.binding.vm.VirtualMachineDeployment;
 import org.nimbustools.api.repr.CreateRequest;
 import org.nimbustools.api.repr.vm.ResourceAllocation;
 import org.nimbustools.api.services.rm.CreationException;
 import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
-import org.globus.workspace.WorkspaceConstants;
-import org.globus.workspace.WorkspaceException;
-import org.globus.workspace.service.binding.BindInitialState;
-import org.globus.workspace.service.binding.BindSchedule;
-import org.globus.workspace.service.binding.BindShutdownMechanism;
-import org.globus.workspace.service.binding.BindingAdapter;
-import org.globus.workspace.service.binding.BindCustomizations;
-import org.globus.workspace.service.binding.BindKernel;
-import org.globus.workspace.service.binding.BindResourceRequest;
-import org.globus.workspace.service.binding.BindDisks;
-import org.globus.workspace.service.binding.BindVMM;
-import org.globus.workspace.service.binding.BindNetwork;
-import org.globus.workspace.service.binding.vm.CustomizationNeed;
-import org.globus.workspace.service.binding.vm.VirtualMachine;
-import org.globus.workspace.service.binding.vm.VirtualMachineDeployment;
 
 public class DefaultBindingAdapter implements BindingAdapter,
                                               WorkspaceConstants {
@@ -61,7 +60,6 @@ public class DefaultBindingAdapter implements BindingAdapter,
     protected final BindResourceRequest bindResourceRequest;
     protected final BindDisks bindDisks;
     protected final BindVMM bindVMM;
-    protected final BindNetwork bindNetwork;
 
     
     // -------------------------------------------------------------------------
@@ -75,8 +73,7 @@ public class DefaultBindingAdapter implements BindingAdapter,
                                  BindKernel bindKernelImpl,
                                  BindDisks bindDisksImpl,
                                  BindResourceRequest bindResourceRequestImpl,
-                                 BindVMM bindVMMImpl,
-                                 BindNetwork bindNetworkImpl) {
+                                 BindVMM bindVMMImpl) {
 
         if (bindScheduleImpl == null) {
             throw new IllegalArgumentException("bindScheduleImpl may not be null");
@@ -117,11 +114,6 @@ public class DefaultBindingAdapter implements BindingAdapter,
             throw new IllegalArgumentException("bindVMMImpl may not be null");
         }
         this.bindVMM = bindVMMImpl;
-
-        if (bindNetworkImpl == null) {
-            throw new IllegalArgumentException("bindNetworkImpl may not be null");
-        }
-        this.bindNetwork = bindNetworkImpl;
     }
 
 
@@ -147,6 +139,8 @@ public class DefaultBindingAdapter implements BindingAdapter,
         
         final String name = req.getName();
         vm.setName(name);
+        
+        vm.setPreemptable(req.getRequestedRA().isSpotInstance());
 
         if (numNodes > 1) {
             logger.debug("binding " + numNodes + " virtual machines: " + name);
@@ -179,7 +173,6 @@ public class DefaultBindingAdapter implements BindingAdapter,
                 throw new CreationException(e.getMessage(), e);
             }
         }
-        this.bindNetwork.consume(vms, req.getRequestedNics());
         
         return vms;
     }
@@ -191,12 +184,12 @@ public class DefaultBindingAdapter implements BindingAdapter,
     
     public void backOutAllocations(VirtualMachine vm)
             throws WorkspaceException {
-        this.bindNetwork.backOutIPAllocations(vm);
+        //this.bindNetwork.backOutIPAllocations(vm);
     }
 
     public void backOutAllocations(VirtualMachine[] vms)
             throws WorkspaceException {
-        this.bindNetwork.backOutIPAllocations(vms);
+        //this.bindNetwork.backOutIPAllocations(vms);
     }
 
 

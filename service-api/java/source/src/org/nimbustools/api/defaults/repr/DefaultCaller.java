@@ -56,10 +56,45 @@ public class DefaultCaller implements _Caller {
         this.superuser = (identity == null);
     }
 
+    public void setSuperUser(boolean superuser) {
+        this.superuser = superuser;
+    }    
+    
     public void setSubject(Subject subject) {
         this.subject = subject;
     }
 
+    // -------------------------------------------------------------------------
+    // equals and hashCode
+    // -------------------------------------------------------------------------    
+    
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result
+                + ((identity == null) ? 0 : identity.hashCode());
+        result = prime * result + (superuser ? 1231 : 1237);
+        return result;
+    }
+
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        DefaultCaller other = (DefaultCaller) obj;
+        if (identity == null) {
+            if (other.identity != null)
+                return false;
+        } else if (!identity.equals(other.identity))
+            return false;
+        if (superuser != other.superuser)
+            return false;
+        return true;
+    }
+    
     // -------------------------------------------------------------------------
     // DEBUG STRING
     // -------------------------------------------------------------------------

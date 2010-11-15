@@ -20,7 +20,7 @@ import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.ServiceRM;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.ServiceGeneral;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.ServiceSecurity;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.ServiceImage;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.*;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.*;
 import org.nimbustools.messaging.gt4_0.common.CommonUtil;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.Log;

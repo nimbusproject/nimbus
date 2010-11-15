@@ -12,7 +12,6 @@
     <bean id="nimbus-rm.manager"
           class="org.globus.workspace.manager.DelegatingManager">
 
-        <constructor-arg ref="nimbus-rm.creation"/>
         <constructor-arg ref="nimbus-rm.PathConfigs"/>
         <constructor-arg ref="nimbus-rm.home.instance"/>
         <constructor-arg ref="nimbus-rm.home.group"/>
@@ -20,10 +19,16 @@
         <constructor-arg ref="nimbus-repr.ReprFactory"/>
         <constructor-arg ref="nimbus-rm.persistence.DataConvert"/>
         <constructor-arg ref="nimbus-rm.loglevels" />
+        <constructor-arg ref="nimbus-rm.async.manager" />
 
         <property name="accounting"
                   ref="nimbus-rm.accounting" />
-    </bean>
+ 
+        <!-- set after object creation time to avoid circular dep -->
+        <property name="creation"
+		  ref="nimbus-rm.creation" />
+
+   </bean>
 
     
     <!-- ===================================================================
@@ -73,7 +78,7 @@
          =================================================================== -->
 
     <bean id="nimbus-rm.creation"
-          class="org.globus.workspace.creation.defaults.DefaultCreation">
+          class="org.globus.workspace.creation.defaults.CreationManagerImpl">
 
         <constructor-arg ref="nimbus-rm.LockManager" />
         <constructor-arg ref="nimbus-rm.BasicLegality" />
@@ -90,10 +95,14 @@
         <constructor-arg ref="nimbus-rm.home.cosched" />        
         <constructor-arg ref="other.timerManager" />
         <constructor-arg ref="nimbus-rm.loglevels" />
+        <constructor-arg ref="nimbus-rm.service.binding.BindNetwork" />
 
         <property name="accountingEventAdapter"
                   ref="nimbus-rm.accounting" />
 
+        <!-- set after object creation time to avoid circular dep -->
+        <property name="siManager"
+		  ref="nimbus-rm.async.manager" />
     </bean>
 
 
@@ -292,6 +301,7 @@
         <constructor-arg ref="nimbus-rm.service.binding.GlobalPolicies" />
         <constructor-arg ref="nimbus-rm.persistence.DataConvert" />
         <constructor-arg ref="nimbus-rm.loglevels" />
+	<constructor-arg ref="nimbus-rm.service.binding.BindNetwork" />
 
         <!-- for StatefulResourceImpl: -->
         <constructor-arg ref="nimbus-rm.scheduler.Scheduler" />
@@ -398,6 +408,7 @@
         <constructor-arg ref="other.MainDataSource" />
         <constructor-arg ref="nimbus-rm.loglevels" />
         <constructor-arg ref="nimbus-rm.persistence.dbloader" />
+	    <constructor-arg ref="nimbus-repr.ReprFactory"/>
 
     </bean>
 
@@ -517,20 +528,49 @@
 
         <constructor-arg ref="nimbus-rm.LockManager" />
 
-        <!-- definition of this bean is in "resource-locator-ACTIVE.xml" -->
-        <constructor-arg ref="nimbus-rm.scheduler.SlotManagement" />
-
         <constructor-arg ref="other.MainDataSource" />
         <constructor-arg ref="other.timerManager" />
         <constructor-arg ref="nimbus-rm.service.binding.GlobalPolicies" />
         <constructor-arg ref="nimbus-rm.persistence.DataConvert" />
         <constructor-arg ref="nimbus-rm.loglevels" />
 
-
-
         <!-- set after object creation time to avoid circular dep with home -->
         <property name="home" ref="nimbus-rm.home.instance" />
+        <property name="siManager"
+                   ref="nimbus-rm.async.manager" /> 
+        <!-- definition of this bean is in "resource-locator-ACTIVE.xml" -->
+        <property name="slotManager" 
+        		   ref="nimbus-rm.scheduler.SlotManagement" />                   
+    </bean>
 
+    <!-- ===================================================================
+         org.globus.workspace.async.* interfaces
+         =================================================================== -->
+
+    <bean id="nimbus-rm.si.pricingmodel"
+          class="$SI{si.pricingmodel}" />
+
+    <bean id="nimbus-rm.async.manager"
+          class="org.globus.workspace.async.AsyncRequestManagerImpl">
+
+        <constructor-arg ref="nimbus-rm.persistence.PersistenceAdapter" />
+        <constructor-arg ref="nimbus-rm.loglevels" />
+        <constructor-arg ref="nimbus-rm.home.instance"/>
+        <constructor-arg ref="nimbus-rm.home.group"/>
+        <constructor-arg value="$SI{si.minprice}" />        
+        <constructor-arg ref="nimbus-rm.si.pricingmodel" />
+ 
+        <!-- set after object creation time to avoid circular dep -->
+        <property name="creationManager" ref="nimbus-rm.creation" />
+        
+        <!-- Property values coming via spotinstances.conf -->        
+        <property name="minReservedMem"
+                  value="$SI{async.policies.minreservedmem}" />
+        <property name="maxUtilization"
+                  value="$SI{async.policies.maxutilization}" />
+        <property name="instanceMem"
+                  value="$ELASTIC{memory.$SI{si.instancetype}}" />                                    
+                          
     </bean>
 
     

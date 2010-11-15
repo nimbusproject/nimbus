@@ -32,10 +32,11 @@ public interface SlotManagement {
 
     /**
      * @param request a single workspace or homogenous group-workspace request
+     * @param premptable indicates if the space can be pre-empted by higher priority reservations
      * @return Reservation res
      * @throws ResourceRequestDeniedException exc
      */
-    public Reservation reserveSpace(NodeRequest request)
+    public Reservation reserveSpace(NodeRequest request, boolean preemptable)
                   throws ResourceRequestDeniedException;
 
     /**

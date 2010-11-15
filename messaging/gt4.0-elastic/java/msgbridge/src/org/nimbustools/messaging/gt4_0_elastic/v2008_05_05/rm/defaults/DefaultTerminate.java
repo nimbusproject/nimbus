@@ -25,13 +25,13 @@ import org.nimbustools.api.repr.vm.State;
 import org.nimbustools.api.services.rm.Manager;
 import org.nimbustools.api.services.rm.DoesNotExistException;
 import org.nimbustools.api.services.rm.ManageException;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.TerminateInstancesInfoType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.TerminateInstancesItemType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.TerminateInstancesType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.TerminateInstancesResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.InstanceStateType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.TerminateInstancesResponseItemType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.TerminateInstancesResponseInfoType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.InstanceIdSetType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.InstanceIdType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.InstanceStateChangeSetType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.InstanceStateChangeType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.TerminateInstancesType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.TerminateInstancesResponseType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.InstanceStateType;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.IDMappings;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.Terminate;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.StateMap;
@@ -228,28 +228,28 @@ public class DefaultTerminate implements Terminate {
             }
         }
 
-        final List retList = new LinkedList();
+        final List<InstanceStateChangeType> retList = 
+                            new LinkedList<InstanceStateChangeType>();
 
         for (int i = 0; i < newStates.length; i++) {
 
             if (currentStates[i] == null) {
                 continue;
             }
-
+            
             retList.add(
-                    new TerminateInstancesResponseItemType(elasticInstIDs[i],
-                                                           currentStates[i],
-                                                           newStates[i]));
+                    new InstanceStateChangeType(currentStates[i], 
+                                                elasticInstIDs[i], 
+                                                newStates[i]));
         }
 
 
-        final TerminateInstancesResponseItemType[] tirits =
-                (TerminateInstancesResponseItemType[])
-                    retList.toArray(
-                            new TerminateInstancesResponseItemType[retList.size()]);
+        final InstanceStateChangeType[] tirits =
+                retList.toArray(
+                            new InstanceStateChangeType[retList.size()]);
 
-        final TerminateInstancesResponseInfoType tirtSet =
-                                new TerminateInstancesResponseInfoType();
+        final InstanceStateChangeSetType tirtSet =
+                                new InstanceStateChangeSetType();
         tirtSet.setItem(tirits);
         final TerminateInstancesResponseType tirt =
                                 new TerminateInstancesResponseType();
@@ -268,19 +268,19 @@ public class DefaultTerminate implements Terminate {
             throw new IllegalArgumentException("req may not be null");
         }
 
-        final List elasticIDs = new LinkedList();
+        final List<String> elasticIDs = new LinkedList<String>();
 
-        final TerminateInstancesInfoType tiitSet = req.getInstancesSet();
+        final InstanceIdSetType tiitSet = req.getInstancesSet();
         if (tiitSet != null) {
 
-            final TerminateInstancesItemType[] tiits = tiitSet.getItem();
+            final InstanceIdType[] tiits = tiitSet.getItem();
 
             if (tiits == null || tiits.length == 0) {
                 return EMPTY_STRING_ARRAY; // *** EARLY RETURN ***
             }
 
             for (int i = 0; i < tiits.length; i++) {
-                final TerminateInstancesItemType tiit = tiits[i];
+                final InstanceIdType tiit = tiits[i];
                 if (tiit != null) {
                     final String idUntrimmed = tiit.getInstanceId();
                     if (idUntrimmed != null) {

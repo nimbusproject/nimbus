@@ -64,6 +64,15 @@
                   value="$CUMULUS{" />
     </bean>
 
+    <bean id="siSettings"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+
+        <property name="location"
+                  value="$NIMBUS_HOME/services/etc/nimbus/workspace-service/spotinstances.conf" />
+        <property name="placeholderPrefix"
+                  value="$SI{" />
+    </bean>
+
     <bean id="accountingSettings"
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 
@@ -126,6 +135,7 @@
                   value="$DERBY{" />
         
     </bean>
+<<<<<<< HEAD
     
     <bean id="adminSettings"
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
@@ -134,4 +144,14 @@
         <property name="placeholderPrefix"
                   value="$ADMIN{" />
     </bean>
+=======
+
+    <bean id="elasticSettings"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+
+        <property name="location" value="$NIMBUS_HOME/services/etc/nimbus/elastic/elastic.conf" />
+        <property name="placeholderPrefix" value="$ELASTIC{" />
+    </bean>
+
+>>>>>>> paulo/spotinstances
 </beans>

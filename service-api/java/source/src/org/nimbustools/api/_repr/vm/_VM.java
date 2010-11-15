@@ -38,4 +38,7 @@ public interface _VM extends VM {
     public void setLaunchIndex(int launchIndex);
     public void setMdUserData(String mdUserData);
     public void setSshKeyName(String keyName);
+    
+    public void setLifeCycle(String lifeCycle);
+    public void setSpotInstanceRequestID(String reqID);
 }

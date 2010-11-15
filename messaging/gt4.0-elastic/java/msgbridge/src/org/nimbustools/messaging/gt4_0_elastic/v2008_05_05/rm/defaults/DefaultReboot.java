@@ -20,9 +20,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.services.rm.Manager;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.RebootInstancesInfoType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.RebootInstancesItemType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.RebootInstancesType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.RebootInstancesInfoType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.RebootInstancesItemType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.RebootInstancesType;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.IDMappings;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.Reboot;
 

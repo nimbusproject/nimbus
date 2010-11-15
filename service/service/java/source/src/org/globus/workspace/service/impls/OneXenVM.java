@@ -20,6 +20,7 @@ import org.globus.workspace.persistence.impls.VMPersistence;
 import org.globus.workspace.persistence.PersistenceAdapter;
 import org.globus.workspace.persistence.DataConvert;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
+import org.globus.workspace.service.binding.BindNetwork;
 import org.globus.workspace.service.binding.BindingAdapter;
 import org.globus.workspace.service.binding.GlobalPolicies;
 import org.globus.workspace.Lager;
@@ -35,13 +36,14 @@ public class OneXenVM extends StatefulResourceImpl
                     GlobalPolicies globalsImpl,
                     DataConvert dataConvertImpl,
                     Lager lagerImpl,
+                    BindNetwork bindNetworkImpl,
                     Scheduler schedulerImpl,
                     LockManager lockMgrImpl,
                     StateTransition transitionImpl,
                     TimerManager timerManagerImpl) {
         
         super(persistenceImpl, bindingImpl, globalsImpl, dataConvertImpl,
-              lagerImpl, schedulerImpl, lockMgrImpl, transitionImpl,
+              lagerImpl, bindNetworkImpl, schedulerImpl, lockMgrImpl, transitionImpl,
               timerManagerImpl);
     }
 

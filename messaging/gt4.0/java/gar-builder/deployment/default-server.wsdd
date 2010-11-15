@@ -54,13 +54,13 @@
              style="document">
 
         <parameter name="allowedMethodsClass"
-                   value="org.nimbustools.messaging.gt4_0_elastic.generated.v2009_08_15.AmazonEC2PortType"/>
+                   value="org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.AmazonEC2PortType"/>
         <parameter name="handlerClass"
                    value="org.globus.axis.providers.RPCProvider"/>
         <parameter name="className"
                    value="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.service.LocalService"/>
 
-        <wsdlFile>share/schema/elastic-2009-08-15/ec2.wsdl</wsdlFile>
+        <wsdlFile>share/schema/elastic-2010-06-15/ec2.wsdl</wsdlFile>
 
         <parameter name="scope"
                    value="Application"/>

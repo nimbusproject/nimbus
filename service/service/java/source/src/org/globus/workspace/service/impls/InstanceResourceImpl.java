@@ -26,6 +26,7 @@ import org.globus.workspace.accounting.AccountingEventAdapter;
 import org.globus.workspace.persistence.DataConvert;
 import org.globus.workspace.persistence.PersistenceAdapter;
 import org.globus.workspace.service.InstanceResource;
+import org.globus.workspace.service.binding.BindNetwork;
 import org.globus.workspace.service.binding.BindingAdapter;
 import org.globus.workspace.service.binding.GlobalPolicies;
 import org.globus.workspace.service.binding.authorization.CreationAuthorizationCallout;
@@ -71,6 +72,7 @@ public abstract class InstanceResourceImpl implements InstanceResource {
 
     protected final PersistenceAdapter persistence;
     protected final BindingAdapter binding;
+    protected final BindNetwork bindNetwork;
     protected final GlobalPolicies globals;
     protected final DataConvert dataConvert;
     protected final Lager lager;
@@ -116,7 +118,8 @@ public abstract class InstanceResourceImpl implements InstanceResource {
                                    BindingAdapter bindingImpl,
                                    GlobalPolicies globalsImpl,
                                    DataConvert dataConvertImpl,
-                                   Lager lagerImpl) {
+                                   Lager lagerImpl,
+                                   BindNetwork bindNetworkImpl) {
 
         if (lagerImpl == null) {
             throw new IllegalArgumentException("lagerImpl may not be null");
@@ -143,6 +146,11 @@ public abstract class InstanceResourceImpl implements InstanceResource {
             throw new IllegalArgumentException("da may not be null");
         }
         this.dataConvert = dataConvertImpl;
+        
+        if (bindNetworkImpl == null) {
+            throw new IllegalArgumentException("bindNetworkImpl may not be null");
+        }
+        this.bindNetwork = bindNetworkImpl;         
     }
 
 
@@ -811,7 +819,8 @@ public abstract class InstanceResourceImpl implements InstanceResource {
 
         try {
             logger.debug("backing out allocations for " + Lager.id(this.id));
-            this.binding.backOutAllocations(this.vm);
+            this.bindNetwork.backOutIPAllocations(vm);
+            //this.binding.backOutAllocations(this.vm);
         } catch (WorkspaceException e) {
             // candidate for admin log/trigger of severe issues
             final String err = "error retiring allocations, " +

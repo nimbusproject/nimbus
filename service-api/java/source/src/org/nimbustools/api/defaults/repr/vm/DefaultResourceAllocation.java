@@ -30,7 +30,7 @@ public class DefaultResourceAllocation implements _ResourceAllocation {
     private int cpuPercentage = -1;
     private int memory;
     private int nodeNumber;
-
+    private boolean spotInstance;
 
     // -------------------------------------------------------------------------
     // implements org.nimbustools.api.repr.vm.ResourceAllocation
@@ -61,6 +61,9 @@ public class DefaultResourceAllocation implements _ResourceAllocation {
         return this.nodeNumber;
     }
     
+    public boolean isSpotInstance() {
+        return spotInstance;
+    }    
 
     // -------------------------------------------------------------------------
     // implements org.nimbustools.api.repr.vm.ResourceAllocation
@@ -89,7 +92,10 @@ public class DefaultResourceAllocation implements _ResourceAllocation {
     public void setNodeNumber(int nodeNumber) {
         this.nodeNumber = nodeNumber;
     }
-
+    
+    public void setSpotInstance(boolean preemptable) {
+        this.spotInstance = preemptable;
+    }    
 
     // -------------------------------------------------------------------------
     // DEBUG STRING
@@ -105,4 +111,48 @@ public class DefaultResourceAllocation implements _ResourceAllocation {
                 ", nodeNumber=" + nodeNumber +
                 '}';
     }
+
+    // -------------------------------------------------------------------------
+    // EQUALS AND HASHCODE
+    // -------------------------------------------------------------------------      
+    
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result
+                + ((architecture == null) ? 0 : architecture.hashCode());
+        result = prime * result + cpuPercentage;
+        result = prime * result + indCpuSpeed;
+        result = prime * result + memory;
+        result = prime * result + nodeNumber;
+        result = prime * result + (spotInstance ? 1231 : 1237);
+        return result;
+    }
+
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        DefaultResourceAllocation other = (DefaultResourceAllocation) obj;
+        if (architecture == null) {
+            if (other.architecture != null)
+                return false;
+        } else if (!architecture.equals(other.architecture))
+            return false;
+        if (cpuPercentage != other.cpuPercentage)
+            return false;
+        if (indCpuSpeed != other.indCpuSpeed)
+            return false;
+        if (memory != other.memory)
+            return false;
+        if (nodeNumber != other.nodeNumber)
+            return false;
+        if (spotInstance != other.spotInstance)
+            return false;
+        return true;
+    }
+    
 }
