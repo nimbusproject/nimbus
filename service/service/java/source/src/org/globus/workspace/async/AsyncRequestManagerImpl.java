@@ -285,7 +285,7 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
                     "MB RAM have to be freed to give space to higher priority requests");
         }
         
-        Integer usedMemory = maxVMs*instanceMem;
+        Integer usedMemory = this.getMaxVMs()*instanceMem;
 
         if(memoryToFree > usedMemory){
             logger.warn(Lager.ev(-1) + "Asynchronous requests are consuming " + usedMemory + 
@@ -398,7 +398,7 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
 
         allocateRequests();
 
-        if(maxVMs == 0){
+        if(this.getMaxVMs() == 0){
             changePrice();
         }
     }
@@ -410,7 +410,7 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
      * price in case the new price is different
      */
     private void changePrice() {
-        Double newPrice = pricingModel.getNextPrice(maxVMs, getAliveSpotRequests(), currentPrice);
+        Double newPrice = pricingModel.getNextPrice(this.getMaxVMs(), getAliveSpotRequests(), currentPrice);
         if(!newPrice.equals(this.currentPrice)){
             logger.info(Lager.ev(-1) + "Spot price has changed. " +
                     "Previous price = " + this.currentPrice + ". " +
@@ -469,7 +469,7 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
      */
     private void allocateLowerPriorityRequests(Integer higherPriorityVMs, List<AsyncRequest> aliveRequests, String requestType) {    
         
-        Integer availableVMs = Math.max(this.maxVMs - higherPriorityVMs, 0);
+        Integer availableVMs = Math.max(this.getMaxVMs() - higherPriorityVMs, 0);
 
         Integer allocatedVMs = 0;
         for (AsyncRequest aliveRequest : aliveRequests) {
@@ -538,6 +538,7 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
      * Allocate backfill requests
      */
     private synchronized void allocateBackfillRequests() {
+        this.calculateMaxVMs();
         allocateLowerPriorityRequests(getGreaterOrEqualBidVMCount(), getAliveBackfillRequests(), "backfill");
     }    
     
@@ -940,7 +941,7 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
      * @param availableMemory the new amount of memory
      * available for SI and backfill requests
      */
-    protected void changeMaxVMs(Integer availableMemory){
+    protected synchronized void changeMaxVMs(Integer availableMemory){
 
         if(availableMemory == null || availableMemory < 0){
             return;
