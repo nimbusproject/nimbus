@@ -169,12 +169,8 @@ hostname VARCHAR(128) NOT NULL PRIMARY KEY,
 associations VARCHAR(512) NOT NULL,
 maximum_memory REAL,
 available_memory REAL,
-<<<<<<< HEAD
-active SMALLINT NOT NULL DEFAULT 1
-=======
-preemptable_memory REAL,
-PRIMARY KEY(resourcepool, hostname)
->>>>>>> paulo/spotinstances
+active SMALLINT NOT NULL DEFAULT 1,
+preemptable_memory REAL
 );
 
 --

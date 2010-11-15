@@ -24,16 +24,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
-<<<<<<< HEAD
-import java.util.*;
-=======
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
->>>>>>> paulo/spotinstances
-
 import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
@@ -1815,7 +1811,9 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
 
     }
 
-    public void updateResourcepoolEntryAvailableMemory(String hostname, int newAvailMemory)
+    public void updateResourcepoolEntryAvailableMemory(String hostname,
+                                                       int newAvailMemory,
+                                                       int preemptibleMemory)
             throws WorkspaceDatabaseException {
 
         if (this.dbTrace) {
@@ -1830,6 +1828,10 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
             throw new IllegalArgumentException("newAvailMemory must be non-negative");
         }
 
+        if (preemptibleMemory < 0) {
+            throw new IllegalArgumentException("preemptibleMemory must be non-negative");
+        }
+
         Connection c = null;
         PreparedStatement pstmt = null;
         try {
@@ -1839,7 +1841,8 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
                     c.prepareStatement(SQL_UPDATE_RESOURCE_POOL_ENTRY_MEMORY);
 
             pstmt.setInt(1, newAvailMemory);
-            pstmt.setString(2, hostname);
+            pstmt.setInt(2, preemptibleMemory);
+            pstmt.setString(3, hostname);
 
             final int updated = pstmt.executeUpdate();
             if (updated != 1) {
@@ -1986,33 +1989,6 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
             while (rs.next()) {
                 int memory = rs.getInt(1);
                 total += memory;
-
-<<<<<<< HEAD
-=======
-                Hashtable entries = new Hashtable();
-                while (rs2.next()) {
-                    String hostname = rs2.getString(2);
-                    String assocs = rs2.getString(3);
-                    if (hostname == null) {
-                        logger.error("hostname should never be null here");
-                        continue;
-                    }
-                    if (assocs == null) {
-                        logger.error("assocs should never be null here");
-                        continue;
-                    }
-                    ResourcepoolEntry entry =
-                                new ResourcepoolEntry(name,
-                                                      hostname,
-                                                      rs2.getInt(4),
-                                                      rs2.getInt(5),
-                                                      rs2.getInt(6),
-                                                      assocs);
-                    entries.put(hostname, entry);
-                }
-                resourcepool.setEntries(entries);
-                pools.put(name,resourcepool);
->>>>>>> paulo/spotinstances
                 if (this.dbTrace) {
                     logger.trace("memoryUsedOnPoolnode(): found " + memory +
                             " MB for one VM, new total is " + total);
@@ -2067,6 +2043,7 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
                         rs.getString(2),
                         rs.getInt(4),
                         rs.getInt(5),
+                        rs.getInt(7),
                         rs.getString(3),
                         rs.getBoolean(6));
                 list.add(entry);
@@ -2116,6 +2093,7 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
                     rs.getString(2),
                     rs.getInt(4),
                     rs.getInt(5),
+                    rs.getInt(7),
                     rs.getString(3),
                     rs.getBoolean(6));
 
@@ -2154,6 +2132,7 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
         PreparedStatement pstmt = null;
         try {
             c = getConnection();
+
             pstmt = c.prepareStatement(SQL_INSERT_RESOURCE_POOL_ENTRY);
 
             pstmt.setString(1, entry.getResourcePool());
@@ -2463,13 +2442,9 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
                             hostname,
                             rs.getInt(4),
                             rs.getInt(5),
-<<<<<<< HEAD
+                            rs.getInt(7),
                             assocs,
                             rs.getBoolean(6));
-=======
-                            rs.getInt(6),
-                            assocs);
->>>>>>> paulo/spotinstances
                 entries.add(entry);
 
             } while (rs.next());
@@ -2657,8 +2632,6 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
         return total;
     }
 
-
-    @Override
     public void addSpotPriceHistory(Calendar timeStamp, Double newPrice) throws WorkspaceDatabaseException{
         if (this.dbTrace) {
             logger.trace("addSpotPriceHistory(): timeStamp = " + timeStamp + ", spot price = " + newPrice);

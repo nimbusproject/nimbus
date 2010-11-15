@@ -151,7 +151,9 @@ public interface PersistenceAdapter {
 
             throws WorkspaceDatabaseException;
 
-    public void updateResourcepoolEntryAvailableMemory(String hostname, int newAvailMemory)
+    public void updateResourcepoolEntryAvailableMemory(String hostname,
+                                                       int newAvailMemory, 
+                                                       int preemptibleMemory)
 
             throws WorkspaceDatabaseException;
 
@@ -198,8 +200,6 @@ public interface PersistenceAdapter {
     public List<ResourcepoolEntry> getAvailableEntriesSortedByFreeMemoryPercentage(int requestedMem) 
     
             throws WorkspaceDatabaseException;
-<<<<<<< HEAD
-=======
     
     //Spot Instances
     
@@ -254,7 +254,6 @@ public interface PersistenceAdapter {
     
     public Double getLastSpotPrice()
             throws WorkspaceDatabaseException;
->>>>>>> paulo/spotinstances
 
     boolean updateResourcepoolEntry(String hostname,
                                         String pool,
