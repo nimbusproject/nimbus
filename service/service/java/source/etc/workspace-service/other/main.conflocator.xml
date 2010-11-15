@@ -135,8 +135,7 @@
                   value="$DERBY{" />
         
     </bean>
-<<<<<<< HEAD
-    
+
     <bean id="adminSettings"
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="location"
@@ -144,7 +143,6 @@
         <property name="placeholderPrefix"
                   value="$ADMIN{" />
     </bean>
-=======
 
     <bean id="elasticSettings"
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
@@ -153,5 +151,4 @@
         <property name="placeholderPrefix" value="$ELASTIC{" />
     </bean>
 
->>>>>>> paulo/spotinstances
 </beans>

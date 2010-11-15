@@ -28,11 +28,7 @@ public class ResourcepoolEntry {
     private String supportedAssociations;
 
     public ResourcepoolEntry(String resourcePool, String hostname, int memMax,
-<<<<<<< HEAD
-                             int memCurrent, String sa, boolean active) {
-=======
-                             int memCurrent, int memPreemptable, String sa) {
->>>>>>> paulo/spotinstances
+                             int memCurrent, int memPreemptable, String sa, boolean active) {
         this.resourcePool = resourcePool;
         this.hostname = hostname;
         this.memMax = memMax;
@@ -82,14 +78,6 @@ public class ResourcepoolEntry {
         this.memPreemptable += add;
     }    
     
-    public String getResourcePool() {
-        return resourcePool;
-    }
-
-    public void setResourcePool(String resourcePool) {
-        this.resourcePool = resourcePool;
-    }    
-
     public int percentEmpty() {
         if (this.memCurrent == 0) {
             return 0;
@@ -133,7 +121,6 @@ public class ResourcepoolEntry {
                 '}';
     }
 
-<<<<<<< HEAD
     public void setResourcePool(String resourcePool) {
         this.resourcePool = resourcePool;
     }
@@ -149,6 +136,4 @@ public class ResourcepoolEntry {
     public void setActive(boolean active) {
         this.active = active;
     }
-=======
->>>>>>> paulo/spotinstances
 }

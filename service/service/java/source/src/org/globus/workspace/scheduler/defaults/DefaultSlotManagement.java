@@ -16,44 +16,30 @@
 
 package org.globus.workspace.scheduler.defaults;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.globus.workspace.Lager;
 import org.globus.workspace.ProgrammingError;
-<<<<<<< HEAD
 import org.globus.workspace.persistence.WorkspaceDatabaseException;
-import org.globus.workspace.scheduler.*;
 import org.globus.workspace.persistence.PersistenceAdapter;
-=======
-import org.globus.workspace.persistence.PersistenceAdapter;
+import org.globus.workspace.scheduler.NodeExistsException;
+import org.globus.workspace.scheduler.NodeInUseException;
+import org.globus.workspace.scheduler.NodeManagement;
+import org.globus.workspace.scheduler.NodeNotFoundException;
 import org.globus.workspace.scheduler.Reservation;
 import org.globus.workspace.scheduler.Scheduler;
->>>>>>> paulo/spotinstances
 import org.globus.workspace.service.InstanceResource;
 import org.globus.workspace.service.WorkspaceHome;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.globus.workspace.service.binding.vm.VirtualMachineDeployment;
 import org.nimbustools.api.services.rm.DoesNotExistException;
 import org.nimbustools.api.services.rm.ManageException;
-<<<<<<< HEAD
-
-import java.util.*;
-
-=======
 import org.nimbustools.api.services.rm.NotEnoughMemoryException;
 import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
-import org.springframework.core.io.Resource;
 
->>>>>>> paulo/spotinstances
 /**
  * Needs dependency cleanups
  */
@@ -512,6 +498,9 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
         if (home == null) {
             throw new Exception("home may not be null");
         }
+
+        // SPOTTODO : doublecheck this
+        this.preempManager.init();
     }
 
 
@@ -565,7 +554,7 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
 
             final ResourcepoolEntry entry =
                     new ResourcepoolEntry(pool, hostname, memory,
-                            correctCurrentMem, associations, active);
+                            correctCurrentMem, 0, associations, active);
 
             //check then act protected by lock
             this.db.addResourcepoolEntry(entry);
@@ -685,13 +674,6 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
             // TODO ???
             throw new RuntimeException(e);
         }
-
-<<<<<<< HEAD
-=======
-        this.db.replaceResourcepools(new_resourcepools);
-        
-        preempManager.init();
->>>>>>> paulo/spotinstances
     }
     
 }
