@@ -21,7 +21,6 @@ import org.springframework.test.context.support.AbstractContextLoader;
 
 public class NimbusTestContextLoader extends AbstractContextLoader {
 
-    @Override
     protected String getResourceSuffix() {
         return "-main.xml";
     }

@@ -19,30 +19,29 @@ package org.globus.workspace.scheduler.defaults;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.fail;
 
-import org.globus.workspace.scheduler.defaults.ResourcepoolEntry;
 import org.testng.annotations.Test;
 
 public class ResourcepoolEntryTest {
 
     @Test
     public void testPercentEmpty() {
-        ResourcepoolEntry re = new ResourcepoolEntry("aResourcePool", "ahostname", 4096, 2048, 0, "*");
+        ResourcepoolEntry re = new ResourcepoolEntry("aResourcePool", "ahostname", 4096, 2048, 0, "*", true);
         assertEquals(re.percentEmpty(), 50);
-        re = new ResourcepoolEntry("aResourcePool", "ahostname", 4096, 1024, 0, "*");
+        re = new ResourcepoolEntry("aResourcePool", "ahostname", 4096, 1024, 0, "*", true);
         assertEquals(re.percentEmpty(), 25);
-        re = new ResourcepoolEntry("aResourcePool", "ahostname", 4096, 0, 0, "*");
+        re = new ResourcepoolEntry("aResourcePool", "ahostname", 4096, 0, 0, "*", true);
         assertEquals(re.percentEmpty(), 0);
-        re = new ResourcepoolEntry("aResourcePool", "ahostname", 4096, 1, 0, "*");
+        re = new ResourcepoolEntry("aResourcePool", "ahostname", 4096, 1, 0, "*", true);
         if (re.percentEmpty() == 0) {
             fail();
         }
-        re = new ResourcepoolEntry("aResourcePool", "ahostname", 4096, 4096, 0,  "*");
+        re = new ResourcepoolEntry("aResourcePool", "ahostname", 4096, 4096, 0,  "*", true);
         assertEquals(re.percentEmpty(), 100);
     }
 
     @Test(expectedExceptions=IllegalStateException.class)
     public void testPercentEmptyIllegal() {
-        ResourcepoolEntry re = new ResourcepoolEntry("aResourcePool", "ahostname", 4096, 4097, 0, "*");
+        ResourcepoolEntry re = new ResourcepoolEntry("aResourcePool", "ahostname", 4096, 4097, 0, "*", true);
         re.percentEmpty();
     }
 }

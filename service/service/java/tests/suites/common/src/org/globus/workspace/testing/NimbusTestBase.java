@@ -20,9 +20,13 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.rmi.RemoteException;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
+import com.google.gson.Gson;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
@@ -31,9 +35,11 @@ import org.apache.log4j.PropertyConfigurator;
 import org.globus.workspace.ReturnException;
 import org.globus.workspace.WorkspaceException;
 import org.globus.workspace.WorkspaceUtil;
+import org.globus.workspace.remoting.admin.VmmNode;
 import org.globus.workspace.testing.utils.ReprPopulator;
 import org.nimbustools.api.brain.ModuleLocator;
 import org.nimbustools.api.brain.NimbusHomePathResolver;
+import org.nimbustools.api.services.admin.RemoteNodeManagement;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.annotations.AfterMethod;
@@ -52,10 +58,11 @@ public abstract class NimbusTestBase extends AbstractTestNGSpringContextTests {
     // STATIC VARIABLES
     // -----------------------------------------------------------------------------------------
 
-    private static final String MODULE_LOCATOR_BEAN_NAME = "nimbus-brain.ModuleLocator";
+    protected static final String MODULE_LOCATOR_BEAN_NAME = "nimbus-brain.ModuleLocator";
     private static final String DATA_SOURCE_BEAN_NAME = "other.MainDataSource";
     private static final String TIMER_MANAGER_BEAN_NAME = "other.timerManager";
-    
+    private static final String REMOTING_NATIVE_PROPERTY = "org.newsclub.net.unix.library.path";
+
     public static final String FORCE_SUITES_DIR_PATH = "nimbus.servicetestsuites.abspath";
     public static final String NO_TEARDOWN = "nimbus.servicetestsuites.noteardown";
     private static final String LOG_SEP =
@@ -89,7 +96,6 @@ public abstract class NimbusTestBase extends AbstractTestNGSpringContextTests {
     // @Overrides AbstractTestNGSpringContextTests
     // -----------------------------------------------------------------------------------------
     
-    @Override
     @BeforeClass(alwaysRun=true)
     protected void springTestContextPrepareTestInstance() throws Exception {
         this.suiteSetup();
@@ -97,7 +103,6 @@ public abstract class NimbusTestBase extends AbstractTestNGSpringContextTests {
         super.springTestContextPrepareTestInstance();
     }
     
-    @Override
     @BeforeMethod(alwaysRun=true)
     protected void springTestContextBeforeTestMethod(Method testMethod)
             throws Exception {      
@@ -105,9 +110,9 @@ public abstract class NimbusTestBase extends AbstractTestNGSpringContextTests {
         
         //Looked up before each test method in case @DirtiesContext was used in previous method
         this.locator = (ModuleLocator) applicationContext.getBean(MODULE_LOCATOR_BEAN_NAME);
+        this.setUpVmms();
     }
     
-    @Override
     @AfterMethod(alwaysRun=true)
     protected void springTestContextAfterTestMethod(Method testMethod)
             throws Exception {
@@ -128,7 +133,7 @@ public abstract class NimbusTestBase extends AbstractTestNGSpringContextTests {
     // -----------------------------------------------------------------------------------------
 
     /**
-     * Set up logger and var directory for this test suite.
+     * Set up logger, lib-native, and var directory for this test suite.
      *
      * Configures NIMBUS_HOME via system property.
      *
@@ -161,8 +166,31 @@ public abstract class NimbusTestBase extends AbstractTestNGSpringContextTests {
             this.setUpVarDir(vardir, setupExe);
         }
 
+        String libNativePath = nimbusHome + "/services/lib-native";
+        System.setProperty(REMOTING_NATIVE_PROPERTY, libNativePath);
+
         logger.debug(LOG_SEP + "\n*** SUITE SETUP DONE (tests will begin): " +
                         this.getClass().getSimpleName() + LOG_SEP);
+    }
+
+    protected void setUpVmms() throws RemoteException {
+
+        boolean active = true;
+        String nodePool = "default";
+        int nodeMemory = 2048;
+        String net = "*";
+        boolean vacant = true;
+
+        Gson gson = new Gson();
+        List<VmmNode> nodes = new ArrayList<VmmNode>(4);
+        nodes.add(new VmmNode("fakehost1", active, nodePool, nodeMemory, net, vacant));
+        nodes.add(new VmmNode("fakehost2", active, nodePool, nodeMemory, net, vacant));
+        nodes.add(new VmmNode("fakehost3", active, nodePool, nodeMemory, net, vacant));
+        nodes.add(new VmmNode("fakehost4", active, nodePool, nodeMemory, net, vacant));
+
+        final String nodesJson = gson.toJson(nodes);
+        RemoteNodeManagement rnm = this.locator.getNodeManagement();
+        rnm.addNodes(nodesJson);
     }
 
     /**
