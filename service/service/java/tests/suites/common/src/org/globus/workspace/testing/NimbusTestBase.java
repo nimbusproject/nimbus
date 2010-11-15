@@ -187,10 +187,23 @@ public abstract class NimbusTestBase extends AbstractTestNGSpringContextTests {
         nodes.add(new VmmNode("fakehost2", active, nodePool, nodeMemory, net, vacant));
         nodes.add(new VmmNode("fakehost3", active, nodePool, nodeMemory, net, vacant));
         nodes.add(new VmmNode("fakehost4", active, nodePool, nodeMemory, net, vacant));
+        nodes.add(new VmmNode("fakehost5", active, nodePool, nodeMemory, net, vacant));
+        nodes.add(new VmmNode("fakehost6", active, nodePool, nodeMemory, net, vacant));
+        nodes.add(new VmmNode("fakehost7", active, nodePool, nodeMemory, net, vacant));
+        nodes.add(new VmmNode("fakehost8", active, nodePool, nodeMemory, net, vacant));
+        nodes.add(new VmmNode("fakehost9", active, nodePool, nodeMemory, net, vacant));
+        nodes.add(new VmmNode("fakehost10", active, nodePool, nodeMemory, net, vacant));
 
         final String nodesJson = gson.toJson(nodes);
         RemoteNodeManagement rnm = this.locator.getNodeManagement();
         rnm.addNodes(nodesJson);
+    }
+
+    protected void removeVmms() throws RemoteException {
+        String[] nodes = {"fakehost1", "fakehost2", "fakehost3", "fakehost4", "fakehost5",
+                          "fakehost6", "fakehost7", "fakehost8", "fakehost9", "fakehost10"};
+        RemoteNodeManagement rnm = this.locator.getNodeManagement();
+        rnm.removeNodes(nodes);        
     }
 
     /**

@@ -3,7 +3,7 @@
 # DNS IP address (or 'none'):
 4.2.2.1
 
-# hostname ipaddress gateway broadcast subnetmask
+# hostname ipaddress gateway broadcast subnetmask [MAC]
 
 priv002 172.20.6.2 172.20.6.1 172.20.6.255 255.255.255.0
 priv003 172.20.6.3 172.20.6.1 172.20.6.255 255.255.255.0

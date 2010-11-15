@@ -140,17 +140,19 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
     public void addRequest(AsyncRequest request){
 
         requests.put(request.getId(), request);
-        
-        if(this.lager.eventLog){
-            if(request.isSpotRequest()){
-                logger.info(Lager.ev(-1) + "Spot Instance request arrived: " + request.toString() + ". Changing price and reallocating requests.");                
-                changePriceAndAllocateRequests();
-            } else {
-                logger.info(Lager.ev(-1) + "Backfill request arrived: " + request.toString() + ".");
-                allocateBackfillRequests();
+
+        if(request.isSpotRequest()){
+            if(this.lager.eventLog){
+                logger.info(Lager.ev(-1) + "Spot Instance request arrived: " + request.toString() + ". Changing price and reallocating requests.");
             }
-        }        
-    }    
+            changePriceAndAllocateRequests();
+        } else {
+            if(this.lager.eventLog){
+                logger.info(Lager.ev(-1) + "Backfill request arrived: " + request.toString() + ".");
+            }
+            allocateBackfillRequests();
+        }
+    }
     
     // -------------------------------------------------------------------------
     // Implements org.globus.workspace.async.AsyncRequestHome

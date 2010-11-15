@@ -18,7 +18,7 @@ package org.globus.workspace.remoting.admin.defaults;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.globus.workspace.remoting.admin.NodeReport;
-import org.globus.workspace.remoting.admin.RemoteNodeManagement;
+import org.nimbustools.api.services.admin.RemoteNodeManagement;
 import org.globus.workspace.remoting.admin.VmmNode;
 
 import java.rmi.RemoteException;

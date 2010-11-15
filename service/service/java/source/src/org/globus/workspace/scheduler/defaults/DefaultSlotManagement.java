@@ -499,7 +499,6 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
             throw new Exception("home may not be null");
         }
 
-        // SPOTTODO : doublecheck this
         this.preempManager.init();
     }
 

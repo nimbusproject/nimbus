@@ -29,11 +29,14 @@ import org.nimbustools.api.services.rm.Manager;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.testng.annotations.AfterSuite;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import java.lang.reflect.Method;
 
 @ContextConfiguration(
         locations={"file:./service/service/java/tests/suites/spotinstances/" +
-        		"noresources/home/services/etc/nimbus/workspace-service/other/main.xml"},
+        		"home/services/etc/nimbus/workspace-service/other/main.xml"},
         loader=NimbusTestContextLoader.class)
 public class NoResourcesSISuite extends NimbusTestBase {
 
@@ -46,14 +49,21 @@ public class NoResourcesSISuite extends NimbusTestBase {
         super.suiteTeardown();
     }
 
+    @BeforeMethod(alwaysRun=true)
+    protected void springTestContextBeforeTestMethod(Method testMethod)
+            throws Exception {
+        super.springTestContextBeforeTestMethod(testMethod);
+        // This is why this is the "no resources" suite.
+        this.removeVmms();
+    }
+
     /**
      * This is how coordinate your Java test suite code with the conf files to use.
      * @return absolute path to the value that should be set for $NIMBUS_HOME
      * @throws Exception if $NIMBUS_HOME cannot be determined
      */
-    @Override
     protected String getNimbusHome() throws Exception {
-        return this.determineSuitesPath() + "/spotinstances/noresources/home";
+        return this.determineSuitesPath() + "/spotinstances/home";
     }
     
     /**

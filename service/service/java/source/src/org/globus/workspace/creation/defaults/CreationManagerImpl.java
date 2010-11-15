@@ -831,16 +831,8 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
                         "expecting ID assignments from reservation");
         }
 
-<<<<<<< HEAD:service/service/java/source/src/org/globus/workspace/creation/defaults/DefaultCreation.java
-        final _CreateResult result = this.repr._newCreateResult();
-        result.setCoscheduledID(coschedID);
-        result.setGroupID(groupID);
-        final VM[] createdVMs = new VM[ids.length];
-      
-=======
         final InstanceResource[] createdResources = new InstanceResource[ids.length];
 
->>>>>>> paulo/spotinstances:service/service/java/source/src/org/globus/workspace/creation/defaults/CreationManagerImpl.java
         int bailed = -1;
         Throwable failure = null;
         for (int i = 0; i < ids.length; i++) {

@@ -24,7 +24,7 @@ import org.apache.log4j.varia.NullAppender;
 import org.globus.workspace.remoting.RemotingClient;
 import org.globus.workspace.remoting.admin.NodeReport;
 import org.globus.workspace.remoting.admin.VmmNode;
-import org.globus.workspace.remoting.admin.RemoteNodeManagement;
+import org.nimbustools.api.services.admin.RemoteNodeManagement;
 import org.nimbustools.api.brain.NimbusHomePathResolver;
 
 import java.io.*;

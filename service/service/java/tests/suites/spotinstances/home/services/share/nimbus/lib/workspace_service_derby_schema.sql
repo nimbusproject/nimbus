@@ -71,7 +71,7 @@ preemptable SMALLINT
 CREATE TABLE vm_partitions
 (
 vmid INT NOT NULL,
-image VARCHAR(128) NOT NULL,
+image VARCHAR(4096) NOT NULL,
 imagemount VARCHAR(128) NOT NULL,
 readwrite SMALLINT NOT NULL,
 rootdisk SMALLINT NOT NULL,
@@ -158,14 +158,6 @@ CREATE TABLE default_scheduler_done_ensemb
 coschedid CHAR(36) NOT NULL
 );
 
---
--- Persistence for default resource pool:
-
-CREATE TABLE resourcepools
-(
-resourcepool VARCHAR(128) NOT NULL PRIMARY KEY,
-file_time BIGINT NOT NULL
-);
 
 -- using REAL for memory attributs to allow
 -- real division operations in ORDER BY statements
@@ -173,12 +165,12 @@ file_time BIGINT NOT NULL
 CREATE TABLE resourcepool_entries
 (
 resourcepool VARCHAR(128) NOT NULL,
-hostname VARCHAR(128) NOT NULL,
+hostname VARCHAR(128) NOT NULL PRIMARY KEY,
 associations VARCHAR(512) NOT NULL,
 maximum_memory REAL,
 available_memory REAL,
-preemptable_memory REAL,
-PRIMARY KEY(resourcepool, hostname)
+active SMALLINT NOT NULL DEFAULT 1,
+preemptable_memory REAL
 );
 
 --

@@ -19,9 +19,15 @@ package org.globus.workspace.testing.suites.spotinstances;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.lang.reflect.Method;
+import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
+import com.google.gson.Gson;
 import org.globus.workspace.async.AsyncRequestManagerImpl;
+import org.globus.workspace.remoting.admin.VmmNode;
 import org.globus.workspace.testing.NimbusTestBase;
 import org.globus.workspace.testing.NimbusTestContextLoader;
 import org.nimbustools.api.repr.AsyncCreateRequest;
@@ -33,15 +39,17 @@ import org.nimbustools.api.repr.SpotCreateRequest;
 import org.nimbustools.api.repr.SpotPriceEntry;
 import org.nimbustools.api.repr.SpotRequestInfo;
 import org.nimbustools.api.repr.si.RequestState;
+import org.nimbustools.api.services.admin.RemoteNodeManagement;
 import org.nimbustools.api.services.rm.Manager;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.testng.annotations.AfterSuite;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 @ContextConfiguration(
         locations={"file:./service/service/java/tests/suites/spotinstances/" +
-                "singleresourcepool/home/services/etc/nimbus/workspace-service/other/main.xml"},
+                "home/services/etc/nimbus/workspace-service/other/main.xml"},
         loader=NimbusTestContextLoader.class)
 public class SingleResourcePoolSISuite extends NimbusTestBase {
 
@@ -60,14 +68,41 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         super.suiteTeardown();
     }
 
+    @BeforeMethod(alwaysRun=true)
+    protected void springTestContextBeforeTestMethod(Method testMethod)
+            throws Exception {
+        super.springTestContextBeforeTestMethod(testMethod);
+
+        // start from scratch
+        this.removeVmms();
+
+        // add very specific VMs for these tests
+        this.uniqueVmms();
+    }
+
+    protected void uniqueVmms() throws RemoteException {
+        boolean active = true;
+        String nodePool = "default";
+        String net = "*";
+        boolean vacant = true;
+        Gson gson = new Gson();
+        List<VmmNode> nodes = new ArrayList<VmmNode>(4);
+        nodes.add(new VmmNode("fakehost1", active, nodePool, 512, net, vacant));
+        nodes.add(new VmmNode("fakehost2", active, nodePool, 512, net, vacant));
+        nodes.add(new VmmNode("fakehost3", active, nodePool, 256, net, vacant));
+        final String nodesJson = gson.toJson(nodes);
+        RemoteNodeManagement rnm = this.locator.getNodeManagement();
+        rnm.addNodes(nodesJson);
+    }
+
+
     /**
      * This is how coordinate your Java test suite code with the conf files to use.
      * @return absolute path to the value that should be set for $NIMBUS_HOME
      * @throws Exception if $NIMBUS_HOME cannot be determined
      */
-    @Override
     protected String getNimbusHome() throws Exception {
-        return this.determineSuitesPath() + "/spotinstances/singleresourcepool/home";
+        return this.determineSuitesPath() + "/spotinstances/home";
     }
     
     /**
@@ -118,8 +153,8 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         // Requested SI VMs (alive requests): 0
         // Spot price: MINIUM_PRICE (since requestedVMs < availableVMs)           
 
-        logger.debug("Waiting 2 seconds for resources to be allocated.");
-        Thread.sleep(2000);         
+        logger.debug("Waiting 5 seconds for resources to be allocated.");
+        Thread.sleep(5000);         
         
         //Verify there are no spot instance requests
         SpotRequestInfo[] spotRequestByCaller = rm.getSpotRequestsByCaller(superuser);
