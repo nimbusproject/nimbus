@@ -1,12 +1,8 @@
 from commands import getstatusoutput
 import os
-import string
-from propagate_adapter import PropagationAdapter
 from workspacecontrol.api.exceptions import *
 import propagate_scp
-import urlparse
 import workspacecontrol.main.wc_args as wc_args
-import socket
 
 class LantorrentPropadapter(propagate_scp.propadapter):
         
@@ -101,17 +97,10 @@ class LantorrentPropadapter(propagate_scp.propadapter):
         if lt_exe == None:
             raise InvalidInput("the prop-extra-args parameter must be used and be a path to the remote execution script")
 
-        
-        parts = url.split('://', 1)
-        fake_url = "http://" + parts[1] 
-        up = urlparse.urlparse(fake_url)
-
-        xfer_host = up.hostname
-        xfer_user = up.username
-        xfer_port = int(up.port)
+        (xfer_scheme, xfer_user, xfer_pw, xfer_host, xfer_port, xfer_path) =_url_parse(url)
+ 
         if xfer_port == None:
             xfer_port = 22
-        xfer_path = up.path
 
         if xfer_user:
             self.c.log.info("allowing client to specify this account: %s" % xfer_user) 
@@ -140,3 +129,37 @@ class LantorrentPropadapter(propagate_scp.propadapter):
         self.c.log.debug("lantorrent command %s " % (cmd))
 
         return cmd
+
+def _url_parse(url):
+    parts = url.split('://', 1)
+    scheme = parts[0]
+    rest = parts[1]
+
+    parts = rest.split('@', 1)
+    if len(parts) == 1:
+        user = None
+        password = None
+    else:
+        rest = parts[1]
+        u_parts = parts[0].split(':')
+        user = parts[0]
+        if len(u_parts) == 1:
+            password = None
+        else:
+            password = parts[1]
+
+    parts = rest.split('/', 1)
+    contact_string = parts[0]
+    if len(parts) > 1:
+        path = '/' + parts[1]
+    else:
+        path = None
+
+    parts = contact_string.split(':')
+    hostname = parts[0]
+    if len(parts) == 1:
+        port = None
+    else:
+        port = int(parts[1])
+
+    return (scheme, user, password, hostname, port, path)
