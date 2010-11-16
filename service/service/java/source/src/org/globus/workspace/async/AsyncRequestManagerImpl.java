@@ -538,7 +538,6 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
      * Allocate backfill requests
      */
     private synchronized void allocateBackfillRequests() {
-        this.calculateMaxVMs();
         allocateLowerPriorityRequests(getGreaterOrEqualBidVMCount(), getAliveBackfillRequests(), "backfill");
     }    
     
@@ -877,8 +876,13 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
 
     // -------------------------------------------------------------------------
     // DEFINE ASYNCHRONOUS REQUEST CAPACITY
-    // -------------------------------------------------------------------------        
-    
+    // -------------------------------------------------------------------------
+
+
+    public void recalculateAvailableInstances() {
+        this.calculateMaxVMs();
+    }
+
     /**
      * Calculates the maximum number of instances
      * the Asynchronous Request module can allocate
@@ -902,12 +906,18 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
             logger.info(Lager.ev(-1) + "Calculating maximum VMs for SI and backfill requests..");
         }        
 
-        Integer siMem;
+        Integer siMem = 0;
+        Integer availableMem = 0;
+        Integer usedPreemptableMem = 0;
+        Integer usedNonPreemptableMem = 0;
         
         try {
-            Integer availableMem = persistence.getTotalAvailableMemory(instanceMem);
-            Integer usedPreemptableMem = persistence.getTotalPreemptableMemory();             
-            Integer usedNonPreemptableMem = persistence.getUsedNonPreemptableMemory();
+            Integer totalMaxMemory = persistence.getTotalMaxMemory();
+            if (totalMaxMemory > 0) {
+                availableMem = persistence.getTotalAvailableMemory(instanceMem);
+                usedPreemptableMem = persistence.getTotalPreemptableMemory();
+                usedNonPreemptableMem = persistence.getUsedNonPreemptableMemory();
+            }
             
             //Formula derived from maximum_utilization =       usedNonPreemptable
             //                                           -----------------------------------------
@@ -918,7 +928,8 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
             siMem = Math.max((availableMem+usedPreemptableMem)-reservedNonPreempMem, 0);
             
             if (this.lager.eventLog) {
-                logger.info(Lager.ev(-1) + "Available site memory: " + availableMem + "MB");                
+                logger.info(Lager.ev(-1) + "Total site memory: " + totalMaxMemory + "MB");                
+                logger.info(Lager.ev(-1) + "Available site memory: " + availableMem + "MB");
                 logger.info(Lager.ev(-1) + "Used non pre-emptable memory: " + usedNonPreemptableMem + "MB");
                 logger.info(Lager.ev(-1) + "Reserved non pre-emptable memory: " + reservedNonPreempMem + "MB");
                 logger.info(Lager.ev(-1) + "Used pre-emptable memory: " + usedPreemptableMem + "MB");                

@@ -55,6 +55,11 @@ public interface PreemptableSpaceManager {
      */
     public void releaseSpace(Integer memoryToRelease);
 
+    /**
+     * Notification that a change to the resource pool DB
+     * has been made. 
+     */
+    public void recalculateAvailableInstances();
     
     /**
      * Initalizes this {@link PreemptableSpaceManager}.

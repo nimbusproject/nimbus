@@ -875,7 +875,7 @@ public class DefaultSchedulerAdapter implements Scheduler {
         }
 
         this.db.backOutTasks(vmid);
-        this.slotManager.releaseSpace(vmid);
+        this.slotManager.releaseSpace(vmid);  // *** SYNCHRONIZED ISSUE *** 
         this.db.deleteNodeRequest(vmid);
     }
 

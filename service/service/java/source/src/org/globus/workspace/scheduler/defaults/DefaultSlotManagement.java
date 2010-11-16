@@ -557,7 +557,7 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
 
             //check then act protected by lock
             this.db.addResourcepoolEntry(entry);
-
+            this.poolChanged();
             return entry;
 
         } catch (WorkspaceDatabaseException e) {
@@ -637,7 +637,9 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
                 throw new NodeNotFoundException();
             }
 
-            return getNode(hostname);
+            ResourcepoolEntry result = getNode(hostname);
+            this.poolChanged();
+            return result;
             
         } catch (WorkspaceDatabaseException e) {
             throw new RuntimeException(e);
@@ -667,7 +669,9 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
                         " is in use and cannot be removed from the pool");
             }
 
-            return this.db.removeResourcepoolEntry(hostname);
+            boolean result = this.db.removeResourcepoolEntry(hostname);
+            this.poolChanged();
+            return result;
 
         } catch (WorkspaceDatabaseException e) {
             // TODO ???
@@ -675,7 +679,11 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
         }
     }
 
-    public synchronized String getVMMReport() {
+    private void poolChanged() {
+        this.preempManager.recalculateAvailableInstances();
+    }
+
+    public String getVMMReport() {
         try {
             return this._getVMMReport();
         } catch (WorkspaceDatabaseException e) {
