@@ -29,11 +29,12 @@ import org.nimbustools.api.services.rm.Manager;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 
-import java.lang.reflect.Method;
+import java.rmi.RemoteException;
 
+@Listeners({ org.globus.workspace.testing.suites.spotinstances.TestListener.class })
 @ContextConfiguration(
         locations={"file:./service/service/java/tests/suites/spotinstances/" +
         		"home/services/etc/nimbus/workspace-service/other/main.xml"},
@@ -49,13 +50,9 @@ public class NoResourcesSISuite extends NimbusTestBase {
         super.suiteTeardown();
     }
 
-    @BeforeMethod(alwaysRun=true)
-    protected void springTestContextBeforeTestMethod(Method testMethod)
-            throws Exception {
-        super.springTestContextBeforeTestMethod(testMethod);
-        // This is why this is the "no resources" suite.
-        this.removeVmms();
-    }
+    protected void setUpVmms() throws RemoteException {
+        logger.info("Before test method: overriden setUpVmms(), do nothing");
+    }    
 
     /**
      * This is how coordinate your Java test suite code with the conf files to use.

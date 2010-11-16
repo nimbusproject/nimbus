@@ -19,7 +19,6 @@ package org.globus.workspace.testing.suites.spotinstances;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
-import java.lang.reflect.Method;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -44,9 +43,10 @@ import org.nimbustools.api.services.rm.Manager;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 
+@Listeners({ org.globus.workspace.testing.suites.spotinstances.TestListener.class })
 @ContextConfiguration(
         locations={"file:./service/service/java/tests/suites/spotinstances/" +
                 "home/services/etc/nimbus/workspace-service/other/main.xml"},
@@ -68,19 +68,9 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         super.suiteTeardown();
     }
 
-    @BeforeMethod(alwaysRun=true)
-    protected void springTestContextBeforeTestMethod(Method testMethod)
-            throws Exception {
-        super.springTestContextBeforeTestMethod(testMethod);
-
-        // start from scratch
-        this.removeVmms();
-
-        // add very specific VMs for these tests
-        this.uniqueVmms();
-    }
-
-    protected void uniqueVmms() throws RemoteException {
+    protected void setUpVmms() throws RemoteException {
+        logger.info("Before test method: overriden setUpVmms(), unique VMM list");
+        
         boolean active = true;
         String nodePool = "default";
         String net = "*";

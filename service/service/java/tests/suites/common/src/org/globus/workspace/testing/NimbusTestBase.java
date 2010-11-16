@@ -99,20 +99,19 @@ public abstract class NimbusTestBase extends AbstractTestNGSpringContextTests {
     @BeforeClass(alwaysRun=true)
     protected void springTestContextPrepareTestInstance() throws Exception {
         this.suiteSetup();
-        
         super.springTestContextPrepareTestInstance();
     }
     
     @BeforeMethod(alwaysRun=true)
     protected void springTestContextBeforeTestMethod(Method testMethod)
-            throws Exception {      
+            throws Exception {
         super.springTestContextBeforeTestMethod(testMethod);
         
         //Looked up before each test method in case @DirtiesContext was used in previous method
         this.locator = (ModuleLocator) applicationContext.getBean(MODULE_LOCATOR_BEAN_NAME);
         this.setUpVmms();
     }
-    
+
     @AfterMethod(alwaysRun=true)
     protected void springTestContextAfterTestMethod(Method testMethod)
             throws Exception {
@@ -175,6 +174,8 @@ public abstract class NimbusTestBase extends AbstractTestNGSpringContextTests {
 
     protected void setUpVmms() throws RemoteException {
 
+        logger.info("Before test method: setUpVmms()");
+
         boolean active = true;
         String nodePool = "default";
         int nodeMemory = 2048;
@@ -197,13 +198,6 @@ public abstract class NimbusTestBase extends AbstractTestNGSpringContextTests {
         final String nodesJson = gson.toJson(nodes);
         RemoteNodeManagement rnm = this.locator.getNodeManagement();
         rnm.addNodes(nodesJson);
-    }
-
-    protected void removeVmms() throws RemoteException {
-        String[] nodes = {"fakehost1", "fakehost2", "fakehost3", "fakehost4", "fakehost5",
-                          "fakehost6", "fakehost7", "fakehost8", "fakehost9", "fakehost10"};
-        RemoteNodeManagement rnm = this.locator.getNodeManagement();
-        rnm.removeNodes(nodes);        
     }
 
     /**
@@ -510,6 +504,7 @@ public abstract class NimbusTestBase extends AbstractTestNGSpringContextTests {
         for (int i = 0; i < 1000; i++) {
             try{
                 ds.getConnection();
+                Thread.sleep(10);
             } catch (SQLException e){
                 logger.info("DB succesfully shutdown.");
                 return;
