@@ -155,8 +155,8 @@ public abstract class NimbusTestBase extends AbstractTestNGSpringContextTests {
         final File vardir = new File(nimbusHome, "services/var");
         if (vardir.exists()) {
             // teardown was not invoked or developer is trying something 'tricky'
-            logger.error("Generated directory exists, cowardly refusing to remove it; " +
-                        "leaving it alone: " + vardir.getAbsolutePath());
+            logger.error("\n\n*********\n\nGenerated directory exists, cowardly refusing to remove it; " +
+                        "leaving it alone: " + vardir.getAbsolutePath() + "\n\n");
         } else {
             this.setUpShareDir(nimbusHome);
             final File setupExe =
