@@ -918,4 +918,8 @@ public class DefaultSchedulerAdapter implements Scheduler {
         
         remove(id);
     }
+
+    public synchronized String getVMMReport() {
+        return this.slotManager.getVMMReport();
+    }
 }

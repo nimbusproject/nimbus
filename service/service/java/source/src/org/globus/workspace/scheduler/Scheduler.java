@@ -118,5 +118,7 @@ public interface Scheduler extends StateChangeInterested{
      */
     public void removeScheduling(int vmid)
 
-            throws ManageException;        
+            throws ManageException;
+
+    public String getVMMReport();
 }

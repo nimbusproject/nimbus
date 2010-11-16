@@ -112,4 +112,7 @@ public interface WorkspaceHome {
 
     public int convertID(String id) throws ManageException;
     public String convertID(int id) throws ManageException;
+
+    /* Human readable VMM insight */
+    public String getVMMReport();
 }

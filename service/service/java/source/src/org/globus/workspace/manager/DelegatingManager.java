@@ -550,6 +550,9 @@ public class DelegatingManager implements Manager {
         }
     }
 
+    public String getVMMReport() {
+        return this.home.getVMMReport();
+    }
 
     // -------------------------------------------------------------------------
     // OTHER (doesn't implement Manager)

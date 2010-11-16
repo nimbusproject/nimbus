@@ -1666,4 +1666,8 @@ public class PilotSlotManagement implements SlotManagement,
             throws NodeInUseException, NodeManagementDisabled {
         throw new NodeManagementDisabled(REMOTE_NODE_MGR_DISABLED);
     }
+
+    public String getVMMReport() {
+        return "No VMM report when pilot is configured.";
+    }
 }

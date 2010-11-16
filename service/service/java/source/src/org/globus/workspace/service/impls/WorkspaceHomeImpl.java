@@ -814,4 +814,13 @@ public abstract class WorkspaceHomeImpl implements WorkspaceHome,
 
         return this.findIDsByCaller(callerID).length;
     }
+
+
+    // -------------------------------------------------------------------------
+    // OTHER
+    // -------------------------------------------------------------------------
+
+    public String getVMMReport() {
+        return this.scheduler.getVMMReport();
+    }
 }

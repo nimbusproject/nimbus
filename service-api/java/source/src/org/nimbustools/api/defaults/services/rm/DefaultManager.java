@@ -276,8 +276,11 @@ public class DefaultManager implements Manager {
         Logging.debug("Manager.registerDestructionListener() -- id '" + id +
                 "', type '" + type + "', listener '" + listener + "'");
     }
-    
-    
+
+    public String getVMMReport() {
+        return "No report";
+    }
+
     // -------------------------------------------------------------------------
     // SPOT INSTANCES OPERATIONS
     // -------------------------------------------------------------------------        

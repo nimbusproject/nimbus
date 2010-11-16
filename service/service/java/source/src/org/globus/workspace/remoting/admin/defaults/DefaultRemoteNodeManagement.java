@@ -230,6 +230,7 @@ public class DefaultRemoteNodeManagement implements RemoteNodeManagement {
                 state = NodeReport.STATE_NODE_NOT_FOUND;
             }
         } catch (NodeInUseException e) {
+            logger.warn("Node in use: " + hostname);
             state = NodeReport.STATE_NODE_IN_USE;
         } catch (NodeManagementDisabled e) {
             throw new RemoteException(e.getMessage());

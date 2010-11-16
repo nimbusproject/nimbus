@@ -88,4 +88,9 @@ public interface SlotManagement {
      * @return true if neededAssociations is supported
      */
     public boolean isNeededAssociationsSupported();
+
+    /**
+     * @return human readable VMM insight
+     */
+    public String getVMMReport();
 }

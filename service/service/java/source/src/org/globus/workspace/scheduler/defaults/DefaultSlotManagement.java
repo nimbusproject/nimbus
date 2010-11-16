@@ -674,5 +674,29 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
             throw new RuntimeException(e);
         }
     }
-    
+
+    public synchronized String getVMMReport() {
+        try {
+            return this._getVMMReport();
+        } catch (WorkspaceDatabaseException e) {
+            logger.error(e.getMessage());
+            return e.getMessage();
+        }
+    }
+
+    private String _getVMMReport() throws WorkspaceDatabaseException {
+        final StringBuilder sb = new StringBuilder();
+        List<ResourcepoolEntry> relist = this.db.currentResourcepoolEntries();
+        for (ResourcepoolEntry re : relist) {
+            sb.append("\n-------------------------------------------------");
+            sb.append("\n    Hostname: ").append(re.getHostname());
+            sb.append("\n      Active: ").append(re.isActive());
+            sb.append("\n      Vacant: ").append(re.isVacant());
+            sb.append("\n     Max mem: ").append(re.getMemMax());
+            sb.append("\n  Avail. mem: ").append(re.getMemCurrent());
+            sb.append("\n  Percentage: ").append(re.percentEmpty());
+            sb.append("\n Preemptable: ").append(re.getMemPreemptable()).append("\n");
+        }
+        return sb.toString();
+    }
 }

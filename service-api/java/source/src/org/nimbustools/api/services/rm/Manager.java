@@ -177,6 +177,9 @@ public interface Manager extends NimbusModule {
                                             int type,
                                             DestructionCallback listener)
             throws ManageException, DoesNotExistException;
+
+    /* Human readable VMM insight */
+    public String getVMMReport();
     
     // -------------------------------------------------------------------------
     // SPOT INSTANCES OPERATIONS
