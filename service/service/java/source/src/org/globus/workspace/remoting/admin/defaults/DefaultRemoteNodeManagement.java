@@ -19,6 +19,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.globus.workspace.persistence.WorkspaceDatabaseException;
 import org.globus.workspace.remoting.admin.NodeReport;
 import org.nimbustools.api.services.admin.RemoteNodeManagement;
 import org.globus.workspace.remoting.admin.VmmNode;
@@ -97,6 +98,8 @@ public class DefaultRemoteNodeManagement implements RemoteNodeManagement {
                         NodeReport.STATE_NODE_EXISTS, null));
             } catch (NodeManagementDisabled e) {
                 throw new RemoteException(e.getMessage());
+            } catch (WorkspaceDatabaseException e) {
+                throw new RemoteException(e.getMessage());
             }
         }
         return gson.toJson(reports);
@@ -124,6 +127,8 @@ public class DefaultRemoteNodeManagement implements RemoteNodeManagement {
             entries = nodeManagement.getNodes();
         } catch (NodeManagementDisabled e) {
             throw new RemoteException(e.getMessage());
+        } catch (WorkspaceDatabaseException e) {
+            throw new RemoteException(e.getMessage());
         }
         final List<VmmNode> nodes = new ArrayList<VmmNode>(entries.size());
         for (ResourcepoolEntry entry : entries) {
@@ -146,6 +151,8 @@ public class DefaultRemoteNodeManagement implements RemoteNodeManagement {
         try {
             entry = nodeManagement.getNode(hostname);
         } catch (NodeManagementDisabled e) {
+            throw new RemoteException(e.getMessage());
+        } catch (WorkspaceDatabaseException e) {
             throw new RemoteException(e.getMessage());
         }
         return gson.toJson(translateResourcepoolEntry(entry));
@@ -201,6 +208,8 @@ public class DefaultRemoteNodeManagement implements RemoteNodeManagement {
                 reports.add(
                         new NodeReport(hostname,
                                 NodeReport.STATE_NODE_NOT_FOUND, null));
+            } catch (WorkspaceDatabaseException e) {
+                throw new RemoteException(e.getMessage());
             }
 
         }
@@ -233,6 +242,8 @@ public class DefaultRemoteNodeManagement implements RemoteNodeManagement {
             logger.warn("Node in use: " + hostname);
             state = NodeReport.STATE_NODE_IN_USE;
         } catch (NodeManagementDisabled e) {
+            throw new RemoteException(e.getMessage());
+        } catch (WorkspaceDatabaseException e) {
             throw new RemoteException(e.getMessage());
         }
 

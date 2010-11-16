@@ -18,10 +18,12 @@ package org.globus.workspace.scheduler.defaults;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.globus.workspace.Lager;
+import org.globus.workspace.LockAcquisitionFailure;
 import org.globus.workspace.ProgrammingError;
 import org.globus.workspace.persistence.WorkspaceDatabaseException;
 import org.globus.workspace.persistence.PersistenceAdapter;
@@ -51,6 +53,10 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
     
     private static final Log logger =
         LogFactory.getLog(DefaultSlotManagement.class.getName());
+
+    // See locking section below for explanation
+    private static final ReentrantLock WHOLE_MANAGER_LOCK = new ReentrantLock(true);
+    private static final ReentrantLock DESTRUCTION_LOCK = new ReentrantLock(true);
 
 
     // -------------------------------------------------------------------------
@@ -124,6 +130,85 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
                             "scheduler only accepts: '" + RROBIN + "' and '" + GREEDY + '\'');
         }
     }
+
+    // -------------------------------------------------------------------------
+    // LOCKING
+    // -------------------------------------------------------------------------
+
+    /*
+        There are two locks: WHOLE_MANAGER_LOCK and DESTRUCTION_LOCK
+
+        The WHOLE_MANAGER_LOCK is used in lieu of the synchronized keyword.  This protects
+        the heart of the scheduling decisions from race conditions such as multiple allocation
+        methods at once, nodes being removed by the administrator mid-flight, etc.  Most of
+        the methods here are multi-step, relying on several pieces of information from the
+        database.  So they need this lock.
+
+        There is one situation where this lock gets in the way.  When new nodes are being
+        allocated and there is preemptible space for it that is being used by backfill or
+        spot instances: the preemptible slot manager will release these nodes but in doing
+        so the slot manager is involved.  Importantly, it is done via other threads so it
+        can not re-enter a normal synchronized lock (there is a group of requests sent
+        simultaneously, using the DestroyFutureTask class).
+
+        While relying on multiple tasks/threads, the group destruction method that is used
+        is also waiting for all of those tasks to complete.  So during "reserveSpace" when
+        it is deduced that asking the preemptible manager to destroy VMs will work to make
+        way for the higher priority request, the method can release the DESTRUCTION_LOCK
+        and allow for things to be destroyed while it waits.
+
+        This allows other threads to "releaseSpace"
+
+        It might not just be the preemptible manager that is causing destructions during
+        this period, and that is OK.
+
+        Internals note: if you want to change anything note that in order to acquire the
+        WHOLE_MANAGER_LOCK you *must* acquire the DESTRUCTION_LOCK first.  This is
+        because destruction events *only* need the DESTRUCTION_LOCK in order to carry out
+        their business.  There is a race condition here where there could be starving
+        if we don't do this.
+     */
+
+    // Read the long locking comment above before using/changing
+    private void acquireWholeManagerLock() throws ResourceRequestDeniedException {
+        // Acquiring whole manager lock requires that you also acquire the destruction lock
+        // and also requires that you get it first.
+        try {
+            DESTRUCTION_LOCK.lockInterruptibly();
+        } catch (InterruptedException e) {
+            throw new ResourceRequestDeniedException(
+                        new LockAcquisitionFailure(e));
+        }
+        try {
+            WHOLE_MANAGER_LOCK.lockInterruptibly();
+        } catch (InterruptedException e) {
+            throw new ResourceRequestDeniedException(
+                        new LockAcquisitionFailure(e));
+        }
+    }
+
+    // Read the long locking comment above before using/changing
+    private void _acquireDestructionLock() throws ResourceRequestDeniedException {
+        try {
+            DESTRUCTION_LOCK.lockInterruptibly();
+        } catch (InterruptedException e) {
+            throw new ResourceRequestDeniedException(
+                        new LockAcquisitionFailure(e));
+        }
+    }
+
+    // Read the long locking comment above before using/changing
+    private void releaseWholeManagerLock() {
+        // Releasing whole manager lock requires that you also release the destruction lock
+        WHOLE_MANAGER_LOCK.unlock();
+        DESTRUCTION_LOCK.unlock();
+    }
+
+    // Read the long locking comment above before using/changing
+    private void _releaseDestructionLock() {
+        DESTRUCTION_LOCK.unlock();
+    }
+
     
     // -------------------------------------------------------------------------
     // implements SlotManagement
@@ -134,21 +219,26 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
      * @return Reservation res
      * @throws ResourceRequestDeniedException exc
      */
-    public synchronized Reservation reserveSpace(NodeRequest req, boolean preemptable)
+    public Reservation reserveSpace(NodeRequest req, boolean preemptable)
 
             throws ResourceRequestDeniedException {
 
-        if (req == null) {
-            throw new IllegalArgumentException("req is null");
+        this.acquireWholeManagerLock();
+        try {
+            if (req == null) {
+                throw new IllegalArgumentException("req is null");
+            }
+
+            final int[] vmids = req.getIds();
+
+            final String[] hostnames =
+                    this.reserveSpace(vmids, req.getMemory(),
+                                      req.getNeededAssociations(), preemptable);
+
+            return new Reservation(vmids, hostnames);
+        } finally {
+            this.releaseWholeManagerLock();
         }
-
-        final int[] vmids = req.getIds();
-
-        final String[] hostnames =
-                this.reserveSpace(vmids, req.getMemory(),
-                                  req.getNeededAssociations(), preemptable);
-
-        return new Reservation(vmids, hostnames);
     }
 
     /**
@@ -158,9 +248,19 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
      * @return Reservation res
      * @throws ResourceRequestDeniedException exc
      */
-    public synchronized Reservation reserveCoscheduledSpace(
-                                                NodeRequest[] requests,
-                                                String coschedid)
+    public Reservation reserveCoscheduledSpace(NodeRequest[] requests,
+                                               String coschedid)
+            throws ResourceRequestDeniedException {
+        this.acquireWholeManagerLock();
+        try {
+            return this._reserveCoscheduledSpace(requests, coschedid);
+        } finally {
+            this.releaseWholeManagerLock();
+        }
+    }
+
+    private Reservation _reserveCoscheduledSpace(NodeRequest[] requests,
+                                                 String coschedid)
             throws ResourceRequestDeniedException {
 
         if (requests == null || requests.length == 0) {
@@ -346,7 +446,11 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
                             //so, free preemptable space
                             //and decrease i value, so 
                             //previous entry can be reconsidered
+
+                            // Read the long locking comment above before using/changing
+                            this._releaseDestructionLock();
                             preempManager.releaseSpace(neededMem);
+                            this._acquireDestructionLock();
                             i--;
                         } else {
                             throw e;
@@ -425,7 +529,21 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
         return true;
     }
 
-    public synchronized void releaseSpace(final int vmid) throws ManageException {
+    public void releaseSpace(final int vmid) throws ManageException {
+        try {
+            // Read the long locking comment above before using/changing
+            this._acquireDestructionLock();
+        } catch (ResourceRequestDeniedException e) {
+            throw new ManageException("", e);
+        }
+        try {
+            this._releaseSpace(vmid);
+        } finally {
+            this._releaseDestructionLock();
+        }
+    }
+
+    private void _releaseSpace(final int vmid) throws ManageException {
 
         if (lager.traceLog) {
             logger.trace("releaseSpace(): " + Lager.id(vmid));
@@ -493,22 +611,43 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
     // IoC INIT METHOD
     // -------------------------------------------------------------------------
 
-    public synchronized void validate() throws Exception {
-
+    public void validate() throws Exception {
         if (home == null) {
             throw new Exception("home may not be null");
         }
-
-        this.preempManager.init();
+        this.acquireWholeManagerLock();
+        try {
+            this.preempManager.init();
+        } finally {
+            this.releaseWholeManagerLock();
+        }
     }
 
 
-    public synchronized ResourcepoolEntry addNode(String hostname,
-                                                  String pool,
-                                                  String associations,
-                                                  int memory,
-                                                  boolean active)
-            throws NodeExistsException {
+    public ResourcepoolEntry addNode(String hostname,
+                                     String pool,
+                                     String associations,
+                                     int memory,
+                                     boolean active)
+            throws NodeExistsException, WorkspaceDatabaseException {
+        try {
+            this.acquireWholeManagerLock();
+        } catch (ResourceRequestDeniedException e) {
+            throw new WorkspaceDatabaseException(e.getMessage(), e);
+        }
+        try {
+            return this._addNode(hostname, pool, associations, memory, active);
+        } finally {
+            this.releaseWholeManagerLock();
+        }
+    }
+
+    private ResourcepoolEntry _addNode(String hostname,
+                                       String pool,
+                                       String associations,
+                                       int memory,
+                                       boolean active)
+            throws NodeExistsException, WorkspaceDatabaseException {
 
         if (hostname == null) {
             throw new IllegalArgumentException("hostname may not be null");
@@ -518,64 +657,53 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
             throw new IllegalArgumentException("hostname may not be empty");
         }
 
-        try {
-            final ResourcepoolEntry existing =
-                    this.db.getResourcepoolEntry(hostname);
+        final ResourcepoolEntry existing =
+                this.db.getResourcepoolEntry(hostname);
 
-            if (existing != null) {
-                throw new NodeExistsException("A VMM node with the hostname "+
-                        hostname+" already exists in the pool");
-            }
-
-            // This will catch the corner case of one or many VMs being started
-            // on a node, the node being deleted from the configuration, the node
-            // being RE-inserted into the configuration, all the while with no
-            // VM memory being retired.
-
-            final int memInUse =
-                        this.db.memoryUsedOnPoolnode(hostname);
-
-            final int correctCurrentMem = memory - memInUse;
-
-            if (correctCurrentMem == memory) {
-                if (lager.traceLog) {
-                    logger.trace("curmem for VMM '" + hostname +
-                            "' matches VM records");
-                }
-            } else {
-                logger.info("Reconfiguration corner case, current " +
-                        "memory-in-use record for VMM '" +
-                        hostname +
-                        "' was wrong, old value was " +
-                        "0 MB, new value is " +
-                        correctCurrentMem + " MB.");
-            }
-
-            final ResourcepoolEntry entry =
-                    new ResourcepoolEntry(pool, hostname, memory,
-                            correctCurrentMem, 0, associations, active);
-
-            //check then act protected by lock
-            this.db.addResourcepoolEntry(entry);
-            this.poolChanged();
-            return entry;
-
-        } catch (WorkspaceDatabaseException e) {
-            // TODO ???
-            throw new RuntimeException(e);
+        if (existing != null) {
+            throw new NodeExistsException("A VMM node with the hostname "+
+                    hostname+" already exists in the pool");
         }
+
+        // This will catch the corner case of one or many VMs being started
+        // on a node, the node being deleted from the configuration, the node
+        // being RE-inserted into the configuration, all the while with no
+        // VM memory being retired.
+
+        final int memInUse =
+                    this.db.memoryUsedOnPoolnode(hostname);
+
+        final int correctCurrentMem = memory - memInUse;
+
+        if (correctCurrentMem == memory) {
+            if (lager.traceLog) {
+                logger.trace("curmem for VMM '" + hostname +
+                        "' matches VM records");
+            }
+        } else {
+            logger.info("Reconfiguration corner case, current " +
+                    "memory-in-use record for VMM '" +
+                    hostname +
+                    "' was wrong, old value was " +
+                    "0 MB, new value is " +
+                    correctCurrentMem + " MB.");
+        }
+
+        final ResourcepoolEntry entry =
+                new ResourcepoolEntry(pool, hostname, memory,
+                        correctCurrentMem, 0, associations, active);
+
+        //check then act protected by lock
+        this.db.addResourcepoolEntry(entry);
+        this.poolChanged();
+        return entry;
     }
 
-    public List<ResourcepoolEntry> getNodes() {
-        try {
-            return this.db.currentResourcepoolEntries();
-        } catch (WorkspaceDatabaseException e) {
-            // TODO ???
-            throw new RuntimeException(e);
-        }
+    public List<ResourcepoolEntry> getNodes() throws WorkspaceDatabaseException {
+        return this.db.currentResourcepoolEntries();
     }
 
-    public ResourcepoolEntry getNode(String hostname) {
+    public ResourcepoolEntry getNode(String hostname) throws WorkspaceDatabaseException {
         if (hostname == null) {
             throw new IllegalArgumentException("hostname may not be null");
         }
@@ -583,12 +711,7 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
         if (hostname.length() == 0) {
             throw new IllegalArgumentException("hostname may not be empty");
         }
-        try {
-            return this.db.getResourcepoolEntry(hostname);
-        } catch (WorkspaceDatabaseException e) {
-            // TODO ???
-            throw new RuntimeException(e);
-        }
+        return this.db.getResourcepoolEntry(hostname);
     }
 
     /**
@@ -606,14 +729,19 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
      * @throws NodeNotFoundException
      */
     
-    public synchronized ResourcepoolEntry updateNode(
+    public ResourcepoolEntry updateNode(
             String hostname,
             String pool,
             String networks,
             Integer memory,
             Boolean active)
-            throws NodeInUseException, NodeNotFoundException {
+            throws NodeInUseException, NodeNotFoundException, WorkspaceDatabaseException {
 
+        try {
+            this.acquireWholeManagerLock();
+        } catch (ResourceRequestDeniedException e) {
+            throw new WorkspaceDatabaseException(e.getMessage(), e);
+        }
         try {
 
             Integer availMemory = null;
@@ -640,14 +768,13 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
             ResourcepoolEntry result = getNode(hostname);
             this.poolChanged();
             return result;
-            
-        } catch (WorkspaceDatabaseException e) {
-            throw new RuntimeException(e);
+        } finally {
+            this.releaseWholeManagerLock();
         }
     }
 
-    public synchronized boolean removeNode(String hostname)
-            throws NodeInUseException {
+    public boolean removeNode(String hostname)
+            throws NodeInUseException, WorkspaceDatabaseException {
         if (hostname == null) {
             throw new IllegalArgumentException("hostname may not be null");
         }
@@ -656,6 +783,11 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
             throw new IllegalArgumentException("hostname may not be empty");
         }
 
+        try {
+            this.acquireWholeManagerLock();
+        } catch (ResourceRequestDeniedException e) {
+            throw new WorkspaceDatabaseException(e.getMessage(), e);
+        }
         try {
             final ResourcepoolEntry entry =
                     this.db.getResourcepoolEntry(hostname);
@@ -673,9 +805,8 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
             this.poolChanged();
             return result;
 
-        } catch (WorkspaceDatabaseException e) {
-            // TODO ???
-            throw new RuntimeException(e);
+        } finally {
+            this.releaseWholeManagerLock();
         }
     }
 
