@@ -248,7 +248,7 @@ class Platform:
         if state == DOM_STATE_NOSTATE:
             # this is the case right after a graceful shutdown succeeds
             self.c.log.debug("found VM with name '%s' but it has no state -- from the perspective 'above' this means it was not found at all." % handle)
-            return None
+            return rvm
             
         if state == DOM_STATE_RUNNING:
             rvm.running = True
