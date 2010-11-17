@@ -491,7 +491,7 @@ public abstract class NimbusTestBase extends AbstractTestNGSpringContextTests {
 
     private void resetDB() throws Exception, WorkspaceException,
             ReturnException {
-        final File exe = new File(getNimbusHome(), "services/share/nimbus/servicedb-reset.sh"); // requires ant on PATH
+        final File exe = new File(getNimbusHome(), "services/share/nimbus/full-reset.sh"); // requires ant on PATH
         final String[] cmd = {exe.getAbsolutePath()};
         WorkspaceUtil.runCommand(cmd, true, true);
     }
