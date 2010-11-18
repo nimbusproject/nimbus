@@ -45,7 +45,6 @@ class LTDestConnection(object):
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             s.connect((self.host, self.port))
             self.socket = s
-            self.socket.setblocking(0)
         except Exception, ex:
             vex = LTException(505, "%s:%d" % (self.host, self.port), self.host, self.port, reqs=self.requests)
             pylantorrent.log(logging.ERROR, str(vex), traceback)
@@ -79,16 +78,18 @@ class LTDestConnection(object):
         self.send(send_str)
         self.send("EOH : %s\r\n" % (signature))
 
-    def _poll(self, poll_period=0):
+    def _poll(self, poll_period=0.0):
         if not self.valid:
             return
         try:
+            self.socket.settimeout(poll_period)
             data = self._read_from_socket(self.read_buffer_len)
             if data:
                 self.output_printer.print_results(data)
         except:
             # there may jsut be no data now
             pass
+        self.socket.settimeout(None)
 
     def _read_from_socket(self, size):
         data = self.socket.recv(size)
@@ -100,7 +101,7 @@ class LTDestConnection(object):
     def read_to_eof(self):
         if not self.valid:
             return
-        self.socket.setblocking(1)
+        self.socket.settimeout(None)
         data = self._read_from_socket(self.read_buffer_len)
         while data:
             self.output_printer.print_results(data)
