@@ -62,7 +62,8 @@ class VConfig(object):
             except:
                 emsg = "failed to load %s, using defaults" % (ini_file)
                 log(logging.WARNING, emsg, traceback)
-        logging.basicConfig(filename=self.logfile, level=self.log_level)
+        logging.basicConfig(filename=self.logfile, level=self.log_level, 
+            format="%(asctime)s - %(levelname)s - %(message)s")
         log(logging.WARNING, "logging to %s at %d" % (self.logfile, self.log_level))
 
     def set_defaults(self):
@@ -83,7 +84,8 @@ class VConfig(object):
         s = SafeConfigParser()
         s.readfp(open(ini_file, "r"))
         self.pw = s.get("security", "password")
-        self.logfile = s.get("log", "file").replace("@LANTORRENT_HOME@", self.lt_home).replace("@PGM@", os.path.basename(sys.argv[0]))
+        prog = os.path.splitext(os.path.basename(sys.argv[0]))[0]
+        self.logfile = s.get("log", "file").replace("@LANTORRENT_HOME@", self.lt_home).replace("@PGM@", prog)
         try:
             log_level_str = s.get("log", "level")
             self.log_level = log_levels[log_level_str]

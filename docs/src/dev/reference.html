@@ -8,7 +8,8 @@ _NIMBUS_LEFT2_DEV1_SIDEBAR(n,n,n,n,n,n,n,y)
 
 _NIMBUS_LEFT2_COLUMN_END
 _NIMBUS_CENTER2_COLUMN
-_NIMBUS_2_6_DEPRECATED
+_NIMBUS_IS_DEPRECATED
+
 
 <div>
 <h2>Developer reference</h2>
@@ -20,6 +21,11 @@ _NIMBUS_2_6_DEPRECATED
     <li>
         <p>
             <a href="#code-layout">Layout of the source directories</a>
+        </p>
+    </li>
+    <li>
+        <p>
+            <a href="#pilot-fake">Pilot development environment</a>
         </p>
     </li>
     <li>
@@ -294,6 +300,94 @@ _NIMBUS_2_6_DEPRECATED
     <br />
     <br />
 
+<br />
+<a name="pilot-fake"> </a>
+<h2>Pilot development environment _NAMELINK(pilot-fake)</h2>
+
+<p>
+    The following steps will allow you to develop the <b>service</b> portion of the pilot setup without actually needing an LRM installed or hypervisors.
+</p>
+<ol>
+
+<li>
+    Activate the pilot plugin, copy "resource-locator-pilot.xml" to "resource-locator-ACTIVE.xml"
+</li>
+
+<li>
+    Edit that, add any string here (e.g. "fake") in order to activate SSH based notifications:
+<div class="screen">
+&lt;property name="sshNotificationInfo" value="fake" /&gt;
+</div>
+</li>
+
+<li>Edit "services/etc/nimbus/workspace-service/pilot.conf"
+<div class="screen">
+   pbs.submit.path=/tmp/fakeqsub
+   pbs.delete.path=/bin/true
+</div>
+</li>
+
+<li>
+Create "/tmp/fakeqsub"
+<div class="screen">
+#!/bin/sh
+sleep 3
+echo "asdsadasd" # This is the LRM job ID. 
+</div>
+</li>
+
+<li>
+Edit "services/container-log4j.properties"
+<div class="screen">
+log4j.category.org.nimbustools=DEBUG
+log4j.category.org.globus.workspace=DEBUG
+</div>
+</li>
+
+<li>
+Edit "services/etc/nimbus/workspace-service/logging.conf"
+<div class="screen">
+log.state=on
+log.trace=on
+</div>
+
+Or in some cases you might even want to enable the scheduler logging in 
+ "services/etc/nimbus/workspace-service/other/main.xml"
+<div class="screen">
+&lt;property name="scheduler" value="on" /&gt;
+</div>
+</li>
+
+<li>
+Start service in fake mode (edit "services/etc/nimbus/workspace-service/other/common.conf" )
+</li>
+   
+<li>Start a vm with cloud client</li>
+
+<li>grep logs for "pilot command" and note the "-i" parameter, e.g. "1e372dca-de93-4fd9-a125-9d66842804cc".  That is the SLOT ID assigned to the LRM job.  If you are launching many pilots at once (i.e., a cluster of 50 VMs, but one LRM job), each pilot process will report back with the <b>same id</b> but different hostname.
+</li>
+
+<li>
+Simulate reserved notification:
+<div class="screen">
+<b>$</b> ./services/var/nimbus/msg-sinks/pilotnotifications write 1e372dca-de93-4fd9-a125-9d66842804cc+++localhost pilot-reserved 0 2010-11-07-16-12-01
+</div>
+<ul>
+    <li>
+    <p>arg1 ("1e372dca-de93-4fd9-a125-9d66842804cc+++localhost")</p>
+    
+    <p>"1e372dca-de93-4fd9-a125-9d66842804cc" is slot id from service logs</p>
+    <p>"+++" is separator</p>
+    <p>"localhost" is hostname where pilot ended up running</p>
+    </li>
+    
+    <li><p>arg2 state, e.g. pilot-reserved</p></li>
+    <li><p>arg3, return code, e.g. 0</p></li>
+    <li><p>arg4, timestamp, YYYY-MM-DD-HH-MM-SS  (always UTC/GMT)</p></li>
+</ul>
+</li>
+
+</ol>
 
 <br />
 <a name="change-wsdl"> </a>

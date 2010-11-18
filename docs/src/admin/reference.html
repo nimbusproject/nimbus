@@ -5,7 +5,8 @@ _NIMBUS_LEFT2_COLUMN
 _NIMBUS_LEFT2_ADMIN_SIDEBAR(n,n,y,n,n)
 _NIMBUS_LEFT2_COLUMN_END
 _NIMBUS_CENTER2_COLUMN
-_NIMBUS_2_6_DEPRECATED
+_NIMBUS_IS_DEPRECATED
+
 
 <h2>Nimbus 2.6 Admin Reference</h2>
 
@@ -1025,6 +1026,15 @@ hostname = &lt;hostname&gt;
     to change the value <tt class="literal">vws.repository=&lt;hostname&gt;:&lt;port&gt;</tt>
     in their local cloud.properties file.
 
+</p>
+
+<h3>Nimbus Context Broker REST frontend (default 8446</h3>
+<p>
+    The context broker also has a RESTful HTTP interface which listens on a separate port.
+    You can disable or change the port of this interface in a configuration file:
+    <tt class="literal">$NIMBUS_HOME/services/etc/nimbus-context-broker/jndi-config.xml</tt>.
+    Parameters under the <tt class="literal">rest</tt> resource control this interface.
+    Restart the service for changes to take effect.
 </p>
 
 <h3>Nimbus Web application (default 1443)</h3>
@@ -2107,93 +2117,98 @@ additional steps are required to enable it.
 <p>
 The following software is required on both service and VMM nodes:
     <ol>
-        <li>python2.4</li>
-        <li>python simplejson</li>
+        <li>Python 2.5+ (but not Python 3.x)</li>
+        <li>Python <tt class="literal">simplejson</tt> module</li>
     </ol>
 </p>
 
 <p>
-Lantorrent is run out of xinetd thus it must also be installed on all VMMs.
+Lantorrent is run out of <tt class="literal">xinetd</tt> thus it must also be installed on all VMMs.
 </p>
 
 <p>
 To install LANTorrent you must take the following steps:
 
 <ol>
-<li>edit $NIMBUS_HOME/nimbus-setup.conf</li>
-    change lantorrent.enabled: False -&gt; lantorrent.enabled: True
+<li>
+    <p>
+        Edit <tt class="literal">$NIMBUS_HOME/nimbus-setup.conf</tt> and enable LANTorrent:
+    </p>
+    <pre class="panel">lantorrent.enabled: True</pre>
+</li>
 
-<li>edit $NIMBUS_HOME/services/etc/nimbus/workspace-service/other/common.conf</li>
-    change the value of propagate.extraargs:
-    propagate.extraargs=$NIMBUS_HOME/lantorrent/bin/lt-request
-    <br />
-    be sure to expand $NIMBUS_HOME to its full and actual path.
+<li>
+    <p>
+        Edit <tt class="literal">$NIMBUS_HOME/services/etc/nimbus/workspace-service/other/common.conf</tt>
+        and change the value of <tt class="literal">propagate.extraargs</tt>:
+    </p>
+    <pre class="panel">propagate.extraargs=$NIMBUS_HOME/lantorrent/bin/lt-request</pre>
+    <p>
+    Be sure to expand <tt class="literal">$NIMBUS_HOME</tt> to its full and actual path.
+    </p>
+</li>
 
-<li>install lantorrent on VMM</li>
+<li>
+    <p>Install LANTorrent on VMM</p>
     <ul>
-        <li>recursively copy $NIMBUS_HOME/lantorrent to /opt/nimbus/lantorrent.</li>
-        <li>run ./vmm-install.sh on each node</li>
-            either run it as your workspace control user or specify the workspace
+        <li>Recursively copy <tt class="literal">$NIMBUS_HOME/lantorrent</tt> to
+            <tt class="literal">/opt/nimbus/lantorrent</tt>.</li>
+        <li>Run <tt class="literal">./vmm-install.sh</tt> on each node.
+            Either run it as your workspace control user or specify the workspace
             control user as the first and only argument to the script.
+        </li>
     </ul>
+</li>
 
-<li>install LANTorrent into xinetd</li>
-    the vmm-install.sh script creates the file lantorrent.  This
-    file is ready to be copied into /etc/xinetd.d/.  Once this is done
-    restart xinetd (/etc/init.d/xinetd restart).
-
-<li>change the propagation method.</li>
-    edit the file:
-        <BR>
-        $NIMBUS_HOME/services/etc/nimbus/workspace-service/other/authz-callout-ACTIVE.xml
-
+<li>
+    <p>Install LANTorrent into xinetd</p>
+    <p>
+    The <tt class="literal">vmm-install.sh</tt> script creates the file <tt class="literal">lantorrent</tt>.
+    This file is ready to be copied into <tt class="literal">/etc/xinetd.d/</tt>.  Once done,
+    restart xinetd.
+    </p>
+     <pre class="panel">
+     # /etc/init.d/xinetd restart
+     </pre>
+</li>
+<li>
+    <p>Change the propagation method.</p>
+    <p>Edit the file:
+        <tt class="literal">$NIMBUS_HOME/services/etc/nimbus/workspace-service/other/authz-callout-ACTIVE.xml</tt>
         and change:
-    <ul>
-        <li><tt class="literal">
-            &lt;property name="repoScheme" value="scp" /&gt;
-        </tt></li>
-        to:
-        <li><tt class="literal">
-            &lt;property name="repoScheme" value="lantorrent" /&gt;
-        </tt></li>
-    </ul>
+    </p>
+    <pre class="panel">&lt;property name="repoScheme" value="scp" /&gt;</pre>
+    to:
+    <pre class="panel">&lt;property name="repoScheme" value="lantorrent" /&gt;</pre>
+</li>
+<li>Restart the service:
+<pre class="panel">
+$ $NIMBUS_HOME/bin/nimbusctl restart
+</pre>
+</li>
 
-<li>restart the service:</li>
-$NIMBUS_HOME/bin/nimbusctl restart
+<li>
+    <p>
+        [optional] If the path to nimbus on the workspace-control nodes (VMMs)
+    is not <tt class="literal">/opt/nimbus</tt> you will also need to edit a configuration file on
+    all backend nodes.
+    </p>
 
-<li>[optional] if the path to nimbus on the workspace control nodes (VMMs)
-    is not /opt/nimbus you will also need to edit a configuration file on
-    all backends.</li>
+    <p>
+    In the file: <tt class="literal">&lt;workspace-control path&gt;/etc/workspace-control/propagation.conf</tt>
+    Adjust the value of:
 
-    <ul>
-    In the file:
-        <li><tt class="literal">
-    &lt;workspace control path&gt;/control/etc/workspace-control/propagation.conf
-        </tt></li>
-
-    make sure the value of:
-
-        <li><tt class="literal">
+    <pre class="panel">
     lantorrentexe: /opt/nimbus/bin/ltclient.sh
-        </tt></li>
+    </pre>
 
-    points to the proper location of you ltclinet.sh script.  This should
-    be a simple matter of changing /opt/nimbus to the path where you chose
+    <p>to point to the proper location of your <tt class="literal">ltclient.sh</tt> script.  This should
+    be a simple matter of changing <tt class="literal">/opt/nimbus</tt> to the path where you chose
     to install workspace control.
-    </ul>
+    </p>
+</li>
+</ol>
 
-<div class="note">
-<p class="note-title">cumulus.ini in Nimbus</p>
-For Nimbus installations this file can be found at
-<tt class="literal">$NIMBUS_HOME/cumulus/etc/cumulus.ini</tt>
-</p>
-</div>
-
-<p>
-Each file in the path is read in (provided it exists).  The values found 
-in each file override the values found in the previous file in this list.
-
-</p>
 <br />
 <br />
 <br />

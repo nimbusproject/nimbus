@@ -35,7 +35,6 @@ class LTServer(object):
         self.json_header = {}
         self.source_conn = LTSourceConnection(inf)
         self.outf = outf
-        self.max_header_lines = 102400
         self.block_size = 128*1024
         self.suffix = ".lantorrent"
         self.created_files = []
