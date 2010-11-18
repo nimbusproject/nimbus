@@ -42,6 +42,7 @@ class TestXfer(unittest.TestCase):
             v = LTServer(c, c)
             v.store_and_forward()
 
+            print "-> %s XX %s" % (self.src_file, fname)
             rc = filecmp.cmp(self.src_file, fname)
             self.assertTrue(rc)
         finally:

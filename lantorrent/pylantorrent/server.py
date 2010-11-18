@@ -4,10 +4,12 @@ from socket import *
 import logging
 import pylantorrent
 from pylantorrent.ltException import LTException
-from pylantorrent.ltConnection import LTConnection
-import simplejson as json
+from pylantorrent.ltConnection import *
+try:
+    import json
+except ImportError:
+    import simplejson as json
 import traceback
-import threading
 import hashlib
 
 #  The first thing sent is a json header terminated by a single line
@@ -30,84 +32,67 @@ import hashlib
 class LTServer(object):
 
     def __init__(self, inf, outf):
-        self.lock = threading.Lock()
         self.json_header = {}
-        self.inf = inf
+        self.source_conn = LTSourceConnection(inf)
         self.outf = outf
         self.max_header_lines = 102400
         self.block_size = 128*1024
-        self.read_header()
-        self.suffix = ".lattorrent"
+        self.suffix = ".lantorrent"
         self.created_files = []
+        self.v_con_array = []
+        self.files_a = []
+        self.md5str = None
 
-    def clean_up(self):
+    def _close_files(self):
+        for f in self.files_a:
+            f.close()
+        self.files_a = []
+
+    def _close_connections(self):
+        for v_con in self.v_con_array:
+            v_con.close()
+        self.v_con_array = []
+
+    def clean_up(self, force=False):
+        self._close_connections()
+        self._close_files()
+        pylantorrent.log(logging.DEBUG, "cleaning up")
         for f in self.created_files:
             try:
+                pylantorrent.log(logging.DEBUG, "deleting file %s" % (f))
                 os.remove(f)
             except:
                 pass
+        self.created_files = []
 
-    def read_header(self):
-        max_header_lines = 256
-        pylantorrent.log(logging.INFO, "reading a new header")
+    def _read_footer(self):
+        self.footer = self.source_conn.read_footer(self.md5str)
 
-        count = 0
-        lines = ""
-        l = self.inf.readline()
-        while l:
-            ndx = l.find("EOH : ")
-            if ndx == 0:
-                break
-            lines = lines + l
-            l = self.inf.readline()
-            count = count + 1
-            if count == self.max_header_lines:
-                raise LTException(501, "%d lines long, only %d allowed" % (count, max_header_lines))
-        if l == None:
-            raise LTException(501, "No signature found")
-        signature = l[len("EOH : "):].strip()
+    def _send_footer(self):
+        foot = {}
+        foot['md5sum'] = self.md5str
+        foot_str = json.dumps(foot)
+        pylantorrent.log(logging.DEBUG, "sending footer %s" % (foot_str))
+        for v_con in self.v_con_array:
+            v_con.send(foot_str)
 
-        auth_hash = pylantorrent.get_auth_hash(lines)
-
-        if auth_hash != signature:
-            pylantorrent.log(logging.INFO, "ACCESS DENIED |%s| != |%s| -->%s<---" % (auth_hash, signature, lines))
-            raise LTException(508, "%s is a bad signature" % (auth_hash))
-
-        self.json_header = json.loads(lines)
-
-        # verify the header
-        try:
-            reqs = self.json_header['requests']
-            for r in reqs:
-                filename = r['filename']
-                rid = r['id']
-                rn = r['rename']
-
-            host = self.json_header['host']
-            port = int(self.json_header['port'])
-            urls = self.json_header['destinations']
-            self.degree = int(self.json_header['degree'])
-            self.data_length = long(self.json_header['length'])
-        except Exception, ex:
-            raise LTException(502, str(ex), traceback)
+    def _read_header(self):
+        self.json_header = self.source_conn.read_header()
+        self.degree = int(self.json_header['degree'])
+        self.data_length = long(self.json_header['length'])
 
     def print_results(self, s):
-        pylantorrent.log(logging.DEBUG, "printing\n--------- %s\n---------------" % (s))
-#        self.lock.acquire()
-        try:
-            self.outf.write(s)
-            self.outf.write(os.linesep)
-        finally:
-#            self.lock.release()
-            pass
+        pylantorrent.log(logging.DEBUG, "printing\n--------- \n%s\n---------------" % (s))
+        self.outf.write(s)
+        self.outf.flush()
  
-    def get_valid_vcons(self, destinations):
+    def _get_valid_vcons(self, destinations):
         v_con_array = []
 
         while len(destinations) > 0 and len(v_con_array) < self.degree:
             ep = destinations.pop(0)
             try:
-                v_con = LTConnection(ep, self)
+                v_con = LTDestConnection(ep, self)
                 v_con_array.append(v_con)
             except LTException, vex:
                 # i think this is the only recoverable error
@@ -123,19 +108,12 @@ class LTServer(object):
             mine = destinations[ndx:end]
             rem = 0
             v_con.send_header(mine)
+        self.v_con_array = v_con_array
 
-        return v_con_array
-
-    def store_and_forward(self):
-
-        header = self.json_header
-        ex_array = []
-        requests_a = header['requests']
-
+    def _open_dest_files(self, requests_a):
         files_a = []
         for req in requests_a:
             filename = req['filename']
-            rid = req['id']
             try:
                 rn = req['rename']
                 if rn:
@@ -146,56 +124,71 @@ class LTServer(object):
             except Exception, ex:
                 pylantorrent.log(logging.ERROR, "Failed to open %s" % (filename))
                 raise LTException(503, str(ex), header['host'], int(header['port']), reqs=requests_a)
+        self.files_a = files_a
 
+    # perhaps this should even be an io event system or threads.  For now
+    # it will throttle on the one blocking socket from the data source
+    # and push the rest to the vcon objects
+    def _process_io(self):
+        md5er = hashlib.md5()
+        read_count = 0
+        bs = self.block_size
+        while read_count < self.data_length:
+            if bs + read_count > self.data_length:
+                bs = self.data_length - read_count
+            data = self.source_conn.read_data(bs)
+            if data == None:
+                raise Exception("Data is None prior to receiving full file %d %d" % (read_count, self.data_length))
+            md5er.update(data)
+            for v_con in self.v_con_array:
+                v_con.send(data)
+            for f in self.files_a:
+                f.write(data)
+            read_count = read_count + len(data)
+        self.md5str = str(md5er.hexdigest()).strip()
+        pylantorrent.log(logging.DEBUG, "We have received sent %d bytes. The md5sum is %s" % (read_count, self.md5str))
+
+
+    def store_and_forward(self):
+
+        self._read_header()
+        header = self.json_header
+        requests_a = header['requests']
+
+        self._open_dest_files(requests_a)
         destinations = header['destinations']
-        v_con_array = self.get_valid_vcons(destinations)
+        self._get_valid_vcons(destinations)
+        self._process_io()
 
-        try:
-            md5er = hashlib.md5()
-            read_count = 0
-            bs = self.block_size
-            data = "X"  # fke data value to prime the loop
-            while data and read_count < self.data_length:
-                if bs + read_count > self.data_length:
-                    bs = self.data_length - read_count
-                data = self.inf.read(bs)
-                if data:
-                    md5er.update(data)
-                    for v_con in v_con_array:
-                        v_con.send(data)
-                    for f in files_a:
-                        f.write(data)
-                    read_count = read_count + len(data)
-            md5str = str(md5er.hexdigest()).strip()
-        except Exception, ex:
-            for v_con in v_con_array:
-                v_con.close()
-            for f in files_a:
-                f.close()
-            raise ex
-        for f in files_a:
-            f.close()
+        # close all open files
+        self._close_files()
+        # read the footer from the sending machine
+        self._read_footer()
+        # send foot to all machines this is streaming to
+        self._send_footer()
+        # wait for eof and close
+        self._close_connections()
+        self._rename_files(requests_a)
 
+        pylantorrent.log(logging.DEBUG, "All data sent %s %d" % (self.md5str, len(requests_a)))
+        # if we got to here it was successfully written to a file
+        # and we can call it success.  Print out a success message for 
+        # everyfile written
+        vex = LTException(0, "Success", header['host'], int(header['port']), requests_a, md5sum=self.md5str)
+        s = vex.get_printable()
+        self.print_results(s)
+        self.clean_up()
+
+    def _rename_files(self, requests_a):
         for req in requests_a:
             realname = req['filename']
             rn = req['rename']
             if rn:
                 tmpname = realname + self.suffix
+                pylantorrent.log(logging.DEBUG, "renaming %s -> %s" % (tmpname, realname))
+
                 os.rename(tmpname, realname)
                 self.created_files.remove(tmpname)
-
-        # close all the connections
-        for v_con in v_con_array:
-            v_con.read_output()
-            v_con.close()
-
-        pylantorrent.log(logging.DEBUG, "All data sent %s %d" % (md5str, len(requests_a)))
-        # if we got to here it was successfully written to a file
-        # and we can call it success.  Print out a success message for 
-        # everyfile written
-        vex = LTException(0, "Success", header['host'], int(header['port']), requests_a, md5sum=md5str)
-        s = vex.get_printable()
-        self.print_results(s)
 
 
 def main(argv=sys.argv[1:]):
@@ -203,23 +196,21 @@ def main(argv=sys.argv[1:]):
     pylantorrent.log(logging.INFO, "server starting")
     v = None
     rc = 1
+    v = LTServer(sys.stdin, sys.stdout)
     try:
-        v = LTServer(sys.stdin, sys.stdout)
         v.store_and_forward()
         rc = 0
     except LTException, ve:
         pylantorrent.log(logging.ERROR, "error %s" % (str(ve)), traceback)
         s = ve.get_printable()
-        print s
+        v.print_results(s)
+        v.clean_up()
     except Exception, ex:
         pylantorrent.log(logging.ERROR, "error %s" % (str(ex)), traceback)
         vex = LTException(500, str(ex))
         s = vex.get_printable()
-        print s
-    finally:
-        if v != None:
-            v.clean_up()
-        print "EOD"
+        v.print_results(s)
+        v.clean_up()
 
     return rc
 
