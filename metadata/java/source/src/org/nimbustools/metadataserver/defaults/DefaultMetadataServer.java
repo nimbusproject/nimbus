@@ -27,9 +27,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.safehaus.uuid.UUIDGenerator;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URI;
-import java.util.ArrayList;
+import java.util.*;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
@@ -48,6 +49,7 @@ public class DefaultMetadataServer implements MetadataServer {
     private static final Log logger =
            LogFactory.getLog(MetadataRequestHandler.class.getName());
 
+    protected static final String CONTACT_SOCKET_PREFIX = "contact.socket";
 
     // -------------------------------------------------------------------------
     // INSTANCE VARIABLES
@@ -63,8 +65,13 @@ public class DefaultMetadataServer implements MetadataServer {
     protected String[] publicNets;
 
     protected final Cache cache;
+
+    protected Properties properties;
     
     private final UUIDGenerator uuidGen;
+    private Set<URL> listenSockets;
+    private Map<String, URL> networkContacts;
+    private URL defaultContact;
 
 
     // -------------------------------------------------------------------------
@@ -96,6 +103,10 @@ public class DefaultMetadataServer implements MetadataServer {
 
     public void setListenSocket(String listenSocket) {
         this.listenSocket = listenSocket;
+    }
+
+    public void setProperties(Properties properties) {
+        this.properties = properties;
     }
 
     public void setEnabled(boolean enabled) {
@@ -189,7 +200,7 @@ public class DefaultMetadataServer implements MetadataServer {
         return this.customizationPath;
     }
 
-    public synchronized String getContactURL() {
+    public synchronized String getContactURL(NIC[] nics) {
         
         if (!this.listening) {
             logger.warn("contact URL requested but not listening?");
@@ -201,12 +212,25 @@ public class DefaultMetadataServer implements MetadataServer {
             return null;
         }
 
-        final URL url = this.listener.getURL();
-        if (url == null) {
-            return null;
-        } else {
-            return url.toString();
+        // search for the first NIC with a matching contact address
+        if (!this.networkContacts.isEmpty() && nics != null) {
+            for (NIC nic : nics) {
+                final String network = nic.getNetworkName();
+                if (network == null) {
+                    continue;
+                }
+                final URL url = this.networkContacts.get(network);
+                if (url != null) {
+                    return url.toString();
+                }
+            }
         }
+
+        if (defaultContact != null) {
+            return defaultContact.toString();
+        }
+
+        return null;
     }
 
     public synchronized boolean isListening() {
@@ -217,7 +241,18 @@ public class DefaultMetadataServer implements MetadataServer {
         return this.enabled;
     }
 
-    protected synchronized void initServerAndListen() throws Exception {
+    public synchronized void initServerAndListen() throws Exception {
+
+        if (!this.enabled) {
+            logger.info("metadata server not enabled");
+            return;
+        }
+
+        initialize();
+        start();
+    }
+
+    public synchronized void initialize() throws Exception {
 
         if (!this.enabled) {
             logger.info("metadata server not enabled");
@@ -228,19 +263,92 @@ public class DefaultMetadataServer implements MetadataServer {
             throw new Exception("already listening");
         }
 
-        if (this.listenSocket == null ||
-                this.listenSocket.trim().length() == 0) {
-            throw new Exception("metadata server enabled but there " +
-                    "is no 'contact.socket' configuration");
-        }
+        this.intakeProperties();
 
         final MetadataRequestHandler handler = new MetadataRequestHandler(this);
-        this.listener = new HTTPListener(this.listenSocket.trim());
+        this.listener = new HTTPListener(this.listenSockets);
         this.listener.initServer(handler);
+    }
+
+    public synchronized void start() throws Exception {
         this.listener.start();
         this.listening = true;
     }
 
+    public synchronized void stop() throws Exception {
+        if (!this.listening) {
+            return;
+        }
+
+        this.listener.stop();
+        this.listening = false;
+    }
+
+    private void intakeProperties() throws Exception {
+        if (this.properties == null) {
+            throw new Exception("properties not provided, don't know where to listen");
+        }
+
+        URL defaultContact = null;
+        final Map<String, URL> networkContacts = new HashMap();
+
+        for (Object propNameObject : properties.keySet()) {
+            final String propName = (String) propNameObject;
+
+            if (propName.startsWith(CONTACT_SOCKET_PREFIX)) {
+                String value = this.properties.getProperty(propName);
+
+                if (value == null) {
+                    continue;
+                }
+                value = value.trim();
+                if (value.length() == 0) {
+                    continue;
+                }
+
+                // hardcoding http here on purpose, to make it obvious that https is
+                // not supported if someone tries to put more than a host+port in the
+                // configuration
+                final URL url;
+                try {
+                    url = new URL("http://" + value);
+                } catch (MalformedURLException e) {
+                    throw new Exception("Invalid host:port value in "+ propName +
+                            " property: " + e.getMessage());
+                }
+
+                if (propName.length() == CONTACT_SOCKET_PREFIX.length()) {
+                    defaultContact = url;
+                } else if (propName.charAt(CONTACT_SOCKET_PREFIX.length()) == '.') {
+                    final String network = propName.substring(CONTACT_SOCKET_PREFIX.length()+1);
+
+                    if (network.length() == 0) {
+                        throw new Exception("Missing network name in property: " + propName);
+                    }
+                    networkContacts.put(network, url);
+                }
+            }
+        }
+
+        final Set<URL> listenSockets;
+        if (defaultContact != null && defaultContact.getHost().equals("0.0.0.0")) {
+            if (networkContacts.isEmpty()) {
+                throw new Exception("if the metadata server listens on all interfaces (0.0.0.0), " +
+                        "you must specify contact addresses to be given to VMs. For example, \""+
+                CONTACT_SOCKET_PREFIX + ".public\"");
+            }
+            listenSockets = java.util.Collections.singleton(defaultContact);
+
+        } else {
+            listenSockets = new HashSet<URL>(networkContacts.values());
+            if (defaultContact != null) {
+                listenSockets.add(defaultContact);
+            }
+        }
+        this.listenSockets = listenSockets;
+        this.defaultContact = defaultContact;
+        this.networkContacts = networkContacts;
+    }
 
     // -------------------------------------------------------------------------
     // DISPATCH
