@@ -354,6 +354,9 @@ public class DefaultMetadataServer implements MetadataServer {
     // DISPATCH
     // -------------------------------------------------------------------------
 
+    protected final String[] API_VERSIONS =
+            {"latest", "1.0", "2007-01-19", "2007-03-01", "2008-08-08"};
+
     protected String dispatch(String target, String remoteAddress)
             throws MetadataServerException,
                    MetadataServerUnauthorizedException {
@@ -362,18 +365,35 @@ public class DefaultMetadataServer implements MetadataServer {
             return this.topIndex();
         }
 
-        final String subtarget;
+        String subtarget = null;
+
+        for (String version : API_VERSIONS) {
+            version = "/" + version;
+            if (target.startsWith(version)) {
+                if (target.length() == version.length()) {
+                    subtarget = "";
+                    break;
+                } else if (target.charAt(version.length()) == '/') {
+                    subtarget = target.substring(version.length() + 1);
+                    break;
+                }
+            }
+        }
         
-        if (target.startsWith("/1.0/")) {
-            subtarget = target.substring(5);
-        } else if (target.startsWith("/2007-01-19/") ||
-                   target.startsWith("/2007-03-01/") ||
-                   target.startsWith("/2008-08-08/")) {
-            subtarget = target.substring(12);
-        } else {
-            final String err = "Unrecognized path: '" + target + "'.  " +
-                    "Expected first subdirectory in path to be " +
-                    "'1.0' or '2007-01-19' or '2007-03-01' or '2008-08-08'.";
+        if (subtarget == null) {
+            final StringBuilder sb = new StringBuilder();
+            sb.append("Unrecognized path: '").append(target).
+                    append("'. Expected first subdirectory in path to be one of: ");
+            for (int i = 0; i < API_VERSIONS.length; i++) {
+                String version = API_VERSIONS[i];
+                if (i == API_VERSIONS.length-1 && API_VERSIONS.length > 1) {
+                    sb.append(", or ");
+                } else if (i > 0) {
+                    sb.append(", ");
+                }
+                sb.append("'").append(version).append("'");
+            }
+            final String err = sb.toString();
             throw new MetadataServerException(err, err);
         }
         
@@ -386,7 +406,10 @@ public class DefaultMetadataServer implements MetadataServer {
             throws MetadataServerException,
                    MetadataServerUnauthorizedException {
 
-        if (subtarget.startsWith("meta-data/")) {
+    if (subtarget.equals("") || subtarget.equals("/")) {
+        return "meta-data\nuser-data\n";
+        
+    } else if (subtarget.startsWith("meta-data/")) {
             return dispatchMetaData(target,
                                     subtarget.substring(10),
                                     remoteAddress);
@@ -410,14 +433,18 @@ public class DefaultMetadataServer implements MetadataServer {
 
         return this.userData(remoteAddress);
     }
-    
+
     protected String dispatchMetaData(String target,
                                       String subsubtarget,
                                       String remoteAddress)
             throws MetadataServerException,
                    MetadataServerUnauthorizedException {
 
-        if (subsubtarget.startsWith("ami-id")) {
+        if (subsubtarget.equals("") || subsubtarget.equals("/")) {
+            return "ami-id\nami-launch-index\nlocal-hostname\nlocal-ipv4\n" +
+                    "public-hostname\npublic-ipv4\n";
+
+        } else if (subsubtarget.startsWith("ami-id")) {
             return this.amiID(remoteAddress);
         } else if (subsubtarget.startsWith("ami-launch-index")) {
             return this.amiLaunchIndex(remoteAddress);
@@ -611,10 +638,11 @@ public class DefaultMetadataServer implements MetadataServer {
         
         /* NOT actually supporting these later protocols but providing them
            as a passthrough to 1.0 */
-        return "1.0\n" +
-               "2007-01-19\n" +
-               "2007-03-01\n" +
-               "2008-08-08\n";
+        StringBuilder sb = new StringBuilder();
+        for (String version : API_VERSIONS) {
+            sb.append(version).append("\n");
+        }
+        return sb.toString();
     }
 
     /*
