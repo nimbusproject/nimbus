@@ -143,8 +143,8 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         // Requested SI VMs (alive requests): 0
         // Spot price: MINIUM_PRICE (since requestedVMs < availableVMs)           
 
-        logger.debug("Waiting 5 seconds for resources to be allocated.");
-        Thread.sleep(5000);         
+        logger.debug("Waiting 2 seconds for resources to be allocated.");
+        Thread.sleep(2000);
         
         //Verify there are no spot instance requests
         SpotRequestInfo[] spotRequestByCaller = rm.getSpotRequestsByCaller(superuser);
@@ -169,6 +169,9 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         
         //Request spot instances
         SpotRequestInfo result = rm.requestSpotInstances(requestSI, caller);
+
+        logger.debug("Waiting 2 seconds for resources to be allocated.");
+        Thread.sleep(2000);
         
         //Check result
         //note: cannot check state at this point, because it can either be 
@@ -657,8 +660,8 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         
         Calendar ts2 = Calendar.getInstance();        
         
-        //logger.debug("Waiting 2 seconds for resources to be pre-empted.");
-        //Thread.sleep(2000);        
+        logger.debug("Waiting 2 seconds for resources to be pre-empted.");
+        Thread.sleep(2000);        
         
         //New spot price is equal to minimum price
         assertEquals(MINIMUM_PRICE,  rm.getSpotPrice());
@@ -708,7 +711,10 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         // --------------------------------------------        
         // Requested SI VMs (alive requests): 8
         // Spot price: lowBid (previousPrice+1) 
-                
+
+        logger.debug("Waiting 2 seconds for resources to be pre-empted.");
+        Thread.sleep(2000);
+        
         //New spot price is equal to lower bid
         assertEquals(lowBid,  rm.getSpotPrice());
         
