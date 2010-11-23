@@ -38,8 +38,8 @@ public class Propagate extends XenTask {
         if (vm != null) {
 
             final ArrayList ssh = SSHUtil.constructSshCommand(vm.getNode());
-            logger.info("VM: " + vm);
-            final ArrayList exe = this.ctx.getLocator().getPropagationAdapter().constructPropagateCommand(vm);
+            final ArrayList exe = this.ctx.getLocator().
+                         getPropagationAdapter().constructPropagateCommand(vm);
             ssh.addAll(exe);
 
             final String credentialName = vm.getCredentialName();

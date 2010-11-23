@@ -783,7 +783,6 @@ public class XenUtil implements WorkspaceConstants {
             return;
         }
 
-
         final ArrayList cmd;
         if (remoteTarget) {
             cmd = SSHUtil.constructScpCommandPrefix();
@@ -793,17 +792,9 @@ public class XenUtil implements WorkspaceConstants {
             cmd.add("-p");
         }
 
-        if (needs != null) {
-            for (int i = 0; i < needs.length; i++) {
-                // TODO: clean up
-                final String path = localDirectory + "/" + needs[i].sourcePath;
-                cmd.add(path);
-            }
-        }
-        
-        if (credentialPath != null) {
-
-            final String path = localDirectory + "/" + credentialPath;
+        for (int i = 0; i < needs.length; i++) {
+            // TODO: clean up
+            final String path = localDirectory + "/" + needs[i].sourcePath;
             cmd.add(path);
         }
 

@@ -26,8 +26,6 @@ import org.globus.workspace.xen.XenTask;
 import org.globus.workspace.xen.XenUtil;
 
 import java.util.ArrayList;
-import java.io.FileOutputStream;
-import org.safehaus.uuid.UUIDGenerator;
 
 public class Start extends XenTask {
 
@@ -82,19 +80,15 @@ public class Start extends XenTask {
             return e;
         }
 
-
-
         // todo: do not like this concept (waiting for ORM overhaul)
-        if (needs != null){
-            final int vmid = vm.getID().intValue();
-            for (int i = 0; i < needs.length; i++) {
-                try {
-                    needs[i].setSent(true);
-                    this.ctx.getLocator().getPersistenceAdapter().
-                                            setCustomizeTaskSent(vmid, needs[i]);
-                } catch (WorkspaceDatabaseException e) {
-                    logger.error("", e);
-                }
+        final int vmid = vm.getID().intValue();
+        for (int i = 0; i < needs.length; i++) {
+            try {
+                needs[i].setSent(true);
+                this.ctx.getLocator().getPersistenceAdapter().
+                                        setCustomizeTaskSent(vmid, needs[i]);
+            } catch (WorkspaceDatabaseException e) {
+                logger.error("", e);
             }
         }
 

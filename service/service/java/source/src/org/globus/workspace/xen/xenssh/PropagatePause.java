@@ -30,7 +30,6 @@ public class PropagatePause extends Propagate {
         this.async = true;
 
         final VirtualMachine vm = this.ctx.getVm();
-
         if (vm != null) {
             final ArrayList ssh = SSHUtil.constructSshCommand(vm.getNode());
 
