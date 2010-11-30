@@ -18,6 +18,8 @@ package org.globus.workspace.service.binding.defaults;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.globus.workspace.PathConfigs;
+import org.globus.workspace.service.binding.*;
 import org.nimbustools.api.repr.CreateRequest;
 import org.nimbustools.api.repr.vm.ResourceAllocation;
 import org.nimbustools.api.services.rm.CreationException;
@@ -38,8 +40,6 @@ import org.globus.workspace.service.binding.vm.CustomizationNeed;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.globus.workspace.service.binding.vm.VirtualMachineDeployment;
 
-import org.safehaus.uuid.UUIDGenerator;
-
 public class DefaultBindingAdapter implements BindingAdapter,
                                               WorkspaceConstants {
 
@@ -59,6 +59,7 @@ public class DefaultBindingAdapter implements BindingAdapter,
     protected final BindInitialState bindInitialState;
     protected final BindShutdownMechanism bindShutdownMechanism;
     protected final BindCustomizations bindCustomizations;
+    protected final BindCredential bindCredential;
     protected final BindKernel bindKernel;
     protected final BindResourceRequest bindResourceRequest;
     protected final BindDisks bindDisks;
@@ -74,6 +75,7 @@ public class DefaultBindingAdapter implements BindingAdapter,
                                  BindInitialState bindInitialStateImpl,
                                  BindShutdownMechanism bindShutdownImpl,
                                  BindCustomizations bindCustomizationsImpl,
+                                 BindCredential bindCredentialImpl,
                                  BindKernel bindKernelImpl,
                                  BindDisks bindDisksImpl,
                                  BindResourceRequest bindResourceRequestImpl,
@@ -99,6 +101,11 @@ public class DefaultBindingAdapter implements BindingAdapter,
             throw new IllegalArgumentException("bindCustomizationsImpl may not be null");
         }
         this.bindCustomizations = bindCustomizationsImpl;
+
+        if (bindCredentialImpl == null) {
+            throw new IllegalArgumentException("bindCredentialImpl may not be null");
+        }
+        this.bindCredential = bindCredentialImpl;
 
         if (bindKernelImpl == null) {
             throw new IllegalArgumentException("bindKernelImpl may not be null");
@@ -167,17 +174,11 @@ public class DefaultBindingAdapter implements BindingAdapter,
         this.bindResourceRequest.consume(dep, req.getRequestedRA());
         this.bindVMM.consume(vm, req.getRequiredVMM());
         this.bindCustomizations.consume(vm, req.getCustomizationRequests());
+        this.bindCredential.consume(vm, req.getCredential());
 
         // all in group get the same data
         if (req.getMdUserData() != null) {
             vm.setMdUserData(req.getMdUserData());
-        }
-
-        if (req.getCredential() != null) {
-            vm.setCredential(req.getCredential());
-            final UUIDGenerator uuidGen = UUIDGenerator.getInstance();
-            final String credentialName = uuidGen.generateRandomBasedUUID().toString();
-            vm.setCredentialName(credentialName);
         }
 
         final VirtualMachine[] vms = new VirtualMachine[numNodes];

@@ -18,6 +18,5 @@
 -- select * from counter;
 -- select * from notification_position;
 
-
 disconnect;
 exit;

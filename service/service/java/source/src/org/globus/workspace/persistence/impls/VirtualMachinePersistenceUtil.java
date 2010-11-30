@@ -105,6 +105,12 @@ public class VirtualMachinePersistenceUtil
             pstmt.setNull(11, Types.VARCHAR);
         }
 
+        if (vm.getCredentialName() != null) {
+            pstmt.setString(12, vm.getCredentialName());
+        } else {
+            pstmt.setNull(12, Types.VARCHAR);
+        }
+
         PreparedStatement pstmt2 = null;
 
         VirtualMachineDeployment dep = vm.getDeployment();
@@ -297,6 +303,7 @@ public class VirtualMachinePersistenceUtil
         vm.setVmmVersion(rs.getString(8));
         vm.setAssociationsNeeded(rs.getString(9));
         vm.setMdUserData(rs.getString(10));
+        vm.setCredentialName(rs.getString(11));
         return vm;
     }
 

@@ -48,7 +48,6 @@ public class VirtualMachine extends WorkspaceInstantiation {
 
     private CustomizationNeed[] customizationNeeds;
 
-    private String credential;
     private String credentialName;
 
     private String mdUserData;
@@ -145,14 +144,6 @@ public class VirtualMachine extends WorkspaceInstantiation {
 
     public void setMdUserData(String mdUserData) {
         this.mdUserData = mdUserData;
-    }
-
-    public String getCredential() {
-        return this.credential;
-    }
-
-    public void setCredential(String credential) {
-        this.credential = credential;
     }
 
     public String getCredentialName() {
@@ -358,7 +349,6 @@ public class VirtualMachine extends WorkspaceInstantiation {
                 CustomizationNeed.cloneArray(vm.customizationNeeds);
 
         newvm.mdUserData = vm.mdUserData;
-        newvm.credential = vm.credential;
         newvm.credentialName = vm.credentialName;
 
         return newvm;

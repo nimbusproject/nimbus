@@ -69,7 +69,7 @@ class propadapter(PropagationAdapter):
                     raise
 
         self.c.log.info("Transfer complete.")
-    
+
     def unpropagate(self, local_absolute_source, remote_target):
         raise InvalidInput("HTTP unpropagation is not supported.")
 

@@ -177,7 +177,6 @@ public class Translate extends BaseTranslate {
             net = log.getNetworking();
         }
 
-
         final CustomizeTask_Type[] customizes;
 
         final OptionalParameters_Type optional = wsreq.getOptionalParameters();
@@ -188,7 +187,6 @@ public class Translate extends BaseTranslate {
         } else {
             customizes = null;
         }
-
 
         // Boolean object can be null for conversion like this (null==false)
         final boolean ensDone =

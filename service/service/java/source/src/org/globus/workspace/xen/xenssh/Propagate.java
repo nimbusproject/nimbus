@@ -24,7 +24,6 @@ import org.globus.workspace.service.impls.site.PropagationAdapter;
 import org.globus.workspace.xen.XenTask;
 import org.globus.workspace.xen.XenUtil;
 
-import java.io.FileOutputStream;
 import java.util.ArrayList;
 
 public class Propagate extends XenTask {
@@ -36,7 +35,6 @@ public class Propagate extends XenTask {
 
         final VirtualMachine vm = this.ctx.getVm();
         if (vm != null) {
-
             final ArrayList ssh = SSHUtil.constructSshCommand(vm.getNode());
             final ArrayList exe = this.ctx.getLocator().
                          getPropagationAdapter().constructPropagateCommand(vm);
@@ -48,19 +46,10 @@ public class Propagate extends XenTask {
                 final boolean eventLog = this.ctx.lager().eventLog;
                 final boolean traceLog = this.ctx.lager().traceLog;
 
-                logger.info("Pushing credential: " + credentialName);
                 final PathConfigs paths = this.ctx.getLocator().getPathConfigs();
                 final String backendDirectory = paths.getBackendTempDirPath();
                 final String localDirectory = paths.getLocalTempDirPath();
 
-                try {
-                    FileOutputStream out = new FileOutputStream(localDirectory + "/" + credentialName);
-                    out.write(vm.getCredential().getBytes());
-                    out.flush();
-                    out.close();
-                } catch (Exception e) {
-                    throw new WorkspaceException("Couldn't save credential to " + localDirectory);
-                }
 
                 try {
                     XenUtil.doCredentialPushRemoteTarget(vm,
@@ -85,7 +74,6 @@ public class Propagate extends XenTask {
     }
 
     protected Exception preExecute() {
-
         return _preExecute(
                     this.ctx.getLocator().getGlobalPolicies().isFake(),
                     this.ctx.getLocator().getPropagationAdapter());

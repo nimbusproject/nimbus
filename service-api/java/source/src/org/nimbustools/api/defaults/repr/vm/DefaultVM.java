@@ -43,7 +43,7 @@ public class DefaultVM implements _VM {
     private Caller creator;
     private int launchIndex;
     private String mdUserData;
-    private String credential;
+    private String credentialName;
     private String sshKeyName;
 
 
@@ -147,12 +147,12 @@ public class DefaultVM implements _VM {
         return this.mdUserData;
     }
 
-    public void setCredential(String credential) {
-        this.credential = credential;
+    public void setCredentialName(String credentialName) {
+        this.credentialName = credentialName;
     }
 
-    public String getCredential() {
-        return this.credential;
+    public String getCredentialName() {
+        return this.credentialName;
     }
 
     public void setSshKeyName(String sshKeyName) {

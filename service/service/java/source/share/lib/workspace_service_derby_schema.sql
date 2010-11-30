@@ -61,7 +61,8 @@ kernel_parameters VARCHAR(128),
 vmm VARCHAR(32),
 vmm_version VARCHAR(32),
 assocs_needed VARCHAR(256),
-md_user_data VARCHAR(30720)
+md_user_data VARCHAR(30720),
+credential_name VARCHAR(128)
 );
 
 --

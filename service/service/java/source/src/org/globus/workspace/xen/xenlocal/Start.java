@@ -55,7 +55,6 @@ public class Start extends XenTask {
         // init would have thrown exception if null
         final VirtualMachine vm = this.ctx.getVm();
 
-
         final CustomizationNeed[] needs = vm.getCustomizationNeeds();
         if (needs == null || needs.length == 0) {
             if (traceLog) {
