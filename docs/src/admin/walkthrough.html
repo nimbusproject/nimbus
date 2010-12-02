@@ -301,21 +301,153 @@ $ ./bin/cloud-client --list
 No files.
 </pre>
 
+<p>
+    The other user management tools are fairly self-explanatory. If you run
+    <tt class="literal">nimbus-list-users %</tt>, you should see your new
+    user listed. With the other tools, you can edit or remove this user.
+</p>
+
 
 <a name="nodes"> </a>
 <h3>Node Management _NAMELINK(nodes)</h3>
 
 <p>
-    TODO
+    Another important aspect of Nimbus administration is node management. Nodes are the
+    physical machines that user VMs run on. The pool of available nodes can be altered
+    on-the-fly using the <tt class="literal">nimbus-nodes</tt> command line tool. Nodes
+    are specified by hostname, and they must be fully configured with the Nimbus backend
+    software before you add them. Since we are running in <em>fake mode</em>, the nodes
+    we add here will never be contacted and don't need to exist. So let's just make up
+    some hostnames, <tt class="literal">n1</tt> and <tt class="literal">n2</tt>.
 </p>
 
-<a name="config"> </a>
-<h3>Configuration _NAMELINK(config)</h3>
+<pre class="panel">
+$ ./bin/nimbus-nodes --add n1,n2 --memory 2048
+hostname :  n1
+pool     :  default
+memory   :  2048
+networks :  *
+in_use   :  false
+active   :  true
+result   :  ADDED
+
+hostname :  n2
+pool     :  default
+memory   :  2048
+networks :  *
+in_use   :  false
+active   :  true
+result   :  ADDED
+</pre>
 
 <p>
-    TODO
+    This command adds two new nodes, each with 2048MB of memory available for virtual machines.
+    Take a look a the output of <tt class="literal">--help</tt>. There are several other commands
+    you can run to edit existing nodes, or remove them from the pool. One important constraint is
+    you cannot edit or remove nodes that have running VMs (<tt class="literal">in_use : true</tt>).
+    However, you can make them inactive, which means that no new VMs will be started on the specifled
+    nodes. But existing VMs can continue until their leases expire.
 </p>
 
+
+<a name="run"> </a>
+<h3>Run a fake VM _NAMELINK(run)</h3>
+
+<p>
+    Now let's go back to the cloud client we set up earlier. We can send a launch request and since
+    the service is still in fake mode, it will pretend to start a VM and send its information back
+    to the client.
+</p>
+
+<pre class="panel">
+$ echo "this is not a VM image" &gt; myfakevm
+$ bin/cloud-client.sh --transfer --sourcefile myfakevm
+
+Transferring
+  - Source: myfakevm
+  - Destination: cumulus://Repo/VMS/5c01dfac-fe2c-11df-875b-00264a0eb5ca/myfakevm
+
+Preparing the file for transfer:
+  23.0 B [XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX] 100%
+
+Transferring the file:
+  23.0 B [XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX] 100%
+
+Done.
+</pre>
+
+<p>
+    Now let's try to "start" this fake image.
+</p>
+
+<pre class="panel">
+$ ./bin/cloud-client.sh --run --name myfakevm --hours 1
+
+Launching workspace.
+
+Workspace Factory Service:
+    https://localhost:8443/wsrf/services/WorkspaceFactoryService
+
+Creating workspace "vm-001"... done.
+
+
+       IP address: 192.168.0.2
+         Hostname: pub02
+       Start time: Thu Dec 02 13:37:09 EST 2010
+    Shutdown time: Thu Dec 02 14:37:09 EST 2010
+ Termination time: Thu Dec 02 14:47:09 EST 2010
+
+Waiting for updates.
+
+
+"vm-001" reached target state: Running
+
+Running: 'vm-001'
+</pre>
+
+<p>
+    Now our fake VM is running. We can take a look at a few state files in the service to verify
+    this. Back in the service, switch to the <tt class="literal">/tmp/nimbus/services/var/nimbus</tt>
+    directory.
+</p>
+
+
+<pre class="panel">
+$ cd /tmp/nimbus/services/var/nimbus
+$ tail current-reservations.txt
+dn="/O=Auto/OU=85da03df-cf74-4e05-82b9-d20eae9e92aa/CN=tutorialuser@nimbusproject.org",
+minutes=60, uuid="56cf2992-d9ab-4070-94dc-79e3812f11ba", eprkey=1, creation="Dec 2, 2010 1:37:09 PM"
+</pre>
+
+<p>
+    The <tt class="literal">current-reservations.txt</tt> file shows the running VM. We can also look
+    at the accounting log to see more information.
+</p>
+
+<pre class="panel">
+$ tail accounting-events.txt
+CREATED: time="Dec 2, 2010 1:37:09 PM", uuid="56cf2992-d9ab-4070-94dc-79e3812f11ba",
+ eprkey=1, dn="/O=Auto/OU=85da03df-cf74-4e05-82b9-d20eae9e92aa/CN=tutorialuser@nimbusproject.org",
+ requestMinutes=60, charge=60, CPUCount=1, memory=256, vmm='n2',
+ clientLaunchName='https://sandwich:8443/vm-001',
+ network='eth0;public;A2:AA:BB:50:EB:8B;Bridged;AllocateAndConfigure;192.168.0.2;192.168.0.1;
+ null;null;192.168.0.1;pub02;null;null;null;null'
+</pre>
+
+<p>
+    If you like, you can now terminate your fake VM with the cloud client. It will disappear from
+    the reservations file and there will be a new accounting log entry.
+</p>
+
+<pre class="panel">
+$ ./bin/cloud-client.sh --terminate --handle vm-001
+
+Terminating workspace.
+  - Workspace handle (EPR): '/tmp/nimbus-cloud-client-017/history/vm-001/vw-epr.xml'
+
+Destroying vm-001... destroyed.
+
+</pre>
 
 
 <br />
