@@ -20,8 +20,8 @@ import org.globus.workspace.WorkspaceException;
 import org.globus.workspace.PathConfigs;
 import org.globus.workspace.persistence.WorkspaceDatabaseException;
 import org.globus.workspace.cmdutils.SSHUtil;
+import org.globus.workspace.service.binding.vm.FileCopyNeed;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
-import org.globus.workspace.service.binding.vm.CustomizationNeed;
 import org.globus.workspace.xen.XenTask;
 import org.globus.workspace.xen.XenUtil;
 
@@ -47,46 +47,16 @@ public class Start extends XenTask {
 
     protected Exception preExecute(boolean fake) {
 
-        final boolean eventLog = this.ctx.lager().eventLog;
-        final boolean traceLog = this.ctx.lager().traceLog;
-        
-        if (traceLog) {
-            logger.trace("Beginning start pre-execute");
-        }
-
-        // init would have thrown exception if null
         final VirtualMachine vm = this.ctx.getVm();
-
-        final CustomizationNeed[] needs = vm.getCustomizationNeeds();
-        if (needs == null || needs.length == 0) {
-            if (traceLog) {
-                logger.debug("customization file push: nothing to do");
-            }
-            return null;
-        }
-
-        final PathConfigs paths = this.ctx.getLocator().getPathConfigs();
-        final String backendDirectory = paths.getBackendTempDirPath();
-        final String localDirectory = paths.getLocalTempDirPath();
-
-        try {
-            XenUtil.doFilePushRemoteTarget(vm, 
-                                           localDirectory,
-                                           backendDirectory,
-                                           fake,
-                                           eventLog,
-                                           traceLog);
-        } catch (Exception e) {
-            return e;
-        }
+        final FileCopyNeed[] needs = vm.getFileCopyNeeds();
 
         // todo: do not like this concept (waiting for ORM overhaul)
         final int vmid = vm.getID().intValue();
         for (int i = 0; i < needs.length; i++) {
             try {
-                needs[i].setSent(true);
+                needs[i].setOnImage(true);
                 this.ctx.getLocator().getPersistenceAdapter().
-                                        setCustomizeTaskSent(vmid, needs[i]);
+                        setFileCopyOnImage(vmid, needs[i]);
             } catch (WorkspaceDatabaseException e) {
                 logger.error("", e);
             }

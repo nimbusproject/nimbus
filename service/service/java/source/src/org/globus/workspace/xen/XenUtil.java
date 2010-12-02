@@ -29,7 +29,7 @@ import org.globus.workspace.cmdutils.SSHUtil;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.globus.workspace.service.binding.vm.VirtualMachineDeployment;
 import org.globus.workspace.service.binding.vm.VirtualMachinePartition;
-import org.globus.workspace.service.binding.vm.CustomizationNeed;
+import org.globus.workspace.service.binding.vm.FileCopyNeed;
 
 import org.nimbustools.api.repr.vm.NIC;
 
@@ -471,22 +471,24 @@ public class XenUtil implements WorkspaceConstants {
             cmd.add(notificationInfo);
         }
 
-        final CustomizationNeed[] needs = vm.getCustomizationNeeds();
+        final FileCopyNeed[] needs = vm.getFileCopyNeeds();
         if (needs != null) {
 
-            if (!vm.isCustomizationAllDone()) {
+            if (!vm.isFileCopyAllDone()) {
                 
-                boolean oneBeingSent = false;
+                boolean oneBeingSentToImage = false;
                 final StringBuffer tasks = new StringBuffer("'");
                 for (int i = 0; i < needs.length; i++) {
 
-                    if (!needs[i].isSent()) {
+                    // Note that we don't copy needs with no destination path
+                    // these are filecopies that are used at propagation time
+                    if (!needs[i].onImage() && needs[i].destPath != null) {
 
-                        if (oneBeingSent) {
+                        if (oneBeingSentToImage) {
                             tasks.append(WC_GROUP_SEPARATOR);
                         }
 
-                        oneBeingSent = true;
+                        oneBeingSentToImage = true;
 
                         tasks.append(needs[i].sourcePath)
                              .append(WC_FIELD_SEPARATOR)
@@ -501,7 +503,7 @@ public class XenUtil implements WorkspaceConstants {
 
                 tasks.append("'");
 
-                if (oneBeingSent) {
+                if (oneBeingSentToImage) {
                     cmd.add("--mnttasks");
                     cmd.add(tasks.toString());
                 }
@@ -777,7 +779,7 @@ public class XenUtil implements WorkspaceConstants {
             throw new Exception("backendTargetDir needed but missing");
         }
 
-        final CustomizationNeed[] needs = vm.getCustomizationNeeds();
+        final FileCopyNeed[] needs = vm.getFileCopyNeeds();
         if (needs == null || needs.length == 0) {
             logger.warn("file push: nothing to do?");
             return;
@@ -814,74 +816,4 @@ public class XenUtil implements WorkspaceConstants {
             WorkspaceUtil.runCommand(send, eventLog, traceLog, vm.getID().intValue());
         }
     }
-
-    public static void doCredentialPushLocalTarget(VirtualMachine vm,
-                                             String localDirectory,
-                                             String backendTargetDir,
-                                             boolean fake,
-                                             boolean eventLog,
-                                             boolean traceLog) throws Exception {
-        credentialPush(vm, localDirectory, backendTargetDir, fake, false, eventLog, traceLog);
-    }
-
-    // todo: relieve need for loglevels
-    public static void doCredentialPushRemoteTarget(VirtualMachine vm,
-                                              String localDirectory,
-                                              String backendTargetDir,
-                                              boolean fake,
-                                              boolean eventLog,
-                                              boolean traceLog) throws Exception {
-        credentialPush(vm, localDirectory, backendTargetDir, fake, true, eventLog, traceLog);
-    }
-
-    private static void credentialPush(VirtualMachine vm,
-                                 String localDirectory,
-                                 String backendTargetDir,
-                                 boolean fake,
-                                 boolean remoteTarget,
-                                 boolean eventLog,
-                                 boolean traceLog) throws Exception {
-
-        if (localDirectory == null) {
-            throw new Exception("localDirectory needed but missing");
-        }
-        if (backendTargetDir == null) {
-            throw new Exception("backendTargetDir needed but missing");
-        }
-
-        final String credentialPath = vm.getCredentialName();
-        if (credentialPath == null) {
-            logger.warn("credential push: nothing to do?");
-            return;
-        }
-
-        final ArrayList cmd;
-        if (remoteTarget) {
-            cmd = SSHUtil.constructScpCommandPrefix();
-        } else {
-            cmd = new ArrayList(4);
-            cmd.add("cp"); // hardcoded... TODO
-            cmd.add("-p");
-        }
-
-        final String path = localDirectory + "/" + credentialPath;
-        cmd.add(path);
-
-        if (remoteTarget) {
-            cmd.addAll(SSHUtil.constructScpCommandSuffix(
-                    vm.getNode(), backendTargetDir));
-        } else {
-            cmd.add(backendTargetDir);
-        }
-
-        final String[] send = (String[]) cmd.toArray(new String[cmd.size()]);
-
-        if (fake) {
-            logger.debug("Would have run this for credential push: " +
-                    WorkspaceUtil.printCmd(send));
-        } else {
-            WorkspaceUtil.runCommand(send, eventLog, traceLog, vm.getID().intValue());
-        }
-    }
-
 }

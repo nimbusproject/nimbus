@@ -44,7 +44,7 @@ import org.globus.workspace.service.binding.BindingAdapter;
 import org.globus.workspace.service.binding.GlobalPolicies;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.globus.workspace.service.binding.vm.VirtualMachineDeployment;
-import org.globus.workspace.service.binding.vm.CustomizationNeed;
+import org.globus.workspace.service.binding.vm.FileCopyNeed;
 
 import org.nimbustools.api._repr._CreateResult;
 import org.nimbustools.api._repr._Advertised;
@@ -891,10 +891,10 @@ public class DefaultCreation implements Creation {
             try {
                 final String newContent =
                         addIPs(context.getBootstrapText(), vm);
-                final CustomizationNeed need =
-                        this.binding.newCustomizationNeed(
+                final FileCopyNeed need =
+                        this.binding.newFileCopyNeed(
                                 newContent, context.getBootstrapPath());
-                resource.newCustomizationNeed(need);
+                resource.newFileCopyNeed(need);
             } catch (Exception e) {
                 logger.error(e.getMessage());
             }
