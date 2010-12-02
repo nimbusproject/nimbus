@@ -78,9 +78,22 @@ class propadapter(PropagationAdapter):
         if extra_args == None:
             return None
 
+        # unpack extra-args in format arg=value;arg=value;...;arg=value
+        credential_name = None
+        for extra_arg in extra_args.split(";"):
+            try:
+                parts = extra_arg.split("=")
+                if parts[0] == "credential":
+                    credential_name = parts[1]
+            except:
+                continue
+
+        if not credential_name:
+            return None
+
         tmpdir = self.p.get_conf_or_none("mount", "tmpdir")
         tmpdir = self.c.resolve_var_dir(tmpdir)
-        credential = tmpdir + "/" + extra_args
+        credential = tmpdir + "/" + credential_name
 
         # If the file is readable, we assume it's good. Otherwise we'll fail on propagate
         if not (os.path.exists(credential) and os.access(credential, os.R_OK)):

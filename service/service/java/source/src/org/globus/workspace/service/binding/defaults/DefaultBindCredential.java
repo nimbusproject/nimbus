@@ -49,7 +49,8 @@ public class DefaultBindCredential implements BindCredential {
             throw new IllegalArgumentException("vm may not be null");
         }
         else if (credential == null) {
-            throw new IllegalArgumentException("credential may not be null");
+            // return early and leave credential null
+            return;
         }
 
         final String localTempDirectory = this.paths.getLocalTempDirPath();

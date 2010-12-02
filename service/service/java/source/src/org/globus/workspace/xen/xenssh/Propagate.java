@@ -63,7 +63,7 @@ public class Propagate extends XenTask {
                 }
 
                 ssh.add("--prop-extra-args");
-                ssh.add(credentialName);
+                ssh.add("'credential=" + credentialName + "'");
             }
 
             this.cmd = (String[]) ssh.toArray(new String[ssh.size()]);
