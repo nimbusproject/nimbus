@@ -41,7 +41,7 @@ import org.globus.workspace.scheduler.defaults.ResourcepoolEntry;
 import org.globus.workspace.service.CoschedResource;
 import org.globus.workspace.service.GroupResource;
 import org.globus.workspace.service.InstanceResource;
-import org.globus.workspace.service.binding.vm.CustomizationNeed;
+import org.globus.workspace.service.binding.vm.FileCopyNeed;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.globus.workspace.service.binding.vm.VirtualMachinePartition;
 import org.nimbustools.api.services.rm.DoesNotExistException;
@@ -489,11 +489,11 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
         }
     }
 
-    public void addCustomizationNeed(int id, CustomizationNeed need)
+    public void addCustomizationNeed(int id, FileCopyNeed need)
             throws WorkspaceDatabaseException {
         
         if (this.dbTrace) {
-            logger.trace("addCustomizationNeed(): " + Lager.id(id));
+            logger.trace("addFileCopyNeed(): " + Lager.id(id));
         }
 
         if (need == null) {
@@ -504,12 +504,12 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
         PreparedStatement pstmt = null;
         try {
             c = getConnection();
-            pstmt = c.prepareStatement(SQL_INSERT_VM_CUSTOMIZATION);
+            pstmt = c.prepareStatement(SQL_INSERT_FILE_COPY);
 
             pstmt.setInt(1, id);
             pstmt.setString(2, need.sourcePath);
             pstmt.setString(3, need.destPath);
-            if (need.isSent()) {
+            if (need.onImage()) {
                 pstmt.setInt(4, 1);
             } else {
                 pstmt.setInt(4, 0);
@@ -538,20 +538,20 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
         }
     }
     
-    public void setCustomizeTaskSent(int id, CustomizationNeed need)
+    public void setFileCopyOnImage(int id, FileCopyNeed need)
             throws WorkspaceDatabaseException {
 
         if (this.dbTrace) {
-            logger.trace("setCustomizeTaskSent(): " + Lager.id(id) +
-                                            ", sent = " + need.isSent());
+            logger.trace("setFileCopyOnImage(): " + Lager.id(id) +
+                                            ", on image = " + need.onImage());
         }
 
         Connection c = null;
         PreparedStatement pstmt = null;
         try {
             c = getConnection();
-            pstmt = c.prepareStatement(SQL_SET_VM_CUSTOMIZATION_SENT);
-            if (need.isSent()) {
+            pstmt = c.prepareStatement(SQL_SET_FILE_COPY_ON_IMAGE);
+            if (need.onImage()) {
                 pstmt.setInt(1, 1);
             } else {
                 pstmt.setInt(1, 0);
@@ -1430,7 +1430,7 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
                         }
                     } else {
                         do {
-                            vm.addCustomizationNeed(
+                            vm.addFileCopyNeed(
                                     VirtualMachinePersistenceUtil.getNeed(rs));
                         } while (rs.next());
                     }

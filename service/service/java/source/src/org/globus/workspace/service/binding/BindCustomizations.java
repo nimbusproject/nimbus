@@ -17,7 +17,7 @@
 package org.globus.workspace.service.binding;
 
 import org.globus.workspace.service.binding.vm.VirtualMachine;
-import org.globus.workspace.service.binding.vm.CustomizationNeed;
+import org.globus.workspace.service.binding.vm.FileCopyNeed;
 import org.globus.workspace.WorkspaceException;
 import org.nimbustools.api.repr.CustomizationRequest;
 import org.nimbustools.api.services.rm.CreationException;
@@ -29,7 +29,7 @@ public interface BindCustomizations {
                         CustomizationRequest[] reqs)
             throws CreationException, ResourceRequestDeniedException;
 
-    public CustomizationNeed newCustomizationNeedImpl(String srcContent,
+    public FileCopyNeed newFileCopyNeedImpl(String srcContent,
                                                       String dstPath)
             throws WorkspaceException;
 }

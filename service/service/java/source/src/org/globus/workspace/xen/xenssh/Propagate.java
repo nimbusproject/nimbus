@@ -19,6 +19,8 @@ package org.globus.workspace.xen.xenssh;
 import org.globus.workspace.PathConfigs;
 import org.globus.workspace.WorkspaceException;
 import org.globus.workspace.cmdutils.SSHUtil;
+import org.globus.workspace.persistence.WorkspaceDatabaseException;
+import org.globus.workspace.service.binding.vm.FileCopyNeed;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.globus.workspace.service.impls.site.PropagationAdapter;
 import org.globus.workspace.xen.XenTask;
@@ -43,25 +45,6 @@ public class Propagate extends XenTask {
             final String credentialName = vm.getCredentialName();
             if (credentialName != null) {
 
-                final boolean eventLog = this.ctx.lager().eventLog;
-                final boolean traceLog = this.ctx.lager().traceLog;
-
-                final PathConfigs paths = this.ctx.getLocator().getPathConfigs();
-                final String backendDirectory = paths.getBackendTempDirPath();
-                final String localDirectory = paths.getLocalTempDirPath();
-
-
-                try {
-                    XenUtil.doCredentialPushRemoteTarget(vm,
-                            localDirectory,
-                            backendDirectory,
-                            this.ctx.getLocator().getGlobalPolicies().isFake(),
-                            eventLog,
-                            traceLog);
-                } catch (Exception e) {
-                    throw new WorkspaceException("Couldn't push credential to " + backendDirectory);
-                }
-
                 ssh.add("--prop-extra-args");
                 ssh.add("'credential=" + credentialName + "'");
             }
@@ -73,9 +56,42 @@ public class Propagate extends XenTask {
         }
     }
 
-    protected Exception preExecute() {
-        return _preExecute(
-                    this.ctx.getLocator().getGlobalPolicies().isFake(),
+    protected Exception preExecute(boolean fake) {
+
+        final boolean eventLog = this.ctx.lager().eventLog;
+        final boolean traceLog = this.ctx.lager().traceLog;
+
+        if (traceLog) {
+            logger.trace("Beginning start pre-execute");
+        }
+
+        // init would have thrown exception if null
+        final VirtualMachine vm = this.ctx.getVm();
+
+        final FileCopyNeed[] needs = vm.getFileCopyNeeds();
+        if (needs == null || needs.length == 0) {
+            if (traceLog) {
+                logger.debug("FileCopy push: nothing to do");
+            }
+            return null;
+        }
+
+        final PathConfigs paths = this.ctx.getLocator().getPathConfigs();
+        final String backendDirectory = paths.getBackendTempDirPath();
+        final String localDirectory = paths.getLocalTempDirPath();
+
+        try {
+            XenUtil.doFilePushRemoteTarget(vm,
+                                           localDirectory,
+                                           backendDirectory,
+                                           fake,
+                                           eventLog,
+                                           traceLog);
+        } catch (Exception e) {
+            return e;
+        }
+
+        return _preExecute(fake,
                     this.ctx.getLocator().getPropagationAdapter());
     }
 

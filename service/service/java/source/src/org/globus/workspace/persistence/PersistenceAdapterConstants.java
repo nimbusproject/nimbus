@@ -58,8 +58,8 @@ public interface PersistenceAdapterConstants {
             "UPDATE vm_partitions SET alternate_unprop=? " +
             "WHERE vmid=? AND rootdisk=1";
 
-    public static final String SQL_SET_VM_CUSTOMIZATION_SENT =
-            "UPDATE vm_customization SET sent=? " +
+    public static final String SQL_SET_FILE_COPY_ON_IMAGE =
+            "UPDATE file_copy SET on_image=? " +
             "WHERE vmid=? AND sourcepath=? AND destpath=?";
 
     public static final String SQL_SET_STARTTIME =
@@ -83,8 +83,8 @@ public interface PersistenceAdapterConstants {
     public static final String SQL_DELETE_VM_DEPLOYMENT =
             "DELETE from vm_deployment WHERE vmid=?";
 
-    public static final String SQL_DELETE_VM_CUSTOMIZATION =
-            "DELETE from vm_customization WHERE vmid=?";
+    public static final String SQL_DELETE_FILE_COPY =
+            "DELETE from file_copy WHERE vmid=?";
 
     public static final String SQL_INSERT_RESOURCE =
             "INSERT INTO resources VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
@@ -101,8 +101,8 @@ public interface PersistenceAdapterConstants {
     public static final String SQL_INSERT_VM_DEPLOYMENT =
             "INSERT INTO vm_deployment VALUES(?,?,?,?,?,?)";
 
-    public static final String SQL_INSERT_VM_CUSTOMIZATION =
-            "INSERT INTO vm_customization VALUES(?,?,?,?)";
+    public static final String SQL_INSERT_FILE_COPY =
+            "INSERT INTO file_copy VALUES(?,?,?,?)";
 
     public static final String SQL_LOAD_RESOURCE =
             "SELECT name, state, target_state, term_time, ops_enabled, " +
@@ -133,9 +133,9 @@ public interface PersistenceAdapterConstants {
                     "ind_physmem, ind_physcpu " +
                     "FROM vm_deployment WHERE vmid=?";
 
-    public static final String SQL_LOAD_VM_CUSTOMIZATION =
-            "SELECT sourcepath, destpath, sent " +
-            "FROM vm_customization WHERE vmid=?";
+    public static final String SQL_LOAD_FILE_COPY =
+            "SELECT sourcepath, destpath, on_image " +
+            "FROM file_copy WHERE vmid=?";
 
     public static final String SQL_UPDATE_ASSOCIATION_ENTRY =
             "UPDATE association_entries SET used=? " +
@@ -203,7 +203,7 @@ public interface PersistenceAdapterConstants {
                                     SQL_SET_HOSTNAME,
                                     SQL_SET_ROOT_UNPROP_TARGET,
                                     SQL_UNSET_ROOT_UNPROP_TARGET,
-                                    SQL_SET_VM_CUSTOMIZATION_SENT,
+                                    SQL_SET_FILE_COPY_ON_IMAGE,
                                     SQL_SET_STARTTIME,
                                     SQL_SET_TERMTIME,
                                     SQL_DELETE_RESOURCE,
@@ -211,19 +211,19 @@ public interface PersistenceAdapterConstants {
                                     SQL_DELETE_VM,
                                     SQL_DELETE_VM_PARTITIONS,
                                     SQL_DELETE_VM_DEPLOYMENT,
-                                    SQL_DELETE_VM_CUSTOMIZATION,
+                                    SQL_DELETE_FILE_COPY,
                                     SQL_INSERT_RESOURCE,
                                     SQL_INSERT_VM,
                                     SQL_INSERT_VM_PARTITION,
                                     SQL_INSERT_VM_DEPLOYMENT,
-                                    SQL_INSERT_VM_CUSTOMIZATION,
+                                    SQL_INSERT_FILE_COPY,
                                     SQL_LOAD_RESOURCE,
                                     SQL_LOAD_RESOURCE_NAME,
                                     SQL_LOAD_GROUP_RESOURCE,
                                     SQL_LOAD_VM,
                                     SQL_LOAD_VM_PARTITIONS,
                                     SQL_LOAD_VM_DEPLOYMENT,
-                                    SQL_LOAD_VM_CUSTOMIZATION,
+                                    SQL_LOAD_FILE_COPY,
                                     SQL_UPDATE_ASSOCIATION_ENTRY,
                                     SQL_DELETE_ALL_ASSOCIATIONS,
                                     SQL_DELETE_ALL_ASSOCIATION_ENTRIES,

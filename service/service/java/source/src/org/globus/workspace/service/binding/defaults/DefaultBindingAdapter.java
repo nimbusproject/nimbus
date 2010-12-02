@@ -18,8 +18,8 @@ package org.globus.workspace.service.binding.defaults;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.globus.workspace.PathConfigs;
 import org.globus.workspace.service.binding.*;
+import org.globus.workspace.service.binding.vm.FileCopyNeed;
 import org.nimbustools.api.repr.CreateRequest;
 import org.nimbustools.api.repr.vm.ResourceAllocation;
 import org.nimbustools.api.services.rm.CreationException;
@@ -36,7 +36,6 @@ import org.globus.workspace.service.binding.BindResourceRequest;
 import org.globus.workspace.service.binding.BindDisks;
 import org.globus.workspace.service.binding.BindVMM;
 import org.globus.workspace.service.binding.BindNetwork;
-import org.globus.workspace.service.binding.vm.CustomizationNeed;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.globus.workspace.service.binding.vm.VirtualMachineDeployment;
 
@@ -214,12 +213,12 @@ public class DefaultBindingAdapter implements BindingAdapter,
     // OTHER
     // -------------------------------------------------------------------------
     
-    public CustomizationNeed newCustomizationNeed(String srcContent,
+    public FileCopyNeed newFileCopyNeed(String srcContent,
                                                   String dstPath)
                 throws WorkspaceException {
 
         return this.bindCustomizations
-                        .newCustomizationNeedImpl(srcContent, dstPath);
+                        .newFileCopyNeedImpl(srcContent, dstPath);
     }
 
 }

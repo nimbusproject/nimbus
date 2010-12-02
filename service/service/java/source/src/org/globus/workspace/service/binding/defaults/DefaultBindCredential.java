@@ -20,6 +20,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.globus.workspace.PathConfigs;
 import org.globus.workspace.service.binding.BindCredential;
+import org.globus.workspace.service.binding.vm.FileCopyNeed;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.nimbustools.api.services.rm.CreationException;
 import org.safehaus.uuid.UUIDGenerator;
@@ -55,9 +56,11 @@ public class DefaultBindCredential implements BindCredential {
 
         final String localTempDirectory = this.paths.getLocalTempDirPath();
         final String credentialName = this.uuidGen.generateRandomBasedUUID().toString();
+        final String localPath = localTempDirectory + "/" + credentialName;
+
 
         try {
-            FileOutputStream out = new FileOutputStream(localTempDirectory + File.pathSeparator + credentialName);
+            FileOutputStream out = new FileOutputStream(localPath);
             out.write(credential.getBytes());
             out.flush();
             out.close();
@@ -65,7 +68,18 @@ public class DefaultBindCredential implements BindCredential {
             throw new CreationException("Couldn't save credential to " + localTempDirectory
                                          + ". " + e.getMessage());
         }
-        logger.info("Saved credential to " + credentialName);
+
+        final FileCopyNeed need;
+        try {
+            // FileCopyNeed expects a file in nimbus's tmp, not a full path
+            need = new FileCopyNeed(credentialName);
+            vm.addFileCopyNeed(need);
+        } catch (Exception e) {
+            final String err = "problem setting up file copy for credential: " +
+                    credentialName + " : " + e.getMessage();
+            throw new CreationException(err);
+        }
+
         vm.setCredentialName(credentialName);
     }
 }

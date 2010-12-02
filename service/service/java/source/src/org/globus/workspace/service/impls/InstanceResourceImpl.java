@@ -31,7 +31,7 @@ import org.globus.workspace.service.binding.GlobalPolicies;
 import org.globus.workspace.service.binding.authorization.CreationAuthorizationCallout;
 import org.globus.workspace.service.binding.authorization.Decision;
 import org.globus.workspace.service.binding.authorization.PostTaskAuthorization;
-import org.globus.workspace.service.binding.vm.CustomizationNeed;
+import org.globus.workspace.service.binding.vm.FileCopyNeed;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
 
 import org.nimbustools.api.repr.ShutdownTasks;
@@ -321,11 +321,11 @@ public abstract class InstanceResourceImpl implements InstanceResource {
         this.vmmAccessOK = accessOK;
     }
 
-    public synchronized void newCustomizationNeed(CustomizationNeed need) {
+    public synchronized void newFileCopyNeed(FileCopyNeed need) {
         if (this.vm == null) {
             throw new IllegalStateException("vm is null");
         }
-        this.vm.addCustomizationNeed(need);
+        this.vm.addFileCopyNeed(need);
         try {
             this.persistence.addCustomizationNeed(this.id, need);
         } catch (ManageException e) {
