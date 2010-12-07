@@ -229,8 +229,8 @@ public class DefaultCreation implements Creation {
     public Advertised getAdvertised() {
 
         final _Advertised adv = this.repr._newAdvertised();
-        adv.setCpuArchitectureName(
-                this.globals.getCpuArchitectureName());
+        adv.setCpuArchitectureNames(
+                this.globals.getCpuArchitectureNames());
         adv.setDefaultRunningTimeSeconds(
                 this.globals.getDefaultRunningTimeSeconds());
         adv.setMaxGroupSize(
