@@ -25,7 +25,7 @@ public interface Advertised {
 
     public int getDefaultRunningTimeSeconds();
     public int getMaximumRunningTimeSeconds();
-    public String getCpuArchitectureName();
+    public String[] getCpuArchitectureNames();
     public String[] getVmmVersions();
     public String getVmm();
     public String[] getNetworkNames();
