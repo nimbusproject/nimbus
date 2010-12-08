@@ -618,24 +618,24 @@ class DefaultImageProcurement:
             
             securedir_try = self._derive_instance_dir()
             securedir_try = os.path.join(securedir_try, original)
+
+            # We need to check that the image hasn't previously been unzipped
+            gz_parts = original.rsplit(".gz",1)
+            securedir_lessgz_try = self._derive_instance_dir()
+            securedir_lessgz_try = os.path.join(securedir_lessgz_try, gz_parts[0])
             
             localdir_try = os.path.join(self.localdir, original)
             
             # important: try securedir first, it takes precedence
             if os.path.exists(securedir_try):
-                localdir_try = None
-            elif os.path.exists(localdir_try):
-                securedir_try = None
-            else:
-                raise InvalidInput("File specified by relative path ('%s' could resolve to either '%s' or '%s') but it does not exist" % (original, securedir_try, localdir_try))
-            
-            if securedir_try:
                 lf.path = securedir_try
-            elif localdir_try:
+            elif os.path.exists(securedir_lessgz_try):
+                lf.path = securedir_lessgz_try
+            elif os.path.exists(localdir_try):
                 lf.path = localdir_try
             else:
-                raise ProgrammingError("must be relative to either securedir or localdir or it is invalid")
-                
+                raise InvalidInput("File specified by relative path ('%s' could resolve to either '%s', '%s', or '%s') but it does not exist" % (original, securedir_try, securedir_lessgz_try, localdir_try))
+            
         # ---------------------------------------------------------------
                 
         elif imgstr[:14] == "blankcreate://":
