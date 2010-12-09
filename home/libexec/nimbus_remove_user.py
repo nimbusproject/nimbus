@@ -128,6 +128,8 @@ def main(argv=sys.argv[1:]):
     except CLIError, clie:
         print clie
         return clie.get_rc()
+    except SystemExit, se:
+        pass
     except:
         traceback.print_exc(file=sys.stdout)
 
