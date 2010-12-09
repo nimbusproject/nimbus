@@ -16,13 +16,18 @@
 
 package org.nimbustools.messaging.gt4_0.common;
 
+import org.nimbustools.api.repr.CreateRequest;
 import org.nimbustools.api.repr.CustomizationRequest;
 import org.nimbustools.api.repr.ReprFactory;
+import org.nimbustools.api.repr.vm.NIC;
 import org.nimbustools.api.services.metadata.MetadataServer;
 import org.nimbustools.api._repr._CustomizationRequest;
 import org.nimbustools.api._repr._CreateRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class AddCustomizations {
 
@@ -38,7 +43,8 @@ public class AddCustomizations {
         }
         
         final CustomizationRequest custReq =
-                    AddCustomizations.metadataServerURL(reprFactory,
+                    AddCustomizations.metadataServerURL(creq,
+                                                        reprFactory,
                                                         mdServer);
 
         CustomizationRequest[] newreqs = null;
@@ -61,16 +67,19 @@ public class AddCustomizations {
         }
     }
 
-    public static CustomizationRequest metadataServerURL(ReprFactory reprFactory,
+    public static CustomizationRequest metadataServerURL(CreateRequest creq, 
+                                                         ReprFactory reprFactory,
                                                          MetadataServer mdServer) {
         if (reprFactory == null || mdServer == null) {
             return null;
         }
 
+        final NIC[] nics = creq.getRequestedNics();
+
         if (mdServer.isEnabled()) {
 
             final String path = mdServer.getCustomizationPath();
-            final String url = mdServer.getContactURL();
+            final String url = mdServer.getContactURL(nics);
 
             // all conditions are met, cause a new customization task to
             // be added:

@@ -109,13 +109,18 @@
                   value="$PILOT{" />
     </bean>
 
+    <bean id="metadataSettingsProperties"
+            class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <property name="location"
+                  value="$NIMBUS_HOME/services/etc/nimbus/workspace-service/metadata.conf"/>
+    </bean>
+    
     <bean id="metadataSettings"
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 
-        <property name="location"
-                  value="$NIMBUS_HOME/services/etc/nimbus/workspace-service/metadata.conf" />
         <property name="placeholderPrefix"
                   value="$METADATA{" />
+        <property name="properties" ref="metadataSettingsProperties"/>
     </bean>
 
     <bean id="derbySettings"

@@ -4,12 +4,11 @@ _NIMBUS_HEADER2(n,n,y,n,n,n,n)
 
 _NIMBUS_LEFT2_COLUMN
 
-_NIMBUS_LEFT2_DEV1_SIDEBAR(n,n,n,n,n,y,n,n)
+_NIMBUS_LEFT2_DEV1_SIDEBAR(n,n,n,n,n,y,n,n,n)
 
 _NIMBUS_LEFT2_COLUMN_END
 _NIMBUS_CENTER2_COLUMN
 _NIMBUS_IS_DEPRECATED
-
 
 <h2>Docs</h2>
 
@@ -17,39 +16,10 @@ _NIMBUS_IS_DEPRECATED
     Need to edit the docs?
 </p>
 <p>
-    <b>WARNING</b>: docs are in flux at the moment, this information is likely
-    out of date.
-</p>
-<p>
-    The first thing you should do is check the documentation tree out from CVS.
-    Because each past Nimbus version gets its own tree, the entire checkout
-    is rather large.  But you'll only need to do it once. 
-</p>
-
-<br />
-<a name="checkout"> </a>
-<h4>Checkout _NAMELINK(checkout)</h4>
-
-<p>
-    To check the docs out from CVS anonymously, run these commands:
+    The first thing you should do is check the documentation tree out from git.
 </p>
 _EXAMPLE_GENERICCMD_BEGIN
-export CVSROOT=:pserver:anonymous@cvs.globus.org:/home/globdev/CVS/globus-packages
-_EXAMPLE_CMD_END
-_EXAMPLE_GENERICCMD_BEGIN
-cvs co -P -d nimbus-docs workspace/docs
-_EXAMPLE_CMD_END
-
-<p>
-    To check the docs out from CVS with your own account (intending on
-    committing changes directly and not via patch), run these commands
-    with "USERNAME" replaced by your username:
-</p>
-_EXAMPLE_GENERICCMD_BEGIN
-export CVSROOT=:ext:USERNAME@cvs.globus.org:/home/globdev/CVS/globus-packages
-_EXAMPLE_CMD_END
-_EXAMPLE_GENERICCMD_BEGIN
-cvs co -P -d nimbus-docs workspace/docs
+git clone git://github.com/nimbusproject/nimbus.git
 _EXAMPLE_CMD_END
 
 <br />
@@ -61,12 +31,16 @@ _EXAMPLE_CMD_END
     locally takes one command:
 </p>
 _EXAMPLE_GENERICCMD_BEGIN
-sh nimbus-docs/scripts/build-and-serve-locally.sh
+sh docs/scripts/build-and-serve-locally.sh
 _EXAMPLE_CMD_END
 
 <p>
     This will print the URL to navigate to in your browser (something like
     "http://localhost:9999")
+</p>
+
+<p>
+    The docs are currently going through a transition and one consequence is that this local serving tool does not present you with the style you see on the real website.
 </p>
 
 <br />
@@ -93,7 +67,7 @@ _EXAMPLE_CMD_END
     macros.  This controls which option in a list is shaded/selected (like the
     main navigation bar or a subsection sidebar).  To see which one to use,
     you may need to dip into the macro definitions in the "m4/worksp.lib.m4"
-    file.
+    file.  This kind of navigation "current" CSS class pattern is handled a lot better by other systems, this is a "bolt on" during the transition time.
 </p>
 
 <br />
@@ -143,166 +117,33 @@ _EXAMPLE_CMD_END
     Once satisfied with the changes:
 </p>
 <ol>
-    <li>Commit changes to CVS: _EXAMPLE_GENERICCMD_BEGIN
+    <li>Commit changes to git: _EXAMPLE_GENERICCMD_BEGIN
 cvs commit
 _EXAMPLE_CMD_END</li>
     <li>Log in to the computer where the live website lives: _EXAMPLE_GENERICCMD_BEGIN
-ssh <b>USERNAME@cvs.globus.org</b>
+ssh <b>USERNAME@login.mcs.anl.gov</b>
 _EXAMPLE_CMD_END</li>
     <li>Make a scratch directory: _EXAMPLE_GENERICCMD_BEGIN
-mkdir /sandbox/USERNAME/somedir && cd /sandbox/USERNAME/somedir
+mkdir /scratch/somedir && cd /scratch/somedir
 _EXAMPLE_CMD_END</li>
-    <li>Get the documentation scripts from CVS: _EXAMPLE_GENERICCMD_BEGIN
-export CVSROOT=:pserver:anonymous@cvs.globus.org:/home/globdev/CVS/globus-packages
+    <li>Get the documentation and scripts from git: _EXAMPLE_GENERICCMD_BEGIN
+git clone git://github.com/nimbusproject/nimbus.git
 _EXAMPLE_CMD_END</li>
     <li>_EXAMPLE_GENERICCMD_BEGIN
-cvs co -d docscripts workspace/docs/scripts
+cd nimbus/docs/scripts
 _EXAMPLE_CMD_END</li>
-    <li>Check out and build the documentation: _EXAMPLE_GENERICCMD_BEGIN
-bash docscripts/push_to_mcs_web.sh
+    <li>_EXAMPLE_GENERICCMD_BEGIN
+bash docscripts/push_to_mcs_web.sh X.Y
 _EXAMPLE_CMD_END</li>
 </ol>
 <p>
     The "push_to_mcs_web.sh" will push any changes from the scratch directory
-    to the live directory which lives @ "/www/workspace.globus.org/"
+    to the live directory.  The "X.Y" argument controls the target directory, e.g. "2.6" would push the current branch to the 2.6 subdirectory which is symlinked as the 'current' documentation at the time of this writing. 
 </p>
 <p>
-    After running that all once, you can return anytime to that node/directory
-    and run the following command to push any updates:
+    If you need to change something in an older release, you must switch into that branch (using "git checkout"), pull in the necessary changes and invoke that script with the appropriate version target.
 </p>
-_EXAMPLE_GENERICCMD_BEGIN
-bash docscripts/push_to_mcs_web.sh update
-_EXAMPLE_CMD_END
 
-<br />
-<a name="new-releases"> </a>
-<h4>Docs for new releases _NAMELINK(new-releases)</h4>
-<p>
-    Making documentation for a new release consists of two different activities:
-    1) creating and customizing a new "vm/$VERSION" subtree for the new version
-    and 2) updating everything else (like the changelog, download page, news,
-    etc.).
-</p>
-<ol>
-    <li>
-        Copy the last release tree to the new release tree: _EXAMPLE_GENERICCMD_BEGIN
-cp -a vm/TP2.2 vm/TP2.3
-_EXAMPLE_CMD_END
-    </li>
-    <li>
-        Remove any CVS directories: _EXAMPLE_GENERICCMD_BEGIN
-find vm/TP2.3 -name CVS -type d -print -exec rm -rf {} \;
-_EXAMPLE_CMD_END
-    </li>
-    <li>
-        <p>
-        Find/replace any occurence of "2.3" in the tree with "2.4".  Some
-        of the occurences may be along the lines of "this feature is as of
-        TP2.2" and it is not correct to change these.
-        </p>
-    </li>
-    <li>
-        <p>
-        Make any inserts or changes that are necessary because of changes in
-        the software from the previous version.
-        </p>
-    </li>
-    <li>
-        <p>
-        Find/replace any occurrence of  <b>_</b>NIMBUS_TP2_2_DEPRECATED in
-        the TP2.3 tree with a new macro we will make called
-        <b>_</b>NIMBUS_TP2_3_DEPRECATED
-        </p>
-    </li>
-    <li>
-        <p>
-        Open the "m4/worksp.lib.m4" file and make <b>_</b>NIMBUS_TP2_2_DEPRECATED
-        macro look like a previous one.  And create a new
-        <b>_</b>NIMBUS_TP2_3_DEPRECATED macro that has a comment only.  This
-        will make any page on the TP2.2 pages flash a big deprecated warning
-        and provide a link to the most recent version.  This is useful
-        because people/search engines will often link to a page directly in a
-        version's documentation: arriving here via such a link could mean the
-        person will be unaware there is an update.
-        </p>
-    </li>
-    <li>
-        <p>
-        Update the <b>_</b>WORKSP_PREVIOUS_VM_VERSION and
-        <b>_</b>WORKSP_CURRENT_VM_VERSION macros in the same file.
-        </p>
-    </li>
-    <li>
-        <p>
-        Update the "vm/changelog.html" page with all the new changes for the
-        new release, give it a new section in the changelog that looks like
-        the others.
-        </p>
-    </li>
-    <li>
-        <p>
-        Update the "vm/faq.html" and "vm/features.html" pages with any relevant
-        changes.
-        </p>
-    </li>
-    <li>
-        <p>
-        Update the news with a release announcement (see a
-        <a href="#news-items">following section</a> for information about
-        how to do that).
-        </p>
-    </li>
-    <li>
-        <p>
-        Once all of the tarballs are in place (see the
-        <a href="releases.html">release documentation)</a>, update
-        "downloads/index.html" and "downloads/archive.html".  Move the current
-        links for the old release to the archive page and update all of the
-        text and links on the "downloads/index.html" to reflect the new release.
-        </p>
-    </li>
-    <li>
-        <p>
-            Add new files/directories to CVS and commit all the changes.
-        </p>
-    </li>
-    <li>
-        <p>
-            Doublecheck what happened on the live site.
-        </p>
-    </li>
-</ol>
-
-<br />
-<a name="news-items"> </a>
-<h4>News items _NAMELINK(news-items)</h4>
-<p>
-    Making a news item requires editing three different files.
-</p>
-<p>
-    First, make a unique anchor &lt;a&gt; tag in "news.html" and create an
-    entry that looks like the others.  Only use full links to refer to the
-    workspace documentation, do not use relative links.  If you use full links
-    then people can click on the links in their RSS readers and get to the
-    site.
-</p>
-<p>
-    RSS is currently done manually. Open "rss.xml" and make a new section for
-    a new item. Copy the title in for the title.  Copy the anchor tag for the
-    item into the fields to uniquely identify the item.  Change the build date
-    to reflect the current day.  Now copy in the exact &lt;p&gt; tags and their
-    contents into the RSS entry.
-</p>
-<p>
-    Copy the title and anchor into the front page of the website, "index.html"
-    where the latest news entries are also mentioned.  Delete the oldest item to
-    make room. 
-</p>
-<p>
-    Rebuild the documentation as discussed above.  Test the RSS feed in your
-    RSS reader but also use the link at the bottom of the "news.html" page
-    to automatically test the validity of the rss.xml file against the RSS spec. 
-</p>
 
 _NIMBUS_CENTER2_COLUMN_END
 _NIMBUS_FOOTER1

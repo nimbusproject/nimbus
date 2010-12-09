@@ -1,0 +1,82 @@
+m4_include(/mcs/m4/worksp.lib.m4)
+_NIMBUS_HEADER(2.6 - Developer reference)
+_NIMBUS_HEADER2(n,n,y,n,n,n,n)
+
+_NIMBUS_LEFT2_COLUMN
+
+_NIMBUS_LEFT2_DEV1_SIDEBAR(n,n,n,n,n,n,n,y,n)
+
+_NIMBUS_LEFT2_COLUMN_END
+_NIMBUS_CENTER2_COLUMN
+_NIMBUS_IS_DEPRECATED
+
+
+<h2>Testing</h2>
+
+<p>
+    This section discusses different ways to test Nimbus code.
+</p>
+<ul>
+    <li>
+        <p>
+            <a href="#java-suites">Java test suites</a>
+        </p>
+    </li>
+    <li>
+        <p>
+            <a href="#build-and-test">Build and Test</a>
+        </p>
+    </li>
+</ul>
+
+<br />
+<a name="java-suites"> </a>
+<h2>Java test suites _NAMELINK(java-suites)</h2>
+
+    <p>
+        Running the Java test suites is most easily done from directly in an
+        IDE that supports TestNG (IntelliJ IDEA community edition and Eclipse both do).  You can navigate to any class file with unit tests or
+        in the special "suites" directory and right-click and "run.
+    </p>
+    
+    <p>
+        What is nice about doing this "in IDE" is the ability to set breakpoints
+        and use the debugger to fix an issue, figure out how some functionality
+        works, or develop tests in the first place.
+    </p>
+    
+    <p>
+        From the commandline is possible if necessary, you would need to adjust
+        your classpath and create a TestNG xml file, like this:
+    </p>
+<div class="screen">
+&lt;!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd"&gt;<br>
+&lt;suite name="my suite" parallel="none"&gt;<br>
+  &lt;test verbose="1" name="n" annotations="JDK"&gt;<br>
+    &lt;classes&gt;<br>
+      &lt;class name="org.globus.workspace.testing.suites.basic.BasicSuite"/&gt;<br>
+    &lt;/classes&gt;<br>
+  &lt;/test&gt;<br>
+&lt;/suite&gt;<br>
+</div>
+
+<br />
+<a name="build-and-test"> </a>
+<h2>Build and Test _NAMELINK(build-and-test)</h2>
+
+    <p>
+        Running the build-and-test acceptance tests is as easy as checking
+        the code out and running:
+    </p>
+<div class="screen">
+$ ./tests/bt-nimbus.sh
+</div>
+
+    <p>
+        See the "./tests/README.txt" file there for more details.
+    </p>
+
+_NIMBUS_CENTER2_COLUMN_END
+_NIMBUS_FOOTER1
+_NIMBUS_FOOTER2
+_NIMBUS_FOOTER3

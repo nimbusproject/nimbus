@@ -18,6 +18,7 @@
     <content url="file://$MODULE_DIR$/../../control" />
     <content url="file://$MODULE_DIR$/../../metadata">
       <sourceFolder url="file://$MODULE_DIR$/../../metadata/java/source/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/../../metadata/java/source/tests" isTestSource="true" />
     </content>
     <content url="file://$MODULE_DIR$/../../monitoring" />
     <content url="file://$MODULE_DIR$/../../pilot" />
