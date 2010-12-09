@@ -90,6 +90,9 @@ class TestEC2List(unittest.TestCase):
             print "+++++++++++++++++++++++++"
             print i
         self.assertTrue(found, "The image should have been found %s" % (image_id))
+        
+    def test_ec2_signature_v1(self):
+        ec2conn.SignatureVersion = '1'
+        images = self.ec2conn.get_all_images()
+        # if there are no exceptions, we can call this success
 
-
-    
