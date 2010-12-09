@@ -15,8 +15,6 @@ from nimbusweb.setup import autoca
 import string
 import random
 import os
-import sys
-import sys
 import ConfigParser
 from ConfigParser import SafeConfigParser
 import time
@@ -239,6 +237,7 @@ Create/edit a nimbus user
         nh = get_nimbus_home() + "/var/ca/"
         o.dest = tempfile.mkdtemp(suffix='cert', prefix='tmp', dir=nh)
     else:
+        o.dest = os.path.abspath(o.dest)
         try:
             os.mkdir(o.dest)
         except:
