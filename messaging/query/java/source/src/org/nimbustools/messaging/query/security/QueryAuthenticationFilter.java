@@ -39,6 +39,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.text.Collator;
 import java.util.Enumeration;
 import java.util.Set;
 import java.util.TreeSet;
@@ -54,7 +55,8 @@ public class QueryAuthenticationFilter extends GenericFilterBean {
 
     private static final int EXPIRATION_SECONDS = 300;
 
-    private static final String SIGNATURE_VERSION = "2";
+    private static final String SIGNATURE_VERSION_1 = "1";
+    private static final String SIGNATURE_VERSION_2 = "2";
     private static final String HMACSHA256 = "HmacSHA256";
     private static final String HMACSHA1 = "HmacSHA1";
 
@@ -103,23 +105,29 @@ public class QueryAuthenticationFilter extends GenericFilterBean {
         final String signatureVersion = getExactlyOneParameter(request,
                 this.signatureVersionParameter);
 
-        //signature versions 0 and 1 are insecure and not supported
+        // Note that signature version 1 has known vulnerabilities when used across plain
+        // HTTP. This interface should only be offered over SSL.
         // see http://developer.amazonwebservices.com/connect/entry.jspa?externalID=1928
         //
         // if another version comes along, this library will need to be updated
 
-        if (!SIGNATURE_VERSION.equals(signatureVersion)) {
+        if (!(SIGNATURE_VERSION_2.equals(signatureVersion) ||
+                SIGNATURE_VERSION_1.equals(signatureVersion))) {
             throw new QueryException(QueryError.InvalidParameterValue,
-                    "Only signature version "+SIGNATURE_VERSION+" is supported");
+                    "Only signature versions 1 and 2 are supported");
         }
 
-        final String signatureMethod = getExactlyOneParameter(request,
+        String signatureMethod = getAtMostOneParameter(request,
                 this.signatureMethodParameter);
-        if (!(signatureMethod.equals(HMACSHA256) ||
-                signatureMethod.equals(HMACSHA1))) {
-            throw new QueryException(QueryError.InvalidParameterValue,
-                    "Only "+ HMACSHA256 +" or " +HMACSHA1 +
-                            " are supported signature methods");
+        if (signatureMethod != null) {
+            if (!(signatureMethod.equals(HMACSHA256) ||
+                    signatureMethod.equals(HMACSHA1))) {
+                throw new QueryException(QueryError.InvalidParameterValue,
+                        "Only "+ HMACSHA256 +" or " +HMACSHA1 +
+                                " are supported signature methods");
+            }
+        } else {
+            signatureMethod = HMACSHA1;
         }
 
         final String timestamp = getAtMostOneParameter(request,
@@ -145,7 +153,14 @@ public class QueryAuthenticationFilter extends GenericFilterBean {
         }
         final String secret = user.getSecret();
 
-        final String checkSig = createSignature(getStringToSign(request),
+        final String stringToSign;
+        if (SIGNATURE_VERSION_2.equals(signatureVersion)) {
+            stringToSign = getStringToSign_v2(request);
+        } else {
+            stringToSign = getStringToSign_v1(request);
+        }
+
+        final String checkSig = createSignature(stringToSign,
                 secret, signatureMethod);
 
         // Note that this comparison will succeed if both inputs are null.
@@ -190,7 +205,39 @@ public class QueryAuthenticationFilter extends GenericFilterBean {
     }
 
 
-    private String getStringToSign(HttpServletRequest request) {
+    private String getStringToSign_v1(HttpServletRequest request) {
+
+        // Request must mapped to into a canonical string format. See:
+        // http://docs.amazonwebservices.com/AWSEC2/latest/DeveloperGuide/using-query-api.html#query-authentication
+
+        final StringBuilder buf = new StringBuilder();
+
+        Collator stringCollator = Collator.getInstance();
+        stringCollator.setStrength(Collator.PRIMARY);
+
+        final Set<String> sortedKeys =
+                new TreeSet<String>(stringCollator);
+
+        final Enumeration paramNames = request.getParameterNames();
+        while (paramNames.hasMoreElements()) {
+            String param = (String) paramNames.nextElement();
+
+            // don't include signature in canonical query string
+            if (!param.equals(this.signatureParameter)) {
+                sortedKeys.add(param);
+            }
+        }
+        for (String key : sortedKeys) {
+            String[] values = request.getParameterValues(key);
+
+            for (String val : values) {
+                buf.append(key).append(val);
+            }
+        }
+        return buf.toString();
+    }
+
+    private String getStringToSign_v2(HttpServletRequest request) {
 
         // Request must mapped to into a canonical string format. See:
         // http://docs.amazonwebservices.com/AWSEC2/latest/DeveloperGuide/using-query-api.html#query-authentication
@@ -213,14 +260,14 @@ public class QueryAuthenticationFilter extends GenericFilterBean {
         }
         buf.append(requestUri).append(newline);
 
-        appendCanonicalQueryString(request, buf);
+        appendCanonicalQueryString_v2(request, buf);
 
         return buf.toString();
     }
 
-    private void appendCanonicalQueryString(ServletRequest request,
+    private void appendCanonicalQueryString_v2(ServletRequest request,
                                            StringBuilder buf) {
-        final Set<String> sortedKeys = 
+        final Set<String> sortedKeys =
                 new TreeSet<String>();
         final Enumeration paramNames = request.getParameterNames();
         while (paramNames.hasMoreElements()) {
