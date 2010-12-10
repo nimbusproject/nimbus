@@ -18,6 +18,7 @@ package org.nimbustools.messaging.query;
 import org.apache.axis.description.TypeDesc;
 import org.apache.axis.message.MessageElement;
 import org.apache.axis.encoding.SerializationContext;
+import org.xml.sax.Attributes;
 
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
@@ -30,6 +31,7 @@ import javax.xml.soap.SOAPException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -40,6 +42,10 @@ import java.lang.reflect.Type;
 public class AxisBodyWriter implements MessageBodyWriter<Object> {
     private static final String GET_TYPE_DESC = "getTypeDesc";
     private static final String TYPE_SUFFIX = "Type";
+
+    @javax.ws.rs.core.Context
+    javax.ws.rs.core.UriInfo uriInfo;
+
 
     // this is a travesty
 
@@ -73,16 +79,24 @@ public class AxisBodyWriter implements MessageBodyWriter<Object> {
             name = name.substring(0, name.length() - TYPE_SUFFIX.length());
         }
 
+        String namespace = getNamespaceUriFromContext();
+        if (namespace == null) {
+            namespace = qName.getNamespaceURI();
+        }
+
         final OutputStreamWriter writer =
                 new OutputStreamWriter(outputStream);
 
-        MessageElement element = new MessageElement(qName.getNamespaceURI(), name);
+        //manually write the xml header deal
+        writer.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+
+        MessageElement element = new MessageElement(name, "", namespace);
         try {
             element.setObjectValue(o);
 
             final SerializationContext context =
-                    new SerializationContext(writer);
-            //context.setSendDecl(false);
+                    new CleanSerializationContext(writer, namespace);
+            context.setDoMultiRefs(false);
             context.setPretty(true);
             element.output(context);
 
@@ -93,6 +107,21 @@ public class AxisBodyWriter implements MessageBodyWriter<Object> {
             throw new WebApplicationException(e);
         }
         writer.close();
+    }
+
+    private String getNamespaceUriFromContext() {
+        if (this.uriInfo != null) {
+            final MultivaluedMap<String, String> queryParameters =
+                    this.uriInfo.getQueryParameters();
+            if (queryParameters != null) {
+                final String version = queryParameters.getFirst("Version");
+
+                if (version != null && version.length() > 0) {
+                    return "http://ec2.amazonaws.com/doc/" + version + "/";
+                }
+            }
+        }
+        return null;
     }
 
     private static TypeDesc getTypeDescVerySlowly(Class aClass) {
@@ -111,4 +140,26 @@ public class AxisBodyWriter implements MessageBodyWriter<Object> {
         }
     }
 
+}
+
+class CleanSerializationContext extends SerializationContext {
+    private final String defaultNamespace;
+
+    public CleanSerializationContext(Writer writer, String defaultNamespace) {
+        super(writer);
+        this.defaultNamespace = defaultNamespace;
+    }
+
+    public boolean shouldSendXSIType() {
+        return false;
+    }
+
+    public void startElement(QName qName, Attributes attributes) throws IOException {
+        // for some reason many of the EC2 types are coming through with an empty namespace
+        // override it with the one provided at constructor time
+        if ("".equals(qName.getNamespaceURI())) {
+            qName = new QName(defaultNamespace, qName.getLocalPart());
+        }
+        super.startElement(qName, attributes);
+    }
 }
