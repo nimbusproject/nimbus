@@ -1,0 +1,467 @@
+m4_include(/mcs/m4/worksp.lib.m4)
+_NIMBUS_HEADER(2.6 Admin Walkthrough)
+_NIMBUS_HEADER2(n,n,y,n,n,n,n)
+_NIMBUS_LEFT2_COLUMN
+_NIMBUS_LEFT2_ADMIN_SIDEBAR(n,n,n,n,n)
+_NIMBUS_LEFT2_COLUMN_END
+_NIMBUS_CENTER2_COLUMN
+_NIMBUS_IS_DEPRECATED
+
+
+<h2>Nimbus 2.6 Administrator Walkthrough</h2>
+
+<p>
+    This guide provides a hands-on overview of Nimbus administrative functionality.
+    It is intended to give new and prospective users a feel for the features and
+    philosophy behind Nimbus. It is complementary to the
+    <a href="z2c/">Zero to Cloud Guide</a> and the
+    <a href="reference.html">reference manual</a>. It steps through a simple install
+    of the <em>service node</em> but doesn't cover configuring backend nodes.
+    It then demonstrates some administrative tools and procedures.
+</p>
+
+<a name="install"> </a>
+<h3>Installation _NAMELINK(install)</h3>
+
+<p>
+    The first step is to make a basic installation of the Nimbus services. Since
+    we are just messing around, we will install to a temporary location,
+    <tt class="literal">/tmp/nimbus</tt>. The installer
+    will place all files in this location and will not affect any other part of
+    your system. You can install to any path you like, just make sure to adjust
+    the example commands in this document appropriately. You do not need to be
+    <tt class="literal">root</tt> to install and run the Nimbus services.
+</p>
+
+<p>
+    Before you proceed, make sure your system has the required dependencies. These
+    are detailed in the <a href="z2c/service-dependencies.html">Service Dependencies</a>
+    page of the Zero to Cloud guide.
+    The short version is: Java 1.5+, Python 2.5+ plus development headers
+    (but not Python 3.x), Apache ant, and gcc.
+</p>
+
+<p>
+    First download and unpack the Nimbus service source package:
+</p>
+
+<pre class="panel">
+$ wget http://www.nimbusproject.org/downloads/nimbus-2.6-src.tar.gz
+$ tar xzf nimbus-2.6-src.tar.gz
+$ cd nimbus-2.6-src/
+</pre>
+
+<p>
+    Now run the installer, specifying the destination directory as an argument.
+</p>
+
+<pre class="panel">
+$ ./install /tmp/nimbus
+</pre>
+
+<div class="note">
+    <p class="note-title">Installer Undo</p>
+    <p>
+        If the installer fails, perhaps because of a missing dependency, make sure
+        to remove your destination directory if it was created:
+    </p>
+    <pre class="panel">
+rm -fr /tmp/nimbus
+</pre>
+    <p>
+        This will ensure that once you resolve the problem, the installation will
+        not conflict with the earlier failed install.
+    </p>
+</div>
+
+<p>
+    The installation will take a minute or two and you will be asked a couple of questions at
+    the end.
+</p>
+
+<pre class="panel">
+-----------------------------------------------------------------
+ Configuring installed services
+-----------------------------------------------------------------
+
+Nimbus uses an internal Certificate Authority (CA) for some services. This CA
+is also used to generate host and user certificates if you do not have your own.
+
+This CA will be created in /tmp/nimbus/var/ca
+
+Please pick a unique, one word CA name or hit ENTER to use a UUID.
+
+For example, if you are installing this on the "Jupiter" cluster, you might use
+"JupiterNimbusCA" as the name.
+
+CA Name:
+You did not enter a name, using 'ab75d05b-87ae-4f60-9b4c-c32d207d1f29'
+</pre>
+
+<p>
+    This gives you a chance to customize the name of your certificate authority.
+    For the purposes of this tutorial you can just press <strong>[Enter]</strong> and let
+    the installer pick a unique name for you.
+</p>
+
+<p>
+    The next question asks you for the hostname you would like to use.  It is important
+    that this is correct because it is used internally by Nimbus.  In most cases the
+    installer will guess correctly. For the purposes of this tutorial you can just either press
+    <strong>[Enter]</strong> to use the detected hostname or type in <tt class="literal">localhost</tt>
+</p>
+
+<pre class="panel">
+What is the fully qualified hostname of this machine?
+
+Press ENTER to use the detected value (vmtroll32)
+
+Hostname: localhost
+Cannot find configured certificate and key for HTTPS, creating these for you.
+</pre>
+
+<p>
+    Once the installer has completed you are ready to start the Nimbus services.
+    Notice the final lines of output from the installer:
+</p>
+
+<pre class="panel">
+-----------------------------------------------------------------
+ Nimbus installation succeeded!
+-----------------------------------------------------------------
+
+Additional configuration may be necessary, refer to this URL for information:
+
+    http://www.nimbusproject.org/docs/2.6/admin/z2c/
+
+You can start/stop Nimbus services with the nimbusctl command. e.g:
+
+    /tmp/nimbus/bin/nimbusctl start
+</pre>
+
+<p>
+    This tells you exactly what you need to do next and where to find more information.
+    Go ahead and start the Nimbus services:
+</p>
+
+<pre class="panel">
+$ /tmp/nimbus/bin/nimbusctl start
+Launching Nimbus services...   OK
+Launching Cumulus services...  OK
+</pre>
+
+<p>
+    For more details on the installation process, check out the
+    <a href="z2c/service-setup.html">Service Installation</a> page of the Zero to Cloud guide.
+</p>
+        
+<a name="basic-tour"> </a>
+<h3>Tour of the installation _NAMELINK(basic-tour)</h3>
+
+<p>
+    Nimbus should now be running, but in <em>fake mode</em>. This means that the services
+    run and respond to requests as normal, but there are no actual backend nodes: no virtual
+    machines are ever started. This is great for testing and for our purposes. In a real
+    Nimbus installation you would proceed to install and configure backend nodes, establish
+    communication between them and the service node, and then turn off fake mode. These steps
+    are detailed in the <a href="z2c/">Zero to Cloud guide</a>.
+</p>
+
+<p>
+    Let's quickly examine what we just installed. Change to the destination directory and
+    look around.
+</p>
+
+<pre class="panel">
+$ cd /tmp/nimbus
+$ ls
+bin             libexec             ve
+cumulus         nimbus-setup.conf   web
+install.log     services
+lantorrent      var
+</pre>
+
+<p>
+    There are a couple directories you should notice here. <tt class="literal">bin/</tt> contains
+    most of the command-line tools used to manage Nimbus services and users.
+</p>
+
+<pre class="panel">
+$ ls bin/
+cumulus-rebase		nimbus-new-cert		nimbus-reset-state
+nimbus-configure	nimbus-new-user		nimbus-version
+nimbus-edit-user	nimbus-nodes		nimbusctl
+nimbus-import-users	nimbus-public-image
+nimbus-list-users	nimbus-remove-user
+</pre>
+
+<p>
+    <tt class="literal">services/</tt> contains the core Nimbus Java services. Inside of it,
+    <tt class="literal">services/etc/nimbus/</tt> holds many of the important configuration
+    files.
+</p>
+
+<a name="users"> </a>
+<h3>Managing users _NAMELINK(users)</h3>
+
+<p>
+    There are four user management command line tools in <tt class="literal">bin/</tt>:
+    <tt class="literal">nimbus-new-user</tt>, <tt class="literal">nimbus-list-users</tt>,
+    <tt class="literal">nimbus-edit-user</tt>, and <tt class="literal">nimbus-remove-user</tt>.
+    To get detailed information about each of these tools, run them with the
+    <tt class="literal">--help</tt> option.
+</p>
+
+<p>
+    To begin with, we will create a new user. To do this we run the
+    <tt class="literal">nimbus-new-user</tt> command and provide it with the email address
+    of the user we wish to create.  The email address is just used as a unique friendly name
+    (no email is sent).
+</p>
+
+<pre class="panel">
+$ ./bin/nimbus-new-user tutorialuser@nimbusproject.org
+cert            : /tmp/nimbus/var/ca/tmpk8NmStcert/usercert.pem
+key             : /tmp/nimbus/var/ca/tmpk8NmStcert/userkey.pem
+dn              : /O=Auto/OU=ab75d05b-87ae-4f60-9b4c-c32d207d1f29/CN=tutorialuser@nimbusproject.org
+canonical id    : dc1b51f6-f73c-11df-87a3-000c292f4ae6
+access id       : e1qrC9MyqRUU33INiL7D3
+access secret   : TuR5Mrdrl3eAC0tiyCF83hhnxkYL9Udi29U7k1VrvO
+url             : None
+web id          : None
+cloud properties : /tmp/nimbus/var/ca/tmpk8NmStcert/cloud.properties
+</pre>
+
+<p>
+    Notice the output of this command.  Every bit of user information is displayed here,
+    some of which is secret information (which can be turned off if needed, check out the
+    <tt class="literal">--report</tt> option).  In this case, all of the critical information
+    is placed in the newly created temporary directory under <tt class="literal">/tmp/nimbus/var/ca/</tt>.  In that
+    directory you will find the following files:
+
+<pre class="panel">
+cloud.properties  usercert.pem  userkey.pem
+</pre>
+        
+<p>
+    These files need to be securely transferred to your users. In our case, lets grab a cloud
+    client and try to query the service with these credentials. If you are not familiar with
+    the Nimbus cloud client, review the <a href="../clouds/cloudquickstart.html">quickstart</a>.
+    First, download a cloud client package and unpack it somewhere on your system.
+</p>
+
+<pre class="panel">
+$ wget http://www.nimbusproject.org/downloads/nimbus-cloud-client-017.tar.gz
+$ tar xzf nimbus-cloud-client-017.tar.gz
+$ cd nimbus-cloud-client-017/
+</pre>
+
+<p>
+    Next copy the cloud.properties file generated by the
+    <tt class="literal">nimbus-new-user</tt> call into the
+    <tt class="literal">conf/</tt> directory. Note that the actual path will differ
+    slightly from this example, but it will have been printed out.
+</p>
+
+<pre class="panel">
+$ cp /tmp/nimbus/var/ca/tmpk8NmStcert/cloud.properties conf/
+</pre>
+
+<p>
+    We also need to copy the generated key and certificate to ~/.nimbus/ in your home directory.
+    Be careful not to overwrite any existing files you may have in this directory.
+</p>
+
+<pre class="panel">
+$ mkdir ~/.nimbus
+$ cp /tmp/nimbus/var/ca/tmpk8NmStcert/*.pem ~/.nimbus/
+</pre>
+
+<p>
+    There is one final step in configuring the cloud client. We must allow it to trust
+    the service's certificate authority, by copying some certificates into the client.
+</p>
+
+<pre class="panel">
+$ cp /tmp/nimbus/var/ca/trusted-certs/* lib/certs/
+</pre>
+
+<p>
+    Now try out the cloud client. Query the service for running instances and available
+    VM images (of course there will be none of either).
+</p>
+
+<pre class="panel">
+$ ./bin/cloud-client.sh --status
+Querying for ALL instances.
+
+There's nothing running on this cloud that you own.
+
+$ ./bin/cloud-client.sh --list
+No files.
+</pre>
+
+<p>
+    The other user management tools are fairly self-explanatory. If you run
+    <tt class="literal">nimbus-list-users %</tt>, you should see your new
+    user listed. With the other tools, you can edit or remove this user.
+</p>
+
+
+<a name="nodes"> </a>
+<h3>Node Management _NAMELINK(nodes)</h3>
+
+<p>
+    Another important aspect of Nimbus administration is node management. Nodes are the
+    physical machines that user VMs run on. The pool of available nodes can be altered
+    on-the-fly using the <tt class="literal">nimbus-nodes</tt> command line tool. Nodes
+    are specified by hostname, and they must be fully configured with the Nimbus backend
+    software before you add them. Since we are running in <em>fake mode</em>, the nodes
+    we add here will never be contacted and don't need to exist. So let's just make up
+    some hostnames, <tt class="literal">n1</tt> and <tt class="literal">n2</tt>.
+</p>
+
+<pre class="panel">
+$ ./bin/nimbus-nodes --add n1,n2 --memory 2048
+hostname :  n1
+pool     :  default
+memory   :  2048
+networks :  *
+in_use   :  false
+active   :  true
+result   :  ADDED
+
+hostname :  n2
+pool     :  default
+memory   :  2048
+networks :  *
+in_use   :  false
+active   :  true
+result   :  ADDED
+</pre>
+
+<p>
+    This command adds two new nodes, each with 2048MB of memory available for virtual machines.
+    Take a look a the output of <tt class="literal">--help</tt>. There are several other commands
+    you can run to edit existing nodes, or remove them from the pool. One important constraint is
+    you cannot edit or remove nodes that have running VMs (<tt class="literal">in_use : true</tt>).
+    However, you can make them inactive, which means that no new VMs will be started on the specifled
+    nodes. But existing VMs can continue until their leases expire.
+</p>
+
+
+<a name="run"> </a>
+<h3>Run a fake VM _NAMELINK(run)</h3>
+
+<p>
+    Now let's go back to the cloud client we set up earlier. We can send a launch request and since
+    the service is still in fake mode, it will pretend to start a VM and send its information back
+    to the client.
+</p>
+
+<pre class="panel">
+$ echo "ceci n'est pas une image de VM" &gt; myfakevm
+$ bin/cloud-client.sh --transfer --sourcefile myfakevm
+
+Transferring
+  - Source: myfakevm
+  - Destination: cumulus://Repo/VMS/5c01dfac-fe2c-11df-875b-00264a0eb5ca/myfakevm
+
+Preparing the file for transfer:
+  23.0 B [XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX] 100%
+
+Transferring the file:
+  23.0 B [XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX] 100%
+
+Done.
+</pre>
+
+<p>
+    Now let's try to "start" this fake image.
+</p>
+
+<pre class="panel">
+$ ./bin/cloud-client.sh --run --name myfakevm --hours 1
+
+Launching workspace.
+
+Workspace Factory Service:
+    https://localhost:8443/wsrf/services/WorkspaceFactoryService
+
+Creating workspace "vm-001"... done.
+
+
+       IP address: 192.168.0.2
+         Hostname: pub02
+       Start time: Thu Dec 02 13:37:09 EST 2010
+    Shutdown time: Thu Dec 02 14:37:09 EST 2010
+ Termination time: Thu Dec 02 14:47:09 EST 2010
+
+Waiting for updates.
+
+
+"vm-001" reached target state: Running
+
+Running: 'vm-001'
+</pre>
+
+<p>
+    Now our fake VM is running. We can take a look at a few state files in the service to verify
+    this. Back in the service, switch to the <tt class="literal">/tmp/nimbus/services/var/nimbus</tt>
+    directory.
+</p>
+
+
+<pre class="panel">
+$ cd /tmp/nimbus/services/var/nimbus
+$ tail current-reservations.txt
+dn="/O=Auto/OU=85da03df-cf74-4e05-82b9-d20eae9e92aa/CN=tutorialuser@nimbusproject.org",
+minutes=60, uuid="56cf2992-d9ab-4070-94dc-79e3812f11ba", eprkey=1, creation="Dec 2, 2010 1:37:09 PM"
+</pre>
+
+<p>
+    The <tt class="literal">current-reservations.txt</tt> file shows the running VM. We can also look
+    at the accounting log to see more information.
+</p>
+
+<pre class="panel">
+$ tail accounting-events.txt
+CREATED: time="Dec 2, 2010 1:37:09 PM", uuid="56cf2992-d9ab-4070-94dc-79e3812f11ba",
+ eprkey=1, dn="/O=Auto/OU=85da03df-cf74-4e05-82b9-d20eae9e92aa/CN=tutorialuser@nimbusproject.org",
+ requestMinutes=60, charge=60, CPUCount=1, memory=256, vmm='n2',
+ clientLaunchName='https://sandwich:8443/vm-001',
+ network='eth0;public;A2:AA:BB:50:EB:8B;Bridged;AllocateAndConfigure;192.168.0.2;192.168.0.1;
+ null;null;192.168.0.1;pub02;null;null;null;null'
+</pre>
+
+<p>
+    If you like, you can now terminate your fake VM with the cloud client. It will disappear from
+    the reservations file and there will be a new accounting log entry.
+</p>
+
+<pre class="panel">
+$ ./bin/cloud-client.sh --terminate --handle vm-001
+
+Terminating workspace.
+  - Workspace handle (EPR): '/tmp/nimbus-cloud-client-017/history/vm-001/vw-epr.xml'
+
+Destroying vm-001... destroyed.
+
+</pre>
+
+
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+
+_NIMBUS_CENTER2_COLUMN_END
+_NIMBUS_FOOTER1
+_NIMBUS_FOOTER2
+_NIMBUS_FOOTER3

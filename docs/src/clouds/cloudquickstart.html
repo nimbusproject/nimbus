@@ -36,26 +36,31 @@ _NIMBUS_CENTER2_COLUMN
 <p>
   Note that using the cloud client requires access to a Nimbus cloud. If you are
   a member of the academic community, you can gain access to one of several
-  <a href="http://www.scienceclouds.org/">science clouds</a>.
+  <a href="http://www.scienceclouds.org/">science clouds</a>. You may also apply
+    for an account on a <a href="http://www.futuregrid.org">FutureGrid</a> Nimbus cloud.
 </p>
 
 <p>
     Download the
-    <a href="_NIMBUS_WEBSITE/downloads/">latest
-    nimbus cloud client</a>, untar the file, and change to the
-    cloud client directory (<i><a href="_NIMBUS_WEBSITE/archive/#cloudclients">older
-    versions of the cloud client</a></i>).
+    <a href="_NIMBUS_WEBSITE/downloads/nimbus-cloud-client-017.tar.gz">latest
+    Nimbus cloud client</a> from the <a href="_NIMBUS_WEBSITE/downloads/">downloads page</a>,
+    untar the file, and change to the cloud client directory.
 </p>
+
+<pre class="panel">
+$ wget _NIMBUS_WEBSITE/downloads/nimbus-cloud-client-017.tar.gz
+$ tar xzvf nimbus-cloud-client-017.tar.gz
+$ cd nimbus-cloud-client-017/
+</pre>
 
 <p> 
     Congratulations -- you are now the happy owner of a brand new cloud client!
     At any time, get help like so:
 </p>
 
-_EXAMPLE_GENERICCMD_BEGIN
-./bin/cloud-client.sh --help
-_EXAMPLE_CMD_END
-
+<pre class="panel">
+$ ./bin/cloud-client.sh --help
+</pre>
 <p>
     Make sure to subscribe to <i>workspace-user@globus.org</i> (see the
     <a href="_NIMBUS_WEBSITE/contact.html">contact</a> page for instruction on how
@@ -68,32 +73,14 @@ _EXAMPLE_CMD_END
 <h2>Configure and prepare for deployment _NAMELINK(configure)</h2>
 
 <p>
-  First, see if you have configured the desired certificate:
-</p>
-
-_EXAMPLE_GENERICCMD_BEGIN
-./bin/grid-cert-info.sh
-_EXAMPLE_CMD_END
-
-<p>
-  Then create a proxy credential:
-</p>
-
-_EXAMPLE_GENERICCMD_BEGIN
-./bin/grid-proxy-init.sh
-_EXAMPLE_CMD_END
-
-<p>
-  Alternatively, if you have access to a MyProxy credential you can use the
-  "./bin/myproxy.sh" program.
+    You will need credentials for the cloud you are accessing. These should be given to you by the cloud provider. 
 </p>
 
 <p>Test the security setup:</p>
 
-_EXAMPLE_GENERICCMD_BEGIN
-./bin/cloud-client.sh --security
-_EXAMPLE_CMD_END
-
+<pre class="panel">
+$ ./bin/cloud-client.sh --security
+</pre>
 
 <p>
     Issues? See the <a href="#help">help resources</a> for help.
@@ -104,15 +91,14 @@ _EXAMPLE_CMD_END
 </p>
 
 <p class="indent">
-    You need to look at the instructions published for each cloud.  Many clouds will give you access and provide you with the proper credentials and cloud.properties file.
+    You need to look at the instructions published for each cloud.  Many clouds will give you access
+    and provide you with the proper credentials and <tt class="literal">cloud.properties</tt> file.
 </p>
 
-<p class="indent">
-    For clouds running the newest versions of Nimbus (2.5+ with the Cumulus image repository), you will need to have the image repository credentials in your cloud.properties file and you will need to use cloud client #16 or later.  The administrator should have provided you with this file.
-</p>
-
-<p class="indent">
-    Backwards compatibility note: cloud client #16 or later will however work with clouds running older Nimbus software.  Again the cloud's website and/or administrator should very clearly state to you where you need to get credentials and the proper cloud.properties file.
+<p class="note">
+    For clouds running the newest versions of Nimbus (2.5+ with the Cumulus image repository),
+    you will need to have the image repository credentials in your <tt class="literal">cloud.properties</tt> file and you
+    will need to use cloud client #16 or later.  The administrator should have provided you with this file.
 </p>
 
 <p>
@@ -135,7 +121,7 @@ _EXAMPLE_CMD_END
 	</p>
 	<p>
 		You might want to change things in
-        the <i>conf/cloud.properties</i> file, <b>probably not</b>.
+        the <tt class="literal">conf/cloud.properties</tt> file, <b>probably not</b>.
     </p>
 	<p>
 		Most of the time a configuration file tailored to the cloud
@@ -161,7 +147,7 @@ _EXAMPLE_CMD_END
         <li>
             <p>
                 Note that you can override options via commandline if desired
-                (see the <i><i>--extrahelp</i></i> option)
+                (see the <tt class="literal">--extrahelp</tt> option)
             </p>
         </li>
     </ul>
@@ -188,10 +174,9 @@ _EXAMPLE_CMD_END
     follows:
 <p>
 
-_EXAMPLE_GENERICCMD_BEGIN
-./bin/cloud-client.sh --list
-_EXAMPLE_CMD_END
-
+<pre class="panel">
+$ ./bin/cloud-client.sh --list
+</pre>
 <p>
     If you are feeling adventurous you could also create an image yourself
     and upload them to the cloud, see this
@@ -206,23 +191,23 @@ _EXAMPLE_CMD_END
 <h2>Deploy a workspace _NAMELINK(run)</h2>
 
 <p>
-    To launch, use the <i>--run</i> option of the client. There are
-    two required run options: (1) <i>--name</i> defines the name of
-    an image and (2) <i>--hours</i> specifies the number of hours for
+    To launch, use the <tt class="literal">--run</tt> option of the client. There are
+    two required run options: (1) <tt class="literal">--name</tt> defines the name of
+    an image and (2) <tt class="literal">--hours</tt> specifies the number of hours for
     which the image will be deployed. For example, if you want to run
     the image in your personal repository called "hello-cloud" for 1 hour,
     run the following command:
 </p>
   
-_EXAMPLE_GENERICCMD_BEGIN
-./bin/cloud-client.sh --run --name hello-cloud --hours 1
-_EXAMPLE_CMD_END
+<pre class="panel">
+$ ./bin/cloud-client.sh --run --name hello-cloud --hours 1
+</pre>
 
 <p>
 If successful, the run command should produce roughly this output:
 </p>
   
-<div class="screen"><pre>
+<pre class="panel">
 SSH public keyfile contained tilde:
   - '~/.ssh/id_rsa.pub' --> '/home/guest/.ssh/id_rsa.pub'
 
@@ -244,7 +229,7 @@ Waiting for updates.
 State changed: Running
 
 Running: 'vm-023'
-</pre></div>
+</pre>
 
 <p>
     The output prints out the endpoint information of the Nimbus service
@@ -254,11 +239,10 @@ Running: 'vm-023'
     contact information for the workspace.
 </p>
 
-<div style="float: left; width: 56px;"><img src="img/note.png" /></div>
-<p>
-    <b>Note</b> that the information printed contains the network address
+<div class="note">
+    Note that the information printed contains the network address
     for the VM.  <i>You will need this in order to log in.</i>
-</p>
+</div>
 
 <br />
         
@@ -267,15 +251,15 @@ Running: 'vm-023'
 
 <p>
     Recall that your public key has been configured in the
-    <i>conf/cloud.properties </i> file. At launch time, 
-    the public key file was installed to <i>/root/.ssh/authorized_keys</i>
+    <tt class="literal">conf/cloud.properties</tt> file. At launch time,
+    the public key file was installed to <tt class="literal">/root/.ssh/authorized_keys</tt>
     on the VM image, so that after it boots you should be able to log
     in by typing:
 </p>
         
-_EXAMPLE_GENERICCMD_BEGIN
-ssh <b>root</b>@ahostname.cloudurl.edu
-_EXAMPLE_CMD_END
+<pre class="panel">
+$ ssh <b>root</b>@ahostname.cloudurl.edu
+</pre>
 
 <p>
     Make sure that you log in to the <b>root account</b> -- that's the
@@ -288,14 +272,10 @@ _EXAMPLE_CMD_END
     if you don't want SSH to remember the generated host key in the
     known-hosts file (and complain when this name is taken by a
     different VM later), use SSH with the
-    option "-o StrictHostKeyChecking=no"
+    option "<tt class="literal">-o StrictHostKeyChecking=no</tt>"
     (<a href="clusters.html#secgap">later</a> you will learn how to be more secure)
 </p>
 
-<p>
-    Enjoy! And may we ask that you send us a postcard
-    (workspace-user@globus.org).
-</p>
 
 <br />
     
@@ -307,13 +287,13 @@ _EXAMPLE_CMD_END
     VMs there is an easy way to reestablish relations:
 </p>
   
-_EXAMPLE_GENERICCMD_BEGIN
-./bin/cloud-client.sh --status --handle vm-023
-_EXAMPLE_CMD_END
+<pre class="panel">
+$ ./bin/cloud-client.sh --status --handle vm-023
+</pre>
 
 <p>
     If you don't recall what the handle you need is, there are running
-    logs of each run kept in the "history" directory.  The highest numbered
+    logs of each run kept in the <tt class="literal">history</tt> directory.  The highest numbered
     subdirectory name in the history directory is probably a good guess.
 </p>
 
@@ -328,24 +308,24 @@ _EXAMPLE_CMD_END
     repository directory. 
 </p>
 
-_EXAMPLE_GENERICCMD_BEGIN
-./bin/cloud-client.sh --save --handle vm-023 --newname custom-1
-_EXAMPLE_CMD_END
+<pre class="panel">
+$ ./bin/cloud-client.sh --save --handle vm-023 --newname custom-1
+</pre>
 
 <p>
-    Note that without the <i>--newname</i> parameter this will
+    Note that without the <tt class="literal">--newname</tt> parameter this will
     <b>overwrite the source file</b>.  If you do not have permissions
     to overwrite the source file (for example, you are using the
     pre-populated template images that are provided), you must use the
-    <i>--newname</i> parameter which is kind of like the "save as" option
+    <tt class="literal">--newname</tt> parameter which is kind of like the "save as" option
     for documents in a word processor.
 </p>
 <p>
     Failing to do so will cause a permissions error and you will lose
     the changes on that run.  If you uploaded the image personally, you
     will have the permissions to overwrite the source file (i.e., the
-    ability to use the <i>--save</i> option without also using
-    <i>--newname</i>).
+    ability to use the <tt class="literal">--save</tt> option without also using
+    <tt class="literal">--newname</tt>).
 </p>
 
 <p>
@@ -363,9 +343,9 @@ _EXAMPLE_CMD_END
     come to an end in the following way:
 </p>
   
-_EXAMPLE_GENERICCMD_BEGIN
-./bin/cloud-client.sh --terminate --handle vm-023
-_EXAMPLE_CMD_END
+<pre class="panel">
+$ ./bin/cloud-client.sh --terminate --handle vm-023
+</pre>
 
 <p>
     As explained in the <a href="#query">query</a> section above, if you
@@ -403,7 +383,7 @@ _EXAMPLE_CMD_END
 
 <p>
   For help with security issues, you should also inquire to the list.  Before
-  doing so, note that the cloud-client has a "--security" flag for a basic
+  doing so, note that the cloud-client has a <tt class="literal">--security</tt> flag for a basic
   trust check.  And other programs under the "bin" directory have their own
   help system, for example if you run "<i>./bin/grid-proxy-init.sh -help</i>" 
   this may solve a problem your having right away.

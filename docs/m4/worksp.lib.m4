@@ -298,7 +298,10 @@ m4_define([[[_NIMBUS_LEFT2_DEV1_SIDEBAR',
           <a href="releases.html" title="Releases" class="$7">Releases</a>
         </li>
         <li>
-          <a href="reference.html" title="Reference" class="$8">Reference</a>
+          <a href="testing.html" title="Testing" class="$8">Testing</a>
+        </li>
+        <li>
+          <a href="reference.html" title="Reference" class="$9">Reference</a>
         </li>
     </ul>
 </div>
@@ -330,7 +333,10 @@ m4_define([[[_NIMBUS_LEFT2_DEV2_SIDEBAR',
           <a href="../dev/releases.html" title="Releases" class="$7">Releases</a>
         </li>
         <li>
-          <a href="../dev/reference.html" title="Reference" class="$8">Reference</a>
+          <a href="../dev/testing.html" title="Testing" class="$8">Testing</a>
+        </li>
+        <li>
+          <a href="../dev/reference.html" title="Reference" class="$9">Reference</a>
         </li>
     </ul>
 </div>

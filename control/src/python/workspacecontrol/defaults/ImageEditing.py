@@ -478,7 +478,11 @@ fdisk, but that did not work either:
             return IncompatibleEnvironment("source file in mount+copy task does not exist: %s" % src)
 
         try:
+            self.c.log.debug("mount-alter, command is: %s" % cmd)
             ret,output = getstatusoutput(cmd)
+            if output:
+                self.c.log.debug("mount alter rc: %d output: %s" % (ret, output))
+
             if ret:
                 errmsg = "problem running command: '%s' ::: return code" % cmd
                 errmsg += ": %d ::: output:\n%s" % (ret, output)

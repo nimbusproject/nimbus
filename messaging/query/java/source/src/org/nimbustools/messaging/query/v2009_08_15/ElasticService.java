@@ -72,7 +72,7 @@ public class ElasticService implements ElasticVersion {
                 new CreateKeyPair(), new DeleteKeyPair(), new DescribeKeyPairs(),
                 new RunInstances(), new RebootInstances(), new DescribeInstances(),
                 new TerminateInstances(), new DescribeImages(),
-                new DescribeAvailabilityZones()
+                new DescribeAvailabilityZones(), new DescribeSecurityGroups()
         };
         actionMap = new HashMap<String, ElasticAction>(actions.length);
         for (ElasticAction action : actions) {
@@ -100,6 +100,7 @@ public class ElasticService implements ElasticVersion {
 
 
     @Path("/")
+    @Produces("text/xml")
     public class CreateKeyPair implements ElasticAction {
         public String getName() {
             return "CreateKeyPair";
@@ -123,6 +124,7 @@ public class ElasticService implements ElasticVersion {
         }
     }
 
+    @Produces("text/xml")
     public class DeleteKeyPair implements ElasticAction {
         public String getName() {
             return "DeleteKeyPair";
@@ -146,6 +148,7 @@ public class ElasticService implements ElasticVersion {
         }
     }
 
+    @Produces("text/xml")
     public class DescribeKeyPairs implements ElasticAction {
         public String getName() { return "DescribeKeyPairs"; }
 
@@ -172,6 +175,7 @@ public class ElasticService implements ElasticVersion {
         }
     }
 
+    @Produces("text/xml")
     public class RunInstances implements ElasticAction {
         public String getName() {
             return "RunInstances";
@@ -222,6 +226,7 @@ public class ElasticService implements ElasticVersion {
         }
     }
 
+    @Produces("text/xml")
     public class RebootInstances implements ElasticAction {
         public String getName() {
             return "RebootInstances";
@@ -260,6 +265,7 @@ public class ElasticService implements ElasticVersion {
         }
     }
 
+    @Produces("text/xml")
     public class DescribeInstances implements ElasticAction {
         public String getName() {
             return "DescribeInstances";
@@ -293,6 +299,7 @@ public class ElasticService implements ElasticVersion {
         }
     }
 
+    @Produces("text/xml")
     public class TerminateInstances implements ElasticAction {
         public String getName() {
             return "TerminateInstances";
@@ -332,6 +339,7 @@ public class ElasticService implements ElasticVersion {
         }
     }
 
+    @Produces("text/xml")
     public class DescribeImages implements ElasticAction {
         public String getName() {
             return "DescribeImages";
@@ -389,6 +397,7 @@ public class ElasticService implements ElasticVersion {
         }
     }
 
+    @Produces("text/xml")
     public class DescribeAvailabilityZones implements ElasticAction {
         public String getName() {
             return "DescribeAvailabilityZones";
@@ -421,6 +430,22 @@ public class ElasticService implements ElasticVersion {
         public DescribeAvailabilityZonesResponseType handlePost(
                 @FormParam("ZoneName") String zoneName) {
             return handleGet(zoneName);
+        }
+    }
+
+        @Produces("text/xml")
+    public class DescribeSecurityGroups implements ElasticAction {
+        public String getName() {
+            return "DescribeSecurityGroups";
+        }
+
+        @GET
+        public DescribeSecurityGroupsResponseType handleGet() {
+            return new DescribeSecurityGroupsResponseType(null, new SecurityGroupSetType(new SecurityGroupItemType[0]));
+        }
+        @POST
+        public DescribeSecurityGroupsResponseType handlePost() {
+            return handleGet();
         }
     }
 }

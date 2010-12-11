@@ -39,7 +39,8 @@ class TestManyXfer(unittest.TestCase):
 
     def _t_file_compare(self, f):
         rc = filecmp.cmp(self.src_file, f)
-        self.assertTrue(rc)
+        self.assertTrue(rc, "%s not the same as %s" % (self.src_file, f))
+
 
     def _t_build_list(self):
         new_files = []

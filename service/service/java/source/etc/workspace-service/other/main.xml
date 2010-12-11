@@ -625,10 +625,7 @@
         <property name="customizationPath"
                   value="$METADATA{customization.path}" />
 
-        <property name="listenSocket"
-                  value="$METADATA{contact.socket}" />
-
-        <property name="enabled" 
+        <property name="enabled"
                   value="$METADATA{listen}" />
 
         <property name="publicNets"
@@ -636,6 +633,12 @@
 
         <property name="localNets" 
                   value="$METADATA{local.networks}" />
+
+        <!-- some of the metadata server properties are now directly read by the
+        implementation, passed in via this property. This is to allow more
+        flexibility than provided by PropertyPlaceholderConfigurer -->
+        <property name="properties"
+                  ref="metadataSettingsProperties"/>
 
     </bean>
 
