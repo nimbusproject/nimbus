@@ -21,6 +21,7 @@ import java.util.Hashtable;
 import java.util.List;
 
 import org.globus.workspace.network.AssociationEntry;
+import org.globus.workspace.scheduler.backfill.Backfill;
 import org.globus.workspace.scheduler.defaults.ResourcepoolEntry;
 import org.globus.workspace.service.CoschedResource;
 import org.globus.workspace.service.GroupResource;
@@ -262,4 +263,20 @@ public interface PersistenceAdapter {
                                         Integer memoryAvail,
                                         Boolean active)
             throws WorkspaceDatabaseException;
+
+
+    /**
+     * Returns stored backfill settings from previous launch or null if there was nothing
+     * stored (for example in a clean install).
+     * 
+     * @return stored settings or null
+     * @throws WorkspaceDatabaseException DB error
+     */
+    public Backfill getStoredBackfill() throws WorkspaceDatabaseException;
+
+    /**
+     * @param backfill current backfill settings, may not be null
+     * @throws WorkspaceDatabaseException
+     */
+    public void setBackfill(Backfill backfill) throws WorkspaceDatabaseException;
 }

@@ -223,3 +223,16 @@ CREATE TABLE notification_position
 (
 position BIGINT
 );
+
+CREATE TABLE backfill
+(
+id INT NOT NULL PRIMARY KEY,
+disabled SMALLINT NOT NULL,
+max_instances INT NOT NULL,
+disk_image VARCHAR(512) NOT NULL,
+memory_mb SMALLINT NOT NULL,
+vcpus SMALLINT NOT NULL,
+duration INT NOT NULL,
+network VARCHAR(100) NOT NULL,
+site_capacity INT NOT NULL
+);

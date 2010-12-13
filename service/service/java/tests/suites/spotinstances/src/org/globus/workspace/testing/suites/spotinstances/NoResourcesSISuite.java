@@ -51,7 +51,7 @@ public class NoResourcesSISuite extends NimbusTestBase {
     }
 
     protected void setUpVmms() throws RemoteException {
-        logger.info("Before test method: overriden setUpVmms(), do nothing");
+        logger.info("Before test method: overriden setUpVmms(), add no VMMs");
     }    
 
     /**

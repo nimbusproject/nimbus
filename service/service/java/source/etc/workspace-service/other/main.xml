@@ -16,6 +16,7 @@
         <constructor-arg ref="nimbus-rm.home.instance"/>
         <constructor-arg ref="nimbus-rm.home.group"/>
         <constructor-arg ref="nimbus-rm.home.cosched"/>
+        <constructor-arg ref="nimbus-rm.backfill" />
         <constructor-arg ref="nimbus-repr.ReprFactory"/>
         <constructor-arg ref="nimbus-rm.persistence.DataConvert"/>
         <constructor-arg ref="nimbus-rm.loglevels" />
@@ -541,6 +542,30 @@
         <!-- definition of this bean is in "resource-locator-ACTIVE.xml" -->
         <property name="slotManager" 
         		   ref="nimbus-rm.scheduler.SlotManagement" />                   
+    </bean>
+
+    <bean id="nimbus-rm.backfill"
+          class="org.globus.workspace.scheduler.backfill.Backfill"
+          init-method="validate">
+
+        <constructor-arg ref="nimbus-rm.persistence.PersistenceAdapter" />
+        <constructor-arg ref="nimbus-repr.ReprFactory"/>
+
+        <property name="backfillDisabled"
+                  value="$BACKFILL{backfill.disabled}" />
+        <property name="maxInstances"
+                  value="$BACKFILL{max.instances}" />
+        <property name="diskImage"
+                  value="$BACKFILL{disk.image}" />
+        <property name="memoryMB"
+                  value="$BACKFILL{memory.MB}" />
+        <property name="vcpus"
+                  value="$BACKFILL{vcpus}" />
+        <property name="durationSeconds"
+                  value="$BACKFILL{duration.seconds}" />
+        <property name="network"
+                  value="$BACKFILL{network}" />
+
     </bean>
 
     <!-- ===================================================================

@@ -44,16 +44,16 @@ import static org.testng.AssertJUnit.assertEquals;
 @ContextConfiguration(locations={"file:./service/service/java/tests/suites/spotinstances/" +
                                  "home/services/etc/nimbus/workspace-service/other/main.xml"},
                       loader= NimbusTestContextLoader.class)
-public class SimplestSISuite extends NimbusTestBase {
+public class SimpleSISuite extends NimbusTestBase {
 
     // -----------------------------------------------------------------------------------------
     // STATIC VARIABLES
     // -----------------------------------------------------------------------------------------
 
     private static final Log logger =
-            LogFactory.getLog(SimplestSISuite.class.getName());
-
-
+            LogFactory.getLog(SimpleSISuite.class.getName());
+    
+    
     // -----------------------------------------------------------------------------------------
     // extends NimbusTestBase
     // -----------------------------------------------------------------------------------------
@@ -73,14 +73,22 @@ public class SimplestSISuite extends NimbusTestBase {
     }
 
     protected void setUpVmms() throws RemoteException {
-        logger.info("Before test method: overriden setUpVmms(), one unique instance");
+        logger.info("Before test method: overriden setUpVmms(), unique instances");
+        
+        boolean active = true;
+        String nodePool = "default";
+        String net = "*";
+        boolean vacant = true;
         Gson gson = new Gson();
         List<VmmNode> nodes = new ArrayList<VmmNode>(4);
-        nodes.add(new VmmNode("fakehost1", true, "default", 512, "*", true));
+        nodes.add(new VmmNode("fakehost1", active, nodePool, 512, net, vacant));
+        nodes.add(new VmmNode("fakehost2", active, nodePool, 512, net, vacant));
+        nodes.add(new VmmNode("fakehost3", active, nodePool, 256, net, vacant));
         final String nodesJson = gson.toJson(nodes);
         RemoteNodeManagement rnm = this.locator.getNodeManagement();
         rnm.addNodes(nodesJson);
     }
+
 
     // -----------------------------------------------------------------------------------------
     // TESTS
@@ -88,29 +96,54 @@ public class SimplestSISuite extends NimbusTestBase {
 
     @Test
     @DirtiesContext
-    public void singleInstancePreemption() throws Exception {
+    public void simpleBackfillTest() throws Exception {
         Manager rm = this.locator.getManager();
         Caller superuser = this.populator().getSuperuserCaller();
 
         logger.info(rm.getVMMReport());
 
-        logger.debug("Submitting backfill request");
+        logger.debug("Submitting backfill requests..");
 
-        AsyncCreateRequest backfill1 = this.populator().getBackfillRequest("backfill1", 1);
+        AsyncCreateRequest backfill1 = this.populator().getBackfillRequest("backfill1", 3);
         RequestInfo backfill1Result = rm.addBackfillRequest(backfill1, superuser);
+        AsyncCreateRequest backfill2 = this.populator().getBackfillRequest("backfill2", 5);
+        RequestInfo backfill2Result = rm.addBackfillRequest(backfill2, superuser);
 
         logger.debug("Waiting 2 seconds for resources to be allocated.");
         Thread.sleep(2000);
 
         // Check backfill request state
         RequestInfo[] backfillRequestsByCaller = rm.getBackfillRequestsByCaller(superuser);
-        assertEquals(1, backfillRequestsByCaller.length);
+        assertEquals(2, backfillRequestsByCaller.length);
+
+        logger.info(rm.getVMMReport());
+    }
+
+    @Test
+    @DirtiesContext
+    public void simpleBackfillPreemptionTest() throws Exception {
+        Manager rm = this.locator.getManager();
+        Caller superuser = this.populator().getSuperuserCaller();
+
+        logger.debug("Submitting backfill requests..");
+
+        AsyncCreateRequest backfill1 = this.populator().getBackfillRequest("backfill1", 3);
+        RequestInfo backfill1Result = rm.addBackfillRequest(backfill1, superuser);
+        AsyncCreateRequest backfill2 = this.populator().getBackfillRequest("backfill2", 5);
+        RequestInfo backfill2Result = rm.addBackfillRequest(backfill2, superuser);
+
+        logger.debug("Waiting 2 seconds for resources to be allocated.");
+        Thread.sleep(2000);
+
+        // Check backfill request state
+        RequestInfo[] backfillRequestsByCaller = rm.getBackfillRequestsByCaller(superuser);
+        assertEquals(2, backfillRequestsByCaller.length);
 
         logger.info(rm.getVMMReport());
 
-        // One regular VM that needs all the 512 RAM should preempt
+        // Three regular VMs should preempt
         Caller caller = this.populator().getCaller();
-        CreateRequest req = this.populator().getCreateRequest("regular", 1200, 512 , 1);
+        CreateRequest req = this.populator().getCreateRequest("regular", 1200, 256 , 3);
         rm.create(req, caller);
 
         logger.debug("Waiting 2 seconds for resources to be allocated.");

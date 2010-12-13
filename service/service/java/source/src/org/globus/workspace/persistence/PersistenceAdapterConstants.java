@@ -216,6 +216,17 @@ public interface PersistenceAdapterConstants {
     
     public static final String SQL_SELECT_SPOT_PRICE =
             "SELECT * FROM spot_prices";
+
+    public static final String SQL_INSERT_BACKFILL =
+            "INSERT INTO backfill VALUES(1,?,?,?,?,?,?,?, ?)";
+
+    public static final String SQL_UPDATE_BACKFILL =
+            "UPDATE backfill SET disabled=?, max_instances=?, disk_image=?, memory_mb=?, " +
+                    "vcpus=?, duration=?, network=?, site_capacity=? WHERE id=1";
+
+    public static final String SQL_SELECT_BACKFILL =
+            "SELECT disabled, max_instances, disk_image, memory_mb, " +
+                    "vcpus, duration, network, site_capacity FROM backfill WHERE id=1";
     
     public static final String[] PREPARED_STATEMENTS = {
                                     SQL_SELECT_RESOURCES,
@@ -269,5 +280,8 @@ public interface PersistenceAdapterConstants {
                                     SQL_SELECT_TOTAL_PREEMPTABLE_MEMORY,
                                     SQL_SELECT_USED_NON_PREEMPTABLE_MEMORY,
                                     SQL_INSERT_SPOT_PRICE,
-                                    SQL_SELECT_LAST_SPOT_PRICE};
+                                    SQL_SELECT_LAST_SPOT_PRICE,
+                                    SQL_INSERT_BACKFILL,
+                                    SQL_UPDATE_BACKFILL,
+                                    SQL_SELECT_BACKFILL};
 }

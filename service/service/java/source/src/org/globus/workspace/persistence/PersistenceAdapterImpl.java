@@ -41,6 +41,7 @@ import org.globus.workspace.network.AssociationEntry;
 import org.globus.workspace.persistence.impls.AssociationPersistenceUtil;
 import org.globus.workspace.persistence.impls.VMPersistence;
 import org.globus.workspace.persistence.impls.VirtualMachinePersistenceUtil;
+import org.globus.workspace.scheduler.backfill.Backfill;
 import org.globus.workspace.scheduler.defaults.ResourcepoolEntry;
 import org.globus.workspace.service.CoschedResource;
 import org.globus.workspace.service.GroupResource;
@@ -2799,6 +2800,112 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
                 }
                 if (rs != null) {
                     rs.close();
+                }
+                if (c != null) {
+                    returnConnection(c);
+                }
+            } catch (SQLException sql) {
+                logger.error("SQLException in finally cleanup", sql);
+            }
+        }
+    }
+
+    public Backfill getStoredBackfill() throws WorkspaceDatabaseException {
+        if (this.dbTrace) {
+            logger.trace("getStoredBackfill()");
+        }
+
+        Connection c = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            c = getConnection();
+            pstmt = c.prepareStatement(SQL_SELECT_BACKFILL);
+
+            rs = pstmt.executeQuery();
+
+            if (rs == null || !rs.next()) {
+                if (lager.traceLog) {
+                    logger.debug("no previous backfill");
+                }
+                return null;
+            }
+
+            Backfill bf = new Backfill(null, null);
+            bf.setBackfillDisabled(rs.getBoolean(1));
+            bf.setMaxInstances(rs.getInt(2));
+            bf.setDiskImage(rs.getString(3));
+            bf.setMemoryMB(rs.getInt(4));
+            bf.setVcpus(rs.getInt(5));
+            bf.setDurationSeconds(rs.getInt(6));
+            bf.setNetwork(rs.getString(7));
+            bf.setSiteCapacity(rs.getInt(8));
+            return bf;
+
+        } catch(SQLException e) {
+            logger.error("",e);
+            throw new WorkspaceDatabaseException(e);
+        } finally {
+            try {
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+                if (rs != null) {
+                    rs.close();
+                }
+                if (c != null) {
+                    returnConnection(c);
+                }
+            } catch (SQLException sql) {
+                logger.error("SQLException in finally cleanup", sql);
+            }
+        }
+    }
+
+    public synchronized void setBackfill(Backfill bf) throws WorkspaceDatabaseException {
+        if (bf == null) {
+            throw new IllegalArgumentException("backfill may not be null");
+        }
+
+        if (this.dbTrace) {
+            logger.trace("setBackfill()");
+        }
+
+        Connection c = null;
+        PreparedStatement pstmt = null;
+        try {
+            c = getConnection();
+
+            // Need to determine whether to use insert or update
+            Backfill previous = this.getStoredBackfill();
+            if (previous == null) {
+                pstmt = c.prepareStatement(SQL_INSERT_BACKFILL);
+            } else {
+                pstmt = c.prepareStatement(SQL_UPDATE_BACKFILL);
+            }
+
+            pstmt.setInt(1, bf.isBackfillDisabled() ? 1 : 0);
+            pstmt.setInt(2, bf.getMaxInstances());
+            pstmt.setString(3, bf.getDiskImage());
+            pstmt.setInt(4, bf.getMemoryMB());
+            pstmt.setInt(5, bf.getVcpus());
+            pstmt.setInt(6, bf.getDurationSeconds());
+            pstmt.setString(7, bf.getNetwork());
+            pstmt.setInt(8, bf.getSiteCapacity());
+
+            final int updated = pstmt.executeUpdate();
+            if (this.dbTrace) {
+                logger.trace("Updated/inserted backfill");
+            }
+
+        } catch(SQLException e) {
+            logger.error("",e);
+            throw new WorkspaceDatabaseException(e);
+        } finally {
+            try {
+                if (pstmt != null) {
+                    pstmt.close();
                 }
                 if (c != null) {
                     returnConnection(c);

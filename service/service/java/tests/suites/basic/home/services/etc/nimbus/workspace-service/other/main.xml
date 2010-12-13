@@ -16,6 +16,7 @@
         <constructor-arg ref="nimbus-rm.home.instance"/>
         <constructor-arg ref="nimbus-rm.home.group"/>
         <constructor-arg ref="nimbus-rm.home.cosched"/>
+        <constructor-arg ref="nimbus-rm.backfill" />
         <constructor-arg ref="nimbus-repr.ReprFactory"/>
         <constructor-arg ref="nimbus-rm.persistence.DataConvert"/>
         <constructor-arg ref="nimbus-rm.loglevels" />
@@ -56,7 +57,6 @@
         <lookup-method name="getReprFactory" bean="nimbus-repr.ReprFactory"/>
         <lookup-method name="getMetadataServer" bean="nimbus-metadata-server"/>
         <lookup-method name="getNodeManagement" bean="nimbus-remoting-nodemgmt" />
-
     </bean>
 
     
@@ -544,6 +544,30 @@
         		   ref="nimbus-rm.scheduler.SlotManagement" />                   
     </bean>
 
+    <bean id="nimbus-rm.backfill"
+          class="org.globus.workspace.scheduler.backfill.Backfill"
+          init-method="validate">
+
+        <constructor-arg ref="nimbus-rm.persistence.PersistenceAdapter" />
+        <constructor-arg ref="nimbus-repr.ReprFactory"/>
+
+        <property name="backfillDisabled"
+                  value="$BACKFILL{backfill.disabled}" />
+        <property name="maxInstances"
+                  value="$BACKFILL{max.instances}" />
+        <property name="diskImage"
+                  value="$BACKFILL{disk.image}" />
+        <property name="memoryMB"
+                  value="$BACKFILL{memory.MB}" />
+        <property name="vcpus"
+                  value="$BACKFILL{vcpus}" />
+        <property name="durationSeconds"
+                  value="$BACKFILL{duration.seconds}" />
+        <property name="network"
+                  value="$BACKFILL{network}" />
+
+    </bean>
+
     <!-- ===================================================================
          org.globus.workspace.async.* interfaces
          =================================================================== -->
@@ -626,10 +650,7 @@
         <property name="customizationPath"
                   value="$METADATA{customization.path}" />
 
-        <property name="listenSocket"
-                  value="$METADATA{contact.socket}" />
-
-        <property name="enabled" 
+        <property name="enabled"
                   value="$METADATA{listen}" />
 
         <property name="publicNets"
@@ -637,6 +658,12 @@
 
         <property name="localNets" 
                   value="$METADATA{local.networks}" />
+
+        <!-- some of the metadata server properties are now directly read by the
+        implementation, passed in via this property. This is to allow more
+        flexibility than provided by PropertyPlaceholderConfigurer -->
+        <property name="properties"
+                  ref="metadataSettingsProperties"/>
 
     </bean>
 

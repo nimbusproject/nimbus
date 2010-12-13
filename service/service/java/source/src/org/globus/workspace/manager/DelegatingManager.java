@@ -29,6 +29,7 @@ import org.globus.workspace.async.AsyncRequest;
 import org.globus.workspace.async.AsyncRequestHome;
 import org.globus.workspace.creation.CreationManager;
 import org.globus.workspace.persistence.DataConvert;
+import org.globus.workspace.scheduler.backfill.Backfill;
 import org.globus.workspace.service.InstanceResource;
 import org.globus.workspace.service.WorkspaceCoschedHome;
 import org.globus.workspace.service.WorkspaceGroupHome;
@@ -94,6 +95,7 @@ public class DelegatingManager implements Manager {
     protected final WorkspaceHome home;
     protected final WorkspaceGroupHome ghome;
     protected final WorkspaceCoschedHome cohome;
+    protected final Backfill backfill;
     protected final AsyncRequestHome asyncHome;
     protected final PathConfigs paths;
     protected final ReprFactory repr;
@@ -110,6 +112,7 @@ public class DelegatingManager implements Manager {
                              WorkspaceHome instanceHome,
                              WorkspaceGroupHome groupHome,
                              WorkspaceCoschedHome coschedHome,
+                             Backfill backfill,
                              ReprFactory reprFactory,
                              DataConvert dataConvertImpl,
                              Lager lagerImpl,
@@ -134,6 +137,11 @@ public class DelegatingManager implements Manager {
             throw new IllegalArgumentException("coschedHome may not be null");
         }
         this.cohome = coschedHome;
+
+        if (backfill == null) {
+            throw new IllegalArgumentException("backfill may not be null");
+        }
+        this.backfill = backfill;
         
         if (reprFactory == null) {
             throw new IllegalArgumentException("reprFactory may not be null");
@@ -209,6 +217,8 @@ public class DelegatingManager implements Manager {
      */
     public void recover_initialize() throws Exception {
         this.home.recover_initialize();
+        this.backfill.setManager(this);
+        this.backfill.initiateBackfill();
     }
 
     public void shutdownImmediately() {
