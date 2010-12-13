@@ -59,7 +59,8 @@ class LTServer(object):
         for f in self.created_files:
             try:
                 pylantorrent.log(logging.DEBUG, "deleting file %s" % (f))
-                os.remove(f)
+                if f != "/dev/null":
+                    os.remove(f)
             except:
                 pass
         self.created_files = []
@@ -182,7 +183,7 @@ class LTServer(object):
         for req in requests_a:
             realname = req['filename']
             rn = req['rename']
-            if rn:
+            if rn and tmpname != "/dev/null":
                 tmpname = realname + self.suffix
                 pylantorrent.log(logging.DEBUG, "renaming %s -> %s" % (tmpname, realname))
 
