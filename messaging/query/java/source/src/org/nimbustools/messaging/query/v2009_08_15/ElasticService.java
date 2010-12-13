@@ -68,7 +68,8 @@ public class ElasticService implements ElasticVersion {
                 new CreateKeyPair(), new DeleteKeyPair(), new DescribeKeyPairs(),
                 new RunInstances(), new RebootInstances(), new DescribeInstances(),
                 new TerminateInstances(), new DescribeImages(),
-                new DescribeAvailabilityZones(), new DescribeSecurityGroups()
+                new DescribeAvailabilityZones(), new DescribeSecurityGroups(),
+                new DescribeRegions(),
         };
         actionMap = new HashMap<String, ElasticAction>(actions.length);
         for (ElasticAction action : actions) {
@@ -429,7 +430,7 @@ public class ElasticService implements ElasticVersion {
         }
     }
 
-        @Produces("text/xml")
+    @Produces("text/xml")
     public class DescribeSecurityGroups implements ElasticAction {
         public String getName() {
             return "DescribeSecurityGroups";
@@ -441,6 +442,22 @@ public class ElasticService implements ElasticVersion {
         }
         @POST
         public DescribeSecurityGroupsResponseType handlePost() {
+            return handleGet();
+        }
+    }
+
+    @Produces("text/xml")
+    public class DescribeRegions implements ElasticAction {
+        public String getName() {
+            return "DescribeRegions";
+        }
+
+        @GET
+        public DescribeRegionsResponseType handleGet() {
+            return new DescribeRegionsResponseType(new RegionSetType(new RegionItemType[0]), null);
+        }
+        @POST
+        public DescribeRegionsResponseType handlePost() {
             return handleGet();
         }
     }

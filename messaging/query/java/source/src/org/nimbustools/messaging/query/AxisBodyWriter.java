@@ -18,12 +18,14 @@ package org.nimbustools.messaging.query;
 import org.apache.axis.description.TypeDesc;
 import org.apache.axis.message.MessageElement;
 import org.apache.axis.encoding.SerializationContext;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.xml.sax.Attributes;
 
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.*;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 import javax.xml.namespace.QName;
@@ -36,15 +38,20 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.util.List;
 
 @Provider
 @Produces({"text/xml"})
 public class AxisBodyWriter implements MessageBodyWriter<Object> {
+
+    private static final Log logger =
+            LogFactory.getLog(AxisBodyWriter.class.getName());
+
     private static final String GET_TYPE_DESC = "getTypeDesc";
     private static final String TYPE_SUFFIX = "Type";
 
-    @javax.ws.rs.core.Context
-    javax.ws.rs.core.UriInfo uriInfo;
+    @Context
+    MessageContext messageContext;
 
 
     // this is a travesty
@@ -110,14 +117,18 @@ public class AxisBodyWriter implements MessageBodyWriter<Object> {
     }
 
     private String getNamespaceUriFromContext() {
-        if (this.uriInfo != null) {
-            final MultivaluedMap<String, String> queryParameters =
-                    this.uriInfo.getQueryParameters();
-            if (queryParameters != null) {
-                final String version = queryParameters.getFirst("Version");
+        if (this.messageContext != null) {
 
-                if (version != null && version.length() > 0) {
-                    return "http://ec2.amazonaws.com/doc/" + version + "/";
+            final HttpHeaders headers = this.messageContext.getHttpHeaders();
+            if (headers != null) {
+                final List<String> versionHeaders =
+                        headers.getRequestHeader(ElasticQuery.API_VERSION_HEADER);
+
+                if (versionHeaders != null && !versionHeaders.isEmpty()) {
+                    final String version = versionHeaders.get(0);
+                    if (version.length() > 0) {
+                        return "http://ec2.amazonaws.com/doc/" + version + "/";
+                    }
                 }
             }
         }
@@ -150,10 +161,12 @@ class CleanSerializationContext extends SerializationContext {
         this.defaultNamespace = defaultNamespace;
     }
 
+    @Override
     public boolean shouldSendXSIType() {
         return false;
     }
 
+    @Override
     public void startElement(QName qName, Attributes attributes) throws IOException {
         // for some reason many of the EC2 types are coming through with an empty namespace
         // override it with the one provided at constructor time
@@ -161,5 +174,26 @@ class CleanSerializationContext extends SerializationContext {
             qName = new QName(defaultNamespace, qName.getLocalPart());
         }
         super.startElement(qName, attributes);
+    }
+
+    // override these to ensure that by default nil elements are left out of
+    // serialized XML. Only the first one is apparently called by MessageElement, but
+    // overriding both for completeness.
+
+    @Override
+    public void serialize(QName elemQName,
+                          Attributes attributes,
+                          Object value)
+            throws IOException {
+        serialize(elemQName, attributes, value, null, Boolean.FALSE, null);
+    }
+
+    @Override
+    public void serialize(QName elemQName,
+                          Attributes attributes,
+                          Object value,
+                          QName xmlType)
+            throws IOException {
+        serialize(elemQName, attributes, value, xmlType, Boolean.FALSE, null);
     }
 }
