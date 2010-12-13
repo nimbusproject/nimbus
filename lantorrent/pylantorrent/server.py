@@ -121,8 +121,8 @@ class LTServer(object):
                 files_a.append(f)
                 self.created_files.append(filename)
             except Exception, ex:
-                pylantorrent.log(logging.ERROR, "Failed to open %s" % (filename))
-                raise LTException(503, str(ex), header['host'], int(header['port']), reqs=requests_a)
+                pylantorrent.log(logging.ERROR, "Failed to open %s" % (filename), traceback)
+                raise LTException(503, str(ex), self.json_header['host'], int(self.json_header['port']), reqs=requests_a)
         self.files_a = files_a
 
     # perhaps this should even be an io event system or threads.  For now

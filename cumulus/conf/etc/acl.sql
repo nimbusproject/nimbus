@@ -131,6 +131,22 @@ create table objects(
     UNIQUE(object_type, name, parent_id)
 );
 
+
+create table multipart_join(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    upload_id varchar(64) UNIQUE NOT NULL,
+    object_id INTEGER REFERENCES objects(id) NOT NULL,
+    complete INTEGER DEFAULT 0
+);
+
+create table multipart(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    data_key varchar(1024) UNIQUE NOT NULL,
+    order_num INTEGER NOT NULL,
+    mp_id INTEGER REFERENCES multipart_join(id) NOT NULL,
+    UNIQUE(mp_id, order_num)
+);
+
 -- object_acl
 -- ==========
 --  This is a join table for descovering acl permissions associated with 
