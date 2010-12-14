@@ -38,5 +38,5 @@ Installation
 
 4. Save/bundle your VM image and then try to boot it via the Nimbus cloud-client
    with a cluster document (or some other client that supports Nimbus 
-   contextualization.
+   contextualization).
 
