@@ -183,7 +183,7 @@ class LTServer(object):
         for req in requests_a:
             realname = req['filename']
             rn = req['rename']
-            if rn and tmpname != "/dev/null":
+            if rn:
                 tmpname = realname + self.suffix
                 pylantorrent.log(logging.DEBUG, "renaming %s -> %s" % (tmpname, realname))
 
