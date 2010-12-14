@@ -1,0 +1,11 @@
+ctx-agent 2.3.0
+===============
+
+* Reorganized and refactored Python scripts.
+
+* The agent waits for network availability before starting the ctx process.
+  Some distributions run the rc.local script before the network is quite ready.
+
+* Added retry logic for local command execution (thanks to Pierre Riteau) and
+  metadata server queries.
+
