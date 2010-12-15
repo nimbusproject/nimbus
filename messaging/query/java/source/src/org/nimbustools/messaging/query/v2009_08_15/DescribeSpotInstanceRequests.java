@@ -11,10 +11,10 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
 
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.DescribeSpotInstanceRequestsResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.DescribeSpotInstanceRequestsType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.SpotInstanceRequestIdSetItemType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.SpotInstanceRequestIdSetType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.DescribeSpotInstanceRequestsResponseType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.DescribeSpotInstanceRequestsType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.SpotInstanceRequestIdSetItemType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.SpotInstanceRequestIdSetType;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.ServiceRM;
 import org.nimbustools.messaging.query.ElasticAction;
 import org.nimbustools.messaging.query.QueryError;

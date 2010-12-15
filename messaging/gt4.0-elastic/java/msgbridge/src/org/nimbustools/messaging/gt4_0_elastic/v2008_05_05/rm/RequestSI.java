@@ -18,8 +18,8 @@ package org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm;
 
 import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.services.rm.Manager;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.RequestSpotInstancesResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.RequestSpotInstancesType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.RequestSpotInstancesResponseType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.RequestSpotInstancesType;
 
 import java.rmi.RemoteException;
 

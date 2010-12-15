@@ -15,7 +15,7 @@
  */
 package org.nimbustools.messaging.query.v2009_08_15;
 
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.*;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.*;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.*;
 import org.nimbustools.messaging.query.*;
 import static org.nimbustools.messaging.query.QueryUtils.*;
@@ -164,7 +164,7 @@ public class ElasticService implements ElasticVersion {
             final DescribeKeyPairsInfoType keySet = new DescribeKeyPairsInfoType(keys);
 
             try {
-                return serviceSecurity.describeKeyPairs(new DescribeKeyPairsType(keySet));
+                return serviceSecurity.describeKeyPairs(new DescribeKeyPairsType(null, keySet));
             } catch (RemoteException e) {
                 throw new QueryException(QueryError.GeneralError, e);
             }
@@ -284,7 +284,7 @@ public class ElasticService implements ElasticVersion {
             }
 
             final DescribeInstancesInfoType info = new DescribeInstancesInfoType(items);
-            final DescribeInstancesType request = new DescribeInstancesType(info);
+            final DescribeInstancesType request = new DescribeInstancesType(null, info);
 
             try {
                 return serviceRM.describeInstances(request);
