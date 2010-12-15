@@ -44,4 +44,5 @@ public interface _CreateRequest extends CreateRequest {
     public void setContext(Context context);
     public void setMdUserData(String mdUserData);
     public void setSshKeyName(String keyName);
+    public void setClientToken(String clientToken);
 }

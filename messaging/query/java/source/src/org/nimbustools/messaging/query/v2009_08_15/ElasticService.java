@@ -188,7 +188,8 @@ public class ElasticService implements ElasticVersion {
                 @FormParam("MaxCount") String maxCount,
                 @FormParam("KeyName") String keyName,
                 @FormParam("UserData") String userData,
-                @FormParam("InstanceType") String instanceType) {
+                @FormParam("InstanceType") String instanceType,
+                @FormParam("ClientToken") String clientToken) {
             // only including parameters that are actually used right now
 
             assureRequiredParameter("ImageId", imageId);
@@ -221,8 +222,9 @@ public class ElasticService implements ElasticVersion {
                 @FormParam("MaxCount") String maxCount,
                 @FormParam("KeyName") String keyName,
                 @FormParam("UserData") String userData,
-                @FormParam("InstanceType") String instanceType) {
-            return handleGet(imageId, minCount, maxCount, keyName, userData, instanceType);
+                @FormParam("InstanceType") String instanceType,
+                @FormParam("ClientToken") String clientToken) {
+            return handleGet(imageId, minCount, maxCount, keyName, userData, instanceType, clientToken);
         }
     }
 

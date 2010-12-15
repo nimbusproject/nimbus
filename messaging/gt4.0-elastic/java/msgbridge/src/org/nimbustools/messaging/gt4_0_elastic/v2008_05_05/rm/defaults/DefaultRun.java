@@ -206,6 +206,8 @@ public class DefaultRun implements Run {
         final VMFile[] files =
                 this.repository.constructFileRequest(imageID, ra, caller);
 
+        final String clientToken = req.getClientToken();
+
         final _CreateRequest creq = this.repr._newCreateRequest();
 
         creq.setContext(null);
@@ -224,6 +226,7 @@ public class DefaultRun implements Run {
         creq.setVMFiles(files);
         creq.setMdUserData(userData);
         creq.setSshKeyName(keyname);
+        creq.setClientToken(clientToken);
 
         return creq;
     }

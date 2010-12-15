@@ -50,6 +50,7 @@ public class DefaultCreateRequest implements _CreateRequest {
     protected Context context;
     protected String mdUserData;
     protected String sshKeyName;
+    protected String clientToken;
     
 
     // -------------------------------------------------------------------------
@@ -119,6 +120,11 @@ public class DefaultCreateRequest implements _CreateRequest {
     public String getSshKeyName() {
         return sshKeyName;
     }
+
+    public String getClientToken() {
+        return clientToken;
+    }
+
     
     // -------------------------------------------------------------------------
     // implements org.nimbustools.api._repr._CreateRequest
@@ -188,6 +194,10 @@ public class DefaultCreateRequest implements _CreateRequest {
         this.sshKeyName = sshKeyName;
     }
 
+    public void setClientToken(String clientToken) {
+        this.clientToken = clientToken;
+    }
+
     // -------------------------------------------------------------------------
     // DEBUG STRING
     // -------------------------------------------------------------------------
@@ -214,6 +224,7 @@ public class DefaultCreateRequest implements _CreateRequest {
                 prefix + "userDataPresent? " + userDataPresent +
                 prefix + "initialStateRequest='" + this.initialStateRequest + "'" +
                 prefix + "sshKeyName='" + this.sshKeyName + "'" +
+                prefix + "clientToken=" + this.clientToken + "'" +
                 prefix + "context=" + this.context + "\n";
     }
 }
