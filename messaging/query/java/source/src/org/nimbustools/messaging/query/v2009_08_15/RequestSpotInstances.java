@@ -26,7 +26,6 @@ public class RequestSpotInstances implements ElasticAction {
         this.serviceRM = serviceRMImpl;
     }
     
-    @Override
     public String getName() {
         return "RequestSpotInstances";
     }

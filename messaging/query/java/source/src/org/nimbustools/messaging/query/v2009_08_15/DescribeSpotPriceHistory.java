@@ -39,7 +39,6 @@ public class DescribeSpotPriceHistory implements ElasticAction {
         this.serviceRM = serviceRMImpl;
     }
     
-    @Override
     public String getName() {
         return "DescribeSpotPriceHistory";
     }

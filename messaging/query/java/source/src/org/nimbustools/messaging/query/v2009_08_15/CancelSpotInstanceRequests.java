@@ -25,7 +25,6 @@ public class CancelSpotInstanceRequests implements ElasticAction {
         this.serviceRM = serviceRMImpl;
     }
     
-    @Override
     public String getName() {
         return "CancelSpotInstanceRequests";
     }
