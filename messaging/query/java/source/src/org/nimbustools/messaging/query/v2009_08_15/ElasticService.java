@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
 import java.rmi.RemoteException;
 import java.util.HashMap;
@@ -154,6 +155,10 @@ public class ElasticService implements ElasticVersion {
             final List<String> keyNames =
                     getParameterList(uriInfo, "KeyName");
 
+            return handle(keyNames);
+        }
+
+        protected DescribeKeyPairsResponseType handle(List<String> keyNames) {
             DescribeKeyPairsItemType[] keys = new DescribeKeyPairsItemType[keyNames.size()];
             for (int i = 0; i < keys.length; i++) {
                 keys[i] = new DescribeKeyPairsItemType(keyNames.get(i));
@@ -166,9 +171,12 @@ public class ElasticService implements ElasticVersion {
                 throw new QueryException(QueryError.GeneralError, e);
             }
         }
+
         @POST
-        public DescribeKeyPairsResponseType handlePost(@Context UriInfo uriInfo) {
-            return handleGet(uriInfo);
+        public DescribeKeyPairsResponseType handlePost(MultivaluedMap<String,String> formParams) {
+            final List<String> keyNames =
+                    getParameterList(formParams, "KeyName");
+            return handle(keyNames);
         }
     }
 
@@ -234,6 +242,10 @@ public class ElasticService implements ElasticVersion {
             final List<String> instanceIds =
                     getParameterList(uriInfo, "InstanceId");
 
+            return handle(instanceIds);
+        }
+
+        protected RebootInstancesResponseType handle(List<String> instanceIds) {
             if (instanceIds.size() == 0) {
                 throw new QueryException(QueryError.InvalidArgument,
                         "Specify at least one instance to reboot");
@@ -256,9 +268,12 @@ public class ElasticService implements ElasticVersion {
                 throw new QueryException(QueryError.GeneralError, e);
             }
         }
+
         @POST
-        public RebootInstancesResponseType handlePost(@Context UriInfo uriInfo) {
-            return handleGet(uriInfo);
+        public RebootInstancesResponseType handlePost(MultivaluedMap<String,String> formParams) {
+            final List<String> instanceIds =
+                    getParameterList(formParams, "InstanceId");
+            return handle(instanceIds);
         }
     }
 
@@ -273,6 +288,10 @@ public class ElasticService implements ElasticVersion {
             final List<String> instanceIds =
                     getParameterList(uriInfo, "InstanceId");
 
+            return handle(instanceIds);
+        }
+
+        protected DescribeInstancesResponseType handle(List<String> instanceIds) {
             final DescribeInstancesItemType[] items =
                     new DescribeInstancesItemType[instanceIds.size()];
 
@@ -290,9 +309,12 @@ public class ElasticService implements ElasticVersion {
                 throw new QueryException(QueryError.GeneralError, e);
             }
         }
+
         @POST
-        public DescribeInstancesResponseType handlePost(@Context UriInfo uriInfo) {
-            return handleGet(uriInfo);
+        public DescribeInstancesResponseType handlePost(MultivaluedMap<String,String> formParams) {
+            final List<String> instanceIds =
+                    getParameterList(formParams, "InstanceId");
+            return handle(instanceIds);
         }
     }
 
@@ -307,6 +329,10 @@ public class ElasticService implements ElasticVersion {
             final List<String> instanceIds =
                     getParameterList(uriInfo, "InstanceId");
 
+            return handle(instanceIds);
+        }
+
+        protected TerminateInstancesResponseType handle(List<String> instanceIds) {
             if (instanceIds.size() == 0) {
                 throw new QueryException(QueryError.InvalidArgument,
                         "Specify at least one instance to terminate");
@@ -330,9 +356,12 @@ public class ElasticService implements ElasticVersion {
                 throw new QueryException(QueryError.GeneralError, e);
             }
         }
+
         @POST
-        public TerminateInstancesResponseType handlePost(@Context UriInfo uriInfo) {
-            return handleGet(uriInfo);
+        public TerminateInstancesResponseType handlePost(MultivaluedMap<String,String> formParams) {
+            final List<String> instanceIds =
+                    getParameterList(formParams, "InstanceId");
+            return handle(instanceIds);
         }
     }
 
