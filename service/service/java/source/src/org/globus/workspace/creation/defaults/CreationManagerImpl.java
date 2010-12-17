@@ -16,6 +16,7 @@
 
 package org.globus.workspace.creation.defaults;
 
+import edu.emory.mathcs.backport.java.util.concurrent.locks.Lock;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.globus.workspace.ErrorUtil;
@@ -28,6 +29,8 @@ import org.globus.workspace.accounting.AccountingEventAdapter;
 import org.globus.workspace.async.AsyncRequest;
 import org.globus.workspace.async.AsyncRequestManager;
 import org.globus.workspace.creation.CreationManager;
+import org.globus.workspace.creation.IdempotentCreationManager;
+import org.globus.workspace.creation.IdempotentReservation;
 import org.globus.workspace.network.AssociationAdapter;
 import org.globus.workspace.persistence.DataConvert;
 import org.globus.workspace.persistence.PersistenceAdapter;
@@ -61,14 +64,7 @@ import org.nimbustools.api.repr.ctx.Context;
 import org.nimbustools.api.repr.si.SIConstants;
 import org.nimbustools.api.repr.vm.NIC;
 import org.nimbustools.api.repr.vm.ResourceAllocation;
-import org.nimbustools.api.services.rm.AuthorizationException;
-import org.nimbustools.api.services.rm.BasicLegality;
-import org.nimbustools.api.services.rm.CoSchedulingException;
-import org.nimbustools.api.services.rm.CreationException;
-import org.nimbustools.api.services.rm.ManageException;
-import org.nimbustools.api.services.rm.MetadataException;
-import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
-import org.nimbustools.api.services.rm.SchedulingException;
+import org.nimbustools.api.services.rm.*;
 
 import org.safehaus.uuid.UUIDGenerator;
 
@@ -120,6 +116,7 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
     protected AccountingEventAdapter accounting;
     
     protected AsyncRequestManager asyncManager;
+    private IdempotentCreationManager idemManager;
 
 
     // -------------------------------------------------------------------------
@@ -368,14 +365,150 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
         final String creatorID = caller.getIdentity();
         if (creatorID == null || creatorID.trim().length() == 0) {
             throw new CreationException("Cannot determine identity");
-        }        
-        
-        final String coschedID = this.getCoschedID(req, creatorID);  
-        final String groupID = this.getGroupID(caller.getIdentity(), bound.length);        
-        
+        }
+
+
+        if (req.getClientToken() == null) {
+
+            // non-idempotent creation
+            return doCreation(req, caller, bound);
+
+        } else {
+
+            return doIdempotentCreation(req, caller, bound);
+        }
+    }
+
+
+    private InstanceResource[] doCreation(CreateRequest req, Caller caller, VirtualMachine[] bound)
+            throws CreationException, CoSchedulingException, MetadataException,
+            ResourceRequestDeniedException, SchedulingException, AuthorizationException {
+
+        final String coschedID = this.getCoschedID(req, caller.getIdentity());
+        final String groupID = this.getGroupID(caller.getIdentity(), bound.length);
+
         return this.createVMs(bound, req.getRequestedNics(), caller, req.getContext(), groupID, coschedID, false);
     }
-    
+
+    private InstanceResource[] doIdempotentCreation(CreateRequest req, Caller caller, VirtualMachine[] bound)
+            throws CreationException,
+            CoSchedulingException,
+            MetadataException,
+            ResourceRequestDeniedException,
+            SchedulingException,
+            AuthorizationException {
+
+        String creatorID = caller.getIdentity();
+        final String clientToken = req.getClientToken();
+        IdempotentReservation res;
+        final Lock idemLock = idemManager.getLock(creatorID, clientToken);
+
+        try {
+            idemLock.lockInterruptibly();
+        } catch (InterruptedException e) {
+            throw new CreationException(e.getMessage(), e);
+        }
+
+        try {
+
+            res = this.idemManager.getOrCreateReservation(creatorID, clientToken);
+            if (!res.isNew() && res.isComplete()) {
+
+                // if the reservation doesn't have a real VM or group ID, then
+                // a previous request must have died before it was acknowledged.
+                // and died hard; otherwise record would have been backed out.
+                // in the idempotency. The best we can do is let the request go
+                // through again?
+
+                // the reservation already exists. check its validity
+                return resolveIdempotentReservation(res, req, bound);
+
+            } else {
+
+
+                final InstanceResource[] resources;
+                try {
+                    resources = this.doCreation(req, caller, bound);
+
+                } catch (CreationException e) {
+                    this.removeIdempotentReservation(creatorID, clientToken);
+                    throw e;
+                } catch (AuthorizationException e) {
+                    this.removeIdempotentReservation(creatorID, clientToken);
+                    throw e;
+                } catch (CoSchedulingException e) {
+                    this.removeIdempotentReservation(creatorID, clientToken);
+                    throw e;
+                } catch (MetadataException e) {
+                    this.removeIdempotentReservation(creatorID, clientToken);
+                    throw e;
+                } catch (ResourceRequestDeniedException e) {
+                    this.removeIdempotentReservation(creatorID, clientToken);
+                    throw e;
+                } catch (SchedulingException e) {
+                    this.removeIdempotentReservation(creatorID, clientToken);
+                    throw e;
+                } catch (Throwable t) {
+                    throw new CreationException("Unknown problem occurred: " +
+                            "'" + ErrorUtil.excString(t) + "'", t);
+
+                }
+
+
+                this.idemManager.completeReservation(creatorID, clientToken, resources);
+
+                return resources;
+            }
+
+        } catch (ManageException e) {
+            throw new CreationException(e.getMessage(), e);
+        } finally {
+            idemLock.unlock();
+        }
+    }
+
+    private void removeIdempotentReservation(String creatorID, String clientToken) {
+        try {
+            idemManager.removeReservation(creatorID, clientToken);
+        } catch (ManageException e) {
+            logger.warn("Error while backing out idempotency reservation: "+ e.getMessage(), e);
+        }
+    }
+
+    private InstanceResource[] resolveIdempotentReservation(IdempotentReservation res,
+                                                            CreateRequest req,
+                                                            VirtualMachine[] bound)
+            throws ManageException, CreationException {
+
+
+        InstanceResource[] members = null;
+
+        try {
+        if (res.getGroupId() != null) {
+
+            members = this.groupHome.findMembers(res.getGroupId());
+
+        } else if (res.getVMId() != null) {
+            members = new InstanceResource[] { this.whome.find(res.getVMId()) };
+        }
+        } catch (DoesNotExistException e) {
+            throw new IdempotentCreationTerminatedException();
+        }
+
+        if (members == null) {
+            // sanity check
+            throw new CreationException("Could not resolve existing idempotent instances");
+        }
+
+        // attempt to match found resources against incoming request
+        if (members.length != bound.length) {
+            throw new IdempotentCreationMismatchException("count mismatch");
+        }
+
+        return members;
+    }
+
+
     /**
      * Generates a random Spot Instance request ID
      * @return the generated ID
@@ -593,7 +726,7 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
         } catch (Throwable t) {
             this.backoutScheduling(ids, groupID);
             this.backoutBound(bindings);            
-            throw new CreationException("Unknown problem occured: " +
+            throw new CreationException("Unknown problem occurred: " +
                     "'" + ErrorUtil.excString(t) + "'", t);
         }
         
@@ -751,7 +884,7 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
             throw e;
         } catch (Throwable t) {
             this.backoutAccounting(ids, callerID);
-            throw new CreationException("Unknown problem occured: " +
+            throw new CreationException("Unknown problem occurred: " +
                     "'" + ErrorUtil.excString(t) + "'", t);
         }
     }
