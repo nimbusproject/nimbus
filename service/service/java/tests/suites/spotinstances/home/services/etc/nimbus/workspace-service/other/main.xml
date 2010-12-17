@@ -97,6 +97,7 @@
         <constructor-arg ref="other.timerManager" />
         <constructor-arg ref="nimbus-rm.loglevels" />
         <constructor-arg ref="nimbus-rm.service.binding.BindNetwork" />
+        <constructor-arg ref="nimbus-rm.creation.idempotent" />
 
         <property name="accountingEventAdapter"
                   ref="nimbus-rm.accounting" />
@@ -632,6 +633,13 @@
         <property name="writeDelayMilliseconds" value="$ACCOUNTING{write.delay.ms}" />
 
     </bean>
+
+    <!-- ===================================================================
+         org.globus.workspace.creation.* interfaces
+         =================================================================== -->
+
+    <bean id="nimbus-rm.creation.idempotent"
+          class="org.globus.workspace.creation.defaults.IdempotentCreationManagerImpl" />
 
 
     <!-- ===================================================================

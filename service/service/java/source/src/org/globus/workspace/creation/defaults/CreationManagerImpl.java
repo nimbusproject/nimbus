@@ -116,7 +116,7 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
     protected AccountingEventAdapter accounting;
     
     protected AsyncRequestManager asyncManager;
-    private IdempotentCreationManager idemManager;
+    protected IdempotentCreationManager idemManager;
 
 
     // -------------------------------------------------------------------------
@@ -138,7 +138,8 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
                            DataConvert dataConvertImpl,
                            TimerManager timerManagerImpl,
                            Lager lagerImpl,
-                           BindNetwork bindNetworkImpl) {
+                           BindNetwork bindNetworkImpl,
+                           IdempotentCreationManager idempotentCreationManager) {
 
         if (lockManagerImpl == null) {
             throw new IllegalArgumentException("lockManager may not be null");
@@ -218,7 +219,12 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
         if (bindNetworkImpl == null) {
             throw new IllegalArgumentException("bindNetworkImpl may not be null");
         }
-        this.bindNetwork = bindNetworkImpl;     
+        this.bindNetwork = bindNetworkImpl;
+
+        if (idempotentCreationManager == null) {
+            throw new IllegalArgumentException("idempotentCreationManager may not be null");
+        }
+        this.idemManager = idempotentCreationManager;
     }
 
 
@@ -420,6 +426,7 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
                 // in the idempotency. The best we can do is let the request go
                 // through again?
 
+
                 // the reservation already exists. check its validity
                 return resolveIdempotentReservation(res, req, bound);
 
@@ -455,7 +462,11 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
                 }
 
 
-                this.idemManager.completeReservation(creatorID, clientToken, resources);
+                try {
+                    this.idemManager.completeReservation(creatorID, clientToken, resources);
+                } catch (DoesNotExistException e) {
+                    logger.error("Idempotency reservation disappeared!", e);
+                }
 
                 return resources;
             }
@@ -483,14 +494,21 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
 
         InstanceResource[] members = null;
 
+        String logId = "";
+
         try {
-        if (res.getGroupId() != null) {
+            if (res.getGroupId() != null) {
 
-            members = this.groupHome.findMembers(res.getGroupId());
+                logId = Lager.groupid(res.getGroupId());
 
-        } else if (res.getVMId() != null) {
-            members = new InstanceResource[] { this.whome.find(res.getVMId()) };
-        }
+                members = this.groupHome.findMembers(res.getGroupId());
+
+            } else if (res.getVMId() != null) {
+
+                logId = Lager.id(res.getVMId());
+
+                members = new InstanceResource[] { this.whome.find(res.getVMId()) };
+            }
         } catch (DoesNotExistException e) {
             throw new IdempotentCreationTerminatedException();
         }
@@ -499,6 +517,8 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
             // sanity check
             throw new CreationException("Could not resolve existing idempotent instances");
         }
+
+        logger.info(logId + "idempotent creation request already fulfilled");
 
         // attempt to match found resources against incoming request
         if (members.length != bound.length) {

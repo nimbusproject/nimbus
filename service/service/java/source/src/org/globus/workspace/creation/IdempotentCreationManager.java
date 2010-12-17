@@ -17,6 +17,7 @@ package org.globus.workspace.creation;
 
 import edu.emory.mathcs.backport.java.util.concurrent.locks.Lock;
 import org.globus.workspace.service.InstanceResource;
+import org.nimbustools.api.services.rm.DoesNotExistException;
 import org.nimbustools.api.services.rm.ManageException;
 
 public interface IdempotentCreationManager {
@@ -24,7 +25,7 @@ public interface IdempotentCreationManager {
 
     IdempotentReservation getOrCreateReservation(String creatorID, String clientToken);
 
-    void completeReservation(String creatorID, String clientToken, InstanceResource[] resources);
+    void completeReservation(String creatorID, String clientToken, InstanceResource[] resources) throws DoesNotExistException;
 
     void removeReservation(String creatorID, String clientToken) throws ManageException;
 

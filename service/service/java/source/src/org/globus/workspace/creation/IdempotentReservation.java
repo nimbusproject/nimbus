@@ -20,8 +20,6 @@ import java.util.Calendar;
 public interface IdempotentReservation {
     public String getCreatorId();
     public String getClientToken();
-    public Calendar getCreationTime();
-    public Calendar getTerminationTime();
 
     public String getGroupId();
     public String getVMId();
