@@ -218,7 +218,7 @@ class DefaultImageEditing:
         """
         
         for lf in local_file_set.flist():
-            if lf.path[-3:] == ".gz":
+            if lf.path.count(".gz") > 0 :
                 lf.path = self._gunzip_file_inplace(lf.path)
         
         # disabled
@@ -325,6 +325,19 @@ class DefaultImageEditing:
     def _gunzip_file_inplace(self, path):
         self.c.log.info("gunzipping '%s'" % path)
         try:
+            # Since gunzip chokes when you give it a file not ending in .gz,
+            # remove anything after the last .gz (query string params etc)
+            gzindex = path.rfind(".gz")
+            clean_path = path[:gzindex] + ".gz"
+            if clean_path != path:
+                try:
+                    shutil.move(path, clean_path)
+                    path = clean_path
+                except:
+                    errmsg = "problem renaming %s to %s" % (path, clean_path)
+                    log.exception(errmsg)
+                    raise UnexpectedError(errmsg)
+
             cmd = "gunzip %s" % path
             if self.c.dryrun:
                 self.c.log.debug("dryrun, command is: %s" % cmd)

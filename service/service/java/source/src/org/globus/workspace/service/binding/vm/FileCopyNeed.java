@@ -21,7 +21,7 @@ package org.globus.workspace.service.binding.vm;
  * is 32 chars (UUID), destpath is is 512 chars and is the path ON the VM.
  * On the VMM, the file is also the UUID.
  */
-public class CustomizationNeed {
+public class FileCopyNeed {
 
     public final static int srcMax = 36;
     public final static int dstMax = 512;
@@ -33,16 +33,22 @@ public class CustomizationNeed {
                                     legalDestCharsString.toCharArray();
 
     public final String sourcePath;
+    // A null destPath indicates that the file won't be copied to the VM
     public final String destPath;
 
-    boolean wasSent;
+    boolean onImage;
 
-    public CustomizationNeed(String src, String dst)
+    public FileCopyNeed(String src)
+            throws Exception {
+        this(src, null, false);
+    }
+
+    public FileCopyNeed(String src, String dst)
             throws Exception {
         this(src, dst, false);
     }
 
-    public CustomizationNeed(String src, String dst, boolean sent)
+    public FileCopyNeed(String src, String dst, boolean onImage)
             throws Exception {
         
         if (src == null) {
@@ -50,56 +56,56 @@ public class CustomizationNeed {
         }
         if (src.length() > srcMax) {
             throw new Exception(
-                    "customization source path is too long: " +
+                    "file copy source path is too long: " +
                                     src.length() + " > " + srcMax +
                             ".  Path: '" + src + "'");
         }
-        if (dst == null) {
-            throw new IllegalArgumentException(
-                    "destination path may not be null");
-        }
-        if (dst.length() > dstMax) {
-            throw new Exception(
-                    "customization destination path is too long: " +
-                                    dst.length() + " > " + dstMax +
-                            ".  Path: '" + dst + "'");
-        }
 
-        // the mount tool would catch this too, but failfast
-        final char[] dstChars = dst.toCharArray();
-        for (int i = 0; i < dstChars.length; i++) {
-            if (!legalChar(dstChars[i])) {
+        // If dst is null, file won't be copied onto the VM
+        if (dst != null) {
+            if (dst.length() > dstMax) {
                 throw new Exception(
-                    "customization destination path contains illegal " +
-                    "character '" + dstChars[i] + "'. Path: '" + dst + "'");
+                        "file copy destination path is too long: " +
+                                        dst.length() + " > " + dstMax +
+                                ".  Path: '" + dst + "'");
             }
-        }
 
-        if (dst.indexOf("../") >= 0) {
-            throw new Exception(
-                    "customization destination path contains illegal " +
-                    "path expansion, for example '../'. Path: '" + dst + "'");
+            // the mount tool would catch this too, but failfast
+            final char[] dstChars = dst.toCharArray();
+            for (int i = 0; i < dstChars.length; i++) {
+                if (!legalChar(dstChars[i])) {
+                    throw new Exception(
+                        "file copy destination path contains illegal " +
+                        "character '" + dstChars[i] + "'. Path: '" + dst + "'");
+                }
+            }
+
+            if (dst.indexOf("../") >= 0) {
+                throw new Exception(
+                        "file copy destination path contains illegal " +
+                        "path expansion, for example '../'. Path: '" + dst + "'");
+            }
         }
 
         this.sourcePath = src;
         this.destPath = dst;
-        this.wasSent = sent;
+        this.onImage = onImage;
     }
 
     // for clone only
     // 'fake' is just there to get around java limitation
-    private CustomizationNeed(String src, String dst, boolean sent, int fake) {
+    private FileCopyNeed(String src, String dst, boolean onImage, int fake) {
         this.sourcePath = src;
         this.destPath = dst;
-        this.wasSent = sent;
+        this.onImage = onImage;
     }
 
-    public synchronized boolean isSent() {
-        return this.wasSent;
+    public synchronized boolean onImage() {
+        return this.onImage;
     }
 
-    public synchronized void setSent(boolean sent) {
-        this.wasSent = sent;
+    public synchronized void setOnImage(boolean onImage) {
+        this.onImage = onImage;
     }
 
     private static boolean legalChar(char c) {
@@ -111,28 +117,28 @@ public class CustomizationNeed {
         return false;
     }
 
-    public static CustomizationNeed[] cloneArray(CustomizationNeed[] cur)
+    public static FileCopyNeed[] cloneArray(FileCopyNeed[] cur)
             throws Exception {
 
         if (cur == null) {
             return null;
         }
 
-        final CustomizationNeed[] newArr = new CustomizationNeed[cur.length];
+        final FileCopyNeed[] newArr = new FileCopyNeed[cur.length];
         for (int i = 0; i < cur.length; i++) {
             newArr[i] = cloneOne(cur[i]);
         }
         return newArr;
     }
 
-    public static CustomizationNeed cloneOne(CustomizationNeed cur)
+    public static FileCopyNeed cloneOne(FileCopyNeed cur)
             throws Exception {
 
         if (cur == null) {
             return null;
         }
         
-        return new CustomizationNeed(
-                        cur.sourcePath, cur.destPath, cur.wasSent, 0);
+        return new FileCopyNeed(
+                        cur.sourcePath, cur.destPath, cur.onImage, 0);
     }
 }

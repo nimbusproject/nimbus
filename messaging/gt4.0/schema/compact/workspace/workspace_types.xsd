@@ -229,6 +229,10 @@
             <xs:element name="mdServerUserdata"
                         type="xs:string"
                         minOccurs="0" />
+
+            <xs:element name="credentialToCopy"
+                type="xs:string"
+                minOccurs="0" />
         </xs:sequence>
     </xs:complexType>
 

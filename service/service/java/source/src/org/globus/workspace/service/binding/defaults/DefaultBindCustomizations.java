@@ -18,13 +18,13 @@ package org.globus.workspace.service.binding.defaults;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.globus.workspace.service.binding.vm.FileCopyNeed;
 import org.nimbustools.api.repr.CustomizationRequest;
 import org.nimbustools.api.services.rm.CreationException;
 import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
 import org.globus.workspace.PathConfigs;
 import org.globus.workspace.WorkspaceException;
 import org.globus.workspace.service.binding.BindCustomizations;
-import org.globus.workspace.service.binding.vm.CustomizationNeed;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.safehaus.uuid.UUIDGenerator;
 
@@ -110,7 +110,7 @@ public class DefaultBindCustomizations implements BindCustomizations {
         }
     }
 
-    public CustomizationNeed newCustomizationNeedImpl(String srcContent,
+    public FileCopyNeed newFileCopyNeedImpl(String srcContent,
                                                       String dstPath)
             throws WorkspaceException {
 
@@ -185,12 +185,12 @@ public class DefaultBindCustomizations implements BindCustomizations {
 
             final String src = filewrites[i].getContent();
             final String dstPath = filewrites[i].getPathOnVM();
-            vm.addCustomizationNeed(this.newNeed(src, dstPath));
+            vm.addFileCopyNeed(this.newNeed(src, dstPath));
         }
 
     }
 
-    protected CustomizationNeed newNeed(String src,
+    protected FileCopyNeed newNeed(String src,
                                         String dstPath) throws Exception {
 
         // already checked, this is for object extenders
@@ -217,9 +217,9 @@ public class DefaultBindCustomizations implements BindCustomizations {
 
         final String srcPath = this.newSrcPath();
 
-        final CustomizationNeed need;
+        final FileCopyNeed need;
         try {
-            need = new CustomizationNeed(srcPath, dstPath);
+            need = new FileCopyNeed(srcPath, dstPath);
         } catch (Exception e) {
             if (logger.isDebugEnabled()) {
                 logger.error(e.getMessage(), e);

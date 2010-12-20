@@ -779,7 +779,7 @@ public class StateTransition implements WorkspaceConstants {
         final WorkspaceRequestContext requestContext =
                 new WorkspaceRequestContext(id, resource.getName(),
                                             this.locator, this.lager);
-        
+
         requestContext.setVm(resource.getVM());
         requestContext.setGroupID(resource.getGroupId());
         requestContext.setGroupSize(resource.getGroupSize());

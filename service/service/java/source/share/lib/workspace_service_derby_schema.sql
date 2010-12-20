@@ -61,7 +61,8 @@ kernel_parameters VARCHAR(128),
 vmm VARCHAR(32),
 vmm_version VARCHAR(32),
 assocs_needed VARCHAR(256),
-md_user_data VARCHAR(30720)
+md_user_data VARCHAR(30720),
+credential_name VARCHAR(128)
 );
 
 --
@@ -117,14 +118,14 @@ PRIMARY KEY(association,ipaddress)
 );
 
 --
--- Persistence for file customization tasks
+-- Persistence for file copy tasks
 
-CREATE TABLE vm_customization
+CREATE TABLE file_copy
 (
 vmid INT NOT NULL,
-sourcepath VARCHAR(32) NOT NULL,
-destpath VARCHAR(512) NOT NULL,
-sent SMALLINT NOT NULL
+sourcepath VARCHAR(36) NOT NULL,
+destpath VARCHAR(512),
+on_image SMALLINT NOT NULL
 );
 
 --
@@ -156,7 +157,6 @@ CREATE TABLE default_scheduler_done_ensemb
 (
 coschedid CHAR(36) NOT NULL
 );
-
 
 -- using REAL for memory attributs to allow
 -- real division operations in ORDER BY statements

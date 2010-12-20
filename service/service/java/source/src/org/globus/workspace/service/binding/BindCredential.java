@@ -16,20 +16,13 @@
 
 package org.globus.workspace.service.binding;
 
-import org.globus.workspace.service.binding.vm.VirtualMachine;
-import org.globus.workspace.service.binding.vm.FileCopyNeed;
 import org.globus.workspace.WorkspaceException;
-import org.nimbustools.api.repr.CustomizationRequest;
+import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.nimbustools.api.services.rm.CreationException;
-import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
 
-public interface BindCustomizations {
+public interface BindCredential {
 
     public void consume(VirtualMachine vm,
-                        CustomizationRequest[] reqs)
-            throws CreationException, ResourceRequestDeniedException;
-
-    public FileCopyNeed newFileCopyNeedImpl(String srcContent,
-                                                      String dstPath)
-            throws WorkspaceException;
+                        final String credential)
+            throws CreationException;
 }

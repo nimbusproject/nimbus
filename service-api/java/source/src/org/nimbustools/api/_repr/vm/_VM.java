@@ -37,5 +37,6 @@ public interface _VM extends VM {
     public void setCreator(Caller creator);
     public void setLaunchIndex(int launchIndex);
     public void setMdUserData(String mdUserData);
+    public void setCredentialName(String credentialName);
     public void setSshKeyName(String keyName);
 }

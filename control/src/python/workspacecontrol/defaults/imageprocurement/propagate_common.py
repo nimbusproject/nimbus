@@ -17,6 +17,7 @@ PROP_ADAPTER_SCP = "scp"
 PROP_ADAPTER_GUC = "gsiftp"
 PROP_ADAPTER_HDFS = "hdfs"
 PROP_ADAPTER_HTTP = "http"
+PROP_ADAPTER_HTTPS = "https"
 PROP_ADAPTER_LANTORRENT = "lantorrent"
 
 class DefaultImageProcurement:
@@ -89,6 +90,11 @@ class DefaultImageProcurement:
         if http_enabled and http_enabled.strip().lower() == "true":
             import propagate_http
             self.adapters[PROP_ADAPTER_HTTP] = propagate_http.propadapter(self.p, self.c)
+
+        https_enabled = self.p.get_conf_or_none("propagation", "https")
+        if https_enabled and https_enabled.strip().lower() == "true":
+            import propagate_https
+            self.adapters[PROP_ADAPTER_HTTPS] = propagate_https.propadapter(self.p, self.c)
 
         if len(self.adapters) == 0:
             self.c.log.warn("There are no propagation adapters configured, propagation is disabled")
@@ -612,24 +618,24 @@ class DefaultImageProcurement:
             
             securedir_try = self._derive_instance_dir()
             securedir_try = os.path.join(securedir_try, original)
+
+            # We need to check that the image hasn't previously been unzipped
+            gz_parts = original.rsplit(".gz",1)
+            securedir_lessgz_try = self._derive_instance_dir()
+            securedir_lessgz_try = os.path.join(securedir_lessgz_try, gz_parts[0])
             
             localdir_try = os.path.join(self.localdir, original)
             
             # important: try securedir first, it takes precedence
             if os.path.exists(securedir_try):
-                localdir_try = None
-            elif os.path.exists(localdir_try):
-                securedir_try = None
-            else:
-                raise InvalidInput("File specified by relative path ('%s' could resolve to either '%s' or '%s') but it does not exist" % (original, securedir_try, localdir_try))
-            
-            if securedir_try:
                 lf.path = securedir_try
-            elif localdir_try:
+            elif os.path.exists(securedir_lessgz_try):
+                lf.path = securedir_lessgz_try
+            elif os.path.exists(localdir_try):
                 lf.path = localdir_try
             else:
-                raise ProgrammingError("must be relative to either securedir or localdir or it is invalid")
-                
+                raise InvalidInput("File specified by relative path ('%s' could resolve to either '%s', '%s', or '%s') but it does not exist" % (original, securedir_try, securedir_lessgz_try, localdir_try))
+            
         # ---------------------------------------------------------------
                 
         elif imgstr[:14] == "blankcreate://":
@@ -714,6 +720,7 @@ class DefaultImageProcurement:
                 
                 fnameindex = string.rfind(imgstr, '/')
                 local_filename = imgstr[fnameindex+1:]
+
 
                 # lf.path is propagation target while in the module ... if this
                 # object is returned by the module, it is assumed to exist

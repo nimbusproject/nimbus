@@ -46,7 +46,9 @@ public class VirtualMachine extends WorkspaceInstantiation {
 
     private VirtualMachinePartition[] partitions;
 
-    private CustomizationNeed[] customizationNeeds;
+    private FileCopyNeed[] fileCopyNeeds;
+
+    private String credentialName;
 
     private String mdUserData;
    //requested vmm type
@@ -144,30 +146,38 @@ public class VirtualMachine extends WorkspaceInstantiation {
         this.mdUserData = mdUserData;
     }
 
-    public synchronized void addCustomizationNeed(CustomizationNeed need) {
-        if (this.customizationNeeds == null) {
-            this.customizationNeeds = new CustomizationNeed[1];
-            this.customizationNeeds[0] = need;
+    public String getCredentialName() {
+        return this.credentialName;
+    }
+
+    public void setCredentialName(String credentialName) {
+        this.credentialName = credentialName;
+    }
+
+    public synchronized void addFileCopyNeed(FileCopyNeed need) {
+        if (this.fileCopyNeeds == null) {
+            this.fileCopyNeeds = new FileCopyNeed[1];
+            this.fileCopyNeeds[0] = need;
         } else {
-            final int curlen = this.customizationNeeds.length;
-            final CustomizationNeed[] src = this.customizationNeeds;
-            final CustomizationNeed[] dst = new CustomizationNeed[curlen+1];
+            final int curlen = this.fileCopyNeeds.length;
+            final FileCopyNeed[] src = this.fileCopyNeeds;
+            final FileCopyNeed[] dst = new FileCopyNeed[curlen+1];
             System.arraycopy(src, 0, dst, 0, curlen);
             dst[curlen] = need;
-            this.customizationNeeds = dst;
+            this.fileCopyNeeds = dst;
         }
     }
 
-    public synchronized CustomizationNeed[] getCustomizationNeeds() {
-        return this.customizationNeeds;
+    public synchronized FileCopyNeed[] getFileCopyNeeds() {
+        return this.fileCopyNeeds;
     }
 
-    public synchronized boolean isCustomizationAllDone() {
-        if (this.customizationNeeds == null) {
+    public synchronized boolean isFileCopyAllDone() {
+        if (this.fileCopyNeeds == null) {
             return true;
         }
-        for (int i = 0; i < this.customizationNeeds.length; i++) {
-            if (!this.customizationNeeds[i].isSent()) {
+        for (int i = 0; i < this.fileCopyNeeds.length; i++) {
+            if (!this.fileCopyNeeds[i].onImage()) {
                 return false;
             }
         }
@@ -258,8 +268,8 @@ public class VirtualMachine extends WorkspaceInstantiation {
         }
 
         int custLen = 0;
-        if (this.customizationNeeds != null) {
-            custLen = this.customizationNeeds.length;
+        if (this.fileCopyNeeds != null) {
+            custLen = this.fileCopyNeeds.length;
         }
 
         boolean userDataPresent = this.mdUserData != null;
@@ -283,8 +293,8 @@ public class VirtualMachine extends WorkspaceInstantiation {
     }
 
     public boolean isPropagateStartOK() {
-        return this.customizationNeeds == null ||
-               this.customizationNeeds.length <= 0;
+        return this.fileCopyNeeds == null ||
+               this.fileCopyNeeds.length <= 0;
     }
 
     // part of the instantiation interface, nothing about VM deployment
@@ -335,10 +345,11 @@ public class VirtualMachine extends WorkspaceInstantiation {
                     VirtualMachineDeployment.cloneOne(vm.deployment);
         }
 
-        newvm.customizationNeeds =
-                CustomizationNeed.cloneArray(vm.customizationNeeds);
+        newvm.fileCopyNeeds =
+                FileCopyNeed.cloneArray(vm.fileCopyNeeds);
 
         newvm.mdUserData = vm.mdUserData;
+        newvm.credentialName = vm.credentialName;
 
         return newvm;
     }

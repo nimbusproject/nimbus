@@ -177,6 +177,13 @@
 
     </bean>
 
+    <bean id="nimbus-rm.service.binding.BindCredential"
+          class="org.globus.workspace.service.binding.defaults.DefaultBindCredential">
+
+        <constructor-arg ref="nimbus-rm.PathConfigs" />
+
+    </bean>
+
     <bean id="nimbus-rm.service.binding.BindKernel"
           class="org.globus.workspace.service.binding.defaults.DefaultBindKernel" />
 
