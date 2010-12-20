@@ -125,7 +125,7 @@
           init-method="validate">
 
         <!-- Property values coming via vmm.conf -->
-        <property name="cpuArchitectureName"
+        <property name="cpuArchitectureNames"
                   value="$VMM{cpu.arch}" />
         <property name="vmm"
                   value="$VMM{vmm.type}" />
