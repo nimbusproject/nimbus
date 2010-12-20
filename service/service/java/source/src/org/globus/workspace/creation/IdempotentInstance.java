@@ -15,14 +15,15 @@
  */
 package org.globus.workspace.creation;
 
+/**
+ * Making this a class instead of just integer ID so we can easily add other fields
+ * that need to be persisted and returned in idempotent launches of terminated nodes.
+ */
+public interface IdempotentInstance {
 
-import java.util.List;
+    public int getID();
 
-public interface IdempotentReservation {
-    public String getCreatorId();
-    public String getClientToken();
+    public int getLaunchIndex();
 
-    public String getGroupId();
-    public List<IdempotentInstance> getInstances();
-
+    String getName();
 }

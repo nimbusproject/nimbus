@@ -30,6 +30,7 @@ import org.globus.workspace.async.AsyncRequest;
 import org.globus.workspace.async.AsyncRequestManager;
 import org.globus.workspace.creation.CreationManager;
 import org.globus.workspace.creation.IdempotentCreationManager;
+import org.globus.workspace.creation.IdempotentInstance;
 import org.globus.workspace.creation.IdempotentReservation;
 import org.globus.workspace.network.AssociationAdapter;
 import org.globus.workspace.persistence.DataConvert;
@@ -68,8 +69,10 @@ import org.nimbustools.api.services.rm.*;
 
 import org.safehaus.uuid.UUIDGenerator;
 
+import java.util.Arrays;
 import java.util.Calendar;
 import java.text.DateFormat;
+import java.util.List;
 
 import commonj.timers.TimerManager;
 
@@ -417,18 +420,11 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
 
         try {
 
-            res = this.idemManager.getOrCreateReservation(creatorID, clientToken);
-            if (!res.isNew() && res.isComplete()) {
-
-                // if the reservation doesn't have a real VM or group ID, then
-                // a previous request must have died before it was acknowledged.
-                // and died hard; otherwise record would have been backed out.
-                // in the idempotency. The best we can do is let the request go
-                // through again?
-
+            res = this.idemManager.getReservation(creatorID, clientToken);
+            if (res != null) {
 
                 // the reservation already exists. check its validity
-                return resolveIdempotentReservation(res, req, bound);
+                return resolveIdempotentReservation(res, req);
 
             } else {
 
@@ -458,16 +454,9 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
                 } catch (Throwable t) {
                     throw new CreationException("Unknown problem occurred: " +
                             "'" + ErrorUtil.excString(t) + "'", t);
-
                 }
 
-
-                try {
-                    this.idemManager.completeReservation(creatorID, clientToken, resources);
-                } catch (DoesNotExistException e) {
-                    logger.error("Idempotency reservation disappeared!", e);
-                }
-
+                this.idemManager.addReservation(creatorID, clientToken, Arrays.asList(resources));
                 return resources;
             }
 
@@ -487,45 +476,55 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
     }
 
     private InstanceResource[] resolveIdempotentReservation(IdempotentReservation res,
-                                                            CreateRequest req,
-                                                            VirtualMachine[] bound)
+                                                            CreateRequest req)
             throws ManageException, CreationException {
 
 
-        InstanceResource[] members = null;
-
-        String logId = "";
-
-        try {
-            if (res.getGroupId() != null) {
-
-                logId = Lager.groupid(res.getGroupId());
-
-                members = this.groupHome.findMembers(res.getGroupId());
-
-            } else if (res.getVMId() != null) {
-
-                logId = Lager.id(res.getVMId());
-
-                members = new InstanceResource[] { this.whome.find(res.getVMId()) };
-            }
-        } catch (DoesNotExistException e) {
-            throw new IdempotentCreationTerminatedException();
+        final List<IdempotentInstance> instances = res.getInstances();
+        if (instances == null || instances.isEmpty()) {
+            throw new CreationException("Idempotent reservation exists but has no instances");
         }
 
-        if (members == null) {
-            // sanity check
-            throw new CreationException("Could not resolve existing idempotent instances");
+        if (res.getGroupId() == null && instances.size() > 1) {
+            throw new CreationException("Idempotent reservation is not a group but has more than 1 instance");
         }
 
+        if (instances.size() != req.getRequestedRA().getNodeNumber()) {
+            throw new IdempotentCreationMismatchException("instance count mismatch");
+        }
+
+
+        final String logId;
+        if (res.getGroupId() != null) {
+            logId = Lager.groupid(res.getGroupId());
+        } else {
+            final IdempotentInstance instance = instances.get(0);
+            logId = Lager.id(instance.getID());
+        }
         logger.info(logId + "idempotent creation request already fulfilled");
 
-        // attempt to match found resources against incoming request
-        if (members.length != bound.length) {
-            throw new IdempotentCreationMismatchException("count mismatch");
+        InstanceResource[] resources = new InstanceResource[instances.size()];
+        int index = 0;
+        for (IdempotentInstance instance : instances) {
+            if (instance == null) {
+                throw new CreationException("Idempotent reservation has null instance");
+            }
+
+            try {
+                resources[index] = this.whome.find(instance.getID());
+
+            } catch (DoesNotExistException e) {
+                logger.debug("Idempotent reservation request has a terminated instance", e);
+
+                final InstanceResource resource = new IdempotentInstanceResource(instance.getID(),
+                        instance.getName(), null, res.getGroupId(), instances.size(),
+                        instance.getLaunchIndex(), res.getCreatorId());
+                resources[index] = resource;
+            }
+            index++;
         }
 
-        return members;
+        return resources;
     }
 
 

@@ -13,16 +13,32 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package org.globus.workspace.creation;
+package org.globus.workspace.creation.defaults;
+
+import org.globus.workspace.creation.IdempotentInstance;
+
+public class IdempotentInstanceImpl implements IdempotentInstance {
+
+    public IdempotentInstanceImpl(int id, String name, int launchIndex) {
+        this.id = id;
+        this.name = name;
+        this.launchIndex = launchIndex;
+    }
+
+    private int id;
+    String name;
+    private int launchIndex;
 
 
-import java.util.List;
+    public int getID() {
+        return id;
+    }
 
-public interface IdempotentReservation {
-    public String getCreatorId();
-    public String getClientToken();
+    public String getName() {
+        return name;
+    }
 
-    public String getGroupId();
-    public List<IdempotentInstance> getInstances();
-
+    public int getLaunchIndex() {
+        return launchIndex;
+    }
 }

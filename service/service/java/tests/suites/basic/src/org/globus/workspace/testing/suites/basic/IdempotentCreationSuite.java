@@ -16,7 +16,9 @@
 package org.globus.workspace.testing.suites.basic;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNotSame;
 import static org.testng.AssertJUnit.assertTrue;
 
 import org.globus.workspace.testing.NimbusTestBase;
@@ -24,6 +26,8 @@ import org.globus.workspace.testing.NimbusTestContextLoader;
 import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.CreateRequest;
 import org.nimbustools.api.repr.CreateResult;
+import org.nimbustools.api.repr.vm.State;
+import org.nimbustools.api.repr.vm.VM;
 import org.nimbustools.api.services.rm.Manager;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
@@ -69,11 +73,31 @@ public class IdempotentCreationSuite extends NimbusTestBase{
 
         final CreateRequest request2 = this.populator().getIdempotentCreateRequest("suite:basic:idempotency", token);
         final CreateResult result2 = rm.create(request2, caller);
-        logger.info("Leased vm '" + result2.getVMs()[0].getID() + '\'');
+        logger.info("Leased same vm '" + result2.getVMs()[0].getID() + '\'');
 
         assertEquals(result1.getVMs()[0].getID(), result2.getVMs()[0].getID());
 
-        Thread.sleep(1000L);
+        assertEquals(1, rm.getAllByCaller(caller).length);
+
+        String anotherToken = UUID.randomUUID().toString();
+        final CreateRequest request3 = this.populator().getIdempotentCreateRequest("suite:basic:idempotency", anotherToken);
+        final CreateResult result3 = rm.create(request3, caller);
+        logger.info("Leased vm '" + result3.getVMs()[0].getID() + '\'');
+        assertNotSame(result1.getVMs()[0].getID(), result3.getVMs()[0].getID());
+
+        assertEquals(2, rm.getAllByCaller(caller).length);
+
+        rm.trash(result1.getVMs()[0].getID(), Manager.INSTANCE, caller);
+
+        final CreateRequest request4 = this.populator().getIdempotentCreateRequest("suite:basic:idempotency", token);
+        final CreateResult result4 = rm.create(request4, caller);
+        logger.info("Leased same vm '" + result4.getVMs()[0].getID() + '\'');
+        assertEquals(State.STATE_Cancelled, result4.getVMs()[0].getState());
+
+
+        Thread.sleep(500L);
+
+
 
     }
 

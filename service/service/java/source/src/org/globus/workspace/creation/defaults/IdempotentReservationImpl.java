@@ -15,22 +15,41 @@
  */
 package org.globus.workspace.creation.defaults;
 
+import org.globus.workspace.creation.IdempotentInstance;
 import org.globus.workspace.creation.IdempotentReservation;
+
+import java.util.Collections;
+import java.util.List;
 
 public class IdempotentReservationImpl implements IdempotentReservation {
 
     private String creatorId;
     private String clientToken;
     private String groupId;
-    private String vmId;
-    private boolean isNew;
+    private List<IdempotentInstance> instances;
 
-    public IdempotentReservationImpl(String creatorId, String clientToken, String groupId, String vmId, boolean aNew) {
+    public IdempotentReservationImpl(String creatorId,
+                                     String clientToken,
+                                     String groupId,
+                                     List<IdempotentInstance> instances) {
+        if (creatorId == null) {
+            throw new IllegalArgumentException("creatorId may not be null");
+        }
+        if (clientToken == null) {
+            throw new IllegalArgumentException("clientToken may not be null");
+        }
+        if (instances == null) {
+            throw new IllegalArgumentException("instances may not be null");
+        }
+
         this.creatorId = creatorId;
         this.clientToken = clientToken;
         this.groupId = groupId;
-        this.vmId = vmId;
-        isNew = aNew;
+
+        this.instances = Collections.unmodifiableList(instances);
+        if (this.instances == null) {
+            throw new IllegalArgumentException("instances may not be empty");
+        }
     }
 
     public String getCreatorId() {
@@ -45,15 +64,7 @@ public class IdempotentReservationImpl implements IdempotentReservation {
         return groupId;
     }
 
-    public String getVMId() {
-        return vmId;
-    }
-
-    public boolean isNew() {
-        return isNew;
-    }
-
-    public boolean isComplete() {
-        return groupId != null || vmId != null;
+    public List<IdempotentInstance> getInstances() {
+        return instances;
     }
 }

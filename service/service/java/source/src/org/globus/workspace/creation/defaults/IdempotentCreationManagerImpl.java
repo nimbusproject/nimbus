@@ -19,13 +19,13 @@ import edu.emory.mathcs.backport.java.util.concurrent.locks.Lock;
 import org.globus.workspace.DefaultLockManager;
 import org.globus.workspace.LockManager;
 import org.globus.workspace.creation.IdempotentCreationManager;
+import org.globus.workspace.creation.IdempotentInstance;
 import org.globus.workspace.creation.IdempotentReservation;
 import org.globus.workspace.service.InstanceResource;
-import org.nimbustools.api.services.rm.DoesNotExistException;
 import org.nimbustools.api.services.rm.ManageException;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -53,7 +53,11 @@ public class IdempotentCreationManagerImpl implements IdempotentCreationManager 
         return this.lockManager.getLock(key);
     }
 
-    public IdempotentReservation getOrCreateReservation(String creatorID, String clientToken) {
+    public void returnLock(String creatorID, String clientToken) {
+        // No implementation, we choose to leak references
+    }
+
+    public IdempotentReservation getReservation(String creatorID, String clientToken) {
         if (creatorID == null) {
             throw new IllegalArgumentException("creatorID may not be null");
         }
@@ -62,19 +66,10 @@ public class IdempotentCreationManagerImpl implements IdempotentCreationManager 
         }
 
         final String key = creatorID + "|" + clientToken;
-        IdempotentReservation reservation = this.reservationMap.get(key);
-        if (reservation == null) {
-            this.reservationMap.put(key,
-                    new IdempotentReservationImpl(creatorID, clientToken, null, null, false));
-
-            return new IdempotentReservationImpl(creatorID, clientToken, null, null, true);
-        } else {
-            return reservation;
-        }
+        return this.reservationMap.get(key);
     }
 
-    public void completeReservation(String creatorID, String clientToken, InstanceResource[] resources)
-            throws DoesNotExistException {
+    public void addReservation(String creatorID, String clientToken, List<InstanceResource> resources) {
 
         if (creatorID == null) {
             throw new IllegalArgumentException("creatorID may not be null");
@@ -82,26 +77,28 @@ public class IdempotentCreationManagerImpl implements IdempotentCreationManager 
         if (clientToken == null) {
             throw new IllegalArgumentException("clientToken may not be null");
         }
-        if (resources == null || resources.length == 0) {
+        if (resources == null || resources.isEmpty()) {
             throw new IllegalArgumentException("resources may not be null or empty");
         }
 
+        final String groupId = resources.get(0).getGroupId();
+
+        ArrayList<IdempotentInstance> instances = new ArrayList<IdempotentInstance>(resources.size());
+        for (InstanceResource resource : resources) {
+            final IdempotentInstanceImpl instance = new IdempotentInstanceImpl(
+                    resource.getID(),
+                    resource.getName(),
+                    resource.getLaunchIndex());
+
+            instances.add(instance);
+        }
+
+        final IdempotentReservationImpl reservation =
+                new IdempotentReservationImpl(creatorID, clientToken, groupId, instances);
+
         final String key = creatorID + "|" + clientToken;
-        IdempotentReservation reservation = this.reservationMap.get(key);
-        if (reservation == null) {
-            throw new DoesNotExistException("Idempotency reservation not found");
-        }
-
-        String groupId = null;
-        String vmId = null;
-        if (resources.length > 1) {
-            groupId = resources[0].getGroupId();
-        } else {
-            vmId = String.valueOf(resources[0].getID());
-        }
-
         this.reservationMap.put(key,
-                new IdempotentReservationImpl(creatorID, clientToken, groupId, vmId, false));
+                reservation);
     }
 
     public void removeReservation(String creatorID, String clientToken)
