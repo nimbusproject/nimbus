@@ -39,28 +39,30 @@ public interface InternalCreationManager {
     /**
      * Instantiates virtual machines with
      * the given specification 
+     *
      * @param bindings the virtual machines' specs
      * @param nics network interfaces
      * @param caller owner of the VMs
      * @param context the VM's context
-     * @param groupId the group id for this group of VMs
-     * @param coschedID the cosched id for this group of VMs
-     * @param spotInstances if the VMs are spot instances
-     * @return an array of created InstanceResources
+     * @param groupID
+     *@param coschedID the cosched id for this group of VMs
+     * @param clientToken the idempotency token provided by client
+     * @param spotInstances if the VMs are spot instances   @return an array of created InstanceResources
      * @throws CoSchedulingException
      * @throws CreationException
      * @throws MetadataException
      * @throws ResourceRequestDeniedException
      * @throws SchedulingException
      * @throws AuthorizationException
+     * @return the created VM resources
      */
     public InstanceResource[] createVMs(VirtualMachine[] bindings,
                                         NIC[] nics,
                                         Caller caller,
                                         Context context,
-                                        String groupId,
+                                        String groupID,
                                         String coschedID,
-                                        boolean spotInstances)
+                                        String clientToken, boolean spotInstances)
 
             throws CoSchedulingException,
                    CreationException,

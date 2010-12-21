@@ -396,7 +396,8 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
         final String coschedID = this.getCoschedID(req, caller.getIdentity());
         final String groupID = this.getGroupID(caller.getIdentity(), bound.length);
 
-        return this.createVMs(bound, req.getRequestedNics(), caller, req.getContext(), groupID, coschedID, false);
+        return this.createVMs(bound, req.getRequestedNics(), caller, req.getContext(),
+                groupID, coschedID, req.getClientToken(), false);
     }
 
     private InstanceResource[] doIdempotentCreation(CreateRequest req, Caller caller, VirtualMachine[] bound)
@@ -514,11 +515,17 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
                 resources[index] = this.whome.find(instance.getID());
 
             } catch (DoesNotExistException e) {
-                logger.debug("Idempotent reservation request has a terminated instance", e);
+                logger.debug("Idempotent reservation request has a terminated instance");
+
+                final VirtualMachine vm = new VirtualMachine();
+                vm.setNetwork("NONE");
+                final VirtualMachineDeployment deployment = new VirtualMachineDeployment();
+                vm.setDeployment(deployment);
 
                 final InstanceResource resource = new IdempotentInstanceResource(instance.getID(),
                         instance.getName(), null, res.getGroupId(), instances.size(),
-                        instance.getLaunchIndex(), res.getCreatorId());
+                        instance.getLaunchIndex(), res.getCreatorId(), vm,
+                        WorkspaceConstants.STATE_DESTROYING, res.getClientToken());
                 resources[index] = resource;
             }
             index++;
@@ -650,6 +657,7 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
                                         Context context,
                                         String groupID,
                                         String coschedID,
+                                        String clientToken,
                                         boolean spotInstances)
 
             throws CoSchedulingException,
@@ -720,6 +728,7 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
                            context,
                            groupID,
                            coschedID,
+                           clientToken,
                            spotInstances);
 
         } catch (CoSchedulingException e) {
@@ -816,12 +825,13 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
     // create #1 (wrapped, backOutAllocations required for failures)    
     // create #1 (wrapped, scheduler notification required for failure)
     protected InstanceResource[] create1(Reservation res,
-                                   VirtualMachine[] bindings,
-                                   String callerID,
-                                   Context context,
-                                   String groupID,
-                                   String coschedID,
-                                   boolean spotInstances)
+                                         VirtualMachine[] bindings,
+                                         String callerID,
+                                         Context context,
+                                         String groupID,
+                                         String coschedID,
+                                         String clientToken,
+                                         boolean spotInstances)
             
             throws AuthorizationException,
                    CoSchedulingException,
@@ -884,6 +894,7 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
                            context,
                            groupID,
                            coschedID,
+                           clientToken,
                            spotInstances);
 
         } catch (CoSchedulingException e) {
@@ -934,12 +945,13 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
 
     // create #2 (wrapped, accounting destruction might be required for failure)
     protected InstanceResource[] create2(Reservation res,
-                                   VirtualMachine[] bindings,
-                                   String callerID,
-                                   Context context,
-                                   String groupID,
-                                   String coschedID,
-                                   boolean spotInstances)
+                                         VirtualMachine[] bindings,
+                                         String callerID,
+                                         Context context,
+                                         String groupID,
+                                         String coschedID,
+                                         String clientToken,
+                                         boolean spotInstances)
             
             throws AuthorizationException,
                    CoSchedulingException,
@@ -993,7 +1005,7 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
                 createdResources[i] =
                         this.createOne(i, ids, res, bindings[i],
                                        callerID, context, coschedID, groupID,
-                                       startTime, termTime);
+                                       clientToken, startTime, termTime);
             } catch (Throwable t) {
                 bailed = i;
                 failure = t;
@@ -1116,6 +1128,7 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
                                          Context context,
                                          String coschedID,
                                          String groupID,
+                                         String clientToken,
                                          Calendar startTime,
                                          Calendar termTime)
 
@@ -1144,7 +1157,7 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
         final InstanceResource resource = this.whome.newInstance(id);
 
         this.populateResource(id, resource, vm,
-                              callerID, coschedID, groupID,
+                              callerID, coschedID, groupID, clientToken,
                               startTime, termTime, node,
                               ids.length, last, idx);
 
@@ -1223,6 +1236,7 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
                                     String callerID,
                                     String coschedID,
                                     String groupID,
+                                    String clientToken,
                                     Calendar startTime,
                                     Calendar termTime,
                                     String node,
@@ -1251,6 +1265,9 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
 
         // OK if null:
         resource.setEnsembleId(coschedID);
+
+        // OK if null:
+        resource.setClientToken(clientToken);
 
         if (nodeNum > 1) {
             resource.setPartOfGroupRequest(true);

@@ -41,4 +41,6 @@ public interface _VM extends VM {
     
     public void setLifeCycle(String lifeCycle);
     public void setSpotInstanceRequestID(String reqID);
+
+    public void setClientToken(String clientToken);
 }

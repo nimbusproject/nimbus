@@ -1147,6 +1147,8 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
                 pstmt.setNull(15, Types.BLOB);
             }
 
+            pstmt.setString(16, resource.getClientToken());
+
             if (this.dbTrace) {
                 logger.trace("creating WorkspaceResource db " +
                         "entry for " + Lager.id(id));
@@ -1363,6 +1365,10 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
                     resource.setInitialState(state, null);
                 }
 
+                final String clientToken = rs.getString(15);
+                resource.setClientToken(clientToken);
+
+
                 if (this.dbTrace) {
                     logger.trace("found " + Lager.id(id) +
                              ": name = " + name +
@@ -1378,7 +1384,8 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
                              ", groupsize = " + groupsize +
                              ", isLastInGroup = " + isLastInGroup +
                              ", launchIndex = " + launchIndex +
-                             ", errror present = " + (errBlob != null));
+                             ", clientToken = " + clientToken +
+                             ", error present = " + (errBlob != null));
                 }
                 
                 rs.close();

@@ -107,6 +107,8 @@ public abstract class InstanceResourceImpl implements InstanceResource {
     // currently, mgmt policy limited to one entity, the create() caller
     protected String creatorID;
 
+    protected String clientToken;
+
     private boolean removeTriggered;
 
 
@@ -294,6 +296,14 @@ public abstract class InstanceResourceImpl implements InstanceResource {
 
     public void setCreatorID(String ID) {
         this.creatorID = ID;
+    }
+
+    public String getClientToken() {
+        return clientToken;
+    }
+
+    public void setClientToken(String clientToken) {
+        this.clientToken = clientToken;
     }
 
     public VirtualMachine getVM() {

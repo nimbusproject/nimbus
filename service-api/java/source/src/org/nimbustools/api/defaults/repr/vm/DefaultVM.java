@@ -46,6 +46,7 @@ public class DefaultVM implements _VM {
     private String sshKeyName;
     private String lifeCycle;
     private String spotReqID;
+    private String clientToken;
 
 
     // -------------------------------------------------------------------------
@@ -102,6 +103,10 @@ public class DefaultVM implements _VM {
     
     public String getSpotInstanceRequestID(){
         return this.spotReqID;
+    }
+
+    public String getClientToken() {
+        return clientToken;
     }
 
     // -------------------------------------------------------------------------
@@ -166,6 +171,10 @@ public class DefaultVM implements _VM {
     
     public void setSpotInstanceRequestID(String spotReqID){
         this.spotReqID = spotReqID;
+    }
+
+    public void setClientToken(String clientToken) {
+        this.clientToken = clientToken;
     }
 
 

@@ -33,7 +33,8 @@ groupid CHAR(36),
 groupsize INT,
 last_in_group SMALLINT,
 launch_index INT,
-error_fault BLOB
+error_fault BLOB,
+client_token VARCHAR(64)
 );
 
 --

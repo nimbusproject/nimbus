@@ -69,6 +69,7 @@ public class IdempotentCreationSuite extends NimbusTestBase{
         final CreateResult result1 = rm.create(request1, caller);
 
         logger.info("Leased vm '" + result1.getVMs()[0].getID() + '\'');
+        assertEquals(token, result1.getVMs()[0].getClientToken());
 
 
         final CreateRequest request2 = this.populator().getIdempotentCreateRequest("suite:basic:idempotency", token);
@@ -76,6 +77,7 @@ public class IdempotentCreationSuite extends NimbusTestBase{
         logger.info("Leased same vm '" + result2.getVMs()[0].getID() + '\'');
 
         assertEquals(result1.getVMs()[0].getID(), result2.getVMs()[0].getID());
+        assertEquals(token, result2.getVMs()[0].getClientToken());
 
         assertEquals(1, rm.getAllByCaller(caller).length);
 
@@ -89,16 +91,17 @@ public class IdempotentCreationSuite extends NimbusTestBase{
 
         rm.trash(result1.getVMs()[0].getID(), Manager.INSTANCE, caller);
 
+        assertEquals(1, rm.getAllByCaller(caller).length);
+
         final CreateRequest request4 = this.populator().getIdempotentCreateRequest("suite:basic:idempotency", token);
         final CreateResult result4 = rm.create(request4, caller);
         logger.info("Leased same vm '" + result4.getVMs()[0].getID() + '\'');
-        assertEquals(State.STATE_Cancelled, result4.getVMs()[0].getState());
+        assertEquals(result1.getVMs()[0].getID(), result2.getVMs()[0].getID());
+        assertEquals(State.STATE_Cancelled, result4.getVMs()[0].getState().getState());
+        assertEquals(token, result4.getVMs()[0].getClientToken());
 
 
         Thread.sleep(500L);
-
-
-
     }
 
 

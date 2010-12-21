@@ -39,6 +39,9 @@ public class IdempotentInstanceResource implements InstanceResource {
     protected int groupSize;
     protected int launchIndex;
     protected String creatorId;
+    protected VirtualMachine vm;
+    protected int state;
+    protected String clientToken;
 
     public IdempotentInstanceResource(int id,
                                       String name,
@@ -46,7 +49,10 @@ public class IdempotentInstanceResource implements InstanceResource {
                                       String groupId,
                                       int groupSize,
                                       int launchIndex,
-                                      String creatorId) {
+                                      String creatorId,
+                                      VirtualMachine vm,
+                                      int state,
+                                      String clientToken) {
         this.id = id;
         this.name = name;
         this.ensembleId = ensembleId;
@@ -54,6 +60,9 @@ public class IdempotentInstanceResource implements InstanceResource {
         this.groupSize = groupSize;
         this.launchIndex = launchIndex;
         this.creatorId = creatorId;
+        this.vm = vm;
+        this.state = state;
+        this.clientToken = clientToken;
     }
 
     public int getID() {
@@ -121,7 +130,7 @@ public class IdempotentInstanceResource implements InstanceResource {
     }
 
     public VirtualMachine getVM() {
-        return null;
+        return vm;
     }
 
     public String getCreatorID() {
@@ -129,6 +138,14 @@ public class IdempotentInstanceResource implements InstanceResource {
     }
 
     public void setCreatorID(String ID) {
+        throw new UnsupportedOperationException(UNSUPPORTED_MSG);
+    }
+
+    public String getClientToken() {
+        return clientToken;
+    }
+
+    public void setClientToken(String clientToken) {
         throw new UnsupportedOperationException(UNSUPPORTED_MSG);
     }
 
@@ -205,11 +222,11 @@ public class IdempotentInstanceResource implements InstanceResource {
     }
 
     public int getState() {
-        throw new UnsupportedOperationException(UNSUPPORTED_MSG);
+        return state;
     }
 
     public Throwable getStateThrowable() {
-        throw new UnsupportedOperationException(UNSUPPORTED_MSG);
+        return null;
     }
 
     public void setTargetState(int state) {
