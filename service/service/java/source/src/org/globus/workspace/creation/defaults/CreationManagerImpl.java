@@ -494,7 +494,6 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
             throw new IdempotentCreationMismatchException("instance count mismatch");
         }
 
-
         final String logId;
         if (res.getGroupId() != null) {
             logId = Lager.groupid(res.getGroupId());
@@ -502,7 +501,7 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
             final IdempotentInstance instance = instances.get(0);
             logId = Lager.id(instance.getID());
         }
-        logger.info(logId + "idempotent creation request already fulfilled");
+        logger.info(logId + " idempotent creation request already fulfilled");
 
         InstanceResource[] resources = new InstanceResource[instances.size()];
         int index = 0;
@@ -511,8 +510,18 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
                 throw new CreationException("Idempotent reservation has null instance");
             }
 
+            InstanceResource resource;
             try {
-                resources[index] = this.whome.find(instance.getID());
+                resource = this.whome.find(instance.getID());
+
+                if (resource == null) {
+                    throw new CreationException("Existing idempotent instance was null (?)");
+                }
+
+                // these parameter checks can only be performed against a running
+                // instance.
+
+                this.checkIdempotentInstanceForMismatch(resource, req, logId);
 
             } catch (DoesNotExistException e) {
                 logger.debug("Idempotent reservation request has a terminated instance");
@@ -522,16 +531,87 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
                 final VirtualMachineDeployment deployment = new VirtualMachineDeployment();
                 vm.setDeployment(deployment);
 
-                final InstanceResource resource = new IdempotentInstanceResource(instance.getID(),
+                resource = new IdempotentInstanceResource(instance.getID(),
                         instance.getName(), null, res.getGroupId(), instances.size(),
                         instance.getLaunchIndex(), res.getCreatorId(), vm,
                         WorkspaceConstants.STATE_DESTROYING, res.getClientToken());
-                resources[index] = resource;
             }
+
+            if (resource.getName() == null) {
+                if (req.getName() != null) {
+                    throw new IdempotentCreationMismatchException("instance name mismatch");
+                }
+            } else {
+                if (!resource.getName().equals(req.getName())) {
+                    throw new IdempotentCreationMismatchException("instance name mismatch");
+                }
+            }
+            resources[index] = resource;
+
             index++;
         }
 
         return resources;
+    }
+
+    private void checkIdempotentInstanceForMismatch(InstanceResource resource,
+                                                    CreateRequest request,
+                                                    String logId)
+            throws IdempotentCreationMismatchException {
+
+        // could check a lot more things here, but it is not critical, more an aid to users with
+        // buggy apps
+
+        Integer instanceDuration = null;
+        Integer requestDuration = null;
+
+        Integer instanceMemory = null;
+        Integer requestMemory = null;
+
+        Integer instanceCpuCount = null;
+        Integer requestCpuCount = null;
+
+        final VirtualMachine vm = resource.getVM();
+        if (vm != null) {
+            final VirtualMachineDeployment deployment = vm.getDeployment();
+            if (deployment != null) {
+                instanceDuration = deployment.getMinDuration();
+                instanceMemory = deployment.getIndividualPhysicalMemory();
+                instanceCpuCount = deployment.getIndividualCPUCount();
+            }
+        }
+
+        if (request.getRequestedSchedule() != null) {
+            requestDuration = request.getRequestedSchedule().getDurationSeconds();
+        }
+
+        final ResourceAllocation ra = request.getRequestedRA();
+        if (ra != null) {
+            requestMemory = ra.getMemory();
+            requestCpuCount = ra.getIndCpuCount();
+        }
+
+        final String msg = logId + "Idempotent request failed because of a parameter mismatch: ";
+        if (instanceDuration != null && requestDuration != null) {
+            if (!instanceDuration.equals(requestDuration)) {
+                logger.info(msg + "duration");
+                throw new IdempotentCreationMismatchException("duration mismatch");
+            }
+        }
+
+        if (instanceMemory != null && requestMemory != null) {
+            if (!instanceMemory.equals(requestMemory)) {
+                logger.info(msg + "memory");
+                throw new IdempotentCreationMismatchException("memory mismatch");
+            }
+        }
+
+        if (instanceCpuCount != null && requestCpuCount != null) {
+            if (!instanceCpuCount.equals(requestCpuCount)) {
+                logger.info(msg + "CPU count");
+                throw new IdempotentCreationMismatchException("CPU count mismatch");
+            }
+        }
     }
 
 
