@@ -46,6 +46,20 @@ groupid CHAR(36) NOT NULL PRIMARY KEY,
 creator_dn VARCHAR(512)
 );
 
+--
+-- Persistence for resource creation idempotency:
+
+CREATE TABLE idempotency
+(
+creator_dn VARCHAR(512) NOT NULL,
+client_token VARCHAR(64) NOT NULL,
+vmid INT NOT NULL,
+groupid CHAR(36),
+name VARCHAR(100) NOT NULL,
+launch_index INT,
+PRIMARY KEY (creator_dn, client_token, vmid)
+);
+
 
 --
 -- Persistence for virtual machines:

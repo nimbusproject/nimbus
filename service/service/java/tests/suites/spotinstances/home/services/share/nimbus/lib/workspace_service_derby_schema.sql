@@ -33,7 +33,8 @@ groupid CHAR(36),
 groupsize INT,
 last_in_group SMALLINT,
 launch_index INT,
-error_fault BLOB
+error_fault BLOB,
+client_token VARCHAR(64)
 );
 
 --
@@ -43,6 +44,20 @@ CREATE TABLE groupresources
 (
 groupid CHAR(36) NOT NULL PRIMARY KEY,
 creator_dn VARCHAR(512)
+);
+
+--
+-- Persistence for resource creation idempotency:
+
+CREATE TABLE idempotency
+(
+creator_dn VARCHAR(512) NOT NULL,
+client_token VARCHAR(64) NOT NULL,
+vmid INT NOT NULL,
+groupid CHAR(36),
+name VARCHAR(100) NOT NULL,
+launch_index INT,
+PRIMARY KEY (creator_dn, client_token, vmid)
 );
 
 

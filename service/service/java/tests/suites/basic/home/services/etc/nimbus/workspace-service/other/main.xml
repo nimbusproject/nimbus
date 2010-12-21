@@ -639,7 +639,9 @@
          =================================================================== -->
 
     <bean id="nimbus-rm.creation.idempotent"
-          class="org.globus.workspace.creation.defaults.IdempotentCreationManagerImpl" />
+          class="org.globus.workspace.creation.defaults.IdempotentCreationManagerImpl">
+        <constructor-arg ref="nimbus-rm.persistence.PersistenceAdapter" />
+    </bean>
 
 
     <!-- ===================================================================

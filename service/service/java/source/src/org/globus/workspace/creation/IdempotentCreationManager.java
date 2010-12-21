@@ -16,6 +16,7 @@
 package org.globus.workspace.creation;
 
 import edu.emory.mathcs.backport.java.util.concurrent.locks.Lock;
+import org.globus.workspace.persistence.WorkspaceDatabaseException;
 import org.globus.workspace.service.InstanceResource;
 import org.nimbustools.api.services.rm.ManageException;
 
@@ -58,7 +59,7 @@ public interface IdempotentCreationManager {
      * @param clientToken the client-provided idempotency request token
      * @return an existing reservation, or null if none exists
      */
-    IdempotentReservation getReservation(String creatorID, String clientToken);
+    IdempotentReservation getReservation(String creatorID, String clientToken) throws WorkspaceDatabaseException, ManageException;
 
     /**
      * Adds a new idempotent reservation
@@ -66,7 +67,7 @@ public interface IdempotentCreationManager {
      * @param clientToken the client-provided idempotency request token
      * @param resources the acquired resources
      */
-    void addReservation(String creatorID, String clientToken, List<InstanceResource> resources);
+    void addReservation(String creatorID, String clientToken, List<InstanceResource> resources) throws ManageException;
 
     /**
      * Remove an existing idempotency reservation

@@ -227,6 +227,18 @@ public interface PersistenceAdapterConstants {
     public static final String SQL_SELECT_BACKFILL =
             "SELECT disabled, max_instances, disk_image, memory_mb, " +
                     "vcpus, duration, network, site_capacity FROM backfill WHERE id=1";
+
+    public static final String SQL_SELECT_IDEMPOTENT_CREATION =
+            "SELECT vmid, groupid, name, launch_index " +
+                    "FROM idempotency WHERE creator_dn=? AND client_token=? " +
+                    "ORDER BY launch_index";
+
+    public static final String SQL_INSERT_IDEMPOTENT_CREATION =
+            "INSERT INTO idempotency (creator_dn, client_token, vmid, " +
+                    "groupid, name, launch_index) VALUES(?,?,?,?,?,?)";
+
+    public static final String SQL_DELETE_IDEMPOTENT_CREATION =
+            "DELETE FROM idempotency WHERE creator_dn=? AND client_token=?";
     
     public static final String[] PREPARED_STATEMENTS = {
                                     SQL_SELECT_RESOURCES,
@@ -283,5 +295,9 @@ public interface PersistenceAdapterConstants {
                                     SQL_SELECT_LAST_SPOT_PRICE,
                                     SQL_INSERT_BACKFILL,
                                     SQL_UPDATE_BACKFILL,
-                                    SQL_SELECT_BACKFILL};
+                                    SQL_SELECT_BACKFILL,
+                                    SQL_SELECT_IDEMPOTENT_CREATION,
+                                    SQL_INSERT_IDEMPOTENT_CREATION,
+                                    SQL_DELETE_IDEMPOTENT_CREATION,
+    };
 }

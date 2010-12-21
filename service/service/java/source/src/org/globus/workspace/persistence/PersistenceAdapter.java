@@ -20,6 +20,7 @@ import java.util.Calendar;
 import java.util.Hashtable;
 import java.util.List;
 
+import org.globus.workspace.creation.IdempotentReservation;
 import org.globus.workspace.network.AssociationEntry;
 import org.globus.workspace.scheduler.backfill.Backfill;
 import org.globus.workspace.scheduler.defaults.ResourcepoolEntry;
@@ -279,4 +280,32 @@ public interface PersistenceAdapter {
      * @throws WorkspaceDatabaseException
      */
     public void setBackfill(Backfill backfill) throws WorkspaceDatabaseException;
+
+    /**
+     * Retrieves idempotency reservation
+     * @param creatorId initiating client user
+     * @param clientToken client-provided idempotency token
+     * @return stored reservation, or null of not found
+     * @throws WorkspaceDatabaseException DB error
+     */
+    public IdempotentReservation getIdempotentReservation(String creatorId, String clientToken)
+        throws WorkspaceDatabaseException;
+
+
+    /**
+     * Stores idempotency reservation
+     * @param reservation the reservation to store
+     * @throws WorkspaceDatabaseException DB error
+     */
+    public void addIdempotentReservation(IdempotentReservation reservation)
+        throws WorkspaceDatabaseException;
+
+    /**
+     * Removes existing idempotency reservation
+     * @param creatorId initiating client user
+     * @param clientToken client-provided idempotency token
+     * @throws WorkspaceDatabaseException DB error
+     */
+    public void removeIdempotentReservation(String creatorId, String clientToken)
+        throws WorkspaceDatabaseException;
 }

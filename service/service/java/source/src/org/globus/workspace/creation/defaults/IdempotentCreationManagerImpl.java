@@ -21,6 +21,8 @@ import org.globus.workspace.LockManager;
 import org.globus.workspace.creation.IdempotentCreationManager;
 import org.globus.workspace.creation.IdempotentInstance;
 import org.globus.workspace.creation.IdempotentReservation;
+import org.globus.workspace.persistence.PersistenceAdapter;
+import org.globus.workspace.persistence.WorkspaceDatabaseException;
 import org.globus.workspace.service.InstanceResource;
 import org.nimbustools.api.services.rm.ManageException;
 
@@ -32,13 +34,16 @@ import java.util.concurrent.ConcurrentMap;
 public class IdempotentCreationManagerImpl implements IdempotentCreationManager {
 
     private LockManager lockManager;
+    private PersistenceAdapter persistence;
 
-    private ConcurrentMap<String, IdempotentReservation> reservationMap;
+    public IdempotentCreationManagerImpl(PersistenceAdapter persistenceAdapter) {
 
-    public IdempotentCreationManagerImpl() {
+        if (persistenceAdapter == null) {
+            throw new IllegalArgumentException("persistenceAdapter may not be null");
+        }
+        this.persistence = persistenceAdapter;
+
         this.lockManager = new DefaultLockManager();
-        this.reservationMap = new ConcurrentHashMap<String, IdempotentReservation>();
-
     }
 
     public Lock getLock(String creatorID, String clientToken) {
@@ -57,7 +62,8 @@ public class IdempotentCreationManagerImpl implements IdempotentCreationManager 
         // No implementation, we choose to leak references
     }
 
-    public IdempotentReservation getReservation(String creatorID, String clientToken) {
+    public IdempotentReservation getReservation(String creatorID, String clientToken)
+            throws ManageException {
         if (creatorID == null) {
             throw new IllegalArgumentException("creatorID may not be null");
         }
@@ -65,11 +71,11 @@ public class IdempotentCreationManagerImpl implements IdempotentCreationManager 
             throw new IllegalArgumentException("clientToken may not be null");
         }
 
-        final String key = creatorID + "|" + clientToken;
-        return this.reservationMap.get(key);
+        return persistence.getIdempotentReservation(creatorID, clientToken);
     }
 
-    public void addReservation(String creatorID, String clientToken, List<InstanceResource> resources) {
+    public void addReservation(String creatorID, String clientToken, List<InstanceResource> resources)
+            throws ManageException {
 
         if (creatorID == null) {
             throw new IllegalArgumentException("creatorID may not be null");
@@ -96,15 +102,13 @@ public class IdempotentCreationManagerImpl implements IdempotentCreationManager 
         final IdempotentReservationImpl reservation =
                 new IdempotentReservationImpl(creatorID, clientToken, groupId, instances);
 
-        final String key = creatorID + "|" + clientToken;
-        this.reservationMap.put(key,
-                reservation);
+        this.persistence.addIdempotentReservation(reservation);
     }
 
     public void removeReservation(String creatorID, String clientToken)
             throws ManageException {
-        final String key = creatorID + "|" + clientToken;
 
-        this.reservationMap.remove(key);
+        this.persistence.removeIdempotentReservation(creatorID, clientToken);
+
     }
 }
