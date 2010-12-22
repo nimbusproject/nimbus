@@ -163,11 +163,115 @@ public class IdempotentCreationSuite extends NimbusTestBase{
         assertIdempotentMismatch(rm,
                 caller,
                 this.populator().
-                getCreateRequest("suite:basic:idempotency:different", 240, 64, 1, token)
+                        getCreateRequest("suite:basic:idempotency:different", 240, 64, 1, token)
         );
 
 
         Thread.sleep(200L);
+    }
+
+    @Test
+    @DirtiesContext
+    public void testGroupIdempotency() throws Exception {
+        final Manager rm = this.locator.getManager();
+
+        String token = UUID.randomUUID().toString();
+
+        final Caller caller = this.populator().getCaller();
+
+
+        // 1. first start a group of 3 VMs with a clientToken
+
+        final CreateRequest request1 = this.populator().
+                getCreateRequest("suite:basic:idempotency", 240, 64, 3, token);
+        final CreateResult result1 = rm.create(request1, caller);
+
+        assertEquals(3, result1.getVMs().length);
+        for (VM vm : result1.getVMs()) {
+            assertEquals(token, vm.getClientToken());
+        }
+
+
+        // 2. now re-launch with the same clientToken, should get back the same instances
+        //    (and no new instances should have been started)
+
+        final CreateRequest request2 = this.populator().
+                getCreateRequest("suite:basic:idempotency", 240, 64, 3, token);
+        final CreateResult result2 = rm.create(request2, caller);
+
+
+        assertEquals(3, result2.getVMs().length);
+        for (int i=0; i<result1.getVMs().length; i++) {
+            final VM vm1 = result1.getVMs()[i];
+            final VM vm2 = result2.getVMs()[i];
+
+            assertEquals(vm1.getID(), vm2.getID());
+            assertEquals(vm1.getClientToken(), vm2.getClientToken());
+        }
+
+        assertEquals(3, rm.getAllByCaller(caller).length);
+
+
+        // 3. Kill one of the VMs and attempt to re-launch. Should get back the same
+        //    3 but with one of them terminated
+
+        final String terminatedId = result1.getVMs()[0].getID();
+        rm.trash(terminatedId, Manager.INSTANCE, caller);
+        assertEquals(2, rm.getAllByCaller(caller).length);
+
+        final CreateRequest request3 = this.populator().
+                getCreateRequest("suite:basic:idempotency", 240, 64, 3, token);
+        final CreateResult result3 = rm.create(request3, caller);
+        assertEquals(3, result3.getVMs().length);
+
+        boolean foundTerminated = false;
+        for (VM vm : result3.getVMs()) {
+            if (vm.getID().equals(terminatedId)) {
+                assertFalse(foundTerminated);
+                foundTerminated = true;
+                assertEquals(State.STATE_Cancelled, vm.getState().getState());
+            }
+        }
+        assertTrue(foundTerminated);
+
+        // 4. attempt to launch with the same token but different node count
+        assertIdempotentMismatch(rm,
+                caller,
+                this.populator().
+                getCreateRequest("suite:basic:idempotency", 240, 64, 5, token)
+        );
+    }
+
+    @Test
+    @DirtiesContext
+    public void testIdempotencyRollback() throws Exception {
+        final Manager rm = this.locator.getManager();
+
+        String token = UUID.randomUUID().toString();
+
+        final Caller caller = this.populator().getCaller();
+
+
+        // 1. make a request with impossibly high memory value, sure to be denied
+
+        final CreateRequest request1 = this.populator().
+                getCreateRequest("suite:basic:idempotency", 240, Integer.MAX_VALUE, 1, token);
+
+        boolean gotException = false;
+        try {
+            rm.create(request1, caller);
+        } catch (ResourceRequestDeniedException e) {
+            logger.info("Got expected resource error: "+ e.getMessage());
+            gotException = true;
+        }
+        assertTrue(gotException);
+
+
+        // 2. now make the same request but with a normal memory value, should make it through
+        final CreateRequest request2 = this.populator().
+                getIdempotentCreateRequest("suite:basic:idempotency", token);
+        final CreateResult result2 = rm.create(request2, caller);
+        assertNotNull(result2);
     }
 
     private void assertIdempotentMismatch(Manager rm,

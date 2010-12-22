@@ -59,7 +59,7 @@ public interface IdempotentCreationManager {
      * @param clientToken the client-provided idempotency request token
      * @return an existing reservation, or null if none exists
      */
-    IdempotentReservation getReservation(String creatorID, String clientToken) throws WorkspaceDatabaseException, ManageException;
+    IdempotentReservation getReservation(String creatorID, String clientToken) throws ManageException;
 
     /**
      * Adds a new idempotent reservation
