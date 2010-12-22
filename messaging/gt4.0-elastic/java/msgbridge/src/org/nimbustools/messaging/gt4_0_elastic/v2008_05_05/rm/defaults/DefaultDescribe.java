@@ -350,6 +350,7 @@ public class DefaultDescribe implements Describe {
         if(vm.getSpotInstanceRequestID() != null){
             riit.setSpotInstanceRequestId(vm.getSpotInstanceRequestID());
         }
+        riit.setClientToken(vm.getClientToken());
         
         final String[] availableKernels = this.kernels.getAvailableKernels();
         if (availableKernels == null || availableKernels.length == 0) {

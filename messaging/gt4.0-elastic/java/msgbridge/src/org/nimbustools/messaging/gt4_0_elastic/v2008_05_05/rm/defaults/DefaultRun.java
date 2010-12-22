@@ -407,6 +407,7 @@ public class DefaultRun implements Run {
         riit.setInstanceId(instID);
         riit.setKeyName(sshKeyName);
 
+        riit.setClientToken(vm.getClientToken());
 
         riit.setKernelId("default"); // todo
 
