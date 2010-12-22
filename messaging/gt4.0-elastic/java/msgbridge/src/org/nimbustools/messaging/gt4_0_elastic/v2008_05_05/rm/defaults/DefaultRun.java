@@ -259,13 +259,13 @@ public class DefaultRun implements Run {
 
         final String vmidWhenJustOne;
         final String resID;
+        // these mappings may exist already, for secondary idempotent launches
         if (groupid == null) {
             vmidWhenJustOne = vms[0].getID();
-            resID = this.ids.newGrouplessInstanceID(vmidWhenJustOne,
-                                                    sshKeyName);
+            resID = this.ids.getOrNewInstanceReservationID(vmidWhenJustOne, sshKeyName);
         } else {
             vmidWhenJustOne = null;
-            resID = this.ids.newGroupReservationID(groupid);
+            resID = this.ids.getOrNewGroupReservationID(groupid);
         }
 
         final RunningInstancesSetType rist = new RunningInstancesSetType();
@@ -292,7 +292,8 @@ public class DefaultRun implements Run {
                 // mapping already created:
                 instID = this.ids.managerInstanceToElasticInstance(vmidWhenJustOne);
             } else {
-                instID = this.ids.newInstanceID(vm.getID(), resID, sshKeyName);
+                // this mapping may exist already, for secondary idempotent launches
+                instID = this.ids.getOrNewInstanceID(vm.getID(), resID, sshKeyName);
             }
 
             if (i != 0) {
