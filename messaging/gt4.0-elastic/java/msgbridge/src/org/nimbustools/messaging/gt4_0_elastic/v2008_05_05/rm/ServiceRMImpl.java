@@ -27,6 +27,7 @@ import org.nimbustools.api.repr.CreateResult;
 import org.nimbustools.api.repr.ReprFactory;
 import org.nimbustools.api.repr.vm.VM;
 import org.nimbustools.api.services.metadata.MetadataServer;
+import org.nimbustools.api.services.rm.IdempotentCreationMismatchException;
 import org.nimbustools.api.services.rm.ManageException;
 import org.nimbustools.api.services.rm.Manager;
 import org.nimbustools.messaging.gt4_0.common.AddCustomizations;
@@ -159,6 +160,12 @@ public class ServiceRMImpl extends UnimplementedOperations
             AddCustomizations.addAll((_CreateRequest)creq,
                                      this.repr, this.mdServer);
             result = this.manager.create(creq, caller);
+
+        } catch (IdempotentCreationMismatchException e) {
+            // need to expose this error specifically in query responses.
+            // would be better to have a more general way of handling EC2
+            // server error responses for both SOAP and Query
+            throw new IdempotentCreationMismatchRemoteException(e.getMessage(), e);
 
         } catch (Exception e) {
             throw new RemoteException(e.getMessage(), e);
