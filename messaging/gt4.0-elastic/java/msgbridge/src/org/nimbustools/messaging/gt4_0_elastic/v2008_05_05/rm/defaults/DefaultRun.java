@@ -426,6 +426,21 @@ public class DefaultRun implements Run {
             throws CannotTranslateException {
 
 
+        // ec2 only necessarily has networking information on a running
+        // instance. we can loosen up requirements here.
+
+        // this is motivated by idempotent instance support. In cases where
+        // an idempotent launch maps to an already-terminated instance,
+        // the VM object here will be in the terminated state and have no
+        // NICs information
+
+        final boolean isTerminated =
+                vm.getState().getState().equals(State.STATE_Cancelled);
+
+        if (isTerminated && (vm.getNics() == null || vm.getNics().length == 0)) {
+            return;
+        }
+
         final NIC[] nics = vm.getNics();
         if (nics == null || nics.length == 0) {
             // zero NICs not supported by this interface
