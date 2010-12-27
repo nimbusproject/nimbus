@@ -17,23 +17,20 @@ package org.nimbustools.messaging.query;
 
 import org.apache.cxf.transport.servlet.CXFServlet;
 import org.mortbay.jetty.Connector;
-import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.security.SslSocketConnector;
-import org.mortbay.jetty.servlet.Context;
-import org.mortbay.jetty.servlet.FilterHolder;
 import org.mortbay.jetty.servlet.ServletHolder;
 import org.mortbay.jetty.webapp.WebAppContext;
-import org.nimbustools.api.brain.NimbusXmlWebApplicationContext;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.io.Resource;
-import org.springframework.web.context.ContextLoaderListener;
-import org.springframework.web.filter.DelegatingFilterProxy;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.GenericWebApplicationContext;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
-public class HttpQuery {
+public class HttpQuery implements ApplicationContextAware {
 
     private boolean enabled;
     private int port;
@@ -42,6 +39,7 @@ public class HttpQuery {
     private Server server;
     private String keystoreLocation;
     private String keystorePassword;
+    private ApplicationContext appContext;
 
     public synchronized void startListening() throws Exception {
 
@@ -79,23 +77,30 @@ public class HttpQuery {
         sslConnector.setTrustPassword(keystorePassword);
         server.setConnectors(new Connector[] {sslConnector});
 
-        Context context = new Context(server, "/",  Context.NO_SESSIONS);
-        Map<String, String> initParams = new HashMap<String,String>();
-        initParams.put("contextConfigLocation", springConfig);
-        initParams.put("contextClass", NimbusXmlWebApplicationContext.class.getCanonicalName());
-        context.setInitParams(initParams);
-        context.addEventListener(new ContextLoaderListener());
-        FilterHolder filterHolder = new FilterHolder(new DelegatingFilterProxy());
-        filterHolder.setName("filterChainProxy");
-        context.addFilter(filterHolder, "/*", Handler.DEFAULT);
         ServletHolder servletHolder = new ServletHolder(new CXFServlet());
         servletHolder.setInitOrder(1);
         servletHolder.setName("CXFServlet");
         servletHolder.setDisplayName("CXF Servlet");
-        context.addServlet(servletHolder, "/*");
+        
         WebAppContext webappcontext = new WebAppContext();
         webappcontext.setContextPath("/");
+
+        // This sets up the jetty server inside a preexisting Spring context
+        final GenericWebApplicationContext gwac = new GenericWebApplicationContext();
+        gwac.setServletContext(webappcontext.getServletContext());
+        gwac.setParent(appContext);
+        final String rootweb = WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE;
+        webappcontext.getServletContext().setAttribute(rootweb, gwac);
+        gwac.refresh();
+        webappcontext.setServletHandler(servletHolder.getServletHandler());
+        server.addHandler(webappcontext);
+        
         server.start();
+    }
+
+    public void setApplicationContext(ApplicationContext applicationContext)
+            throws BeansException {
+        this.appContext = applicationContext;
     }
 
     public boolean isEnabled() {

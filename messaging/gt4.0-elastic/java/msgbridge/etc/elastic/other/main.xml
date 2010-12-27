@@ -2,8 +2,14 @@
 
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+       xmlns:security="http://www.springframework.org/schema/security"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
-                           http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+                           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                           http://www.springframework.org/schema/security
+                           http://www.springframework.org/schema/security/spring-security-3.0.xsd
+                           http://cxf.apache.org/jaxrs
+                           http://cxf.apache.org/schemas/jaxrs.xsd">
 
     <bean id="nimbus-elastic.rm.modulelocator"
           class="org.nimbustools.messaging.gt4_0.common.NimbusLocalModuleLocator" />
@@ -243,5 +249,77 @@
         property sources are concentrated in this file
     -->
     <import resource="main.conflocator.xml"/>
+
+
+    <!--
+        Query related.
+    -->
+
+    <import resource="classpath:META-INF/cxf/cxf.xml" />
+    <import resource="classpath:META-INF/cxf/cxf-extension-jaxrs-binding.xml" />
+    <import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
+
+    <jaxrs:server id="elasticQueryServer"
+                  address="/">
+        <jaxrs:serviceBeans>
+            <ref bean="elasticQuery"/>
+        </jaxrs:serviceBeans>
+        <jaxrs:providers>
+            <bean class="org.nimbustools.messaging.query.AxisBodyWriter"/>
+            <ref bean="queryExceptionMapper"/>
+        </jaxrs:providers>
+    </jaxrs:server>
+
+    <bean id="queryExceptionMapper" class="org.nimbustools.messaging.query.QueryExceptionMapper"/>
+
+    <bean id="queryExceptionTranslationFilter"
+          class="org.nimbustools.messaging.query.security.QueryExceptionTranslationFilter">
+        <property name="exceptionMapper" ref="queryExceptionMapper"/>
+    </bean>
+
+    <bean id="filterChainProxy" class="org.springframework.security.web.FilterChainProxy">
+        <security:filter-chain-map path-type="ant">
+            <security:filter-chain pattern="/**" filters="
+            queryExceptionTranslationFilter,
+            queryAuthenticationFilter
+            " />
+        </security:filter-chain-map>
+    </bean>
+    <bean id="queryAuthenticationFilter" class="org.nimbustools.messaging.query.security.QueryAuthenticationFilter">
+        <property name="userDetailsService" ref="userDetailsService"/>
+    </bean>
+
+    <bean id="authzDBAdapter" class="org.nimbus.authz.AuthzDBAdapter">
+        <constructor-arg ref="other.AuthzDataSource"/>
+
+        <property name="cumulusPublicUser" value="$CUMULUS{cumulus.publicuser}" />
+    </bean>
+
+    <bean id="userDetailsService" class="org.nimbustools.messaging.query.security.NimbusAuthzUserDetailsService">
+        <property name="authzDBAdapter" ref="authzDBAdapter" />
+    </bean>
+
+    <bean id="elasticQuery" class="org.nimbustools.messaging.query.ElasticQuery">
+        <property name="versions">
+            <map>
+                <entry key="2009-08-15"  value-ref="query_2009-08-15" />
+            </map>
+        </property>
+
+        <!-- we only support a single API version for the moment,
+        but there is general compatility with most recent versions -->
+        <property name="fallbackVersion" ref="query_2009-08-15"/>
+    </bean>
+
+    <bean id="query_2009-08-15" class="org.nimbustools.messaging.query.v2009_08_15.ElasticService">
+        <constructor-arg type="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.ServiceRM"
+                         ref="nimbus-elastic.rm"/>
+        <constructor-arg type="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.ServiceGeneral"
+                         ref="nimbus-elastic.general"/>
+        <constructor-arg type="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.ServiceImage"
+                         ref="nimbus-elastic.image"/>
+        <constructor-arg type="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.ServiceSecurity"
+                         ref="nimbus-elastic.security"/>
+    </bean>
 
 </beans>
