@@ -117,8 +117,11 @@ def check_nimbus_dependencies():
         print "Found no dependency problems."
         return 0
 
-    print "\nFound %s dependency problem%s:\n" % (len(problems), 
-            's' if len(problems) > 1 else '')
+    if len(problems) > 1:
+        s = 's'
+    else:
+        s = ''
+    print "\nFound %s dependency problem%s:\n" % (len(problems), s)
     for problem in problems:
         print LINE
         print problem
