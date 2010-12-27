@@ -62,13 +62,14 @@ def check_java():
         out,err = run_cmd([java_bin, '-version'])
     except OSError:
         return "Could not run java executable: " + java_bin + JAVA_INFO
+    output = out or err
 
-    version = parse_java_version(err)
+    version = parse_java_version(output)
     if not version:
         return JAVA_VERSION_UNKNOWN + JAVA_INFO
 
-    if version < (1, 5) or err.lower().find('gcj') != -1:
-        return "Found Java: %s\n%s" % (err, JAVA_INFO)
+    if version < (1, 5) or output.lower().find('gcj') != -1:
+        return "Found Java: %s\n%s" % (output, JAVA_INFO)
 
 def parse_java_version(output):
     if not output.startswith('java'):
