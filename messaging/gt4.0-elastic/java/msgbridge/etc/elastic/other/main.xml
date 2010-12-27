@@ -3,16 +3,24 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+       xmlns:httpj="http://cxf.apache.org/transports/http-jetty/configuration"
        xmlns:security="http://www.springframework.org/schema/security"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
                            http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
                            http://www.springframework.org/schema/security
                            http://www.springframework.org/schema/security/spring-security-3.0.xsd
                            http://cxf.apache.org/jaxrs
-                           http://cxf.apache.org/schemas/jaxrs.xsd">
+                           http://cxf.apache.org/schemas/jaxrs.xsd
+                           http://cxf.apache.org/transports/http-jetty/configuration
+                           http://cxf.apache.org/schemas/configuration/http-jetty.xsd">
 
     <bean id="nimbus-elastic.rm.modulelocator"
           class="org.nimbustools.messaging.gt4_0.common.NimbusLocalModuleLocator" />
+
+    <!--
+        property sources are concentrated in this file
+    -->
+    <import resource="main.conflocator.xml"/>
 
 
     <!-- ************ ServiceRM *********** -->
@@ -233,24 +241,6 @@
 
     </bean>
 
-    <bean id="nimbus-query.httpserver" 
-          class="org.nimbustools.messaging.query.HttpQuery" 
-          init-method="startListening">
-        
-        <property name="enabled" value="$QUERY{query.enabled}"/>
-        <property name="port" value="$QUERY{https.port}" />
-        <property name="headerBufferBytes" value="$QUERY{query.header.size}"/>
-        <property name="keystoreResource" value="$QUERY{keystore.path}"/>
-        <property name="keystorePassword" value="$QUERY{keystore.password}"/>
-        <property name="springConfigResource" value="$QUERY{query.spring.path}"/>
-    </bean>
-
-    <!--
-        property sources are concentrated in this file
-    -->
-    <import resource="main.conflocator.xml"/>
-
-
     <!--
         Query related.
     -->
@@ -321,5 +311,26 @@
         <constructor-arg type="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.ServiceSecurity"
                          ref="nimbus-elastic.security"/>
     </bean>
+
+    <httpj:engine-factory bus="cxf">
+      <httpj:engine port="8444">
+        <httpj:threadingParameters minThreads="3"
+                                   maxThreads="10" />
+        <httpj:connector>
+          <bean class="org.mortbay.jetty.security.SslSocketConnector">
+              <property name="port" value="$QUERY{https.port}" />
+              <property name="keystore" value="$QUERY{keystore.path}" />
+              <property name="truststore" value="$QUERY{keystore.path}" />
+              <property name="password" value="$QUERY{keystore.password}" />
+              <property name="trustPassword" value="$QUERY{keystore.password}" />
+              <property name="headerBufferSize" value="$QUERY{query.header.size}" />
+          </bean>
+        </httpj:connector>
+        <httpj:handlers>
+            <bean class="org.mortbay.jetty.handler.DefaultHandler"/>
+        </httpj:handlers>
+        <httpj:sessionSupport>true</httpj:sessionSupport>
+      </httpj:engine>
+    </httpj:engine-factory>
 
 </beans>
