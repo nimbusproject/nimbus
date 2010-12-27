@@ -45,7 +45,7 @@ def main(argv=sys.argv[1:]):
 
         pattern = old_path + "%"
 
-        files = File.find_files_from_data(db_obj, pattern)
+        files = list(File.find_files_from_data(db_obj, pattern))
         for f in files:
             old_key = f.get_data_key()
             new_key = old_key.replace(old_path, new_path, 1)
