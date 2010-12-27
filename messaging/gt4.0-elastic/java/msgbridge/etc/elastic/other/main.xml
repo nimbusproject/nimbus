@@ -324,7 +324,7 @@
     <httpj:engine-factory bus="cxf">
         <httpj:engine port="8444">
             <httpj:tlsServerParameters>
-                <sec:keyManagers keyPassword="password">
+                <sec:keyManagers keyPassword="changeit">
                     <sec:keyStore type="JKS"
                                   password="changeit"
                                   file="/opt/n2/install/var/keystore.jks" />
