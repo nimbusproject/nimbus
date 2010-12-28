@@ -136,7 +136,7 @@
           init-method="validate">
 
         <!-- Property values coming via vmm.conf -->
-        <property name="cpuArchitectureName"
+        <property name="cpuArchitectureNames"
                   value="$VMM{cpu.arch}" />
         <property name="vmm"
                   value="$VMM{vmm.type}" />
@@ -183,6 +183,13 @@
     <bean id="nimbus-rm.service.binding.BindCustomizations"
           class="org.globus.workspace.service.binding.defaults.DefaultBindCustomizations"
           init-method="validate">
+
+        <constructor-arg ref="nimbus-rm.PathConfigs" />
+
+    </bean>
+
+    <bean id="nimbus-rm.service.binding.BindCredential"
+          class="org.globus.workspace.service.binding.defaults.DefaultBindCredential">
 
         <constructor-arg ref="nimbus-rm.PathConfigs" />
 
@@ -681,8 +688,6 @@
          Remoting related
          =================================================================== -->
 
-    <!-- DISABLED: this throws an error in the tests when multiple Spring contexts
-                   are instantiated: the RMI registry is per JVM...
     <bean id="nimbus-remoting-server"
           class="org.globus.workspace.remoting.RemotingServer"
           init-method="initialize">
@@ -694,7 +699,6 @@
             </map>
         </property>
     </bean>
-    -->
 
     <bean id="nimbus-remoting-nodemgmt"
           class="org.globus.workspace.remoting.admin.defaults.DefaultRemoteNodeManagement"

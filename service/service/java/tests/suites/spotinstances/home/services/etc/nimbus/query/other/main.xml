@@ -3,14 +3,11 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:jaxrs="http://cxf.apache.org/jaxrs"
-       xmlns:aop="http://www.springframework.org/schema/aop"
        xmlns:security="http://www.springframework.org/schema/security"
        xsi:schemaLocation="
 http://www.springframework.org/schema/beans 
 http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-http://www.springframework.org/schema/aop 
-http://www.springframework.org/schema/aop/spring-aop.xsd
-http://www.springframework.org/schema/security 
+http://www.springframework.org/schema/security
 http://www.springframework.org/schema/security/spring-security-3.0.xsd
 http://cxf.apache.org/jaxrs
 http://cxf.apache.org/schemas/jaxrs.xsd">
@@ -65,6 +62,8 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
 
     <bean id="authzDBAdapter" class="org.nimbus.authz.AuthzDBAdapter">
         <constructor-arg ref="other.AuthzDataSource"/>
+
+        <property name="cumulusPublicUser" value="$CUMULUS{cumulus.publicuser}" />
     </bean>
 
     <bean id="userDetailsService" class="org.nimbustools.messaging.query.security.NimbusAuthzUserDetailsService">
@@ -109,7 +108,7 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
         <constructor-arg ref="nimbus-query.rm.describe" />
         <constructor-arg ref="nimbus-query.rm.requestSI" />
         <constructor-arg ref="nimbus-query.rm.cancelSI" />
-        <constructor-arg ref="nimbus-query.rm.describeI" /> 
+        <constructor-arg ref="nimbus-query.rm.describeSI" /> 
         <constructor-arg ref="nimbus-query.rm.spHistory" />                               
         <constructor-arg ref="nimbus-query.rm.containerInterface" />
         <constructor-arg ref="nimbus-query.rm.modulelocator" />
@@ -164,11 +163,7 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
 
 
     <bean id="nimbus-query.rm.idmappings"
-          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultIDMgmt">
-
-        <constructor-arg value="$COMMON{caches.dir}" />
-
-    </bean>
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultIDMgmtProxy" />
 
     <!-- ************ Spot Instances *********** -->
 
@@ -317,7 +312,7 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
          <constructor-arg ref="nimbus-query.rm.modulelocator" />
          <constructor-arg ref="other.AuthzDataSource" />
 
-
+        <property name="cumulusPublicUser" value="$CUMULUS{cumulus.publicuser}" />
         <property name="repoBucket" value="$CUMULUS{cumulus.repo.bucket}" />
         <property name="prefix" value="$CUMULUS{cumulus.repo.prefix}" />
         <property name="cumulusHost" value="$CUMULUS{cumulus.host}" />
@@ -332,4 +327,3 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
     <import resource="main.conflocator.xml"/>
 
 </beans>
-

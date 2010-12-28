@@ -136,7 +136,7 @@
           init-method="validate">
 
         <!-- Property values coming via vmm.conf -->
-        <property name="cpuArchitectureName"
+        <property name="cpuArchitectureNames"
                   value="$VMM{cpu.arch}" />
         <property name="vmm"
                   value="$VMM{vmm.type}" />
@@ -183,6 +183,13 @@
     <bean id="nimbus-rm.service.binding.BindCustomizations"
           class="org.globus.workspace.service.binding.defaults.DefaultBindCustomizations"
           init-method="validate">
+
+        <constructor-arg ref="nimbus-rm.PathConfigs" />
+
+    </bean>
+
+    <bean id="nimbus-rm.service.binding.BindCredential"
+          class="org.globus.workspace.service.binding.defaults.DefaultBindCredential">
 
         <constructor-arg ref="nimbus-rm.PathConfigs" />
 

@@ -77,7 +77,8 @@ vmm VARCHAR(32),
 vmm_version VARCHAR(32),
 assocs_needed VARCHAR(256),
 md_user_data VARCHAR(30720),
-preemptable SMALLINT
+preemptable SMALLINT,
+credential_name VARCHAR(128)
 );
 
 --
@@ -138,8 +139,8 @@ PRIMARY KEY(association,ipaddress)
 CREATE TABLE file_copy
 (
 vmid INT NOT NULL,
-sourcepath VARCHAR(32) NOT NULL,
-destpath VARCHAR(512) NOT NULL,
+sourcepath VARCHAR(36) NOT NULL,
+destpath VARCHAR(512),
 on_image SMALLINT NOT NULL
 );
 
@@ -172,7 +173,6 @@ CREATE TABLE default_scheduler_done_ensemb
 (
 coschedid CHAR(36) NOT NULL
 );
-
 
 -- using REAL for memory attributs to allow
 -- real division operations in ORDER BY statements
