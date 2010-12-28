@@ -201,6 +201,14 @@ public class DefaultIDMgmtProxy implements IDMappings, KeyCacheProvider,
         return this.getReal().getKeyName(elasticID);
     }
 
+    public String getOrNewInstanceID(String managerInstanceID,
+                                     String elasticReservationID,
+                                     String sshkeyUsed) throws Exception {
+        return this.getReal().getOrNewInstanceID(managerInstanceID,
+                                                 elasticReservationID,
+                                                 sshkeyUsed);
+    }
+
     public Cache getKeyCache() {
         return this.getRealKeyCacheProvider().getKeyCache();
     }

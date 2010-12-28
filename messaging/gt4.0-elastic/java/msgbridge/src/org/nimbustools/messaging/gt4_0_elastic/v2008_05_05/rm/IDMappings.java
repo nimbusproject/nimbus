@@ -277,7 +277,7 @@ public interface IDMappings {
      */
     public String getKeyName(String elasticID);
 
-    String getOrNewInstanceID(String managerInstanceID,
-                              String elasticReservationID,
-                              String sshkeyUsed) throws Exception;
+    public String getOrNewInstanceID(String managerInstanceID,
+                                     String elasticReservationID,
+                                     String sshkeyUsed) throws Exception;
 }
