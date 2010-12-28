@@ -21,11 +21,11 @@ import org.apache.commons.logging.LogFactory;
 import org.nimbustools.api.repr.SpotPriceEntry;
 import org.nimbustools.api.services.rm.Manager;
 import org.nimbustools.api.services.rm.ManageException;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.DescribeSpotPriceHistoryResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.DescribeSpotPriceHistoryType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.InstanceTypeSetItemType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.SpotPriceHistorySetItemType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.SpotPriceHistorySetType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.DescribeSpotPriceHistoryResponseType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.DescribeSpotPriceHistoryType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.InstanceTypeSetItemType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.SpotPriceHistorySetItemType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.SpotPriceHistorySetType;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.ResourceAllocations;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.DescribeSpotPriceHistory;
 

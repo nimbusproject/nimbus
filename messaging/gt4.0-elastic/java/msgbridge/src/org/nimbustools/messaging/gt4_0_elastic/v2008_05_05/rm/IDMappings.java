@@ -276,5 +276,8 @@ public interface IDMappings {
      *        (e.g. if VM was not created with this protocol)
      */
     public String getKeyName(String elasticID);
-    
+
+    String getOrNewInstanceID(String managerInstanceID,
+                              String elasticReservationID,
+                              String sshkeyUsed) throws Exception;
 }

@@ -16,7 +16,7 @@
 
 package org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.service;
 
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.*;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.*;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.ServiceAll;
 
 import java.rmi.RemoteException;
@@ -490,7 +490,7 @@ public class UnimplementedOperations implements ServiceAll {
         throw new RemoteException(UNIMPLEMENTED + "associateDhcpOptions");
     }
     
-    // Unimplemented operations from v2010-06-15 ec2 schema
+    // Unimplemented operations from v2010-08-31 ec2 schema
 
     public ActivateLicenseResponseType activateLicense(ActivateLicenseType activateLicenseRequestMsg)
            throws RemoteException {
@@ -566,4 +566,28 @@ public class UnimplementedOperations implements ServiceAll {
            throws RemoteException {
         throw new RemoteException(UNIMPLEMENTED + "stopInstances");       
     }
+
+    public CreateTagsResponseType createTags(CreateTagsType createTagsRequestMsg)
+        throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "createTags");
+    }
+
+    public DescribeTagsResponseType describeTags(DescribeTagsType describeTagsRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "describeTags");
+    }
+
+    public DeleteTagsResponseType deleteTags(DeleteTagsType deleteTagsRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "deleteTags");
+    }
+
+    public ImportKeyPairResponseType importKeyPair(ImportKeyPairType importKeyPairRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "importKeyPair");
+    }
+
+
+
+
 }

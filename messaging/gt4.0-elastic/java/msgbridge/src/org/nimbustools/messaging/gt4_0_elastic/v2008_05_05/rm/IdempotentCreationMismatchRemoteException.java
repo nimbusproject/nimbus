@@ -16,18 +16,28 @@
 
 package org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm;
 
-import org.nimbustools.api.repr.Caller;
-import org.nimbustools.api.services.rm.Manager;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.RequestSpotInstancesResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.RequestSpotInstancesType;
 
 import java.rmi.RemoteException;
 
-public interface RequestSI {
+public class IdempotentCreationMismatchRemoteException extends RemoteException {
 
-    public RequestSpotInstancesResponseType requestSpotInstances(
-                                    RequestSpotInstancesType req, Caller caller, Manager manager)
-            
-                throws RemoteException;
+    public IdempotentCreationMismatchRemoteException() {
+        super();
+    }
 
+    public IdempotentCreationMismatchRemoteException(String message) {
+        super(message);
+    }
+
+    public IdempotentCreationMismatchRemoteException(String message, Exception e) {
+        super(message, e);
+    }
+
+    public IdempotentCreationMismatchRemoteException(String message, Throwable e) {
+        super(message, e);
+    }
+
+    public IdempotentCreationMismatchRemoteException(Exception e) {
+        super("", e);
+    }
 }

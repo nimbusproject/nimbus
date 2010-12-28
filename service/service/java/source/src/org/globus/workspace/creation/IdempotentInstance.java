@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2008 University of Chicago
+ * Copyright 1999-2010 University of Chicago
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy
@@ -13,14 +13,17 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
+package org.globus.workspace.creation;
 
-package org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm;
+/**
+ * Making this a class instead of just integer ID so we can easily add other fields
+ * that need to be persisted and returned in idempotent launches of terminated nodes.
+ */
+public interface IdempotentInstance {
 
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.RebootInstancesType;
-import org.nimbustools.api.repr.Caller;
-import org.nimbustools.api.services.rm.Manager;
+    public int getID();
 
-public interface Reboot {
+    public int getLaunchIndex();
 
-    public boolean reboot(RebootInstancesType req, Caller caller, Manager manager);
+    String getName();
 }

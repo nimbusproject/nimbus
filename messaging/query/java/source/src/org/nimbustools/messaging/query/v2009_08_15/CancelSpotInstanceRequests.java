@@ -8,9 +8,9 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
 
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.CancelSpotInstanceRequestsResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.CancelSpotInstanceRequestsType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.SpotInstanceRequestIdSetType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.CancelSpotInstanceRequestsResponseType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.CancelSpotInstanceRequestsType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.SpotInstanceRequestIdSetType;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.ServiceRM;
 import org.nimbustools.messaging.query.ElasticAction;
 import org.nimbustools.messaging.query.QueryError;
@@ -25,7 +25,6 @@ public class CancelSpotInstanceRequests implements ElasticAction {
         this.serviceRM = serviceRMImpl;
     }
     
-    @Override
     public String getName() {
         return "CancelSpotInstanceRequests";
     }

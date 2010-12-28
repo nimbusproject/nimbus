@@ -18,7 +18,7 @@ package org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.security;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.ServiceSecurity;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.ContainerInterface;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.service.UnimplementedOperations;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.*;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.*;
 import org.nimbustools.api.brain.ModuleLocator;
 import org.nimbustools.api.services.security.KeyManager;
 import org.nimbustools.api.services.security.KeyExistsException;

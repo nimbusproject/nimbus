@@ -36,9 +36,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.globus.workspace.Lager;
 import org.globus.workspace.WorkspaceConstants;
+import org.globus.workspace.creation.IdempotentInstance;
+import org.globus.workspace.creation.IdempotentReservation;
+import org.globus.workspace.creation.defaults.IdempotentInstanceImpl;
+import org.globus.workspace.creation.defaults.IdempotentReservationImpl;
 import org.globus.workspace.network.Association;
 import org.globus.workspace.network.AssociationEntry;
 import org.globus.workspace.persistence.impls.AssociationPersistenceUtil;
+import org.globus.workspace.persistence.impls.IdempotencyPersistenceUtil;
 import org.globus.workspace.persistence.impls.VMPersistence;
 import org.globus.workspace.persistence.impls.VirtualMachinePersistenceUtil;
 import org.globus.workspace.scheduler.backfill.Backfill;
@@ -1147,6 +1152,8 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
                 pstmt.setNull(15, Types.BLOB);
             }
 
+            pstmt.setString(16, resource.getClientToken());
+
             if (this.dbTrace) {
                 logger.trace("creating WorkspaceResource db " +
                         "entry for " + Lager.id(id));
@@ -1363,6 +1370,10 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
                     resource.setInitialState(state, null);
                 }
 
+                final String clientToken = rs.getString(15);
+                resource.setClientToken(clientToken);
+
+
                 if (this.dbTrace) {
                     logger.trace("found " + Lager.id(id) +
                              ": name = " + name +
@@ -1378,7 +1389,8 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
                              ", groupsize = " + groupsize +
                              ", isLastInGroup = " + isLastInGroup +
                              ", launchIndex = " + launchIndex +
-                             ", errror present = " + (errBlob != null));
+                             ", clientToken = " + clientToken +
+                             ", error present = " + (errBlob != null));
                 }
                 
                 rs.close();
@@ -2898,6 +2910,184 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
             if (this.dbTrace) {
                 logger.trace("Updated/inserted backfill");
             }
+
+        } catch(SQLException e) {
+            logger.error("",e);
+            throw new WorkspaceDatabaseException(e);
+        } finally {
+            try {
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+                if (c != null) {
+                    returnConnection(c);
+                }
+            } catch (SQLException sql) {
+                logger.error("SQLException in finally cleanup", sql);
+            }
+        }
+    }
+
+    /**
+     * Retrieves idempotency reservation
+     *
+     * @param creatorId   initiating client user
+     * @param clientToken client-provided idempotency token
+     * @return stored reservation, or null of not found
+     * @throws WorkspaceDatabaseException
+     *          DB error
+     */
+    public IdempotentReservation getIdempotentReservation(String creatorId, String clientToken)
+            throws WorkspaceDatabaseException {
+
+        if (creatorId == null) {
+            throw new IllegalArgumentException("creatorId may not be null");
+        }
+        if (clientToken == null) {
+            throw new IllegalArgumentException("clientToken may not be null");
+        }
+
+        if (this.dbTrace) {
+            logger.trace("getIdempotentReservation()");
+        }
+
+        Connection c = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            c = getConnection();
+
+            pstmt = c.prepareStatement(SQL_SELECT_IDEMPOTENT_CREATION);
+
+            pstmt.setString(1, creatorId);
+            pstmt.setString(2, clientToken);
+
+            rs = pstmt.executeQuery();
+
+            if (rs == null || !rs.next()) {
+                if (lager.traceLog) {
+                    logger.debug("no existing idempotency reservation");
+                }
+                return null;
+            }
+
+            ArrayList<IdempotentInstance> instances = new ArrayList<IdempotentInstance>();
+            // rs was next'd above already
+            final String groupId = rs.getString(2);
+            do {
+                final int vmId = rs.getInt(1);
+                final String name = rs.getString(3);
+                final int launchIndex = rs.getInt(4);
+
+                instances.add(new IdempotentInstanceImpl(vmId, name, launchIndex));
+            } while(rs.next());
+
+            return new IdempotentReservationImpl(creatorId, clientToken, groupId, instances);
+
+
+        } catch(SQLException e) {
+            logger.error("",e);
+            throw new WorkspaceDatabaseException(e);
+        } finally {
+            try {
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+
+                if (rs != null) {
+                    rs.close();
+                }
+
+                if (c != null) {
+                    returnConnection(c);
+                }
+            } catch (SQLException sql) {
+                logger.error("SQLException in finally cleanup", sql);
+            }
+        }
+    }
+
+    /**
+     * Stores idempotency reservation
+     *
+     * @param reservation the reservation to store
+     * @throws WorkspaceDatabaseException
+     *          DB error
+     */
+    public void addIdempotentReservation(IdempotentReservation reservation)
+            throws WorkspaceDatabaseException {
+        if (this.dbTrace) {
+            logger.trace("addIdempotentReservation()");
+        }
+
+        Connection c = null;
+        PreparedStatement[] pstmts = null;
+        try {
+            c = getConnection();
+            c.setAutoCommit(false);
+
+            pstmts = IdempotencyPersistenceUtil.getInsertReservation(reservation, c);
+
+            for (PreparedStatement pstmt : pstmts) {
+                pstmt.executeUpdate();
+            }
+            c.commit();
+
+            if (this.dbTrace) {
+                logger.trace("Inserted idempotency reservation");
+            }
+
+        } catch(SQLException e) {
+            logger.error("",e);
+            throw new WorkspaceDatabaseException(e);
+        } finally {
+            try {
+                if (pstmts != null) {
+                    for (PreparedStatement pstmt : pstmts) {
+                        pstmt.close();
+                    }
+                }
+                if (c != null) {
+                    c.setAutoCommit(true);
+                    returnConnection(c);
+                }
+            } catch (SQLException sql) {
+                logger.error("SQLException in finally cleanup", sql);
+            }
+        }
+    }
+
+    /**
+     * Removes existing idempotency reservation
+     *
+     * @param creatorId   initiating client user
+     * @param clientToken client-provided idempotency token
+     * @throws WorkspaceDatabaseException
+     *          DB error
+     */
+    public void removeIdempotentReservation(String creatorId, String clientToken)
+            throws WorkspaceDatabaseException {
+
+        if (creatorId == null) {
+            throw new IllegalArgumentException("creatorId may not be null");
+        }
+        if (clientToken == null) {
+            throw new IllegalArgumentException("clientToken may not be null");
+        }
+
+        if (this.dbTrace) {
+            logger.trace("removeIdempotentReservation()");
+        }
+
+        Connection c = null;
+        PreparedStatement pstmt = null;
+        try {
+            c = getConnection();
+            pstmt = c.prepareStatement(SQL_DELETE_IDEMPOTENT_CREATION);
+            pstmt.setString(1, creatorId);
+            pstmt.setString(2, clientToken);
+
+            pstmt.executeUpdate();
 
         } catch(SQLException e) {
             logger.error("",e);

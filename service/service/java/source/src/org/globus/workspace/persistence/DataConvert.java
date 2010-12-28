@@ -222,6 +222,7 @@ public class DataConvert implements WorkspaceConstants {
         vm.setSchedule(this.getSchedule(resource));
         vm.setState(this.getState(resource));
         vm.setCreator(this.getCreator(resource));
+        vm.setClientToken(resource.getClientToken());
         
         if(resource.getVM().isPreemptable()){
             vm.setLifeCycle(VMConstants.LIFE_CYCLE_SPOT);

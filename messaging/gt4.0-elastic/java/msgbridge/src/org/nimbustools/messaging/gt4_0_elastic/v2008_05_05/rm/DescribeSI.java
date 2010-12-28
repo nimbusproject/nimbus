@@ -19,9 +19,9 @@ package org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm;
 import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.SpotRequestInfo;
 import org.nimbustools.api.services.rm.Manager;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.DescribeSpotInstanceRequestsResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.DescribeSpotInstanceRequestsType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.SpotInstanceRequestSetItemType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.DescribeSpotInstanceRequestsResponseType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.DescribeSpotInstanceRequestsType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.SpotInstanceRequestSetItemType;
 
 import java.rmi.RemoteException;
 
@@ -36,7 +36,6 @@ public interface DescribeSI {
      * Translate Manager's SpotRequestInfo into EC2's SpotInstanceRequestSetItemType
      * 
      * @param result valid result from Manager
-     * @param caller caller object
      * @return valid elastic response
      */    
     public SpotInstanceRequestSetItemType translateSpotInfo(SpotRequestInfo result)

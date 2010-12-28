@@ -204,6 +204,15 @@ public class DefaultIDMgmt implements IDMappings, KeyCacheProvider {
     // GET-OR-NEW ELASTIC IDs
     // -------------------------------------------------------------------------
 
+    public synchronized String getOrNewInstanceID(String managerInstanceID,
+                                             String elasticReservationID,
+                                             String sshkeyUsed) throws Exception {
+        if (!this.isElasticInstanceID(managerInstanceID)) {
+            return this.newInstanceID(managerInstanceID, elasticReservationID, sshkeyUsed);
+        }
+        return this.managerInstanceToElasticInstance(managerInstanceID);
+    }
+
     public synchronized String getOrNewInstanceReservationID(String managerInstanceID,
                                                              String sshkeyUsed)
             throws Exception {

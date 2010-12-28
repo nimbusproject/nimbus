@@ -1,17 +1,11 @@
 import string
 import random
 import os
-import sys
-import nose.tools
 import boto
 from boto.ec2.connection import EC2Connection
+from boto.exception import BotoServerError
 import boto.ec2 
-import sys
-from ConfigParser import SafeConfigParser
-import time
 import unittest
-import tempfile
-import filecmp
 import pycb
 import pynimbusauthz
 from  pynimbusauthz.db import * 
@@ -19,7 +13,6 @@ from  pynimbusauthz.user import *
 import pycb.test_common
 from boto.s3.connection import OrdinaryCallingFormat
 from boto.s3.connection import S3Connection
-import random
 from nimbusweb.setup.groupauthz import *
 
 def get_nimbus_home():
@@ -41,14 +34,13 @@ def get_nimbus_home():
 class TestEC2Submit(unittest.TestCase):
 
     def killall_running(self):
-	instances = self.ec2conn.get_all_instances()
+        instances = self.ec2conn.get_all_instances()
         print instances
         for reserv in instances:
             for inst in reserv.instances:
-                if inst.state == u'running':
+                if inst.state != u'terminated':
                     print "Terminating instance %s" % inst
-                    inst.stop()
-
+                    inst.terminate()
 
     def cb_random_bucketname(self, len):
         chars = string.letters + string.digits
@@ -56,6 +48,14 @@ class TestEC2Submit(unittest.TestCase):
         for i in range(len):
             newpasswd = newpasswd + random.choice(chars)
         return newpasswd
+    
+    def store_new_image(self):
+        bucket = self.s3conn.get_bucket("Repo")
+        k = boto.s3.key.Key(bucket)
+        image_name = self.cb_random_bucketname(10)
+        k.key = "VMS/" + self.can_user.get_id() + "/" + image_name
+        k.set_contents_from_filename("/etc/group")
+        return image_name
 
     def setUp(self):
         host = 'localhost'
@@ -93,11 +93,7 @@ class TestEC2Submit(unittest.TestCase):
 
 
     def test_ec2_submit_name_format(self):
-        bucket = self.s3conn.get_bucket("Repo")
-        k = boto.s3.key.Key(bucket)
-        image_name = self.cb_random_bucketname(10)
-        k.key = "VMS/" + self.can_user.get_id() + "/" + image_name
-        k.set_contents_from_filename("/etc/group")
+        image_name = self.store_new_image()
         image = self.ec2conn.get_image(image_name)
         print "==================================="
         print image.name
@@ -106,7 +102,6 @@ class TestEC2Submit(unittest.TestCase):
         print "==================================="
 
         res = image.run() 
-        res.stop_all()
 
     def test_ec2_submit_url(self):
         bucket_name = "Repo"
@@ -118,6 +113,93 @@ class TestEC2Submit(unittest.TestCase):
         url = "cumulus://HOST/" + bucket_name + "/" + k.key
         print url
         res = self.ec2conn.run_instances(url)
-        res.stop_all()
+    
+    def test_ec2_idempotent_submit(self):
+        image_name = self.store_new_image()
+        token = str(uuid.uuid4())
 
+        # start an instance with a client token
+        res1 = self.ec2conn.run_instances(image_name, client_token=token)
+        assert len(res1.instances) == 1, "Expected 1 launched instance"
 
+        # now re-launch with the same token, should get back the same
+        # instance and nothing new should be running
+        res2 = self.ec2conn.run_instances(image_name, client_token=token)
+        assert len(res2.instances) == 1, "Expected 1 launched instance"
+        assert res1.id == res2.id, "diff reservation IDs: %s vs %s" % (res1.id, res2.id)
+        assert res1.owner_id == res2.owner_id, "diff owner IDs"
+        assert res1.instances[0].id == res2.instances[0].id, "diff instance IDs"
+        assert res1.instances[0].dns_name == res2.instances[0].dns_name, "diff DNS names"
+        assert res1.instances[0].state == res2.instances[0].state, (
+                "diff states: %s vs %s" % (res1.instances[0].state, res2.instances[0].state))
+
+        # check that no other instance is running
+        assert len(self.ec2conn.get_all_instances()) == 1, "!1 instances running"
+
+        # start another but with a different token-- should get a new instance
+        another_token = str(uuid.uuid4())
+        res3 = self.ec2conn.run_instances(image_name, client_token=another_token)
+        assert len(res3.instances) == 1, "Expected 1 launched instance"
+        assert res3.id != res1.id, "same reservation IDs"
+        assert res3.instances[0].id != res1.instances[0].id, "same instance IDs"
+        
+        assert len(self.ec2conn.get_all_instances()) == 2, "!2 instances running"
+
+        # kill the first VM and re-launch with the same token -- should get
+        # back a reservation with the same first instance but terminated
+        assert len(self.ec2conn.terminate_instances([res1.instances[0].id])) == 1
+        
+        res4 = self.ec2conn.run_instances(image_name, client_token=token)
+        assert len(res4.instances) == 1, "Expected 1 launched instance"
+        assert res1.id == res4.id, "diff reservation IDs"
+        assert res1.owner_id == res4.owner_id, "diff owner IDs"
+        assert res1.instances[0].id == res4.instances[0].id, "diff instance IDs"
+        state = res4.instances[0].state 
+        assert state == 'terminated', "state was %s" % state
+        
+        # now attempt to launch instances with the same tokens, but with different
+        # parameters. Should get an exception with IdempotentParameterMismatch error
+        another_image_name = self.store_new_image()
+        self.assertRunInstancesError('IdempotentParameterMismatch', 
+                another_image_name, client_token=token)
+        
+        self.assertRunInstancesError('IdempotentParameterMismatch', 
+                image_name, min_count=3, max_count=3, client_token=token)
+        
+        self.assertRunInstancesError('IdempotentParameterMismatch', 
+                another_image_name, client_token=another_token)
+        
+        self.assertRunInstancesError('IdempotentParameterMismatch', 
+                image_name, min_count=3, max_count=3, client_token=another_token)
+
+    def test_ec2_idempotent_group_submit(self):
+        image_name = self.store_new_image()
+        token = str(uuid.uuid4())
+
+        # start an instance with a client token
+        res1 = self.ec2conn.run_instances(image_name, client_token=token, 
+                min_count=3, max_count=3)
+        assert len(res1.instances) == 3, "Expected 3 launched instances"
+
+        # now re-launch with the same token, should get back the same
+        # instance and nothing new should be running
+        res2 = self.ec2conn.run_instances(image_name, client_token=token,
+                min_count=3, max_count=3)
+        assert len(res2.instances) == 3, "Expected 3 launched instances"
+        assert res1.id == res2.id, "diff reservation IDs: %s vs %s" % (res1.id, res2.id)
+        assert res1.owner_id == res2.owner_id, "diff owner IDs"
+        for i1, i2 in zip(res1.instances, res2.instances):
+            assert i1.id == i2.id, "diff instance IDs"
+            assert i1.dns_name == i2.dns_name, "diff DNS names"
+            assert i1.state == i2.state, "diff states: %s vs %s" % (i1.state, i2.state)
+
+    def assertRunInstancesError(self, error_code, *args, **kwargs):
+        error = None
+        try:
+            self.ec2conn.run_instances(*args, **kwargs)
+        except BotoServerError,e:
+            error = e
+
+        assert error, "Expected %s error but got nothing" % error_code
+        assert error.error_code == error_code, "Expected %s error but got %s" % (
+                error_code, error.error_code)

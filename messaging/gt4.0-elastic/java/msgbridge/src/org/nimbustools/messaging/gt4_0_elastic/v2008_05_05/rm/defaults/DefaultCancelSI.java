@@ -22,11 +22,11 @@ import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.SpotRequestInfo;
 import org.nimbustools.api.services.rm.Manager;
 import org.nimbustools.api.services.rm.ManageException;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.CancelSpotInstanceRequestsResponseSetItemType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.CancelSpotInstanceRequestsResponseSetType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.CancelSpotInstanceRequestsResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.CancelSpotInstanceRequestsType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.SpotInstanceRequestIdSetItemType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.CancelSpotInstanceRequestsResponseSetItemType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.CancelSpotInstanceRequestsResponseSetType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.CancelSpotInstanceRequestsResponseType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.CancelSpotInstanceRequestsType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.SpotInstanceRequestIdSetItemType;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.CancelSI;
 
 import java.rmi.RemoteException;

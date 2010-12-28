@@ -59,18 +59,28 @@ public class ReprPopulator {
      * @throws Exception problem
      */
     public CreateRequest getCreateRequest(String name) throws Exception {
-        return getCreateRequest(name, 240, 64, 1);
+        return getCreateRequest(name, 240, 64, 1, null);
     }
-    
+
+    public CreateRequest getIdempotentCreateRequest(String name, String idemToken) throws Exception {
+        return getCreateRequest(name, 240, 64, 1, idemToken);
+    }
+
     public CreateRequest getCreateRequest(String name, int durationSecs, int mem, int numNodes) throws Exception {
+        return getCreateRequest(name, durationSecs, mem, numNodes, null);
+    }
+
+    public CreateRequest getCreateRequest(String name, int durationSecs, int mem, int numNodes, String idemToken) throws Exception {
         final _CreateRequest req = this.repr._newCreateRequest();
 
-        populate(req, durationSecs, name, mem, numNodes, false);
+        populate(req, durationSecs, name, mem, numNodes, false, idemToken);
 
         return req;
     }    
 
-    private void populate(final _CreateRequest req, int durationSeconds, String name, int mem, int numNodes, boolean preemptable) throws URISyntaxException {
+    private void populate(final _CreateRequest req, int durationSeconds, String name,
+                          int mem, int numNodes, boolean preemptable, String idemToken)
+            throws URISyntaxException {
         req.setName(name);
         
         final _NIC nic = this.repr._newNIC();
@@ -103,6 +113,8 @@ public class ReprPopulator {
         file.setMountAs("sda1");
         file.setDiskPerms(VMFile.DISKPERMS_ReadWrite);
         req.setVMFiles(new _VMFile[]{file});
+
+        req.setClientToken(idemToken);
     }
 
     public Caller getCaller() {
@@ -129,7 +141,7 @@ public class ReprPopulator {
         reqSI.setSpotPrice(spotPrice);
         reqSI.setPersistent(persistent);        
         
-        populate(reqSI, 500, name, SIConstants.SI_TYPE_BASIC_MEM, numNodes, true);
+        populate(reqSI, 500, name, SIConstants.SI_TYPE_BASIC_MEM, numNodes, true, null);
         
         return reqSI;
     }
@@ -139,7 +151,7 @@ public class ReprPopulator {
         final _AsyncCreateRequest backfill = this.repr._newBackfillRequest();
         backfill.setInstanceType(SIConstants.SI_TYPE_BASIC);                
         
-        populate(backfill, 500, name, SIConstants.SI_TYPE_BASIC_MEM, numNodes, true);
+        populate(backfill, 500, name, SIConstants.SI_TYPE_BASIC_MEM, numNodes, true, null);
                 
         return backfill;
     }    

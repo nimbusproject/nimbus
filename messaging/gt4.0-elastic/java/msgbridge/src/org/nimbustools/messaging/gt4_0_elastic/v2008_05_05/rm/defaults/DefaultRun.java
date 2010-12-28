@@ -35,7 +35,7 @@ import org.nimbustools.api.repr.vm.ResourceAllocation;
 import org.nimbustools.api.repr.vm.State;
 import org.nimbustools.api.repr.vm.VM;
 import org.nimbustools.api.repr.vm.VMFile;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.*;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.*;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.Networks;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.ResourceAllocations;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.image.Repository;
@@ -206,6 +206,8 @@ public class DefaultRun implements Run {
         final VMFile[] files =
                 this.repository.constructFileRequest(imageID, ra, caller);
 
+        final String clientToken = req.getClientToken();
+
         final _CreateRequest creq = this.repr._newCreateRequest();
 
         creq.setContext(null);
@@ -224,6 +226,7 @@ public class DefaultRun implements Run {
         creq.setVMFiles(files);
         creq.setMdUserData(userData);
         creq.setSshKeyName(keyname);
+        creq.setClientToken(clientToken);
 
         return creq;
     }
@@ -256,13 +259,13 @@ public class DefaultRun implements Run {
 
         final String vmidWhenJustOne;
         final String resID;
+        // these mappings may exist already, for secondary idempotent launches
         if (groupid == null) {
             vmidWhenJustOne = vms[0].getID();
-            resID = this.ids.newGrouplessInstanceID(vmidWhenJustOne,
-                                                    sshKeyName);
+            resID = this.ids.getOrNewInstanceReservationID(vmidWhenJustOne, sshKeyName);
         } else {
             vmidWhenJustOne = null;
-            resID = this.ids.newGroupReservationID(groupid);
+            resID = this.ids.getOrNewGroupReservationID(groupid);
         }
 
         final RunningInstancesSetType rist = new RunningInstancesSetType();
@@ -289,7 +292,8 @@ public class DefaultRun implements Run {
                 // mapping already created:
                 instID = this.ids.managerInstanceToElasticInstance(vmidWhenJustOne);
             } else {
-                instID = this.ids.newInstanceID(vm.getID(), resID, sshKeyName);
+                // this mapping may exist already, for secondary idempotent launches
+                instID = this.ids.getOrNewInstanceID(vm.getID(), resID, sshKeyName);
             }
 
             if (i != 0) {
@@ -404,6 +408,7 @@ public class DefaultRun implements Run {
         riit.setInstanceId(instID);
         riit.setKeyName(sshKeyName);
 
+        riit.setClientToken(vm.getClientToken());
 
         riit.setKernelId("default"); // todo
 
@@ -420,6 +425,21 @@ public class DefaultRun implements Run {
                                     RunningInstancesItemType riit)
             throws CannotTranslateException {
 
+
+        // ec2 only necessarily has networking information on a running
+        // instance. we can loosen up requirements here.
+
+        // this is motivated by idempotent instance support. In cases where
+        // an idempotent launch maps to an already-terminated instance,
+        // the VM object here will be in the terminated state and have no
+        // NICs information
+
+        final boolean isTerminated =
+                vm.getState().getState().equals(State.STATE_Cancelled);
+
+        if (isTerminated && (vm.getNics() == null || vm.getNics().length == 0)) {
+            return;
+        }
 
         final NIC[] nics = vm.getNics();
         if (nics == null || nics.length == 0) {

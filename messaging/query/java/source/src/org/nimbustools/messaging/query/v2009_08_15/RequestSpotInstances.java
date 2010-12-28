@@ -9,10 +9,10 @@ import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.LaunchSpecificationRequestType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.RequestSpotInstancesResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.RequestSpotInstancesType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.UserDataType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.LaunchSpecificationRequestType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.RequestSpotInstancesResponseType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.RequestSpotInstancesType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.UserDataType;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.ServiceRM;
 import org.nimbustools.messaging.query.ElasticAction;
 import org.nimbustools.messaging.query.QueryError;
@@ -26,7 +26,6 @@ public class RequestSpotInstances implements ElasticAction {
         this.serviceRM = serviceRMImpl;
     }
     
-    @Override
     public String getName() {
         return "RequestSpotInstances";
     }

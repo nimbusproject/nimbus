@@ -85,6 +85,10 @@ public interface InstanceResource extends Sweepable {
 
     public void setStartTime(Calendar startTime);
 
+    public String getClientToken();
+
+    public void setClientToken(String clientToken);
+
 
     // -------------------------------------------------------------------------
     // ACTIVATION

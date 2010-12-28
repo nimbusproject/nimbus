@@ -847,7 +847,7 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
         }
         
         try {
-            InstanceResource[] createdVMs = creationManager.createVMs(unallocatedVMs, request.getRequestedNics(), request.getCaller(), request.getContext(), request.getGroupID(), null, true);
+            InstanceResource[] createdVMs = creationManager.createVMs(unallocatedVMs, request.getRequestedNics(), request.getCaller(), request.getContext(), request.getGroupID(), null, null, true);
             for (InstanceResource resource : createdVMs) {
                 request.addAllocatedVM(resource.getID());
             }

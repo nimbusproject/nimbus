@@ -16,7 +16,7 @@
 
 package org.nimbustools.messaging.gt4_0_elastic.v2008_05_05;
 
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.*;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.*;
 
 import java.rmi.RemoteException;
 

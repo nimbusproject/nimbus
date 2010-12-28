@@ -25,7 +25,7 @@ import org.nimbustools.api.repr.vm.VMFile;
 import org.nimbustools.api.repr.vm.State;
 import org.nimbustools.api.repr.vm.ResourceAllocation;
 import org.nimbustools.api.repr.vm.Schedule;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.*;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.*;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.Validity;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.Networks;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.ResourceAllocations;
@@ -350,6 +350,7 @@ public class DefaultDescribe implements Describe {
         if(vm.getSpotInstanceRequestID() != null){
             riit.setSpotInstanceRequestId(vm.getSpotInstanceRequestID());
         }
+        riit.setClientToken(vm.getClientToken());
         
         final String[] availableKernels = this.kernels.getAvailableKernels();
         if (availableKernels == null || availableKernels.length == 0) {

@@ -17,10 +17,10 @@ import org.apache.commons.logging.LogFactory;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.DescribeSpotPriceHistoryResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.DescribeSpotPriceHistoryType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.InstanceTypeSetItemType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_06_15.InstanceTypeSetType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.DescribeSpotPriceHistoryResponseType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.DescribeSpotPriceHistoryType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.InstanceTypeSetItemType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.InstanceTypeSetType;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.ServiceRM;
 import org.nimbustools.messaging.query.ElasticAction;
 import org.nimbustools.messaging.query.QueryError;
@@ -39,7 +39,6 @@ public class DescribeSpotPriceHistory implements ElasticAction {
         this.serviceRM = serviceRMImpl;
     }
     
-    @Override
     public String getName() {
         return "DescribeSpotPriceHistory";
     }
