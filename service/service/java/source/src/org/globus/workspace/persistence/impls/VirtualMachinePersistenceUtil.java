@@ -108,9 +108,9 @@ public class VirtualMachinePersistenceUtil
         pstmt.setBoolean(12, vm.isPreemptable());  
 
         if (vm.getCredentialName() != null) {
-            pstmt.setString(12, vm.getCredentialName());
+            pstmt.setString(13, vm.getCredentialName());
         } else {
-            pstmt.setNull(12, Types.VARCHAR);
+            pstmt.setNull(13, Types.VARCHAR);
         }
 
         PreparedStatement pstmt2 = null;

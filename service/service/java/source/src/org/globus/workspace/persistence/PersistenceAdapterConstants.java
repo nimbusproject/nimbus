@@ -108,7 +108,7 @@ public interface PersistenceAdapterConstants {
             "INSERT INTO groupresources VALUES(?,?)";
 
     public static final String SQL_INSERT_VM =
-            "INSERT INTO vms VALUES(?,?,?,?,?,?,?,?,?,?,?,?)";
+            "INSERT INTO vms VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
     public static final String SQL_INSERT_VM_PARTITION =
             "INSERT INTO vm_partitions VALUES(?,?,?,?,?,?,?,?,?)";
@@ -135,7 +135,7 @@ public interface PersistenceAdapterConstants {
     public static final String SQL_LOAD_VM =
             "SELECT name, node, prop_required, unprop_required, network, " +
                     "kernel_parameters, vmm, vmm_version, assocs_needed, " +
-                    "md_user_data, preemptable, credential_name" +
+                    "md_user_data, preemptable, credential_name " +
                     "FROM vms WHERE id=?";
     
     public static final String SQL_LOAD_VM_PARTITIONS =
