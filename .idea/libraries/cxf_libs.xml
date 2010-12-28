@@ -35,9 +35,9 @@
     </CLASSES>
     <JAVADOC />
     <SOURCES>
-      <root url="jar://$PROJECT_DIR$/../../src/spring-security-3.0.3.RELEASE/dist/spring-security-web-3.0.3.RELEASE-sources.jar!/" />
-      <root url="jar://$PROJECT_DIR$/../../src/spring-security-3.0.3.RELEASE/dist/spring-security-core-3.0.3.RELEASE-sources.jar!/" />
-      <root url="jar://$PROJECT_DIR$/../../src/spring-security-3.0.3.RELEASE/dist/spring-security-config-3.0.3.RELEASE-sources.jar!/" />
+      <root url="jar:///src/spring-security-3.0.3.RELEASE/dist/spring-security-web-3.0.3.RELEASE-sources.jar!/" />
+      <root url="jar:///src/spring-security-3.0.3.RELEASE/dist/spring-security-core-3.0.3.RELEASE-sources.jar!/" />
+      <root url="jar:///src/spring-security-3.0.3.RELEASE/dist/spring-security-config-3.0.3.RELEASE-sources.jar!/" />
     </SOURCES>
   </library>
 </component>
