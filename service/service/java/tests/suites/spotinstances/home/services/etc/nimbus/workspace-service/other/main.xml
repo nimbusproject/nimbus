@@ -688,6 +688,8 @@
          Remoting related
          =================================================================== -->
 
+    <!-- DISABLED: this throws an error in the tests when multiple Spring contexts
+                   are instantiated: the RMI registry is per JVM...
     <bean id="nimbus-remoting-server"
           class="org.globus.workspace.remoting.RemotingServer"
           init-method="initialize">
@@ -699,6 +701,7 @@
             </map>
         </property>
     </bean>
+    -->
 
     <bean id="nimbus-remoting-nodemgmt"
           class="org.globus.workspace.remoting.admin.defaults.DefaultRemoteNodeManagement"
