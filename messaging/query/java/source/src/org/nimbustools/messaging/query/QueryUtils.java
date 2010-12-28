@@ -41,16 +41,34 @@ public class QueryUtils {
 
         final MultivaluedMap<String,String> queryParams =
                 uriInfo.getQueryParameters();
+        return getParameterList(queryParams, paramName);
+    }
+
+    public static List<String> getParameterList(MultivaluedMap<String, String> parameters, String paramName) {
+
+        if (parameters == null) {
+            throw new IllegalArgumentException("parameters may not be null");
+        }
+        if (paramName == null) {
+            throw new IllegalArgumentException("paramName may not be null");
+        }
+
+        final String prefix = paramName+".";
         final ArrayList<String> list = new ArrayList<String>();
 
-        String id;
-        int i = 1;
-        while ((id = queryParams.getFirst(paramName+"."+i)) != null) {
-            id = id.trim();
-            if (id.length() != 0) {
-                list.add(id);
+        // ElasticFox picks some weird indexes that apparently EC2 accepts. For example:
+        // InstanceId.01, InstanceId.11, InstanceId.21
+        // so we can't as easily just look by counting from 1, looking through
+        // whole param set instead
+
+        for (String key : parameters.keySet()) {
+            if (key.startsWith(prefix)) {
+                final String remainder = key.substring(prefix.length());
+                try {
+                    Integer.parseInt(remainder);
+                    list.add(parameters.getFirst(key));
+                } catch (NumberFormatException ignored) { }
             }
-            i++;
         }
         return list;
     }

@@ -41,17 +41,12 @@ IFS=' '
 
 \unalias -a
 
-set -f -e -u -C -p -P
+set -f -u -C -p -P
 
 # set:
 #
 # -f  
 #     Disable file name generation (globbing).
-# -e  
-#     Exit immediately if a simple command (see section Simple Commands)
-#     exits with a non-zero status, unless the command that fails is part
-#     of an until or while loop, part of an if statement, part of a && or
-#     || list, or if the command's return status is being inverted using !
 # -u  
 #     Treat unset variables as an error when performing parameter expansion.
 #     An error message will be written to the standard error, and a

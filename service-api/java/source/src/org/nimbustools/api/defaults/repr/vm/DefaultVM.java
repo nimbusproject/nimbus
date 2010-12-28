@@ -43,6 +43,7 @@ public class DefaultVM implements _VM {
     private Caller creator;
     private int launchIndex;
     private String mdUserData;
+    private String credentialName;
     private String sshKeyName;
     private String lifeCycle;
     private String spotReqID;
@@ -159,6 +160,14 @@ public class DefaultVM implements _VM {
 
     public String getMdUserData() {
         return this.mdUserData;
+    }
+
+    public void setCredentialName(String credentialName) {
+        this.credentialName = credentialName;
+    }
+
+    public String getCredentialName() {
+        return this.credentialName;
     }
 
     public void setSshKeyName(String sshKeyName) {

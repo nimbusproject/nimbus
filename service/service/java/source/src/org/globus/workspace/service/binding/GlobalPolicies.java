@@ -24,7 +24,7 @@ public interface GlobalPolicies {
 
     public int getTerminationOffsetSeconds();
 
-    public String getCpuArchitectureName();
+    public String[] getCpuArchitectureNames();
 
     public String[] getVmmVersions();
 

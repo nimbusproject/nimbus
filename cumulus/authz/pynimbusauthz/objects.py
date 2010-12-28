@@ -231,8 +231,6 @@ class File(object):
 
     find_files_from_data = staticmethod(find_files_from_data)
 
-
-
     def __str__(self):
         return self.name + ":" + self.object_type + ":" + str(self.parent)
 

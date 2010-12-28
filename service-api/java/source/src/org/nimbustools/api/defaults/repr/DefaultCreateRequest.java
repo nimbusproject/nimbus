@@ -51,6 +51,7 @@ public class DefaultCreateRequest implements _CreateRequest {
     protected String mdUserData;
     protected String sshKeyName;
     protected String clientToken;
+    private String credential;
     
 
     // -------------------------------------------------------------------------
@@ -115,6 +116,10 @@ public class DefaultCreateRequest implements _CreateRequest {
 
     public String getMdUserData() {
         return this.mdUserData;
+    }
+
+    public String getCredential() {
+        return this.credential;
     }
 
     public String getSshKeyName() {
@@ -188,6 +193,10 @@ public class DefaultCreateRequest implements _CreateRequest {
 
     public void setMdUserData(String mdUserData) {
         this.mdUserData = mdUserData;
+    }
+
+    public void setCredential(String credential) {
+        this.credential = credential;
     }
 
     public void setSshKeyName(String sshKeyName) {

@@ -14,21 +14,15 @@
  * under the License.
  */
 
-package org.nimbustools.api.repr;
+package org.globus.workspace.service.binding;
 
-/**
- * Policies advertised by messaging layer - will enhance significantly over time.
- *
- * TODO: getAvailableKernels()
- */
-public interface Advertised {
+import org.globus.workspace.WorkspaceException;
+import org.globus.workspace.service.binding.vm.VirtualMachine;
+import org.nimbustools.api.services.rm.CreationException;
 
-    public int getDefaultRunningTimeSeconds();
-    public int getMaximumRunningTimeSeconds();
-    public String[] getCpuArchitectureNames();
-    public String[] getVmmVersions();
-    public String getVmm();
-    public String[] getNetworkNames();
-    public int getMaxGroupSize();
-    public int getChargeGranularity();
+public interface BindCredential {
+
+    public void consume(VirtualMachine vm,
+                        final String credential)
+            throws CreationException;
 }

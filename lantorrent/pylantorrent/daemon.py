@@ -104,7 +104,7 @@ def do_it_live(con, rows):
     final['degree'] = 1
     final['destinations'] = dests
 
-    pylantorrent.log(logging.INFO, "request send %s" % (str(final)))
+    pylantorrent.log(logging.INFO, "request send %s" % (json.dumps(final, sort_keys=True, indent=4)))
     pylantorrent.log(logging.INFO, "sending em!")
 
     client = LTClient(src_filename, final)

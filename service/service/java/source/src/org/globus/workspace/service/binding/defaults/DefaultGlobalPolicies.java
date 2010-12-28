@@ -38,7 +38,7 @@ public class DefaultGlobalPolicies implements GlobalPolicies {
     private int defaultRunningTimeSeconds;
     private int maximumRunningTimeSeconds;
     private int terminationOffsetSeconds;
-    private String cpuArchitectureName;
+    private String[] cpuArchitectureNames;
     private String[] vmmVersions;
     private String vmm;
 
@@ -83,12 +83,12 @@ public class DefaultGlobalPolicies implements GlobalPolicies {
         this.terminationOffsetSeconds = terminationOffsetSeconds;
     }
 
-    public String getCpuArchitectureName() {
-        return this.cpuArchitectureName;
+    public String[] getCpuArchitectureNames() {
+        return this.cpuArchitectureNames;
     }
 
-    public void setCpuArchitectureName(String cpuArchitectureName) {
-        this.cpuArchitectureName = cpuArchitectureName;
+    public void setCpuArchitectureNames(String[] cpuArchitectureNames) {
+        this.cpuArchitectureNames = cpuArchitectureNames;
     }
 
     public String[] getVmmVersions() {

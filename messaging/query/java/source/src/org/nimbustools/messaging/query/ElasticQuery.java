@@ -18,14 +18,24 @@ package org.nimbustools.messaging.query;
 import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.Log;
+import org.apache.cxf.message.Message;
 import org.springframework.beans.factory.InitializingBean;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
+import java.util.Collections;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 @Path("/")
 public class ElasticQuery implements InitializingBean {
+
+    /**
+     * API version header field injected into request to allow knowledge of version later
+     * on. Specifically in MessageBodyWriter. It is not enough to use UriInfo because that
+     * does not include form-encoded POST parameters.
+     */
+    public static final String API_VERSION_HEADER = "nimbus-elastic-api-version";
 
     private static final Log logger =
             LogFactory.getLog(ElasticQuery.class.getName());
@@ -41,6 +51,16 @@ public class ElasticQuery implements InitializingBean {
 
         logger.info("Got "+action+ " request for version "+ version+". Agent: "+
                 ctx.getHttpHeaders().getRequestHeader("User-Agent"));
+
+
+        this.validateVersion(version);
+
+        // this is fairly ugly. We need to store some context information
+        // about this request for later on: the API version (used for "lying"
+        // about schema URL in the message body writer). The only way I could
+        // find for doing this that works is adding to HTTP headers.
+        final Map map = (Map) ctx.get(Message.PROTOCOL_HEADERS);
+        map.put(API_VERSION_HEADER, Collections.singleton(version));
 
 
         // get appropriate action
@@ -68,6 +88,18 @@ public class ElasticQuery implements InitializingBean {
         }
 
         return theVersion;
+    }
+
+    private Pattern versionPattern = Pattern.compile("^\\d{4}-\\d{2}-\\d{2}$");
+    private void validateVersion(String version) {
+        if (version == null) {
+            throw new QueryException(QueryError.NoSuchVersion, "The specified version is invalid");
+        }
+        if (!versionPattern.matcher(version).matches()) {
+            throw new QueryException(QueryError.NoSuchVersion, "The specified version \""+
+                    version +"\" is invalid");
+        }
+
     }
 
     public void afterPropertiesSet() throws Exception {

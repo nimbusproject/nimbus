@@ -217,6 +217,7 @@ public class DataConvert implements WorkspaceConstants {
         vm.setLaunchIndex(resource.getLaunchIndex());
         vm.setNics(this.getNICs(resource.getVM()));
         vm.setMdUserData(resource.getVM().getMdUserData());
+        vm.setCredentialName(resource.getVM().getCredentialName());
         vm.setVMFiles(this.getStorage(resource.getVM()));
         vm.setResourceAllocation(this.getRA(resource.getVM()));
         vm.setSchedule(this.getSchedule(resource));

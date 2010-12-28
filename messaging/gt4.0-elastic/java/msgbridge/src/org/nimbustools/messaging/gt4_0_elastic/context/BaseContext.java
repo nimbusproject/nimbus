@@ -158,6 +158,12 @@ public abstract class BaseContext implements Initializable {
         return (ServiceImage) this.appCtx.getBean(this.idIMAGE);
     }
 
+    public synchronized Object findBeanByID(String id) throws Exception {
+        if (this.appCtx == null) {
+            throw new Exception("No " + this.contextName + " was instantiated");
+        }
+        return this.appCtx.getBean(id);
+    }
 
     // -------------------------------------------------------------------------
     // CONF FILE

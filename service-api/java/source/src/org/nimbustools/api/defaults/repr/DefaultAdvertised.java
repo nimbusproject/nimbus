@@ -29,7 +29,7 @@ public class DefaultAdvertised implements _Advertised {
     private int defaultRunningTimeSeconds;
     private int maximumRunningTimeSeconds;
     private int maximumAfterRunningTimeSeconds;
-    private String cpuArchitectureName;
+    private String[] cpuArchitectureNames;
     private String[] vmmVersions;
     private String vmm;
     private String[] networkNames;
@@ -53,8 +53,8 @@ public class DefaultAdvertised implements _Advertised {
         return this.maximumAfterRunningTimeSeconds;
     }
 
-    public String getCpuArchitectureName() {
-        return this.cpuArchitectureName;
+    public String[] getCpuArchitectureNames() {
+        return this.cpuArchitectureNames;
     }
 
     public String[] getVmmVersions() {
@@ -94,8 +94,8 @@ public class DefaultAdvertised implements _Advertised {
         this.maximumAfterRunningTimeSeconds = maximumAfterRunningTime;
     }
 
-    public void setCpuArchitectureName(String cpuArchitectureName) {
-        this.cpuArchitectureName = cpuArchitectureName;
+    public void setCpuArchitectureNames(String[] cpuArchitectureNames) {
+        this.cpuArchitectureNames = cpuArchitectureNames;
     }
 
     public void setVmmVersions(String[] vmmVersions) {
@@ -129,7 +129,8 @@ public class DefaultAdvertised implements _Advertised {
                 ", maximumRunningTimeSeconds=" + maximumRunningTimeSeconds +
                 ", maximumAfterRunningTimeSeconds=" +
                 maximumAfterRunningTimeSeconds +
-                ", cpuArchitectureName='" + cpuArchitectureName + '\'' +
+                ", cpuArchitectureNames='" +
+                (cpuArchitectureNames  == null ? null : Arrays.asList(cpuArchitectureNames)) +
                 ", vmmVersions=" +
                 (vmmVersions == null ? null : Arrays.asList(vmmVersions)) +
                 ", vmm='" + vmm + '\'' +

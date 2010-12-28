@@ -29,6 +29,8 @@ import org.nimbustools.api.services.rm.AuthorizationException;
 import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
 
 import javax.security.auth.Subject;
+import java.util.List;
+import java.util.Arrays;
 
 public class DefaultAuthorize implements Authorize {
 
@@ -264,8 +266,8 @@ public class DefaultAuthorize implements Authorize {
     protected void checkArchitecture(VirtualMachine vm)
             throws ResourceRequestDeniedException {
 
-        final String fact = this.globals.getCpuArchitectureName();
-        if (fact == null) {
+        final String[] allowedCPUArchitectures = this.globals.getCpuArchitectureNames();
+        if (allowedCPUArchitectures == null) {
             // if policy is null, means 'any'
             return; // *** EARLY RETURN ***
         }
@@ -276,16 +278,32 @@ public class DefaultAuthorize implements Authorize {
                             "no CPU architecture description (no dep)");
         }
 
-        final String arch = dep.getCPUArchitecture();
-        if (arch == null) {
+        final String requestedArch = dep.getCPUArchitecture();
+        if (requestedArch == null) {
             throw new ResourceRequestDeniedException(
                             "no CPU architecture description (no dep.arch)");
         }
 
-        if (!arch.equals(fact)) {
+        List archList = Arrays.asList(allowedCPUArchitectures);
+
+        if (!archList.contains(requestedArch)) {
+
+            StringBuilder sb = new StringBuilder();
+            boolean first = true;
+            for (int i=0; i < allowedCPUArchitectures.length ; i++) {
+                if (first) {
+                    first = false;
+                }
+                else {
+                    sb.append(", ");
+                }
+                sb.append(allowedCPUArchitectures[i]);
+            }
+            final String allArchitectures = sb.toString();
+
             throw new ResourceRequestDeniedException(
-                    "incorrect CPU architecture, only '" + fact +
-                            "' supported, you request '" + arch + "'");
+                    "incorrect CPU architecture, only '" + allArchitectures +
+                            "' supported, you requested '" + requestedArch + "'");
         }
     }
 

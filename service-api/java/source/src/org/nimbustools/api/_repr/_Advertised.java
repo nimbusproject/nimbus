@@ -22,7 +22,7 @@ public interface _Advertised extends Advertised {
 
     public void setDefaultRunningTimeSeconds(int defaultRunningTime);
     public void setMaximumRunningTimeSeconds(int maximumRunningTime);
-    public void setCpuArchitectureName(String cpuArchitectureName);
+    public void setCpuArchitectureNames(String[] cpuArchitectureNames);
     public void setVmmVersions(String[] vmmVersions);
     public void setVmm(String vmm);
     public void setNetworkNames(String[] networkNames);

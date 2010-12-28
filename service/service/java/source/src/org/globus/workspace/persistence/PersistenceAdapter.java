@@ -27,8 +27,8 @@ import org.globus.workspace.scheduler.defaults.ResourcepoolEntry;
 import org.globus.workspace.service.CoschedResource;
 import org.globus.workspace.service.GroupResource;
 import org.globus.workspace.service.InstanceResource;
-import org.globus.workspace.service.binding.vm.CustomizationNeed;
 import org.nimbustools.api.repr.SpotPriceEntry;
+import org.globus.workspace.service.binding.vm.FileCopyNeed;
 import org.nimbustools.api.services.rm.DoesNotExistException;
 
 /**
@@ -65,7 +65,7 @@ public interface PersistenceAdapter {
 
             throws WorkspaceDatabaseException;
 
-    public void setCustomizeTaskSent(int id, CustomizationNeed need)
+    public void setFileCopyOnImage(int id, FileCopyNeed need)
 
             throws WorkspaceDatabaseException;
 
@@ -177,7 +177,7 @@ public interface PersistenceAdapter {
 
             throws WorkspaceDatabaseException;
 
-    public void addCustomizationNeed(int id, CustomizationNeed need)
+    public void addCustomizationNeed(int id, FileCopyNeed need)
 
             throws WorkspaceDatabaseException;
 

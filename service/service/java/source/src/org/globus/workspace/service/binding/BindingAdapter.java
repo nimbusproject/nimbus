@@ -17,8 +17,8 @@
 package org.globus.workspace.service.binding;
 
 import org.globus.workspace.WorkspaceException;
+import org.globus.workspace.service.binding.vm.FileCopyNeed;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
-import org.globus.workspace.service.binding.vm.CustomizationNeed;
 import org.nimbustools.api.repr.CreateRequest;
 import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
 import org.nimbustools.api.services.rm.CreationException;
@@ -67,7 +67,7 @@ public interface BindingAdapter {
     public void backOutAllocations(VirtualMachine[] vms)
                 throws WorkspaceException;
 
-    public CustomizationNeed newCustomizationNeed(String srcContent,
+    public FileCopyNeed newFileCopyNeed(String srcContent,
                                                   String dstPath)
                 throws WorkspaceException;
 }

@@ -133,14 +133,14 @@ PRIMARY KEY(association,ipaddress)
 );
 
 --
--- Persistence for file customization tasks
+-- Persistence for file copy tasks
 
-CREATE TABLE vm_customization
+CREATE TABLE file_copy
 (
 vmid INT NOT NULL,
 sourcepath VARCHAR(32) NOT NULL,
 destpath VARCHAR(512) NOT NULL,
-sent SMALLINT NOT NULL
+on_image SMALLINT NOT NULL
 );
 
 --

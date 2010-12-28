@@ -385,9 +385,9 @@ public class FactoryResource implements ResourceProperties, Resource {
         
         /* CPUArchitectureName */
 
-        if (advert.getCpuArchitectureName() != null) {
+        if (advert.getCpuArchitectureNames() != null) {
             prop = new SimpleResourceProperty(Constants_GT4_0.RP_FACTORY_CPUArch);
-            prop.add(advert.getCpuArchitectureName());
+            prop.add(advert.getCpuArchitectureNames());
             this.propSet.add(prop);
         }
 

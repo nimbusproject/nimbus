@@ -45,9 +45,10 @@ public interface InternalCreationManager {
      * @param caller owner of the VMs
      * @param context the VM's context
      * @param groupID
-     *@param coschedID the cosched id for this group of VMs
+     * @param coschedID the cosched id for this group of VMs
      * @param clientToken the idempotency token provided by client
-     * @param spotInstances if the VMs are spot instances   @return an array of created InstanceResources
+     * @param spotInstances if the VMs are spot instances
+     * @return an array of created InstanceResources
      * @throws CoSchedulingException
      * @throws CreationException
      * @throws MetadataException
@@ -62,7 +63,8 @@ public interface InternalCreationManager {
                                         Context context,
                                         String groupID,
                                         String coschedID,
-                                        String clientToken, boolean spotInstances)
+                                        String clientToken,
+                                        boolean spotInstances)
 
             throws CoSchedulingException,
                    CreationException,

@@ -16,7 +16,7 @@
 package org.globus.workspace.creation.defaults;
 
 import org.globus.workspace.service.InstanceResource;
-import org.globus.workspace.service.binding.vm.CustomizationNeed;
+import org.globus.workspace.service.binding.vm.FileCopyNeed;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.nimbustools.api.repr.ShutdownTasks;
 import org.nimbustools.api.services.rm.DestructionCallback;
@@ -209,7 +209,7 @@ public class IdempotentInstanceResource implements InstanceResource {
         throw new UnsupportedOperationException(UNSUPPORTED_MSG);
     }
 
-    public void newCustomizationNeed(CustomizationNeed need) {
+    public void newFileCopyNeed(FileCopyNeed need) {
         throw new UnsupportedOperationException(UNSUPPORTED_MSG);
     }
 

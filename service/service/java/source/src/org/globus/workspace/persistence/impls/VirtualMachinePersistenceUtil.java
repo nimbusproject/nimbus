@@ -20,10 +20,10 @@ import org.globus.workspace.ProgrammingError;
 import org.globus.workspace.persistence.PersistenceAdapterConstants;
 import org.globus.workspace.persistence.WorkspaceDatabaseException;
 import org.globus.workspace.service.InstanceResource;
+import org.globus.workspace.service.binding.vm.FileCopyNeed;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.globus.workspace.service.binding.vm.VirtualMachineDeployment;
 import org.globus.workspace.service.binding.vm.VirtualMachinePartition;
-import org.globus.workspace.service.binding.vm.CustomizationNeed;
 import org.nimbustools.api.services.rm.ManageException;
 
 import java.sql.Connection;
@@ -107,6 +107,12 @@ public class VirtualMachinePersistenceUtil
         
         pstmt.setBoolean(12, vm.isPreemptable());  
 
+        if (vm.getCredentialName() != null) {
+            pstmt.setString(12, vm.getCredentialName());
+        } else {
+            pstmt.setNull(12, Types.VARCHAR);
+        }
+
         PreparedStatement pstmt2 = null;
 
         VirtualMachineDeployment dep = vm.getDeployment();
@@ -188,15 +194,15 @@ public class VirtualMachinePersistenceUtil
             }
         }
 
-        final CustomizationNeed[] needs = vm.getCustomizationNeeds();
+        final FileCopyNeed[] needs = vm.getFileCopyNeeds();
         if (needs != null) {
             for (int i = 0; i < needs.length; i++) {
                 final PreparedStatement custStmt =
-                            c.prepareStatement(SQL_INSERT_VM_CUSTOMIZATION);
+                            c.prepareStatement(SQL_INSERT_FILE_COPY);
                 custStmt.setInt(1, id);
                 custStmt.setString(2, needs[i].sourcePath);
                 custStmt.setString(3, needs[i].destPath);
-                if (needs[i].isSent()) {
+                if (needs[i].onImage()) {
                     custStmt.setInt(4, 1);
                 } else {
                     custStmt.setInt(4, 0);
@@ -245,7 +251,7 @@ public class VirtualMachinePersistenceUtil
         deletes.add(pstmt3);
 
         final PreparedStatement pstmt4 =
-                c.prepareStatement(SQL_DELETE_VM_CUSTOMIZATION);
+                c.prepareStatement(SQL_DELETE_FILE_COPY);
         pstmt4.setInt(1, id);
         deletes.add(pstmt4);
 
@@ -270,7 +276,7 @@ public class VirtualMachinePersistenceUtil
         pstmt3.setInt(1, id);
 
         final PreparedStatement pstmt4 =
-                c.prepareStatement(SQL_LOAD_VM_CUSTOMIZATION);
+                c.prepareStatement(SQL_LOAD_FILE_COPY);
         pstmt4.setInt(1, id);
 
         final PreparedStatement[] selects = new PreparedStatement[4];
@@ -300,6 +306,7 @@ public class VirtualMachinePersistenceUtil
         vm.setAssociationsNeeded(rs.getString(9));
         vm.setMdUserData(rs.getString(10));
         vm.setPreemptable(rs.getBoolean(11));
+        vm.setCredentialName(rs.getString(12));
         return vm;
     }
 
@@ -332,14 +339,14 @@ public class VirtualMachinePersistenceUtil
         return partition;
     }
 
-    public static CustomizationNeed getNeed(ResultSet rs)
+    public static FileCopyNeed getNeed(ResultSet rs)
             throws WorkspaceDatabaseException {
 
         try {
             final String src = rs.getString(1);
             final String dst = rs.getString(2);
             final boolean sent = rs.getBoolean(3);
-            return new CustomizationNeed(src, dst, sent);
+            return new FileCopyNeed(src, dst, sent);
         } catch (Exception e) {
             throw new WorkspaceDatabaseException(e.getMessage(), e);
         }

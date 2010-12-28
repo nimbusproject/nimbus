@@ -48,10 +48,10 @@ import org.globus.workspace.service.binding.Authorize;
 import org.globus.workspace.service.binding.BindNetwork;
 import org.globus.workspace.service.binding.BindingAdapter;
 import org.globus.workspace.service.binding.GlobalPolicies;
-import org.globus.workspace.service.binding.vm.CustomizationNeed;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.globus.workspace.service.binding.vm.VirtualMachineDeployment;
 import org.globus.workspace.creation.InternalCreationManager;
+import org.globus.workspace.service.binding.vm.FileCopyNeed;
 
 import org.nimbustools.api._repr._Advertised;
 import org.nimbustools.api.repr.Advertised;
@@ -65,8 +65,8 @@ import org.nimbustools.api.repr.ctx.Context;
 import org.nimbustools.api.repr.si.SIConstants;
 import org.nimbustools.api.repr.vm.NIC;
 import org.nimbustools.api.repr.vm.ResourceAllocation;
-import org.nimbustools.api.services.rm.*;
 
+import org.nimbustools.api.services.rm.*;
 import org.safehaus.uuid.UUIDGenerator;
 
 import java.util.Arrays;
@@ -247,8 +247,8 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
     public Advertised getAdvertised() {
 
         final _Advertised adv = this.repr._newAdvertised();
-        adv.setCpuArchitectureName(
-                this.globals.getCpuArchitectureName());
+        adv.setCpuArchitectureNames(
+                this.globals.getCpuArchitectureNames());
         adv.setDefaultRunningTimeSeconds(
                 this.globals.getDefaultRunningTimeSeconds());
         adv.setMaxGroupSize(
@@ -1251,10 +1251,10 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
             try {
                 final String newContent =
                         addIPs(context.getBootstrapText(), vm);
-                final CustomizationNeed need =
-                        this.binding.newCustomizationNeed(
+                final FileCopyNeed need =
+                        this.binding.newFileCopyNeed(
                                 newContent, context.getBootstrapPath());
-                resource.newCustomizationNeed(need);
+                resource.newFileCopyNeed(need);
             } catch (Exception e) {
                 logger.error(e.getMessage());
             }

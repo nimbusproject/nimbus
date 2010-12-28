@@ -17,8 +17,8 @@
 package org.globus.workspace.service;
 
 import org.globus.workspace.LockAcquisitionFailure;
+import org.globus.workspace.service.binding.vm.FileCopyNeed;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
-import org.globus.workspace.service.binding.vm.CustomizationNeed;
 import org.nimbustools.api.services.rm.OperationDisabledException;
 import org.nimbustools.api.services.rm.DoesNotExistException;
 import org.nimbustools.api.services.rm.ManageException;
@@ -165,7 +165,7 @@ public interface InstanceResource extends Sweepable {
 
     public void newNetwork(String network);
 
-    public void newCustomizationNeed(CustomizationNeed need);
+    public void newFileCopyNeed(FileCopyNeed need);
 
     /**
      * Don't call unless you are managing the instance cache (or not using
