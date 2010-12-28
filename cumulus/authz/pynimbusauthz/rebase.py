@@ -51,7 +51,7 @@ def main(argv=sys.argv[1:]):
             new_key = old_key.replace(old_path, new_path, 1)
             f.set_data_key(new_key)
         db_obj.commit()
-        print "done"
+        print "done - %d files rebased" % len(files)
 
     except AuthzException, ae:
         print ae
