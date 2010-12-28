@@ -40,7 +40,8 @@ public class DefaultSSHKeys implements SSHKeys {
     // -------------------------------------------------------------------------
 
     // key: 'ownerID',  value: List of SSHKey objects
-    private final Cache sshKeyCache;
+    private Cache sshKeyCache;
+    private final KeyCacheProvider keyCacheProvider;
 
     protected boolean pubkeyOnly;
     protected String splitToken;
@@ -55,8 +56,15 @@ public class DefaultSSHKeys implements SSHKeys {
         if (cacheLocator == null) {
             throw new IllegalArgumentException("cacheLocator may not be null");
         }
+        this.keyCacheProvider = cacheLocator;
+    }
 
-        this.sshKeyCache = cacheLocator.getKeyCache();
+    // avoids a circular dependency with Spring context instantiation
+    private void ensureCache() {
+        if (this.sshKeyCache != null) {
+            return;
+        }
+        this.sshKeyCache = this.keyCacheProvider.getKeyCache();
         if (this.sshKeyCache == null) {
             throw new IllegalArgumentException(
                     "cacheLocator failed to provide key cache");
@@ -121,6 +129,8 @@ public class DefaultSSHKeys implements SSHKeys {
      * @return key object or null if one cannot be found
      */
     public synchronized SSHKey findKey(String ownerID, String keyName) {
+
+        this.ensureCache();
         
         if (ownerID == null) {
             throw new IllegalArgumentException("ownerID may not be null");
@@ -159,6 +169,8 @@ public class DefaultSSHKeys implements SSHKeys {
      * @return all owner's key objects or zero-length array if zero are found
      */
     public synchronized SSHKey[] getOwnerKeys(String ownerID) {
+
+        this.ensureCache();
         
         if (ownerID == null) {
             throw new IllegalArgumentException("ownerID may not be null");
@@ -195,6 +207,8 @@ public class DefaultSSHKeys implements SSHKeys {
                                        String keyName,
                                        String pubKeyContent,
                                        String fingerprint) {
+
+        this.ensureCache();
 
         if (ownerID == null) {
             throw new IllegalArgumentException("ownerID may not be null");
@@ -247,6 +261,8 @@ public class DefaultSSHKeys implements SSHKeys {
      * @return true if this deleted a key
      */
     public boolean removeKey(String ownerID, String keyName) {
+
+        this.ensureCache();
         
         if (ownerID == null) {
             throw new IllegalArgumentException("ownerID may not be null");

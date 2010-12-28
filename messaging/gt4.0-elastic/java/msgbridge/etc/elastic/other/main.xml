@@ -70,10 +70,12 @@
     </bean>
 
     <bean id="nimbus-elastic.rm.idmappings"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultIDMgmtProxy" />
+
+    <!-- Don't reference this bean directly. See DefaultIDMgmtProxy class notes.  -->
+    <bean id="nimbus-elastic.rm.realidmappings"
           class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultIDMgmt">
-
         <constructor-arg value="$COMMON{caches.dir}" />
-
     </bean>
 
     
