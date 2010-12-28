@@ -19,9 +19,12 @@ import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.Log;
 import org.apache.cxf.message.Message;
+import org.nimbustools.messaging.gt4_0_elastic.context.ElasticContext;
 import org.springframework.beans.factory.InitializingBean;
 
-import javax.ws.rs.*;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import java.util.Collections;
 import java.util.Map;
@@ -40,8 +43,8 @@ public class ElasticQuery implements InitializingBean {
     private static final Log logger =
             LogFactory.getLog(ElasticQuery.class.getName());
 
-    Map<String, ElasticVersion> versions;
-    ElasticVersion fallbackVersion;
+    Map<String, String> versions;
+    String fallbackVersion;
 
     @Path("/")
     @Produces("text/xml")
@@ -64,7 +67,7 @@ public class ElasticQuery implements InitializingBean {
 
 
         // get appropriate action
-        final ElasticVersion theVersion = versions.get(version);
+        ElasticVersion theVersion = this.getVersionImpl(versions.get(version));
 
         if (theVersion == null) {
 
@@ -76,15 +79,18 @@ public class ElasticQuery implements InitializingBean {
 
             if (fallbackVersion != null) {
 
-                logger.warn("Version "+version+" is not supported. " +
-                        "Attempting to process request anyways.");
+                logger.warn("Version '"+version+"' is not supported. " +
+                        "Attempting to process request anyways " +
+                                    "with '" + this.fallbackVersion + "'");
 
-                return fallbackVersion;
+                theVersion = this.getVersionImpl(this.fallbackVersion);
             }
+        }
 
+        if (theVersion == null) {
             throw new QueryException(QueryError.NoSuchVersion,
-                    "The requested API version ("+version+
-                            ") is not yet supported by this service.");
+                    "The requested API version '"+version+
+                            "' is not yet supported by this service.");
         }
 
         return theVersion;
@@ -99,30 +105,53 @@ public class ElasticQuery implements InitializingBean {
             throw new QueryException(QueryError.NoSuchVersion, "The specified version \""+
                     version +"\" is invalid");
         }
+    }
 
+    /**
+     * @param beanID The name of the ElasticVersion bean in the elastic Spring context.
+     * @return instance of ElasticVersion or null if not found or if there was any problem
+     */
+    private ElasticVersion getVersionImpl(String beanID) {
+        if (beanID == null) {
+            return null;
+        }
+        if (beanID.trim().length() == 0) {
+            return null;
+        }
+        final ElasticContext context;
+        try {
+            context = ElasticContext.discoverElasticContext();
+            Object bean = context.findBeanByID(beanID);
+            if (bean instanceof ElasticVersion) {
+                return (ElasticVersion)bean;
+            }
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+        return null;
     }
 
     public void afterPropertiesSet() throws Exception {
         if ((this.versions == null || this.versions.isEmpty()) &&
-                fallbackVersion == null) {
+                this.fallbackVersion == null) {
             throw new Exception("versions must contain at least one entry OR "+
                     "you must specify a fallbackVersion");
         }
     }
 
-    public Map<String, ElasticVersion> getVersions() {
+    public Map<String, String> getVersions() {
         return versions;
     }
 
-    public void setVersions(Map<String, ElasticVersion> versions) {
+    public void setVersions(Map<String, String> versions) {
         this.versions = versions;
     }
 
-    public ElasticVersion getFallbackVersion() {
+    public String getFallbackVersion() {
         return fallbackVersion;
     }
 
-    public void setFallbackVersion(ElasticVersion fallbackVersion) {
+    public void setFallbackVersion(String fallbackVersion) {
         this.fallbackVersion = fallbackVersion;
     }
 }

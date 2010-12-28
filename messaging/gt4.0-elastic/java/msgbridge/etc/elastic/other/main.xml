@@ -2,32 +2,15 @@
 
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:jaxrs="http://cxf.apache.org/jaxrs"
-       xmlns:httpj="http://cxf.apache.org/transports/http-jetty/configuration"
-       xmlns:security="http://www.springframework.org/schema/security"
-       xmlns:sec="http://cxf.apache.org/configuration/security"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
-                           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-                           http://www.springframework.org/schema/security
-                           http://www.springframework.org/schema/security/spring-security-3.0.xsd
-                           http://cxf.apache.org/jaxrs
-                           http://cxf.apache.org/schemas/jaxrs.xsd
-                           http://cxf.apache.org/transports/http-jetty/configuration
-                           http://cxf.apache.org/schemas/configuration/http-jetty.xsd
-                           http://cxf.apache.org/configuration/security
-  		                   http://cxf.apache.org/schemas/configuration/security.xsd">
+                           http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
     <bean id="nimbus-elastic.rm.modulelocator"
           class="org.nimbustools.messaging.gt4_0.common.NimbusLocalModuleLocator" />
 
-    <!--
-        property sources are concentrated in this file
-    -->
-    <import resource="main.conflocator.xml" />
-
 
     <!-- ************ ServiceRM *********** -->
-
+    
     <bean id="nimbus-elastic.rm"
           class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.ServiceRMImpl">
 
@@ -65,8 +48,8 @@
           class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultReboot">
 
         <constructor-arg ref="nimbus-elastic.rm.idmappings" />
-
-    </bean>
+        
+    </bean>        
 
     <bean id="nimbus-elastic.rm.describe"
           class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultDescribe">
@@ -93,7 +76,7 @@
 
     </bean>
 
-
+    
     <!-- ************ ServiceGeneral *********** -->
 
     <bean id="nimbus-elastic.general"
@@ -106,26 +89,26 @@
     <bean id="nimbus-elastic.general.validity"
           class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.defaults.DefaultValidity" />
 
-    <bean id="nimbus-elastic.general.ra"
-          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.defaults.DefaultResourceAllocations"
-          init-method="validate">
+     <bean id="nimbus-elastic.general.ra"
+           class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.defaults.DefaultResourceAllocations"
+           init-method="validate">
 
-        <constructor-arg ref="nimbus-elastic.rm.modulelocator" />
+         <constructor-arg ref="nimbus-elastic.rm.modulelocator" />
 
-        <property name="smallMemory" value="$ELASTIC{memory.small}" />
-        <property name="largeMemory" value="$ELASTIC{memory.large}" />
-        <property name="xlargeMemory" value="$ELASTIC{memory.xlarge}" />
-        <property name="smallName" value="$OTHER_ELASTIC{ra.name.small}" />
-        <property name="largeName" value="$OTHER_ELASTIC{ra.name.large}" />
-        <property name="xlargeName" value="$OTHER_ELASTIC{ra.name.xlarge}" />
-        <property name="unknownString" value="$OTHER_ELASTIC{ra.name.unknown}" />
-
-        <property name="cpuArch" value="$OTHER_ELASTIC{cpu.arch}" />
-        <property name="vmmType" value="$OTHER_ELASTIC{vmm.type}" />
-        <property name="vmmVersion" value="$OTHER_ELASTIC{vmm.version}" />
+         <property name="smallMemory" value="$ELASTIC{memory.small}" />
+         <property name="largeMemory" value="$ELASTIC{memory.large}" />
+         <property name="xlargeMemory" value="$ELASTIC{memory.xlarge}" />
+         <property name="smallName" value="$OTHER_ELASTIC{ra.name.small}" />
+         <property name="largeName" value="$OTHER_ELASTIC{ra.name.large}" />
+         <property name="xlargeName" value="$OTHER_ELASTIC{ra.name.xlarge}" />
+         <property name="unknownString" value="$OTHER_ELASTIC{ra.name.unknown}" />
+         
+         <property name="cpuArch" value="$OTHER_ELASTIC{cpu.arch}" />
+         <property name="vmmType" value="$OTHER_ELASTIC{vmm.type}" />
+         <property name="vmmVersion" value="$OTHER_ELASTIC{vmm.version}" />
 
     </bean>
-
+    
     <bean id="nimbus-elastic.general.networks"
           class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.defaults.DefaultNetworks"
           init-method="validate">
@@ -141,7 +124,7 @@
           class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.defaults.DefaultAvailabilityZones">
 
         <property name="zones" value="$OTHER_ELASTIC{availability.zones}" />
-
+        
     </bean>
 
     <bean id="nimbus-elastic.general.kernels"
@@ -215,18 +198,18 @@
     </bean>
     -->
     <bean id="other.AuthzDataSource"
-          class="org.apache.commons.dbcp.BasicDataSource">
-        <property name="driverClassName" value="org.sqlite.JDBC" />
-        <property name="maxActive" value="10" />
-        <property name="maxIdle" value="4" />
-        <property name="maxWait" value="2000" />
-        <property name="poolPreparedStatements" value="true" />
+         class="org.apache.commons.dbcp.BasicDataSource">
+       <property name="driverClassName" value="org.sqlite.JDBC" />
+       <property name="maxActive" value="10" />
+       <property name="maxIdle" value="4" />
+       <property name="maxWait" value="2000" />
+       <property name="poolPreparedStatements" value="true" />
 
-        <property name="url"
-                  value="jdbc:sqlite://$CUMULUS{cumulus.authz.db}" />
-        <property name="username" value="nimbus" />
-        <property name="password" value="nimbus" />
-    </bean>
+       <property name="url"
+                 value="jdbc:sqlite://$CUMULUS{cumulus.authz.db}" />
+       <property name="username" value="nimbus"/>
+       <property name="password" value="nimbus"/>
+   </bean>
 
     <bean id="nimbus-elastic.image.repository"
           class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.image.defaults.CumulusRepository"
@@ -244,107 +227,32 @@
 
     </bean>
 
-    <!--
-        Query related.
-    -->
-
-    <import resource="classpath:META-INF/cxf/cxf.xml" />
-    <import resource="classpath:META-INF/cxf/cxf-extension-jaxrs-binding.xml" />
-    <import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
-
-    <jaxrs:server id="elasticQueryServer"
-                  address="/">
-        <jaxrs:serviceBeans>
-            <ref bean="elasticQuery" />
-        </jaxrs:serviceBeans>
-        <jaxrs:providers>
-            <bean class="org.nimbustools.messaging.query.AxisBodyWriter" />
-            <ref bean="queryExceptionMapper" />
-        </jaxrs:providers>
-    </jaxrs:server>
-
-    <bean id="queryExceptionMapper"
-          class="org.nimbustools.messaging.query.QueryExceptionMapper" />
-
-    <bean id="queryExceptionTranslationFilter"
-          class="org.nimbustools.messaging.query.security.QueryExceptionTranslationFilter">
-        <property name="exceptionMapper" ref="queryExceptionMapper" />
+    <bean id="nimbus-query.httpserver" 
+          class="org.nimbustools.messaging.query.HttpQuery" 
+          init-method="startListening">
+        
+        <property name="enabled" value="$QUERY{query.enabled}"/>
+        <property name="port" value="$QUERY{https.port}" />
+        <property name="headerBufferBytes" value="$QUERY{query.header.size}"/>
+        <property name="keystoreResource" value="$QUERY{keystore.path}"/>
+        <property name="keystorePassword" value="$QUERY{keystore.password}"/>
+        <property name="springConfigResource" value="$QUERY{query.spring.path}"/>
     </bean>
 
-    <bean id="filterChainProxy" class="org.springframework.security.web.FilterChainProxy">
-        <security:filter-chain-map path-type="ant">
-            <security:filter-chain pattern="/**" filters="
-            queryExceptionTranslationFilter,
-            queryAuthenticationFilter
-            " />
-        </security:filter-chain-map>
-    </bean>
-    <bean id="queryAuthenticationFilter"
-          class="org.nimbustools.messaging.query.security.QueryAuthenticationFilter">
-        <property name="userDetailsService" ref="userDetailsService" />
-    </bean>
-
-    <bean id="authzDBAdapter" class="org.nimbus.authz.AuthzDBAdapter">
-        <constructor-arg ref="other.AuthzDataSource" />
-
-        <property name="cumulusPublicUser" value="$CUMULUS{cumulus.publicuser}" />
-    </bean>
-
-    <bean id="userDetailsService"
-          class="org.nimbustools.messaging.query.security.NimbusAuthzUserDetailsService">
-        <property name="authzDBAdapter" ref="authzDBAdapter" />
-    </bean>
-
-    <bean id="elasticQuery" class="org.nimbustools.messaging.query.ElasticQuery">
-        <property name="versions">
-            <map>
-                <entry key="2009-08-15" value-ref="query_2009-08-15" />
-            </map>
-        </property>
-
-        <!-- we only support a single API version for the moment,
-        but there is general compatility with most recent versions -->
-        <property name="fallbackVersion" ref="query_2009-08-15" />
-    </bean>
-
-    <bean id="query_2009-08-15"
-          class="org.nimbustools.messaging.query.v2009_08_15.ElasticService">
+    <bean id="query_2009-08-15" class="org.nimbustools.messaging.query.v2009_08_15.ElasticService">
         <constructor-arg type="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.ServiceRM"
-                         ref="nimbus-elastic.rm" />
-        <constructor-arg
-                type="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.ServiceGeneral"
-                ref="nimbus-elastic.general" />
+                         ref="nimbus-elastic.rm"/>
+        <constructor-arg type="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.ServiceGeneral"
+                         ref="nimbus-elastic.general"/>
         <constructor-arg type="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.ServiceImage"
-                         ref="nimbus-elastic.image" />
-        <constructor-arg
-                type="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.ServiceSecurity"
-                ref="nimbus-elastic.security" />
+                         ref="nimbus-elastic.image"/>
+        <constructor-arg type="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.ServiceSecurity"
+                         ref="nimbus-elastic.security"/>
     </bean>
 
-    <httpj:engine-factory bus="cxf">
-        <httpj:engine port="8444">
-            <httpj:tlsServerParameters>
-                <sec:keyManagers keyPassword="changeit">
-                    <sec:keyStore type="JKS"
-                                  password="changeit"
-                                  file="/opt/n2/install/var/keystore.jks" />
-                </sec:keyManagers>
-                <sec:trustManagers>
-                    <sec:keyStore type="JKS"
-                                  password="changeit"
-                                  file="/opt/n2/install/var/keystore.jks" />
-                </sec:trustManagers>
-                <sec:clientAuthentication want="true" required="true" />
-            </httpj:tlsServerParameters>
-
-            <httpj:threadingParameters minThreads="3"
-                                       maxThreads="10" />
-
-            <httpj:handlers>
-                <bean class="org.mortbay.jetty.handler.DefaultHandler" />
-            </httpj:handlers>
-            <httpj:sessionSupport>true</httpj:sessionSupport>
-        </httpj:engine>
-    </httpj:engine-factory>
+    <!--
+        property sources are concentrated in this file
+    -->
+    <import resource="main.conflocator.xml"/>
 
 </beans>
