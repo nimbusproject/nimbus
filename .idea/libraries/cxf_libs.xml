@@ -34,10 +34,6 @@
       <root url="jar://$PROJECT_DIR$/lib/services/spring-security-core-3.0.3.RELEASE.jar!/" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES>
-      <root url="jar:///src/spring-security-3.0.3.RELEASE/dist/spring-security-web-3.0.3.RELEASE-sources.jar!/" />
-      <root url="jar:///src/spring-security-3.0.3.RELEASE/dist/spring-security-core-3.0.3.RELEASE-sources.jar!/" />
-      <root url="jar:///src/spring-security-3.0.3.RELEASE/dist/spring-security-config-3.0.3.RELEASE-sources.jar!/" />
-    </SOURCES>
+    <SOURCES />
   </library>
 </component>

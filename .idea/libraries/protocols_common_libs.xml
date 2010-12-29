@@ -3,7 +3,6 @@
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/lib/services/jsch-0.1.39.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/services/backport-util-concurrent-3.1-jdk1.4.jar!/" />
-      <root url="jar://$PROJECT_DIR$/lib/services/ehcache-1.5.0.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/services/jug-2.0.0.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/services/commonj.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/services/wsrf_core_stubs.jar!/" />
@@ -13,6 +12,9 @@
       <root url="jar://$PROJECT_DIR$/lib/services/jaxrpc.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/services/jce-jdk13-125.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/services/cog-jglobus.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/ehcache-core-2.3.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/slf4j-api-1.5.11.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/slf4j-jdk14-1.5.11.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

@@ -9,11 +9,7 @@
       <root url="file://$PROJECT_DIR$/lib/clients" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES>
-      <root url="file:///jets3/jets3t-0.7.3/src" />
-      <root url="jar://$PROJECT_DIR$/lib/clients/httpcore-4.0.1.jar!/" />
-      <root url="jar://$PROJECT_DIR$/lib/clients/httpclient-4.0.1.jar!/" />
-    </SOURCES>
+    <SOURCES />
     <jarDirectory url="file://$PROJECT_DIR$/lib/clients" recursive="false" />
   </library>
 </component>
