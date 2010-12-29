@@ -179,7 +179,11 @@ public class VirtualMachine extends WorkspaceInstantiation {
     }
 
     public synchronized FileCopyNeed[] getFileCopyNeeds() {
-        return this.fileCopyNeeds;
+        if (this.fileCopyNeeds == null) {
+            return new FileCopyNeed[0];
+        } else {
+            return this.fileCopyNeeds;
+        }
     }
 
     public synchronized boolean isFileCopyAllDone() {

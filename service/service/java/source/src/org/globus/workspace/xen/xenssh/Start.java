@@ -17,7 +17,6 @@
 package org.globus.workspace.xen.xenssh;
 
 import org.globus.workspace.WorkspaceException;
-import org.globus.workspace.PathConfigs;
 import org.globus.workspace.persistence.WorkspaceDatabaseException;
 import org.globus.workspace.cmdutils.SSHUtil;
 import org.globus.workspace.service.binding.vm.FileCopyNeed;
