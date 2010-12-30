@@ -16,7 +16,177 @@ _NIMBUS_IS_DEPRECATED
 <a href="http://github.com/nimbusproject/nimbus/raw/master/cloud-client/nimbus-cloud-client-src/CHANGES.txt">here.</a>
 </p>
 
+<a name="2.7"> </a>
+
+<i>2.7 - Summary</i>
+<ul>
+    <li>
+        <p>
+            Support for backfill and spot VM instances was introduced. Backfill instances are configured by the
+            administrator and automatically start on idle resources. When user requests are received, backfill
+            instances are preempted and terminated.
+        </p>
+        <p>
+            Spot instances are similar to backfill, but are initiated by the user. Users may "bid" on VM slots and
+            compete for available resources. Like backfill, spot instances can be preempted and terminated at any
+            time. Preemption occurs when either a real (non-spot) request or a spot request with a higher bid is
+            received and no other resources are available.
+        </p>
+    </li>
+    <li>
+        <p>
+            The EC2 Query interface has substantially improved compatibility with EC2 clients. The generated XML
+            is now largely identical.
+        </p>
+    </li>
+    <li>
+        <p>
+            Idempotent instance creation is now supported, via the EC2 interfaces.
+        </p>
+    </li>
+    <li>
+        <p>
+            There are also numerous bug fixes and minor enhancements.
+        </p>
+    </li>
+</ul>
+
+<i>2.7 - IaaS Services</i>
+<ul>
+    <li>
+        <p>
+            Support for backfill and spot VM instances was introduced.
+        </p>
+    </li>
+    <li>
+        <p>
+            Idempotent instance creation is now supported, via the EC2 interfaces.
+        </p>
+    </li>
+    <li>
+        <p>
+            The metadata server now supports listening on multiple network interfaces. The URL provided to
+            VMs can be configured based on the requested networks.
+        </p>
+    </li>
+    <li>
+        <p>
+            The EC2 Query interface has substantially improved compatibility with EC2 clients. The generated XML
+            is now largely identical. The namespace version in responses matches the request version
+            regardless of the actual version. Additionally, version 1 signatures are now supported, to enable
+            some clients that never updated to version 2.
+        </p>
+    </li>
+    <li>
+        <p>
+            The <tt class="literal">scripts/check-dependencies.sh</tt> program has been added to the services
+            installer to help detect dependency problems before starting the installation process.
+        </p>
+    </li>
+    <li>
+        <p>
+            <i>Bug Fixes</i>
+        </p>
+        <ul>
+            <li>
+                <p>
+                    <a href="https://github.com/nimbusproject/nimbus/issues/closed/#issue/9">Allow metadata server queries to use "/latest/"</a>
+                </p>
+            </li>
+            <li>
+                <p>
+                    <a href="https://github.com/nimbusproject/nimbus/issues/closed/#issue/10">nimbus-remove-user --help dumps stack</a>
+                </p>
+            </li>
+            <li>
+                <p>
+                    <a href="https://github.com/nimbusproject/nimbus/issues/closed/#issue/13">Installer broken with Python 2.7.1</a>
+                </p>
+            </li>
+            <li>
+                <p>
+                    <a href="https://github.com/nimbusproject/nimbus/issues/closed/#issue/17">Nimbus EC2 Query interface should support signature version 1</a>
+                </p>
+            </li>
+            <li>
+                <p>
+                    <a href="https://github.com/nimbusproject/nimbus/issues/closed/#issue/19">Query interface generated XML isn't identical (enough) to EC2</a>
+                </p>
+            </li>
+            <li>
+                <p>
+                    <a href="https://github.com/nimbusproject/nimbus/issues/closed/#issue/20">nimbus-reset-state not sourcing virtual env</a>
+                </p>
+            </li>
+            <li>
+                <p>
+                    <a href="https://github.com/nimbusproject/nimbus/issues/closed/#issue/21">EC2 query interface parameter lists break on POST requests</a>
+                </p>
+            </li>
+            <li>
+                <p>
+                    <a href="https://github.com/nimbusproject/nimbus/issues/closed/#issue/22">cache mechanism not surviving restarts</a>
+                </p>
+            </li>
+        </ul>
+    </li>
+</ul>
+
+<i>2.7 - LANTorrent</i>
+<ul>
+    <li>
+        <p>
+            LANTorrent was improved with bug fixes and robustness enhancements.
+        </p>
+    </li>
+</ul>
+
+<i>2.7 - Control Agents</i>
+<ul>
+    <li>
+        <p>
+            Added support for propagation from an HTTPS server with X509 proxy authentication. See
+            <a href="https://github.com/nimbusproject/nimbus/issues/closed/#issue/12">issue 12</a> for
+            details.
+        </p>
+
+    </li>
+    <li>
+        <p>
+            <i>Bug Fixes</i>
+        </p>
+
+        <ul>
+            <li>
+                <p>
+                    <a href="https://github.com/nimbusproject/nimbus/issues/closed/#issue/18">mount-alter.sh terminating without umount</a>
+                </p>
+            </li>
+            <li>
+
+                <p>
+                    <a href="https://github.com/nimbusproject/nimbus/issues/closed/#issue/14">Add Locking to workspace pilot</a>
+                </p>
+            </li>
+        </ul>
+    </li>
+</ul>
+
+<i>2.7 - Additional Notes</i>
+<ul>
+    <li>
+        <p>
+            List of
+            <a href="http://github.com/nimbusproject/nimbus/compare/nimbus-release-2.6...HEAD">all
+            commits</a>
+            between Nimbus 2.6 final and the current development branch.
+        </p>
+    </li>
+</ul>
+
+
 <a name="2.6"> </a>
+<br><hr><br>
 
 <i>2.6 - Summary</i>
 <ul>
@@ -293,9 +463,9 @@ _NIMBUS_IS_DEPRECATED
     <li>
         <p>
             List of
-            <a href="http://github.com/nimbusproject/nimbus/compare/nimbus-release-2.5...HEAD">all
+            <a href="http://github.com/nimbusproject/nimbus/compare/nimbus-release-2.5...nimbus-release-2.6">all
             commits</a>
-            between Nimbus 2.5 final and the current 2.6 development branch.
+            between Nimbus 2.5 final and 2.6 final.
         </p>
     </li>
     <li>
