@@ -85,6 +85,12 @@ _NIMBUS_IS_DEPRECATED
     </li>
     <li>
         <p>
+            Added support for specifying multiple CPU architectures in <tt class="literal">vmm.conf</tt>. Detailed in
+            <a href="https://github.com/nimbusproject/nimbus/issues/closed#issue/15">issue 15</a>.
+        </p>
+    </li>
+    <li>
+        <p>
             <i>Bug Fixes</i>
         </p>
         <ul>
@@ -128,6 +134,11 @@ _NIMBUS_IS_DEPRECATED
                     <a href="https://github.com/nimbusproject/nimbus/issues/closed/#issue/22">cache mechanism not surviving restarts</a>
                 </p>
             </li>
+            <li>
+                <p>
+                    <a href="https://bugzilla.mcs.anl.gov/globus/show_bug.cgi?id=7097">nimbus-new-user doesn't accept relative paths</a>
+                </p>
+            </li>
         </ul>
     </li>
 </ul>
@@ -136,8 +147,31 @@ _NIMBUS_IS_DEPRECATED
 <ul>
     <li>
         <p>
-            LANTorrent was improved with bug fixes and robustness enhancements.
+            Improved logging output.
         </p>
+    </li>
+    <li>
+        <p>
+            Added checksum checks to the data as it is streaming.  Peers report back their values and errors are
+            thrown for all non-matching cases.
+        </p>
+    </li>
+    <li>
+        <p>
+            Altered the use of nonblocking sockets to have a more efficient process.
+        </p>
+    </li>
+    <li>
+        <p>
+            <i>Bug Fixes</i>
+        </p>
+        <ul>
+            <li>
+                <p>
+                    <a href="https://github.com/nimbusproject/nimbus/issues/closed#issue/24">LANTorrent transfers don't correctly check the result of send()</a>
+                </p>
+            </li>
+        </ul>
     </li>
 </ul>
 
@@ -166,6 +200,11 @@ _NIMBUS_IS_DEPRECATED
 
                 <p>
                     <a href="https://github.com/nimbusproject/nimbus/issues/closed/#issue/14">Add Locking to workspace pilot</a>
+                </p>
+            </li>
+            <li>
+                <p>
+                    <a href="https://github.com/nimbusproject/nimbus/issues/closed#issue/23">Gzipped images cannot be restarted</a>
                 </p>
             </li>
         </ul>
