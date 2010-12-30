@@ -18,6 +18,7 @@ package org.globus.workspace.scheduler.backfill;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.globus.workspace.Lager;
 import org.globus.workspace.persistence.PersistenceAdapter;
 import org.globus.workspace.persistence.WorkspaceDatabaseException;
 import org.nimbustools.api._repr._AsyncCreateRequest;
@@ -55,9 +56,10 @@ public class Backfill {
 
     private final PersistenceAdapter persistenceAdapter;
     private final ReprFactory reprFactory;
+    private final Lager lager;
     private Manager manager;
 
-    private boolean backfillDisabled;
+    private boolean backfillEnabled;
     private int maxInstances;
     private String diskImage;
     private int memoryMB;
@@ -67,9 +69,11 @@ public class Backfill {
     private int siteCapacity;
 
     public Backfill(PersistenceAdapter persistenceAdapter,
-                    ReprFactory reprFactory) {
+                    ReprFactory reprFactory,
+                    Lager lager) {
         this.persistenceAdapter = persistenceAdapter;
         this.reprFactory = reprFactory;
+        this.lager = lager;
     }
 
     public void setManager(Manager manager) {
@@ -77,7 +81,11 @@ public class Backfill {
     }
 
     public boolean isBackfillDisabled() {
-        return this.backfillDisabled;
+        return !this.backfillEnabled;
+    }
+
+    public boolean isBackfillEnabled() {
+        return this.backfillEnabled;
     }
 
     public int getMaxInstances() {
@@ -108,8 +116,8 @@ public class Backfill {
         return siteCapacity;
     }
 
-    public void setBackfillDisabled(boolean backfillDisabled) {
-        this.backfillDisabled = backfillDisabled;
+    public void setBackfillEnabled(boolean backfillEnabled) {
+        this.backfillEnabled = backfillEnabled;
     }
 
     public void setMaxInstances(int maxInstances) {
@@ -169,9 +177,9 @@ public class Backfill {
 
         final Backfill oldBackfill = this.persistenceAdapter.getStoredBackfill();
 
-        if (this.backfillDisabled == true) {
+        if (this.isBackfillDisabled()) {
             logger.info("Backfill is disabled.");
-            if (oldBackfill != null && !oldBackfill.isBackfillDisabled()) {
+            if (oldBackfill != null && oldBackfill.isBackfillEnabled()) {
                 // 3. Backfill was enabled and now it is disabled
                 logger.info("Backfill was previously enabled.");
                 this.withdrawAllRequests();
@@ -226,6 +234,13 @@ public class Backfill {
 
     private void withdrawAllRequests()
             throws ManageException, AuthorizationException, DoesNotExistException {
+
+        // From http://docs.amazonwebservices.com/AWSEC2/latest/APIReference/ApiReference-soap-CancelSpotInstanceRequests.html
+        // Canceling a Spot Instance request does not terminate running Spot Instances
+        // associated with the request.
+        // But, with backfill we want to withdraw, so the async manager will do that for these
+        // requests (that are marked backfill by "isSpotRequest()" being false.
+
         logger.info("Withdrawing previous backfill configuration from the scheduler");
         if (this.persistenceAdapter == null
                 || this.manager == null || this.reprFactory == null) {
@@ -281,29 +296,33 @@ public class Backfill {
         }
 
         _Caller superuser = this.reprFactory._newCaller();
-        superuser.setIdentity("BACKFILL_SUPERUSER");
+        superuser.setIdentity("BACKFILL(SUPERUSER)");
         superuser.setSuperUser(true);
 
-        AsyncCreateRequest req = this.getBackfillRequest(numInstances);
-        this.manager.addBackfillRequest(req, superuser);
+        for (int i = 0; i < numInstances; i++) {
+            AsyncCreateRequest req = this.getBackfillRequest(1, "BACKFILL-" + (i+1));
+            this.manager.addBackfillRequest(req, superuser);
+        }
     }
 
     // Allow easy IoC driven extension for customizing this better
-    public AsyncCreateRequest getBackfillRequest(int numInstances)
+    public AsyncCreateRequest getBackfillRequest(int numInstances, String name)
             throws WorkspaceDatabaseException {
 
-        final StringBuilder sb = new StringBuilder("Backfill request:");
-        sb.append("\nNum instances: ").append(numInstances);
-        sb.append("\nImage: ").append(this.getDiskImage());
-        sb.append("\nNetwork: ").append(this.getNetwork());
-        sb.append("\nMemory: ").append(this.getMemoryMB());
-        sb.append("\nvcpus: ").append(this.getVcpus());
-        logger.info(sb.toString());
+        if (this.lager.traceLog) {
+            final StringBuilder sb = new StringBuilder("Backfill request:");
+            sb.append("\nNum instances: ").append(numInstances);
+            sb.append("\nImage: ").append(this.getDiskImage());
+            sb.append("\nNetwork: ").append(this.getNetwork());
+            sb.append("\nMemory: ").append(this.getMemoryMB());
+            sb.append("\nvcpus: ").append(this.getVcpus());
+            logger.debug(sb.toString());
+        }
 
         final _AsyncCreateRequest req = this.reprFactory._newBackfillRequest();
         req.setInstanceType(SIConstants.SI_TYPE_BASIC);
 
-        req.setName("BACKFILL");
+        req.setName(name);
 
         final _NIC nic = this.reprFactory._newNIC();
         nic.setNetworkName(this.getNetwork());
@@ -358,11 +377,6 @@ public class Backfill {
 
     public void validate() throws Exception {
 
-        if (this.backfillDisabled == true) {
-            logger.info("Backfill is disabled, not validating backfill settings.");
-            return;
-        }
-
         if (this.persistenceAdapter == null) {
             throw new IllegalStateException("There is no persistenceAdapter configured");
         }
@@ -393,7 +407,7 @@ public class Backfill {
 
         Backfill backfill = (Backfill) o;
 
-        if (backfillDisabled != backfill.backfillDisabled) return false;
+        if (backfillEnabled != backfill.backfillEnabled) return false;
         if (durationSeconds != backfill.durationSeconds) return false;
         if (maxInstances != backfill.maxInstances) return false;
         if (memoryMB != backfill.memoryMB) return false;
@@ -408,7 +422,7 @@ public class Backfill {
     }
 
     public int hashCode() {
-        int result = (backfillDisabled ? 1 : 0);
+        int result = (backfillEnabled ? 1 : 0);
         result = 31 * result + maxInstances;
         result = 31 * result + (diskImage != null ? diskImage.hashCode() : 0);
         result = 31 * result + memoryMB;

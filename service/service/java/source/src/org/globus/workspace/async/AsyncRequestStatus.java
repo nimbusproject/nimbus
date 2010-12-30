@@ -1,6 +1,8 @@
 package org.globus.workspace.async;
 
-public enum AsyncRequestStatus {
+import java.io.Serializable;
+
+public enum AsyncRequestStatus implements Serializable {
 
     OPEN, ACTIVE, CLOSED, CANCELLED, FAILED;
     

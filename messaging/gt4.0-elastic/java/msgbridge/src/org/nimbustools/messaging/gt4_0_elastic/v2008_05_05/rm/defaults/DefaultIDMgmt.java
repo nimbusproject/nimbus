@@ -80,9 +80,9 @@ public class DefaultIDMgmt implements IDMappings, KeyCacheProvider {
 
         final String diskStorePath = diskStoreResource.getFile().getAbsolutePath();
 
-        // TODO: Do dynamically. This is problematic for other ehcache+diskstore
-        //       users, could not quickly see how to set on per-manager basis
-        //       via spring etc.  (specifically, the to-disk part).
+        // TODO: Do dynamically. This must not be in conflict with other ehcache+diskstore
+        //       users (and there is at least one other), could not see how to set
+        //       on per-manager basis via spring (specifically, the to-disk part).
         System.setProperty(DISK_PROPKEY, diskStorePath);
 
         // TODO: We need a shutdown hook with disk-based.  This creates a jvm

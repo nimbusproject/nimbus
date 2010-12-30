@@ -18,8 +18,9 @@ package org.nimbustools.api.defaults.repr;
 
 import org.nimbustools.api._repr._Caller;
 import javax.security.auth.Subject;
+import java.io.Serializable;
 
-public class DefaultCaller implements _Caller {
+public class DefaultCaller implements _Caller, Serializable {
 
     // -------------------------------------------------------------------------
     // INSTANCE VARIABLES

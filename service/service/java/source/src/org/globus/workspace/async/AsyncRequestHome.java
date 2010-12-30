@@ -39,6 +39,15 @@ public interface AsyncRequestHome {
      *                               to any asynchronous request
      */
     public AsyncRequest cancelRequest(String reqID) throws DoesNotExistException;
+
+    /**
+     * Cancels a group of requests
+     * @param reqID the ids of the request to be canceled
+     * @return the canceled requests
+     * @throws DoesNotExistException in case the id arguments do not map
+     *                               to any asynchronous request
+     */
+    public AsyncRequest[] cancelRequests(String[] reqID) throws DoesNotExistException;
     
     /**
      * Retrieves an asynchronous request and its related information

@@ -16,7 +16,9 @@
 
 package org.globus.workspace.service.binding.vm;
 
-public class VirtualMachineDeploymentStorage {
+import java.io.Serializable;
+
+public class VirtualMachineDeploymentStorage implements Serializable {
     private String logicalName;
     private int individualDiskSpace = -1;
 

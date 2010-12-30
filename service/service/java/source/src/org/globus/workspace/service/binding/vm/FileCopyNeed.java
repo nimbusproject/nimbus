@@ -16,12 +16,14 @@
 
 package org.globus.workspace.service.binding.vm;
 
+import java.io.Serializable;
+
 /**
  * right now limits are checked before hitting the DB for fail fast, sourcepath
  * is 32 chars (UUID), destpath is is 512 chars and is the path ON the VM.
  * On the VMM, the file is also the UUID.
  */
-public class FileCopyNeed {
+public class FileCopyNeed implements Serializable {
 
     public final static int srcMax = 36;
     public final static int dstMax = 512;

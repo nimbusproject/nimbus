@@ -26,7 +26,7 @@ import org.globus.workspace.PathConfigs;
 import org.globus.workspace.accounting.AccountingReaderAdapter;
 import org.globus.workspace.accounting.ElapsedAndReservedMinutes;
 import org.globus.workspace.async.AsyncRequest;
-import org.globus.workspace.async.AsyncRequestHome;
+import org.globus.workspace.async.AsyncRequestManager;
 import org.globus.workspace.creation.CreationManager;
 import org.globus.workspace.persistence.DataConvert;
 import org.globus.workspace.scheduler.backfill.Backfill;
@@ -96,7 +96,7 @@ public class DelegatingManager implements Manager {
     protected final WorkspaceGroupHome ghome;
     protected final WorkspaceCoschedHome cohome;
     protected final Backfill backfill;
-    protected final AsyncRequestHome asyncHome;
+    protected final AsyncRequestManager asyncHome;
     protected final PathConfigs paths;
     protected final ReprFactory repr;
     protected final DataConvert dataConvert;
@@ -116,7 +116,7 @@ public class DelegatingManager implements Manager {
                              ReprFactory reprFactory,
                              DataConvert dataConvertImpl,
                              Lager lagerImpl,
-                             AsyncRequestHome siManagerImpl) {
+                             AsyncRequestManager siManagerImpl) {
         
         if (pathConfigs == null) {
             throw new IllegalArgumentException("pathConfigs may not be null");
@@ -217,8 +217,10 @@ public class DelegatingManager implements Manager {
      */
     public void recover_initialize() throws Exception {
         this.home.recover_initialize();
+        this.asyncHome.init(); // this needs the scheduler to be full active first.
         this.backfill.setManager(this);
         this.backfill.initiateBackfill();
+        this.asyncHome.recalculateAvailableInstances();
     }
 
     public void shutdownImmediately() {
@@ -934,16 +936,18 @@ public class DelegatingManager implements Manager {
     public RequestInfo[] cancelBackfillRequests(String[] ids, Caller caller)
             throws DoesNotExistException, AuthorizationException,
             ManageException {
-        RequestInfo[] result = new RequestInfo[ids.length];
-        
+
         for (int i = 0; i < ids.length; i++) {
-            AsyncRequest backfillReq = asyncHome.getRequest(ids[i]);
-            
+            AsyncRequest backfillReq = this.asyncHome.getRequest(ids[i]);
             authorizeCaller(caller, backfillReq);
-            
-            result[i] = getRequestInfo(asyncHome.cancelRequest(ids[i]));
         }
-        
+
+        AsyncRequest[] reqs = this.asyncHome.cancelRequests(ids);
+
+        RequestInfo[] result = new RequestInfo[ids.length];
+        for (int i = 0; i < reqs.length; i++) {
+            result[i] = getRequestInfo(reqs[i]);
+        }
         return result;
     }
 

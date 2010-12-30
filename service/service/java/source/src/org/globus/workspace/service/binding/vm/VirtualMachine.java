@@ -22,6 +22,8 @@ import org.globus.workspace.service.binding.WorkspaceInstantiation;
 import org.nimbustools.api.services.rm.ManageException;
 import org.apache.commons.logging.Log;
 
+import java.io.Serializable;
+
 /**
  * This internal VirtualMachine representation will go away, moving to using
  * the org.nimbustools.api representation objects directly (or at least
@@ -30,7 +32,7 @@ import org.apache.commons.logging.Log;
  * Access to this is not synchronized, assumes set once (keeping set
  * methods for our manual ORM).
  */
-public class VirtualMachine extends WorkspaceInstantiation {
+public class VirtualMachine extends WorkspaceInstantiation implements Serializable {
 
     private VirtualMachineDeployment deployment;
 

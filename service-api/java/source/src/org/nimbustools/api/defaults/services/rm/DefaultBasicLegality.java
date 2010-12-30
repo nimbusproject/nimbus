@@ -80,6 +80,10 @@ public class DefaultBasicLegality implements BasicLegality {
             throw new CreationException("no CreateRequest?");
         }
 
+        if (req.getName() == null) {
+            throw new CreationException("no createrequest name?");
+        }
+
         final RequiredVMM reqVMM = req.getRequiredVMM();
         if (reqVMM != null && reqVMM.getType() == null) {
             throw new MetadataException(

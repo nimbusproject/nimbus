@@ -612,14 +612,11 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
     // -------------------------------------------------------------------------
 
     public void validate() throws Exception {
-        if (home == null) {
-            throw new Exception("home may not be null");
+        if (this.home == null) {
+            throw new Exception("home was not set");
         }
-        this.acquireWholeManagerLock();
-        try {
-            this.preempManager.init();
-        } finally {
-            this.releaseWholeManagerLock();
+        if (this.preempManager == null) {
+            throw new Exception("preempManager was not set");
         }
     }
 
@@ -788,6 +785,7 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
         } catch (ResourceRequestDeniedException e) {
             throw new WorkspaceDatabaseException(e.getMessage(), e);
         }
+        boolean result;
         try {
             final ResourcepoolEntry entry =
                     this.db.getResourcepoolEntry(hostname);
@@ -801,13 +799,14 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
                         " is in use and cannot be removed from the pool");
             }
 
-            boolean result = this.db.removeResourcepoolEntry(hostname);
-            this.poolChanged();
-            return result;
-
+            result = this.db.removeResourcepoolEntry(hostname);
+            
         } finally {
             this.releaseWholeManagerLock();
         }
+        // needs to be triggered after the lock is released
+        this.poolChanged();
+        return result;
     }
 
     private void poolChanged() {

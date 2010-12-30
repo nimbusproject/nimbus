@@ -18,7 +18,9 @@ package org.globus.workspace.service.binding.vm;
 
 import org.globus.workspace.WorkspaceConstants;
 
-public class VirtualMachineDeployment {
+import java.io.Serializable;
+
+public class VirtualMachineDeployment implements Serializable {
 
     public static final int NOTSET = -1;
 

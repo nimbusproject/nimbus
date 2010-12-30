@@ -2844,8 +2844,8 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
                 return null;
             }
 
-            Backfill bf = new Backfill(null, null);
-            bf.setBackfillDisabled(rs.getBoolean(1));
+            Backfill bf = new Backfill(null, null, null);
+            bf.setBackfillEnabled(rs.getBoolean(1));
             bf.setMaxInstances(rs.getInt(2));
             bf.setDiskImage(rs.getString(3));
             bf.setMemoryMB(rs.getInt(4));
@@ -2897,7 +2897,7 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
                 pstmt = c.prepareStatement(SQL_UPDATE_BACKFILL);
             }
 
-            pstmt.setInt(1, bf.isBackfillDisabled() ? 1 : 0);
+            pstmt.setInt(1, bf.isBackfillEnabled() ? 1 : 0);
             pstmt.setInt(2, bf.getMaxInstances());
             pstmt.setString(3, bf.getDiskImage());
             pstmt.setInt(4, bf.getMemoryMB());

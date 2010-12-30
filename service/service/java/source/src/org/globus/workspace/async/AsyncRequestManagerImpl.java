@@ -57,7 +57,7 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
     
     protected Integer maxVMs;
 
-    protected Map<String, AsyncRequest> requests;
+    protected AsyncRequestMap asyncRequestMap;
     protected PricingModel pricingModel;
 
     protected Double currentPrice;
@@ -75,9 +75,9 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
                                     WorkspaceHome instanceHome,
                                     WorkspaceGroupHome groupHome,
                                     Double minPrice,
-                                    PricingModel pricingModelImpl){
+                                    PricingModel pricingModelImpl,
+                                    AsyncRequestMap asyncRequestMap){
 
-        this.requests = new HashMap<String, AsyncRequest>();
         this.maxVMs = 0;
    
         if (persistenceAdapterImpl == null) {
@@ -109,6 +109,11 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
             throw new IllegalArgumentException("minPrice may not be null");
         }
         this.minPrice = minPrice;
+
+        if (asyncRequestMap == null) {
+            throw new IllegalArgumentException("asyncRequestMap is missing");
+        }
+        this.asyncRequestMap = asyncRequestMap;
         
         Double previousSpotPrice = null;
         try {
@@ -139,7 +144,7 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
      */
     public void addRequest(AsyncRequest request){
 
-        requests.put(request.getId(), request);
+        this.asyncRequestMap.addOrReplace(request);
 
         if(request.isSpotRequest()){
             if(this.lager.eventLog){
@@ -166,27 +171,45 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
      *                               to any asynchronous request
      */    
     public AsyncRequest cancelRequest(String reqID) throws DoesNotExistException {
+        return this.cancelRequest(reqID, true);
+    }
+
+    private AsyncRequest cancelRequest(String reqID, boolean recalculate) throws DoesNotExistException {
         logger.info(Lager.ev(-1) + "Cancelling request with id: " + reqID + ".");                
         AsyncRequest request = getRequest(reqID, false);
 
+        AsyncRequestStatus prevStatus = request.getStatus();
         changeStatus(request, AsyncRequestStatus.CANCELLED);
         
-// From http://docs.amazonwebservices.com/AWSEC2/latest/APIReference/ApiReference-soap-CancelSpotInstanceRequests.html
-// Canceling a Spot Instance request does not 
-// terminate running Spot Instances associated with the request. 
-        
-//        if(prevStatus.isActive()){
-//            preempt(request, request.getAllocatedInstances());
-//        }
-//        
-//        if(request.isSpotRequest()){
-//            changePriceAndAllocateRequests();            
-//        } else {
-//            allocateBackfillRequests();
-//        }
+        // From http://docs.amazonwebservices.com/AWSEC2/latest/APIReference/ApiReference-soap-CancelSpotInstanceRequests.html
+        // Canceling a Spot Instance request does not terminate running Spot Instances
+        // associated with the request.
+        // But, with backfill we want to withdraw, so the async manager will do that for these
+        // requests (that are marked backfill by "isSpotRequest()" being false.
+
+        if(!request.isSpotRequest()) {
+            if (prevStatus.isActive()) {
+                preempt(request, request.getAllocatedInstances());
+                if (recalculate) {
+                    allocateBackfillRequests();
+                }
+            }
+        }
         
         return request;
-    }    
+    }
+
+    public AsyncRequest[] cancelRequests(String[] reqID) throws DoesNotExistException {
+        if (reqID == null || reqID.length == 0) {
+            return new AsyncRequest[0];
+        }
+        final AsyncRequest[] ret = new AsyncRequest[reqID.length];
+        for (int i = 0; i < ret.length; i++) {
+            ret[i] = cancelRequest(reqID[i], false);
+        }
+        this.allocateBackfillRequests();
+        return ret;
+    }
 
     /**
      * Retrieves an asynchronous request and its related information
@@ -207,7 +230,7 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
     public AsyncRequest[] getRequests(Caller caller, boolean spot) {
         logger.info(Lager.ev(-1) + "Retrieving requests from caller: " + caller.getIdentity() + ".");        
         ArrayList<AsyncRequest> requestsByCaller = new ArrayList<AsyncRequest>();
-        for (AsyncRequest request : requests.values()) {
+        for (AsyncRequest request : this.asyncRequestMap.getAll()) {
             if(request.isSpotRequest() == spot && request.getCaller().equals(caller)){
                 requestsByCaller.add(request);
             }
@@ -330,7 +353,9 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
                     logger.info(Lager.ev(-1) + "VM '" + vmid + "' from request '" + request.getId() + "' finished.");
                 }
 
-                if(!request.finishVM(vmid)){
+                boolean fin = request.finishVM(vmid);
+                this.asyncRequestMap.addOrReplace(request);
+                if(!fin){
                     if(request.getAllocatedInstances().equals(0)){
                         allVMsFinished(request);
                     }
@@ -467,7 +492,9 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
      * Allocates lower priority requests if there are 
      * available VMs, pre-empt them otherwise
      */
-    private void allocateLowerPriorityRequests(Integer higherPriorityVMs, List<AsyncRequest> aliveRequests, String requestType) {    
+    private void allocateLowerPriorityRequests(Integer higherPriorityVMs,
+                                               List<AsyncRequest> aliveRequests,
+                                               String requestType) {
         
         Integer availableVMs = Math.max(this.getMaxVMs() - higherPriorityVMs, 0);
 
@@ -762,6 +789,7 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
                             "' will be destroyed. Destroying group: " + request.getGroupID());
                 }
                 request.preemptAll();
+                this.asyncRequestMap.addOrReplace(request);
                 ghome.destroy(request.getGroupID());
             } else {
                 int[] preemptionList = request.getAllocatedVMs(quantity);
@@ -775,6 +803,7 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
                 }
 
                 request.preempt(preemptionList);
+                this.asyncRequestMap.addOrReplace(request);
 
                 final String sourceStr = "via async-Manager-preempt, request " +
                 "id = '" + request.getId() + "'";
@@ -817,6 +846,7 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
         changeStatus(request, AsyncRequestStatus.FAILED);
         if(problem != null){
             request.setProblem(problem);
+            this.asyncRequestMap.addOrReplace(request);
         }
     }
 
@@ -850,6 +880,7 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
             InstanceResource[] createdVMs = creationManager.createVMs(unallocatedVMs, request.getRequestedNics(), request.getCaller(), request.getContext(), request.getGroupID(), null, null, true);
             for (InstanceResource resource : createdVMs) {
                 request.addAllocatedVM(resource.getID());
+                this.asyncRequestMap.addOrReplace(request);
             }
         } catch (Exception e) {
             failRequest("allocating", request, e.getMessage(), e);
@@ -869,6 +900,7 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
     private void changeStatus(AsyncRequest request, AsyncRequestStatus newStatus) {
         AsyncRequestStatus oldStatus = request.getStatus();
         boolean changed = request.setStatus(newStatus);
+        this.asyncRequestMap.addOrReplace(request);
         if (changed && this.lager.eventLog) {
             logger.info(Lager.ev(-1) + "Request " + request.getId() + " changed status from " + oldStatus + " to " + newStatus);
         }
@@ -902,9 +934,7 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
      */
     protected synchronized void calculateMaxVMs() {
         
-        if (this.lager.eventLog) {
-            logger.info(Lager.ev(-1) + "Calculating maximum VMs for SI and backfill requests..");
-        }        
+        logger.debug("Going to calculate maximum VMs for SI and backfill requests");
 
         Integer siMem = 0;
         Integer availableMem = 0;
@@ -928,12 +958,16 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
             siMem = Math.max((availableMem+usedPreemptableMem)-reservedNonPreempMem, 0);
             
             if (this.lager.eventLog) {
-                logger.info(Lager.ev(-1) + "Total site memory: " + totalMaxMemory + "MB");                
-                logger.info(Lager.ev(-1) + "Available site memory: " + availableMem + "MB");
-                logger.info(Lager.ev(-1) + "Used non pre-emptable memory: " + usedNonPreemptableMem + "MB");
-                logger.info(Lager.ev(-1) + "Reserved non pre-emptable memory: " + reservedNonPreempMem + "MB");
-                logger.info(Lager.ev(-1) + "Used pre-emptable memory: " + usedPreemptableMem + "MB");                
-                logger.info(Lager.ev(-1) + "Calculated memory for asynchronous requests: " + siMem + "MB");
+                final StringBuilder sb =
+                        new StringBuilder("Spot and backfill memory:\n");
+                sb.append("Site memory - Total: " + totalMaxMemory + "MB\n");
+                sb.append("              Available: " + availableMem + "MB\n");
+                sb.append("Non-preemptable memory - Used: " + usedNonPreemptableMem + "MB\n");
+                sb.append("                         Reserved: " + reservedNonPreempMem + "MB\n");
+                sb.append("Preemtable memory - Used: " + usedPreemptableMem + "MB\n");
+                sb.append("                    Unused: " + siMem + "MB\n");
+
+                logger.info(Lager.ev(-1) + sb.toString());
             }
         } catch (WorkspaceDatabaseException e) {
             changeMaxVMs(0);
@@ -1000,11 +1034,11 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
         if(log){
             logger.info(Lager.ev(-1) + "Retrieving request with id: " + id + ".");
         } 
-        AsyncRequest request = requests.get(id);
+        AsyncRequest request = this.asyncRequestMap.getByID(id);
         if(request != null){
             return request;
         } else {
-            throw new DoesNotExistException("Asynchronous request with id " + id + " does not exists.");
+            throw new DoesNotExistException("Asynchronous request with id " + id + " does not exist.");
         }
     }    
     
@@ -1015,7 +1049,7 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
      * @return the request that has this VM allocated
      */
     public AsyncRequest getRequestFromVM(int vmid) {
-        for (AsyncRequest request : requests.values()) {
+        for (AsyncRequest request : this.asyncRequestMap.getAll()) {
             if(request.isAllocatedVM(vmid)){
                 return request;
             }
@@ -1029,7 +1063,8 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
      * @return list of alive equal or higher bid requests
      */    
     private List<AsyncRequest> getAliveEqualOrHigherBidRequests() {
-        return AsyncRequestFilter.filterAliveRequestsAboveOrEqualPrice(this.currentPrice, this.requests.values());
+        return AsyncRequestFilter.filterAliveRequestsAboveOrEqualPrice(this.currentPrice,
+                                                                       this.asyncRequestMap.getAll());
     }        
     
     /**
@@ -1037,7 +1072,8 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
      * @return list of alive equal bid requests
      */
     private List<AsyncRequest> getAliveEqualBidRequests(){
-        return AsyncRequestFilter.filterAliveRequestsEqualPrice(this.currentPrice, this.requests.values());
+        return AsyncRequestFilter.filterAliveRequestsEqualPrice(this.currentPrice,
+                                                                this.asyncRequestMap.getAll());
     }  
     
     /**
@@ -1045,7 +1081,8 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
      * @return list of alive higher bid requests
      */
     private List<AsyncRequest> getAliveHigherBidRequests() {
-        return AsyncRequestFilter.filterAliveRequestsAbovePrice(this.currentPrice, this.requests.values());
+        return AsyncRequestFilter.filterAliveRequestsAbovePrice(this.currentPrice,
+                                                                this.asyncRequestMap.getAll());
     }
     
     /**
@@ -1053,7 +1090,7 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
      * @return list of alive backfill requests
      */
     private List<AsyncRequest> getAliveBackfillRequests(){
-        return AsyncRequestFilter.filterAliveBackfillRequests(this.requests.values());
+        return AsyncRequestFilter.filterAliveBackfillRequests(this.asyncRequestMap.getAll());
     }     
     
     /**
@@ -1061,7 +1098,8 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
      * @return list of alive requests
      */
     private List<AsyncRequest> getAliveSpotRequests() {
-        return AsyncRequestFilter.filterAliveRequestsAboveOrEqualPrice(minPrice, this.requests.values());
+        return AsyncRequestFilter.filterAliveRequestsAboveOrEqualPrice(minPrice,
+                                                                       this.asyncRequestMap.getAll());
     }
     
     /**
@@ -1069,7 +1107,8 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
      * @return list of lower bid active requests
      */
     private List<AsyncRequest> getLowerBidRequests() {
-        return AsyncRequestFilter.filterAllocatedRequestsBelowPrice(this.currentPrice, this.requests.values());
+        return AsyncRequestFilter.filterAllocatedRequestsBelowPrice(this.currentPrice,
+                                                                    this.asyncRequestMap.getAll());
     }    
     
     /**

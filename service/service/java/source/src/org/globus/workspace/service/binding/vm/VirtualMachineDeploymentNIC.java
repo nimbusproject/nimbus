@@ -16,7 +16,9 @@
 
 package org.globus.workspace.service.binding.vm;
 
-public class VirtualMachineDeploymentNIC {
+import java.io.Serializable;
+
+public class VirtualMachineDeploymentNIC implements Serializable {
     private String name;
     // todo: double? in JSDL, it's a double
     private int incomingNetworkBandwidth = -1;

@@ -267,7 +267,7 @@ public class DataConvert implements WorkspaceConstants {
 
     private void populate(AsyncRequest asyncReq, final _RequestInfo result) throws CannotTranslateException {
         
-        VirtualMachine[] bindings = asyncReq.getBindings();        
+        VirtualMachine[] bindings = asyncReq.getBindings();
         
         result.setInstanceCount(asyncReq.getRequestedInstances());
         result.setCreationTime(asyncReq.getCreationTime());

@@ -1,5 +1,6 @@
 package org.globus.workspace.async;
 
+import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
@@ -11,7 +12,7 @@ import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.ctx.Context;
 import org.nimbustools.api.repr.vm.NIC;
 
-public class AsyncRequest implements Comparable<AsyncRequest>{
+public class AsyncRequest implements Comparable<AsyncRequest>, Serializable {
  
     private String id;
     private boolean spot;
@@ -77,7 +78,7 @@ public class AsyncRequest implements Comparable<AsyncRequest>{
     public AsyncRequest(String id, boolean spotinstances, Double spotPrice, boolean persistent,
             Caller caller, String groupID, VirtualMachine[] bindings, Context context,
             NIC[] requestedNics, String sshKeyName, Calendar creationTime) {
-        this.status = AsyncRequestStatus.OPEN;        
+        this.status = AsyncRequestStatus.OPEN;
         this.id = id;
         this.spot = spotinstances;
         this.maxBid = spotPrice;
@@ -89,14 +90,10 @@ public class AsyncRequest implements Comparable<AsyncRequest>{
         this.caller = caller;
         this.creationTime = creationTime;
         this.sshKeyName = sshKeyName;
-    }    
+    }
     
     public Double getMaxBid() {
         return maxBid;
-    }
-    
-    public void setMaxBid(Double maxBid) {
-        this.maxBid = maxBid;
     }
     
     public Integer getNeededInstances(){
@@ -137,10 +134,6 @@ public class AsyncRequest implements Comparable<AsyncRequest>{
 
     public boolean isPersistent() {
         return persistent;
-    }
-
-    public void setPersistent(boolean persistent) {
-        this.persistent = persistent;
     }
 
     public AsyncRequestStatus getStatus() {

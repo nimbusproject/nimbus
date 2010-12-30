@@ -4,7 +4,7 @@
 
     <defaultCache
         maxElementsInMemory="2000"
-        eternal="true"
+        eternal="false"
         timeToIdleSeconds="120"
         timeToLiveSeconds="120"
         overflowToDisk="false"
@@ -12,7 +12,7 @@
 
     <cache name="groupCache"
         maxElementsInMemory="2000"
-        eternal="true"
+        eternal="false"
         timeToIdleSeconds="120"
         timeToLiveSeconds="120"
         overflowToDisk="false"

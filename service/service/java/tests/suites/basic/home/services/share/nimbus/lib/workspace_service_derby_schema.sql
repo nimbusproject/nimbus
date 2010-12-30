@@ -242,7 +242,7 @@ position BIGINT
 CREATE TABLE backfill
 (
 id INT NOT NULL PRIMARY KEY,
-disabled SMALLINT NOT NULL,
+enabled SMALLINT NOT NULL,
 max_instances INT NOT NULL,
 disk_image VARCHAR(512) NOT NULL,
 memory_mb SMALLINT NOT NULL,

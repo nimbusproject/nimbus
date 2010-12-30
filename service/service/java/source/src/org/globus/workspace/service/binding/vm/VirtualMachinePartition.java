@@ -16,7 +16,9 @@
 
 package org.globus.workspace.service.binding.vm;
 
-public class VirtualMachinePartition {
+import java.io.Serializable;
+
+public class VirtualMachinePartition implements Serializable {
     private String image;
     private String imagemount;
     private boolean readwrite;
