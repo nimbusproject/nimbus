@@ -26,7 +26,8 @@ public interface Authorize {
 
     public void authz(VirtualMachine[] bindings,
                       String callerID,
-                      Subject peerSubject)
+                      Subject peerSubject,
+                      double chargeRatio)
             throws ResourceRequestDeniedException,
                    AuthorizationException;
 }

@@ -17,7 +17,6 @@
 package org.globus.workspace.groupauthz;
 
 import org.globus.workspace.service.binding.authorization.CreationAuthorizationCallout;
-import org.globus.workspace.service.binding.authorization.Decision;
 import org.globus.workspace.service.binding.authorization.PostTaskAuthorization;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.nimbustools.api.services.rm.AuthorizationException;
@@ -298,7 +297,8 @@ public class GroupAuthz implements CreationAuthorizationCallout,
                                Subject subject,
                                Long elapsedMins,
                                Long reservedMins,
-                               int numWorkspaces)
+                               int numWorkspaces,
+                               double chargeRatio)
 
             throws AuthorizationException,
                    ResourceRequestDeniedException {
@@ -328,7 +328,8 @@ public class GroupAuthz implements CreationAuthorizationCallout,
                                             bindings,
                                             elapsedMins,
                                             reservedMins,
-                                            numWorkspaces);
+                                            numWorkspaces,
+                                            chargeRatio);
             }
         }
 

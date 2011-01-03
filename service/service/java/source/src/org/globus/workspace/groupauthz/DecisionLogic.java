@@ -37,22 +37,25 @@ public class DecisionLogic {
     {
     }
     /**
+     *
      * @param dn may not be null
      * @param rights may not be null
      * @param bindings may not be null, can be zerolen array
      * @param elapsedMins may not be null or negative
      * @param reservedMins may not be null or negative
      * @param numWorkspaces number of OTHER, current workspaces
+     * @param chargeRatio ratio to compute the real minutes charge, typically <= 1.0 and > 0
      * @return Decision Integer
      * @throws AuthorizationException processing problem
      * @throws ResourceRequestDeniedException error w/ explanation to client
      */
     public Integer decide(String dn,
-                                 GroupRights rights,
-                                 VirtualMachine[] bindings,
-                                 Long elapsedMins,
-                                 Long reservedMins,
-                                 int numWorkspaces)
+                          GroupRights rights,
+                          VirtualMachine[] bindings,
+                          Long elapsedMins,
+                          Long reservedMins,
+                          int numWorkspaces,
+                          double chargeRatio)
 
             throws AuthorizationException,
                    ResourceRequestDeniedException {
@@ -86,6 +89,10 @@ public class DecisionLogic {
             throw new IllegalArgumentException("reservedMins is negative");
         }
 
+        if (chargeRatio <= 0) {
+            throw new IllegalArgumentException("expecting charge ratio to be positive");
+        }
+
         final StringBuffer buf = new StringBuffer("\n\nConsidering caller: '");
         buf.append(dn)
            .append("'.\nCurrent elapsed minutes: ")
@@ -94,6 +101,8 @@ public class DecisionLogic {
            .append(reservedMins)
            .append(".\nNumber of VMs in request: ")
            .append(bindings.length)
+           .append(".\nCharge ratio for request: ")
+           .append(chargeRatio)
            .append(".\nNumber of VMs caller is already currently running: ")
            .append(numWorkspaces)
            .append(".\nRights:\n")
@@ -143,6 +152,9 @@ public class DecisionLogic {
             final long seconds = dep.getMinDuration();
             requestDur += seconds / 60;
         }
+
+        final Double doubleRequestDur = requestDur * chargeRatio;
+        requestDur = doubleRequestDur.longValue();
 
         if (bindings.length > 1) {
             buf.append("Duration total of all requests in group: ");

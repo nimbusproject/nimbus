@@ -216,7 +216,7 @@ public class DBAccountingAdapter implements AccountingEventAdapter,
 
     public void create(int id, String ownerDN, long minutesRequested,
                        String network, String resource, String clientLaunchName,
-                       int CPUCount, int memory) {
+                       int CPUCount, int memory, double chargeRatio) {
 
         String moreToLog = "";
 
@@ -283,8 +283,11 @@ public class DBAccountingAdapter implements AccountingEventAdapter,
 
         try {
 
-            final long charge = Util.positiveCeiling(minutesRequested,
+            long charge = Util.positiveCeiling(minutesRequested,
                                                      this.chargeGranularity);
+
+            final Double chargeDouble = charge * chargeRatio;
+            charge = chargeDouble.longValue();
 
             final String uuid = uuidGen.generateRandomBasedUUID().toString();
 
@@ -295,7 +298,7 @@ public class DBAccountingAdapter implements AccountingEventAdapter,
             if (this.lager.eventLog) {
                 logger.info(Lager.ev(id) + "accounting: ownerDN = '" +
                     ownerDN + "', minutesRequested = " + minutesRequested +
-                    ", minutes reserved = " + charge +
+                    ", minutes reserved = " + charge + ", charge ratio = " + chargeRatio +
                     ", CPUCount = " + CPUCount + ", memory = " + memory +
                     ", uuid = '" + uuid + "'" + moreToLog);
             }
@@ -303,7 +306,7 @@ public class DBAccountingAdapter implements AccountingEventAdapter,
             if (this.fileLog != null) {
                 try {
                     this.fileLog.logCreate(uuid, id, ownerDN,
-                                           minutesRequested, charge, now,
+                                           minutesRequested, charge, chargeRatio, now,
                                            CPUCount, memory, moreToLog);
                 } catch (WorkspaceException e) {
                     if (logger.isDebugEnabled()) {
@@ -321,7 +324,7 @@ public class DBAccountingAdapter implements AccountingEventAdapter,
 
     }
 
-    public void destroy(int id, String ownerDN, long minutesElapsed) {
+    public void destroy(int id, String ownerDN, long minutesElapsed, double chargeRatio) {
 
         if (this.lager.accounting) {
             logger.trace("destroy(): id = " + id + ", ownerDN = '" +
@@ -333,8 +336,10 @@ public class DBAccountingAdapter implements AccountingEventAdapter,
             return;
         }
 
-        final long charge = Util.positiveCeiling(minutesElapsed,
+        long charge = Util.positiveCeiling(minutesElapsed,
                                            this.chargeGranularity);
+        final Double chargeDouble = charge * chargeRatio;
+        charge = chargeDouble.longValue();
 
         try {
             
@@ -343,6 +348,7 @@ public class DBAccountingAdapter implements AccountingEventAdapter,
             if (this.lager.eventLog) {
                 logger.info(Lager.ev(id) + "accounting: ownerDN = '" +
                     ownerDN + "', minutesElapsed = " + charge +
+                    ", chargeRatio = " + chargeRatio +
                     ", real usage = " + minutesElapsed +
                     ", uuid = '" + uuid + '\'');
             }
@@ -350,7 +356,7 @@ public class DBAccountingAdapter implements AccountingEventAdapter,
             if (this.fileLog != null) {
                 final Calendar now = Calendar.getInstance();
                 try {
-                    this.fileLog.logRemove(uuid, id, ownerDN, charge, now);
+                    this.fileLog.logRemove(uuid, id, ownerDN, charge, chargeRatio, now);
                 } catch (WorkspaceException e) {
                     if (logger.isDebugEnabled()) {
                         logger.error(e.getMessage(), e);

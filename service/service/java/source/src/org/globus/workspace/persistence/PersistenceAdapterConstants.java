@@ -102,7 +102,7 @@ public interface PersistenceAdapterConstants {
             "DELETE from file_copy WHERE vmid=?";
 
     public static final String SQL_INSERT_RESOURCE =
-            "INSERT INTO resources VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+            "INSERT INTO resources VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
     public static final String SQL_INSERT_GROUP_RESOURCE =
             "INSERT INTO groupresources VALUES(?,?)";
@@ -123,7 +123,7 @@ public interface PersistenceAdapterConstants {
             "SELECT name, state, target_state, term_time, ops_enabled, " +
                     "creator_dn, start_time, vmm_access_ok, " +
                     "ensembleid, groupid, groupsize, last_in_group, " +
-                    "launch_index, error_fault, client_token " +
+                    "launch_index, error_fault, client_token, charge_ratio " +
                     "FROM resources WHERE id=?";
 
     public static final String SQL_LOAD_GROUP_RESOURCE =

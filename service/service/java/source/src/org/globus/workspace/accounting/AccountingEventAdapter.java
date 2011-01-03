@@ -25,11 +25,13 @@ public interface AccountingEventAdapter extends AccountingAdapter {
                        String resource,
                        String clientLaunchName,
                        int CPUCount,
-                       int memory);
+                       int memory,
+                       double chargeRatio);
 
     public void destroy(int id,
                         String ownerDN,
-                        long minutesElapsed);
+                        long minutesElapsed,
+                        double chargeRatio);
 
     // Any portion used costs this many minutes (ceiling).
     // If this is for example set to 60, then 1 minute will cost 60 minutes,

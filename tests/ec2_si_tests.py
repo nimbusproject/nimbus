@@ -37,7 +37,7 @@ def get_nimbus_home():
         script_dir = os.path.dirname(__file__)
         nimbus_home = os.path.dirname(script_dir)
     if not os.path.exists(nimbus_home):
-        raise CLIError('ENIMBUSHOME', "NIMBUS_HOME must refer to a valid path")
+        raise Exception('ENIMBUSHOME', "NIMBUS_HOME must refer to a valid path")
     return nimbus_home
 
 
@@ -194,7 +194,7 @@ class TestEC2Submit(unittest.TestCase):
 		
         allReservations = self.ec2conn.get_all_instances()
         assert len(allReservations) == 1, 'incorrect result size'
-	reservation = allReservations[0]
+        reservation = allReservations[0]
         assert len(reservation.instances) == 2, 'incorrect result size'
         instance3 = reservation.instances[0]
         assert instance3.id == instance1.id, 'returned instance is not the same as before'

@@ -48,6 +48,7 @@ public interface InternalCreationManager {
      * @param coschedID the cosched id for this group of VMs
      * @param clientToken the idempotency token provided by client
      * @param spotInstances if the VMs are spot instances
+     * @param chargeRatio ratio to compute the real minutes charge, typically <= 1.0 and > 0
      * @return an array of created InstanceResources
      * @throws CoSchedulingException
      * @throws CreationException
@@ -64,7 +65,8 @@ public interface InternalCreationManager {
                                         String groupID,
                                         String coschedID,
                                         String clientToken,
-                                        boolean spotInstances)
+                                        boolean spotInstances,
+                                        double chargeRatio)
 
             throws CoSchedulingException,
                    CreationException,

@@ -397,7 +397,7 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
         final String groupID = this.getGroupID(caller.getIdentity(), bound.length);
 
         return this.createVMs(bound, req.getRequestedNics(), caller, req.getContext(),
-                groupID, coschedID, req.getClientToken(), false);
+                groupID, coschedID, req.getClientToken(), false, 1.0);
     }
 
     private InstanceResource[] doIdempotentCreation(CreateRequest req, Caller caller, VirtualMachine[] bound)
@@ -738,7 +738,8 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
                                         String groupID,
                                         String coschedID,
                                         String clientToken,
-                                        boolean spotInstances)
+                                        boolean spotInstances,
+                                        double chargeRatio)
 
             throws CoSchedulingException,
                    CreationException,
@@ -758,11 +759,11 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
         // TODO: Would like to be able to get defaults (especially for running
         //       time request) on a per-group basis when using the group authz
         //       plugin.
-        //TODO: adjust policies for spot instances
         if (!spotInstances &&!caller.isSuperUser()) {
             this.authorize.authz(bindings,
                                  caller.getIdentity(),
-                                 caller.getSubject());
+                                 caller.getSubject(),
+                                 chargeRatio);
         }
 
         final Reservation res = this.scheduleImpl(bindings[0],
@@ -809,7 +810,8 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
                            groupID,
                            coschedID,
                            clientToken,
-                           spotInstances);
+                           spotInstances,
+                           chargeRatio);
 
         } catch (CoSchedulingException e) {
             this.backoutScheduling(ids, groupID);
@@ -911,7 +913,8 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
                                          String groupID,
                                          String coschedID,
                                          String clientToken,
-                                         boolean spotInstances)
+                                         boolean spotInstances,
+                                         double chargeRatio)
             
             throws AuthorizationException,
                    CoSchedulingException,
@@ -931,8 +934,7 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
 
         // accounting:
         // give check then act problem as small a window as possible
-        //TODO: adjust accounting for spot instances
-        if (!spotInstances && this.accounting != null) {
+        if (this.accounting != null) {
 
             final long requestSeconds;
             if (res.isConcrete()) {
@@ -963,7 +965,7 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
                 
                 this.accounting.create(ids[i], callerID, requestedMinutes,
                                        network, resource, name,
-                                       requestedCPUCount, requestedMemory);
+                                       requestedCPUCount, requestedMemory, chargeRatio);
             }
         }
 
@@ -975,7 +977,8 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
                            groupID,
                            coschedID,
                            clientToken,
-                           spotInstances);
+                           spotInstances,
+                           chargeRatio);
 
         } catch (CoSchedulingException e) {
             this.backoutAccounting(ids, callerID);
@@ -1009,7 +1012,8 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
 
         for (int i = 0; i < ids.length; i++) {
             try {
-                this.accounting.destroy(ids[i], callerID, 0);
+                // charge ratio does not matter here since charge is zero
+                this.accounting.destroy(ids[i], callerID, 0, 1.0);
             } catch (Throwable t) {
                 logger.error("Problem with destroying " + Lager.id(ids[i]) +
                          " accounting record: " + t.getMessage(), t);
@@ -1031,7 +1035,8 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
                                          String groupID,
                                          String coschedID,
                                          String clientToken,
-                                         boolean spotInstances)
+                                         boolean spotInstances,
+                                         double chargeRatio)
             
             throws AuthorizationException,
                    CoSchedulingException,
@@ -1085,7 +1090,7 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
                 createdResources[i] =
                         this.createOne(i, ids, res, bindings[i],
                                        callerID, context, coschedID, groupID,
-                                       clientToken, startTime, termTime);
+                                       clientToken, startTime, termTime, chargeRatio);
             } catch (Throwable t) {
                 bailed = i;
                 failure = t;
@@ -1210,7 +1215,8 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
                                          String groupID,
                                          String clientToken,
                                          Calendar startTime,
-                                         Calendar termTime)
+                                         Calendar termTime,
+                                         double chargeRatio)
 
             throws CreationException,
                    WorkspaceDatabaseException,
@@ -1239,7 +1245,7 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
         this.populateResource(id, resource, vm,
                               callerID, coschedID, groupID, clientToken,
                               startTime, termTime, node,
-                              ids.length, last, idx);
+                              ids.length, last, idx, chargeRatio);
 
         this.persistence.add(resource);
 
@@ -1322,12 +1328,13 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
                                     String node,
                                     int nodeNum,
                                     boolean lastInGroup,
-                                    int launchIndex)
+                                    int launchIndex,
+                                    double chargeRatio)
             throws CreationException {
 
         // todo: check assumptions (guard against misuse by object extenders)
 
-        resource.populate(id, vm, startTime, termTime, node);
+        resource.populate(id, vm, startTime, termTime, node, chargeRatio);
 
         // in the future, policy should come from elsewhere
         resource.setCreatorID(callerID);

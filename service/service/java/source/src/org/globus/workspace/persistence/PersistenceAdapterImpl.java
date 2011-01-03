@@ -1154,6 +1154,8 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
 
             pstmt.setString(16, resource.getClientToken());
 
+            pstmt.setDouble(17, resource.getChargeRatio());
+
             if (this.dbTrace) {
                 logger.trace("creating WorkspaceResource db " +
                         "entry for " + Lager.id(id));
@@ -1373,6 +1375,8 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
                 final String clientToken = rs.getString(15);
                 resource.setClientToken(clientToken);
 
+                final double chargeRatio = rs.getDouble(16);
+                resource.setChargeRatio(chargeRatio);
 
                 if (this.dbTrace) {
                     logger.trace("found " + Lager.id(id) +
@@ -1390,6 +1394,7 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
                              ", isLastInGroup = " + isLastInGroup +
                              ", launchIndex = " + launchIndex +
                              ", clientToken = " + clientToken +
+                             ", chargeRatio = " + chargeRatio +
                              ", error present = " + (errBlob != null));
                 }
                 

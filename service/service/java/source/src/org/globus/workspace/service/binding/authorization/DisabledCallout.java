@@ -31,7 +31,7 @@ public class DisabledCallout implements CreationAuthorizationCallout
 
     public Integer isPermitted(VirtualMachine[] bindings, String callerDN,
                                Subject subject, Long elapsedMins,
-                               Long reservedMins, int numWorkspaces)
+                               Long reservedMins, int numWorkspaces, double chargeRatio)
 
             throws AuthorizationException, ResourceRequestDeniedException {
 

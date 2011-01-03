@@ -309,13 +309,15 @@ public interface InstanceResource extends Sweepable {
      * @param termTime resource destruction time, can be null which mean either
      *                 "never" or "no setting" (while using best-effort sched)
      * @param node assigned node, can be null
+     * @param chargeRatio ratio to compute the real minutes charge, typically <= 1.0 and > 0
      * @throws CreationException problem
      */
     public void populate(int id,
                          VirtualMachine binding,
                          Calendar startTime,
                          Calendar termTime,
-                         String node)
+                         String node,
+                         double chargeRatio)
 
             throws CreationException;
 
@@ -375,4 +377,13 @@ public interface InstanceResource extends Sweepable {
      * @param trashOK vmmAccessOK status
      */
     public void setInitialVMMaccessOK(boolean trashOK);
+
+    /**
+     * Must be zero or greater.
+     * @param chargeRatio double of minutes multiplier for the actual charge
+     */
+    public void setChargeRatio(double chargeRatio);
+    
+    public double getChargeRatio();
+
 }

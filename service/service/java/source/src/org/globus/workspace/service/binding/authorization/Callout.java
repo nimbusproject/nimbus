@@ -38,7 +38,8 @@ public class Callout {
                                       VirtualMachine[] bindings,
                                       Long elapsedMins,
                                       Long reservedMins,
-                                      int numWorkspaces)
+                                      int numWorkspaces,
+                                      double chargeRatio)
             throws ResourceRequestDeniedException,
                    AuthorizationException {
 
@@ -47,7 +48,8 @@ public class Callout {
                                              peerSubject,
                                              elapsedMins,
                                              reservedMins,
-                                             numWorkspaces);
+                                             numWorkspaces,
+                                             chargeRatio);
 
         if (result.equals(Decision.PERMIT)) {
             logger.debug("authorization callout: PERMIT");

@@ -32,7 +32,8 @@ public interface CreationAuthorizationCallout {
                                Subject subject,
                                Long elapsedMins,
                                Long reservedMins,
-                               int numWorkspaces)
+                               int numWorkspaces,
+                               double chargeRatio)
 
             throws AuthorizationException,
                    ResourceRequestDeniedException;

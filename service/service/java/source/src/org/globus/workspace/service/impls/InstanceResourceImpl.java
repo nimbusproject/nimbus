@@ -109,6 +109,8 @@ public abstract class InstanceResourceImpl implements InstanceResource {
 
     protected String clientToken;
 
+    protected double chargeRatio = 1.0;
+
     private boolean removeTriggered;
 
 
@@ -190,13 +192,15 @@ public abstract class InstanceResourceImpl implements InstanceResource {
      * @param termTime resource destruction time, can be null which mean either
      *                 "never" or "no setting" (while using best-effort sched)
      * @param node assigned node, can be null
+     * @param chargeRatio ratio to compute the real minutes charge, typically <= 1.0 and > 0
      * @throws CreationException problem
      */
     public void populate(int id,
                          VirtualMachine vm,
                          Calendar startTime,
                          Calendar termTime,
-                         String node) throws CreationException {
+                         String node,
+                         double chargeRatio) throws CreationException {
 
         if (vm == null) {
             throw new CreationException("null vm");
@@ -208,6 +212,7 @@ public abstract class InstanceResourceImpl implements InstanceResource {
 
         this.id = id;
         this.vm = vm;
+        this.chargeRatio = chargeRatio;
 
         // could be null if best effort, infinite for timebeing
         this.terminationTime = termTime;
@@ -304,6 +309,17 @@ public abstract class InstanceResourceImpl implements InstanceResource {
 
     public void setClientToken(String clientToken) {
         this.clientToken = clientToken;
+    }
+
+    public void setChargeRatio(double chargeRatio) {
+        if (chargeRatio < 0) {
+            throw new IllegalArgumentException("charge ratio can not be < 0");
+        }
+        this.chargeRatio = chargeRatio;
+    }
+
+    public double getChargeRatio() {
+        return this.chargeRatio;
     }
 
     public VirtualMachine getVM() {
@@ -809,7 +825,8 @@ public abstract class InstanceResourceImpl implements InstanceResource {
 
                 this.accounting.destroy(this.id,
                                         this.getCreatorID(),
-                                        0L);
+                                        0L,
+                                        this.chargeRatio);
             } else {
                 final long runningTimeMS =
                         Calendar.getInstance().getTimeInMillis() -
@@ -823,7 +840,8 @@ public abstract class InstanceResourceImpl implements InstanceResource {
 
                 this.accounting.destroy(this.id,
                                         this.getCreatorID(),
-                                        runningTime);
+                                        runningTime,
+                                        this.chargeRatio);
             }
         }
 

@@ -877,7 +877,17 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
         }
         
         try {
-            InstanceResource[] createdVMs = creationManager.createVMs(unallocatedVMs, request.getRequestedNics(), request.getCaller(), request.getContext(), request.getGroupID(), null, null, true);
+            double chargeRatio = request.getMaxBid();
+            if (chargeRatio < 0) {
+                chargeRatio = 0;
+            } else if (chargeRatio > 1.0) {
+                chargeRatio = 1.0;
+            }
+            InstanceResource[] createdVMs =
+                    creationManager.createVMs(unallocatedVMs, request.getRequestedNics(),
+                                              request.getCaller(), request.getContext(),
+                                              request.getGroupID(), null, null, true,
+                                              chargeRatio);
             for (InstanceResource resource : createdVMs) {
                 request.addAllocatedVM(resource.getID());
                 this.asyncRequestMap.addOrReplace(request);

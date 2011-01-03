@@ -98,7 +98,8 @@ public class DefaultAuthorize implements Authorize {
 
     public void authz(VirtualMachine[] bindings,
                       String callerID,
-                      Subject peerSubject)
+                      Subject peerSubject,
+                      double chargeRatio)
             throws ResourceRequestDeniedException,
                    AuthorizationException {
 
@@ -139,7 +140,8 @@ public class DefaultAuthorize implements Authorize {
                                             bindings,
                                             elapsedMins,
                                             reservedMins,
-                                            numWorkspaces);
+                                            numWorkspaces,
+                                            chargeRatio);
 
                 // if a reason to client is desired, throw
                 // WorkspaceResourceRequestDeniedException in callout

@@ -277,7 +277,7 @@ public class IdempotentInstanceResource implements InstanceResource {
         throw new UnsupportedOperationException(UNSUPPORTED_MSG);
     }
 
-    public void populate(int id, VirtualMachine binding, Calendar startTime, Calendar termTime, String node) {
+    public void populate(int id, VirtualMachine binding, Calendar startTime, Calendar termTime, String node, double chargeRatio) {
         throw new UnsupportedOperationException(UNSUPPORTED_MSG);
     }
 
@@ -298,6 +298,14 @@ public class IdempotentInstanceResource implements InstanceResource {
     }
 
     public void setInitialVMMaccessOK(boolean trashOK) {
+        throw new UnsupportedOperationException(UNSUPPORTED_MSG);
+    }
+
+    public void setChargeRatio(double chargeRatio) {
+        throw new UnsupportedOperationException(UNSUPPORTED_MSG);
+    }
+
+    public double getChargeRatio() {
         throw new UnsupportedOperationException(UNSUPPORTED_MSG);
     }
 }
