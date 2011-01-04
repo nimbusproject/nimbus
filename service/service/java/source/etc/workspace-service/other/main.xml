@@ -597,6 +597,8 @@
         <constructor-arg value="$SI{si.minprice}" />        
         <constructor-arg ref="nimbus-rm.si.pricingmodel" />
         <constructor-arg ref="nimbus-rm.si.asyncreqmap" />
+        <constructor-arg value="$SI{si.enabled}" />
+        <constructor-arg value="$SI{backfill.enabled}" />
 
         <!-- set after object creation time to avoid circular dep -->
         <property name="creationManager" ref="nimbus-rm.creation" />

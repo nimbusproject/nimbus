@@ -560,8 +560,11 @@
         <constructor-arg ref="nimbus-repr.ReprFactory"/>
         <constructor-arg ref="nimbus-rm.loglevels" />
 
+        <!-- Force this to be false in the unit tests, the backfill code is exercised directly.
+             Thus, the async manager needs to think backfill is enabled but this Backfill class
+             should not be submitting backfill requests. -->
         <property name="backfillEnabled"
-                  value="$SI{backfill.enabled}" />
+                  value="false" />
         <property name="maxInstances"
                   value="$BACKFILL{max.instances}" />
         <property name="diskImage"
@@ -597,6 +600,8 @@
         <constructor-arg value="$SI{si.minprice}" />        
         <constructor-arg ref="nimbus-rm.si.pricingmodel" />
         <constructor-arg ref="nimbus-rm.si.asyncreqmap" />
+        <constructor-arg value="$SI{si.enabled}" />
+        <constructor-arg value="$SI{backfill.enabled}" />
 
         <!-- set after object creation time to avoid circular dep -->
         <property name="creationManager" ref="nimbus-rm.creation" />

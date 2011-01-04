@@ -17,6 +17,7 @@ package org.globus.workspace.async;
 
 import org.globus.workspace.StateChangeInterested;
 import org.globus.workspace.scheduler.defaults.PreemptableSpaceManager;
+import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
 
 /**
  * Interface that represents
@@ -25,10 +26,10 @@ import org.globus.workspace.scheduler.defaults.PreemptableSpaceManager;
 public interface AsyncRequestManager extends AsyncRequestHome, PreemptableSpaceManager, StateChangeInterested {
 
     /**
-     * Adds an asynchronous request
-     * to this manager
+     * Adds an asynchronous request to this manager
      * @param request the request to be added
+     * @throws ResourceRequestDeniedException If this type of request is disabled
      */
-    public void addRequest(AsyncRequest request);
+    public void addRequest(AsyncRequest request) throws ResourceRequestDeniedException;
     
 }

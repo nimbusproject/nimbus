@@ -44,13 +44,21 @@ import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.SpotPriceEntry;
 import org.nimbustools.api.services.rm.DoesNotExistException;
 import org.nimbustools.api.services.rm.ManageException;
+import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
 
 public class AsyncRequestManagerImpl implements AsyncRequestManager {
     
     //TODO: Set by Spring IoC
     private Integer minReservedMem;
     private Double maxUtilization;
-    private Integer instanceMem;    
+    private Integer instanceMem;
+
+    // If both of these are false, this module will do nothing at all.
+    
+    // True if non-superuser requests are honored (SI)
+    protected final boolean remoteEnabled;
+    // True if superuser requests (backfill) are honored, can be entirely disabled.
+    protected final boolean backfillEnabled;
 
     private static final Log logger =
         LogFactory.getLog(AsyncRequestManagerImpl.class.getName());
@@ -76,7 +84,9 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
                                     WorkspaceGroupHome groupHome,
                                     Double minPrice,
                                     PricingModel pricingModelImpl,
-                                    AsyncRequestMap asyncRequestMap){
+                                    AsyncRequestMap asyncRequestMap,
+                                    boolean remoteEnabled,
+                                    boolean backfillEnabled){
 
         this.maxVMs = 0;
    
@@ -131,6 +141,9 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
         }
 
         this.pricingModel.setMinPrice(minPrice);
+
+        this.remoteEnabled = remoteEnabled;
+        this.backfillEnabled = backfillEnabled;
     }
     
     // -------------------------------------------------------------------------
@@ -138,20 +151,27 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
     // -------------------------------------------------------------------------         
     
     /**
-     * Adds an asynchronous request
-     * to this manager
+     * Adds an asynchronous request to this manager
      * @param request the request to be added
+     * @throws ResourceRequestDeniedException If this type of request is disabled
      */
-    public void addRequest(AsyncRequest request){
+    public void addRequest(AsyncRequest request) throws ResourceRequestDeniedException {
 
         this.asyncRequestMap.addOrReplace(request);
 
         if(request.isSpotRequest()){
+            if (!this.remoteEnabled) {
+                throw new ResourceRequestDeniedException("Spot instances are disabled");
+            }
+
             if(this.lager.eventLog){
                 logger.info(Lager.ev(-1) + "Spot Instance request arrived: " + request.toString() + ". Changing price and reallocating requests.");
             }
             changePriceAndAllocateRequests();
         } else {
+            if (!this.backfillEnabled) {
+                throw new ResourceRequestDeniedException("Backfill is disabled");
+            }
             if(this.lager.eventLog){
                 logger.info(Lager.ev(-1) + "Backfill request arrived: " + request.toString() + ".");
             }
@@ -922,6 +942,9 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
 
 
     public void recalculateAvailableInstances() {
+        if (!this.backfillEnabled && !this.remoteEnabled) {
+            return;
+        }
         this.calculateMaxVMs();
     }
 

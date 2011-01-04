@@ -110,6 +110,9 @@ public abstract class NimbusTestBase extends AbstractTestNGSpringContextTests {
         //Looked up before each test method in case @DirtiesContext was used in previous method
         this.locator = (ModuleLocator) applicationContext.getBean(MODULE_LOCATOR_BEAN_NAME);
         this.setUpVmms();
+
+        // This triggers any "post context setup" initialization work
+        this.locator.getManager().recover_initialize();
     }
 
     @AfterMethod(alwaysRun=true)
