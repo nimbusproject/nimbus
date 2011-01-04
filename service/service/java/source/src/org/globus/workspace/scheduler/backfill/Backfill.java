@@ -62,6 +62,7 @@ public class Backfill {
     private boolean backfillEnabled;
     private int maxInstances;
     private String diskImage;
+    private String repoUser;
     private int memoryMB;
     private int vcpus;
     private int durationSeconds;
@@ -96,6 +97,10 @@ public class Backfill {
         return this.diskImage;
     }
 
+    public String getRepoUser() {
+        return repoUser;
+    }
+
     public int getMemoryMB() {
         return this.memoryMB;
     }
@@ -126,6 +131,10 @@ public class Backfill {
 
     public void setDiskImage(String diskImage) {
         this.diskImage = diskImage;
+    }
+
+    public void setRepoUser(String repoUser) {
+        this.repoUser = repoUser;
     }
 
     public void setMemoryMB(int memoryMB) {
@@ -169,6 +178,9 @@ public class Backfill {
         if (this.manager == null) {
             throw new IllegalStateException("You may not invoke initiateBackfill() without " +
                                             "priming a manager instance");
+        }
+        if (this.repoUser == null || this.repoUser.trim().length() == 0) {
+            throw new IllegalStateException("Backfill is not configured with a repo user.");
         }
 
         final int currentSiteCapacity = this.pollLiveSiteCapacity();
@@ -247,7 +259,7 @@ public class Backfill {
             throw new IllegalStateException("Programmer error.");
         }
         _Caller superuser = this.reprFactory._newCaller();
-        superuser.setIdentity("BACKFILL_SUPERUSER");
+        superuser.setIdentity(this.repoUser);
         superuser.setSuperUser(true);
         RequestInfo[] bfRequests = this.manager.getBackfillRequestsByCaller(superuser);
 
@@ -296,7 +308,7 @@ public class Backfill {
         }
 
         _Caller superuser = this.reprFactory._newCaller();
-        superuser.setIdentity("BACKFILL(SUPERUSER)");
+        superuser.setIdentity(this.repoUser);
         superuser.setSuperUser(true);
 
         for (int i = 0; i < numInstances; i++) {
