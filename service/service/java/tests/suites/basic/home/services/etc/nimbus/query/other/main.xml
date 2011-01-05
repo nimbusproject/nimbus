@@ -225,7 +225,7 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
          <property name="largeName" value="$OTHER_ELASTIC{ra.name.large}" />
          <property name="xlargeName" value="$OTHER_ELASTIC{ra.name.xlarge}" />
          <property name="unknownString" value="$OTHER_ELASTIC{ra.name.unknown}" />
-         <property name="siType" value="$SI{si.instancetype}" />
+         <property name="siType" value="$ASYNC{async.instancetype}" />
 
          <property name="cpuArch" value="$OTHER_ELASTIC{cpu.arch}" />
          <property name="vmmType" value="$OTHER_ELASTIC{vmm.type}" />
@@ -309,16 +309,29 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
           init-method="validate">
 
         <constructor-arg ref="nimbus-query.rm.containerInterface" />
-         <constructor-arg ref="nimbus-query.rm.modulelocator" />
-         <constructor-arg ref="other.AuthzDataSource" />
+        <constructor-arg ref="nimbus-query.rm.modulelocator" />
+        <constructor-arg ref="other.AuthzDataSource" />
+        <constructor-arg ref="other.repo-imageLocator" />
 
         <property name="cumulusPublicUser" value="$CUMULUS{cumulus.publicuser}" />
         <property name="repoBucket" value="$CUMULUS{cumulus.repo.bucket}" />
         <property name="prefix" value="$CUMULUS{cumulus.repo.prefix}" />
-        <property name="cumulusHost" value="$CUMULUS{cumulus.host}" />
         <property name="rootFileMountAs" value="$OTHER_ELASTIC{rootfile.mountas}" />
          
     </bean>
+
+    <bean id="other.repo-imageLocator"
+          class="org.nimbus.authz.CumulusImageLocator"
+          init-method="validate">
+
+        <constructor-arg ref="other.AuthzDataSource" />
+
+        <property name="repoBucket" value="$CUMULUS{cumulus.repo.bucket}" />
+        <property name="prefix" value="$CUMULUS{cumulus.repo.prefix}" />
+        <property name="cumulusHost" value="$CUMULUS{cumulus.host}" />
+        <property name="rootFileMountAs" value="$OTHER_ELASTIC{rootfile.mountas}" />
+
+   </bean>
 
 
     <!--

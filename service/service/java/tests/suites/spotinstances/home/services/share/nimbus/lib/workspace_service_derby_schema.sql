@@ -246,9 +246,7 @@ id INT NOT NULL PRIMARY KEY,
 enabled SMALLINT NOT NULL,
 max_instances INT NOT NULL,
 disk_image VARCHAR(512) NOT NULL,
-memory_mb SMALLINT NOT NULL,
-vcpus SMALLINT NOT NULL,
-duration INT NOT NULL,
-network VARCHAR(100) NOT NULL,
-site_capacity INT NOT NULL
+site_capacity INT NOT NULL,
+repo_user VARCHAR(512) NOT NULL,
+instance_mem SMALLINT NOT NULL
 );

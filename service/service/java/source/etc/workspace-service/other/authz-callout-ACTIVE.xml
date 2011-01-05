@@ -15,20 +15,6 @@
     <import resource="main.conflocator.xml" />
     <!-- <import resource="authz-callout-groupauthz.xml" /> cannot quite inheirt :-( -->    
 
-    <bean id="other.AuthzDataSource"
-         class="org.apache.commons.dbcp.BasicDataSource">
-       <property name="driverClassName" value="org.sqlite.JDBC" />
-       <property name="maxActive" value="10" />
-       <property name="maxIdle" value="4" />
-       <property name="maxWait" value="2000" />
-       <property name="poolPreparedStatements" value="true" />
-
-       <property name="url"
-                 value="jdbc:sqlite://$CUMULUS{cumulus.authz.db}" />
-       <property name="username" value="nimbus"/>
-       <property name="password" value="nimbus"/>
-   </bean>
-
     <bean id="nimbus-rm.service.binding.Decider"
          class="org.globus.workspace.sqlauthz.AuthzDecisionLogic">
 

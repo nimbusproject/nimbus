@@ -21,12 +21,12 @@ import org.apache.commons.logging.LogFactory;
 import org.globus.workspace.Lager;
 import org.globus.workspace.persistence.PersistenceAdapter;
 import org.globus.workspace.persistence.WorkspaceDatabaseException;
+import org.nimbus.authz.RepositoryImageLocator;
 import org.nimbustools.api._repr._AsyncCreateRequest;
 import org.nimbustools.api._repr._Caller;
 import org.nimbustools.api._repr.vm._NIC;
 import org.nimbustools.api._repr.vm._RequiredVMM;
 import org.nimbustools.api._repr.vm._ResourceAllocation;
-import org.nimbustools.api._repr.vm._Schedule;
 import org.nimbustools.api._repr.vm._VMFile;
 import org.nimbustools.api.repr.AsyncCreateRequest;
 import org.nimbustools.api.repr.CreateRequest;
@@ -34,7 +34,6 @@ import org.nimbustools.api.repr.ReprFactory;
 import org.nimbustools.api.repr.RequestInfo;
 import org.nimbustools.api.repr.si.SIConstants;
 import org.nimbustools.api.repr.vm.NIC;
-import org.nimbustools.api.repr.vm.ResourceAllocation;
 import org.nimbustools.api.repr.vm.VMFile;
 import org.nimbustools.api.services.rm.AuthorizationException;
 import org.nimbustools.api.services.rm.CoSchedulingException;
@@ -47,7 +46,6 @@ import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
 import org.nimbustools.api.services.rm.SchedulingException;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 
 public class Backfill {
 
@@ -57,24 +55,32 @@ public class Backfill {
     private final PersistenceAdapter persistenceAdapter;
     private final ReprFactory reprFactory;
     private final Lager lager;
+    private final RepositoryImageLocator imageLocator;
     private Manager manager;
 
     private boolean backfillEnabled;
     private int maxInstances;
     private String diskImage;
     private String repoUser;
-    private int memoryMB;
-    private int vcpus;
-    private int durationSeconds;
-    private String network;
     private int siteCapacity;
+    private int instanceMem;
+    
+    private String cpuArch;
+    private String vmmType;
+    private String vmmVersion;
+    private String rootFileMountAs;
+    private String publicNetwork;
+    private String privateNetwork;
+
 
     public Backfill(PersistenceAdapter persistenceAdapter,
                     ReprFactory reprFactory,
-                    Lager lager) {
+                    Lager lager,
+                    RepositoryImageLocator imageLocator) {
         this.persistenceAdapter = persistenceAdapter;
         this.reprFactory = reprFactory;
         this.lager = lager;
+        this.imageLocator = imageLocator;
     }
 
     public void setManager(Manager manager) {
@@ -100,25 +106,13 @@ public class Backfill {
     public String getRepoUser() {
         return repoUser;
     }
-
-    public int getMemoryMB() {
-        return this.memoryMB;
-    }
-
-    public int getVcpus() {
-        return this.vcpus;
-    }
-
-    public int getDurationSeconds() {
-        return this.durationSeconds;
-    }
-
-    public String getNetwork() {
-        return this.network;
-    }
-
+    
     public int getSiteCapacity() {
         return siteCapacity;
+    }
+
+    public int getInstanceMem() {
+        return instanceMem;
     }
 
     public void setBackfillEnabled(boolean backfillEnabled) {
@@ -137,24 +131,36 @@ public class Backfill {
         this.repoUser = repoUser;
     }
 
-    public void setMemoryMB(int memoryMB) {
-        this.memoryMB = memoryMB;
-    }
-
-    public void setVcpus(int vcpus) {
-        this.vcpus = vcpus;
-    }
-
-    public void setDurationSeconds(int durationSeconds) {
-        this.durationSeconds = durationSeconds;
-    }
-
-    public void setNetwork(String network) {
-        this.network = network;
-    }
-
     public void setSiteCapacity(int siteCapacity) {
         this.siteCapacity = siteCapacity;
+    }
+
+    public void setInstanceMem(int instanceMem) {
+        this.instanceMem = instanceMem;
+    }
+
+    public void setCpuArch(String cpuArch) {
+        this.cpuArch = cpuArch;
+    }
+
+    public void setVmmType(String vmmType) {
+        this.vmmType = vmmType;
+    }
+
+    public void setVmmVersion(String vmmVersion) {
+        this.vmmVersion = vmmVersion;
+    }
+
+    public void setRootFileMountAs(String rootFileMountAs) {
+        this.rootFileMountAs = rootFileMountAs;
+    }
+
+    public void setPublicNetwork(String publicNetwork) {
+        this.publicNetwork = publicNetwork;
+    }
+
+    public void setPrivateNetwork(String privateNetwork) {
+        this.privateNetwork = privateNetwork;
     }
 
     /**
@@ -179,7 +185,7 @@ public class Backfill {
             throw new IllegalStateException("You may not invoke initiateBackfill() without " +
                                             "priming a manager instance");
         }
-        if (this.repoUser == null || this.repoUser.trim().length() == 0) {
+        if (this.getRepoUser() == null || this.getRepoUser().trim().length() == 0) {
             throw new IllegalStateException("Backfill is not configured with a repo user.");
         }
 
@@ -259,7 +265,7 @@ public class Backfill {
             throw new IllegalStateException("Programmer error.");
         }
         _Caller superuser = this.reprFactory._newCaller();
-        superuser.setIdentity(this.repoUser);
+        superuser.setIdentity(this.getRepoUser());
         superuser.setSuperUser(true);
         RequestInfo[] bfRequests = this.manager.getBackfillRequestsByCaller(superuser);
 
@@ -291,43 +297,53 @@ public class Backfill {
         }
 
         int numInstances;
-        if (this.maxInstances == 0) {
+        if (this.getMaxInstances() == 0) {
             // If zero, request is for as many as possible.
             // This functionality should be consolidated: you put in a type of instance and
             // it tells you how many can fit in a given capacity.  This calculation does not
             // take into account a possible reduction because of limited network mappings.
             // But the scheduler can't launch more instances than there are networks available
             // so it will top out.
-            numInstances = this.getSiteCapacity() / this.memoryMB;
+            numInstances = this.getSiteCapacity() / this.getInstanceMem();
             if (numInstances < 1) {
                 logger.warn("Not enough total VM capacity for even one backfill node.");
                 numInstances = 1;
             }
         } else {
-            numInstances = this.maxInstances;
+            numInstances = this.getMaxInstances();
         }
 
         _Caller superuser = this.reprFactory._newCaller();
-        superuser.setIdentity(this.repoUser);
+        superuser.setIdentity(this.getRepoUser());
         superuser.setSuperUser(true);
 
+        final URI imageURI;
+        try {
+            String imageURL =
+                    this.imageLocator.getImageLocation(this.getRepoUser(), this.getDiskImage());
+            imageURI = new URI(imageURL);
+        } catch (Exception e) {
+            throw new CreationException(e.getMessage(), e);
+        }
+
         for (int i = 0; i < numInstances; i++) {
-            AsyncCreateRequest req = this.getBackfillRequest(1, "BACKFILL-" + (i+1));
+            AsyncCreateRequest req =
+                    this.getBackfillRequest(1, "BACKFILL-" + (i+1), imageURI);
             this.manager.addBackfillRequest(req, superuser);
         }
     }
 
     // Allow easy IoC driven extension for customizing this better
-    public AsyncCreateRequest getBackfillRequest(int numInstances, String name)
+    public AsyncCreateRequest getBackfillRequest(int numInstances,
+                                                 String name,
+                                                 URI imageURI)
             throws WorkspaceDatabaseException {
 
         if (this.lager.traceLog) {
             final StringBuilder sb = new StringBuilder("Backfill request:");
             sb.append("\nNum instances: ").append(numInstances);
+            sb.append("\nUser: ").append(this.getRepoUser());
             sb.append("\nImage: ").append(this.getDiskImage());
-            sb.append("\nNetwork: ").append(this.getNetwork());
-            sb.append("\nMemory: ").append(this.getMemoryMB());
-            sb.append("\nvcpus: ").append(this.getVcpus());
             logger.debug(sb.toString());
         }
 
@@ -335,45 +351,53 @@ public class Backfill {
         req.setInstanceType(SIConstants.SI_TYPE_BASIC);
 
         req.setName(name);
-
-        final _NIC nic = this.reprFactory._newNIC();
-        nic.setNetworkName(this.getNetwork());
-        nic.setAcquisitionMethod(NIC.ACQUISITION_AllocateAndConfigure);
-        req.setRequestedNics(new _NIC[]{nic});
-
-
+        req.setRequestedNics(this.getNetwork());
+        
         final _ResourceAllocation ra = this.reprFactory._newResourceAllocation();
         req.setRequestedRA(ra);
-        final _Schedule schedule = this.reprFactory._newSchedule();
-        schedule.setDurationSeconds(this.getDurationSeconds());
-        req.setRequestedSchedule(schedule);
         ra.setNodeNumber(numInstances);
-        ra.setIndCpuCount(this.getVcpus());
-        ra.setMemory(this.getMemoryMB());
+        ra.setMemory(this.instanceMem);
         req.setShutdownType(CreateRequest.SHUTDOWN_TYPE_TRASH);
         req.setInitialStateRequest(CreateRequest.INITIAL_STATE_RUNNING);
 
-        ra.setArchitecture(ResourceAllocation.ARCH_x86);
+        ra.setArchitecture(this.cpuArch);
         ra.setSpotInstance(true);
         final _RequiredVMM reqVMM = this.reprFactory._newRequiredVMM();
-        reqVMM.setType("Xen");
-        reqVMM.setVersions(new String[]{"3"});
+        reqVMM.setType(this.vmmType);
+        reqVMM.setVersions(new String[]{this.vmmVersion});
         req.setRequiredVMM(reqVMM);
 
         final _VMFile file = this.reprFactory._newVMFile();
         file.setRootFile(true);
         file.setBlankSpaceName(null);
         file.setBlankSpaceSize(-1);
-        try {
-            file.setURI(new URI("file://" + this.getDiskImage()));
-        } catch (URISyntaxException e) {
-            throw new WorkspaceDatabaseException(e.getMessage());
-        }
-        file.setMountAs("sda1");
+        file.setURI(imageURI);
+        file.setMountAs(this.rootFileMountAs);
         file.setDiskPerms(VMFile.DISKPERMS_ReadWrite);
         req.setVMFiles(new _VMFile[]{file});
 
         return req;
+    }
+
+    private NIC[] getNetwork() {
+        final NIC[] nics;
+        if (this.publicNetwork.equals(this.privateNetwork)) {
+            nics = new NIC[1];
+            nics[0] = this.oneRequestedNIC(this.publicNetwork, "autoeth0");
+        } else {
+            nics = new NIC[2];
+            nics[0] = this.oneRequestedNIC(this.publicNetwork, "autoeth0");
+            nics[1] = this.oneRequestedNIC(this.privateNetwork, "autoeth1");
+        }
+        return nics;
+    }
+
+    private NIC oneRequestedNIC(String networkName, String nicName) {
+        final _NIC nic = this.reprFactory._newNIC();
+        nic.setAcquisitionMethod(NIC.ACQUISITION_AllocateAndConfigure);
+        nic.setNetworkName(networkName);
+        nic.setName(nicName);
+        return nic;
     }
 
     private int pollLiveSiteCapacity() throws WorkspaceDatabaseException {
@@ -393,21 +417,11 @@ public class Backfill {
             throw new IllegalStateException("There is no persistenceAdapter configured");
         }
 
-        if (this.maxInstances < 0) {
+        if (this.getMaxInstances() < 0) {
             throw new Exception("maxInstances may not be less than 0");
         }
-        if (this.diskImage == null) {
+        if (this.getDiskImage() == null) {
             throw new Exception("diskImage may not be null");
-        }
-        if (this.memoryMB < 8) {
-            throw new Exception("memoryMB must be a reasonable value. " +
-                                "Have you considered at least 64 MB?");
-        }
-        if (this.durationSeconds < 60) {
-            throw new Exception("durationSeconds must be 60 seconds or longer.");
-        }
-        if (this.network == null) {
-            throw new Exception("network may not be null");
         }
 
         logger.debug("Validated backfill settings");
@@ -420,14 +434,13 @@ public class Backfill {
         Backfill backfill = (Backfill) o;
 
         if (backfillEnabled != backfill.backfillEnabled) return false;
-        if (durationSeconds != backfill.durationSeconds) return false;
+        if (instanceMem != backfill.instanceMem) return false;
         if (maxInstances != backfill.maxInstances) return false;
-        if (memoryMB != backfill.memoryMB) return false;
-        if (vcpus != backfill.vcpus) return false;
+        if (siteCapacity != backfill.siteCapacity) return false;
         if (diskImage != null ? !diskImage.equals(backfill.diskImage) :
                 backfill.diskImage != null)
             return false;
-        if (network != null ? !network.equals(backfill.network) : backfill.network != null)
+        if (repoUser != null ? !repoUser.equals(backfill.repoUser) : backfill.repoUser != null)
             return false;
 
         return true;
@@ -437,10 +450,10 @@ public class Backfill {
         int result = (backfillEnabled ? 1 : 0);
         result = 31 * result + maxInstances;
         result = 31 * result + (diskImage != null ? diskImage.hashCode() : 0);
-        result = 31 * result + memoryMB;
-        result = 31 * result + vcpus;
-        result = 31 * result + durationSeconds;
-        result = 31 * result + (network != null ? network.hashCode() : 0);
+        result = 31 * result + (repoUser != null ? repoUser.hashCode() : 0);
+        result = 31 * result + siteCapacity;
+        result = 31 * result + instanceMem;
         return result;
     }
+
 }

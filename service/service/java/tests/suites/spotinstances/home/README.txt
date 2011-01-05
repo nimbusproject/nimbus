@@ -13,7 +13,7 @@ the default configurations in the "service/service/java/source" directory.
 >              Thus, the async manager needs to think backfill is enabled but this Backfill class
 >              should not be submitting backfill requests. -->
 564c567
-<                   value="$SI{backfill.enabled}" />
+<                   value="$ASYNC{backfill.enabled}" />
 ---
 >                   value="false" />
 

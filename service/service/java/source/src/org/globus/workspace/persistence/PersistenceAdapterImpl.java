@@ -2849,15 +2849,12 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
                 return null;
             }
 
-            Backfill bf = new Backfill(null, null, null);
+            Backfill bf = new Backfill(null, null, null, null);
             bf.setBackfillEnabled(rs.getBoolean(1));
             bf.setMaxInstances(rs.getInt(2));
             bf.setDiskImage(rs.getString(3));
-            bf.setMemoryMB(rs.getInt(4));
-            bf.setVcpus(rs.getInt(5));
-            bf.setDurationSeconds(rs.getInt(6));
-            bf.setNetwork(rs.getString(7));
-            bf.setSiteCapacity(rs.getInt(8));
+            bf.setSiteCapacity(rs.getInt(4));
+            bf.setRepoUser(rs.getString(5));
             return bf;
 
         } catch(SQLException e) {
@@ -2905,11 +2902,9 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
             pstmt.setInt(1, bf.isBackfillEnabled() ? 1 : 0);
             pstmt.setInt(2, bf.getMaxInstances());
             pstmt.setString(3, bf.getDiskImage());
-            pstmt.setInt(4, bf.getMemoryMB());
-            pstmt.setInt(5, bf.getVcpus());
-            pstmt.setInt(6, bf.getDurationSeconds());
-            pstmt.setString(7, bf.getNetwork());
-            pstmt.setInt(8, bf.getSiteCapacity());
+            pstmt.setInt(4, bf.getSiteCapacity());
+            pstmt.setString(5, bf.getRepoUser());
+            pstmt.setInt(6, bf.getInstanceMem());
 
             final int updated = pstmt.executeUpdate();
             if (this.dbTrace) {

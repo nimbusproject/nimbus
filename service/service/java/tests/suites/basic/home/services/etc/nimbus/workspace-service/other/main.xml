@@ -552,6 +552,19 @@
         		   ref="nimbus-rm.scheduler.SlotManagement" />                   
     </bean>
 
+    <bean id="other.repo-imageLocator"
+          class="org.nimbus.authz.CumulusImageLocator"
+          init-method="validate">
+
+        <constructor-arg ref="other.AuthzDataSource" />
+
+        <property name="repoBucket" value="$CUMULUS{cumulus.repo.bucket}" />
+        <property name="prefix" value="$CUMULUS{cumulus.repo.prefix}" />
+        <property name="cumulusHost" value="$CUMULUS{cumulus.host}" />
+        <property name="rootFileMountAs" value="$OTHER_ELASTIC{rootfile.mountas}" />
+
+   </bean>
+
     <bean id="nimbus-rm.backfill"
           class="org.globus.workspace.async.backfill.Backfill"
           init-method="validate">
@@ -559,6 +572,7 @@
         <constructor-arg ref="nimbus-rm.persistence.PersistenceAdapter" />
         <constructor-arg ref="nimbus-repr.ReprFactory"/>
         <constructor-arg ref="nimbus-rm.loglevels" />
+        <constructor-arg ref="other.repo-imageLocator" />
 
         <property name="backfillEnabled"
                   value="$ASYNC{backfill.enabled}" />
@@ -566,7 +580,22 @@
                   value="$ASYNC{max.instances}" />
         <property name="diskImage"
                   value="$ASYNC{disk.image}" />
-
+        <property name="repoUser"
+                  value="$ASYNC{repo.user}" />
+        <property name="instanceMem"
+                  value="$ELASTIC{memory.$ASYNC{async.instancetype}}" />
+        <property name="cpuArch"
+                  value="$OTHER_ELASTIC{cpu.arch}" />
+        <property name="publicNetwork"
+                  value="$ELASTIC{net.public}" />
+        <property name="privateNetwork"
+                  value="$ELASTIC{net.private}" />
+        <property name="rootFileMountAs"
+                  value="$OTHER_ELASTIC{rootfile.mountas}" />
+        <property name="vmmType"
+                  value="$OTHER_ELASTIC{vmm.type}" />
+         <property name="vmmVersion"
+                   value="$OTHER_ELASTIC{vmm.version}" />
     </bean>
 
     <!-- ===================================================================
@@ -594,14 +623,14 @@
 
         <!-- set after object creation time to avoid circular dep -->
         <property name="creationManager" ref="nimbus-rm.creation" />
-
-        <!-- Property values coming via spotinstances.conf -->
+        
+        <!-- Property values coming via spotinstances.conf -->        
         <property name="minReservedMem"
                   value="$ASYNC{async.policies.minreservedmem}" />
         <property name="maxUtilization"
                   value="$ASYNC{async.policies.maxutilization}" />
         <property name="instanceMem"
-                  value="$ELASTIC{memory.$ASYNC{async.instancetype}}" />                               
+                  value="$ELASTIC{memory.$ASYNC{async.instancetype}}" />
                           
     </bean>
 
@@ -761,6 +790,20 @@
         <property name="username" value="nimbus"/>
         <property name="password" value="$DERBY{derby.user.nimbus}"/>
         
+    </bean>
+
+    <bean id="other.AuthzDataSource"
+          class="org.apache.commons.dbcp.BasicDataSource">
+       <property name="driverClassName" value="org.sqlite.JDBC" />
+       <property name="maxActive" value="10" />
+       <property name="maxIdle" value="4" />
+       <property name="maxWait" value="2000" />
+       <property name="poolPreparedStatements" value="true" />
+
+       <property name="url"
+                 value="jdbc:sqlite://$CUMULUS{cumulus.authz.db}" />
+       <property name="username" value="nimbus"/>
+       <property name="password" value="nimbus"/>
     </bean>
 
 </beans>

@@ -48,7 +48,6 @@ import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
 
 public class AsyncRequestManagerImpl implements AsyncRequestManager {
     
-    //TODO: Set by Spring IoC
     private Integer minReservedMem;
     private Double maxUtilization;
     private Integer instanceMem;

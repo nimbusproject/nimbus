@@ -57,12 +57,13 @@
         <property name="placeholderPrefix" value="$QUERY{" />
     </bean>
 
-    <bean id="siSettings"
+    <bean id="asyncSettings"
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+
         <property name="location"
-                  value="$NIMBUS_HOME/services/etc/nimbus/workspace-service/spotinstances.conf" />
+                  value="$NIMBUS_HOME/services/etc/nimbus/workspace-service/async.conf" />
         <property name="placeholderPrefix"
-                  value="$SI{" />
+                  value="$ASYNC{" />
     </bean>
 
 </beans>

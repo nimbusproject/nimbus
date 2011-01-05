@@ -218,15 +218,15 @@ public interface PersistenceAdapterConstants {
             "SELECT * FROM spot_prices";
 
     public static final String SQL_INSERT_BACKFILL =
-            "INSERT INTO backfill VALUES(1,?,?,?,?,?,?,?,?)";
+            "INSERT INTO backfill VALUES(1,?,?,?,?,?,?)";
 
     public static final String SQL_UPDATE_BACKFILL =
-            "UPDATE backfill SET enabled=?, max_instances=?, disk_image=?, memory_mb=?, " +
-                    "vcpus=?, duration=?, network=?, site_capacity=? WHERE id=1";
+            "UPDATE backfill SET enabled=?, max_instances=?, disk_image=?, " +
+                    "site_capacity=?, repo_user=?, instance_mem=? WHERE id=1";
 
     public static final String SQL_SELECT_BACKFILL =
-            "SELECT enabled, max_instances, disk_image, memory_mb, " +
-                    "vcpus, duration, network, site_capacity FROM backfill WHERE id=1";
+            "SELECT enabled, max_instances, disk_image, site_capacity, repo_user, " +
+                    "instance_mem FROM backfill WHERE id=1";
 
     public static final String SQL_SELECT_IDEMPOTENT_CREATION =
             "SELECT vmid, groupid, name, launch_index " +
