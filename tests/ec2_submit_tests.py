@@ -35,12 +35,15 @@ class TestEC2Submit(unittest.TestCase):
 
     def killall_running(self):
         instances = self.ec2conn.get_all_instances()
+        ids = []
         print instances
         for reserv in instances:
             for inst in reserv.instances:
                 if inst.state != u'terminated':
                     print "Terminating instance %s" % inst
-                    inst.terminate()
+                    ids.append(inst.id)
+        if ids:    
+            self.ec2conn.terminate_instances(ids)
 
     def cb_random_bucketname(self, len):
         chars = string.letters + string.digits
