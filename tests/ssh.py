@@ -48,7 +48,7 @@ try:
     sys.exit(rc)
 
 except SystemExit:
-    pass
+    raise
 
 except Exception, ex:
     print ex
