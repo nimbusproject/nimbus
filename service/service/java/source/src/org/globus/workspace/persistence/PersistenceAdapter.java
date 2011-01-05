@@ -20,9 +20,9 @@ import java.util.Calendar;
 import java.util.Hashtable;
 import java.util.List;
 
+import org.globus.workspace.async.backfill.Backfill;
 import org.globus.workspace.creation.IdempotentReservation;
 import org.globus.workspace.network.AssociationEntry;
-import org.globus.workspace.scheduler.backfill.Backfill;
 import org.globus.workspace.scheduler.defaults.ResourcepoolEntry;
 import org.globus.workspace.service.CoschedResource;
 import org.globus.workspace.service.GroupResource;

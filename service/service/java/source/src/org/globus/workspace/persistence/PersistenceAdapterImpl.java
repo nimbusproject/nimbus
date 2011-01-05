@@ -46,7 +46,7 @@ import org.globus.workspace.persistence.impls.AssociationPersistenceUtil;
 import org.globus.workspace.persistence.impls.IdempotencyPersistenceUtil;
 import org.globus.workspace.persistence.impls.VMPersistence;
 import org.globus.workspace.persistence.impls.VirtualMachinePersistenceUtil;
-import org.globus.workspace.scheduler.backfill.Backfill;
+import org.globus.workspace.async.backfill.Backfill;
 import org.globus.workspace.scheduler.defaults.ResourcepoolEntry;
 import org.globus.workspace.service.CoschedResource;
 import org.globus.workspace.service.GroupResource;

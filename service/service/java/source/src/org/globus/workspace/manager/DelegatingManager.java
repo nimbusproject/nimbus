@@ -29,7 +29,7 @@ import org.globus.workspace.async.AsyncRequest;
 import org.globus.workspace.async.AsyncRequestManager;
 import org.globus.workspace.creation.CreationManager;
 import org.globus.workspace.persistence.DataConvert;
-import org.globus.workspace.scheduler.backfill.Backfill;
+import org.globus.workspace.async.backfill.Backfill;
 import org.globus.workspace.service.InstanceResource;
 import org.globus.workspace.service.WorkspaceCoschedHome;
 import org.globus.workspace.service.WorkspaceGroupHome;

@@ -25,8 +25,7 @@ tests because it creates conflicts.
 708a714
 >     -->
 
-6) The backfill and SI are enabled in "spotinstances.conf", they are normally disabled by
-   default.
+6) The backfill and SI are enabled in "async.conf", they are normally disabled by default.
 
-7) The "async.policies.minreservedmem" setting in "spotinstances.conf" is 256, this is expected
+7) The "async.policies.minreservedmem" setting in "async.conf" is 256, this is expected
    by all of the calculations in the test suites.

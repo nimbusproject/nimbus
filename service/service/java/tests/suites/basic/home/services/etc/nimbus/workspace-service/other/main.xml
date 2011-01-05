@@ -553,7 +553,7 @@
     </bean>
 
     <bean id="nimbus-rm.backfill"
-          class="org.globus.workspace.scheduler.backfill.Backfill"
+          class="org.globus.workspace.async.backfill.Backfill"
           init-method="validate">
 
         <constructor-arg ref="nimbus-rm.persistence.PersistenceAdapter" />
@@ -561,19 +561,11 @@
         <constructor-arg ref="nimbus-rm.loglevels" />
 
         <property name="backfillEnabled"
-                  value="$SI{backfill.enabled}" />
+                  value="$ASYNC{backfill.enabled}" />
         <property name="maxInstances"
-                  value="$BACKFILL{max.instances}" />
+                  value="$ASYNC{max.instances}" />
         <property name="diskImage"
-                  value="$BACKFILL{disk.image}" />
-        <property name="memoryMB"
-                  value="$BACKFILL{memory.MB}" />
-        <property name="vcpus"
-                  value="$BACKFILL{vcpus}" />
-        <property name="durationSeconds"
-                  value="$BACKFILL{duration.seconds}" />
-        <property name="network"
-                  value="$BACKFILL{network}" />
+                  value="$ASYNC{disk.image}" />
 
     </bean>
 
@@ -581,7 +573,7 @@
          org.globus.workspace.async.* interfaces
          =================================================================== -->
 
-    <bean id="nimbus-rm.si.pricingmodel" class="$SI{si.pricingmodel}" />
+    <bean id="nimbus-rm.si.pricingmodel" class="$ASYNC{si.pricingmodel}" />
 
     <bean id="nimbus-rm.si.asyncreqmap" class="org.globus.workspace.async.AsyncRequestMap">
         <constructor-arg value="$COMMON{caches.dir}" />
@@ -594,22 +586,22 @@
         <constructor-arg ref="nimbus-rm.loglevels" />
         <constructor-arg ref="nimbus-rm.home.instance"/>
         <constructor-arg ref="nimbus-rm.home.group"/>
-        <constructor-arg value="$SI{si.minprice}" />        
+        <constructor-arg value="$ASYNC{si.minprice}" />
         <constructor-arg ref="nimbus-rm.si.pricingmodel" />
         <constructor-arg ref="nimbus-rm.si.asyncreqmap" />
-        <constructor-arg value="$SI{si.enabled}" />
-        <constructor-arg value="$SI{backfill.enabled}" />
+        <constructor-arg value="$ASYNC{si.enabled}" />
+        <constructor-arg value="$ASYNC{backfill.enabled}" />
 
         <!-- set after object creation time to avoid circular dep -->
         <property name="creationManager" ref="nimbus-rm.creation" />
-        
-        <!-- Property values coming via spotinstances.conf -->        
+
+        <!-- Property values coming via spotinstances.conf -->
         <property name="minReservedMem"
-                  value="$SI{async.policies.minreservedmem}" />
+                  value="$ASYNC{async.policies.minreservedmem}" />
         <property name="maxUtilization"
-                  value="$SI{async.policies.maxutilization}" />
+                  value="$ASYNC{async.policies.maxutilization}" />
         <property name="instanceMem"
-                  value="$ELASTIC{memory.$SI{si.instancetype}}" />                                    
+                  value="$ELASTIC{memory.$ASYNC{async.instancetype}}" />                               
                           
     </bean>
 

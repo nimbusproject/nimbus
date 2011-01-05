@@ -14,7 +14,7 @@
  * under the License.
  */
 
-package org.globus.workspace.scheduler.backfill;
+package org.globus.workspace.async.backfill;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
