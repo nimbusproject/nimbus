@@ -42,6 +42,11 @@ import org.nimbustools.api.services.rm.SchedulingException;
  */
 public class DefaultBasicLegality implements BasicLegality {
 
+    /**
+     * Maximum length of client token string
+     */
+    protected final int CLIENT_TOKEN_MAX_LENGTH = 64;
+
     // -------------------------------------------------------------------------
     // implements BasicLegality
     // -------------------------------------------------------------------------
@@ -64,6 +69,8 @@ public class DefaultBasicLegality implements BasicLegality {
         this.checkCustTasks(req.getCustomizationRequests());
 
         this.checkSchedule(req.getRequestedSchedule());
+
+        this.checkClientToken(req.getClientToken());
     }
     
     
@@ -223,6 +230,23 @@ public class DefaultBasicLegality implements BasicLegality {
         if (sched.getDurationSeconds() < 0) {
             throw new SchedulingException(
                     "requested duration may not be less than zero");
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // CHECK CLIENT TOKEN
+    // -------------------------------------------------------------------------
+
+    protected void checkClientToken(String clientToken)
+        throws CreationException {
+
+        if (clientToken == null) {
+            return;
+        }
+
+        if (clientToken.length() > CLIENT_TOKEN_MAX_LENGTH) {
+            throw new CreationException("The request clientToken must be at most " +
+                    Integer.toString(CLIENT_TOKEN_MAX_LENGTH) + " characters");
         }
     }
 

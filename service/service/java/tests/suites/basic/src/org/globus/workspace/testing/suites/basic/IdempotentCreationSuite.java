@@ -56,6 +56,23 @@ public class IdempotentCreationSuite extends NimbusTestBase{
         return this.determineSuitesPath() + "/basic/home";
     }
 
+    @Test(expectedExceptions = CreationException.class,
+            expectedExceptionsMessageRegExp = ".*clientToken.*")
+    public void testTooLongClientToken() throws Exception {
+        final Manager rm = this.locator.getManager();
+
+        final Caller caller = this.populator().getCaller();
+
+        //65 character string, max token length is 64
+        final String token = "akjfa34q9ufajalkja4fajlfdaldfkja94iw0459i34jwljrselkfjsldfkjgslkd";
+
+        final CreateRequest request = this.populator().
+                getIdempotentCreateRequest("suite:basic:idempotency", token);
+
+        // this should fail with an expected CreationException
+        final CreateResult result = rm.create(request, caller);
+    }
+
 
     @Test
     @DirtiesContext
