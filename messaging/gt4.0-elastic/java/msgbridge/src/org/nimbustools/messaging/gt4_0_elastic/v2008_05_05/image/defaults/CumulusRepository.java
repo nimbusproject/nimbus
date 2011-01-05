@@ -21,7 +21,7 @@ import org.apache.commons.logging.LogFactory;
 import org.nimbus.authz.AuthzDBAdapter;
 import org.nimbus.authz.AuthzDBException;
 import org.nimbus.authz.ObjectWrapper;
-import org.nimbus.authz.UserAlias;
+import org.nimbus.authz.RepositoryImageLocator;
 import org.nimbustools.api._repr.vm._VMFile;
 import org.nimbustools.api.brain.ModuleLocator;
 import org.nimbustools.api.repr.Caller;
@@ -29,19 +29,13 @@ import org.nimbustools.api.repr.CannotTranslateException;
 import org.nimbustools.api.repr.ReprFactory;
 import org.nimbustools.api.repr.vm.ResourceAllocation;
 import org.nimbustools.api.repr.vm.VMFile;
-import org.nimbustools.api.services.rm.AuthorizationException;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.image.FileListing;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.image.ListingException;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.image.Repository;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.ContainerInterface;
 
 import javax.sql.DataSource;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.sql.Connection;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -63,12 +57,13 @@ public class CumulusRepository implements Repository {
 
     protected final ContainerInterface container;
     protected final ReprFactory repr;
-    protected AuthzDBAdapter authDB;
-    protected String cumulusHost = null;
-    protected String repoBucket = null;
-    protected String prefix = null;
+    protected final AuthzDBAdapter authDB;
+    protected final RepositoryImageLocator imageLocator;
+
+    protected String repoBucket;
+    protected String prefix;
     protected int repo_id = -1;
-    protected String rootFileMountAs = null;
+    protected String rootFileMountAs;
 
     // -------------------------------------------------------------------------
     // CONSTRUCTOR
@@ -76,15 +71,15 @@ public class CumulusRepository implements Repository {
 
     public CumulusRepository(ContainerInterface containerImpl,
                              ModuleLocator locator,
-                            DataSource ds)
+                             DataSource dataSource,
+                             RepositoryImageLocator imageLocator)
         throws Exception
     {
-        if (containerImpl == null)
+        if (dataSource == null)
         {
-            throw new IllegalArgumentException("containerImpl may not be null");
+            throw new IllegalArgumentException("dataSource may not be null");
         }
-        this.authDB = new AuthzDBAdapter(ds);
-
+        this.authDB = new AuthzDBAdapter(dataSource);
 
         if (containerImpl == null)
         {
@@ -96,8 +91,13 @@ public class CumulusRepository implements Repository {
         {
             throw new IllegalArgumentException("locator may not be null");
         }
-
         this.repr = locator.getReprFactory();
+
+        if (imageLocator == null)
+        {
+            throw new IllegalArgumentException("imageLocator may not be null");
+        }
+        this.imageLocator = imageLocator;
     }
 
 
@@ -112,7 +112,6 @@ public class CumulusRepository implements Repository {
         this.authDB.setCumulusPublicUser(pubUser);
     }
 
-    
 
     // -------------------------------------------------------------------------
     // IoC INIT METHOD
@@ -121,10 +120,6 @@ public class CumulusRepository implements Repository {
     void validate()
         throws Exception
     {
-        if (this.cumulusHost == null)
-        {
-            throw new Exception("Invalid: Missing 'cumulus host' string");
-        }
         if (this.repoBucket == null)
         {
             throw new Exception("Missing the 'repoBucket' setting");
@@ -151,31 +146,10 @@ public class CumulusRepository implements Repository {
         this.repoBucket= rb;
     }
 
-    public String getRepoBucket()
-    {
-        return this.repoBucket;
-    }
-
-    public void setCumulusHost(String rb)
-            throws Exception
-    {
-        this.cumulusHost = rb;
-    }
-
-    public String getPrefix()
-    {
-        return this.cumulusHost;
-    }
-
     public void setPrefix(String rb)
             throws Exception
     {
         this.prefix = rb;
-    }
-
-    public String getCumulusHost()
-    {
-        return this.cumulusHost;
     }
 
     public boolean isListingEnabled()
@@ -192,77 +166,20 @@ public class CumulusRepository implements Repository {
     {
         this.rootFileMountAs = rootFileMountAs;
     }
-    
+
     // -------------------------------------------------------------------------
     // implements Repository
     // -------------------------------------------------------------------------
 
-
     public String getImageLocation(Caller caller, String vmname)
-            throws CannotTranslateException
-    {
-        final String dn = caller.getIdentity();
-        String ownerID;
-        try
-        {
-            ownerID = this.authDB.getCanonicalUserIdFromDn(dn);
-        }
-        catch(AuthzDBException ex)
-        {
-            throw new CannotTranslateException(ex.toString(), ex);
-        }
-        if (ownerID == null)
-        {
-            throw new CannotTranslateException("No caller/ownerID?");
-        }
-        try
-        {
-            int parentId = authDB.getFileID(this.repoBucket , -1, AuthzDBAdapter.OBJECT_TYPE_S3);
-            if (parentId < 0)
-            {
-                throw new CannotTranslateException("No such bucket " + this.repoBucket);
-            }
+            throws CannotTranslateException {
 
-            String userKeyName = this.prefix + "/" + ownerID;
-            String commonKeyName = this.prefix + "/common";
-            String keyName = userKeyName;
-            
-            int fileId = authDB.getFileID(userKeyName + "/" + vmname, parentId, AuthzDBAdapter.OBJECT_TYPE_S3);
-            if(fileId < 0)
-            {
-                fileId = authDB.getFileID(commonKeyName + "/" + vmname, parentId, AuthzDBAdapter.OBJECT_TYPE_S3);
-                if(fileId >= 0)
-                {
-                    keyName = commonKeyName;
-                }
-            }
-            return "cumulus://" + this.cumulusHost + "/" + this.repoBucket + "/" + keyName;
-        }
-        catch(AuthzDBException wsdbex)
-        {
-            logger.error("trouble looking up the cumulus information ", wsdbex);
-            throw new CannotTranslateException("Trouble with the database " + wsdbex.toString());
-        }
-    }
-
-    public String getImageLocation(Caller caller)
-                throws CannotTranslateException
-    {
         final String dn = caller.getIdentity();
-        String ownerID;
-        try
-        {
-            ownerID = this.authDB.getCanonicalUserIdFromDn(dn);
+        try {
+            return this.imageLocator.getImageLocation(dn, vmname);
+        } catch (Exception e) {
+            throw new CannotTranslateException(e.getMessage(), e);
         }
-        catch(AuthzDBException ex)
-        {
-            throw new CannotTranslateException(ex.toString(), ex);
-        }
-        if (ownerID == null)
-        {
-            throw new CannotTranslateException("No caller/ownerID?");
-        }
-        return "cumulus://" + this.cumulusHost + "/" + this.repoBucket + "/" + this.prefix + "/" + ownerID;
     }
 
     public VMFile[] constructFileRequest(String imageID,
@@ -299,7 +216,7 @@ public class CumulusRepository implements Repository {
             {
                 urlStr = getImageLocation(caller, imageID) + "/" + imageID;
             }
-            file.setMountAs(this.getRootFileMountAs());
+            file.setMountAs(this.rootFileMountAs);
             URI imageURI = new URI(urlStr);
             file.setURI(imageURI);
             vma[0] = file;

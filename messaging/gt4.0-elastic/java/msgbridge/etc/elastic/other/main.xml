@@ -146,7 +146,7 @@
          <property name="cpuArch" value="$OTHER_ELASTIC{cpu.arch}" />
          <property name="vmmType" value="$OTHER_ELASTIC{vmm.type}" />
          <property name="vmmVersion" value="$OTHER_ELASTIC{vmm.version}" />
-         <property name="siType" value="$SI{si.instancetype}" />
+         <property name="siType" value="$ASYNC{async.instancetype}" />
 
     </bean>
     
@@ -252,6 +252,19 @@
        <property name="password" value="nimbus"/>
    </bean>
 
+   <bean id="other.repo-imageLocator"
+         class="org.nimbus.authz.CumulusImageLocator"
+         init-method="validate">
+
+        <constructor-arg ref="other.AuthzDataSource" />
+
+        <property name="repoBucket" value="$CUMULUS{cumulus.repo.bucket}" />
+        <property name="prefix" value="$CUMULUS{cumulus.repo.prefix}" />
+        <property name="cumulusHost" value="$CUMULUS{cumulus.host}" />
+        <property name="rootFileMountAs" value="$OTHER_ELASTIC{rootfile.mountas}" />
+        
+   </bean>
+    
     <bean id="nimbus-elastic.image.repository"
           class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.image.defaults.CumulusRepository"
           init-method="validate">
@@ -259,11 +272,11 @@
         <constructor-arg ref="nimbus-elastic.rm.containerInterface" />
         <constructor-arg ref="nimbus-elastic.rm.modulelocator" />
         <constructor-arg ref="other.AuthzDataSource" />
+        <constructor-arg ref="other.repo-imageLocator" />
 
         <property name="repoBucket" value="$CUMULUS{cumulus.repo.bucket}" />
         <property name="cumulusPublicUser" value="$CUMULUS{cumulus.publicuser}" />
         <property name="prefix" value="$CUMULUS{cumulus.repo.prefix}" />
-        <property name="cumulusHost" value="$CUMULUS{cumulus.host}" />
         <property name="rootFileMountAs" value="$OTHER_ELASTIC{rootfile.mountas}" />
 
     </bean>

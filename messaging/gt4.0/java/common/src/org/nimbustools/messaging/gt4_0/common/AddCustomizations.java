@@ -26,9 +26,6 @@ import org.nimbustools.api._repr._CreateRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class AddCustomizations {
 
     protected static final Log logger =

@@ -28,7 +28,7 @@ public interface Repository {
                                          Caller caller)
             throws CannotTranslateException;
 
-    public String getImageLocation(Caller caller, String vmnane)
+    public String getImageLocation(Caller caller, String vmname)
             throws CannotTranslateException;
 
     public boolean isListingEnabled();
