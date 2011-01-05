@@ -47,9 +47,10 @@ try:
         rc = ssh_in()
     sys.exit(rc)
 
+except SystemExit:
+    pass
+
 except Exception, ex:
     print ex
     sys.exit(1)
-
-
 
