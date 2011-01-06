@@ -1336,6 +1336,10 @@ fakepub1 192.168.0.3 192.168.0.1 192.168.0.255 255.255.255.0</pre>
     of VMM nodes.  The service assumes it can start VMs 
 </p>
 <p>
+	These are explained below.  To learn about backfill and spot instances, see
+	<a href="#backfill-and-spot-instances">backfill and spot instances overview</a>
+</p>
+<p>
     The "pilot" mode is where the service makes a request to a cluster's
     Local Resource Management System (LRMS) such as PBS.  The VMMs are equipped
     to run regular jobs in domain 0.  But if pilot jobs are submitted, the nodes
@@ -2208,6 +2212,94 @@ $ $NIMBUS_HOME/bin/nimbusctl restart
     </p>
 </li>
 </ol>
+
+
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+
+<br />
+
+<a name="backfill-and-spot-instances"> </a>
+<h2>Backfill and Spot Instances _NAMELINK(backfill-and-spot-instances)</h2>
+<p>
+    Backfill and Spot Instances are two related features, they both deal with
+    <i>asynchronous</i> instance requests, requests that may only be started
+    at appropriate times, if ever.
+</p>
+<p>
+	Spot instances are requested by remote users with a particular bid
+	(represented in Nimbus as a discount applied to minutes charged to your
+	account).  Users may consult the spot price history before bidding.  If the
+	bid is accepted (equal or higher to the current spot price), the instances
+	are started.  They may be stopped at a moment's notice. The implementation
+	is of EC2's 2010-08-31 WSDL, see the 
+	<a href="http://aws.amazon.com/ec2/spot-instances/">Amazon EC2 Spot
+	Instances</a> guide for more background.
+</p>
+<p>
+	Backfill is a mechanism that the <i>administrator</i> configures to keep
+	idle resources busy. You pick a particular VM image that will be launched
+	when the nodes would otherwise be idle.  This works nicely with systems
+	such as <a href="http://www.cs.wisc.edu/condor/">Condor</a> that can
+	gracefully deal with being preempted.
+</p>
+<p>
+    To jump to the precise semantics and configurations that are possible, see
+    the comments in the 
+    <a href="https://github.com/nimbusproject/nimbus/blob/HEAD/service/service/java/source/etc/workspace-service/async.conf">async.conf</a>
+    file.
+</p>
+<p>
+    To start using spot instances as a user, follow the
+    <a href="../elclients.html#spot">spot instance user's guide</a>.
+</p>
+<p>
+    To begin with backfill, read over the above conf file first.  Choose a
+    current administrator account to launch the image from or create one with
+    the "--dn" flag like so:
+</p>
+
+<div class="screen">
+<b>$</b> ./bin/nimbus-new-user --dn BACKFILL-SUPERUSER backfill@localhost<br>
+</div>
+
+<p>
+    ... where "BACKFILL-SUPERUSER" is the user configured in async.conf (that
+    is the default value).
+</p>
+<p>
+    Backfill responds <i>immediately</i> to changes in the resource pool like
+    the presence of higher priority requests (which includes spot instances if
+    they are configured, as well as regular requests of course).  This also
+    includes when the resource pool is fundamentally changed by the
+    <tt class="literal">nimbus-nodes</tt> program.  When you add and remove
+    nodes, you are changing the overall capacity which is a critical piece
+    of information for mapping asynchronous requests like backfill and spot
+    instances.
+</p>
+<p>
+    A ramifications of that is that, since adding nodes is always done when the service is running, having backfill enabled while you make adjustments might
+    get in your way during this period.  It can be easier to disable backfill,
+    make node adjustments, and then re-enable backfill.  This applies especially
+    to <i>removing</i> nodes since the <tt class="literal">nimbus-nodes</tt> 
+    program does not allow nodes to be removed that have instances running on
+    them.
+</p>
+<p>
+    This could be said for spot instances as well.  It is slightly trickier with
+    spot instances because they are remote user requests and you may not want to
+    disable things abruptly for people.  But on the other hand, they are spot
+    instances so they should be able to deal with sudden terminations.
+</p>
+<p>
+    Another thing to watch out for is using the "max.instances=0" configuration.
+    Zero means as many as possible, but this maximum number is only calculated
+    at service startup time.  So if you add a bunch of new nodes to the resource
+    pool and the backfill instances do not immediately start consuming them
+    greedily, this is what is happening.  After adding all those nodes, stop and
+    then start the service and the backfill configuration will recalibrate.
+</p>
 
 <br />
 <br />
