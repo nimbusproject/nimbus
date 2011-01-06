@@ -15,6 +15,7 @@ _NIMBUS_IS_DEPRECATED
     <li><p><a href="#boto">Using the EC2 Query frontend from Python with Boto</a></p></li>
     <li><p><a href="#botoex">A Full Example with Boto</a></p></li>
     <li><p><a href="#ec2-api-tools">Using the EC2 SOAP frontend from the console</a></p></li>
+    <li><p><a href="#spot">Using spot instances</a></p></li>
 </ul>
 
 <a name="s3boto"> </a>
@@ -337,6 +338,186 @@ ec2-terminate-instances i-4662834e
 _EXAMPLE_CMD_END
 
 <br/><br/>
+
+
+<a name="spot"> </a>
+<h2>Using spot instances _NAMELINK(spot)</h2>
+
+<p>
+    Amazon EC2 spot instances (SIs) introduces a new approach to purchase virtual machine instances on Infrastructure as a Service clouds. In this approach, the cloud provider reserves part of the unused capacity for auction, and clients bid on this capacity. Each available VM type has an associated Spot Price, that changes periodically based on supply and demand. Clients with bids that exceed current SP gain access to available VMs for as long as their bid exceeds that price. More information on Amazon EC2 spot instances can be found at <a href="http://aws.amazon.com/ec2/spot-instances/">http://aws.amazon.com/ec2/spot-instances/</a>.
+</p>
+<p>
+    You may also be interested in the 
+	<a href="admin/reference.html#backfill-and-spot-instances">spot instances
+	introductory material</a> in the Nimbus administrator's guide.
+</p>
+<p>
+    Nimbus introduces an open source implementation of spot instances that will allow science cloud users to save allocation credits in non-critical tasks during low-demand periods. Currently, the spot instances features are available in Nimbus through the following interfaces: Amazon EC2 WSDLs and Amazon EC2 Query API. Moreover, developers may want to link their own applications with Nimbus' spot instances through the RM API.
+</p>
+<p>
+    The Nimbus' spot instances operations are compliant with the WSDL schema version <b>2010-06-15</b> and higher. You can follow the instructions above in order to connect your preferred EC2 client to a Nimbus cloud.
+</p>
+<p>
+    Before submitting a spot instance request you should define a maximum bid for that request. There is no exact formula for defining an ideal bid. It basically depends on your needs and how much are you willing to pay to run your tasks.
+</p>
+<p>
+    The "price" is represented in Nimbus as a discount applied to minutes charged to your account.  Thus, you likely do not want to bid above "1.0" since regular requests will always trump spot instances but your spot instance requests will be more "expensive" than the regular ones (this is akin to bidding above the normal instance prices on EC2).
+</p>
+<p>
+    The spot price history is a valuable information in determining the maximum bid for your requests. A good way to start is to place your bid between the historical maximum and minimum spot prices. If you want your instances to have a good chance of being executed straight away, you should place your bid somewhere near the maximum historical spot price. In case your tasks are not so urgent and can wait a couple of days (or weeks) to get executed on a low cost, you should place your bid somewhere close to the minimum historical spot price.
+</p>
+
+<p>
+    The Spot Price history is available in the EC2 APIs through the Describe Spot Price History operation. The supported parameters of this operation are:
+</p>
+<ul>
+    <li><i>Start time</i>: Start date and time of the spot instance price history data. (optional). Date string should conform with the ISO 8601 standard.</li>
+    <li><i>End time</i>: End date and time of the spot instance price history data. (optional). Date string should conform with the ISO 8601 standard.</li>
+    <li><i>Instance type</i>: The instance type of the spot instance price history data (optional). Currently Nimbus only supports one type of spot instance per site. Please contact your administrator to know which spot instance type is supported in your site.</li>
+</ul>
+
+<p><b>SOAP Client (Amazon)</b></p>
+
+<p>Operation command and parameters:</p>
+
+<i>ec2-request-spot-instances image_id --price price [--instance-count count] [--type type] [--user-data data] [--key key-pair][--instance-type type]</i>
+
+<p>This example creates a spot instances request for ten m1.small instances.</p>
+
+<div class="panel"><pre>
+$ ec2-request-spot-instances --price 0.50 myimage.img --key MyKeypair --instance-type m1.small --instance-count 10 --type one-time
+SPOTINSTANCEREQUEST sir-f102a405 0.50 one-time active 2009-12-12T22:58:47+0200 i-3597b470 myimage.img m1.small default
+</pre></div>
+
+<p><b>Query Client (Boto)</b></p>
+
+<p>Operation signature and parameters:</p>
+
+<i>boto.ec2.connection.request_spot_instances(price, image_id, count=1, type=None, key_name=None, user_data=None, instance_type='m1.small')</i>
+
+<p>Example:</p>
+
+<div class="panel"><pre>
+import boto
+from boto.ec2.regioninfo import RegionInfo
+
+# first create a region object and connection
+region = RegionInfo(name="nimbus", endpoint="service.hostname.com")
+conn = boto.connect_ec2("YOUR_ACCESS_ID_HERE", "YOUR_SECRET_KEY_HERE", port=SERVICE_PORT_NUMBER, region=region)
+
+# Creates a spot instances request for ten m1.small instances.
+request = conn.request_spot_instances(0.50, 'myimage.img', key_name='MyKeypair', instance_type='m1.small')
+</pre></div>
+
+<h4>Retrieving spot instance Requests</h4>
+
+<p>Once submitted, you can check the status of your spot instance requests through the Describe spot instance Requests operation. Besides request launch information, this operation returns the request state (open, active, canceled or failed) and the id of the spot instance (in case the request is in the active state). Executing this operation without parameters will return information about all spot instance requests submitted by the user. Another way of using this operation is to request information about a single request or set of requests.</p>
+
+<p>The supported parameter for this operation is:</p>
+
+<ul>
+    <li><i>spot instance Request ID</i>: Specifies the ID of the spot instance request to be described. (optional). This parameter can be a collection of spot instance request ids.</li>
+</ul>
+
+<p><b>SOAP Client (Amazon)</b></p>
+
+<p>Operation command and parameters:</p>
+
+<i>ec2-describe-spot-instance-requests [request_id [request_id...]]</i>
+
+<p>This example returns information about current spot instance requests.</p>
+
+<div class="panel"><pre>
+$ ec2-describe-spot-instance-requests sir-f102a405
+SPOTINSTANCEREQUEST sir-f102a405 0.1 one-time active
+2009-12-12T22:58:47+0200 i-3597b470 ami-7d3b6a38 m1.small default
+</pre></div>
+
+
+<p><b>Query Client (Boto)</b></p>
+<p>Operation signature and parameters:</p>
+
+<i>boto.ec2.connection.get_all_spot_instance_requests(request_ids=None)</i>
+<div class="panel"><pre>
+import boto
+from boto.ec2.regioninfo import RegionInfo
+
+# first create a region object and connection
+region = RegionInfo(name="nimbus", endpoint="service.hostname.com")
+conn = boto.connect_ec2("YOUR_ACCESS_ID_HERE", "YOUR_SECRET_KEY_HERE", port=SERVICE_PORT_NUMBER, region=region)
+
+# Create a spot instances request for ten m1.small instances.
+conn.request_spot_instances(0.50, 'myimage.img', count=10, key_name='MyKeypair', instance_type='m1.small')
+
+# Describe spot instance requests, and print id and state
+si_reqs = conn.get_all_spot_instance_requests()
+print 'Nr. of Requests: ' + str(len(si_reqs))
+print 'Id: ' + siReqs[0].id + ' State: ' + si_reqs[0].state
+</pre></div>
+
+<p>Output:</p>
+<div class="panel"><pre>
+Nr. of Requests: 1
+Id: sir-f102a405 State: active
+</pre></div>
+
+<h4>Canceling Spot Instance Requests</h4>
+
+<p>The Cancel spot instance Requests operation cancels spot instance requests in the "active" or "open" state. Canceled requests aren't considered for fulfillment. However, running instances from a canceled request, will remain running until they are explicitly terminated or the spot price rises above the request bid. This operation can cancel a single request, or a set of requests.</p>
+
+<p>The supported parameter for this operation is:</p>
+<ul>
+    <li><i>spot instance Request ID</i>: Specifies the ID of the spot instance request to be canceled.  This parameter can be a collection of spot instance request ids.</li>
+</ul>
+
+<p><b>SOAP Client (Amazon)</b></p>
+<p>Operation command and parameters:</p>
+<i>ec2-cancel-spot-instance-requests request_id [request_id...]</i>
+<p>Example:</p>
+<div class="panel"><pre>
+$ ec2-cancel-spot-instance-requests sir-ed3a2006
+SPOTINSTANCEREQUEST sir-ed3a2006 canceled
+</pre></div>
+
+<p><b>Query Client (Boto)</b></p>
+<p>Operation signature and parameters:</p>
+<i>cancel_spot_instance_requests(request_ids)</i>
+
+<p>Example:</p>
+
+<div class="panel"><pre>
+import boto
+from boto.ec2.regioninfo import RegionInfo
+
+# first create a region object and connection
+region = RegionInfo(name="nimbus", endpoint="service.hostname.com")
+conn = boto.connect_ec2("YOUR_ACCESS_ID_HERE", "YOUR_SECRET_KEY_HERE", port=SERVICE_PORT_NUMBER, region=region)
+
+# Creates a spot instances request for ten m1.small instances.
+spot_req = conn.request_spot_instances(0.50, 'myimage.img', count=10, type='one-time', key_name='MyKeypair', instance_type='m1.small')
+
+# Cancel the submitted spot request
+si_reqs = conn.cancel_spot_instance_requests([spot_req[0].id])
+</pre></div>
+
+
+<h4>Managing Running Spot Instances</h4>
+
+<p>Spot instances perform exactly like ordinary Nimbus instances while running, and like other Nimbus instances, running spot instances can be managed (described or terminated) by the Nimbus Cloud Client and by usual EC2 API management operations, such as:</p>
+
+<ul>
+    <li><i>ec2-describe-instances</i> - Report on currently running instances.</li>
+    <li><i>ec2-terminate-instances</i> - Destroy currently running instances.</li>
+</ul>
+
+<p>In the "Describe Instances" operation, spot instances will differ from ordinary running instances in the following attributes:</p>
+
+<ul>
+    <li><i>Instance Life Cycle</i>: 'spot' if the running instance is a spot instance, null or 'normal' otherwise.</li>
+    <li><i>spot instance Request ID</i>: the ID of the spot instance request, if the running instance is a spot instance, null otherwise.</li>
+</ul>
+
+
 
 <br />
 <br />
