@@ -196,8 +196,8 @@ class ARGS:
     IMPORTPREV_LONG= "--import-prev"
     IMPORTPREV_HELP = "[Only used programmatically]"
 
-    IMPORTVMMS_LONG= "--import-vmms"
-    IMPORTVMMS_HELP = "Import VMMs from an old-style 'vmm-pools' directory"
+    IMPORTVMMS_LONG= "--import-2.5-vmms"
+    IMPORTVMMS_HELP = "Import VMMs from an old-style 2.5 'vmm-pools' directory"
     
     IMPORTCUMUDB_LONG= "--import-cumulusdb"
     IMPORTCUMUDB_HELP = "[Only used programmatically]"
@@ -249,7 +249,7 @@ def parsersetup():
             dest="importdb", metavar="PATH", help=ARGS.IMPORTDB_HELP)
     
     group.add_option(ARGS.IMPORTVMMS_LONG,
-            dest="import2.5vmms", metavar="PATH", help=ARGS.IMPORTVMMS_HELP)
+            dest="importvmms", metavar="PATH", help=ARGS.IMPORTVMMS_HELP)
     
     group.add_option(ARGS.IMPORTPREV_LONG,
             action="store_true", dest="importprev", default=False,
