@@ -247,7 +247,7 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
      * @return an array of asynchronous requests from this caller
      */   
     public AsyncRequest[] getRequests(Caller caller, boolean spot) {
-        logger.info(Lager.ev(-1) + "Retrieving requests from caller: " + caller.getIdentity() + ".");        
+        logger.debug("Retrieving requests from caller: " + caller.getIdentity() + ".");
         ArrayList<AsyncRequest> requestsByCaller = new ArrayList<AsyncRequest>();
         for (AsyncRequest request : this.asyncRequestMap.getAll()) {
             if(request.isSpotRequest() == spot && request.getCaller().equals(caller)){
@@ -322,10 +322,8 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
      * 
      */    
     public void releaseSpace(Integer memoryToFree) {
-        if (this.lager.eventLog) {
-            logger.info(Lager.ev(-1) + "" + memoryToFree + 
+        logger.info("" + memoryToFree +
                     "MB RAM have to be freed to give space to higher priority requests");
-        }
         
         Integer usedMemory = this.getMaxVMs()*instanceMem;
 
@@ -368,9 +366,7 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
         if(state == WorkspaceConstants.STATE_DESTROYING){
             AsyncRequest request = this.getRequestFromVM(vmid);
             if(request != null){
-                if (this.lager.eventLog) {
-                    logger.info(Lager.ev(-1) + "VM '" + vmid + "' from request '" + request.getId() + "' finished.");
-                }
+                logger.debug(Lager.ev(-1) + "VM '" + vmid + "' from request '" + request.getId() + "' finished.");
 
                 boolean fin = request.finishVM(vmid);
                 this.asyncRequestMap.addOrReplace(request);
@@ -388,9 +384,7 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
                     }                        
                 }
             } else {
-                if (this.lager.eventLog) {
-                    logger.info(Lager.ev(-1) + "A non-preemptable VM was destroyed. Recalculating maximum instances.");
-                }
+                logger.debug("A non-preemptable VM was destroyed. Recalculating maximum instances.");
                 this.calculateMaxVMs();
             }
         }
@@ -412,8 +406,9 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
     public void stateNotification(int[] vmids, int state) {
         //assume just non-preemptable VM's are being notified here 
         if(state == WorkspaceConstants.STATE_FIRST_LEGAL){
-            if (this.lager.eventLog) {
-                logger.info(Lager.ev(-1) + "" + vmids.length + " non-preemptable VMs created. Recalculating maximum instances.");
+            boolean doLog = this.backfillEnabled || this.remoteEnabled;
+            if (doLog) {
+                logger.debug("" + vmids.length + " non-preemptable VMs created. Recalculating maximum instances.");
             }            
             this.calculateMaxVMs();
         }
@@ -988,18 +983,26 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
             reservedNonPreempMem = Math.max(reservedNonPreempMem, minReservedMem);
             
             siMem = Math.max((availableMem+usedPreemptableMem)-reservedNonPreempMem, 0);
-            
-            if (this.lager.eventLog) {
-                final StringBuilder sb =
-                        new StringBuilder("Spot and backfill memory:\n");
+
+            final String leadString;
+            if (this.backfillEnabled && this.remoteEnabled) {
+                leadString = "Spot and backfill memory:\n";
+            } else if (this.backfillEnabled) {
+                leadString = "Backfill memory:\n";
+            } else if (this.remoteEnabled) {
+                leadString = "Spot instance memory:\n";
+            } else {
+                leadString = null;
+            }
+            if (leadString != null) {
+                final StringBuilder sb = new StringBuilder(leadString);
                 sb.append("Site memory - Total: " + totalMaxMemory + "MB\n");
                 sb.append("              Available: " + availableMem + "MB\n");
                 sb.append("Non-preemptable memory - Used: " + usedNonPreemptableMem + "MB\n");
                 sb.append("                         Reserved: " + reservedNonPreempMem + "MB\n");
                 sb.append("Preemtable memory - Used: " + usedPreemptableMem + "MB\n");
                 sb.append("                    Unused: " + siMem + "MB\n");
-
-                logger.info(Lager.ev(-1) + sb.toString());
+                logger.debug(sb.toString());
             }
         } catch (WorkspaceDatabaseException e) {
             changeMaxVMs(0);
@@ -1030,8 +1033,8 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
         //     into account        
         
         if(newMaxVMs != maxVMs){
-            if (this.lager.eventLog) {
-                logger.info(Lager.ev(-1) + "Maximum instances changed. Previous maximum instances = " + maxVMs 
+            if (this.remoteEnabled || this.backfillEnabled) {
+                logger.debug("Maximum instances changed. Previous maximum instances = " + maxVMs
                                          + ". Current maximum instances = " + newMaxVMs + ".");
             }            
             this.maxVMs = newMaxVMs;
