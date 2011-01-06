@@ -249,7 +249,7 @@ def parsersetup():
             dest="importdb", metavar="PATH", help=ARGS.IMPORTDB_HELP)
     
     group.add_option(ARGS.IMPORTVMMS_LONG,
-            dest="importvmms", metavar="PATH", help=ARGS.IMPORTVMMS_HELP)
+            dest="import2.5vmms", metavar="PATH", help=ARGS.IMPORTVMMS_HELP)
     
     group.add_option(ARGS.IMPORTPREV_LONG,
             action="store_true", dest="importprev", default=False,
