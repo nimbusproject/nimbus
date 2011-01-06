@@ -1064,8 +1064,8 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
      */
     protected AsyncRequest getRequest(String id, boolean log) throws DoesNotExistException {
         if(log){
-            logger.info(Lager.ev(-1) + "Retrieving request with id: " + id + ".");
-        } 
+            logger.debug("Retrieving request with id: " + id + ".");
+        }
         AsyncRequest request = this.asyncRequestMap.getByID(id);
         if(request != null){
             return request;
