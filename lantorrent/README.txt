@@ -72,7 +72,6 @@ To install LANTorrent you must take the following steps:
     be sure to expand $NIMBUS_HOME to its full and actual path.
 
 3) install lantorrent on VMM
-    - recursively copy $NIMBUS_HOME/lantorrent to /opt/nimbus/lantorrent.
     - run ./vmm-install.sh on each node
         either run it as your workspace control user or specify the workspace
         control user as the first and only argument to the script.
