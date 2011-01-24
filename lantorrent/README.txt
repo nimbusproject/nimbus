@@ -55,7 +55,7 @@ default.  To enable Lantorrent in Nimbus there are a few configurations
 changes that must be made.
 
 The following software is required on both service and VMM nodes:
-  - python 2.4
+  - python 2.5
   - python simplejson
 
 Lantorrent is run out of xinetd thus it must also be installed on all VMMs.
