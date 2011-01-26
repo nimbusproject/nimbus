@@ -26,7 +26,7 @@ from nimbusweb.setup.setuperrors import *
 from nimbusweb.setup.groupauthz import *
 from optparse import SUPPRESS_HELP
 
-g_report_options = ["dn", "canonical_id", "access_id", "access_secret"]
+g_report_options = ["dn", "canonical_id", "access_id", "access_secret", "group"]
 
 
 def get_nimbus_home():
@@ -149,9 +149,18 @@ def report_results(o, db):
     if user == None:
         raise CLIError('EUSER', "The user should not be in db but is not: %s" % (o.emailaddr))
 
+    # reset group for proper report
+    o.group = None
+    nh = get_nimbus_home()
+    groupauthz_dir = os.path.join(nh, "services/etc/nimbus/workspace-service/group-authz/")
     dnu = user.get_alias_by_friendly(o.emailaddr, pynimbusauthz.alias_type_x509)
     if dnu != None:
         o.dn = dnu.get_name()
+        X = find_member(groupauthz_dir, o.dn)
+        if X:
+            o.group = str(X.group_id)
+        else:
+            o.group = "None"
     o.canonical_id = user.get_id()
 
     s3u = user.get_alias_by_friendly(o.emailaddr, pynimbusauthz.alias_type_s3)
@@ -191,7 +200,7 @@ def edit_user(o, db):
             add_member(groupauthz_dir, dn, o.group)
         except InvalidGroupError:
             raise CLIError('EUSER', "Authz group '%s' does not exist" % o.group)
-        if oldgroup:
+        if oldgroup and int(oldgroup.group_id) != int(o.group):
             oldgroup.remove_member(dn)
 
     if o.dn != None:
