@@ -60,7 +60,7 @@ vws.factory.identity=@FACTORY_DN@
 
 vws.repository.type=cumulus
 vws.repository.s3basekey=VMS
-vws.repository.s3bucket=Repo
+vws.repository.s3bucket=repo
 vws.repository.s3https=false
 vws.repository.s3acceptallcerts=false
 

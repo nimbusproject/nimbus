@@ -51,7 +51,7 @@ Upload an image to the public repository.  The program uses ~/.s3cfg to
 get your configuration information.
     """
     (parser, all_opts) = pynimbusauthz.get_default_options(u)
-    opt = cbOpts("repo", "r", "The bucket where cloud client images are stored", "Repo")
+    opt = cbOpts("repo", "r", "The bucket where cloud client images are stored", "repo")
     all_opts.append(opt)
     opt = cbOpts("prefix", "p", "The prefix used for images in the cloud client bucket", "VMS")
     all_opts.append(opt)
