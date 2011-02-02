@@ -1,4 +1,5 @@
 deps/boto-1.9b.tar.gz
+deps/boto-2.0b3.tar.gz
 deps/pyOpenSSL-0.10.tar.gz  
 deps/zope.interface-3.6.1.tar.gz
 deps/Twisted-10.0.0.tar.bz2
