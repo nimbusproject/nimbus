@@ -538,7 +538,7 @@ class NimbusSetup(object):
             
     def get_repobucket_no_asking(self):
         # at least get this to one exact place, can determine dynamically later
-        return "Repo"
+        return "repo"
 
     def perform_setup(self):
         # first, set up CA and host cert/key

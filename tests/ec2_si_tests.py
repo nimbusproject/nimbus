@@ -93,7 +93,7 @@ class TestEC2Submit(unittest.TestCase):
 	self.assertRaises(BotoServerError, self.ec2conn.request_spot_instances, '2.0', 'nil', 1, None, None, None, None, None, None, None, None, None, 'm1.large')
 
     def test_simple_requestSI(self):
-        bucket_name = "Repo"
+        bucket_name = "repo"
         bucket = self.s3conn.get_bucket(bucket_name)
         k = boto.s3.key.Key(bucket)
         image_name = self.cb_random_bucketname(10)
@@ -150,7 +150,7 @@ class TestEC2Submit(unittest.TestCase):
         assert not request.instance_id, 'there shouldnt be an instance id'
 
     def test_persistent_requestSI(self):
-        bucket_name = "Repo"
+        bucket_name = "repo"
         bucket = self.s3conn.get_bucket(bucket_name)
         k = boto.s3.key.Key(bucket)
         image_name = self.cb_random_bucketname(10)
@@ -230,7 +230,7 @@ class TestEC2Submit(unittest.TestCase):
         assert len(allReservations) == 0, 'incorrect result size'
 
     def test_multiple_requestSI(self):
-        bucket_name = "Repo"
+        bucket_name = "repo"
         bucket = self.s3conn.get_bucket(bucket_name)
         k = boto.s3.key.Key(bucket)
         image_name = self.cb_random_bucketname(10)

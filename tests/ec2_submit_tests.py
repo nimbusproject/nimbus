@@ -53,7 +53,7 @@ class TestEC2Submit(unittest.TestCase):
         return newpasswd
     
     def store_new_image(self):
-        bucket = self.s3conn.get_bucket("Repo")
+        bucket = self.s3conn.get_bucket("repo")
         k = boto.s3.key.Key(bucket)
         image_name = self.cb_random_bucketname(10)
         k.key = "VMS/" + self.can_user.get_id() + "/" + image_name
@@ -107,7 +107,7 @@ class TestEC2Submit(unittest.TestCase):
         res = image.run() 
 
     def test_ec2_submit_url(self):
-        bucket_name = "Repo"
+        bucket_name = "repo"
         bucket = self.s3conn.get_bucket(bucket_name)
         k = boto.s3.key.Key(bucket)
         image_name = self.cb_random_bucketname(10)

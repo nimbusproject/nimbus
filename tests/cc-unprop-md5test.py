@@ -49,7 +49,7 @@ try:
         sys.exit(1)
 
     # down load the new name with s3cmd
-    cmd="s3cmd get s3://Repo/VMS/%s/%s %s" % (os.environ['NIMBUS_TEST_USER_CAN_ID'], image_name, localfile)
+    cmd="s3cmd get s3://repo/VMS/%s/%s %s" % (os.environ['NIMBUS_TEST_USER_CAN_ID'], image_name, localfile)
     print cmd
     (x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile)
     print x
@@ -62,7 +62,7 @@ try:
         print "files differ"
         sys.exit(1)
 
-    cmd="s3cmd info s3://Repo/VMS/%s/%s" % (os.environ['NIMBUS_TEST_USER_CAN_ID'], newname)
+    cmd="s3cmd info s3://repo/VMS/%s/%s" % (os.environ['NIMBUS_TEST_USER_CAN_ID'], newname)
     print cmd
     child = pexpect.spawn (cmd, timeout=to, maxread=20000, logfile=logfile)
     rc = child.expect ('MD5 sum:')
@@ -74,7 +74,7 @@ try:
     if rc != 0:
         print "s3 info failed"
         sys.exit(1)
-    cmd="s3cmd info s3://Repo/VMS/%s/%s" % (os.environ['NIMBUS_TEST_USER_CAN_ID'], image_name)
+    cmd="s3cmd info s3://repo/VMS/%s/%s" % (os.environ['NIMBUS_TEST_USER_CAN_ID'], image_name)
     print cmd
     child = pexpect.spawn (cmd, timeout=to, maxread=20000, logfile=logfile)
     rc = child.expect ('MD5 sum:')

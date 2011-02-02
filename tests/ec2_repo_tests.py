@@ -73,7 +73,7 @@ class TestEC2List(unittest.TestCase):
 
     def test_ec2_list_upload(self):
         # obviously this will not work if the default name changes
-        bucket = self.s3conn.get_bucket("Repo")
+        bucket = self.s3conn.get_bucket("repo")
         k = boto.s3.key.Key(bucket)
         image_id = self.cb_random_bucketname(25)
         k.key = "VMS/" + self.can_user.get_id() + "/" + image_id
