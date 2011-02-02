@@ -41,7 +41,7 @@ class TestBucketsWithBoto(unittest.TestCase):
             b.delete()
 
     def cb_random_bucketname(self, len):
-        chars = string.letters + string.digits
+        chars = string.lowercase + string.digits
         newpasswd = ""
         for i in range(len):
             newpasswd = newpasswd + random.choice(chars)
