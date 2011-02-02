@@ -43,5 +43,5 @@ After installing this python package some additional system configuration is
 needed.
 """,
       license="Apache2",
-      install_requires = ["Twisted", "boto == 1.9b", "pyOpenSSL", "pynimbusauthz"],
+      install_requires = ["Twisted", "boto == 2.0", "pyOpenSSL", "pynimbusauthz"],
      )
