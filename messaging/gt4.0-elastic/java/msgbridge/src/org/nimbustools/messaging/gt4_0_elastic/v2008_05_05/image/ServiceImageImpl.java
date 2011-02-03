@@ -24,6 +24,8 @@ import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.DescribeIma
 import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.DescribeImagesItemType;
 import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.DescribeImagesResponseInfoType;
 import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.DescribeImagesResponseItemType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.BlockDeviceMappingType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.BlockDeviceMappingItemType;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.ContainerInterface;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.service.UnimplementedOperations;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.ServiceImage;
