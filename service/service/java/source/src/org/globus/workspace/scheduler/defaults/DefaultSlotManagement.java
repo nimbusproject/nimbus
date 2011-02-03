@@ -435,10 +435,15 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
                         
                         Integer availableMemory = this.db.getTotalAvailableMemory();    
                         Integer usedPreemptable = this.db.getTotalPreemptableMemory();
-                        
+
                         Integer realAvailable = availableMemory + usedPreemptable;
                         
                         Integer neededMem = (vmids.length-i)*memory;
+
+                        if (usedPreemptable < neededMem) {
+                            // impossible to fulfill the request
+                            throw e;
+                        }
                         
                         if(realAvailable >= neededMem){
                             //There will be sufficient space to
