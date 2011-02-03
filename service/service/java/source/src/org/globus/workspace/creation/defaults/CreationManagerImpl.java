@@ -225,7 +225,7 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
         this.bindNetwork = bindNetworkImpl;
 
         if (idempotentCreationManager == null) {
-            throw new IllegalArgumentException("idempotentCreationManager may not be null");
+            logger.warn("Idempotency creation manager is null!");
         }
         this.idemManager = idempotentCreationManager;
     }
@@ -377,17 +377,26 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
         }
 
 
-        if (req.getClientToken() == null) {
+        if (req.getClientToken() == null || req.getClientToken().length() == 0) {
+            logger.debug("Non-idempotent instance creation");
 
             // non-idempotent creation
             return doCreation(req, caller, bound);
 
+        } else if (this.idemManager == null) {
+            logger.warn("Instance request has client token (" +
+                    req.getClientToken() +
+                    ") but idempotency is disabled! Proceeding with creation.");
+
+            return doCreation(req, caller, bound);
+
         } else {
 
+            logger.debug("Idempotent instance creation. clientToken='" +
+                    req.getClientToken() + "'");
             return doIdempotentCreation(req, caller, bound);
         }
     }
-
 
     private InstanceResource[] doCreation(CreateRequest req, Caller caller, VirtualMachine[] bound)
             throws CreationException, CoSchedulingException, MetadataException,
@@ -424,40 +433,21 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
             res = this.idemManager.getReservation(creatorID, clientToken);
             if (res != null) {
 
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Found existing idempotent reservation: " +
+                            res.toString());
+                }
+
                 // the reservation already exists. check its validity
                 return resolveIdempotentReservation(res, req);
 
             } else {
 
+                final InstanceResource[] resources =
+                        this.doCreation(req, caller, bound);
 
-                final InstanceResource[] resources;
-                try {
-                    resources = this.doCreation(req, caller, bound);
-
-                } catch (CreationException e) {
-                    this.removeIdempotentReservation(creatorID, clientToken);
-                    throw e;
-                } catch (AuthorizationException e) {
-                    this.removeIdempotentReservation(creatorID, clientToken);
-                    throw e;
-                } catch (CoSchedulingException e) {
-                    this.removeIdempotentReservation(creatorID, clientToken);
-                    throw e;
-                } catch (MetadataException e) {
-                    this.removeIdempotentReservation(creatorID, clientToken);
-                    throw e;
-                } catch (ResourceRequestDeniedException e) {
-                    this.removeIdempotentReservation(creatorID, clientToken);
-                    throw e;
-                } catch (SchedulingException e) {
-                    this.removeIdempotentReservation(creatorID, clientToken);
-                    throw e;
-                } catch (Throwable t) {
-                    throw new CreationException("Unknown problem occurred: " +
-                            "'" + ErrorUtil.excString(t) + "'", t);
-                }
-
-                this.idemManager.addReservation(creatorID, clientToken, Arrays.asList(resources));
+                this.idemManager.addReservation(creatorID, clientToken,
+                        Arrays.asList(resources));
                 return resources;
             }
 
@@ -465,14 +455,6 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
             throw new CreationException(e.getMessage(), e);
         } finally {
             idemLock.unlock();
-        }
-    }
-
-    private void removeIdempotentReservation(String creatorID, String clientToken) {
-        try {
-            idemManager.removeReservation(creatorID, clientToken);
-        } catch (ManageException e) {
-            logger.warn("Error while backing out idempotency reservation: "+ e.getMessage(), e);
         }
     }
 
@@ -1295,7 +1277,7 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
         String hostTwo = "NONE";
 
         if (nics.length == 2) {
-            ifaceTwo = nics[1].getName();;
+            ifaceTwo = nics[1].getName();
             ipTwo = nics[1].getIpAddress();
             hostTwo = nics[1].getHostname();
         }

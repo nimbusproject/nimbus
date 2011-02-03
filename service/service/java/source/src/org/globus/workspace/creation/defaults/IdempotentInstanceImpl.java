@@ -41,4 +41,13 @@ public class IdempotentInstanceImpl implements IdempotentInstance {
     public int getLaunchIndex() {
         return launchIndex;
     }
+
+    @Override
+    public String toString() {
+        return "IdempotentInstance{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", launchIndex=" + launchIndex +
+                '}';
+    }
 }
