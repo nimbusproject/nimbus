@@ -147,6 +147,10 @@ root # virsh -c 'xen+unix:///' list
 </pre></div>
 
 <div class="note">
+  If you are using kvm the command is: virsh -c qemu:///system list
+</div>
+
+<div class="note">
   Make sure this works as root before we try to enable the nimbus user to do this.
 </div>
 
@@ -192,6 +196,21 @@ srwx------ 1 root root 0 Jul  1 21:28 /var/run/libvirt/libvirt-sock
     
     <p>Note that we will test a full VM creation later which would uncover this difference.</p>
 </div>
+
+<div class="note">
+    <p class="note-title">KVM libvirt gotcha</p>
+
+    <p>If you are using later versions of libvirt you may see 
+    "Permission denied" errors.  Be sure that in the libvirt qemu.conf 
+    file (usually /etc/libvirt/qemu.conf) be user you have the following 
+    settings:</p>
+<pre>
+user = "root"
+group = "root"
+dynamic_ownership = 0
+</pre>
+</div>
+
 
 <p>
   First, make the nimbus user a member of the root group:
