@@ -150,11 +150,19 @@ public class IdempotentInstanceResource implements InstanceResource {
     }
 
     public Calendar getStartTime() {
-        return null;
+        // we don't know the actual time, so we just return the unix epoch.
+        // weak, I know.
+        Calendar epoch = Calendar.getInstance();
+        epoch.setTimeInMillis(0);
+        return epoch;
     }
 
     public Calendar getTerminationTime() {
-        return null;
+        // we don't know the actual time, so we just return the unix epoch.
+        // weak, I know.
+        Calendar epoch = Calendar.getInstance();
+        epoch.setTimeInMillis(1);
+        return epoch;
     }
 
     public void setTerminationTime(Calendar termTime) {

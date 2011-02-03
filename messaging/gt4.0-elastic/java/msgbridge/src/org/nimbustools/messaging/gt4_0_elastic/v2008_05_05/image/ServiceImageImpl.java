@@ -261,6 +261,8 @@ public class ServiceImageImpl extends UnimplementedOperations
             dirit.setIsPublic(!listing.isReadWrite()); // cloud convention
             dirit.setKernelId("default-kernel"); // todo
             dirit.setRamdiskId("default-ramdisk"); // todo
+            dirit.setBlockDeviceMapping(new BlockDeviceMappingType(
+                    new BlockDeviceMappingItemType[]{}));
             retList.add(dirit);
         }
 

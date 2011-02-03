@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-Creates a new nimbus users.  It will create all needed user aliases (cumulus,
+Removes nimbus users.  It will remove all unneeded user aliases (cumulus,
 x509, and web loging id)
 """
 from nimbusweb.setup import autoca
@@ -49,7 +49,7 @@ def get_nimbus_home():
 def setup_options(argv):
 
     u = """[options] <email>
-Create a new nimbus user
+Remove a nimbus user
     """
     (parser, all_opts) = pynimbusauthz.get_default_options(u)
     (o, args) = pynimbusauthz.parse_args(parser, all_opts, argv)

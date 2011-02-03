@@ -67,4 +67,14 @@ public class IdempotentReservationImpl implements IdempotentReservation {
     public List<IdempotentInstance> getInstances() {
         return instances;
     }
+
+    @Override
+    public String toString() {
+        return "IdempotentReservation{" +
+                "creatorId='" + creatorId + '\'' +
+                ", clientToken='" + clientToken + '\'' +
+                ", groupId='" + groupId + '\'' +
+                ", instances=" + instances +
+                '}';
+    }
 }
