@@ -57,6 +57,10 @@ _NIMBUS_IS_DEPRECATED
         <p>Importing the VMM nodes that were configured.  Nimbus 2.6 introduces a new, more powerful way of configuring VMMs using a tool called <tt class="literal">nimbus-nodes</tt>.  This requires the service to be running, though, so it cannot be used during the <tt class="literal">install-from</tt> process.</p>
         
         <p>The exact command to use (once you've started the service) is printed at the end of the <tt class="literal">install-from</tt> process.</p>
+
+<div class="note">
+If you are migrating from any version greater than 2.5 the process for converting worker nodes requires the manual use of the program nimbus-nodes.  Fortunately this program is easy to script around.  An example python program for this can be found <a href="reload.py">here</a>
+</div>
         
         <p>Here is an <a href="upgrade-diff-2.5-2.6.txt">example</a> of what <i>should</i> be different.</p>
     </li>
