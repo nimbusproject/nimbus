@@ -56,10 +56,12 @@ if [ "X$NIMBUS_SRC_DIR" == "X" ]; then
     nimbus_source_dir=$repo_dir/nimbus
     nimbus_wsc_dir=$repo_dir/nimbus/control/ 
     nimbus_cc_dir=$repo_dir/nimbus/cloud-client
+    wsc_src=$work_dir/control
 else
     nimbus_source_dir=$NIMBUS_SRC_DIR
-    nimbus_wsc_dir=$NIMBUS_WSC_SRC_DIR
-    nimbus_cc_dir=$NIMBUS_CC_DIR
+    nimbus_wsc_dir=$NIMBUS_WSC_SRC_DIR/workspace-control/
+    wsc_src=$NIMBUS_WSC_SRC_DIR/workspace-control/
+    export CLOUD_CLIENT_HOME=$NIMBUS_CC_DIR
 fi
 
 install_dir=$work_dir/NIMBUSINSTALL
@@ -96,30 +98,43 @@ ssh localhost hostname
 rc=$?
 echo "ssh return code $rc"
 
-export NIMBUS_WORKSPACE_CONTROL_HOME="$work_dir/control"
-cp -r $nimbus_wsc_dir/nimbus/control/  $work_dir
+export NIMBUS_WORKSPACE_CONTROL_HOME=$nimbus_wsc_dir
+cp -r $nimbus_wsc_dir  $work_dir
+if [ $? -ne 0 ]; then
+    echo "could not copy in WSC cp -r $nimbus_wsc_dir  $work_dir"
+    exit 1
+fi
+
 sed -e "s^@NIMBUS_WORKSPACE_CONTROL_HOME@^$NIMBUS_WORKSPACE_CONTROL_HOME^" -e "s^@KEY@^$new_key^" -e "s/@WHO@/$user/" $src_dir/autoconfig-decisions.sh.in > $install_dir/services/share/nimbus-autoconfig/autoconfig-decisions.sh
 
 cat $install_dir/services/share/nimbus-autoconfig/autoconfig-decisions.sh
 
 $install_dir/services/share/nimbus-autoconfig/autoconfig-adjustments.sh
 
-cd $work_dir/control
+#cd $work_dir/control
+cd $wsc_src
+pwd
 bash ./src/propagate-only-mode.sh
+if [ $? -ne 0 ]; then
+    echo "PROP ONLY MODE CONFIGURATION FAILED"
+    exit 1
+fi
 
 echo "========================================="
 echo "Making cloud client"
 echo "========================================="
 
-cd $nimbus_cc_dir
-bash ./builder/get-wscore.sh
-bash ./builder/dist.sh
-cd $work_dir
-tar -zxvf $nimbus_cc_dir/nimbus-cloud-client*.tar.gz
+if [ "X$CLOUD_CLIENT_HOME" == "X" ]; then
+    cd $nimbus_cc_dir
+    bash ./builder/get-wscore.sh
+    bash ./builder/dist.sh
+    cd $work_dir
+    tar -zxvf $nimbus_cc_dir/nimbus-cloud-client*.tar.gz
 
-cd nimbus-cloud-client*
-./bin/cloud-client.sh --help
-export CLOUD_CLIENT_HOME=`pwd`
+    cd nimbus-cloud-client*
+    ./bin/cloud-client.sh --help
+    export CLOUD_CLIENT_HOME=`pwd`
+fi
 
 echo "========================================="
 echo "Making a common user"
@@ -149,11 +164,18 @@ can_id=`echo $user_stuff | awk -F , '{ print $6 }'`
 
 sed -e "s^@ID@^$aid^" -e "s/@KEY@/$apw/" $src_dir/s3cfg.in > $HOME/.s3cfg.reg
 
+pwd
 echo $cp
 echo $cert
 echo $key
 
-cp $install_dir/var/ca/ca-certs/*  lib/certs/
+cd $CLOUD_CLIENT_HOME
+cp $install_dir/var/ca/ca-certs/*  $CLOUD_CLIENT_HOME/lib/certs/
+if [ $? -ne 0 ]; then
+    pwd
+    echo "could not copy to $CLOUD_CLIENT_HOME/lib/certs/"
+    exit 1
+fi
 cp $cp conf/
 
 mkdir $HOME/.nimbus
@@ -165,7 +187,8 @@ echo "reporitng contents of dot nimbus and globus"
 ls -l $HOME/.nimbus/
 ls -l $HOME/.globus/
 
-./bin/grid-proxy-init.sh
+cd $CLOUD_CLIENT_HOME
+$CLOUD_CLIENT_HOME/bin/grid-proxy-init.sh
 
 echo "========================================="
 echo "Setting up VMM and network pools"

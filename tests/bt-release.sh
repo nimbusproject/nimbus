@@ -37,4 +37,7 @@ echo $NIMBUS_WSC_SRC_DIR
 echo $NIMBUS_CC_DIR
 
 cd $src_dir
-./bt-nimbus.sh ${@}
+./bt-nimbus.sh "${@}"
+rc=$?
+echo "${@}"
+exit $rc
