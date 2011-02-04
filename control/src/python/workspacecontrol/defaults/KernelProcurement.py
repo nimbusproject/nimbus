@@ -144,6 +144,9 @@ class DefaultKernelProcurement:
         kernel = self._check_hdimage(local_file_set, kernel_arg)
         if kernel:
             return kernel
+
+        if kernel_arg and kernel_arg[:7] == 'file://':
+            kernel_arg = kernel_arg[7:]
         
         if len(self.authz_kernels) == 0:
             raise UnexpectedError("there are no authorized kernels and this is not a hdimage rootdisk: cannot proceed")
@@ -161,4 +164,4 @@ class DefaultKernelProcurement:
             if authzk.name == kernel_arg:
                 return self._pick_an_authz_kernel(authzk, kernelargs_arg)
             
-        raise UnexpectedError("kernel requested was '%s' but this is not in the authorized kernel list, try again with no special request to get the default kernel/initrd")
+        raise UnexpectedError("kernel requested was '%s' but this is not in the authorized kernel list, try again with no special request to get the default kernel/initrd" % kernel_arg)
