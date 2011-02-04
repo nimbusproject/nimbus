@@ -37,24 +37,34 @@ bd=`dirname $0`
 cd $bd
 src_dir=`pwd`
 
-repo_dir="$work_dir/src"
-mkdir $repo_dir
-cd $repo_dir
+if [ "X$NIMBUS_SRC_DIR" == "X" ]; then
+    repo_dir="$work_dir/src"
+    mkdir $repo_dir
+    cd $repo_dir
 
-repo="git://github.com/nimbusproject/nimbus.git"
-if [ "X$NIMBUS_REPO" != "X" ]; then
-    repo=$NIMBUS_REPO
-fi
-echo "Checking out nimbus from $repo"
-git clone --depth 1 $repo
-if [ $? -ne 0 ]; then
-    echo "failed to checkout git from $NIMBUS_REPO"
-    exit 1
+    repo="git://github.com/nimbusproject/nimbus.git"
+    if [ "X$NIMBUS_REPO" != "X" ]; then
+        repo=$NIMBUS_REPO
+    fi
+    echo "Checking out nimbus from $repo"
+    git clone --depth 1 $repo
+    if [ $? -ne 0 ]; then
+        echo "failed to checkout git from $NIMBUS_REPO"
+        exit 1
+    fi
+
+    nimbus_source_dir=$repo_dir/nimbus
+    nimbus_wsc_dir=$repo_dir/nimbus/control/ 
+    nimbus_cc_dir=$repo_dir/nimbus/cloud-client
+else
+    nimbus_source_dir=$NIMBUS_SRC_DIR
+    nimbus_wsc_dir=$NIMBUS_WSC_SRC_DIR
+    nimbus_cc_dir=$NIMBUS_CC_DIR
 fi
 
 install_dir=$work_dir/NIMBUSINSTALL
 
-cd nimbus/
+cd $nimbus_source_dir
 echo "========================================="
 echo "Installing nimbus"
 echo "========================================="
@@ -87,7 +97,7 @@ rc=$?
 echo "ssh return code $rc"
 
 export NIMBUS_WORKSPACE_CONTROL_HOME="$work_dir/control"
-cp -r $repo_dir/nimbus/control/  $work_dir
+cp -r $nimbus_wsc_dir/nimbus/control/  $work_dir
 sed -e "s^@NIMBUS_WORKSPACE_CONTROL_HOME@^$NIMBUS_WORKSPACE_CONTROL_HOME^" -e "s^@KEY@^$new_key^" -e "s/@WHO@/$user/" $src_dir/autoconfig-decisions.sh.in > $install_dir/services/share/nimbus-autoconfig/autoconfig-decisions.sh
 
 cat $install_dir/services/share/nimbus-autoconfig/autoconfig-decisions.sh
@@ -101,11 +111,11 @@ echo "========================================="
 echo "Making cloud client"
 echo "========================================="
 
-cd $repo_dir/nimbus/cloud-client
+cd $nimbus_cc_dir
 bash ./builder/get-wscore.sh
 bash ./builder/dist.sh
 cd $work_dir
-tar -zxvf $repo_dir/nimbus/cloud-client/nimbus-cloud-client*.tar.gz
+tar -zxvf $nimbus_cc_dir/nimbus-cloud-client*.tar.gz
 
 cd nimbus-cloud-client*
 ./bin/cloud-client.sh --help
