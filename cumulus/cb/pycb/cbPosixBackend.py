@@ -113,7 +113,6 @@ class cbPosixData(object):
         #self.name
         #self.newlines
         #self.softspace
-
         self.fname = data_key
         self.metafname = data_key + ".meta"
         self.data_key = data_key
@@ -127,9 +126,10 @@ class cbPosixData(object):
             return
 
         try:
-            mFile = open(self.metafname, 'r')
-            self.hashValue = mFile.readline()
-            mFile.close()
+            if access == "r":
+                mFile = open(self.metafname, 'r')
+                self.hashValue = mFile.readline()
+                mFile.close()
         except:
             pass
 
@@ -215,6 +215,7 @@ class cbPosixData(object):
 #    def xreadlines(self):
 
     def seek(self, offset, whence=None):
+        pycb.log(logging.WARNING, "Someone is seeking %s %d" % (self.fname, sys.exc_info()[0], offset), tb=traceback)
         return self.file.seek(offset, whence)
 
 
