@@ -173,7 +173,7 @@ class CBService(resource.Resource):
             self.allowed_event(request, user, requestId, rPath)
         except cbException, ex:
             eMsg = ex.sendErrorResponse(request, requestId)
-            pycb.log(logging.INFO, eMsg, traceback)
+            pycb.log(logging.ERROR, eMsg, traceback)
         except Exception, ex2:
             traceback.print_exc(file=sys.stdout)
             gdEx = cbException('InternalError')
