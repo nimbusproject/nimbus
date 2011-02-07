@@ -39,12 +39,16 @@ class propadapter(PropagationAdapter):
         host_port = netloc.split(":")
         host = host_port[0]
         try:
-            port = host_port[1]
+            port = int(host_port[1])
         except IndexError:
             if scheme == 'http':
                 port = 80
             else:
                 port = 443
+        except ValueError:
+            errmsg = "%s doesn't seem to be a port (must be an integer)" % host_port[1]
+            self.c.log.exception(errmsg)
+            raise InvalidInput(errmsg)
         credential = self._get_credential()
         self.c.log.debug("server: %s port %s credential %s" % (host, port, credential))
         if credential:
