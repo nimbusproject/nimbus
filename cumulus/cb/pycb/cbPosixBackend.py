@@ -210,7 +210,7 @@ class cbPosixData(object):
 
     def seek(self, offset, whence=None):
         self.seek_count = self.seek_count + 1
-        pycb.log(logging.WARNING, "Someone is seeking %s %d" % (self.fname, offset, self.seek_count), tb=traceback)
+        pycb.log(logging.WARNING, "Someone is seeking %s %d :: %d" % (self.fname, offset, self.seek_count), tb=traceback)
         if self.seek_count > 1:
             raise cbException('InternalError')
         return self.file.seek(offset, whence)
