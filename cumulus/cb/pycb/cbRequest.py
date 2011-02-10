@@ -635,9 +635,7 @@ class cbPutObject(cbRequest):
             mSum = base64.encodestring(base64.b16decode(eTag.upper()))
             self.checkMD5 = mSum
 
-            if self.checkMD5 != mSum:
-                raise cbException('InvalidDigest')
-
+            pycb.log(logging.INFO, "sent %s etag %s" % (self.objectName, self.checkMD5))
             self.setHeader(self.request, 'ETag', '"%s"' % (eTag))
 
             # now that we have the file set delete on close to false

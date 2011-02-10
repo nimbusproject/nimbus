@@ -105,14 +105,6 @@ class cbPosixBackend(object):
 class cbPosixData(object):
 
     def __init__(self, data_key, access="r", openIt=True):
-#       file like stuff
-        #self.closed = True
-        #self.encoding = 
-        #self.errors
-        #self.mode
-        #self.name
-        #self.newlines
-        #self.softspace
         self.fname = data_key
         self.metafname = data_key + ".meta"
         self.data_key = data_key
@@ -126,6 +118,7 @@ class cbPosixData(object):
             return
 
         try:
+            # this allows head to be very fast
             if access == "r":
                 mFile = open(self.metafname, 'r')
                 self.hashValue = mFile.readline()
@@ -145,11 +138,8 @@ class cbPosixData(object):
 
     def get_md5(self):
         if self.hashValue == None:
-            if self.access == 'r':
-                return None
-            else:
-                v = str(self.md5er.hexdigest()).strip()
-                return v
+            v = str(self.md5er.hexdigest()).strip()
+            return v
         return self.hashValue
 
     def get_data_key(self):
@@ -206,9 +196,11 @@ class cbPosixData(object):
 
     def read(self, size=None):
         if size == None:
-            return self.file.read(self.blockSize)
+            st = self.file.read(self.blockSize)
         else:
-            return self.file.read(size)
+            st = self.file.read(size)
+        self.md5er.update(st)
+        return st
 
 #    def readline(self, size=None):
 #    def readlines(self, size=None):
@@ -216,6 +208,10 @@ class cbPosixData(object):
 
     def seek(self, offset, whence=None):
         pycb.log(logging.WARNING, "Someone is seeking %s %d" % (self.fname, sys.exc_info()[0], offset), tb=traceback)
+        # reset the hash
+        if offset == 0:
+            self.md5er = hashlib.md5()
+            self.hashValue = None
         return self.file.seek(offset, whence)
 
 

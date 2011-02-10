@@ -334,6 +334,7 @@ class CloudProgressPrinter
 {
     private PrintStream                 pr;
     private int                         colCount = 80;
+    private Date                        nextUpdate = null;
 
     public CloudProgressPrinter(
         PrintStream                     pr,
@@ -430,6 +431,14 @@ class CloudProgressPrinter
 
     public void flush()
     {
+        Calendar now = 	Calendar.getInstance();
+        Date nowDt = now.getTime();
+
+        if (this.nextUpdate != null && nowDt.before(this.nextUpdate))
+        {
+            return;
+        }
+        this.nextUpdate = new Date(nowDt.getTime() + 1);
         long total = getBytesToTransfer();
            
         long sent = getBytesTransferred();
@@ -761,6 +770,7 @@ public class CumulusTask
         j3p.setProperty("s3service.disable-dns-buckets", "true");
         j3p.setProperty("s3service.s3-endpoint", host);   
         j3p.setProperty("s3service.https-only", this.useHttps);
+        j3p.setProperty("storage-service.internal-error-retry-max ", "1");
 
         HostConfiguration hc = new HostConfiguration();
         if(allowSelfSigned && this.useHttps.equalsIgnoreCase("true"))
