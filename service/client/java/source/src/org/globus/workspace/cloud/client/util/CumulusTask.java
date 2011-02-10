@@ -770,7 +770,7 @@ public class CumulusTask
         j3p.setProperty("s3service.disable-dns-buckets", "true");
         j3p.setProperty("s3service.s3-endpoint", host);   
         j3p.setProperty("s3service.https-only", this.useHttps);
-        j3p.setProperty("storage-service.internal-error-retry-max", "0");
+        //j3p.setProperty("storage-service.internal-error-retry-max", "0");
         j3p.setProperty("httpclient.socket-timeout-ms", "0");
 
         HostConfiguration hc = new HostConfiguration();
