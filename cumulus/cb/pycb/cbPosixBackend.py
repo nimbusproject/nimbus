@@ -208,10 +208,6 @@ class cbPosixData(object):
 
     def seek(self, offset, whence=None):
         pycb.log(logging.WARNING, "Someone is seeking %s %d" % (self.fname, offset), tb=traceback)
-        # reset the hash
-        if offset == 0:
-            self.md5er = hashlib.md5()
-            self.hashValue = None
         return self.file.seek(offset, whence)
 
 
