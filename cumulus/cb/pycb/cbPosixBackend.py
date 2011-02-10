@@ -207,7 +207,7 @@ class cbPosixData(object):
 #    def xreadlines(self):
 
     def seek(self, offset, whence=None):
-        pycb.log(logging.WARNING, "Someone is seeking %s %d" % (self.fname, sys.exc_info()[0], offset), tb=traceback)
+        pycb.log(logging.WARNING, "Someone is seeking %s %d" % (self.fname, offset), tb=traceback)
         # reset the hash
         if offset == 0:
             self.md5er = hashlib.md5()
