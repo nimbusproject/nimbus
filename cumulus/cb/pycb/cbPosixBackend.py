@@ -114,6 +114,8 @@ class cbPosixData(object):
         self.md5er = hashlib.md5()
         self.access = access
 
+        self.seek_count = 0
+
         if not openIt:
             return
 
@@ -207,7 +209,10 @@ class cbPosixData(object):
 #    def xreadlines(self):
 
     def seek(self, offset, whence=None):
-        pycb.log(logging.WARNING, "Someone is seeking %s %d" % (self.fname, offset), tb=traceback)
+        self.seek_count = self.seek_count + 1
+        pycb.log(logging.WARNING, "Someone is seeking %s %d" % (self.fname, offset, self.seek_count), tb=traceback)
+        if self.seek_count > 1:
+            raise cbException('InternalError')
         return self.file.seek(offset, whence)
 
 
