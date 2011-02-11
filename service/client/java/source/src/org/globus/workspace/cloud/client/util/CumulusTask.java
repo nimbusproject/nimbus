@@ -438,7 +438,7 @@ class CloudProgressPrinter
         {
             return;
         }
-        this.nextUpdate = new Date(nowDt.getTime() + 1);
+        this.nextUpdate = new Date(nowDt.getTime() + 1000);
         long total = getBytesToTransfer();
            
         long sent = getBytesTransferred();
