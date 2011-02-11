@@ -426,10 +426,10 @@ class CloudProgressPrinter
         long                            byteCount)
     {
         super.updateBytesTransferred(byteCount);
-        this.flush();
+        this.print_bar();
     }
 
-    public void flush()
+    public void print_bar()
     {
         Calendar now = 	Calendar.getInstance();
         Date nowDt = now.getTime();
@@ -439,6 +439,11 @@ class CloudProgressPrinter
             return;
         }
         this.nextUpdate = new Date(nowDt.getTime() + 1000);
+        flush();
+    }
+
+    public void flush()
+    {
         long total = getBytesToTransfer();
            
         long sent = getBytesTransferred();
