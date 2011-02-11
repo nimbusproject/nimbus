@@ -239,7 +239,7 @@ class CumulusInputStream
     extends InputStream
 {
     private InputStream                 is;
-    private PrintStream pr;
+    private PrintStream                 pr;
     private CloudProgressPrinter        progress;
     private long                        where = 0;
     private long                        marked = 0;
@@ -265,10 +265,11 @@ class CumulusInputStream
     public void   close()
         throws java.io.IOException
     {
-        this.progress.flush();
         this.is.close();
+        this.progress.flush();
+        this.progress.print_done();
     }
- 
+
     public void   mark(int readlimit)
     {
         marked = where;
@@ -335,6 +336,7 @@ class CloudProgressPrinter
     private PrintStream                 pr;
     private int                         colCount = 80;
     private Date                        nextUpdate = null;
+    private boolean                     hit100 = false;
 
     public CloudProgressPrinter(
         PrintStream                     pr,
@@ -405,6 +407,7 @@ class CloudProgressPrinter
         int percent = (int)((sofar * 100) / total);
         int xCount = (percent * pgLen) / 100;
 
+
         String bar = byteString + " [";
         for(int i = 0; i < pgLen; i++)
         {
@@ -418,6 +421,12 @@ class CloudProgressPrinter
             }
         }
         bar = bar + "] " + percent + "% ";
+
+
+        if(sofar  == total)
+        {
+            this.hit100 = true;           
+        }
 
         return bar;
     }       
@@ -442,8 +451,21 @@ class CloudProgressPrinter
         flush();
     }
 
+    public void print_done()
+    {
+        long total = getBytesToTransfer();
+        String bar = this.makeBar(total, total);
+        System.out.print("\r");
+        System.out.print(bar);
+        System.out.flush();
+    }
+
     public void flush()
     {
+        if(this.hit100)
+        {
+            return;
+        }
         long total = getBytesToTransfer();
            
         long sent = getBytesTransferred();
@@ -588,10 +610,11 @@ public class CumulusTask
                 pr.println("Preparing the file for transfer:");
             } 
 
-            BytesProgressWatcher progressWatcher = 
+            CloudProgressPrinter progressWatcher =
                 new CloudProgressPrinter(pr, file.length());
             S3Object s3Object = ObjectUtils.createObjectForUpload(
                 key, file, null, false, progressWatcher);
+            progressWatcher.flush();
             s3Object.setContentType(Mimetypes.MIMETYPE_OCTET_STREAM);
             if (pr != null) {
                 pr.println("\n\nTransferring the file:");
@@ -600,11 +623,14 @@ public class CumulusTask
                 file.length(), pr, s3Object.getDataInputStream());
             s3Object.setDataInputStream(cis);
             s3Service.putObject(baseBucketName, s3Object);
+            progressWatcher.flush();
             s3Object.closeDataInputStream();
             cis.close();
 
             if (pr != null) {
-                pr.println("\n\nDone.");
+                pr.println("");
+                pr.println("");
+                pr.println("Done.");
             }
         }
         catch(S3ServiceException s3ex)
