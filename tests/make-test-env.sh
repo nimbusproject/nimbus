@@ -37,7 +37,9 @@ bd=`dirname $0`
 cd $bd
 src_dir=`pwd`
 
+
 if [ "X$NIMBUS_SRC_DIR" == "X" ]; then
+    echo "Going to use git"
     repo_dir="$work_dir/src"
     mkdir $repo_dir
     cd $repo_dir
@@ -54,15 +56,20 @@ if [ "X$NIMBUS_SRC_DIR" == "X" ]; then
     fi
 
     nimbus_source_dir=$repo_dir/nimbus
-    nimbus_wsc_dir=$repo_dir/nimbus/control/ 
-    nimbus_cc_dir=$repo_dir/nimbus/cloud-client
-    wsc_src=$work_dir/control
+    nimbus_wsc_source_dir=$nimbus_source_dir/control/ 
+    nimbus_cc_dir=$nimbus_source_dir/cloud-client
+    mkdir $nimbus_wsc_dir
+    unset CLOUD_CLIENT_HOME
 else
+    echo "Going to use premade dirs"
+
     nimbus_source_dir=$NIMBUS_SRC_DIR
-    nimbus_wsc_dir=$NIMBUS_WSC_SRC_DIR/workspace-control/
-    wsc_src=$NIMBUS_WSC_SRC_DIR/workspace-control/
+    nimbus_wsc_source_dir=$NIMBUS_WSC_SRC_DIR/workspace-control/
     export CLOUD_CLIENT_HOME=$NIMBUS_CC_DIR
+    nimbus_cc_dir=$CLOUD_CLIENT_HOME
 fi
+wsc_dst_src=$work_dir/control
+mkdir $wsc_dst_src
 
 install_dir=$work_dir/NIMBUSINSTALL
 
@@ -98,10 +105,10 @@ ssh localhost hostname
 rc=$?
 echo "ssh return code $rc"
 
-export NIMBUS_WORKSPACE_CONTROL_HOME=$nimbus_wsc_dir
-cp -r $nimbus_wsc_dir  $work_dir
+export NIMBUS_WORKSPACE_CONTROL_HOME=$wsc_dst_src
+cp -r $nimbus_wsc_source_dir/*  $wsc_dst_src
 if [ $? -ne 0 ]; then
-    echo "could not copy in WSC cp -r $nimbus_wsc_dir  $work_dir"
+    echo "could not copy in WSC:: cp -r $nimbus_wsc_source_dir/*  $wsc_dst_src"
     exit 1
 fi
 
@@ -112,7 +119,7 @@ cat $install_dir/services/share/nimbus-autoconfig/autoconfig-decisions.sh
 $install_dir/services/share/nimbus-autoconfig/autoconfig-adjustments.sh
 
 #cd $work_dir/control
-cd $wsc_src
+cd $wsc_dst_src
 pwd
 bash ./src/propagate-only-mode.sh
 if [ $? -ne 0 ]; then
@@ -126,10 +133,23 @@ echo "========================================="
 
 if [ "X$CLOUD_CLIENT_HOME" == "X" ]; then
     cd $nimbus_cc_dir
+    pwd
     bash ./builder/get-wscore.sh
+    if [ $? -ne 0 ]; then
+        echo "bash ./builder/get-wscore.sh failed"
+        exit 1
+    fi
     bash ./builder/dist.sh
+    if [ $? -ne 0 ]; then
+        echo "bash ./builder/dist.sh failed"
+        exit 1
+    fi
     cd $work_dir
     tar -zxvf $nimbus_cc_dir/nimbus-cloud-client*.tar.gz
+    if [ $? -ne 0 ]; then
+        echo "failed to untar $nimbus_cc_dir/nimbus-cloud-client*.tar.gz"
+        exit 1
+    fi
 
     cd nimbus-cloud-client*
     ./bin/cloud-client.sh --help
