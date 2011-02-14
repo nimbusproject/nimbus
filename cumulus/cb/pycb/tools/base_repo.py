@@ -23,6 +23,7 @@ def main(argv=sys.argv[1:]):
 
     try:
         repo_dir = argv[0]
+        repo_dir = str(repo_dir).strip()
         con_str = pynimbusauthz.get_db_connection_string()
         db_obj = DB(con_str=con_str)
 

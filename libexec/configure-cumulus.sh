@@ -1,5 +1,6 @@
 #!/bin/bash
 
+export TERM=dumb
 PYTHON_EXE="/usr/bin/env python"
 
 NIMBUS_SRC_REL="`dirname $0`/.."
