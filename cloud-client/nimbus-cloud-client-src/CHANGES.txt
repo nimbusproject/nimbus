@@ -1,3 +1,19 @@
+nimbus-cloud-client-018
+-----------------------
+
+[*] Changed the default settings in jets3t that caused a timeout if the 
+    socket was idle for more than 60 seconds.  Some machines flush their
+    cache on close and if they have a lot of memory it can exceed this 
+    timeout.  This lead to an infite repeat of the upload.
+    https://github.com/nimbusproject/nimbus/issues/issue/29
+    
+[*] Made the spinner update less frequently (once per second).  This cause
+    less noise on the network for remote users.
+    https://github.com/nimbusproject/nimbus/issues/issue/28
+
+[*] Allowed the progress bar to reach 100% instead of staying at 99%
+    https://github.com/nimbusproject/nimbus/issues/issue/31/
+
 nimbus-cloud-client-017
 -----------------------
 

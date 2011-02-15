@@ -1,5 +1,9 @@
 #!/bin/bash
 
+bd=`dirname $0`
+cd $bd
+src_dir=`pwd`
+
 version=$1
 shift
 cc_version=$1
@@ -50,4 +54,4 @@ export NIMBUS_SRC_DIR=`pwd`/$src_name
 export NIMBUS_WSC_SRC_DIR=`pwd`/$wsc_name
 export NIMBUS_CC_DIR=`pwd`/$cc_name
 
-echo $@
+./bt-nimbus.sh $@
