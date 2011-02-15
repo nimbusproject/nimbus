@@ -14,6 +14,7 @@ nimbus-cloud-client-018
 [*] Allowed the progress bar to reach 100% instead of staying at 99%
     https://github.com/nimbusproject/nimbus/issues/issue/31/
 
+
 nimbus-cloud-client-017
 -----------------------
 
