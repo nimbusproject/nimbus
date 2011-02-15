@@ -29,7 +29,7 @@ m4_define([[[_NIMBUS_TP2_2_DEPRECATED',<h3><font color="red"><b>Warning</b>: Thi
 m4_define([[[_NIMBUS_2_3_DEPRECATED',<h3><font color="red"><b>Warning</b>: This document describes an old release. Check <a href="_NIMBUS_WEBSITE/docs/">here</a> for the current version.</font></h3>)m4_dnl
 m4_define([[[_NIMBUS_2_4_DEPRECATED',<h3><font color="red"><b>Warning</b>: This document describes an old release. Check <a href="_NIMBUS_WEBSITE/docs/">here</a> for the current version.</font></h3>)m4_dnl
 m4_define([[[_NIMBUS_2_5_DEPRECATED',<h3><font color="red"><b>Warning</b>: This document describes an old release. Check <a href="_NIMBUS_WEBSITE/docs/">here</a> for the current version.</font></h3>)m4_dnl
-m4_define([[[_NIMBUS_IS_DEPRECATED',<!-- current release -->)m4_dnl
+m4_define([[[_NIMBUS_IS_DEPRECATED',<h3><font color="red"><b>Warning</b>: This document describes an old release. Check <a href="_NIMBUS_WEBSITE/docs/">here</a> for the current version.</font></h3>)m4_dnl
 m4_dnl
 m4_define([[[_WORKSP_DA_DEPRECATED',
 <div style="border:2px solid #000000;">
