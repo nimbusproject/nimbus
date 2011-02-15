@@ -63,6 +63,19 @@ if [ "X$NIMBUS_SRC_DIR" == "X" ]; then
 else
     echo "Going to use premade dirs"
 
+    if [ "X$NIMBUS_WSC_SRC_DIR" = "X" ]; then
+        echo "Either unset NIMBUS_SRC_DIR or set NIMBUS_WSC_SRC_DIR"
+        exit 1
+    fi 
+    if [ "X$NIMBUS_CC_DIR" = "X" ]; then
+        echo "Either unset NIMBUS_SRC_DIR or set NIMBUS_CC_DIR"
+        exit 1
+    fi 
+    if [ "X$CLOUD_CLIENT_HOME" = "X" ]; then
+        echo "Either unset NIMBUS_SRC_DIR or set CLOUD_CLIENT_HOME"
+        exit 1
+    fi 
+
     nimbus_source_dir=$NIMBUS_SRC_DIR
     nimbus_wsc_source_dir=$NIMBUS_WSC_SRC_DIR/workspace-control/
     export CLOUD_CLIENT_HOME=$NIMBUS_CC_DIR
