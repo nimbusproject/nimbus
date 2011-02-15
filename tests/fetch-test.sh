@@ -53,5 +53,6 @@ fi
 export NIMBUS_SRC_DIR=`pwd`/$src_name
 export NIMBUS_WSC_SRC_DIR=`pwd`/$wsc_name
 export NIMBUS_CC_DIR=`pwd`/$cc_name
+export CLOUD_CLIENT_HOME=`pwd`/$cc_name
 
 ./bt-nimbus.sh $@
