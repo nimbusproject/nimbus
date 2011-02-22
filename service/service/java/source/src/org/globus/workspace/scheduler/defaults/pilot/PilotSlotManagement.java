@@ -369,8 +369,8 @@ public class PilotSlotManagement implements SlotManagement,
                     "Is the configuration present?");
         }
 
-        if (this.ppn < 1) {
-            throw new Exception("processors per node (ppn) is less than one, " +
+        if (this.ppn < 0) {
+            throw new Exception("processors per node (ppn) is less than zero, " +
                     "invalid.  Is the configuration present?");
         }
 
@@ -492,6 +492,7 @@ public class PilotSlotManagement implements SlotManagement,
 
         this.reserveSpace(request.getIds(),
                           request.getMemory(),
+                          request.getCores(),
                           request.getDuration(),
                           request.getGroupid(),
                           request.getCreatorDN());
@@ -520,6 +521,7 @@ public class PilotSlotManagement implements SlotManagement,
         // capacity vs. mapping and we will get more sophisticated here later)
 
         int highestMemory = 0;
+        int highestCores = 0;
         int highestDuration = 0;
 
         final ArrayList idInts = new ArrayList(64);
@@ -531,6 +533,12 @@ public class PilotSlotManagement implements SlotManagement,
 
             if (highestMemory < thisMemory) {
                 highestMemory = thisMemory;
+            }
+
+            final int thisCores = requests[i].getCores();
+
+            if (highestCores < thisCores) {
+                highestCores = thisCores;
             }
 
             final int thisDuration = requests[i].getDuration();
@@ -563,7 +571,7 @@ public class PilotSlotManagement implements SlotManagement,
         // Assume that the creator's DN is the same for each node
         final String creatorDN = requests[0].getCreatorDN();
 
-        this.reserveSpace(all_ids, highestMemory, highestDuration, coschedid, creatorDN);
+        this.reserveSpace(all_ids, highestMemory, highestCores, highestDuration, coschedid, creatorDN);
         return new Reservation(all_ids, null, all_durations);
     }
 
@@ -579,6 +587,7 @@ public class PilotSlotManagement implements SlotManagement,
      *        than one VM is mapped to the same node, the returned node
      *        assignment array will include duplicates.
      * @param memory megabytes needed
+     * @param cores needed
      * @param duration seconds needed
      * @param uuid group ID, can not be null if vmids is length > 1
      * @param creatorDN the DN of the user who requested creation of the VM
@@ -587,6 +596,7 @@ public class PilotSlotManagement implements SlotManagement,
      */
     private void reserveSpace(final int[] vmids,
                               final int memory,
+                              final int cores,
                               final int duration,
                               final String uuid,
                               final String creatorDN)
@@ -628,13 +638,14 @@ public class PilotSlotManagement implements SlotManagement,
             }
         }
 
-        this.reserveSpaceImpl(memory, duration, slotid, vmids, creatorDN);
+        this.reserveSpaceImpl(memory, cores, duration, slotid, vmids, creatorDN);
 
         // pilot reports hostname when it starts running, not returning an
         // exception to signal successful best effort pending slot
     }
 
     private void reserveSpaceImpl(final int memory,
+                                  final int cores,
                                   final int duration,
                                   final String uuid,
                                   final int[] vmids,
@@ -646,20 +657,32 @@ public class PilotSlotManagement implements SlotManagement,
         final int dur = duration + this.padding;
         final long wallTime = duration + this.padding;
 
+
+        // If the pbs.ppn option in pilot.conf is 0, we should send
+        // the number of CPU cores used by the VM as the ppn string,
+        // otherwise, use the defined ppn value
+        int ppnRequested;
+        if (this.ppn == 0) {
+            ppnRequested = cores;
+        }
+        else {
+            ppnRequested = this.ppn;
+        }
+
         // we know it's torque for now, no casing
         final ArrayList torquecmd;
         try {
             torquecmd = this.torque.constructQsub(this.destination,
                                                   memory,
                                                   vmids.length,
-                                                  this.ppn,
+                                                  ppnRequested,
                                                   wallTime,
                                                   this.extraProperties,
                                                   outputFile,
                                                   false,
                                                   false,
                                                   creatorDN);
-            
+
         } catch (WorkspaceException e) {
             final String msg = "Problem with Torque argument construction";
             if (logger.isDebugEnabled()) {
