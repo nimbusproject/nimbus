@@ -6,7 +6,27 @@
                            http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
     <import resource="main.conflocator.xml" />
+    <import resource="authz-callout-ACTIVE.xml" />
     
+    <bean id="other.AuthzDataSource"
+        class="org.apache.commons.dbcp.BasicDataSource">
+        <property name="driverClassName" value="org.sqlite.JDBC" />
+        <property name="maxActive" value="10" />
+        <property name="maxIdle" value="4" />
+        <property name="maxWait" value="2000" />
+        <property name="poolPreparedStatements" value="true" />
+
+        <property name="url"
+            value="jdbc:sqlite://$CUMULUS{cumulus.authz.db}" />
+        <property name="username" value="nimbus"/>
+        <property name="password" value="nimbus"/>
+    </bean>
+
+
+    <bean id="other.authzDBAdapter" class="org.nimbus.authz.AuthzDBAdapter">
+        <constructor-arg ref="other.AuthzDataSource"/>
+    </bean>
+
     <bean id="nimbus-rm.scheduler.SlotManagement"
           class="org.globus.workspace.scheduler.defaults.pilot.PilotSlotManagement"
           init-method="validate">
@@ -100,6 +120,7 @@
         <property name="extraProperties" value="$PILOT{pbs.extra.properties}" />
         <property name="destination" value="$PILOT{pbs.destination}" />
         <property name="grace" value="$PILOT{pbs.grace}" />
+        <property name="accounting" value="$PILOT{pbs.accounting.type}" />
         
 
         <!-- Needed workspace service modules -->
@@ -107,6 +128,8 @@
         <constructor-arg ref="nimbus-rm.loglevels" />
         <constructor-arg ref="other.MainDataSource" />
         <constructor-arg ref="other.timerManager" />
+        <constructor-arg ref="other.authzDBAdapter" />
+        <constructor-arg ref="nimbus-rm.service.binding.AuthorizationCallout" />
 
         <!-- set after object creation time to avoid circular dep with home -->
         <property name="instHome" ref="nimbus-rm.home.instance" />
