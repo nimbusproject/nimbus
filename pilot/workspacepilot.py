@@ -149,7 +149,7 @@ dom0_mem: 2007
 
 # This option determines whether pilot will attempt to bubble down memory for
 # VMs. The Xen Best Practices wiki page at
-# http://wiki.xensource.com/xenwiki/XenBestPractices reccommends that you set a
+# http://wiki.xensource.com/xenwiki/XenBestPractices recommends that you set a
 # fixed amount of memory for dom0 because:
 #
 #   1. (dom0) Linux kernel calculates various network related parameters based
