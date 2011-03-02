@@ -613,7 +613,7 @@ public class PilotSlotManagement implements SlotManagement,
      *        than one VM is mapped to the same node, the returned node
      *        assignment array will include duplicates.
      * @param memory megabytes needed
-     * @param cores needed
+     * @param requestedCores needed
      * @param duration seconds needed
      * @param uuid group ID, can not be null if vmids is length > 1
      * @param creatorDN the DN of the user who requested creation of the VM
@@ -622,7 +622,7 @@ public class PilotSlotManagement implements SlotManagement,
      */
     private void reserveSpace(final int[] vmids,
                               final int memory,
-                              final int cores,
+                              final int requestedCores,
                               final int duration,
                               final String uuid,
                               final String creatorDN)
@@ -638,6 +638,16 @@ public class PilotSlotManagement implements SlotManagement,
                     "fulfilled by any VMM node (maximum: " + this.maxMB +
                     " MB).";
             throw new ResourceRequestDeniedException(msg);
+        }
+
+        // When there is no core request, the default is -1,
+        // we would actually like one core.
+        int cores;
+        if (requestedCores <= 0) {
+            cores = 1;
+        }
+        else {
+            cores = requestedCores;
         }
 
         if (vmids.length > 1 && uuid == null) {
