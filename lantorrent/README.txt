@@ -40,7 +40,7 @@ This results in the most efficient transfer on a LAN switched network.
 Often times in a IaaS system a single network endpoint (VMM) will want 
 multiple copies of the same file.  Each file is booted as a virtual 
 machine and that virtual machine will make distinct changes to that file 
-as it runs, thus it needs it own copy of the file.  However that file 
+as it runs, thus it needs its own copy of the file.  However that file 
 does not need to be transfered across the network more than once.  
 Lantorrent will send the file to each endpoint once and instruct that 
 endpoint to write it to multiple files if needed.
