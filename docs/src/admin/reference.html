@@ -938,6 +938,16 @@ _EXAMPLE_CMD_END
     Container restart required after the configuration change.
 </p>
 
+<div class="note">
+<p class="note-title">KVM</p>
+    If you are using KVM you need to adjust the default mountpoint, to support disk images.
+    This is found in
+    <tt class="literal">$NIMBUS_HOME/services/etc/nimbus/elastic/other/other-elastic.conf</tt>.
+    Set <tt class="literal">rootfile.mountas=hda</tt>
+</p>
+</div>
+
+
 <!-- *********************************************************************** -->
 <!-- *********************************************************************** -->
 <!-- *********************************************************************** -->
