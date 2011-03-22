@@ -25,6 +25,7 @@ import org.globus.workspace.service.binding.BindCustomizations;
 import org.globus.workspace.service.binding.BindDisks;
 import org.globus.workspace.service.binding.BindInitialState;
 import org.globus.workspace.service.binding.BindKernel;
+import org.globus.workspace.service.binding.BindNetwork;
 import org.globus.workspace.service.binding.BindResourceRequest;
 import org.globus.workspace.service.binding.BindSchedule;
 import org.globus.workspace.service.binding.BindShutdownMechanism;
@@ -62,6 +63,7 @@ public class DefaultBindingAdapter implements BindingAdapter,
     protected final BindResourceRequest bindResourceRequest;
     protected final BindDisks bindDisks;
     protected final BindVMM bindVMM;
+    protected final BindNetwork bindNetwork;
 
     
     // -------------------------------------------------------------------------
@@ -76,7 +78,8 @@ public class DefaultBindingAdapter implements BindingAdapter,
                                  BindKernel bindKernelImpl,
                                  BindDisks bindDisksImpl,
                                  BindResourceRequest bindResourceRequestImpl,
-                                 BindVMM bindVMMImpl) {
+                                 BindVMM bindVMMImpl,
+                                 BindNetwork bindNetworkImpl) {
 
         if (bindScheduleImpl == null) {
             throw new IllegalArgumentException("bindScheduleImpl may not be null");
@@ -122,6 +125,11 @@ public class DefaultBindingAdapter implements BindingAdapter,
             throw new IllegalArgumentException("bindVMMImpl may not be null");
         }
         this.bindVMM = bindVMMImpl;
+
+        if (bindNetworkImpl == null) {
+            throw new IllegalArgumentException("bindNetworkImpl may not be null");
+        }
+        this.bindNetwork = bindNetworkImpl;
     }
 
 
@@ -159,6 +167,7 @@ public class DefaultBindingAdapter implements BindingAdapter,
         final VirtualMachineDeployment dep = new VirtualMachineDeployment();
         vm.setDeployment(dep);
 
+        this.bindNetwork.neededAllocations(vm, req.getRequestedNics());
         this.bindSchedule.consume(dep, req.getRequestedSchedule());
         this.bindInitialState.consume(vm, req.getInitialStateRequest());
         this.bindShutdownMechanism.consume(dep, req.getShutdownType());

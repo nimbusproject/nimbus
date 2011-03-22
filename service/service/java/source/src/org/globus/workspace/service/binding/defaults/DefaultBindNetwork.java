@@ -83,25 +83,18 @@ public class DefaultBindNetwork implements BindNetwork {
     // implements BindNetwork
     // -------------------------------------------------------------------------
 
-    public void consume(VirtualMachine[] vms, NIC[] nics)
-            throws CreationException, ResourceRequestDeniedException {
-
-        if (vms == null || vms.length == 0) {
-            throw new IllegalArgumentException("vms may not be null or missing");
+    public void neededAllocations(VirtualMachine vm, NIC[] nics) throws CreationException {
+        if (vm == null) {
+            throw new IllegalArgumentException("vm may not be null");
         }
 
         if (nics == null || nics.length == 0) {
             final String info = "networking specification is not present in " +
-                    "'" + vms[0].getName() + "' request, setting default";
+                    "'" + vm.getName() + "' request, setting default";
             logger.info(info);
             //TODO: make default networking configurable/policy driven
-
-            for (int i = 0; i < vms.length; i++) {
-                final VirtualMachine vm = vms[i];
-                vm.setNetwork("NONE");
-                vm.setAssociationsNeeded(null);
-            }
-
+            vm.setNetwork("NONE");
+            vm.setAssociationsNeeded(null);
             return; // *** EARLY RETURN ***
         }
 
@@ -114,6 +107,24 @@ public class DefaultBindNetwork implements BindNetwork {
                         "NICs with the same name");
             }
             nicnames.add(name);
+        }
+
+        String assocs = null;
+        for (int i = 0; i < nics.length; i++) {
+            if (i == 0) {
+                assocs = getAssoc(nics[i]);
+            } else {
+                assocs += "," + getAssoc(nics[i]);
+            }
+        }
+        vm.setAssociationsNeeded(assocs);
+    }
+
+    public void consume(VirtualMachine[] vms, NIC[] nics)
+            throws CreationException, ResourceRequestDeniedException {
+
+        if (vms == null || vms.length == 0) {
+            throw new IllegalArgumentException("vms may not be null or missing");
         }
 
         final boolean staticIPAllowed = this.globals.isAllowStaticIPs();

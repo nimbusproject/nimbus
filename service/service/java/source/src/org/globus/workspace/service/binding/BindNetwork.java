@@ -27,6 +27,8 @@ public interface BindNetwork {
     public void consume(VirtualMachine[] vm, NIC[] nics)
             throws CreationException, ResourceRequestDeniedException;
 
+    public void neededAllocations(VirtualMachine vm, NIC[] nics) throws CreationException;
+
     public void backOutIPAllocations(VirtualMachine vm)
             throws WorkspaceException;
 
