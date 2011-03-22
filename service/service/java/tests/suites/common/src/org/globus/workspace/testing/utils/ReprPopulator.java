@@ -59,32 +59,45 @@ public class ReprPopulator {
      * @throws Exception problem
      */
     public CreateRequest getCreateRequest(String name) throws Exception {
-        return getCreateRequest(name, 240, 64, 1, null);
+        return getCreateRequest(name, 240, 64, 1, null, null);
     }
 
     public CreateRequest getIdempotentCreateRequest(String name, String idemToken) throws Exception {
-        return getCreateRequest(name, 240, 64, 1, idemToken);
+        return getCreateRequest(name, 240, 64, 1, idemToken, null);
+    }
+
+    public CreateRequest getCreateRequestCustomNetwork(String name, String networkName) throws Exception {
+        return getCreateRequest(name, 240, 64, 1, null, networkName);
     }
 
     public CreateRequest getCreateRequest(String name, int durationSecs, int mem, int numNodes) throws Exception {
-        return getCreateRequest(name, durationSecs, mem, numNodes, null);
+        return getCreateRequest(name, durationSecs, mem, numNodes, null, null);
     }
 
     public CreateRequest getCreateRequest(String name, int durationSecs, int mem, int numNodes, String idemToken) throws Exception {
+        return getCreateRequest(name, durationSecs, mem, numNodes, idemToken, null);
+    }
+
+    public CreateRequest getCreateRequest(String name, int durationSecs, int mem, int numNodes, String idemToken, String networkName) throws Exception {
         final _CreateRequest req = this.repr._newCreateRequest();
 
-        populate(req, durationSecs, name, mem, numNodes, false, idemToken);
+        populate(req, durationSecs, name, mem, numNodes, false, idemToken, networkName);
 
         return req;
     }    
 
     private void populate(final _CreateRequest req, int durationSeconds, String name,
-                          int mem, int numNodes, boolean preemptable, String idemToken)
+                          int mem, int numNodes, boolean preemptable, String idemToken,
+                          String networkName)
             throws URISyntaxException {
         req.setName(name);
         
         final _NIC nic = this.repr._newNIC();
-        nic.setNetworkName("public");
+        if (networkName == null) {
+            nic.setNetworkName("public");
+        } else {
+            nic.setNetworkName(networkName);
+        }
         nic.setAcquisitionMethod(NIC.ACQUISITION_AllocateAndConfigure);
         req.setRequestedNics(new _NIC[]{nic});
 
@@ -141,7 +154,7 @@ public class ReprPopulator {
         reqSI.setSpotPrice(spotPrice);
         reqSI.setPersistent(persistent);        
         
-        populate(reqSI, 500, name, SIConstants.SI_TYPE_BASIC_MEM, numNodes, true, null);
+        populate(reqSI, 500, name, SIConstants.SI_TYPE_BASIC_MEM, numNodes, true, null, null);
         
         return reqSI;
     }
@@ -151,7 +164,7 @@ public class ReprPopulator {
         final _AsyncCreateRequest backfill = this.repr._newBackfillRequest();
         backfill.setInstanceType(SIConstants.SI_TYPE_BASIC);                
         
-        populate(backfill, 500, name, SIConstants.SI_TYPE_BASIC_MEM, numNodes, true, null);
+        populate(backfill, 500, name, SIConstants.SI_TYPE_BASIC_MEM, numNodes, true, null, null);
                 
         return backfill;
     }    
