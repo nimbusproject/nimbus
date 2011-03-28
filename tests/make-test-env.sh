@@ -49,7 +49,7 @@ if [ "X$NIMBUS_SRC_DIR" == "X" ]; then
         repo=$NIMBUS_REPO
     fi
     echo "Checking out nimbus from $repo"
-    git clone --depth 1 $repo
+    git clone --depth 1 $repo nimbus
     if [ $? -ne 0 ]; then
         echo "failed to checkout git from $NIMBUS_REPO"
         exit 1
