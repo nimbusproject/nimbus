@@ -14,14 +14,13 @@ import re
     
 class WSCTemplateLoader(BaseLoader):
 
-    def __init__(self):
-        self.path = os.path.abspath(os.path.dirname(__file__))
-        print self.path
+    def __init__(self, path):
+        self.path = path
 
     def get_source(self, environment, template):
-        path = join(self.path, template)
+        path = self.path
         if not exists(path):
-            raise Exception("libvirt template not found %s" % (template))
+            raise Exception("libvirt template not found %s" % (path))
         mtime = getmtime(path)
         with file(path) as f:
             source = f.read().decode('utf-8')
@@ -33,8 +32,10 @@ def _xml_normalize_pretty(s):
         s = s.replace(c, " ")
     doc = xml.dom.minidom.parseString(s)
     uglyXml = doc.toprettyxml(indent='  ')
+    text_re = re.compile('>\n\s+([^<>\s].*?)\n\s+</', re.DOTALL)
+    prettyXml = text_re.sub('>\g<1></', uglyXml)
     text_re = re.compile(os.linesep + ' *' + os.linesep)
-    prettyXml = text_re.sub(os.linesep, uglyXml)
+    prettyXml = text_re.sub(os.linesep, prettyXml)
     return prettyXml
 
 # definitely don't want to parse XML by hand, but creating it with strings
@@ -49,7 +50,7 @@ def L(indent, content):
     return spaces + content + "\n"
 
 class Domain:
-    def __init__(self):
+    def __init__(self, template=None):
         
         self._type = None # e.g. 'xen' or 'qemu'  <domain type='xen'>
         
@@ -67,13 +68,15 @@ class Domain:
         
         # see http://libvirt.org/formatdomain.html#elementsDevices
         self.devices = None # object <devices>
+        self._template = template
 
     def toXML(self):
-        return self._toXML_template()
+        x = self._toXML_template()
+        return x
 
     def _toXML_template(self):
-        env = Environment(loader=WSCTemplateLoader())
-        template = env.get_template('domain_template.xml')
+        env = Environment(loader=WSCTemplateLoader(self._template))
+        template = env.get_template(self._template)
         xml1 = template.render(domain=self, os=self.os, devices=self.devices)
         return _xml_normalize_pretty(xml1)
         

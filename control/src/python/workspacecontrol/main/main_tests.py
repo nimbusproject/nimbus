@@ -161,8 +161,8 @@ def test_mock_create():
     assert running_vm
     
     assert running_vm.wchandle == handle
-    assert running_vm.maxmem == 256
-    assert running_vm.curmem == 256
+    assert running_vm.maxmem == 262144
+    assert running_vm.curmem == 262144
     assert running_vm.running
     assert not running_vm.blocked
     assert not running_vm.paused

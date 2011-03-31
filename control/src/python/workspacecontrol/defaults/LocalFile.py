@@ -11,4 +11,5 @@ class DefaultLocalFile:
         self.rootdisk = False
         self.read_write = False
         self.editable = False
+        self.physical = False
     

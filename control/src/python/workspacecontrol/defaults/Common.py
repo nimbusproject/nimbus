@@ -31,6 +31,27 @@ class DefaultCommon:
         self.logfilehandler = None
         self.logfilepath = None
         self.log = self._configure_logging()
+
+    def resolve_etc_dir(self, name):
+        """Return absolute path to the needed etc directory
+        name -- relative path to directory
+        
+        Does not check if path is valid/exists.
+        """
+
+        # If wcdirs values are relative paths, they are taken from the base
+        # directory.  If the program is 'installed' the values should not be
+        # relative (person writing install code needs to understand that).
+
+        etcdir = self.p.get_conf_or_none("wcdirs", "etc")
+        if not etcdir:
+            raise InvalidConfig("There is no wcdirs->etc configuration.  This is required.")
+
+        if not os.path.isabs(etcdir):
+            basedir = self._get_basedir()
+            etcdir = os.path.join(basedir, etcdir)
+
+        return os.path.join(etcdir, name)
         
     def resolve_var_dir(self, name):
         """Return absolute path to the needed var directory

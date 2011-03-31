@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<domain type='{{ domain._type }}'>
+
+    <name>{{ domain.name }}</name>
+
+    {% if domain.bootloader %}<bootloader>{{ domain.bootloader }}</bootloader>{% endif %}
+
+    <os>
+        <type>{{ os.type }}</type>
+        {% if os.kernel %}<kernel>{{ os.kernel }}</kernel>{% endif %}
+        {% if os.initrd %}<initrd>{{ os.initrd }}</initrd>{% endif %}
+        {% if os.cmdline %}<cmdline>{{ os.cmdline }}</cmdline>{% endif %}
+    </os>
+
+    <memory>{{ domain.memory }}</memory>
+    <vcpu>{{ domain.vcpu }}</vcpu>
+    {% if domain.on_poweroff %}
+        <on_poweroff>{{ domain.on_poweroff }}</on_poweroff>
+    {% endif %}
+    {% if domain.on_reboot %}
+        <on_reboot>{{ domain.on_reboot }}</on_reboot>
+    {% endif %}
+    {% if domain.on_crash %}
+        <on_crash>{{ domain.on_crash }}</on_crash>
+    {% endif %}
+
+    <devices>
+        {% for disk in devices.disks %}
+        <disk type='{{ disk._type }}'>
+            {% if disk.driver %}{% if disk.driver == "tap:aio" %}<driver name='tap' type='aio' />{% endif %}{% endif %}
+
+            {% if disk._type == "block" %} 
+            <source dev='{{ disk.source }}' />
+            {% else %}
+            <source file='{{ disk.source }}' />
+            {% endif %}
+            <target dev='{{ disk.target }}' />
+            {% if disk.readonly %}<readonly/>{% endif %}
+        </disk>
+        {% endfor %}
+
+        {% for interface in devices.interfaces %}
+        <interface type='{{ interface._type }}'>
+            <source bridge='{{ interface.source }}' />
+            <mac address='{{ interface.mac }}' />
+            {% if interface.target %}
+                <target dev='{{ interface.target }}' />
+            {% endif %}
+            {% if interface.script_path %}
+                <script path='{{ interface.script_path }}' />
+            {% endif %}
+        </interface>
+        {% endfor %}
+    </devices>
+</domain>
