@@ -2,6 +2,7 @@
 
 BASEDIR_REL="`dirname $0`/.."
 BASEDIR=`cd $BASEDIR_REL; pwd`
+BASEDIR=${BASEDIR/ /\\ }
 
 EMBEDDED_GL="$BASEDIR/lib/globus"
 USER_PROPFILE="$BASEDIR/conf/cloud.properties"
@@ -76,7 +77,7 @@ updateOptions() {
 
 ####### MAIN BODY ##########
 
-if [ ! -d "$GLOBUS_LOCATION" ] ; then
+if [ ! -d $GLOBUS_LOCATION ] ; then
   echo "Error: GLOBUS_LOCATION invalid or not set: $GLOBUS_LOCATION" 1>&2
   exit 1
 fi
