@@ -1,3 +1,9 @@
+
+nimbus-cloud-client-019
+-----------------------
+[*] Allowed cloud client to work if base directory has spaces:
+    https://github.com/nimbusproject/nimbus/issues#issue/42
+
 nimbus-cloud-client-018
 -----------------------
 
