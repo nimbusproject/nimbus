@@ -337,6 +337,7 @@ class CloudProgressPrinter
     private int                         colCount = 80;
     private Date                        nextUpdate = null;
     private boolean                     hit100 = false;
+    private boolean                     noprint = false;
 
     public CloudProgressPrinter(
         PrintStream                     pr,
@@ -344,6 +345,16 @@ class CloudProgressPrinter
     {
         super(len);
         this.pr = pr;
+    }
+
+    public CloudProgressPrinter(
+        PrintStream                     pr,
+        long                            len,
+        boolean                         noprint)
+    {
+        super(len);
+        this.pr = pr;
+        this.noprint = noprint;        
     }
 
     // return a string with the long value properly suffixed 
@@ -463,6 +474,10 @@ class CloudProgressPrinter
     public void flush()
     {
         if(this.hit100)
+        {
+            return;
+        }
+        if(this.noprint)
         {
             return;
         }

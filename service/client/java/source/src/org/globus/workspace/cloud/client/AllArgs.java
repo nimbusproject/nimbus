@@ -128,6 +128,7 @@ public class AllArgs {
     private String brokerID;
     private int timeoutMinutes;
     private boolean common_image = false;
+    private boolean nospinner = false;
 
     // ------------------------------------
 
@@ -520,6 +521,11 @@ public class AllArgs {
         if (line.hasOption(Opts.COMMON_OPT_STRING)) {
             this.common_image = true;
             this.gotCmdLine(Opts.COMMON_OPT_STRING, "enabled");
+        }
+
+        if (line.hasOption(Opts.NOSPINNER_OPT_STRING)) {
+            this.nospinner = true;
+            this.gotCmdLine(Opts.NOSPINNER_OPT_STRING, "enabled");
         }
 
         if (line.hasOption(Opts.TRANSFER_OPT_STRING)) {
@@ -1238,8 +1244,16 @@ public class AllArgs {
            return this.common_image;
     }
 
-    public void setHandle(boolean b) {
+    public void setCommonVMSet(boolean b) {
            this.common_image = b;
+    }
+
+    public boolean getNoSpinner() {
+           return this.nospinner;
+    }
+
+    public void setNoSpinner(boolean b) {
+           this.nospinner = b;
     }
 
     public String getName() {

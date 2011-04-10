@@ -166,11 +166,15 @@ public class Opts {
 
     public static final String COMMON_OPT_STRING = "common";
     public final Option COMMON_OPT =
-        OptionBuilder.hasArg().withLongOpt(COMMON_OPT_STRING).create();
+        OptionBuilder.withLongOpt(COMMON_OPT_STRING).create();
+
+    public static final String NOSPINNER_OPT_STRING = "nospinner";
+    public final Option NOSPINNER_OPT =
+        OptionBuilder.withLongOpt(NOSPINNER_OPT_STRING).create();
 
     public static final String SSH_FILE_OPT_STRING = "ssh-pubkey";
     public final Option SSH_FILE_OPT =
-        OptionBuilder.withLongOpt(SSH_FILE_OPT_STRING).create();
+        OptionBuilder.hasArg().withLongOpt(SSH_FILE_OPT_STRING).create();
 
     public static final String POLL_INTERVAL_OPT_STRING = "poll-interval";
     public final Option POLL_INTERVAL_OPT =
@@ -263,6 +267,7 @@ public class Opts {
                                                  this.DEBUG_OPT,
                                                  this.TIMEOUT_OPT,
                                                  this.COMMON_OPT,
+                                                 this.NOSPINNER_OPT,
                                                  this.SSH_FILE_OPT,
                                                  this.POLL_INTERVAL_OPT,
                                                  this.NOTIFICATIONS_OPT,
