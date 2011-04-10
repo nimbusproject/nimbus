@@ -164,6 +164,10 @@ public class Opts {
     public final Option TIMEOUT_OPT =
         OptionBuilder.hasArg().withLongOpt(TIMEOUT_OPT_STRING).create();
 
+    public static final String COMMON_OPT_STRING = "common";
+    public final Option COMMON_OPT =
+        OptionBuilder.hasArg().withLongOpt(COMMON_OPT_STRING).create();
+
     public static final String SSH_FILE_OPT_STRING = "ssh-pubkey";
     public final Option SSH_FILE_OPT =
         OptionBuilder.hasArg().withLongOpt(SSH_FILE_OPT_STRING).create();
@@ -258,6 +262,7 @@ public class Opts {
                                                  this.HOURS_OPT,
                                                  this.DEBUG_OPT,
                                                  this.TIMEOUT_OPT,
+                                                 this.COMMON_OPT,
                                                  this.SSH_FILE_OPT,
                                                  this.POLL_INTERVAL_OPT,
                                                  this.NOTIFICATIONS_OPT,

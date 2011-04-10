@@ -535,6 +535,10 @@ public class CumulusTask
         String                          vmName,
         String                          ID)
     {
+        if(this.args.getCommonVMSet())
+        {
+            ID = "common";
+        }
         String baseKey = this.args.getXferS3BaseKey();
         if(ID == null)
         {

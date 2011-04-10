@@ -127,6 +127,7 @@ public class AllArgs {
     private String brokerURL;
     private String brokerID;
     private int timeoutMinutes;
+    private boolean common_image = false;
 
     // ------------------------------------
 
@@ -514,6 +515,11 @@ public class AllArgs {
             this.timeoutMinutesConfigured = true;
             this.gotCmdLine(Opts.TIMEOUT_OPT_STRING,
                             Integer.toString(this.timeoutMinutes));
+        }
+
+        if (line.hasOption(Opts.COMMON_OPT_STRING)) {
+            this.common_image = true;
+            this.gotCmdLine(Opts.COMMON_OPT_STRING, "enabled");
         }
 
         if (line.hasOption(Opts.TRANSFER_OPT_STRING)) {
@@ -1226,6 +1232,14 @@ public class AllArgs {
 
     public void setCores(int cores) {
         this.cores = cores;
+    }
+
+    public boolean getCommonVMSet() {
+           return this.common_image;
+    }
+
+    public void setHandle(boolean b) {
+           this.common_image = b;
     }
 
     public String getName() {
