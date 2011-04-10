@@ -170,7 +170,7 @@ public class Opts {
 
     public static final String SSH_FILE_OPT_STRING = "ssh-pubkey";
     public final Option SSH_FILE_OPT =
-        OptionBuilder.hasArg().withLongOpt(SSH_FILE_OPT_STRING).create();
+        OptionBuilder.withLongOpt(SSH_FILE_OPT_STRING).create();
 
     public static final String POLL_INTERVAL_OPT_STRING = "poll-interval";
     public final Option POLL_INTERVAL_OPT =

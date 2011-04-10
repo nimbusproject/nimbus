@@ -4,6 +4,8 @@ import pexpect
 import sys
 import os
 import uuid
+import tempfile
+import filecmp
 
 to=90
 cc_home=os.environ['CLOUD_CLIENT_HOME']
@@ -19,15 +21,15 @@ if rc != 0:
 
 (tmpFD, outFileName) = tempfile.mkstemp()
 os.close(tmpFD)
-cmd = "%s/bin/cloud-client.sh --download --name %s --localfile=%s" % (cc_home, common_image, outFileName)
-(x, rc)=pexpect.run(cmd, withexitstatus=1)
+cmd = "%s/bin/cloud-client.sh --force --download --name %s --localfile=%s" % (cc_home, common_image, outFileName)
+(x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile)
 if rc == 0:
     print "This should have had an error"
     sys.exit(1)
 cmd = "%s/bin/cloud-client.sh --common --download --name %s --localfile=%s" % (cc_home, common_image, outFileName)
-(x, rc)=pexpect.run(cmd, withexitstatus=1)
+(x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile)
 if rc != 0:
-    print "Down load of the common image failed"
+    print "Download of the common image failed"
     sys.exit(1)
 
 rc = filecmp.cmp(outFileName, "/etc/group")

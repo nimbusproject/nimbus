@@ -4,6 +4,8 @@ import pexpect
 import sys
 import os
 import uuid
+import tempfile
+import filecmp
 
 to=90
 cc_home=os.environ['CLOUD_CLIENT_HOME']
