@@ -247,13 +247,14 @@ class CumulusInputStream
     public CumulusInputStream(
         long                            len,
         PrintStream                     pr,
-        InputStream                     is)
+        InputStream                     is,
+        boolean                         noprint)
     {
         super();
         this.is = is;
         this.pr = pr;   
 
-        progress = new CloudProgressPrinter(this.pr, len);
+        progress = new CloudProgressPrinter(this.pr, len, noprint);
     }
  
     public int available()
@@ -643,7 +644,7 @@ public class CumulusTask
                 pr.println("\n\nTransferring the file:");
             }
             CumulusInputStream cis = new CumulusInputStream(
-                file.length(), pr, s3Object.getDataInputStream());
+                file.length(), pr, s3Object.getDataInputStream(), this.args.getNoSpinner());
             s3Object.setDataInputStream(cis);
             s3Service.putObject(baseBucketName, s3Object);
             progressWatcher.flush();

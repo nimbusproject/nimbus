@@ -990,6 +990,11 @@ public class AllArgs {
     }
 
     private String resolvePathProperty(String key, String val, String sourcePath) {
+        if(val.indexOf("~/") == 0)
+        {
+            String home_dir = System.getProperty("user.home") + "/";                
+            val = val.replaceFirst("~/", home_dir);
+        }
         File f = new File(val);
         if (!f.isAbsolute() && sourcePath != null) {
             f = new File(new File(sourcePath).getParent(), val);
