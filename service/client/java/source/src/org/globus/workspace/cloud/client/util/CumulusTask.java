@@ -464,6 +464,10 @@ class CloudProgressPrinter
 
     public void print_done()
     {
+        if(this.noprint)
+        {
+            return;
+        }
         long total = getBytesToTransfer();
         String bar = this.makeBar(total, total);
         System.out.print("\r");

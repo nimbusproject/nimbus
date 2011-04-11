@@ -55,7 +55,7 @@ if not rc:
 
 cmd = "%s/bin/nimbus-public-image --delete %s" % (nh, common_image)
 (x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile)
-if not rc:
+if rc != 0:
     print "failed delete the public image %s || %s" % (common_image, str(x))
     sys.exit(1)
 cmd = "%s/bin/cloud-client.sh --delete --name %s" % (cc_home, common_image)
