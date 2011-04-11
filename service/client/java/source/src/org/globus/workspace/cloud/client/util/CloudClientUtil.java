@@ -872,6 +872,9 @@ public class CloudClientUtil {
                     "probably not set.\n";
             print.debugln(err);
             err += files;
+            if(!error_ok) {
+                throw new Exception(err);
+            }
             accumulatedErrors.append(err);
         } catch (Exception e) {
             final String err = "Problem loading credential from properties:\n    " +
