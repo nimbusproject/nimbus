@@ -4,7 +4,11 @@ nimbus-cloud-client-019
 [*] Allowed cloud client to work if base directory has spaces:
     https://github.com/nimbusproject/nimbus/issues#issue/42
 
-[*] https://github.com/nimbusproject/nimbus/issues/38
+[*] Allow cloud-client to download public VM images
+    https://github.com/nimbusproject/nimbus/issues/38
+
+[*] Added an option to disable the upload spiner
+    https://github.com/nimbusproject/nimbus/issues/30
 
 nimbus-cloud-client-018
 -----------------------
