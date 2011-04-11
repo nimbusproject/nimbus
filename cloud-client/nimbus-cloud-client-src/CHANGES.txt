@@ -10,6 +10,13 @@ nimbus-cloud-client-019
 [*] Added an option to disable the upload spiner
     https://github.com/nimbusproject/nimbus/issues/30
 
+[*] Made it so an error is returned when a cert value is set that does not
+    exist.
+    https://github.com/nimbusproject/nimbus/issues/43
+
+[*] Expand ~/ for cloud.properties options like nimbus.cert
+    https://github.com/nimbusproject/nimbus/issues/5
+
 nimbus-cloud-client-018
 -----------------------
 
