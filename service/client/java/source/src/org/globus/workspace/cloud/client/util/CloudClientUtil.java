@@ -838,7 +838,7 @@ public class CloudClientUtil {
 
         final StringBuilder accumulatedErrors =
                new StringBuilder("-----------------------------\n\nHere is what happened:\n\n");
-
+        boolean error_ok = true;
         try {
             print.debugln("First, attempting to load any credential specified in properties");
 
@@ -846,9 +846,15 @@ public class CloudClientUtil {
             if (certPath == null) {
                 certPath = "Not set.";
             }
+            else {
+                error_ok = false;
+            }
             String keyPath = NimbusCredential.getNimbusUnencryptedKeyPath();
             if (keyPath == null) {
                 keyPath = "Not set.";
+            }
+            else {
+                error_ok = false;
             }
             String files = "  - " + Props.KEY_NIMBUS_CERT + ": " + certPath + '\n';
             files += "  - " + Props.KEY_NIMBUS_KEY + ": " + keyPath + '\n';
@@ -872,6 +878,10 @@ public class CloudClientUtil {
                     CommonUtil.recurseForSomeString(e);
             accumulatedErrors.append(err).append('\n');
             print.debugln(err);
+
+            if(!error_ok) {
+                throw e;
+            }
         }
 
         try {
