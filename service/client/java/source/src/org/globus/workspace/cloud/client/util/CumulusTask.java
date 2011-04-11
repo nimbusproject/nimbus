@@ -630,7 +630,7 @@ public class CumulusTask
             } 
 
             CloudProgressPrinter progressWatcher =
-                new CloudProgressPrinter(pr, file.length());
+                new CloudProgressPrinter(pr, file.length(), this.args.getNoSpinner());
             S3Object s3Object = ObjectUtils.createObjectForUpload(
                 key, file, null, false, progressWatcher);
             progressWatcher.flush();
@@ -703,7 +703,7 @@ public class CumulusTask
             S3Object s3Object = s3Service.getObject(baseBucketName, key);
 
             BytesProgressWatcher progressWatcher = 
-                new CloudProgressPrinter(pr, s3Object.getContentLength());
+                new CloudProgressPrinter(pr, s3Object.getContentLength(), this.args.getNoSpinner());
             byte b [] = new byte[1024*64];
             InputStream dis = s3Object.getDataInputStream();
             FileOutputStream fos = new FileOutputStream(file);
