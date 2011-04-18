@@ -7,7 +7,6 @@ _NIMBUS_LEFT2_COLUMN_END
 _NIMBUS_CENTER2_COLUMN
 _NIMBUS_IS_DEPRECATED
 
-
 <h2>Install VMM Software</h2>
 
 <p>
@@ -383,13 +382,13 @@ nimbus $ gunzip nimbus-z2c.gz
     It also runs the Nimbus context agent on boot, so you can use it to test contextualization.
 </p>
 </div>
+
 <div class="kvmpanel">
 <div class="panel"><pre>
 nimbus $ cd /tmp
 nimbus $ wget http://www.nimbusproject.org/downloads/nimbus-ubuntu10.10.gz
 nimbus $ gunzip nimbus-z2c.gz
 </pre></div>
-</div>
 <p>
 This is an ubuntu 10.10 base install image with an on-board kernel.  It runs
 ssh when it boots.  This image does not run the context agent.
@@ -407,7 +406,7 @@ ssh when it boots.  This image does not run the context agent.
   Using the <tt class="literal">brctl</tt> tool, you will see something like this in the list of bridges on the VMM system.
 </p>
 
-<div class="xenpanel"><pre>
+<div class="xenpanel">
 <div class="panel"><pre>
 root # brctl show
 bridge name     bridge id               STP enabled     interfaces
@@ -428,7 +427,8 @@ xenbr0          8000.feffffffffff       no              peth0
 </p>
 </div>
 
-<div class="kvmpanel"><pre>
+<div class="kvmpanel">
+<div class="panel"><pre>
 # brctl  show
 bridge name     bridge id               STP enabled     interfaces
 virbr0          8000.000000000000       yes
