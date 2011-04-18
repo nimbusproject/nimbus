@@ -49,8 +49,8 @@ _NIMBUS_IS_DEPRECATED
     step.  We will visually distinguish the two with the following styles.
 </p>
 <p>
-    <p class="xenpanel"> This is information needed for Xen</p>
-    <p class="kvmpanel"> This is information needed for KVM</p>
+    <div class="xenpanel"><p>This is information needed for Xen</p></div>
+    <div class="kvmpanel"> <p>This is information needed for KVM</p></div>
 <p>
     The reader can then key in on the information specific to their cloud.
 </p>
@@ -69,7 +69,7 @@ _NIMBUS_IS_DEPRECATED
 <div class="note">
     <p class="note-title">ebtables in the host kernel</p>
 
-    <p class="xenpanel">ebtables requires kernel support in dom0, the default Xen kernel includes this support.  If your domain 0 kernel does not include these for some reason, the options to enable are under <tt class="literal">Networking :: Networking options :: Network packet filtering :: Bridge Netfilter Configuration :: Ethernet Bridge Tables</tt></p>
+    <p>ebtables requires kernel support on the VMM machine. If your kernel does not include these for some reason one place to find the options to enable are under <tt class="literal">Networking :: Networking options :: Network packet filtering :: Bridge Netfilter Configuration :: Ethernet Bridge Tables</tt></p>
 </div>
 
 <p>
@@ -621,8 +621,11 @@ nimbus $ ./sbin/libvirt-xml.sh --image /tmp/nimbus-z2c --netsample \
   OK!  Now <b>as the nimbus user</b> run the virsh command to boot up the VM.
 </p>
 
-<div class="panel"><pre>
+<div class="xenpanel"><pre>
 nimbus $ virsh -c 'xen+unix:///' create /tmp/z2c.xml
+</pre></div>
+<div class="kvmpanel"><pre>
+nimbus $ virsh -c 'qemu:///system' create /tmp/z2c.xml
 </pre></div>
 
 <p>
@@ -649,9 +652,13 @@ nimbus $ ping -c 1 192.168.0.2
   If this does not work, the next step will be to log in via the console and troubleshoot what happened.  You can log in using console to the nimbus-z2c image using the <tt class="literal">root</tt> account with password <tt class="literal">root</tt>
 </p>
 
-<div class="panel"><pre>
+<div class="xenpanel"><pre>
 nimbus $ virsh -c 'xen+unix:///' console control-test
 </pre></div>
+<div class="kvmpanel"><pre>
+nimbus $ virsh -c 'qemu:///system' console control-test
+</pre></div>
+
 
 <div class="note">
     <p class="note-title">Console permissions</p>
