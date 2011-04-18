@@ -14,6 +14,29 @@
   color: gray;
 }
 
+.xenpanel
+{
+    background-color:#feefef;
+    border:thin solid #fefe0e;
+    font-family:monospace;
+    font-size:0.9em;
+    margin-bottom:1.1em;
+    margin-top:0.5em;
+    padding:0.7em;
+}
+
+.kvmpanel
+{
+    background-color:#effee0;
+    border:thin solid #0efefe;
+    font-family:monospace;
+    font-size:0.9em;
+    margin-bottom:1.1em;
+    margin-top:0.5em;
+    padding:0.7em;
+}
+
+
 .panel
 {
     background-color:#f8f8ff;

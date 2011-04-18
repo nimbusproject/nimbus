@@ -35,18 +35,33 @@ _NIMBUS_IS_DEPRECATED
     <a href="http://libvirt.org/">libvirt</a>.
 </p>
 <p>
-    This guide currently assumes you want to install with Xen.  There are some setup differences using KVM, and these will be enumerated in the near future.
+    This guide will explain how to install the Nimbus workspace control 
+    software on top of both Xen 3.x and KVM.  The instructions are intermingled
+    so it is recommended that you first read our <i>notes</i> page for the
+    hyper-visor that you intend to use:
+    <ul>
+        <li><a href="vmm-xen-notes.html">Xen</a></li>
+        <li><a href="vmm-kvm-notes.html">KVM</a></li>
+    </ul>
 </p>
-<div class="note">
-    <p class="note-title">Bridged networking</p>
+<p>
+    There are many steps in this section which are common to both KVM and 
+    Xen.  However there are also some slight differences mixed in with each
+    step.  We will visually distinguish the two with the following styles.
+</p>
+<p>
+    <p class="xenpanel"> This is information needed for Xen</p>
+    <p class="kvmpanel"> This is information needed for KVM</p>
+<p>
+    The reader can then key in on the information specific to their cloud.
+</p>
 
-    <p>You need to get a basic VM running with <b>bridged networking</b>.  Using NAT networking for guest VMs will not be sufficient.</p>
-</div>
+
 
 <h3>Basic Dependencies</h3>
 
 <p>
-  Install Xen 3.x using your Linux distribution's package management tools and user guides.
+  Install Xen 3.x or KVM as described in their respective <i>notes</i> above.
 </p>
 
 <p>
@@ -55,7 +70,7 @@ _NIMBUS_IS_DEPRECATED
 <div class="note">
     <p class="note-title">ebtables in the host kernel</p>
 
-    <p>ebtables requires kernel support in dom0, the default Xen kernel includes this support.  If your domain 0 kernel does not include these for some reason, the options to enable are under <tt class="literal">Networking :: Networking options :: Network packet filtering :: Bridge Netfilter Configuration :: Ethernet Bridge Tables</tt></p>
+    <p class="xenpanel">ebtables requires kernel support in dom0, the default Xen kernel includes this support.  If your domain 0 kernel does not include these for some reason, the options to enable are under <tt class="literal">Networking :: Networking options :: Network packet filtering :: Bridge Netfilter Configuration :: Ethernet Bridge Tables</tt></p>
 </div>
 
 <p>
@@ -84,13 +99,14 @@ _NIMBUS_IS_DEPRECATED
 </p>
 
 <p>
-  If your Linux distribution has a nice guide for initial testing of Xen/KVM, it would be good to follow that advice to weed out any major problems using a known and controlled environment.
-</p>
-
-<p>
   Our next step in this guide will be to create a unix account for workspace-control and then install it.  This will give us access to some scripts we can use to further verify the system is ready to be automated with Nimbus.
 </p>
 
+<div class="note">
+    <p class="note-title">Bridged networking</p>
+
+    <p>You need to get a basic VM running with <b>bridged networking</b>.  Using NAT networking for guest VMs will not be sufficient.</p>
+</div>
 <a name="accounts"> </a>
 <h3>Choose/Create Privileged User Account _NAMELINK(accounts)</h3>
 <p>
@@ -110,7 +126,7 @@ _NIMBUS_IS_DEPRECATED
 			Note: this is not a privileged account in the sense that root is a
 			privileged account.  <i>This is a regular account</i> that you will
 			give powers to during the setup process.  It is an account that
-			will be privileged because it will have control over the hypervisor.
+			will be privileged because it will have control over the hyper-visor.
 		</p>
     </li>
     <li>
@@ -142,28 +158,39 @@ _NIMBUS_IS_DEPRECATED
   First, try out a libvirt command <b>as root</b> (it will not change anything if it succeeds or fails).
 </p>
  
-<div class="panel"><pre>
+<div class="xenpanel"><pre>
 root # virsh -c 'xen+unix:///' list
 </pre></div>
 
-<div class="note">
-  If you are using kvm the command is: virsh -c qemu:///system list
-</div>
+<div class="kvmpanel"><pre>
+root # virsh -c 'qemu:///system' list
+</pre></div>
 
 <div class="note">
   Make sure this works as root before we try to enable the nimbus user to do this.
 </div>
 
 <p>
-  If that does not work, you will need to enable Xen to work with domain sockets. In the <tt class="literal">/etc/xen/xend-config.sxp</tt> file, activate the <tt class="literal">xend-unix-server</tt> configuration by including <tt class="literal">yes</tt>. Then uncomment the <tt class="literal">xend-unix-path</tt> setting and note the value (for example <tt class="literal">/var/lib/xend/xend-socket</tt>).  <i>Note that using Xen with the HTTP server method instead of this domain socket method is typically not secure</i>.
+<div class="xenpanel">
+  If that does not work, you will need to enable Xen to work with domain 
+  sockets. In the <tt class="literal">/etc/xen/xend-config.sxp</tt> file, 
+  activate the <tt class="literal">xend-unix-server</tt> configuration by 
+  including <tt class="literal">yes</tt>. Then uncomment the 
+  <tt class="literal">xend-unix-path</tt> setting and note the value (for 
+  example <tt class="literal">/var/lib/xend/xend-socket</tt>).  
+  <i>Note that using Xen with the HTTP server method instead of this domain socket method is typically not secure</i>.
+</div>
 </p>
 
 <p>
   Once it works as root, try as the nimbus user:
 </p>
 
-<div class="panel"><pre>
+<div class="xenpanel"><pre>
 nimbus $ virsh -c 'xen+unix:///' list
+</pre></div>
+<div class="kvmpanel"><pre>
+nimbus $ virsh -c 'qemu:///system' list
 </pre></div>
 
 <p>
@@ -171,7 +198,6 @@ nimbus $ virsh -c 'xen+unix:///' list
 </p>
 
 <div class="panel"><pre>
-nimbus $ virsh -c 'xen+unix:///' list
 error: unable to connect to '/var/run/libvirt/libvirt-sock': Permission denied
 error: failed to connect to the hypervisor
 </pre></div>
@@ -197,9 +223,7 @@ srwx------ 1 root root 0 Jul  1 21:28 /var/run/libvirt/libvirt-sock
     <p>Note that we will test a full VM creation later which would uncover this difference.</p>
 </div>
 
-<div class="note">
-    <p class="note-title">KVM libvirt gotcha</p>
-
+<div class="kvmpanel">
     <p>If you are using later versions of libvirt you may see 
     "Permission denied" errors.  Be sure that in the libvirt qemu.conf 
     file (usually /etc/libvirt/qemu.conf) be user you have the following 
@@ -242,8 +266,11 @@ unix_sock_dir = "/var/run/libvirt"
   Try again:
 </p>
  
-<div class="panel"><pre>
+<div class="xenpanel"><pre>
 nimbus $ virsh -c 'xen+unix:///' list
+</pre></div>
+<div class="kvmpanel"><pre>
+nimbus $ virsh -c 'qemu:///system' list
 </pre></div>
 
 <p>
@@ -312,6 +339,7 @@ nimbus $ ./sbin/test-dependencies.sh
 
 <a name="kernel"> </a>
 <h3>Pick the kernel to use _NAMELINK(kernel)</h3>
+<div class="xenpanel">
 
 <p>
   Pick a kernel in /boot that was installed with Xen to use for guest VMs.  Let's say for example you find <tt class="literal">/boot/vmlinuz-2.6.16.29-xen</tt> was installed along with Xen.
@@ -334,6 +362,7 @@ nimbus $ cp /boot/initrd-2.6.16.29-xen $KERNELDIR/default-initrd
 <p>
   Now you have created a kernel called <tt class="literal">default</tt> that workspace-control will launch paravirtualized VMs with.  The default kernel and initrd to use for VMs is controlled by the <tt class="literal">authz_kernels</tt> configuration in <tt class="literal">/opt/nimbus/etc/workspace-control/kernels.conf</tt> (by default the authorized kernel is "default").
 </p>
+</div>
 
 <a name="image"> </a>
 <h3>Obtain the sample image _NAMELINK(image)</h3>
@@ -342,6 +371,7 @@ nimbus $ cp /boot/initrd-2.6.16.29-xen $KERNELDIR/default-initrd
   A sample image has been prepared for testing.  This is a basic VM that the Nimbus developers are familiar with, meaning it will be easier to get support help using this VM.
 </p>
 
+<div class="xenpanel">
 <div class="panel"><pre>
 nimbus $ cd /tmp
 nimbus $ wget http://www.nimbusproject.org/downloads/nimbus-z2c.gz
@@ -352,24 +382,38 @@ nimbus $ gunzip nimbus-z2c.gz
   It is a minimal Debian VM with very little installed.  It runs an SSH server when it boots.  If you have console access to it, you will be able to log in to it using the <tt class="literal">root</tt> account with password <tt class="literal">root</tt>.
     It also runs the Nimbus context agent on boot, so you can use it to test contextualization.
 </p>
+</div>
+<div class="kvmpanel">
+<div class="panel"><pre>
+nimbus $ cd /tmp
+nimbus $ wget http://www.nimbusproject.org/downloads/nimbus-ubuntu10.10.gz
+nimbus $ gunzip nimbus-z2c.gz
+</pre></div>
+</div>
+<p>
+This is an ubuntu 10.10 base install image with an on-board kernel.  It runs
+ssh when it boots.  This image does not run the context agent.
+</p>
+</div>
 
 <a name="bridge"> </a>
 <h3>Configure default bridge _NAMELINK(bridge)</h3>
 
 <p>
-  You set up Xen to use bridged networking, now it is time to check what the actual name of the bridge will be that the guest VM network card uses to get traffic to the LAN.
+  You set up Xen/KVM to use bridged networking, now it is time to check what the actual name of the bridge will be that the guest VM network card uses to get traffic to the LAN.
 </p>
 
 <p>
   Using the <tt class="literal">brctl</tt> tool, you will see something like this in the list of bridges on the VMM system.
 </p>
 
+<div class="xenpanel"><pre>
 <div class="panel"><pre>
 root # brctl show
 bridge name     bridge id               STP enabled     interfaces
 xenbr0          8000.feffffffffff       no              peth0
-                                                        vif0.0
 </pre></div>
+
 
 <p>
   The <tt class="literal">vif</tt> (virtual interface) for domain 0 is <tt class="literal">vif0.0 </tt> and it is bridged to <tt class="literal">xenbr0</tt>.  The guest VMs will by default be bridged in the same way.
@@ -382,6 +426,23 @@ xenbr0          8000.feffffffffff       no              peth0
 <p>
   Notice <tt class="literal">default: xenbr0</tt> in the <tt class="literal">[defaultbridge]</tt> section of that configuration file.  The value here needs to be the bridge that VM traffic will be bridged to.  In this case, the <tt class="literal">xenbr0</tt> bridge.
 </p>
+</div>
+
+<div class="kvmpanel"><pre>
+# brctl  show
+bridge name     bridge id               STP enabled     interfaces
+virbr0          8000.000000000000       yes
+</pre></div>
+
+<p>
+Notice <tt class="literal">virbr0</tt>.  This value must match the value for
+<tt class="literal">default: virbr0</tt> in the 
+<tt class="literal">[defaultbridge]</tt> section of that configuration file
+<tt class="literal">/opt/nimbus/etc/workspace-control/networks.conf</tt>.
+In that same file you must also change the value 
+<tt class="literal">xen-ebtables-config.sh</tt> to
+<tt class="literal">kvm-ebtables-config.sh</tt>.
+</div>
 
 <a name="sudo"> </a>
 <h3>Configure sudo and ebtables script _NAMELINK(sudo)</h3>
@@ -399,8 +460,13 @@ xenbr0          8000.feffffffffff       no              peth0
   Make sure the sudo rules work without a password as the <b>nimbus</b> user.
 </p>
 
-<div class="panel"><pre>
+<div class="xenpanel"><pre>
 nimbus $ /usr/bin/sudo /opt/nimbus/libexec/workspace-control/xen-ebtables-config.sh
+ERROR: requires at least 2 arguments, syntax: add|rem &lt;vifname&gt; [&lt;macaddr&gt; &lt;ipaddr&gt; [&lt;dhcpif&gt;]]
+
+</pre></div>
+<div class="kvmpanel"><pre>
+nimbus $ /usr/bin/sudo /opt/nimbus/libexec/workspace-control/kvm-ebtables-config.sh
 ERROR: requires at least 2 arguments, syntax: add|rem &lt;vifname&gt; [&lt;macaddr&gt; &lt;ipaddr&gt; [&lt;dhcpif&gt;]]
 
 </pre></div>

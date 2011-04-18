@@ -1,0 +1,93 @@
+m4_include(/mcs/m4/worksp.lib.m4)
+_NIMBUS_HEADER(2.7 Zero To Cloud Guide)
+_NIMBUS_HEADER2(n,n,y,n,n,n,n)
+_NIMBUS_LEFT2_COLUMN
+_NIMBUS_LEFT2_Z2C_SIDEBAR(y)
+_NIMBUS_LEFT2_COLUMN_END
+_NIMBUS_CENTER2_COLUMN
+_NIMBUS_IS_DEPRECATED
+
+
+<h2>Install VMM Xen Software</h2>
+
+<p>
+There are a few key differences between using Nimbus with Xen and using it 
+with KVM.  Here present some notes about how Nimbus when using Xen.  Detailed
+instructions are threaded throughout the VMM XXX LINK XXX guide.  This page
+give somes tips and reminders that will help the reader follow the remainder
+of the guide.
+
+<a name="xenversion"> </a>
+<h3>Xen 3.x _NAMELINK(xenversion)</h3>
+<p>
+We strongly recommend using your Linux distribution's package management and 
+user guides.  If your Linux distribution doesn't support Xen packages you can 
+try installing from source or binary, starting at 
+<a href="http://xen.org/">xen.org</a> 
+</p>
+<p>
+If your Linux distribution has a nice guide for initial testing of Xen, it would be good to follow that advice to weed out any major problems using a known and controlled environment.
+</p>
+<a name="xenimage"> </a>
+<h3>Sample image _NAMELINK(xenimage)</h3>
+<p>
+The Nimbus project has a sample image compatable with Xen that can be used
+for testing that Xen, libvirt, and Nimbus are installed correctly.  The 
+image is available 
+    <a href="http://www.nimbusproject.org/downloads/nimbus-z2c.gz">here</a>
+</p>    
+<p>
+  It is a minimal Debian VM with very little installed.  It runs an SSH server when it boots.  If you have console access to it, you will be able to log in to it using the <tt class="literal">root</tt> account with password <tt class="literal">root</tt>.
+    It also runs the Nimbus context agent on boot, so you can use it to test contextualization.
+</p>
+
+
+<a name="xenkernel"> </a>
+<h3>Pick the kernel to use _NAMELINK(xenkernel)</h3>
+<p>
+Unlike KVM, Xen does not have the kernel built into its images.  Because of 
+this a kernel needs to be associated with images when they are launched.  The
+kernels available for boot can be found in /boot/.  You may need the matching
+initrd file as well.  The kernel and initrc files that you want to associate
+with Nimbus VM launches must be copied to 
+/opt/nimbus/var/workspace-control/kernels
+</p>
+
+<p>    
+</p>    
+
+<a name="xenebtables"> </a>
+<h3>Xen and ebtables _NAMELINK(xenebtables)</h3>
+<p>ebtables requires kernel support in dom0, the default Xen kernel includes 
+this support.  If your domain 0 kernel does not include these for some reason, 
+the options to enable are under 
+<tt class="literal">Networking :: Networking options :: Network packet filtering :: Bridge Netfilter Configuration :: Ethernet Bridge Tables</tt>
+</p>
+</div>
+
+<a name="xenlibvirt"> </a>
+<h3>xenlibvirt commands _NAMELINK(xenlibvirt)</h3>
+
+<p>
+When using libvirt on Xen we will often reference the command virsh. virsh
+takes many commands, but when running with Xen it will always take the option
+-c 'xen+unix:///'
+</p>
+
+<p>
+For example: 
+<div class="panel"><pre>
+root # virsh -c 'xen+unix:///' list
+</pre></div>
+</p>
+
+<p>
+  For virsh to work with Xen in this way you will need to enable Xen to work with domain sockets. In the <tt class="literal">/etc/xen/xend-config.sxp</tt> file, activate the <tt class="literal">xend-unix-server</tt> configuration by including <tt class="literal">yes</tt>. Then uncomment the <tt class="literal">xend-unix-path</tt> setting and note the value (for example <tt class="literal">/var/lib/xend/xend-socket</tt>).  <i>Note that using Xen with the HTTP server method instead of this domain socket method is typically not secure</i>.
+</p>
+
+
+_NIMBUS_CENTER2_COLUMN_END
+_NIMBUS_FOOTER1
+_NIMBUS_FOOTER2
+_NIMBUS_FOOTER3
+
