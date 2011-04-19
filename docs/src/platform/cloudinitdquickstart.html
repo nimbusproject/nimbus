@@ -56,7 +56,8 @@ _NIMBUS_CENTER2_COLUMN
 </p>
 <p>
     The launch plans used in this example can be found at:
-    XXXtop.confXXX XXXlevel.confXXX 
+    <a href="helloec2.conf">helloec2.conf</a> and
+    <a href="helloec2_level1.conf">helloec2_level1.conf</a> 
 </p>
 
 <a name="top"> </a>
@@ -113,9 +114,10 @@ iaas: us-east-1
 image: ami-30f70059
 ssh_username: ubuntu
 allocation: t1.micro
-</pre></div>
 
 bootpgm: bootpgm.py
+</pre></div>
+
 <div class="note">
     The name of this configuration section is <i>svc-sampleservice</i>.
     What this tells cloudinit.d is that it is a service (svc-) named
@@ -162,7 +164,7 @@ import sys
 import os
 
 f = open("hello.html", "w")
-f.write("<html><body>Hello cloudinit.d!</body></html>")
+f.write("&gt;html&lt;&gt;body&lt;Hello cloudinit.d!&gt;/body&lt;&gt;/html&lt;")
 f.close()
 
 cmd = "sudo cp hello.html /var/www/"
@@ -171,7 +173,8 @@ os.system(cmd)
 sys.exit(0)
 </pre></div>
 <p>
-This is a very simple program which simply creates a web page.
+This is a very simple program which simply creates a web page.  You can also
+see it here <a href="ec2bootpgm.py">ec2bootpgm.py</a> 
 </p>
 <a name="boot"> </a>
 <h2>Terminate _NAMELINK(boot)</h2>
