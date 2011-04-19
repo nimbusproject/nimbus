@@ -164,7 +164,7 @@ import sys
 import os
 
 f = open("hello.html", "w")
-f.write("&gt;html&lt;&gt;body&lt;Hello cloudinit.d!&gt;/body&lt;&gt;/html&lt;")
+f.write("&lt;html&gt;&lt;body&gt;Hello cloudinit.d!&lt;/body&gt;&lt;/html&gt;")
 f.close()
 
 cmd = "sudo cp hello.html /var/www/"
