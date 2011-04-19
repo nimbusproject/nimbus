@@ -1,0 +1,148 @@
+m4_include(/mcs/m4/worksp.lib.m4)
+_NIMBUS_HEADER(Cloud Client Quickstart)
+_NIMBUS_HEADER2(n,n,n,n,n,n,y)
+_NIMBUS_LEFT2_COLUMN
+
+_NIMBUS_LEFT2_CLOUDS1_SIDEBAR(n,n,y,n,n,n,n)
+
+_NIMBUS_LEFT2_COLUMN_END
+_NIMBUS_CENTER2_COLUMN
+
+<h2> cloudinit.d Wordpress example </h2>
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#launchplan">Launch plan</a></li>
+<li><a href="#boot">Boot the launch plan</a></li>
+<li><a href="#terminate">Terminate the launch plan</a></li>
+</ul>
+
+<br />
+
+<a name="introduction"> </a>
+<h2>Introduction _NAMELINK(introduction)</h2>
+
+<p>
+This example launch plan will launch 2 standard ubuntu 10.10 images provided
+by the EC2 AMI ami-ccf405a5.  The first instance will be setup to run mysql.
+How it is setup is described in the python program 
+<a href="mysql_boot.py">mysql_boot.py</a>.
+The
+second instance will be setup to run a wordpress service which uses
+the previous instance's mysql service.  The details of its setup are
+described in 
+<a href="wordpress_boot.py">wordpress_boot.py</a>.
+</p>
+<p>
+Once the plan is successfully launched the webpage:
+http://&lt;wordpress service hostname&gt;/wordpress/wp-admin/install.php
+will be ready for the user to setup their wordpress service.
+</p>
+<p>
+The value for &lt;wordpress service hostname&gt; can be found by looking in
+the log files under ~/.cloudinitd/ or via the console output when
+-v -v is used.
+</p>
+<div class="note">
+For this example to work you need your default security group to have
+port 22, 80 and 3306 open.
+</div>
+
+<a name="launchplan"> </a>
+<h2>Launch plan _NAMELINK(launchplan)</h2>
+<p>
+The details of understanding the launch plan for this is left as an exercise
+for the reader.  All needed files are listed below:
+<UL>
+<LI><a href="wordpress/mysql_bootconf.json">mysql_bootconf.json</a></li>
+<LI><a href="wordpress/wp_bootconf.json">wp_bootconf.json</a></li>
+<LI><a href="wordpress/wp_ready.py">wp_ready.py</a></li>
+<LI><a href="wordpress/wordpress_boot.py">wordpress_boot.py</a></li>
+<LI><a href="wordpress/mysql_ready.py">mysql_ready.py</a></li>
+<LI><a href="wordpress/mysql_boot.py">mysql_boot.py</a></li>
+<LI><a href="wordpress/wp_level.conf">wp_level.conf</a></li>
+<LI><a href="wordpress/wp_deps.conf">wp_deps.conf</a></li>
+<LI><a href="wordpress/top.conf">top.conf</a></li>
+<LI><a href="wordpress/mysql_level.conf">mysql_level.conf</a></li>
+<LI><a href="wordpress/mysql_deps.conf">mysql_deps.conf</a></li>
+</UL>
+</p>
+<a name="boot"> </a>
+<h2>Terminate _NAMELINK(boot)</h2>
+<p>
+First we boot that launch plan:
+</p>
+<div class="note">
+    You will be charged by AWS for running this command.  At the time
+    of this writing the charges are less than 3 cents per hour.
+</div>
+<div class="panel"><pre>
+$ cloudinitd -v -v -v -v boot top.conf
+Starting up run a5dcab27
+    Have instance id i-4acf6625 for mysql
+    Started IaaS work for mysql
+    Have instance id i-40cf662f for wordpress
+    Started IaaS work for wordpress
+Starting the launch plan.
+Begin boot level 1...
+    Started mysql
+    Have hostname ec2-67-202-37-183.compute-1.amazonaws.com
+    retrying the command
+    retrying the command
+
+    SUCCESS service mysql boot
+        hostname: ec2-67-202-37-183.compute-1.amazonaws.com
+        instance: i-4acf6625
+SUCCESS level 1
+Begin boot level 2...
+Begin boot level 2...
+    Started wordpress
+    Have hostname ec2-184-72-89-233.compute-1.amazonaws.com
+
+    SUCCESS service wordpress boot
+        hostname: ec2-184-72-89-233.compute-1.amazonaws.com
+        instance: i-40cf662f
+SUCCESS level 2
+
+</pre></div>
+
+<p>
+Your VM was successfully started!  The output shows the hostname assigned to
+the boot as <i>ec2-184-72-89-233.compute-1.amazonaws.com</i>.  If we point a
+web browser at 
+http://ec2-184-72-89-233.compute-1.amazonaws.com/wordpress/wp-admin/install.php
+we can start using the wordpress example service.
+</p>
+<a name="terminate"> </a>
+<h2>Terminate _NAMELINK(terminate)</h2>
+<p>
+In order to avoid further service charges from AWS we should clean up this
+launch.  This is done by taking the run name from the output of the boot,
+in our case a5dcab27 and giving it as an option to the terminate directive:
+</p>
+
+<div class="panel"><pre>
+Terminating a5dcab27
+Begin terminate level 2...
+    Started wordpress
+    SUCCESS service wordpress terminate
+        hostname: None
+        instance: None
+SUCCESS level 2
+Begin terminate level 1...
+Begin terminate level 1...
+    Started mysql
+    SUCCESS service mysql terminate
+        hostname: None
+        instance: None
+SUCCESS level 1
+
+</pre></div>
+
+
+<br />
+        
+_NIMBUS_CENTER2_COLUMN_END
+_NIMBUS_FOOTER1
+_NIMBUS_FOOTER2
+_NIMBUS_FOOTER3
+
