@@ -1,5 +1,5 @@
 m4_include(/mcs/m4/worksp.lib.m4)
-_NIMBUS_HEADER(Cloud Client Quickstart)
+_NIMBUS_HEADER(cloudinit.d Quick-start)
 _NIMBUS_HEADER2(n,n,n,n,n,n,y)
 _NIMBUS_LEFT2_COLUMN
 
@@ -8,7 +8,7 @@ _NIMBUS_LEFT2_CLOUDS1_SIDEBAR(n,n,y,n,n,n,n)
 _NIMBUS_LEFT2_COLUMN_END
 _NIMBUS_CENTER2_COLUMN
 
-<h2> cloudinit.d Quickstart </h2>
+<h2> cloudinit.d Quick-start </h2>
 <ul>
 <li><a href="#download">Download the cloudinit.d</a></li>
 <li><a href="#launchplan">Create a launch plan</a></li>
@@ -37,7 +37,7 @@ _NIMBUS_CENTER2_COLUMN
 
 <p>
     A launch plan is set of configuration files that tell cloudinit.d what 
-    VM images to boot and in what order.  It is where the spcific cloud
+    VM images to boot and in what order.  It is where the specific cloud
     to use is set along with the credentials needed to access that cloud.
     All aspects of contextualization and testing are also set in the
     launch plan. 
@@ -90,7 +90,7 @@ level1: helloec2_level1.conf
         <li>path to the matching ssh key</li>
     </UL>
     These are all very standard things that EC2 users have.  If you are not 
-    familar with these items please check out the EC2 tutorial 
+    familiar with these items please check out the EC2 tutorial 
     <a href="http://docs.amazonwebservices.com/AWSEC2/latest/GettingStartedGuide/">here</a>.
 </p>
 <p>
@@ -159,7 +159,7 @@ The remaining entries have the following meanings:
 This value points to a program that will be run on your once to contextualize
 it.  Once you boot your launch program cloudinit.d will wait until its 
 sshd service is running.  Once it is this program is uploaded and run as the 
-user defined by <i>ssh_username</i>, in our case <i>unbuntu</i>.  Below
+user defined by <i>ssh_username</i>, in our case <i>ubuntu</i>.  Below
 is the example bootpgm.
 </p>
 <div class="panel"><pre>

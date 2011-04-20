@@ -1,5 +1,5 @@
 m4_include(/mcs/m4/worksp.lib.m4)
-_NIMBUS_HEADER(Cloud Client Quickstart)
+_NIMBUS_HEADER(cloudinit.d Intro)
 _NIMBUS_HEADER2(n,n,n,n,n,n,y)
 _NIMBUS_LEFT2_COLUMN
 
@@ -8,7 +8,7 @@ _NIMBUS_LEFT2_CLOUDS1_SIDEBAR(n,n,y,n,n,n,n)
 _NIMBUS_LEFT2_COLUMN_END
 _NIMBUS_CENTER2_COLUMN
 
-<h2> cloudinit.d : The Nimbus Platform tool for controling cloud applications </h2>
+<h2> cloudinit.d : The Nimbus Platform tool for controlling cloud applications </h2>
 <ul>
 <li><a href="#introduction">Introduction</a></li>
 <li><a href="#service">Individual service</a></li>
@@ -39,7 +39,7 @@ attributes from any VM run in boot-level N - 1.
 </p>
 <p>
 Information about the various virtual machines in a given launch plan
-can be exchanged amoung <i>services</i> in the boot.  For example,
+can be exchanged among <i>services</i> in the boot.  For example,
 things like hostname and IaaS instance ID of any one service can be determined 
 at run time by any other service.  Further the services themselves can 
 publish any variables about themselves that they choose for other services
@@ -56,13 +56,13 @@ configuration file syntax is described elsewhere.
 <p>
 The smallest building block on a cloudinit.d application boot is a 
 <i>service</i>.  A service is a part of the larger application that is 
-confinded to a single host.  Some example services are an http server, a
-node in a cassandra pool, or a node in a rabbitmq message queue.
+confined to a single host.  Some example services are an http server, a
+node in a Cassandra pool, or a node in a rabbitmq message queue.
 Often times the host which runs the service is a virtual machine
 which was launched specifically to run the given service, however this 
 does not have to be the case.  The service can be setup to run on an 
 existing host as well, the VM launch is often implied (mainly because 
-it is a very convenient association) but it is not manditory.
+it is a very convenient association) but it is not mandatory.
 </p>
 <a name="svcprograms"> </a>
 <h2>Service programs _NAMELINK(svcprograms)</h2>
@@ -76,7 +76,7 @@ There are three programs that are associated with a service:
     <li>readypgm</li>This program is run to check the status and health
     of the service.  It can be, and typically is, run many times.  As an
     example, if the service's goal was to serve http, the readypgm would
-    connect to locahost:80, download a know web page and check its content.
+    connect to localhost:80, download a know web page and check its content.
     If all is well the readypgm returns 0 and the service is reported as
     working.  If not, the services is marked as <i>down</i> and the
     cloud application is in need of a repair.
@@ -98,7 +98,7 @@ needed to turn this VM into a cloudinit.d service.  Some possible
 programs are shown below:
 </p>
 <div class="note">
-These programs can be writted in any scripting language available on the
+These programs can be written in any scripting language available on the
 VM on which they will be run. 
 </div>
 
@@ -135,7 +135,7 @@ exit $?
 All of the above programs are scp'ed to the hosting machine and then
 run via ssh.  Thus the user must have ssh credentials that will work on
 the associated cloud and VM, and port 22 must be open to that VM.  This
-is a common senerio for infrastructure clouds.
+is a common scenario for infrastructure clouds.
 </p>
 
 <a name="bootlevel"> </a>
@@ -165,14 +165,14 @@ can run across many clouds.  It is entirely possible (and encouraged) to
 have an application launched with cloudinit.d such that some services are 
 in a private cloud and others are in a public cloud.  Right now cloudinit.d
 works on EC2, Nimbus, and Eucalyptus.  It has a very modular interface that
-will allow us to quickly add other intrastructre cloud types so we expect
+will allow us to quickly add other infrastructure cloud types so we expect
 that list to grow quickly.
 </p>
 
 <a name="deps"> </a>
 <h2>Cloud settings _NAMELINK(deps)</h2>
 <p>
-The goal of cloudinit.d is to orchastrate many services to work in concert
+The goal of cloudinit.d is to orchestrate many services to work in concert
 together to form a single application.  In order for this to be possible
 the services need a way to discover information about each other.  For example,
 if we are making a web server backed by a database we would make the database
@@ -183,12 +183,12 @@ put the database at bootlevel 1 and the web server at boot level 2.
 <p>
 However, just having the web server wait for the database to be ready is 
 not enough.  The web server must know the IP address and the port number
-of the data base in order to connect to it.  Futher they likely need some 
+of the data base in order to connect to it.  Further they likely need some 
 sort of shared secret for making a secure connection.  Cloudinit.d handles
-the exchange of this, and similiar types of dependecy information.  Any 
+the exchange of this, and similar types of dependency information.  Any 
 service is allowed to lookup another service (that is at a lower boot level)
 and request an attribute from it.  There is a small set of statically 
-defined attribures that a service has (ex: hostname, IaaS instance id, etc)
+defined attributes that a service has (ex: hostname, IaaS instance id, etc)
 and the service can further defined its own setup attributes.
 </p>
 <p>
