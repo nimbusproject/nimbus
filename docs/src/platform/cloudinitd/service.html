@@ -146,7 +146,8 @@ The goal of cloudinit.d is to orchestrate many services to work in concert
 together to form a single application.  In order for this to be possible
 the services need a way to discover information about each other.  For example,
 if we are making a web server backed by a database we would make the database
-on service and the webserver another (as is the case in our wordpress 
+one service and the webserver another (as is the case in our 
+<a href="wordpress.html">wordpress</a>
 example).  Because the web server is dependent upon the database, We would 
 put the database at bootlevel 1 and the web server at boot level 2.
 </p>
