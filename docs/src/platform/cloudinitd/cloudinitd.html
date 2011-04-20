@@ -10,14 +10,16 @@ _NIMBUS_CENTER2_COLUMN
 
 <h2> cloudinit.d : The Nimbus Platform tool for controlling cloud applications </h2>
 
-<img src="../../clouds/img/cloudinitd_dia.png" width="600" height="400" />
-
 <ul>
 <li><a href="#introduction">Introduction</a></li>
-<li><a href="#service">Individual service</a></li>
+<li><a href="#overview">Overview</a></li>
+    <ul>
+        <li><a href="#service">Individual service</a></li>
+        <li><a href="#bootlevels">Service Programs</a></li>
+        <li><a href="#launchplan">Launch Plan</a></li>
+    </ul>
+<li><a href="#example">Example</a></li>
 <li><a href="#svcprograms">Service Programs</a></li>
-<li><a href="#bootlevels">Service Programs</a></li>
-<li><a href="#launchplan">Launch Plan</a></li>
 <li><a href="#clouds">Cloud settings</a></li>
 <li><a href="#deps">Dependencies</a></li>
 </ul>
@@ -29,43 +31,115 @@ _NIMBUS_CENTER2_COLUMN
 <a name="introduction"> </a>
 <h2>Introduction _NAMELINK(introduction)</h2>
 <p>
-cloudinit.d is a tool for launching and configuring a set of
-interdependent VMs in a cloud (or set of clouds).
+cloudinit.d is a tool for launching, controlling, and monitoring cloud
+applications.  If the application is simple or complex, single cloud or
+multi-cloud, VM based or bare metal, or any combination of the above, 
+cloudinit.d is designed to make the managment and coordination of that
+application easy.
+ </p>
+<p>
+Infrastucture clouds bring an explosion of resources to their users.
+User now have the ability to create thousands of virtual machines to 
+handle the needs of their applications.  The architecture of applications
+is becoming much less tied to a single machine.  Applications are starting
+to assume the use of reliable/redundant data stores like Cassandra and 
+reliable messaging services like rabbitmq.  While this enhancement has 
+brought opportiunity to applications it has also brought an unruley amount
+of system administartion, coordination and management.  cloudinit.d 
+automates the creation of virtual machines, their contextualization, 
+and all of the messaging between VMs needed to boot strap up today's
+more complicated cloud applications.  Further, it makes this process
+repeatable.
+ </p>
+<p>
+Those familiar with UNIX machines have probably made the connection 
+between the name <i>cloudinit.d</i> and <i>init.d</i>.  This is, of course,
+intentional.  cloudinit.d is the init.d of the cloud.  Just like init.d
+organizes, manages, and efficently runs processes needed for a system,
+cloudinit.d does the same for applications run across clouds.
 </p>
 <p>
-The most primitive feature of cloudinit.d is the ability to launch and
-configure Virtual Machines.  That building block is used to arrange
-'boot levels'.  Any one boot-level is a collection of VMs that can be
-launched at the same time and have no dependencies on each other.
-Any VM that is running in boot-level N can depend on values and
-attributes from any VM run in boot-level N - 1.
+On this page we provide an introduction to some of the important concepts
+of cloudinit.d.  The details about command line arguments,
+configuration file syntax, and advnaced features are described elsewhere.
+</p>
+<a name="overview"> </a>
+<h2>Overview _NAMELINK(overview)</h2>
+
+<a name="Service"> </a>
+<h2>Service _NAMELINK(service)</h2>
+<p>cloudinit.d arranges an application into three basic constructs:
+<ul>
+    <li>service</li>
+    <li>boot level</li>
+    <li>launch plan</li>
+</ul>
+    A service can be thought of as a single, configured Virtual Machine.  
+    However
+    this is a very limiting definition.  Many services can be configured
+    to run in a single VM, or on an existing host that does not even have 
+    to be a virtual machine at all.  A service is really just an entity 
+    confined to a single machine which is responsible for a well defined
+    task.  In spite of this fact in most of our examples we will merge the
+    understanding of a single VM and a cloudinit.d service.
 </p>
 <p>
-Information about the various virtual machines in a given launch plan
-can be exchanged among <i>services</i> in the boot.  For example,
-things like hostname and IaaS instance ID of any one service can be determined 
-at run time by any other service.  Further the services themselves can 
-publish any variables about themselves that they choose for other services
-to introspect at run time.
+Some example services are an http server, a
+node in a Cassandra pool, or a node in a rabbitmq message queue.
+</p>
+<a name="bootlevel"> </a>
+<h2>Bootlevel _NAMELINK(bootlevel)</h2>
+<p>
+    A boot level is a collection of services with no dependecies on each other.
+    All services in a boot level are launched at the same time.  That boot 
+    level is considered complete when all of the services is it have 
+    successfully started.
+</p>
+<p>
+    Services in a boot level can be run on 1 single cloud or across many 
+    different clouds.  cloudinit.d makes no assumptions about locality.
+    Any service in a bootlevel can depend any service from a previous boot
+    level.  For example, boot level one forms a mongoDB data store cluster.
+    A web application in boot level 2 can <i>depend</i> on that mongo db
+    cluster, meaning, it can acquire all of the information needed to connect
+    to it dynamically at boot time.
+</p>
+
+<a name="launchplan"> </a>
+<h2>Launch plan _NAMELINK(launchplan)</h2>
+<p>
+A launch is an ordered set of bootlevels.  To make a launch plan first all
+of the services are defined, then those services are arranged into boot levels,
+and finally the boot levels are put in a specific order.  This forms a 
+complete cloud (or inter-cloud) application.
+</p>
+
+<a name="example"> </a>
+<h2>Example programs _NAMELINK(example)</h2>
+<p>
+The diagram shows an example cloud application that can benefit from 
+cloudinit.d.  Here we have a highly available web application which uses
+mongo db for its data store, apache HTTP servers for its web application,
+and a load balancer to distribute the work.  
 </p>
 
 <p>
-On this page we provide an introduction to some of the important concepts
-of cloudinit.d.  Most of the details about command line arguments and 
-configuration file syntax is described elsewhere.
+For explainitory purposes
+we put each component in a separate cloud, in practice this may or may
+not be practical.  Our purpose in doing so was to show the reader that 
+such a thing is possible with cloudinit.d.
 </p>
-<a name="Service"> </a>
-<h2>Service _NAMELINK(service)</h2>
+
+<img src="../../clouds/img/cloudinitd_dia.png" width="600" height="400" />
+
 <p>
-The smallest building block on a cloudinit.d application boot is a 
-<i>service</i>.  A service is a part of the larger application that is 
-confined to a single host.  Some example services are an http server, a
-node in a Cassandra pool, or a node in a rabbitmq message queue.
-Often times the host which runs the service is a virtual machine
-which was launched specifically to run the given service, however this 
-does not have to be the case.  The service can be setup to run on an 
-existing host as well, the VM launch is often implied (mainly because 
-it is a very convenient association) but it is not mandatory.
+The creator of this application would write a <i>launch plan</i> with
+three boot levels.  The first has a cluster of mongo DB servers, the
+second is a set of replicated HTTP servers, and the third is a load
+balancer.  The plan is configured in such a way as to route the important
+connection information from the mongo db cluster, to each HTTP server.
+And similarly the list of HTTP servers is sent to the load balancer once 
+boot level 2 completes.
 </p>
 <a name="svcprograms"> </a>
 <h2>Service programs _NAMELINK(svcprograms)</h2>
@@ -141,8 +215,6 @@ the associated cloud and VM, and port 22 must be open to that VM.  This
 is a common scenario for infrastructure clouds.
 </p>
 
-<a name="bootlevel"> </a>
-<h2>Bootlevel _NAMELINK(bootlevel)</h2>
 <p>
 A bootlevel is a set of services that can all be started at the same time.
 In other words, a set of services that have no dependencies on each other.
@@ -150,14 +222,6 @@ These services are launched at the same time.  The boot level is considered
 complete when all of the service's bootpgms successfully complete.
 </p>
 
-<a name="launchplan"> </a>
-<h2>Launch plan _NAMELINK(launchplan)</h2>
-<p>
-A launch is an ordered set of bootlevels.  To make a launch plan first all
-of the services are defined, then those services are arranged into boot levels,
-and finally the boot levels are put in a specific order.  This forms a 
-complete cloud (or inter-cloud) application.
-</p>
 
 <a name="clouds"> </a>
 <h2>Cloud settings _NAMELINK(clouds)</h2>
