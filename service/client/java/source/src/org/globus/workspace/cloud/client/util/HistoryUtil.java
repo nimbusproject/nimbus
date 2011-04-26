@@ -59,6 +59,7 @@ public class HistoryUtil {
     static final NumberFormat format = NumberFormat.getInstance();
     static {
         format.setMinimumIntegerDigits(NUM_SUFFIX_MIN_CHARACTERS);
+        format.setGroupingUsed(false);
     }
 
     // controls the naming scheme for member suffixes, if e.g. set to 2,

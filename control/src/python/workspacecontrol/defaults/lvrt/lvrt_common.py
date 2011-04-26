@@ -383,7 +383,10 @@ class Platform:
         Return complete and valid instance of lvrt_model.Domain
         """
         
-        dom = lvrt_model.Domain()
+        template = self.p.get_conf_or_none("libvirt", "template")
+        if not os.path.isabs(template):
+            template = self.c.resolve_etc_dir(template)
+        dom = lvrt_model.Domain(template=template)
         dom.os = lvrt_model.OS()
         dom.devices = lvrt_model.Devices()
         

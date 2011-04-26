@@ -14,6 +14,47 @@
   color: gray;
 }
 
+.kvmpanel
+{
+    background-color:#f8f8ff;
+    border:thin solid #fef5f5;
+    font-family:monospace;
+    font-size:0.9em;
+
+    padding-top: 0.8em;
+    padding-right: 1em;
+    padding-bottom: 0.8em;
+    padding-left: 58px;
+    margin-top: 2em;
+    margin-bottom: 2em;
+
+    background-image: url("../clouds/img/kvm-logo.png");
+    background-repeat: no-repeat;
+    background-attachment: scroll;
+    background-position: 2px 2px;
+}
+
+.xenpanel
+{
+    background-color:#f8f8ff;
+    border:thin solid #eff5f5;
+    font-family:monospace;
+    font-size:0.9em;
+
+    padding-top: 0.8em;
+    padding-right: 1em;
+    padding-bottom: 0.8em;
+    padding-left: 58px;
+    margin-top: 2em;
+    margin-bottom: 2em;
+
+    background-image: url("../clouds/img/xen.jpg");
+    background-repeat: no-repeat;
+    background-attachment: scroll;
+    background-position: 2px 2px;
+}
+
+
 .panel
 {
     background-color:#f8f8ff;
@@ -41,6 +82,7 @@
     background-attachment: scroll;
     background-position: 5px 5px;
 }
+
 p.note-title
 {
     margin-top: 0pt;

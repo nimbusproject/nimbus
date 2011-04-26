@@ -127,6 +127,8 @@ public class AllArgs {
     private String brokerURL;
     private String brokerID;
     private int timeoutMinutes;
+    private boolean common_image = false;
+    private boolean nospinner = false;
 
     // ------------------------------------
 
@@ -514,6 +516,16 @@ public class AllArgs {
             this.timeoutMinutesConfigured = true;
             this.gotCmdLine(Opts.TIMEOUT_OPT_STRING,
                             Integer.toString(this.timeoutMinutes));
+        }
+
+        if (line.hasOption(Opts.COMMON_OPT_STRING)) {
+            this.common_image = true;
+            this.gotCmdLine(Opts.COMMON_OPT_STRING, "enabled");
+        }
+
+        if (line.hasOption(Opts.NOSPINNER_OPT_STRING)) {
+            this.nospinner = true;
+            this.gotCmdLine(Opts.NOSPINNER_OPT_STRING, "enabled");
         }
 
         if (line.hasOption(Opts.TRANSFER_OPT_STRING)) {
@@ -978,6 +990,11 @@ public class AllArgs {
     }
 
     private String resolvePathProperty(String key, String val, String sourcePath) {
+        if(val.indexOf("~/") == 0)
+        {
+            String home_dir = System.getProperty("user.home") + "/";                
+            val = val.replaceFirst("~/", home_dir);
+        }
         File f = new File(val);
         if (!f.isAbsolute() && sourcePath != null) {
             f = new File(new File(sourcePath).getParent(), val);
@@ -1226,6 +1243,22 @@ public class AllArgs {
 
     public void setCores(int cores) {
         this.cores = cores;
+    }
+
+    public boolean getCommonVMSet() {
+           return this.common_image;
+    }
+
+    public void setCommonVMSet(boolean b) {
+           this.common_image = b;
+    }
+
+    public boolean getNoSpinner() {
+           return this.nospinner;
+    }
+
+    public void setNoSpinner(boolean b) {
+           this.nospinner = b;
     }
 
     public String getName() {

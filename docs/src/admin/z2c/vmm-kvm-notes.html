@@ -1,0 +1,59 @@
+m4_include(/mcs/m4/worksp.lib.m4)
+_NIMBUS_HEADER(2.7 Zero To Cloud Guide)
+_NIMBUS_HEADER2(n,n,y,n,n,n,n)
+_NIMBUS_LEFT2_COLUMN
+_NIMBUS_LEFT2_Z2C_SIDEBAR(y)
+_NIMBUS_LEFT2_COLUMN_END
+_NIMBUS_CENTER2_COLUMN
+_NIMBUS_IS_DEPRECATED
+
+
+<h2>Install VMM KVM Software</h2>
+
+<p>
+There are a few key differences between using Nimbus with Xen and using it 
+with KVM.  Here present some notes about Nimbus when using KVM.  Detailed
+instructions are threaded throughout the <a href="vmm-setup.html">vmm setup
+</a> guide.  This page
+give somes tips and reminders that will help the reader follow the remainder
+of the guide.
+</p>
+
+<p>
+If your Linux distribution has a nice guide for initial testing of Xen, it would be good to follow that advice to weed out any major problems using a known and controlled environment.
+</p>
+<a name="kvmimage"> </a>
+<h3>Sample image _NAMELINK(kvmimage)</h3>
+<p>
+The Nimbus project has a sample KVM image that can be used
+for testing that KVM, libvirt, and Nimbus are installed correctly.  The 
+image is available 
+    <a href="http://www.nimbusproject.org/downloads/nimbus-ubuntu10.10.gz">here</a>
+</p>    
+<p>
+  It is a base ubuntu10.10 VM.  It runs an SSH server when it boots.  
+</p>
+
+
+<a name="kvmlibvirt"> </a>
+<h3>kvmlibvirt commands _NAMELINK(kvmlibvirt)</h3>
+
+<p>
+When using libvirt on Xen we will often reference the command virsh. virsh
+takes many commands, but when running with Xen it will always take the option
+-c 'qemu:///system'
+</p>
+
+<p>
+For example: 
+<div class="panel"><pre>
+root # virsh -c 'qemu:///system' list
+</pre></div>
+</p>
+
+
+_NIMBUS_CENTER2_COLUMN_END
+_NIMBUS_FOOTER1
+_NIMBUS_FOOTER2
+_NIMBUS_FOOTER3
+

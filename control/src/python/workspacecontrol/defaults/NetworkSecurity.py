@@ -85,7 +85,7 @@ class DefaultNetworkSecurity:
             return
             
         for nic in nic_set.niclist():
-            
+           
             if not nic.vifname:
                 raise InvalidInput("NIC object has no vifname")
             if self.localdhcp and not nic.dhcpvifname:

@@ -247,13 +247,14 @@ class CumulusInputStream
     public CumulusInputStream(
         long                            len,
         PrintStream                     pr,
-        InputStream                     is)
+        InputStream                     is,
+        boolean                         noprint)
     {
         super();
         this.is = is;
         this.pr = pr;   
 
-        progress = new CloudProgressPrinter(this.pr, len);
+        progress = new CloudProgressPrinter(this.pr, len, noprint);
     }
  
     public int available()
@@ -337,6 +338,7 @@ class CloudProgressPrinter
     private int                         colCount = 80;
     private Date                        nextUpdate = null;
     private boolean                     hit100 = false;
+    private boolean                     noprint = false;
 
     public CloudProgressPrinter(
         PrintStream                     pr,
@@ -344,6 +346,16 @@ class CloudProgressPrinter
     {
         super(len);
         this.pr = pr;
+    }
+
+    public CloudProgressPrinter(
+        PrintStream                     pr,
+        long                            len,
+        boolean                         noprint)
+    {
+        super(len);
+        this.pr = pr;
+        this.noprint = noprint;        
     }
 
     // return a string with the long value properly suffixed 
@@ -453,6 +465,10 @@ class CloudProgressPrinter
 
     public void print_done()
     {
+        if(this.noprint)
+        {
+            return;
+        }
         long total = getBytesToTransfer();
         String bar = this.makeBar(total, total);
         System.out.print("\r");
@@ -463,6 +479,10 @@ class CloudProgressPrinter
     public void flush()
     {
         if(this.hit100)
+        {
+            return;
+        }
+        if(this.noprint)
         {
             return;
         }
@@ -535,6 +555,10 @@ public class CumulusTask
         String                          vmName,
         String                          ID)
     {
+        if(this.args.getCommonVMSet())
+        {
+            ID = "common";
+        }
         String baseKey = this.args.getXferS3BaseKey();
         if(ID == null)
         {
@@ -611,7 +635,7 @@ public class CumulusTask
             } 
 
             CloudProgressPrinter progressWatcher =
-                new CloudProgressPrinter(pr, file.length());
+                new CloudProgressPrinter(pr, file.length(), this.args.getNoSpinner());
             S3Object s3Object = ObjectUtils.createObjectForUpload(
                 key, file, null, false, progressWatcher);
             progressWatcher.flush();
@@ -620,7 +644,7 @@ public class CumulusTask
                 pr.println("\n\nTransferring the file:");
             }
             CumulusInputStream cis = new CumulusInputStream(
-                file.length(), pr, s3Object.getDataInputStream());
+                file.length(), pr, s3Object.getDataInputStream(), this.args.getNoSpinner());
             s3Object.setDataInputStream(cis);
             s3Service.putObject(baseBucketName, s3Object);
             progressWatcher.flush();
@@ -684,7 +708,7 @@ public class CumulusTask
             S3Object s3Object = s3Service.getObject(baseBucketName, key);
 
             BytesProgressWatcher progressWatcher = 
-                new CloudProgressPrinter(pr, s3Object.getContentLength());
+                new CloudProgressPrinter(pr, s3Object.getContentLength(), this.args.getNoSpinner());
             byte b [] = new byte[1024*64];
             InputStream dis = s3Object.getDataInputStream();
             FileOutputStream fos = new FileOutputStream(file);

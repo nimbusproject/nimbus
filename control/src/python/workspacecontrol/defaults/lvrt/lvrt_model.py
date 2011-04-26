@@ -2,9 +2,42 @@ try:
     from cStringIO import StringIO
 except:
     from StringIO import StringIO
+
+from jinja2 import BaseLoader, TemplateNotFound
+from os.path import join, exists, getmtime
+from jinja2 import Template
+from jinja2 import Environment, PackageLoader
+import os    
+import sys
+import string
+import re
     
-from workspacecontrol.api.exceptions import *
-    
+class WSCTemplateLoader(BaseLoader):
+
+    def __init__(self, path):
+        self.path = path
+
+    def get_source(self, environment, template):
+        path = self.path
+        if not exists(path):
+            raise Exception("libvirt template not found %s" % (path))
+        mtime = getmtime(path)
+        with file(path) as f:
+            source = f.read().decode('utf-8')
+        return source, path, lambda: mtime == getmtime(path)
+
+def _xml_normalize_pretty(s):
+    import xml.dom.minidom
+    for c in string.whitespace:
+        s = s.replace(c, " ")
+    doc = xml.dom.minidom.parseString(s)
+    uglyXml = doc.toprettyxml(indent='  ')
+    text_re = re.compile('>\n\s+([^<>\s].*?)\n\s+</', re.DOTALL)
+    prettyXml = text_re.sub('>\g<1></', uglyXml)
+    text_re = re.compile(os.linesep + ' *' + os.linesep)
+    prettyXml = text_re.sub(os.linesep, prettyXml)
+    return prettyXml
+
 # definitely don't want to parse XML by hand, but creating it with strings
 # is not the end of the world
 
@@ -17,7 +50,7 @@ def L(indent, content):
     return spaces + content + "\n"
 
 class Domain:
-    def __init__(self):
+    def __init__(self, template=None):
         
         self._type = None # e.g. 'xen' or 'qemu'  <domain type='xen'>
         
@@ -35,15 +68,26 @@ class Domain:
         
         # see http://libvirt.org/formatdomain.html#elementsDevices
         self.devices = None # object <devices>
-        
+        self._template = template
+
     def toXML(self):
+        x = self._toXML_template()
+        return x
+
+    def _toXML_template(self):
+        env = Environment(loader=WSCTemplateLoader(self._template))
+        template = env.get_template(self._template)
+        xml1 = template.render(domain=self, os=self.os, devices=self.devices)
+        return _xml_normalize_pretty(xml1)
+        
+    def _toXML_old(self):
         x = StringIO()
         
         x.write(LINE_ONE)
         x.write(L(0, "<domain type='%s'>" % self._type))
         
         if not self.name:
-            raise ProgrammingError("assuming <name> is required")
+            raise Exception("assuming <name> is required")
         
         x.write(L(1, "<name>%s</name>" % self.name))
         
@@ -51,7 +95,7 @@ class Domain:
             x.write(L(1, "<bootloader>%s</bootloader>" % self.bootloader))
             
         if not self.os:
-            raise ProgrammingError("assuming <os> is required")
+            raise Exception("assuming <os> is required")
         x.write(self.os.toXML())
         
         x.write(L(1, "<memory>%d</memory>" % self.memory))
@@ -65,7 +109,7 @@ class Domain:
             x.write(L(1, "<on_crash>%s</on_crash>" % self.on_crash))
         
         if not self.devices:
-            raise ProgrammingError("assuming <devices> is required")
+            raise Exception("assuming <devices> is required")
         x.write(self.devices.toXML())
         
         x.write(L(0, "</domain>"))
@@ -214,4 +258,3 @@ class Interface:
         content = x.getvalue()
         x.close()
         return content
-        

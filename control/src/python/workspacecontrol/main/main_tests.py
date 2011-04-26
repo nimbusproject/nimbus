@@ -161,8 +161,8 @@ def test_mock_create():
     assert running_vm
     
     assert running_vm.wchandle == handle
-    assert running_vm.maxmem == 256
-    assert running_vm.curmem == 256
+    assert running_vm.maxmem == 262144
+    assert running_vm.curmem == 262144
     assert running_vm.running
     assert not running_vm.blocked
     assert not running_vm.paused
@@ -875,11 +875,16 @@ def test_network_security1():
     
     # test that there is an error if that dhcpvifname is missing:
     invalid_input = False
+    # force setting this to true.  this test is from the days when local
+    # dhcp was default (and mandatory?)
+    netsecurity.localdhcp = True
     try:
         netsecurity.setup(nic_set)
     except InvalidInput:
         invalid_input = True
     assert invalid_input
+    # setlocal dhcp back to false
+    netsecurity.localdhcp = False
     
     # run nic_set through bootstrap, as intended
     netbootstrap.setup(nic_set)
