@@ -164,6 +164,11 @@ _NIMBUS_IS_DEPRECATED
             <a href="#backfill-and-spot-instances">Backfill and spot instances</a>
         </p>
     </li>
+    <li>
+        <p>
+            <a href="#libvirttemplate">libvirt template and virtio</a>
+        </p>
+    </li>
 
 
 
@@ -2313,6 +2318,26 @@ $ $NIMBUS_HOME/bin/nimbusctl restart
     pool and the backfill instances do not immediately start consuming them
     greedily, this is what is happening.  After adding all those nodes, stop and
     then start the service and the backfill configuration will recalibrate.
+</p>
+
+<a href="#libvirttemplate">libvirt template and virtio</a>
+<a name="libvirttemplate"> </a>
+<h2>libvirt template and virtio</h2>
+<p>
+The submission of VMs to the hypervisor (with Xen or KVM) is done by Nimbus
+via libvirt.  Then submitting to libvirt the VM run request is described
+in an xml file.  This file has many potential customizations depending on
+the feature set supported by a particular VMM.  Many of the values are 
+dynamically determined by Nimbus, however a site admin may want to add their
+own custom optimizations.
+</p>
+<p>
+The xml used for every VM submission is generated from a template found
+in the workspace control installation at:
+<tt class="literal">
+/etc/workspace-control/libvirt_template.xml
+</tt>
+Admins can add site specific optimizations (like virtio) to this template.
 </p>
 
 <br />
