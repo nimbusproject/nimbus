@@ -17,6 +17,9 @@ nimbus-cloud-client-019
 [*] Expand ~/ for cloud.properties options like nimbus.cert
     https://github.com/nimbusproject/nimbus/issues/5
 
+[*] Fixed history tracking issue when more than 100 VMs are launched:
+    https://github.com/nimbusproject/nimbus/issues/45
+
 nimbus-cloud-client-018
 -----------------------
 
