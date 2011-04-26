@@ -17,7 +17,7 @@ def all_groups(groupauthz_dir):
     """
     groups = []
     files = [f for f in os.listdir(groupauthz_dir) 
-            if f.startswith(_GROUP_FILE_PREFIX)]
+            if f.startswith(_GROUP_FILE_PREFIX) and f.endswith(_GROUP_PROPS_EXT)]
     files.sort()
     for name, group_files in groupby(files, lambda f: os.path.splitext(f)[0]):
         members_path = None

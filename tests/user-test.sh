@@ -21,5 +21,7 @@ export DJANGO_SETTINGS_MODULE
 
 source $NIMBUS_HOME/ve/bin/activate
 
+# this next line is added to test github issue 44
+touch $NIMBUS_HOME/services/etc/nimbus/workspace-service/group-authz/group03.properties.XXX
 nosetests user_tests.py user_failures_tests.py "$@"
 exit $?
