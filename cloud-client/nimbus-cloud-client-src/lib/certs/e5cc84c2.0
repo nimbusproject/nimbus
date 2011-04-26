@@ -1,0 +1,89 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number: 2 (0x2)
+        Signature Algorithm: sha1WithRSAEncryption
+        Issuer: DC=EDU, DC=UTEXAS, DC=TACC, O=UT-AUSTIN, CN=TACC Root CA
+        Validity
+            Not Before: Oct  2 04:02:04 2008 GMT
+            Not After : Oct  1 04:02:04 2013 GMT
+        Subject: DC=EDU, DC=UTEXAS, DC=TACC, O=UT-AUSTIN, CN=TACC Classic CA
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+            RSA Public Key: (2048 bit)
+                Modulus (2048 bit):
+                    00:9b:98:cc:e0:01:d8:25:39:6a:18:f4:24:15:88:
+                    d9:65:0a:c4:bf:c0:52:2e:6f:68:3b:75:99:a2:3f:
+                    b2:89:d0:5c:73:d7:40:d4:e9:a0:71:e5:79:03:79:
+                    57:b7:89:18:de:ee:78:7d:87:51:d3:8e:7a:8d:94:
+                    c1:61:22:5f:1e:40:84:a4:b6:eb:da:8e:1c:72:c2:
+                    e2:83:b1:fe:8d:d6:cc:50:e5:51:38:8c:1c:0f:9d:
+                    cc:1a:e0:b2:2e:09:c0:3b:10:20:cf:67:66:99:be:
+                    b3:ce:49:c6:bf:70:b1:d4:05:b8:b6:cf:c6:80:ab:
+                    5b:c2:1e:ce:6b:19:fd:27:97:9d:c4:ff:f6:d0:63:
+                    b0:5b:7b:a3:a9:53:66:98:dc:c0:43:17:5b:4a:f3:
+                    8f:b4:78:ff:4b:2e:68:6e:f9:da:25:d9:52:98:6c:
+                    c8:30:44:31:b9:91:9d:b4:4d:d1:d7:b5:a4:c1:82:
+                    3c:97:35:2f:a6:32:81:89:74:4d:3b:cc:6e:56:6b:
+                    1f:40:17:17:ab:1f:ed:9a:6f:d1:10:06:f1:1c:22:
+                    31:5f:c6:ab:ab:a2:ee:e4:ff:3b:b9:ed:87:b8:77:
+                    84:d4:de:0a:bf:d3:d1:d8:4d:f4:e1:d2:00:0d:07:
+                    e7:5a:3e:39:0d:06:6f:42:49:2a:90:bf:1b:fd:16:
+                    cc:93
+                Exponent: 36963 (0x9063)
+        X509v3 extensions:
+            X509v3 Basic Constraints: critical
+                CA:TRUE
+            X509v3 Subject Key Identifier: 
+                6C:5D:E8:9E:E5:72:7B:7A:D1:1B:99:F6:8C:B6:D1:A1:74:82:07:04
+            X509v3 Authority Key Identifier: 
+                keyid:8D:75:23:68:D1:55:99:6C:C3:A6:1E:86:FC:DF:C4:53:E8:E5:53:C7
+
+            X509v3 Key Usage: critical
+                Certificate Sign, CRL Sign
+            X509v3 Subject Alternative Name: 
+                email:ca@tacc.utexas.edu
+            X509v3 CRL Distribution Points: 
+                URI:http://www.tacc.utexas.edu/CA/TACC_Root_CRL.der
+
+    Signature Algorithm: sha1WithRSAEncryption
+        6f:78:e7:7b:c4:8a:0a:c3:07:30:a1:d7:ea:a8:7a:57:9c:67:
+        92:1f:16:9a:92:17:77:25:eb:ec:74:6e:81:54:13:d9:75:23:
+        81:d1:6c:ef:2a:81:0f:3f:dc:8e:19:b3:8f:85:e4:0a:86:4d:
+        a1:94:c3:da:3c:13:73:27:13:28:3f:ed:15:47:fa:9e:e4:ae:
+        d0:66:50:01:6b:35:cc:be:7c:a1:2b:1e:d9:84:98:70:ca:2a:
+        78:bf:48:ff:87:83:36:08:bb:6f:e8:22:8f:7a:14:9f:56:91:
+        dc:92:67:af:42:26:1e:7b:19:ad:f1:97:72:b4:81:19:f5:59:
+        63:ec:27:60:42:d7:35:47:ca:c5:f6:4d:40:99:08:cf:f0:99:
+        08:59:48:b3:e6:fe:88:e0:ae:56:3c:24:13:a4:ce:39:c0:17:
+        24:7c:d0:f5:57:59:2d:6c:67:ba:47:10:54:ae:e2:c1:7e:8c:
+        bf:ad:18:0e:ab:cb:5c:bf:0e:98:7e:2e:72:fb:c7:79:68:39:
+        a9:6b:a0:10:4f:03:70:88:ea:f5:67:68:c1:26:a6:0e:c1:e3:
+        7b:c9:f3:bf:a8:0a:54:7c:a6:e2:e8:83:3b:d9:98:ab:ce:67:
+        4c:bb:73:72:a7:44:3e:8c:74:3c:b1:91:c1:4c:d8:21:3f:bc:
+        08:35:30:a7
+-----BEGIN CERTIFICATE-----
+MIIEIDCCAwigAwIBAgIBAjANBgkqhkiG9w0BAQUFADBuMRMwEQYKCZImiZPyLGQB
+GRMDRURVMRYwFAYKCZImiZPyLGQBGRMGVVRFWEFTMRQwEgYKCZImiZPyLGQBGRME
+VEFDQzESMBAGA1UEChMJVVQtQVVTVElOMRUwEwYDVQQDEwxUQUNDIFJvb3QgQ0Ew
+HhcNMDgxMDAyMDQwMjA0WhcNMTMxMDAxMDQwMjA0WjBxMRMwEQYKCZImiZPyLGQB
+GRMDRURVMRYwFAYKCZImiZPyLGQBGRMGVVRFWEFTMRQwEgYKCZImiZPyLGQBGRME
+VEFDQzESMBAGA1UEChMJVVQtQVVTVElOMRgwFgYDVQQDEw9UQUNDIENsYXNzaWMg
+Q0EwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCbmMzgAdglOWoY9CQV
+iNllCsS/wFIub2g7dZmiP7KJ0Fxz10DU6aBx5XkDeVe3iRje7nh9h1HTjnqNlMFh
+Il8eQISktuvajhxywuKDsf6N1sxQ5VE4jBwPncwa4LIuCcA7ECDPZ2aZvrPOSca/
+cLHUBbi2z8aAq1vCHs5rGf0nl53E//bQY7Bbe6OpU2aY3MBDF1tK84+0eP9LLmhu
++dol2VKYbMgwRDG5kZ20TdHXtaTBgjyXNS+mMoGJdE07zG5Wax9AFxerH+2ab9EQ
+BvEcIjFfxqurou7k/zu57Ye4d4TU3gq/09HYTfTh0gANB+daPjkNBm9CSSqQvxv9
+FsyTAgMAkGOjgcUwgcIwDwYDVR0TAQH/BAUwAwEB/zAdBgNVHQ4EFgQUbF3onuVy
+e3rRG5n2jLbRoXSCBwQwHwYDVR0jBBgwFoAUjXUjaNFVmWzDph6G/N/EU+jlU8cw
+DgYDVR0PAQH/BAQDAgEGMB0GA1UdEQQWMBSBEmNhQHRhY2MudXRleGFzLmVkdTBA
+BgNVHR8EOTA3MDWgM6Axhi9odHRwOi8vd3d3LnRhY2MudXRleGFzLmVkdS9DQS9U
+QUNDX1Jvb3RfQ1JMLmRlcjANBgkqhkiG9w0BAQUFAAOCAQEAb3jne8SKCsMHMKHX
+6qh6V5xnkh8WmpIXdyXr7HRugVQT2XUjgdFs7yqBDz/cjhmzj4XkCoZNoZTD2jwT
+cycTKD/tFUf6nuSu0GZQAWs1zL58oSse2YSYcMoqeL9I/4eDNgi7b+gij3oUn1aR
+3JJnr0ImHnsZrfGXcrSBGfVZY+wnYELXNUfKxfZNQJkIz/CZCFlIs+b+iOCuVjwk
+E6TOOcAXJHzQ9VdZLWxnukcQVK7iwX6Mv60YDqvLXL8OmH4ucvvHeWg5qWugEE8D
+cIjq9WdowSamDsHje8nzv6gKVHym4uiDO9mYq85nTLtzcqdEPox0PLGRwUzYIT+8
+CDUwpw==
+-----END CERTIFICATE-----

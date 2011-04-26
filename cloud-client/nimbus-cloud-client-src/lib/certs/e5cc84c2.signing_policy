@@ -1,0 +1,5 @@
+# TACC Classic CA Signing Policy
+access_id_CA	X509	'/DC=EDU/DC=UTEXAS/DC=TACC/O=UT-AUSTIN/CN=TACC Classic CA'
+pos_rights	globus	CA:sign
+cond_subjects	globus	'"/DC=EDU/DC=UTEXAS/DC=TACC/O=UT-AUSTIN/O=TACC Classic CA/*"'
+
