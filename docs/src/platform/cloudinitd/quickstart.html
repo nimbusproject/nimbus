@@ -29,8 +29,55 @@ _NIMBUS_CENTER2_COLUMN
 <h2>Download and install cloudinit.d _NAMELINK(download)</h2>
 
 <p>
-  TODO.  pypi hopefully
+cloudinit.d is a python setup package registered with 
+<a href="http://www.pypi.com/">pypi</a> which means you can <i>easy_install</i>
+it.  From a python virtualenv or an account with access to the systems
+libraries and pythin in its path run:
+<tt class="literal"> <pre>
+$ easy_install cloudinitd
+</pre></tt>
+This will download cloudinit.d and all of its dependencies and install them.
 </p>
+<p>
+If you prefer to fetch the tarball and have a more manual install you can
+get the latest release <a href="">here</a>.  To install it untar, change
+<tt class="literal"> <pre>
+$ tar -zxvf cloudinitd-latest.tar.gz
+...
+$ cd cloudinitd-&lt;version&gt;
+$ python setup.py install
+</pre></tt>
+to the base directory and run <I>python setup.py install</I>
+</p>
+<p>
+You can new test it out!
+<tt class="literal"> <pre>
+$ cloudinitd --help
+Usage: [options] <command> [<top level launch plan> | <run name>]
+Boot and manage a launch plan
+Run with the command 'commands' to see a list of all possible commands
+
+
+Options:
+  --version             show program's version number and exit
+  -h, --help            show this help message and exit
+  -v, --verbose         Print more output
+  -x, --validate        Check that boot plan is valid before launching it.
+  -y, --dryrun          Check that boot plan is valid before launching it.
+  -q, --quiet           Print no output
+  -n NAME, --name=NAME  Set the run name, only relevant for boot (by default
+                        the system picks)
+  -d DATABASE, --database=DATABASE
+                        Path to the db directory
+  -f LOGDIR, --logdir=LOGDIR
+                        Path to the base log directory.
+  -l LOGLEVEL, --loglevel=LOGLEVEL
+                        Controls the level of detail in the log file : {debug
+                        | info | warn | error}
+  -c, --noclean         Do not delete the database, only relevant for the
+                        terminate command
+</pre>
+
 
 <a name="launchplan"> </a>
 <h2>Create a launch plan _NAMELINK(launchplan)</h2>
