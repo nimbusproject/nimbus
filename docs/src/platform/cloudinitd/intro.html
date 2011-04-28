@@ -1,5 +1,7 @@
 m4_include(/mcs/m4/worksp.lib.m4)
 _NIMBUS_HEADER(cloudinit.d Intro)
+_NIMBUS_HEADER2(n,n,n,n,n,n,n)
+
 _NIMBUS_LEFT2_COLUMN
 
 _NIMBUS_LEFT2_CLOUDS1_SIDEBAR(n,n,y,n,n,n,n)
@@ -14,7 +16,7 @@ _NIMBUS_CENTER2_COLUMN
 <li><a href="#overview">Overview</a></li>
     <ul>
         <li><a href="#service">Individual service</a></li>
-        <li><a href="#bootlevels">Service Programs</a></li>
+        <li><a href="#bootlevel">Bootlevel</a></li>
         <li><a href="#launchplan">Launch Plan</a></li>
     </ul>
 <li><a href="#example">Example</a></li>
@@ -68,16 +70,16 @@ configuration file syntax, and advanced features are described elsewhere.
 </p>
 <a name="overview"> </a>
 <h2>Overview _NAMELINK(overview)</h2>
-<img src="../../clouds/img/cloudinitd_dia.png" width="600" height="400" />
-
-<a name="Service"> </a>
-<h2>Service _NAMELINK(service)</h2>
+<img src="../../clouds/img/cloudinitd_pres1.png" width="460" height="376" />
 <p>cloudinit.d arranges an application into three basic constructs:
 <ul>
     <li>service</li>
     <li>boot level</li>
     <li>launch plan</li>
 </ul>
+
+<a name="service"> </a>
+<h2>Service _NAMELINK(service)</h2>
     A service can be thought of as a single, configured Virtual Machine.  
     However
     this is a very limiting definition.  Many services can be configured
