@@ -42,12 +42,12 @@ Rates can be checked <a href="http://aws.amazon.com/ec2/pricing/">here</a>
 Once you have cloudinit.d installed the following commands will get this 
 example, boot it in EC2, and present you will a functional wordpress service. 
 
-<tt class="literal"> <pre>
+<tt class="panel"> <pre>
 $ export CLOUDBOOT_IAAS_ACCESS_KEY=&lt;your EC2 access key&gt;
 $ export CLOUDBOOT_IAAS_SECRET_KEY=&lt;your EC2 secret key&gt;
 $ export CLOUDBOOT_IAAS_SSHKEY=&lt;the path to your ssh key&gt;
 $ export CLOUDBOOT_IAAS_SSHKEYNAME=&lt;the name of your ssh key in EC2&gt;
-$ wget http://www.nimbusproject.org/wordpress.tar.gz
+$ wget http://www.nimbusproject.org/downloads/wordpress.tar.gz
 $ tar -zxf wordpress.tar.gz
 $ cloudinitd -v -v -v boot wordpress/top.conf
 </pre></tt>
@@ -55,7 +55,7 @@ $ cloudinitd -v -v -v boot wordpress/top.conf
 When this completes a full wordpress service will be ready for your use.
 The output of cloudinit.d will look something like this:
 
-<tt class="literal"> <pre>
+<tt class="panel"> <pre>
 Starting up run c80e7e2c
     Started IaaS work for mysql
     Started IaaS work for wordpress
@@ -92,12 +92,12 @@ port 22, 80 and 3306 open.
 You can terminate the entire cloud application with a single command as
 well.  The first thing to note is the <i>run name</i> which is printed
 out in the first line of the boot output:
-<tt class="literal"> <pre>
+<tt class="panel"> <pre>
 Starting up run c80e7e2c
 </pre></tt>
 In out case it is <i>c80e7e2c</i>.  To terminate the launch run the following command:
 
-<tt class="literal"> <pre>
+<tt class="panel"> <pre>
 $ cloudinitd -v -v -v terminate c80e7e2c
 Terminating c80e7e2c
 Begin terminate level 2...
@@ -168,7 +168,7 @@ If we look at the two run level files <i>mysql_level.conf</i> and
 described.  In svc-wordpress and svc-mysql
 we see three similar values and three different ones.
 First lets look at the similar values:
-<tt class="literal"> <pre>
+<tt class="panel"> <pre>
 ssh_username: ubuntu
 image: ami-ccf405a5
 allocation: m1.small
