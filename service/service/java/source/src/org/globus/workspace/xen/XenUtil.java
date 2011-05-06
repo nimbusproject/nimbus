@@ -243,6 +243,13 @@ public class XenUtil implements WorkspaceConstants {
             cmd.add(notificationInfo);
         }
 
+        final String credentialName = vm.getCredentialName();
+        if (credentialName != null) {
+
+            cmd.add("--prop-extra-args");
+            cmd.add("'credential=" + credentialName + "'");
+        }
+
         return cmd;
     }
 
