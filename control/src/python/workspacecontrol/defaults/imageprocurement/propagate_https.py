@@ -4,6 +4,7 @@ import string
 from urlparse import urlparse
 import httplib
 import shutil
+from array import array
 from propagate_adapter import PropagationAdapter
 from workspacecontrol.api.exceptions import *
 import workspacecontrol.main.wc_args as wc_args
@@ -26,7 +27,10 @@ class propadapter(PropagationAdapter):
             raise InvalidInput("invalid url, not https:// " + remote)
 
     def validate_unpropagate_target(self, imagestr):
-        raise InvalidInput("HTTPS unpropagation is not supported.")
+        url = urlparse(imagestr)
+        #urlparse breaks the url into a tuple
+        if url[0] != "https":
+            raise InvalidInput("invalid url, not https:// " + remote)
 
     def propagate(self, remote_source, local_absolute_target):
         self.c.log.info("HTTPS propagation - remote source: %s" % remote_source)
@@ -45,10 +49,6 @@ class propadapter(PropagationAdapter):
                 port = 80
             else:
                 port = 443
-        except ValueError:
-            errmsg = "%s doesn't seem to be a port (must be an integer)" % host_port[1]
-            self.c.log.exception(errmsg)
-            raise InvalidInput(errmsg)
         credential = self._get_credential()
         self.c.log.debug("server: %s port %s credential %s" % (host, port, credential))
         if credential:
@@ -75,7 +75,54 @@ class propadapter(PropagationAdapter):
         self.c.log.info("Transfer complete.")
 
     def unpropagate(self, local_absolute_source, remote_target):
-        raise InvalidInput("HTTP unpropagation is not supported.")
+        self.c.log.info("HTTPS unpropagation - local source: %s" % local_absolute_source)
+        self.c.log.info("HTTPS unpropagation - remote target: %s" % remote_target)
+
+        url = urlparse(remote_target)
+        scheme = url[0]
+        netloc = url[1]
+        path = url[2] + "?" + url[4]
+        host_port = netloc.split(":")
+        host = host_port[0]
+        try:
+            port = int(host_port[1])
+        except IndexError:
+            if scheme == 'http':
+                port = 80
+            else:
+                port = 443
+        credential = self._get_credential()
+        self.c.log.debug("server: %s port %s credential %s" % (host, port, credential))
+
+        if credential:
+            connection = HTTPSConnectionCompat(host, port, strict=False, key_file=credential, cert_file=credential)
+        else:
+            connection = HTTPSConnectionCompat(host, port)
+
+        try:
+            try:
+                image = open(local_absolute_source)
+                # We pass an mmaped string, because httplib doesn't support passing
+                # file objects in Python 2.4
+                image_size = os.stat(image.name).st_size
+                try:
+                    connection.request("PUT", path, image, headers={'content-length': image_size})
+                except:
+                    self.c.log.exception("Problem unpropagating to %s" % remote_target)
+                    raise
+            except:
+                self.c.log.exception("Could not open %s" % local_absolute_source)
+                raise
+        finally:
+            image.close()
+
+        response = connection.getresponse()
+
+        if response.status != 200:
+            raise InvalidInput("Problem unpropagating to %s. Got: '%s'" % (remote_target, response.reason))
+
+        self.c.log.info("Transfer complete.")
+
 
     def _get_credential(self):
         extra_args = self.p.get_arg_or_none(wc_args.EXTRA_ARGS)
@@ -141,3 +188,34 @@ class propadapter(PropagationAdapter):
                 raise UnexpectedError(errmsg)
 
             return self._get_handle_redirects(connection, redirect_path)
+
+class HTTPSConnectionCompat(httplib.HTTPSConnection):
+    """
+    HTTPSConnectionCompat subclasses HTTPSConnection to allow us to
+    send large files. This is not supported in the httplib that is bundled
+    with Python 2.4.
+
+    Once Python 2.4 compatibility is dropped, feel free to use a the
+    HTTPSConnection object included with Python.
+    """
+
+    def send(self, data):
+        """Send `data' to the server."""
+
+        if self.sock is None:
+            if self.auto_open:
+                self.connect()
+            else:
+                raise NotConnected()
+
+        if self.debuglevel > 0:
+            print "send:", repr(data)
+        blocksize = 8192
+        if hasattr(data,'read') and not isinstance(data, array):
+            if self.debuglevel > 0: print "sendIng a read()able"
+            datablock = data.read(blocksize)
+            while datablock:
+                self.sock.sendall(datablock)
+                datablock = data.read(blocksize)
+        else:
+            self.sock.sendall(data)
