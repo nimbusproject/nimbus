@@ -850,6 +850,7 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
         }
 
         final int memory = dep.getIndividualPhysicalMemory();
+        final int cores = dep.getIndividualCPUCount();
         final int duration = dep.getMinDuration();
 
         // list of associations should be in the DB, perpetuation of
@@ -860,7 +861,7 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
             assocs = assocStr.split(",");
         }
 
-        return this.scheduler.schedule(memory, duration, assocs, numNodes,
+        return this.scheduler.schedule(memory, cores, duration, assocs, numNodes,
                                        groupid, coschedid, vm.isPreemptable(), callerID);
     }
 

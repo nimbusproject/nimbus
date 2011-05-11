@@ -370,6 +370,21 @@ public class GroupAuthz implements CreationAuthorizationCallout,
         throw new AuthorizationException(NO_POLICIES_MESSAGE);
     }
 
+    public String getGroupName(String caller) {
+
+
+        for (int i = 0; i < this.groups.length; i++) {
+
+            final GroupRights rights = getRights(caller, this.groups[i]);
+            // only first inclusion of DN is considered
+            if (rights != null) {
+                return this.groups[i].getName();
+            }
+        }
+
+        return null;
+    }
+
 
     // -------------------------------------------------------------------------
     // FOR CLOUD AUTOCONFIG

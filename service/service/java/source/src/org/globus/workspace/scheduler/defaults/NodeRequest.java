@@ -19,6 +19,7 @@ package org.globus.workspace.scheduler.defaults;
 public class NodeRequest {
 
     private int memory; // MBs
+    private int cores;
     private int duration; // seconds
 
     private int[] ids = null;
@@ -41,12 +42,14 @@ public class NodeRequest {
 
     public NodeRequest(int[] ids,
                        int memory,
+                       int cores,
                        int duration,
                        String[] neededAssociations,
                        String groupid,
                        String creatorDN) {
         this(memory, duration);
 
+        this.cores = cores;
         this.ids = ids;
         this.neededAssociations = neededAssociations;
         this.groupid = groupid;
@@ -78,6 +81,18 @@ public class NodeRequest {
             return 0;
         }
         return this.ids.length;
+    }
+
+    public int getCores() {
+        // Java sets ints to 0 if they're never initialized
+        if (this.cores == 0) {
+            return 1;
+        }
+        return this.cores;
+    }
+
+    public void setCores(int cores) {
+        this.cores = cores;
     }
 
     public int getMemory() {

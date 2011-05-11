@@ -91,7 +91,7 @@ public class TorqueUtil {
             throw new WorkspaceException(err);
         }
 
-        if (ppn < 1) {
+        if (ppn < 0) {
             final String err = "invalid processors per node " +
                     "request: " + Integer.toString(ppn);
             throw new WorkspaceException(err);

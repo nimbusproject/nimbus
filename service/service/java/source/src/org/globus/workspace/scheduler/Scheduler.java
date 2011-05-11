@@ -38,6 +38,7 @@ public interface Scheduler extends StateChangeInterested{
      * @see #proceedCoschedule for handling separate requests together 
      *
      * @param memory MB needed
+     * @param CPU cores needed
      * @param duration seconds needed
      * @param neededAssociations networks needed
      * @param numNodes number needed
@@ -49,6 +50,7 @@ public interface Scheduler extends StateChangeInterested{
      * @throws SchedulingException internal problem
      */
     public Reservation schedule(int memory,
+                                int cores,
                                 int duration,
                                 String[] neededAssociations,
                                 int numNodes,
