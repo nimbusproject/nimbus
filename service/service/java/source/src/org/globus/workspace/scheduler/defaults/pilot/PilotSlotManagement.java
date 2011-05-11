@@ -20,12 +20,16 @@ import commonj.timers.TimerManager;
 import edu.emory.mathcs.backport.java.util.concurrent.ExecutorService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.globus.workspace.groupauthz.GroupAuthz;
 import org.globus.workspace.scheduler.NodeExistsException;
 import org.globus.workspace.scheduler.NodeInUseException;
 import org.globus.workspace.scheduler.NodeManagement;
 import org.globus.workspace.scheduler.NodeManagementDisabled;
 import org.globus.workspace.scheduler.NodeNotFoundException;
 import org.globus.workspace.scheduler.defaults.ResourcepoolEntry;
+import org.globus.workspace.service.binding.authorization.CreationAuthorizationCallout;
+import org.nimbus.authz.AuthzDBAdapter;
+import org.nimbus.authz.UserAlias;
 import org.nimbustools.api.services.rm.DoesNotExistException;
 import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
 import org.nimbustools.api.services.rm.ManageException;
@@ -118,6 +122,8 @@ public class PilotSlotManagement implements SlotManagement,
 
     private TorqueUtil torque;
 
+    private AuthzDBAdapter authzDBAdapter;
+    private CreationAuthorizationCallout authzCallout;
 
     // set from config
     private String contactPort;
@@ -138,6 +144,7 @@ public class PilotSlotManagement implements SlotManagement,
     private String destination = null; // only one for now
     private String extraProperties = null;
     private String multiJobPrefix = null;
+    private String accounting;
 
     // -------------------------------------------------------------------------
     // CONSTRUCTOR
@@ -146,7 +153,9 @@ public class PilotSlotManagement implements SlotManagement,
     public PilotSlotManagement(WorkspaceHome home,
                                Lager lager,
                                DataSource dataSource,
-                               TimerManager timerManager) {
+                               TimerManager timerManager,
+                               AuthzDBAdapter authz,
+                               CreationAuthorizationCallout authzCall) {
 
         if (home == null) {
             throw new IllegalArgumentException("home may not be null");
@@ -168,6 +177,9 @@ public class PilotSlotManagement implements SlotManagement,
             throw new IllegalArgumentException("lager may not be null");
         }
         this.lager = lager;
+
+        this.authzDBAdapter = authz;
+        this.authzCallout = authzCall;
     }
 
 
@@ -266,6 +278,20 @@ public class PilotSlotManagement implements SlotManagement,
 
     public void setLogdirResource(Resource logdirResource) throws IOException {
         this.logdirPath = logdirResource.getFile().getAbsolutePath();
+    }
+
+    public AuthzDBAdapter getAuthzDBAdapter() {
+        return authzDBAdapter;
+    }
+
+    public void setAuthzDBAdapter(AuthzDBAdapter authzDBAdapter) {
+        this.authzDBAdapter = authzDBAdapter;
+    }
+
+    public void setAccounting(String accounting) {
+        if (accounting != null && accounting.trim().length() != 0) {
+            this.accounting = accounting;
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -369,8 +395,8 @@ public class PilotSlotManagement implements SlotManagement,
                     "Is the configuration present?");
         }
 
-        if (this.ppn < 1) {
-            throw new Exception("processors per node (ppn) is less than one, " +
+        if (this.ppn < 0) {
+            throw new Exception("processors per node (ppn) is less than zero, " +
                     "invalid.  Is the configuration present?");
         }
 
@@ -492,6 +518,7 @@ public class PilotSlotManagement implements SlotManagement,
 
         this.reserveSpace(request.getIds(),
                           request.getMemory(),
+                          request.getCores(),
                           request.getDuration(),
                           request.getGroupid(),
                           request.getCreatorDN());
@@ -520,6 +547,7 @@ public class PilotSlotManagement implements SlotManagement,
         // capacity vs. mapping and we will get more sophisticated here later)
 
         int highestMemory = 0;
+        int highestCores = 0;
         int highestDuration = 0;
 
         final ArrayList idInts = new ArrayList(64);
@@ -531,6 +559,12 @@ public class PilotSlotManagement implements SlotManagement,
 
             if (highestMemory < thisMemory) {
                 highestMemory = thisMemory;
+            }
+
+            final int thisCores = requests[i].getCores();
+
+            if (highestCores < thisCores) {
+                highestCores = thisCores;
             }
 
             final int thisDuration = requests[i].getDuration();
@@ -563,7 +597,7 @@ public class PilotSlotManagement implements SlotManagement,
         // Assume that the creator's DN is the same for each node
         final String creatorDN = requests[0].getCreatorDN();
 
-        this.reserveSpace(all_ids, highestMemory, highestDuration, coschedid, creatorDN);
+        this.reserveSpace(all_ids, highestMemory, highestCores, highestDuration, coschedid, creatorDN);
         return new Reservation(all_ids, null, all_durations);
     }
 
@@ -579,6 +613,7 @@ public class PilotSlotManagement implements SlotManagement,
      *        than one VM is mapped to the same node, the returned node
      *        assignment array will include duplicates.
      * @param memory megabytes needed
+     * @param requestedCores needed
      * @param duration seconds needed
      * @param uuid group ID, can not be null if vmids is length > 1
      * @param creatorDN the DN of the user who requested creation of the VM
@@ -587,6 +622,7 @@ public class PilotSlotManagement implements SlotManagement,
      */
     private void reserveSpace(final int[] vmids,
                               final int memory,
+                              final int requestedCores,
                               final int duration,
                               final String uuid,
                               final String creatorDN)
@@ -602,6 +638,16 @@ public class PilotSlotManagement implements SlotManagement,
                     "fulfilled by any VMM node (maximum: " + this.maxMB +
                     " MB).";
             throw new ResourceRequestDeniedException(msg);
+        }
+
+        // When there is no core request, the default is -1,
+        // we would actually like one core.
+        int cores;
+        if (requestedCores <= 0) {
+            cores = 1;
+        }
+        else {
+            cores = requestedCores;
         }
 
         if (vmids.length > 1 && uuid == null) {
@@ -628,13 +674,14 @@ public class PilotSlotManagement implements SlotManagement,
             }
         }
 
-        this.reserveSpaceImpl(memory, duration, slotid, vmids, creatorDN);
+        this.reserveSpaceImpl(memory, cores, duration, slotid, vmids, creatorDN);
 
         // pilot reports hostname when it starts running, not returning an
         // exception to signal successful best effort pending slot
     }
 
     private void reserveSpaceImpl(final int memory,
+                                  final int cores,
                                   final int duration,
                                   final String uuid,
                                   final int[] vmids,
@@ -646,20 +693,34 @@ public class PilotSlotManagement implements SlotManagement,
         final int dur = duration + this.padding;
         final long wallTime = duration + this.padding;
 
+
+        // If the pbs.ppn option in pilot.conf is 0, we should send
+        // the number of CPU cores used by the VM as the ppn string,
+        // otherwise, use the defined ppn value
+        int ppnRequested;
+        if (this.ppn == 0) {
+            ppnRequested = cores;
+        }
+        else {
+            ppnRequested = this.ppn;
+        }
+
+        String account = getAccountString(creatorDN, this.accounting);
+
         // we know it's torque for now, no casing
         final ArrayList torquecmd;
         try {
             torquecmd = this.torque.constructQsub(this.destination,
                                                   memory,
                                                   vmids.length,
-                                                  this.ppn,
+                                                  ppnRequested,
                                                   wallTime,
                                                   this.extraProperties,
                                                   outputFile,
                                                   false,
                                                   false,
-                                                  creatorDN);
-            
+                                                  account);
+
         } catch (WorkspaceException e) {
             final String msg = "Problem with Torque argument construction";
             if (logger.isDebugEnabled()) {
@@ -1669,5 +1730,53 @@ public class PilotSlotManagement implements SlotManagement,
 
     public String getVMMReport() {
         return "No VMM report when pilot is configured.";
+    }
+
+    public String getAccountString(String userDN, String accountingType) {
+
+        String accountString = null;
+        if (accountingType == null) {
+            accountString = null;
+        }
+        else if (accountingType.equalsIgnoreCase("dn")) {
+
+            accountString = userDN;
+        }
+        else if (accountingType.equalsIgnoreCase("displayname")) {
+
+            try {
+                String userID = authzDBAdapter.getCanonicalUserIdFromDn(userDN);
+                final List<UserAlias> aliasList = authzDBAdapter.getUserAliases(userID);
+                for (UserAlias alias : aliasList) {
+                    if (alias.getAliasType() == AuthzDBAdapter.ALIAS_TYPE_DN) {
+
+                        accountString = alias.getFriendlyName();
+                    }
+                }
+                logger.error("Can't find display name for '" + userDN + "'. "
+                             + "No accounting string will be sent to PBS.");
+            }
+            catch (Exception e) {
+                logger.error("Can't connect to authzdb db. No accounting string will be sent to PBS.");
+            }
+        }
+        else if (accountingType.equalsIgnoreCase("group")) {
+
+            try {
+                GroupAuthz groupAuthz = (GroupAuthz)this.authzCallout;
+                accountString = groupAuthz.getGroupName(userDN);
+            }
+            catch (Exception e) {
+                logger.error("Problem getting group string. Are you sure you're using Group or SQL authz?");
+                logger.debug("full error: " + e);
+            }
+        }
+        else {
+
+            logger.error("'" + accountingType + "' isn't a valid accounting string type. "
+                         + "No accounting string will be sent to PBS.");
+        }
+
+        return accountString;
     }
 }

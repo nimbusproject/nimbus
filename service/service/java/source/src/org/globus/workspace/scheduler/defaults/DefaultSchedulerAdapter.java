@@ -224,6 +224,7 @@ public class DefaultSchedulerAdapter implements Scheduler {
     }
 
     public Reservation schedule(int memory,
+                                int cores,
                                 int duration,
                                 String[] neededAssociations,
                                 int numNodes,
@@ -263,7 +264,7 @@ public class DefaultSchedulerAdapter implements Scheduler {
         this.creationPending.pending(ids);
 
         final NodeRequest req =
-                new NodeRequest(ids, memory, duration, assocs, groupid, creatorDN);
+                new NodeRequest(ids, memory, cores, duration, assocs, groupid, creatorDN);
 
         try {
 

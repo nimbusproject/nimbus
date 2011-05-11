@@ -35,27 +35,27 @@ permissions and limitations under the License.
 # result of "generate-index.py < workspacepilot.py"
 INDEX = """
       I. Globals                                (lines 10-69)
-     II. Embedded, default configuration file   (lines 71-191)
-    III. Imports                                (lines 193-220)
-     IV. Exceptions                             (lines 222-348)
-      V. Logging                                (lines 350-569)
-     VI. Signal handlers                        (lines 571-673)
-    VII. Timer                                  (lines 675-700)
-   VIII. Path/system utilities                  (lines 702-1073)
-     IX. Action                                 (lines 1075-1126)
-      X. ReserveSlot(Action)                    (lines 1128-1732)
-     XI. KillNine(ReserveSlot)                  (lines 1734-1812)
-    XII. ListenerThread(Thread)                 (lines 1814-1919)
-   XIII. StateChangeListener                    (lines 1921-2147)
-    XIV. XenActions(StateChangeListener)        (lines 2149-2877)
-     XV. FakeXenActions(XenActions)             (lines 2879-2993)
-    XVI. XenKillNine(XenActions)                (lines 2995-3126)
-   XVII. VWSNotifications(StateChangeListener)  (lines 3128-3743)
-  XVIII. Configuration objects                  (lines 3745-3981)
-    XIX. Convert configurations                 (lines 3983-4245)
-     XX. External configuration                 (lines 4247-4317)
-    XXI. Commandline arguments                  (lines 4319-4534)
-   XXII. Standalone entry and exit              (lines 4536-4729)
+     II. Embedded, default configuration file   (lines 71-205)
+    III. Imports                                (lines 207-234)
+     IV. Exceptions                             (lines 236-362)
+      V. Logging                                (lines 364-583)
+     VI. Signal handlers                        (lines 585-687)
+    VII. Timer                                  (lines 689-714)
+   VIII. Path/system utilities                  (lines 716-1087)
+     IX. Action                                 (lines 1089-1140)
+      X. ReserveSlot(Action)                    (lines 1142-1746)
+     XI. KillNine(ReserveSlot)                  (lines 1748-1826)
+    XII. ListenerThread(Thread)                 (lines 1828-1933)
+   XIII. StateChangeListener                    (lines 1935-2161)
+    XIV. XenActions(StateChangeListener)        (lines 2163-2898)
+     XV. FakeXenActions(XenActions)             (lines 2900-3014)
+    XVI. XenKillNine(XenActions)                (lines 3016-3153)
+   XVII. VWSNotifications(StateChangeListener)  (lines 3155-3770)
+  XVIII. Configuration objects                  (lines 3772-4011)
+    XIX. Convert configurations                 (lines 4013-4285)
+     XX. External configuration                 (lines 4287-4357)
+    XXI. Commandline arguments                  (lines 4359-4574)
+   XXII. Standalone entry and exit              (lines 4576-4769)
 """
 
 RESTART_XEND_SECONDS_DEFAULT = 2.0
@@ -145,6 +145,20 @@ dom0_mem: 2007
 # xend to boot after we found it missing and restarted it.
 # If unconfigured, default is 2.0 seconds
 #restart_xend_secs: 0.3
+
+
+# This option determines whether pilot will attempt to bubble down memory for
+# VMs. The Xen Best Practices wiki page at
+# http://wiki.xensource.com/xenwiki/XenBestPractices recommends that you set a
+# fixed amount of memory for dom0 because:
+#
+#   1. (dom0) Linux kernel calculates various network related parameters based
+#      on the boot time amount of memory.
+#   2. Linux needs memory to store the memory metadata (per page info structures), 
+#      and this allocation is also based on the boot time amount of memory.
+#
+# Anything that is not 'yes' is taken as a no, and yes is the default
+#bubble_mem: no
 
 [systempaths]
 
@@ -2295,8 +2309,11 @@ class XenActions(StateChangeListener):
         
         if not self.initialized:
             raise ProgrammingError("not initialized")
-            
-            
+
+        if not self.conf.bubble_mem:
+            log.debug("Memory bubbling disabled. No reservation neccessary.")
+            return
+
         memory = self.conf.memory
         if self.common.trace:
             log.debug("XenActions.reserving(), reserving %d MB" % memory)
@@ -2354,6 +2371,10 @@ class XenActions(StateChangeListener):
         memory = self.conf.memory
         if self.common.trace:
             log.debug("XenActions.unreserving(), unreserving %d MB" % memory)
+
+        if not self.conf.bubble_mem:
+            log.debug("Memory bubbling disabled. No unreservation neccessary.")
+            return
 
         # Be sure to unlock for every exit point.
         lockhandle = _get_lockhandle(self.conf.lockfile)
@@ -2450,7 +2471,7 @@ class XenActions(StateChangeListener):
                 raise UnexpectedError(errmsg)
 
         _unlock(lockhandle)
-        
+
         if raiseme:
             raise raiseme
 
@@ -3069,6 +3090,7 @@ class XenKillNine(XenActions):
         else:
             log.info("XenKillNine unreserving, releasing %d MB" % memory)
 
+
         curmem = self.currentAllocation_MB()
         
         log.info("current memory MB = %d" % curmem)
@@ -3085,6 +3107,10 @@ class XenKillNine(XenActions):
         killedVMs = self.killAll()
         if killedVMs:
             raiseme = KilledVMs(killedVMs)
+
+        if not self.conf.bubble_mem:
+            log.debug("Memory bubbling disabled. No return of memory neccessary.")
+            return
         
         if memory == XenActionsConf.BESTEFFORT:
             targetmem = freemem + curmem
@@ -3119,6 +3145,7 @@ class XenKillNine(XenActions):
                 raise raiseme
             else:
                 raise UnexpectedError(errmsg)
+
 
         if raiseme:
             raise raiseme
@@ -3839,7 +3866,7 @@ class XenActionsConf:
     
     BESTEFFORT = "BESTEFFORT"
 
-    def __init__(self, xmpath, xendpath, xmsudo, sudopath, memory, minmem, xend_secs, lockfile):
+    def __init__(self, xmpath, xendpath, xmsudo, sudopath, memory, minmem, xend_secs, lockfile, bubble_mem):
         """Set the configurations.
 
         Required parameters:
@@ -3861,6 +3888,8 @@ class XenActionsConf:
         
         * xend_secs -- If xendpath is configured, amount of time to
         wait after a restart before checking if it booted.
+
+        * bubble_mem -- If set to False, pilot will not attempt memory bubbling
         
         Raise InvalidConfig if there is a problem with parameters.
 
@@ -3871,6 +3900,7 @@ class XenActionsConf:
         self.sudopath = sudopath
         self.xendpath = xendpath
         self.lockfile = lockfile
+        self.bubble_mem = bubble_mem
         log.debug("Xenactions lockfile: %s" % lockfile)
 
         if memory == None:
@@ -4116,9 +4146,19 @@ def getXenActionsConf(opts, config):
         except:
             msg = "restart_xend_secs ('%s') is not a number" % xend_secs
             raise InvalidConfig(msg)
+
+    bubble_mem = True
+    try:
+        bubble_mem_val = config.get("xen", "bubble_mem")
+        if bubble_mem_val:
+            if bubble_mem_val.lower() == 'no':
+                bubble_mem = False
+    except Exception, e:
+        log.debug("No bubble_mem attribute set, assuming True ")
+    log.info("Bubbling set to false!")
             
     if not opts.killnine:
-        return XenActionsConf(xm, xend, xmsudo, sudo, opts.memory, minmem, xend_secs, lockfile)
+        return XenActionsConf(xm, xend, xmsudo, sudo, opts.memory, minmem, xend_secs, lockfile, bubble_mem)
     else:
         alt = "going to kill all guest VMs (if they exist) and give dom0 "
         alt += "their memory (which may or may not be the maximum available) "
@@ -4146,7 +4186,7 @@ def getXenActionsConf(opts, config):
                 log.info(msg + ", %s" % alt)
                 dom0mem = XenActionsConf.BESTEFFORT
                 
-        return XenActionsConf(xm, xend, xmsudo, sudo, dom0mem, minmem, xend_secs, lockfile)
+        return XenActionsConf(xm, xend, xmsudo, sudo, dom0mem, minmem, xend_secs, lockfile, bubble_mem)
 
 def getVWSNotificationsConf(opts, config):
     """Return populated VWSNotificationsConf object or raise InvalidConfig
