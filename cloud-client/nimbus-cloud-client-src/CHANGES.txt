@@ -1,5 +1,9 @@
 nimbus-cloud-client-019
 -----------------------
+[*] Removed all revokation policies from the distribution.  crl_url 
+    files remain in place for users interested in having this level 
+    of security.
+
 [*] Allowed cloud-client to work if base directory has spaces
     https://github.com/nimbusproject/nimbus/issues/42
 
