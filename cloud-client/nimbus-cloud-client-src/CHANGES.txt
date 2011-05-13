@@ -1,6 +1,6 @@
 nimbus-cloud-client-019
 -----------------------
-[*] Removed all revokation policies from the distribution.  crl_url 
+[*] Removed all revocation policies from the distribution.  crl_url 
     files remain in place for users interested in having this level 
     of security.
 
