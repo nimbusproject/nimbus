@@ -748,25 +748,40 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
                                  chargeRatio);
         }
 
-        final Reservation res = this.scheduleImpl(bindings[0],
-                                                  bindings.length,
-                                                  groupID,
-                                                  coschedID,
-                                                  caller.getIdentity());
+        this.bindNetwork.consume(bindings, nics);
+
+        // From this point forward an error requires backOutIPAllocations
+
+        final Reservation res;
+        try {
+
+            res = this.scheduleImpl(bindings[0],
+                    bindings.length,
+                    groupID,
+                    coschedID,
+                    caller.getIdentity());
+
+            if (res == null) {
+                throw new SchedulingException("reservation is missing, illegal " +
+                        "scheduling implementation");
+            }
+
+        } catch (SchedulingException e) {
+            this.backoutBound(bindings);
+            throw e;
+        } catch (ResourceRequestDeniedException e) {
+            this.backoutBound(bindings);
+            throw e;
+        } catch (Throwable t) {
+            this.backoutBound(bindings);
+            throw new CreationException("Unknown problem occurred: " +
+                    "'" + ErrorUtil.excString(t) + "'", t);
+        }
 
         // From this point forward an error requires attempt to
         // remove from scheduler        
-        
-        if (res == null) {
-            throw new SchedulingException("reservation is missing, illegal " +
-                    "scheduling implementation");
-        }
-        
-        this.bindNetwork.consume(bindings, nics);        
-        
-        // From this point forward an error requires backOutIPAllocations
-        
-        
+
+
         final int[] ids = res.getIds();
 
         try {
