@@ -980,6 +980,21 @@ public class PilotSlotManagement implements SlotManagement,
         }
     }
 
+    public void releaseSpace(NodeRequest nodeRequest,
+                      Reservation reservation,
+                      boolean preemptable) throws ManageException {
+        if (nodeRequest == null) {
+            throw new IllegalArgumentException("nodeRequest may not be null");
+        }
+        if (reservation == null) {
+            throw new IllegalArgumentException("reservation may not be null");
+        }
+
+        for (int id : reservation.getIds()) {
+            this.releaseSpace(id);
+        }
+    }
+
     // add release-pending and check if all other VMs in block's pilots
     // have a release-pending or not
     private boolean okToReleaseBlock(PilotSlot slot) throws ManageException {

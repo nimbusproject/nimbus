@@ -904,7 +904,7 @@ public class DefaultSchedulerAdapter implements Scheduler {
     }
 
     /**
-     * @param vmid id
+     * @param id vmid
      * @throws ManageException
      */
     public void removeScheduling(int id) throws ManageException {
@@ -915,6 +915,28 @@ public class DefaultSchedulerAdapter implements Scheduler {
         this.creationPending.notpending(id);
         
         remove(id);
+    }
+
+    public void removeScheduling(Reservation reservation,
+                                 int memory,
+                                 int cores,
+                                 int duration,
+                                 boolean preemptible) throws ManageException {
+
+        for (int vmid : reservation.getIds()) {
+            if (lager.traceLog) {
+                logger.trace("remove(): reservation " + Lager.id(vmid));
+            }
+
+            this.db.backOutTasks(vmid);
+            this.db.deleteNodeRequest(vmid);
+        }
+
+        // leaving out some fields that don't matter
+        NodeRequest request = new NodeRequest(reservation.getIds(),
+                memory, cores, duration, null, null, null);
+
+        this.slotManager.releaseSpace(request, reservation, preemptible);
     }
 
     public synchronized String getVMMReport() {
