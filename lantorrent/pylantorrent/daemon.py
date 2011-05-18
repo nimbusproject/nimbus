@@ -109,8 +109,10 @@ def do_it_live(con, rows):
 
     client = LTClient(src_filename, final)
     v = LTServer(client, client)
-    v.store_and_forward()
-
+    try:
+        v.store_and_forward()
+    except Exception, ex:
+        pylantorrent.log(logging.ERROR, "an error occured on store and forward: %s" % (str(ex)))
     rc = 0
     es = client.get_incomplete()
     bad_rid = []
