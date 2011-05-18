@@ -27,6 +27,7 @@ import org.globus.workspace.LockAcquisitionFailure;
 import org.globus.workspace.ProgrammingError;
 import org.globus.workspace.persistence.WorkspaceDatabaseException;
 import org.globus.workspace.persistence.PersistenceAdapter;
+import org.globus.workspace.scheduler.IdHostnameTuple;
 import org.globus.workspace.scheduler.NodeExistsException;
 import org.globus.workspace.scheduler.NodeInUseException;
 import org.globus.workspace.scheduler.NodeManagement;
@@ -548,6 +549,28 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
         }
     }
 
+    public void releaseSpace(final NodeRequest nodeRequest,
+                             final Reservation reservation,
+                             boolean preemptable) throws ManageException {
+
+        if (nodeRequest == null) {
+           throw new IllegalArgumentException("nodeRequest may not be null");
+        }
+        if (reservation == null) {
+            throw new IllegalArgumentException("reservation may not be null");
+        }
+
+        final int nodeCount = reservation.getResponseLength();
+        final int memory = nodeRequest.getMemory();
+
+        for (int i=0; i<nodeCount; i++) {
+            final IdHostnameTuple oneReservation = reservation.getIdHostnamePair(i);
+
+            this._releaseSpace(oneReservation.id, oneReservation.hostname,
+                    preemptable, memory);
+        }
+    }
+
     private void _releaseSpace(final int vmid) throws ManageException {
 
         if (lager.traceLog) {
@@ -599,12 +622,16 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
 
         final int mem = vmdep.getIndividualPhysicalMemory();
 
+        _releaseSpace(vmid, node, preemptable, mem);
+    }
+
+    private void _releaseSpace(int vmid, String node, boolean preemptable, int mem) throws ManageException {
         logger.debug("releaseSpace() retiring mem = " + mem +
                     ", node = '" + node + "' from " + Lager.id(vmid) + ". Preemptable: " + preemptable);
 
         ResourcepoolUtil.retireMem(node, mem, this.db,
-                                   this.lager.eventLog, this.lager.traceLog,
-                                   vmid, preemptable);
+                this.lager.eventLog, this.lager.traceLog,
+                vmid, preemptable);
     }
 
     public void setScheduler(Scheduler adapter) {

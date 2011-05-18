@@ -748,25 +748,39 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
                                  chargeRatio);
         }
 
-        final Reservation res = this.scheduleImpl(bindings[0],
-                                                  bindings.length,
-                                                  groupID,
-                                                  coschedID,
-                                                  caller.getIdentity());
+
+        final VirtualMachine oneVM = bindings[0];
+        final Reservation res = this.scheduleImpl(oneVM,
+                bindings.length,
+                groupID,
+                coschedID,
+                caller.getIdentity());
+
 
         // From this point forward an error requires attempt to
         // remove from scheduler        
-        
         if (res == null) {
             throw new SchedulingException("reservation is missing, illegal " +
                     "scheduling implementation");
         }
-        
-        this.bindNetwork.consume(bindings, nics);        
-        
+
+        try {
+            this.bindNetwork.consume(bindings, nics);
+        } catch (ResourceRequestDeniedException e) {
+            this.backoutScheduling(oneVM, res, groupID);
+            throw e;
+        } catch (CreationException e) {
+            this.backoutScheduling(oneVM, res, groupID);
+            throw e;
+        } catch (Throwable t) {
+            this.backoutScheduling(oneVM, res, groupID);
+            throw new CreationException("Unknown problem occurred: " +
+                    "'" + ErrorUtil.excString(t) + "'", t);
+        }
+
         // From this point forward an error requires backOutIPAllocations
-        
-        
+
+
         final int[] ids = res.getIds();
 
         try {
@@ -796,28 +810,28 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
                            chargeRatio);
 
         } catch (CoSchedulingException e) {
-            this.backoutScheduling(ids, groupID);
+            this.backoutScheduling(oneVM, res, groupID);
             this.backoutBound(bindings);            
             throw e;
         } catch (CreationException e) {
-            this.backoutScheduling(ids, groupID);
+            this.backoutScheduling(oneVM, res, groupID);
             this.backoutBound(bindings);            
             throw e;
         } catch (MetadataException e) {
-            this.backoutScheduling(ids, groupID);
+            this.backoutScheduling(oneVM, res, groupID);
             this.backoutBound(bindings);
             throw e;
         } catch (ResourceRequestDeniedException e) {
-            this.backoutScheduling(ids, groupID);
-            this.backoutBound(bindings);            
+            this.backoutScheduling(oneVM, res, groupID);
+            this.backoutBound(bindings);
             throw e;
         } catch (SchedulingException e) {
-            this.backoutScheduling(ids, groupID);
-            this.backoutBound(bindings);            
+            this.backoutScheduling(oneVM, res, groupID);
+            this.backoutBound(bindings);
             throw e;
         } catch (Throwable t) {
-            this.backoutScheduling(ids, groupID);
-            this.backoutBound(bindings);            
+            this.backoutScheduling(oneVM, res, groupID);
+            this.backoutBound(bindings);
             throw new CreationException("Unknown problem occurred: " +
                     "'" + ErrorUtil.excString(t) + "'", t);
         }
@@ -866,19 +880,26 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
     }
 
 
-    protected void backoutScheduling(int[] ids, String groupid) {
+    protected void backoutScheduling(VirtualMachine vm, Reservation reservation, String groupid) {
 
         logger.debug("Problem encountered mid-creation, attempting to remove " +
-                     Lager.oneormanyid(ids, groupid) + " from scheduler.");
-
-        for (int i = 0; i < ids.length; i++) {
-            try {
-                this.scheduler.removeScheduling(ids[i]);
-
-            } catch (Throwable t) {
-                logger.error("Problem with removing " + Lager.id(ids[i]) +
-                             " from scheduler: " + t.getMessage(), t);
+                     Lager.oneormanyid(reservation.getIds(), groupid) + " from scheduler.");
+        try {
+            final VirtualMachineDeployment dep = vm.getDeployment();
+            if (dep == null) {
+                throw new SchedulingException("no deployment request");
             }
+
+            final int memory = dep.getIndividualPhysicalMemory();
+            final int cores = dep.getIndividualCPUCount();
+            final int duration = dep.getMinDuration();
+            this.scheduler.removeScheduling(reservation, memory, cores,
+                    duration, vm.isPreemptable());
+
+        } catch (Throwable t) {
+            logger.error("Problem with removing " +
+                    Lager.oneormanyid(reservation.getIds(), groupid) +
+                         " from scheduler: " + t.getMessage(), t);
         }
     }
 

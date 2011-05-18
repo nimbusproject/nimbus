@@ -53,7 +53,13 @@ public class RemotingServer {
         final AFUNIXNaming naming = AFUNIXNaming.getInstance(this.socketDirectory);
         logger.debug("Socket directory: " + naming.getSocketFactory().getSocketDir());
 
-        final Registry registry = naming.createRegistry();
+        // this trick allows repeated initializations within the same JVM. (like during test runs)
+        Registry registry;
+        try {
+            registry = naming.createRegistry();
+        } catch (RemoteException e) {
+            registry = naming.getRegistry();
+        }
 
         final StringBuilder logMessage = new StringBuilder();
         logMessage.append("Nimbus remoting server listening on domain socket: \"").
@@ -70,7 +76,11 @@ public class RemotingServer {
 
             final Remote remote = UnicastRemoteObject.exportObject(obj, 0,
                 naming.getSocketFactory(), naming.getSocketFactory());
-            registry.bind(bindingName, remote);
+            try {
+                registry.bind(bindingName, remote);
+            } catch (AlreadyBoundException e) {
+                logger.warn("RMI binding '" + bindingName + "' is already bound. Proceeding.");
+            }
 
             if (first) {
                 first = false;

@@ -38,7 +38,7 @@ public interface Scheduler extends StateChangeInterested{
      * @see #proceedCoschedule for handling separate requests together 
      *
      * @param memory MB needed
-     * @param CPU cores needed
+     * @param cores CPU cores needed
      * @param duration seconds needed
      * @param neededAssociations networks needed
      * @param numNodes number needed
@@ -120,6 +120,23 @@ public interface Scheduler extends StateChangeInterested{
      */
     public void removeScheduling(int vmid)
 
+            throws ManageException;
+
+    /**
+     * Used when a VM resource was not yet added to the store and these fields cannot be
+     * retrieved directly from there
+     * @param reservation reservation from schedule() call
+     * @param memory memory amount from schedule() call
+     * @param cores core count from schedule() call
+     * @param duration duration minutes from schedule() call
+     * @param preemptible preemptibility flag from schedule() call
+     * @throws ManageException generic failure
+     */
+    public void removeScheduling(Reservation reservation,
+                                 int memory,
+                                 int cores,
+                                 int duration,
+                                 boolean preemptible)
             throws ManageException;
 
     public String getVMMReport();
