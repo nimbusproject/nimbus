@@ -13,6 +13,7 @@ import time
 import random
 import datetime
 from pylantorrent import cbOpts
+import sys
 
 def setup_options(argv):
 

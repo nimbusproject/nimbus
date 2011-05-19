@@ -2167,7 +2167,7 @@ To install LANTorrent you must take the following steps:
         Edit <tt class="literal">$NIMBUS_HOME/services/etc/nimbus/workspace-service/other/common.conf</tt>
         and change the value of <tt class="literal">propagate.extraargs</tt>:
     </p>
-    <pre class="panel">propagate.extraargs=$NIMBUS_HOME/lantorrent/bin/lt-request</pre>
+    <pre class="panel">propagate.extraargs=$NIMBUS_HOME/ve/bin/ltrequest</pre>
     <p>
     Be sure to expand <tt class="literal">$NIMBUS_HOME</tt> to its full and actual path.
     </p>
@@ -2176,9 +2176,10 @@ To install LANTorrent you must take the following steps:
 <li>
     <p>Install LANTorrent on VMM</p>
     <ul>
-        <li>Run <tt class="literal">./vmm-install.sh</tt> on each node.
-            Either run it as your workspace control user or specify the workspace
-            control user as the first and only argument to the script.
+        <li>Run <tt class="literal">python setup-vmm.py install</tt> on each node.
+            This will output the xinetd file that you will need to install
+            into /etc/xinetd.  Not the <i>user</i> value in the output.
+            this should be the name user as your workspace control user.
         </li>
     </ul>
 </li>
@@ -2186,8 +2187,23 @@ To install LANTorrent you must take the following steps:
 <li>
     <p>Install LANTorrent into xinetd</p>
     <p>
-    The <tt class="literal">vmm-install.sh</tt> script creates the file <tt class="literal">lantorrent</tt>.
-    This file is ready to be copied into <tt class="literal">/etc/xinetd.d/</tt>.  Once done,
+    The <tt class="literal">setup-vmm.py</tt> script outputs the need xinetd <tt class="literal">lantorrent</tt> file.  For example:
+    <pre class="panel">
+    ============== START WITH THE NEXT LINE ==================
+    service lantorrent
+    {
+        type        = UNLISTED
+        disable     = no
+        socket_type = stream
+        protocol    = tcp
+        user        = bresnaha
+        wait        = no
+        port        = 2893
+        server      = /home/bresnaha/lt1/bin/ltserver
+    }                                                                            
+    =============== END WITH THE PREVIOUS LINE =================
+    </pre>
+    This output must be copied into <tt class="literal">/etc/xinetd.d/lantorrent</tt>.  Once done,
     restart xinetd.
     </p>
      <pre class="panel">
