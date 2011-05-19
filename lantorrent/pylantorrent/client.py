@@ -176,6 +176,10 @@ def main(argv=sys.argv[1:]):
     return 0
 
 if __name__ == "__main__":
+    if 'LANTORRENT_HOME' not in os.environ:
+        msg = "The env LANTORRENT_HOME must be set"
+        print msg
+        raise Exception(msg)
     rc = main()
     sys.exit(rc)
 

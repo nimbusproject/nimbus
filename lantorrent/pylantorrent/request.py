@@ -1,36 +1,32 @@
 import sqlite3
-import sys
-import os
 from socket import *
 import logging
 import pylantorrent
+from pylantorrent.db import LantorrentDB
 from pylantorrent.server import LTServer
 from pylantorrent.client import LTClient
 try:
     import json
 except ImportError:
     import simplejson as json
-import traceback
-import uuid
 import time
 import random
 import datetime
-import pynimbusauthz
-from pynimbusauthz.cmd_opts import cbOpts
+from pylantorrent import cbOpts
 
 def setup_options(argv):
 
     u = """[options]
 Submit a transfer request
     """
-    (parser, all_opts) = pynimbusauthz.get_default_options(u)
+    (parser, all_opts) = pylantorrent.get_default_options(u)
 
     opt = cbOpts("nonblock", "n", "Do not block waiting for completion", False, flag=True)
     all_opts.append(opt)
     opt = cbOpts("reattach", "a", "Reattach", None)
     all_opts.append(opt)
 
-    (o, args) = pynimbusauthz.parse_args(parser, all_opts, argv)
+    (o, args) = pylantorrent.parse_args(parser, all_opts, argv)
     return (o, args, parser)
 
 
@@ -155,6 +151,10 @@ def main(argv=sys.argv[1:]):
 
     (o, args, p) = setup_options(argv)
 
+    # use sqlaclh to make sure the db is there
+    x = LantorrentDB("sqlite:///%s" % pylantorrent.config.dbfile)
+    x.close()
+    
     con_str = pylantorrent.config.dbfile
     con = sqlite3.connect(con_str, isolation_level="EXCLUSIVE")
 
@@ -188,6 +188,11 @@ def main(argv=sys.argv[1:]):
 
 
 if __name__ == "__main__":
+    if 'LANTORRENT_HOME' not in os.environ:
+        msg = "The env LANTORRENT_HOME must be set"
+        print msg
+        raise Exception(msg)
+
     rc = main()
     # always return 0.  an non 0 return code will mean an ssh error
     sys.exit(0)

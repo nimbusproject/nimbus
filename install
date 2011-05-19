@@ -115,7 +115,12 @@ if [ ! -f $CUMULUS_ENV ]; then
 fi
 
 export NIMBUS_HOME
-$NIMBUS_SRC/lantorrent/install.sh $NIMBUS_HOME/lantorrent | tee -a $NIMBUS_HOME/install.log
+
+export LANTORRENT_HOME=$NIMBUS_HOME/lantorrent
+mkdir $LANTORRENT_HOME
+cd $NIMBUS_SRC/lantorrent
+pwd
+$pyve_path/bin/python setup.py install | tee -a $NIMBUS_HOME/install.log
 rc=$PIPESTATUS
 if [ $rc -ne 0 ]; then
     echo "lantorrent install failed"

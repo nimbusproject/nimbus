@@ -72,14 +72,32 @@ To install LANTorrent you must take the following steps:
     be sure to expand $NIMBUS_HOME to its full and actual path.
 
 3) install lantorrent on VMM
-    - run ./vmm-install.sh on each node
-        either run it as your workspace control user or specify the workspace
-        control user as the first and only argument to the script.
+
+    - run: python setup-vmm.py install.  This will output the contents of 
+      the xinetd configuration file that you will need in the next step.
 
 4) install lantorrent into xinetd
-    - the vmm-install.sh script creates the file lantorrent.  This
-      file is ready to be copied into /etc/xinetd.d/.  Once this is done
-      restart xinetd (/etc/init.d/xinetd restart).
+    - the above step outputs and xinetd file like this:
+
+    ============== START WITH THE NEXT LINE ==================
+    service lantorrent
+    {
+        type        = UNLISTED
+        disable     = no
+        socket_type = stream
+        protocol    = tcp
+        user        = bresnaha
+        wait        = no
+        port        = 2893
+        server      = /home/bresnaha/lt1/bin/ltserver
+    }                                                                               
+    =============== END WITH THE PREVIOUS LINE =================
+
+    note the 'user' value.  We strongly recommend that it is not 'root'.
+    This user will be the owner of all received files (the nimbus user)
+
+      Copy the output to a file called /etc/xinetd.d/lantorrent. Once 
+      this is done restart xinetd (/etc/init.d/xinetd restart).
 
 5) change the propagation method.
     - edit the file: 

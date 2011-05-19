@@ -5,10 +5,7 @@ import logging
 import pylantorrent
 from pylantorrent.ltException import LTException
 from pylantorrent.ltConnection import *
-try:
-    import json
-except ImportError:
-    import simplejson as json
+import simplejson as json
 import traceback
 import hashlib
 
@@ -59,7 +56,9 @@ class LTServer(object):
         for f in self.created_files:
             try:
                 pylantorrent.log(logging.DEBUG, "deleting file %s" % (f))
-                if f != "/dev/null":
+                # dont delete /dev/null (or any other dev really)
+                ndx = f.strip().find("/dev")
+                if ndx != 0:
                     os.remove(f)
             except:
                 pass
@@ -194,7 +193,6 @@ class LTServer(object):
 def main(argv=sys.argv[1:]):
 
     pylantorrent.log(logging.INFO, "server starting")
-    v = None
     rc = 1
     v = LTServer(sys.stdin, sys.stdout)
     try:
@@ -215,6 +213,11 @@ def main(argv=sys.argv[1:]):
     return rc
 
 if __name__ == "__main__":
+    if 'LANTORRENT_HOME' not in os.environ:
+        msg = "The env LANTORRENT_HOME must be set"
+        print msg
+        raise Exception(msg)
+
     rc = main()
     sys.exit(rc)
 
