@@ -2167,7 +2167,8 @@ To install LANTorrent you must take the following steps:
         Edit <tt class="literal">$NIMBUS_HOME/services/etc/nimbus/workspace-service/other/common.conf</tt>
         and change the value of <tt class="literal">propagate.extraargs</tt>:
     </p>
-    <pre class="panel">propagate.extraargs=$NIMBUS_HOME/ve/bin/ltrequest</pre>
+    <pre class="panel">propagate.extraargs=$NIMBUS_HOME/lantorrent/bin/lt-request.sh</pre>
+
     <p>
     Be sure to expand <tt class="literal">$NIMBUS_HOME</tt> to its full and actual path.
     </p>
@@ -2176,6 +2177,10 @@ To install LANTorrent you must take the following steps:
 <li>
     <p>Install LANTorrent on VMM</p>
     <ul>
+        <li>Copy lantorrent to the VMM nodes</li>
+            From the source distribution of Nimbus copy the lantorrent
+            directory to all VMM nodes.  
+        <li>optional: You may want to setup a python virtual environment for the installation</li>
         <li>Run <tt class="literal">python setup-vmm.py install</tt> on each node.
             This will output the xinetd file that you will need to install
             into /etc/xinetd.  Not the <i>user</i> value in the output.

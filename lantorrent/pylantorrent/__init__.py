@@ -3,6 +3,9 @@ import os
 import logging
 import traceback
 from ConfigParser import SafeConfigParser
+from optparse import OptionParser
+from optparse import SUPPRESS_HELP
+
 import hmac
 try:
     from hashlib import sha1 as sha
@@ -63,7 +66,7 @@ class VConfig(object):
         else:
             self.lt_home = os.environ['LANTORRENT_HOME']
             self.set_defaults()
-            ini_file = os.path.join(self.lt_home, "lt.ini")
+            ini_file = os.path.join(self.lt_home, "etc/lt.ini")
 
             try:
                 self.load_settings(ini_file)

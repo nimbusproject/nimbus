@@ -5,6 +5,7 @@ import pylantorrent
 from pylantorrent.db import LantorrentDB
 from pylantorrent.server import LTServer
 from pylantorrent.client import LTClient
+import os
 try:
     import json
 except ImportError:
@@ -90,6 +91,8 @@ def delete_rid(con, rid):
             time.sleep(random.random() * 2.0)
 
 def request(argv, con):
+    if len(argv) < 4:
+        raise Exception("You must provide 4 arguments: <src file> <dst file> <a uuid for this request> <the contanct string of the receiving nodes lt server>")
     src_filename = argv[0]
     dst_filename = argv[1]
     # the user provides the rid.  that way we know they have it to look
@@ -112,8 +115,8 @@ def request(argv, con):
         port = 2893
 
     now = datetime.datetime.now()
-    i = "insert into requests(src_filename, dst_filename, hostname, port, rid, entry_time) values (?, ?, ?, ?, ?, ?)"
-    data = (src_filename, dst_filename, host, port, rid, now,)
+    i = "insert into requests(src_filename, dst_filename, hostname, port, rid, entry_time, state, attempt_count) values (?, ?, ?, ?, ?, ?, ?, ?)"
+    data = (src_filename, dst_filename, host, port, rid, now, 0, 0, )
 
     error_ctr = 0
     while True:
@@ -183,7 +186,7 @@ def main(argv=sys.argv[1:]):
         delete_rid(con, rid)
 
     msg = "%d,%s,%s" % (rc, str(done), message)
-    pynimbusauthz.print_msg(o, 0,  msg)
+    print msg
 
     return rc
 
