@@ -7,5 +7,5 @@ service @SERVICENAME@
 	user		= @WHO@
 	wait		= no
     port        = @PORT@
-    server      = @SERVER@
+    server      = @LANTORRENT_HOME@/bin/lt-daemon.sh
 }                                                                               

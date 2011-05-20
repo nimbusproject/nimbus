@@ -36,7 +36,7 @@ do
     echo "s/@PORT@/$PORT/"
     echo "s/@SERVICENAME@/$SERVNAME/"
     echo "s^@LANTORRENT_HOME@^$LANTORRENT_HOME^" 
-    sed -e "s/@WHO@/$who/" -e "s/@PORT@/$PORT/" -e "s/@SERVICENAME@/$SERVNAME/" -e "s^@LANTORRENT_HOME@^$LANTORRENT_HOME^" $LANTORRENT_HOME/etc/lantorrent.inet.in | tee $LANTORRENT_HOME/tests/xinetd.d/$SERVNAME
+    sed -e "s/@WHO@/$who/" -e "s/@PORT@/$PORT/" -e "s/@SERVICENAME@/$SERVNAME/" -e "s^@LANTORRENT_HOME@^$LANTORRENT_HOME^" -e "s^@SERVER@^$LANTORRENT_HOME/bin/lt-daemon.sh^" $LANTORRENT_HOME/tests/lantorrent.inet.in | tee $LANTORRENT_HOME/tests/xinetd.d/$SERVNAME
 
 done
 
@@ -44,8 +44,10 @@ echo "export LANTORRENT_TEST_PORTS=$ports_str" > $LANTORRENT_HOME/tests/ports_en
 
 ls -l $LANTORRENT_HOME/tests/xinetd.d/
 echo "s^@LANTORRENT_HOME@^$LANTORRENT_HOME^"
-sed "s^@LANTORRENT_HOME@^$LANTORRENT_HOME^" $LANTORRENT_HOME/etc/xinetd.conf.in | tee $LANTORRENT_HOME/tests/xinetd.conf
+sed "s^@LANTORRENT_HOME@^$LANTORRENT_HOME^" $LANTORRENT_HOME/tests/xinetd.conf.in | tee $LANTORRENT_HOME/tests/xinetd.conf
 
 
 pidfile=$2
-exec xinetd -f $LANTORRENT_HOME/tests/xinetd.conf -pidfile $pidfile 
+cmd="xinetd -f $LANTORRENT_HOME/tests/xinetd.conf -pidfile $pidfile -filelog x.log -dontfork"
+echo $cmd
+$cmd &
