@@ -1,21 +1,16 @@
 #!/bin/bash
 
+if [ "X$LANTORRENT_HOME" == "X" ]; then
+    echo "Please set the env LANTORRENT_HOME"
+    exit 1
+fi
+
 count=$1
 if [ "X$1" == "X" ]; then
     count=1
 fi
 pidfile=$2
 
-dir=`dirname $0`
-cd $dir/..
-pypath=`pwd`
-if [ "X${PYTHONPATH}" == "X" ]; then
-    export PYTHONPATH=$pypath
-else
-    export PYTHONPATH=$pypath:${PYTHONPATH}
-fi
-# so that we pick up the ini file
-export LANTORRENT_HOME=$pypath
 
 who=`whoami`
 delim=""

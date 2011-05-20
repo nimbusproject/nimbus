@@ -110,7 +110,8 @@ if cumulus_enabled:
 
 if lantorrent_enabled:
     LT_HOME = os.path.join(NIMBUS_HOME, "lantorrent/")
-    LT_SERVICE_EXE = os.path.join(LT_HOME, "bin/lt-daemon")
+    os.environ['LANTORRENT_HOME'] = LT_HOME
+    LT_SERVICE_EXE = os.path.join(LT_HOME, "bin/lt-daemon.sh")
     if not os.path.exists(LT_SERVICE_EXE):
         sys.exit("The services executable does not exist: " +
                 LT_SERVICE_EXE)

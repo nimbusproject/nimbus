@@ -4,6 +4,7 @@ import os
 from socket import *
 import logging
 import pylantorrent
+from pylantorrent.db import LantorrentDB
 from pylantorrent.server import LTServer
 from pylantorrent.client import LTClient
 try:
@@ -153,6 +154,9 @@ def main(argv=sys.argv[1:]):
 
     pylantorrent.log(logging.INFO, "enter %s" % (sys.argv[0]))
 
+    # use sqlaclh to make sure the db is there
+    x = LantorrentDB("sqlite:///%s" % pylantorrent.config.dbfile)
+    x.close()
     con_str = pylantorrent.config.dbfile
     #con = sqlite3.connect(con_str, isolation_level="EXCLUSIVE")
     con = sqlite3.connect(con_str, detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
@@ -172,5 +176,9 @@ def main(argv=sys.argv[1:]):
     return 0
 
 if __name__ == "__main__":
+    if 'LANTORRENT_HOME' not in os.environ:
+        msg = "The env LANTORRENT_HOME must be set"
+        print msg
+        raise Exception(msg)
     rc = main()
     sys.exit(rc)
