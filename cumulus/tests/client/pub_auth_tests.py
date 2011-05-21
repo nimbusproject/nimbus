@@ -50,7 +50,7 @@ class TestPubAuthWithBoto(unittest.TestCase):
                 pass
 
     def cb_random_bucketname(self, len):
-        chars = string.letters + string.digits
+        chars = string.letters.lower() + string.digits
         newpasswd = ""
         for i in range(len):
             newpasswd = newpasswd + random.choice(chars)

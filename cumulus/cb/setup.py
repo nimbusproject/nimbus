@@ -44,5 +44,5 @@ needed.
 """,
       license="Apache2",
       data_files=[("docs", ["docs/README.txt",])],
-      install_requires = ["Twisted", "boto == 1.9b", "pyOpenSSL", "pynimbusauthz"],
+      install_requires = ["Twisted", "boto > 1.9", "pyOpenSSL", "pynimbusauthz"],
      )

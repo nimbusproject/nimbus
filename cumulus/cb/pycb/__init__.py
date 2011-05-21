@@ -13,7 +13,7 @@ import random
 from optparse import OptionParser
 import hmac
 from pycb.cbRedirector import *
-
+import boto.provider
 try:
     from hashlib import sha1 as sha
     from hashlib import sha256 as sha256
@@ -245,7 +245,7 @@ def get_auth_hash(key, method, path, headers, uri):
             path = path + sr
 
     myhmac = hmac.new(key, digestmod=sha)
-    c_string = boto.utils.canonical_string(method, path, headers)
+    c_string = boto.utils.canonical_string(method, path, headers, provider=boto.provider.get_default())
     myhmac.update(c_string)
     auth_hash = base64.encodestring(myhmac.digest()).strip()
     return auth_hash
