@@ -101,7 +101,10 @@ class TestEC2Submit(unittest.TestCase):
 
         image = self.ec2conn.get_image(image_name)
         res = image.run()
-        res.stop_all()
+        ids = []
+        for inst in res.instances:
+            ids.append(inst.id)
+        self.ec2conn.terminate_instances(ids)
 
         rc = nimbus_public_image.main(["--delete", image_name])
         self.assertEqual(rc, 0, "public image upload return code should be 0 is %d" % (rc))
