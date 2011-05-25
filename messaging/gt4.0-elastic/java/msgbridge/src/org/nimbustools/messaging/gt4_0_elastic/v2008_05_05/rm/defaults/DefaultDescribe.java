@@ -371,6 +371,8 @@ public class DefaultDescribe implements Describe {
         } else {
             riit.setKeyName(keyName);
         }
+        riit.setProductCodes(new ProductCodesSetType(new ProductCodesSetItemType[]{}));
+
         return riit;
     }
 

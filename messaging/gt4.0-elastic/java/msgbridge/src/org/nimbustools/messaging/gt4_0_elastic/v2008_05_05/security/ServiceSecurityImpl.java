@@ -18,19 +18,22 @@ package org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.security;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.ServiceSecurity;
-import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.ContainerInterface;
-import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.service.UnimplementedOperations;
+import org.globus.util.Base64;
 import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.CreateKeyPairResponseType;
 import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.CreateKeyPairType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.DescribeKeyPairsResponseType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.DescribeKeyPairsType;
 import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.DeleteKeyPairResponseType;
 import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.DeleteKeyPairType;
 import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.DescribeKeyPairsInfoType;
 import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.DescribeKeyPairsItemType;
-import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.DescribeKeyPairsResponseItemType;
 import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.DescribeKeyPairsResponseInfoType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.DescribeKeyPairsResponseItemType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.DescribeKeyPairsResponseType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.DescribeKeyPairsType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.ImportKeyPairResponseType;
+import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.ImportKeyPairType;
+import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.ServiceSecurity;
+import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.ContainerInterface;
+import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.service.UnimplementedOperations;
 import org.nimbustools.messaging.gt4_0_elastic.DisabledException;
 import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.CannotTranslateException;
@@ -52,7 +55,8 @@ public class ServiceSecurityImpl extends UnimplementedOperations
 
     private static final Log logger =
             LogFactory.getLog(ServiceSecurityImpl.class.getName());
-    
+    private static final String FAKE_FINGERPRINT = "N0:KE:YF:IN:GE:RP:RI:NT";
+
 
     // -------------------------------------------------------------------------
     // INSTANCE VARIABLES
@@ -137,6 +141,50 @@ public class ServiceSecurityImpl extends UnimplementedOperations
 
         // this is like an 'else' clause, see createNewKeyPair() call
         return this.splitMethod(splitToken, input, ownerID);
+    }
+
+    public ImportKeyPairResponseType importKeyPair(ImportKeyPairType req)
+            throws RemoteException {
+
+        // no use proceeding if these calls fail:
+        final Caller caller = this.container.getCaller();
+        final String ownerID;
+        try {
+            ownerID = this.container.getOwnerID(caller);
+        } catch (CannotTranslateException e) {
+            throw new RemoteException(e.getMessage(), e);
+        }
+
+        if (req == null) {
+            throw new RemoteException("key name is missing");
+        }
+
+        final String keyName = req.getKeyName();
+        if (keyName == null) {
+            throw new RemoteException(
+                    "createKeyPair request does not contain key name");
+        }
+
+        final String publicKeyMaterial = req.getPublicKeyMaterial();
+        if (publicKeyMaterial == null) {
+            throw new RemoteException("key material is missing");
+        }
+        if (!Base64.isBase64(publicKeyMaterial)) {
+            throw new RemoteException("key material does not appear to " +
+                    "be base64 encoded?");
+        }
+        final byte[] bytes = Base64.decode(publicKeyMaterial.getBytes());
+        final String keyMaterial = new String(bytes);
+
+        this.sshKeys.newKey(ownerID, keyName, keyMaterial, FAKE_FINGERPRINT);
+
+        final ImportKeyPairResponseType resp =
+                new ImportKeyPairResponseType(FAKE_FINGERPRINT, keyName, null);
+
+        logger.info("SSH key registered, name='" + keyName +
+                "', owner ID='" + ownerID + "'");
+
+        return resp;
     }
 
     public DescribeKeyPairsResponseType describeKeyPairs(
@@ -251,7 +299,7 @@ public class ServiceSecurityImpl extends UnimplementedOperations
                     "name or value is missing)");
         }
 
-        final String fingerprint = "N0:KE:YF:IN:GE:RP:RI:NT";
+        final String fingerprint = FAKE_FINGERPRINT;
         this.sshKeys.newKey(ownerID, keyName, keyValue, fingerprint);
 
         final CreateKeyPairResponseType ckprt = new CreateKeyPairResponseType();
@@ -261,11 +309,11 @@ public class ServiceSecurityImpl extends UnimplementedOperations
 
         logger.info("SSH key registered, name='" + keyName +
                 "', owner ID='" + ownerID + "'");
-        
+
         return ckprt;
     }
 
-    
+
     // -------------------------------------------------------------------------
     // DESCRIBE IMPL
     // -------------------------------------------------------------------------

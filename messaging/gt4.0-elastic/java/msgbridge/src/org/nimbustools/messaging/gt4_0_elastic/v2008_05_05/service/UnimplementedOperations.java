@@ -156,6 +156,11 @@ public class UnimplementedOperations implements ServiceAll {
         throw new RemoteException(UNIMPLEMENTED + "createKeyPair");
     }
 
+    public ImportKeyPairResponseType importKeyPair(ImportKeyPairType importKeyPairRequestMsg)
+            throws RemoteException {
+        throw new RemoteException(UNIMPLEMENTED + "importKeyPair");
+    }
+
     public DescribeKeyPairsResponseType describeKeyPairs(
                         DescribeKeyPairsType describeKeyPairsRequestMsg)
             throws RemoteException {
@@ -581,13 +586,5 @@ public class UnimplementedOperations implements ServiceAll {
             throws RemoteException {
         throw new RemoteException(UNIMPLEMENTED + "deleteTags");
     }
-
-    public ImportKeyPairResponseType importKeyPair(ImportKeyPairType importKeyPairRequestMsg)
-            throws RemoteException {
-        throw new RemoteException(UNIMPLEMENTED + "importKeyPair");
-    }
-
-
-
 
 }

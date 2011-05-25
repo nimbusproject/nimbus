@@ -70,7 +70,7 @@ public class ElasticService implements ElasticVersion {
                 new RequestSpotInstances(serviceRM),
                 new CancelSpotInstanceRequests(serviceRM),
                 new DescribeSpotInstanceRequests(serviceRM),
-                new DescribeSpotPriceHistory(serviceRM),
+                new DescribeSpotPriceHistory(serviceRM), new ImportKeyPair(),
                 new CreateKeyPair(), new DeleteKeyPair(), new DescribeKeyPairs(),
                 new RunInstances(), new RebootInstances(), new DescribeInstances(),
                 new TerminateInstances(), new DescribeImages(),
@@ -124,6 +124,33 @@ public class ElasticService implements ElasticVersion {
         @POST
         public CreateKeyPairResponseType handlePost(@FormParam("KeyName") String keyName) {
             return handleGet(keyName);
+        }
+    }
+
+    @Path("/")
+    @Produces("text/xml")
+    public class ImportKeyPair implements ElasticAction {
+        public String getName() {
+            return "ImportKeyPair";
+        }
+
+        @GET
+        public ImportKeyPairResponseType handleGet(@QueryParam("KeyName") String keyName,
+                                                   @QueryParam("PublicKeyMaterial") String keyMaterial) {
+            assureRequiredParameter("KeyName", keyName);
+
+            final ImportKeyPairType importKeyPairType = new ImportKeyPairType(keyName, keyMaterial);
+
+            try {
+                return serviceSecurity.importKeyPair(importKeyPairType);
+            } catch (RemoteException e) {
+                throw new QueryException(QueryError.GeneralError, e);
+            }
+        }
+        @POST
+        public ImportKeyPairResponseType handlePost(@FormParam("KeyName") String keyName,
+                                                    @FormParam("PublicKeyMaterial") String keyMaterial) {
+            return handleGet(keyName, keyMaterial);
         }
     }
 

@@ -413,8 +413,8 @@ public class DefaultRun implements Run {
         riit.setKernelId("default"); // todo
 
         riit.setMonitoring(new InstanceMonitoringStateType("disabled"));
+        riit.setProductCodes(new ProductCodesSetType(new ProductCodesSetItemType[]{}));
 
-        //riit.setProductCodes();
         //riit.setRamdiskId();
         //riit.setReason();
 
