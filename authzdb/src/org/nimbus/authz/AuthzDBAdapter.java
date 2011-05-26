@@ -20,9 +20,11 @@ public class AuthzDBAdapter
 {
     private static final String FIND_PARENT_OBJECT_BY_NAME = "Select id from objects where name = ? and parent_id is NULL and object_type = ?";
     private static final String FIND_OBJECT_BY_NAME = "Select id from objects where name = ? and parent_id = ? and object_type = ?";
+    private static final String FIND_OBJECT_BY_DATA_KEY = "Select id from objects where data_key = ?";
     private static final String FIND_USER_BY_ALIAS = "Select user_id from user_alias where alias_name = ? and alias_type = ?";
     private static final String CHECK_PERMISSIONS = "Select access_type_id from object_acl where object_id = ? and user_id = ?";
     private static final String GET_DATA_KEY = "select data_key from objects where id = ?";
+    private static final String GET_CKSUM = "select md5sum from objects where id = ?";
     private static final String CREATE_NEW_FILE = "insert into objects (name, owner_id, data_key, object_type, parent_id, creation_time) values(?, ?, ?, ?, ?, datetime('now'))";
     private static final String SET_NEW_FILE_PERMS = "insert into object_acl (user_id, object_id, access_type_id) values(?, ?, ?)";
     private static final String UPDATE_FILE_INFO = "update objects set object_size=?, md5sum=?, creation_time=datetime('now') where id = ?";
@@ -320,7 +322,7 @@ public class AuthzDBAdapter
                 if (pstmt != null)
                 {
                     pstmt.close();
-                }            
+                }
             }
             catch (SQLException sql)
             {
@@ -445,6 +447,52 @@ public class AuthzDBAdapter
 
         }
 
+
+    public String getMd5sum(
+        int                             objectId)
+            throws AuthzDBException
+    {
+        Connection c = null;
+        PreparedStatement pstmt = null;
+
+        try
+        {
+            c = getConnection();
+            pstmt = c.prepareStatement(GET_CKSUM);
+            pstmt.setInt(1, objectId);
+            ResultSet rs = pstmt.executeQuery();
+            if(!rs.next())
+            {
+                throw new AuthzDBException("no such file id found  " + objectId);
+            }
+            String dataKey = rs.getString(1);
+            return dataKey;
+        }
+        catch(SQLException e)
+        {
+            logger.error("",e);
+            throw new AuthzDBException(e);
+        }
+        finally
+        {
+            try
+            {
+                if (pstmt != null)
+                {
+                    pstmt.close();
+                }
+                if (c != null)
+                {
+                    returnConnection(c);
+                }
+            }
+            catch (SQLException sql)
+            {
+                logger.error("SQLException in finally cleanup", sql);
+            }
+        }
+    }
+
     public String getDataKey(
         int                             objectId)
             throws AuthzDBException
@@ -468,6 +516,51 @@ public class AuthzDBAdapter
         catch(SQLException e)
         {
             logger.error("",e);
+            throw new AuthzDBException(e);
+        }
+        finally
+        {
+            try
+            {
+                if (pstmt != null)
+                {
+                    pstmt.close();
+                }
+                if (c != null)
+                {
+                    returnConnection(c);
+                }
+            }
+            catch (SQLException sql)
+            {
+                logger.error("SQLException in finally cleanup", sql);
+            }
+        }
+    }
+
+    public int getFileIDByDataKey(
+        String                          datakey)
+            throws AuthzDBException
+    {
+        PreparedStatement pstmt = null;
+        Connection c = null;
+
+        try
+        {
+            c = getConnection();
+            pstmt = c.prepareStatement(FIND_OBJECT_BY_DATA_KEY);
+            pstmt.setString(1, datakey);
+            ResultSet rs = pstmt.executeQuery();
+            if(!rs.next())
+            {
+                return -1;
+            }
+            int objectId = rs.getInt(1);
+            return objectId;
+        }
+        catch(SQLException e)
+        {
+            logger.error("an error occured looking up the file ", e);
             throw new AuthzDBException(e);
         }
         finally
@@ -635,7 +728,6 @@ public class AuthzDBAdapter
                 logger.error("SQLException in finally cleanup", sql);
             }
         }
-
     }
 
     public String getPermissionsPublic(
