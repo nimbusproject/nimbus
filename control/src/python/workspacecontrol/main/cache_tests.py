@@ -146,6 +146,8 @@ class TestCache(unittest.TestCase):
 
         list = cache.list_cache()
         self.assertEqual(len(list), 3)
+        print list
+        print work_sums
         self.assertTrue(work_sums[0] in list)
         self.assertTrue(work_sums[1] not in list)
 

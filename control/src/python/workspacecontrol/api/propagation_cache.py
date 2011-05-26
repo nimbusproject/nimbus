@@ -92,6 +92,7 @@ class WSCCacheObj(object):
             if dstname in list:
                 msg = "The file with md5sum %s is already in the cache" % (md5sum)
                 self._log.info(msg)
+                os.utime(dstname, None)
                 return False
             sz = os.path.getsize(src)
             if not self._make_room_for(list, sz):
