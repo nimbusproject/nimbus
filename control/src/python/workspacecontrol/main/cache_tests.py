@@ -134,7 +134,7 @@ class TestCache(unittest.TestCase):
         for i in range(0, len(work_sums) - 1):
             sum = work_sums[i]
             rc = cache.add(self._work_file, sum)
-            time.sleep(0.1)
+            time.sleep(0.5)
             self.assertEqual(rc, True)
         (osf, newfile) = tempfile.mkstemp()
         os.close(osf)
@@ -157,7 +157,7 @@ class TestCache(unittest.TestCase):
         cache = WSCCacheObj(self._dir, self.lockfilepath, max_size=max)
         for i in range(0, len(work_sums)):
             sum = work_sums[i]
-            time.sleep(0.1)
+            time.sleep(0.5)
             rc = cache.add(self._work_file, sum)
             self.assertEqual(rc, True)
         (osf, newfile) = tempfile.mkstemp()
