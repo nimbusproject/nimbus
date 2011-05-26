@@ -1,0 +1,10 @@
+#!/home/tim/usul/code/nimbus/control/venv/bin/python
+# EASY-INSTALL-ENTRY-SCRIPT: 'distribute==0.6.10','console_scripts','easy_install-2.6'
+__requires__ = 'distribute==0.6.10'
+import sys
+from pkg_resources import load_entry_point
+
+if __name__ == '__main__':
+    sys.exit(
+        load_entry_point('distribute==0.6.10', 'console_scripts', 'easy_install-2.6')()
+    )

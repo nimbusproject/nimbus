@@ -3,9 +3,6 @@ import shutil
 import os
 import logging
 
-
-
-
 class WSCCacheObj(object):
 
     def __init__(self, dir, lockfilepath, max_size=None, log=logging):
