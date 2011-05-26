@@ -121,6 +121,10 @@ VCPUS = ControlArg("vcpus", None, since="2.3", metavar="NUM")
 VCPUS.help = "Number of vcpus to assign the VM, overrides configuration"
 a.append(VCPUS)
 
+CACHECKSUM = ControlArg("cachecksum", None, since="2.7.1", metavar="STRING")
+CACHECKSUM.help = "This argument enables a cache lookup for a propagated image based on the associated argument which is the key to the cache.  An md5sum checksum is assumed"
+a.append(CACHECKSUM)
+
 ################################################################################
 # DEPRECATED ARGUMENTS
 #

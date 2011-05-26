@@ -3,6 +3,7 @@ import os
 from workspacecontrol.api.exceptions import *
 import propagate_scp
 import workspacecontrol.main.wc_args as wc_args
+from propagate_common import url_parse
 
 class LantorrentPropadapter(propagate_scp.propadapter):
         
@@ -97,7 +98,7 @@ class LantorrentPropadapter(propagate_scp.propadapter):
         if lt_exe == None:
             raise InvalidInput("the prop-extra-args parameter must be used and be a path to the remote execution script")
 
-        (xfer_scheme, xfer_user, xfer_pw, xfer_host, xfer_port, xfer_path) =_url_parse(url)
+        (xfer_scheme, xfer_user, xfer_pw, xfer_host, xfer_port, xfer_path) =url_parse(url)
  
         if xfer_port == None:
             xfer_port = 22
@@ -130,7 +131,7 @@ class LantorrentPropadapter(propagate_scp.propadapter):
 
         return cmd
 
-def _url_parse(url):
+def url_parse(url):
     parts = url.split('://', 1)
     scheme = parts[0]
     rest = parts[1]

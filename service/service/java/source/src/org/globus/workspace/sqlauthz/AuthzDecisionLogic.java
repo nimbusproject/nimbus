@@ -60,6 +60,35 @@ public class AuthzDecisionLogic extends DecisionLogic
         return list;
     }
 
+     public String getTranslatedChecksum(
+         String                          publicUrl)    
+            throws WorkspaceException
+    {
+        try
+        {
+            String [] urlParts = parseUrl(publicUrl);
+
+            String scheme = urlParts[0];
+            String hostport = urlParts[1];
+            String objectname = urlParts[2];
+
+            int [] fileIds = this.cumulusGetFileID(hostport, objectname);
+
+            String md5sum = this.authDB.getMd5sum(fileIds[1]);
+
+            return md5sum;
+        }
+        catch(AuthzDBException wsdbex)
+        {
+            logger.error("trouble looking up the cumulus information ", wsdbex);
+            throw new WorkspaceException("Trouble with the database " + wsdbex.toString());
+        }
+        catch(Exception ex)
+        {
+            throw new WorkspaceException("error finding the checksum " + publicUrl, ex);
+        }
+    }
+
     public String translateExternaltoInternal(
         String                          publicUrl,
         VirtualMachine                  vm)
@@ -117,13 +146,29 @@ public class AuthzDecisionLogic extends DecisionLogic
             String dataKey;
 
             if(fileIds[1] < 0)
-            {                
+            {
                 // if the file doesnt exist create  new one
                 dataKey = this.getRepoDir() + "/" + objectName.replace("/", "__");
+//
+//                File dirF = new File(this.getRepoDir());
+//
+//                try
+//                {
+//                    File tmpF = File.createTempFile("", objectName.replace("/", "__"), dirF);
+//                    dataKey  = tmpF.getAbsolutePath();
+//                }
+//                catch(IOException ioex)
+//                {
+//                    String msg = "could not create unpropagate file " + objectName;
+//                    logger.error(msg, ioex);
+//                    throw new AuthorizationException(msg  + ioex.toString());
+//                }
             }
             else
             {
                 dataKey = this.authDB.getDataKey(fileIds[1]);
+                String md5sum = this.authDB.getMd5sum(fileIds[1]);
+                
             }
             rc = scheme + "://" + this.getRepoHost() + "/" + dataKey;
             logger.debug("converted " + objectName + " to " + rc + "scheme " + scheme);

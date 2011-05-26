@@ -18,6 +18,10 @@ public interface RepoFileSystemAdaptor
         VirtualMachine                  vm)
             throws WorkspaceException;
 
+    public String getTranslatedChecksum(
+        String                          publicUrl)
+            throws WorkspaceException;    
+
     public void unpropagationFinished(
         String                          publicName,
         String                          creatorID,

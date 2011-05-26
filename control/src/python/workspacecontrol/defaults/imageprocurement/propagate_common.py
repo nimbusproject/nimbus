@@ -11,8 +11,11 @@ from workspacecontrol.api.exceptions import *
 from workspacecontrol.main import ACTIONS
 import workspacecontrol.main.wc_args as wc_args
 from propagate_adapter import PropagationAdapter
+from workspacecontrol.api.propagation_cache import WSCCacheObj
+
 
 # keywords for 'adapters' dict as well as the expected URL schemes
+PROP_ADAPTER_CP = "cp"
 PROP_ADAPTER_SCP = "scp"
 PROP_ADAPTER_GUC = "gsiftp"
 PROP_ADAPTER_HDFS = "hdfs"
@@ -49,7 +52,7 @@ class DefaultImageProcurement:
     
     def validate(self):
         self._validate_localdir()
-        self._validate_securelocaldir()
+        self.securelocaldir = self._validate_securelocaldir("securelocaldir")
         
         self.blankcreate_path = None
         self._validate_blankspacecreate()
@@ -134,18 +137,18 @@ class DefaultImageProcurement:
         self.localdir = localdir
         self.c.log.debug("local image directory (localdir): %s" % self.localdir)
         
-    def _validate_securelocaldir(self):
-        securelocaldir = self.p.get_conf_or_none("images", "securelocaldir")
+    def _validate_securelocaldir(self, confname):
+        securelocaldir = self.p.get_conf_or_none("images", confname)
         if not securelocaldir:
-            raise InvalidConfig("no images->securelocaldir configuration")
+            raise InvalidConfig("no images->%s configuration" % (confname))
             
         if not os.path.isabs(securelocaldir):
             securelocaldir = self.c.resolve_var_dir(securelocaldir)
         
         if not os.path.exists(securelocaldir):
-            self.c.log.warn("securelocaldir is configured, but '%s' does not"
+            self.c.log.warn("%s is configured, but '%s' does not"
                        " exist on the filesystem, attemping to create "
-                       " it" % securelocaldir)
+                       " it" % (confname, securelocaldir))
             try:
                 os.mkdir(securelocaldir)
                 os.chmod(securelocaldir, stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR)
@@ -155,8 +158,8 @@ class DefaultImageProcurement:
                     exceptname = exception_type.__name__ 
                 except AttributeError:
                     exceptname = exception_type
-                raise InvalidConfig("Problem creating securelocaldir: %s: %s" 
-                           % (str(exceptname), str(sys.exc_value)))
+                raise InvalidConfig("Problem creating %s: %s: %s" 
+                           % (confname, str(exceptname), str(sys.exc_value)))
 
             self.c.log.warn("created secure localdir '%s'" % securelocaldir)
 
@@ -168,8 +171,8 @@ class DefaultImageProcurement:
             raise InvalidConfig("'%s' exists on the filesystem but is not rwx" 
                        % securelocaldir)
             
-        self.securelocaldir = securelocaldir
         self.c.log.debug("secure image directory (per-instance images): %s" % self.securelocaldir)
+        return securelocaldir
         
     def _validate_blankspacecreate(self):
         blankcreate_path = self.p.get_conf_or_none("images", "blankcreate")
@@ -368,10 +371,35 @@ class DefaultImageProcurement:
         self.c.log.info("Destroyed VM's unique directory: %s" % vmdir)
         
     def _propagate(self, l_files):
+        cache_key = self.p.get_arg_or_none(wc_args.CACHECKSUM)
+        try:
+            cache_path = self._validate_securelocaldir("cachedir")
+        except Exception, ex:
+            self.c.log.warn("failure validating cache path | %s" % (str(ex)))
+            cache_path = None
+        cache = None
+        if cache_key and cache_path:
+            try:
+                max_size = self.p.get_conf_or_none("images", "cache_size")
+                cache = WSCCacheObj(cache_path, os.path.join(cache_path, "lock"), log=self.c.log)
+            except Exception, ex:
+                self.c.log.warn("failed to create the cache at %s | %s" % (cache_path, str(ex)))
+                
         for l_file in l_files:
             
             if not l_file._propagate_needed:
                 continue
+
+            if cache:
+                try:
+                    self.c.debug.info("cache lookup %s" % (cache_key))
+                    rc = cache.lookup(cache_key, l_file.path)
+                    if rc:
+                        self.c.log.info("The file was found in the cache and copied to %s" % (l_file.path))
+                        return
+                    self.c.log.info("cache miss for %s" % (cache_key))
+                except Exception, ex:
+                    self.c.log.warn("an exception occured while performing a cache lookup on %s | %s" % (cache_key, str(ex)))
                 
             for keyword in self.adapters.keys():
                 schemestring = keyword + "://"
@@ -392,6 +420,13 @@ class DefaultImageProcurement:
                     if not os.path.exists(l_file.path):
                         raise UnexpectedError("propagated from '%s' to '%s' but the file does not exist" % (l_file._propagation_source, l_file.path))
                     
+                    if cache:
+                        try:
+                            self.c.debug.info("adding %s" % (cache_key))
+                            cache.add(l_file.path, cache_key)
+                        except Exception, ex:
+                            self.c.log.warn("an exception occured while adding a file to the cache %s %s | %s" % (cache_key, l_file.path, str(ex)))
+
                     return
         
     def _unpropagate(self, l_files):
@@ -781,4 +816,38 @@ class DefaultImageProcurement:
                 old = lf._unpropagation_target
                 lf._unpropagation_target = unproptargets[counter]
                 self.c.log.debug("old unpropagation target '%s' is now '%s'" % (old, lf._unpropagation_target))
+
+def url_parse(url):
+    parts = url.split('://', 1)
+    scheme = parts[0]
+    rest = parts[1]
+
+    parts = rest.split('@', 1)
+    if len(parts) == 1:
+        user = None
+        password = None
+    else:
+        rest = parts[1]
+        u_parts = parts[0].split(':')
+        user = parts[0]
+        if len(u_parts) == 1:
+            password = None
+        else:
+            password = parts[1]
+
+    parts = rest.split('/', 1)
+    contact_string = parts[0]
+    if len(parts) > 1:
+        path = '/' + parts[1]
+    else:
+        path = None
+
+    parts = contact_string.split(':')
+    hostname = parts[0]
+    if len(parts) == 1:
+        port = None
+    else:
+        port = int(parts[1])
+
+    return (scheme, user, password, hostname, port, path)
 

@@ -22,6 +22,14 @@ public class CumulusRepoFileSystemAdaptor implements RepoFileSystemAdaptor
         this.dl = dl;
     }
 
+    public String getTranslatedChecksum(
+        String                          publicUrl)
+            throws WorkspaceException
+    {
+        return dl.getTranslatedChecksum(publicUrl);
+    }
+
+
     public String translateExternaltoInternal(
         String                          publicName,
         VirtualMachine                  vm)

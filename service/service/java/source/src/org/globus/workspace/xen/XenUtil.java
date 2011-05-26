@@ -159,16 +159,23 @@ public class XenUtil implements WorkspaceConstants {
         // file movement tools)
         final VirtualMachinePartition[] partitions = vm.getPartitions();
         if (partitions != null) {
+            String md5sum = null;
             cmd.add("--images");
             for (int i = 0; i < partitions.length; i++) {
                 if (partitions[i].isRootdisk()) {
                     String img = partitions[i].getImage();
                     if(nsTrans != null) {
-                        img = nsTrans.translateExternaltoInternal(img, vm);
+                        md5sum = nsTrans.getTranslatedChecksum(img);
+                        img = nsTrans.translateExternaltoInternal(img, vm);                        
                     }
                     cmd.add("'"+img+"'");
                     break;
                 }
+            }
+            if(partitions.length == 1 && md5sum != null)
+            {
+                cmd.add("--cachecksum");
+                cmd.add(md5sum);
             }
         }     
 
