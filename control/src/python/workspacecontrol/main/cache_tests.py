@@ -138,8 +138,10 @@ class TestCache(unittest.TestCase):
             self.assertEqual(rc, True)
         (osf, newfile) = tempfile.mkstemp()
         os.close(osf)
+        print cache.list_cache()
         rc = cache.lookup(work_sums[0], newfile)
         self.assertEqual(rc, True)
+        print cache.list_cache()
         sum = work_sums[i]
         rc = cache.add(self._work_file, work_sums[len(work_sums) - 1])
         self.assertEqual(rc, True)
