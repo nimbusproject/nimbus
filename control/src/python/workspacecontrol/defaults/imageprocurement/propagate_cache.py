@@ -120,6 +120,7 @@ class WSCCacheObj(object):
         self._lock()
         try:
             list = os.listdir(self._dir)
+            list = self._order_dir(list)
         finally:
             self._unlock()
 
