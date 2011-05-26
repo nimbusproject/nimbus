@@ -3,7 +3,7 @@ import shutil
 import os
 import logging
 
-__author__ = 'bresnaha'
+
 
 
 class WSCCacheObj(object):

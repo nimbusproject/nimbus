@@ -6,7 +6,7 @@ import os
 import filecmp
 from workspacecontrol.api.propagation_cache import WSCCacheObj
 
-__author__ = 'bresnaha'
+
 
 import unittest
 
