@@ -11,7 +11,7 @@ from workspacecontrol.api.exceptions import *
 from workspacecontrol.main import ACTIONS
 import workspacecontrol.main.wc_args as wc_args
 from propagate_adapter import PropagationAdapter
-from workspacecontrol.api.propagation_cache import WSCCacheObj
+from workspacecontrol.defaults.imageprocurement.propagate_cache import WSCCacheObj
 
 
 # keywords for 'adapters' dict as well as the expected URL schemes

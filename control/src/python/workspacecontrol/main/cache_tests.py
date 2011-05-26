@@ -4,7 +4,7 @@ import tempfile
 import time
 import os
 import filecmp
-from workspacecontrol.api.propagation_cache import WSCCacheObj
+from workspacecontrol.defaults.imageprocurement.propagate_cache import WSCCacheObj
 
 
 
