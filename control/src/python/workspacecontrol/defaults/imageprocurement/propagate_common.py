@@ -392,7 +392,7 @@ class DefaultImageProcurement:
 
             if cache:
                 try:
-                    self.c.debug.info("cache lookup %s" % (cache_key))
+                    self.c.log.debug("cache lookup %s" % (cache_key))
                     rc = cache.lookup(cache_key, l_file.path)
                     if rc:
                         self.c.log.info("The file was found in the cache and copied to %s" % (l_file.path))
@@ -422,7 +422,7 @@ class DefaultImageProcurement:
                     
                     if cache:
                         try:
-                            self.c.debug.info("adding %s" % (cache_key))
+                            self.c.log.debug("adding %s" % (cache_key))
                             cache.add(l_file.path, cache_key)
                         except Exception, ex:
                             self.c.log.warn("an exception occured while adding a file to the cache %s %s | %s" % (cache_key, l_file.path, str(ex)))
