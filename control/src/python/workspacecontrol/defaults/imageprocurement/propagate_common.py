@@ -383,7 +383,10 @@ class DefaultImageProcurement:
                 max_size = self.p.get_conf_or_none("images", "cache_size")
                 if max_size is not None:
                     max_size = int(max_size)
-                cache = WSCCacheObj(cache_path, os.path.join(cache_path, "lock"), max_size=max_size, log=self.c.log)
+                lockfile = self.p.get_conf_or_none("images", "cachelockfile")
+                if lockfile is None:
+                    lockfile = os.path.join(cache_path, "lock")
+                cache = WSCCacheObj(cache_path, lockfile, max_size=max_size, log=self.c.log)
             except ValueError:
                 raise InvalidConfig("The images->cache_size configuration is not an integer: '%s'" % max_size)
             except Exception, ex:
