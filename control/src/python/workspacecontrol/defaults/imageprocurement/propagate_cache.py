@@ -46,7 +46,7 @@ class WSCCacheObj(object):
             self._unlock()
 
     def _order_dir(self, list):
-        list.sort(key=lambda x : os.path.getctime(self._dir + "/" + x), reverse=True)
+        list.sort(key=lambda x : os.path.getmtime(self._dir + "/" + x), reverse=True)
         return list
 
     def _get_size(self, list):
