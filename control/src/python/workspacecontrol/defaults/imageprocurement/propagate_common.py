@@ -58,6 +58,17 @@ class DefaultImageProcurement:
         self._validate_blankspacecreate()
         
         self.adapters = {}
+
+        cp_path = self.p.get_conf_or_none("propagation", "scp")
+        if cp_path:
+            try:
+                import propagate_cp
+                self.adapters[PROP_ADAPTER_CP] = propagate_cp.cp_propadapter(self.p, self.c)
+            except:
+                msg = "CP configuration present (propagation->cp) but cannot load a suitable CP implementation in the code"
+                self.c.log.exception(msg + ": ")
+                raise InvalidConfig(msg)
+
         
         scp_path = self.p.get_conf_or_none("propagation", "scp")
         if scp_path:
