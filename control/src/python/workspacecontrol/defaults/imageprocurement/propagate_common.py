@@ -59,7 +59,7 @@ class DefaultImageProcurement:
         
         self.adapters = {}
 
-        cp_path = self.p.get_conf_or_none("propagation", "scp")
+        cp_path = self.p.get_conf_or_none("propagation", "cp")
         if cp_path:
             try:
                 import propagate_cp
