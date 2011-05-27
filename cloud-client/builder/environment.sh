@@ -18,6 +18,7 @@ export CLCLBUILDER_DIST_TARNAME="$CLCLBUILDER_RELEASE_NAME.tar.gz"
 # #########################################################
 
 export CLCLBUILDER_WSCORE_URL="http://www-unix.globus.org/ftppub/gt4/4.0/4.0.8/ws-core/bin/ws-core-4.0.8-bin.tar.gz"
+export CLCLBUILDER_WSCORE_URL="https://github.com/downloads/nimbusproject/nimbus/ws-core-4.0.8-bin.tar.gz"
 
 export CLCLBUILDER_WSCORE_MD5SUM="04563872e23fe5f7a033e26067ac141d"
 export CLCLBUILDER_WSCORE_TARNAME="ws-core-4.0.8-bin.tar.gz"

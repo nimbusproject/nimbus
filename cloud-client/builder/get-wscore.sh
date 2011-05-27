@@ -9,7 +9,7 @@ function retrieve_tarball() {
 
 # arg1=source, arg2=dest
 function wget_retrieve_tarball() {
-  wget -c -O $2 $1
+  wget --no-check-certificate -c -O $2 $1
 }
 
 

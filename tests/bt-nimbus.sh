@@ -28,6 +28,7 @@ function on_exit()
 
 if [ "X$work_dir" == "X" ]; then
     work_dir=`mktemp -p $HOME -d -t tmp.XXXXXXXXXX`
+    #work_dir=`mktemp --tmpdir=$HOME -d -t tmp.XXXXXXXXXX`
 fi
 
 bd=`dirname $0`
