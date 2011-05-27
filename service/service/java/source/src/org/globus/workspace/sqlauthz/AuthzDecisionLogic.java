@@ -72,6 +72,11 @@ public class AuthzDecisionLogic extends DecisionLogic
             String hostport = urlParts[1];
             String objectname = urlParts[2];
 
+            if(!scheme.equals("cumulus"))
+            {
+                return null;
+            }
+
             int [] fileIds = this.cumulusGetFileID(hostport, objectname);
 
             String md5sum = this.authDB.getMd5sum(fileIds[1]);
