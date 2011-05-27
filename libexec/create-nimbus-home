@@ -1,6 +1,7 @@
 #!/bin/bash
 
 CONTAINER_URL="http://www-unix.globus.org/ftppub/gt4/4.0/4.0.8/ws-core/bin/ws-core-4.0.8-bin.tar.gz"
+CONTAINER_URL="https://github.com/downloads/nimbusproject/nimbus/ws-core-4.0.8-bin.tar.gz"
 CONTAINER_TARNAME="ws-core-4.0.8-bin.tar.gz"
 CONTAINER_UNTARREDNAME="ws-core-4.0.8"
 
@@ -37,7 +38,7 @@ echo ""
 if [ ! -f $TMPDIR/$CONTAINER_TARNAME ]; then
     echo "Downloading service container.."
     echo ""
-    wget -c -O $TMPDIR/$CONTAINER_TARNAME $CONTAINER_URL
+    wget --no-check-certificate -c -O $TMPDIR/$CONTAINER_TARNAME $CONTAINER_URL
 
     if [ $? -ne 0 ]; then
     echo ""
