@@ -64,8 +64,8 @@ class DefaultImageProcurement:
             try:
                 import propagate_cp
                 self.adapters[PROP_ADAPTER_CP] = propagate_cp.cp_propadapter(self.p, self.c)
-            except:
-                msg = "CP configuration present (propagation->cp) but cannot load a suitable CP implementation in the code"
+            except Exception, ex:
+                msg = "CP configuration present (propagation->cp) but cannot load a suitable CP implementation in the code | %s" % (str(ex))
                 self.c.log.exception(msg + ": ")
                 raise InvalidConfig(msg)
 

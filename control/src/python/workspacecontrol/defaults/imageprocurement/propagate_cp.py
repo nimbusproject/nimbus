@@ -69,6 +69,6 @@ class cp_propadapter(PropagationAdapter):
         return path
 
     def _get_cp_command(self, src, dest):
-        cmd = self.cp + src = " "  + dest
+        cmd = self.cp + src + " "  + dest
         return cmd
         
