@@ -43,7 +43,7 @@ class cp_propadapter(PropagationAdapter):
         cmd = self._get_cp_command(src, local_absolute_target) 
         self._run(cmd)
 
-    def _run(cmd): 
+    def _run(self, cmd): 
         self.c.log.info("Running CP command: %s" % cmd)
         ret,output = getstatusoutput(cmd)
         if ret:
@@ -69,6 +69,6 @@ class cp_propadapter(PropagationAdapter):
         return path
 
     def _get_cp_command(self, src, dest):
-        cmd = self.cp + src + " "  + dest
+        cmd = self.cp + " " + src + " "  + dest
         return cmd
         

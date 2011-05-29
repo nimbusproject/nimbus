@@ -1,5 +1,7 @@
 #!/bin/bash
 
+$CLOUD_CLIENT_HOME/bin/grid-proxy-init.sh -key ~/.nimbus/userkey.pem -cert ~/.nimbus/usercert.pem
+
 function wait_for_ready()
 {
     for i in `seq 1 10`
