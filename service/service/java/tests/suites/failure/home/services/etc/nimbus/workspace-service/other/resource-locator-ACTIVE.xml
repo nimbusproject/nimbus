@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+    <!--
+
+    If this is your "resource-locator-ACTIVE.xml" file, then you have enabled
+    the default resource location functionality that leases out VMM resources
+    defined in the "vmm-pools" directory.
+
+    -->
+
+    <import resource="main.conflocator.xml" />
+
+    <bean id="nimbus-rm.scheduler.SlotManagement"
+          class="org.globus.workspace.scheduler.defaults.DefaultSlotManagement"
+          init-method="validate">
+
+        <constructor-arg ref="nimbus-rm.persistence.PersistenceAdapter" />
+        <constructor-arg ref="nimbus-rm.loglevels" />
+
+        <!-- set after object creation time to avoid circular dep with home -->
+        <property name="home" ref="nimbus-rm.home.instance" />
+        <property name="preempManager" ref="nimbus-rm.async.manager" />
+        <property name="selectionStrategy"
+                  value="round-robin" />
+
+    </bean>
+
+</beans>
