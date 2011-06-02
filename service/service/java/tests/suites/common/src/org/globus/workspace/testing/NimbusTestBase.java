@@ -151,10 +151,9 @@ public abstract class NimbusTestBase extends AbstractTestNGSpringContextTests {
 
         final String nimbusHome = this.getNimbusHome();
         logger.info("NIMBUS_HOME: " + nimbusHome);
-        
+
         System.setProperty(NimbusHomePathResolver.NIMBUS_HOME_ENV_NAME,
                            nimbusHome);
-
 
         // Manually intervene here if you want to start off a test suite with your own var
         // directory instead of a fresh one.
@@ -176,6 +175,12 @@ public abstract class NimbusTestBase extends AbstractTestNGSpringContextTests {
         } else {
             throw new Exception("Could not create new privileged var dir: " + vardir2.getAbsolutePath());
         }
+
+        this.setUpShareDir(nimbusHome);
+        final File setupExe =
+                new File(nimbusHome,
+                         "services/share/nimbus/full-reset.sh"); // requires ant on PATH
+        this.setUpVarDir(vardir, setupExe);
 
         String libNativePath = nimbusHome + "/services/lib-native";
         System.setProperty(REMOTING_NATIVE_PROPERTY, libNativePath);
