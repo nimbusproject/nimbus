@@ -155,17 +155,26 @@ public abstract class NimbusTestBase extends AbstractTestNGSpringContextTests {
         System.setProperty(NimbusHomePathResolver.NIMBUS_HOME_ENV_NAME,
                            nimbusHome);
 
+
+        // Manually intervene here if you want to start off a test suite with your own var
+        // directory instead of a fresh one.
+
         final File vardir = new File(nimbusHome, "services/var");
         if (vardir.exists()) {
-            // teardown was not invoked or developer is trying something 'tricky'
-            logger.error("\n\n*********\n\nGenerated directory exists, cowardly refusing to remove it; " +
-                        "leaving it alone: " + vardir.getAbsolutePath() + "\n\n");
+            FileUtils.deleteDirectory(vardir);
+            logger.info("Deleted pre-existing test suite services/var dir '" + vardir.getAbsolutePath() + '\'');
+        }
+
+        final File vardir2 = new File(nimbusHome, "var/run/privileged");
+        if (vardir2.exists()) {
+            FileUtils.deleteDirectory(vardir2);
+            logger.info("Deleted pre-existing privileged var dir '" + vardir2.getAbsolutePath() + '\'');
+        }
+        boolean created = vardir2.mkdirs();
+        if (created) {
+            logger.info("Created new privileged var dir '" + vardir2.getAbsolutePath() + '\'');
         } else {
-            this.setUpShareDir(nimbusHome);
-            final File setupExe =
-                    new File(nimbusHome,
-                             "services/share/nimbus/full-reset.sh"); // requires ant on PATH
-            this.setUpVarDir(vardir, setupExe);
+            throw new Exception("Could not create new privileged var dir: " + vardir2.getAbsolutePath());
         }
 
         String libNativePath = nimbusHome + "/services/lib-native";
