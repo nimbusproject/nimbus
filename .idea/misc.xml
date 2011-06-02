@@ -6,6 +6,14 @@
   <component name="FacetAutodetectingManager">
     <autodetection-disabled>
       <facet-type id="android" />
+      <facet-type id="Spring">
+        <modules>
+          <module name="basic" />
+          <module name="contextualization" />
+          <module name="failure" />
+          <module name="spotinstances" />
+        </modules>
+      </facet-type>
     </autodetection-disabled>
   </component>
   <component name="IdProvider" IDEtalkID="31C23B711CCADF411B803EE1B405EEB0" />
@@ -25,6 +33,9 @@
     <option name="HEAP_SIZE" />
     <option name="LOCALE" />
     <option name="OPEN_IN_BROWSER" value="true" />
+  </component>
+  <component name="ProjectResources">
+    <default-html-doctype>http://www.w3.org/1999/xhtml</default-html-doctype>
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_1_5" assert-keyword="true" jdk-15="true" project-jdk-name="1.6" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
