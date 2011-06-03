@@ -623,10 +623,13 @@ public class DefaultSchedulerAdapter implements Scheduler {
             logger.trace(msg);
         }
 
-        if (state == WorkspaceConstants.STATE_DESTROYING) {
-            
+        if (state == WorkspaceConstants.STATE_DESTROYING ||
+            state == WorkspaceConstants.STATE_DESTROY_FAILED) {
+            return; // not ready yet
+        }
+
+        if (state == WorkspaceConstants.STATE_DESTROY_SUCCEEDED) {
             removeScheduling(id);
-            
             notifySiManager(id, state);
             return;
         }

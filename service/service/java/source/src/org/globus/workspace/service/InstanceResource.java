@@ -171,10 +171,11 @@ public interface InstanceResource extends Sweepable {
      * Don't call unless you are managing the instance cache (or not using
      * one, perhaps).
      *
+     * @return true if remove succeeded
      * @throws ManageException problem
      * @throws DoesNotExistException missing
      */
-    public void remove()
+    public boolean remove()
 
             throws ManageException, DoesNotExistException;
 

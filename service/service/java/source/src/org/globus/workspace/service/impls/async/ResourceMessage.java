@@ -97,7 +97,7 @@ public class ResourceMessage implements WorkspaceConstants {
         boolean corrupted = false;
         if (err != null) {
             logger.error("Problem moving " + Lager.id(id) + " to state '" +
-                        this.dataConvert.stateName(notify) + "'", err);
+                        this.dataConvert.stateName(notify) + "': " + err.getMessage());
             corrupted = true;
         }
 
@@ -124,7 +124,10 @@ public class ResourceMessage implements WorkspaceConstants {
             // take the resource to)
 
             if (corrupted) {
-                if (notify >= STATE_FIRST_LEGAL && notify <= STATE_DESTROYING) {
+                if (notify == STATE_DESTROYING) {
+                    resource.setState(STATE_DESTROY_FAILED, err);
+                    resource.setTargetState(STATE_DESTROY_FAILED);
+                } else if (notify >= STATE_FIRST_LEGAL && notify < STATE_DESTROYING) {
                     resource.setState(notify + STATE_CORRUPTED, err);
                 } else {
                     logger.error("erroneous error notification, target " +
@@ -133,13 +136,20 @@ public class ResourceMessage implements WorkspaceConstants {
                 }
 
             } else {
-                resource.setState(notify, err);
+                if (notify == STATE_DESTROYING) {
+                    resource.setState(STATE_DESTROY_SUCCEEDED, null);
+                } else {
+                    resource.setState(notify, null);
+                }
             }
 
         } catch (LockAcquisitionFailure e) {
             // notify() is one way only
             logger.fatal("notify->setState failed to " +
                     "acquire lock: " + e.getMessage(), e);
+        } catch (ManageException e) {
+            logger.fatal("Failed to record " + Lager.id(id) +
+                                 " as DestroyFailed: " + e.getMessage());
         }
     }
 }

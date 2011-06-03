@@ -111,9 +111,7 @@ public abstract class InstanceResourceImpl implements InstanceResource {
 
     protected double chargeRatio = 1.0;
 
-    private boolean removeTriggered;
-
-
+    
     // -------------------------------------------------------------------------
     // CONSTRUCTOR
     // -------------------------------------------------------------------------
@@ -759,15 +757,10 @@ public abstract class InstanceResourceImpl implements InstanceResource {
      * Don't call unless you are managing the instance cache (or not using
      * one, perhaps).
      *
+     * @return true if remove succeeded
      * @throws ManageException problem with removal
      */
-    public synchronized void remove() throws ManageException {
-
-        if (this.removeTriggered) {
-            return; // *** EARLY RETURN ***
-        } else {
-            this.removeTriggered = true;
-        }
+    public synchronized boolean remove() throws ManageException {
 
         if (this.lager.eventLog || this.lager.traceLog) {
             if (this.lager.eventLog) {
@@ -778,6 +771,10 @@ public abstract class InstanceResourceImpl implements InstanceResource {
         }
 
         this.setTargetState(WorkspaceConstants.STATE_DESTROYING);
+        if (this.getState() != WorkspaceConstants.STATE_DESTROY_SUCCEEDED) {
+            logger.debug(Lager.id(this.id) + " destroy failed (state " + this.getState() + ")");
+            return false;
+        }
 
         if (this.lager.eventLog) {
             logger.info(Lager.ev(this.id) +
@@ -789,6 +786,7 @@ public abstract class InstanceResourceImpl implements InstanceResource {
 
         // inform any destruction listeners:
         this.resourceDestroyed();
+        return true;
     }
 
     protected void do_remove() {

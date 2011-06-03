@@ -438,8 +438,9 @@ public abstract class WorkspaceHomeImpl implements WorkspaceHome,
 
         try {
             final InstanceResource resource = this.find(id);
-            resource.remove();
-            this.cache.remove(id);
+            if (resource.remove()) {
+                this.cache.remove(id);
+            }
 
         } finally {
             lock.unlock();

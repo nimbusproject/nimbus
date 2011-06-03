@@ -110,6 +110,8 @@ public class DataConvert implements WorkspaceConstants {
         nameTable.put(new Integer(STATE_CANCELLING_STAGING_OUT), "CancellingStagingOut");
 
         nameTable.put(new Integer(STATE_DESTROYING), "Destroying");
+        nameTable.put(new Integer(STATE_DESTROY_SUCCEEDED), "DestroySucceeded");
+        nameTable.put(new Integer(STATE_DESTROY_FAILED), "DestroyFailed");
         nameTable.put(new Integer(STATE_CORRUPTED_GENERIC), "Corrupted");
 
         // --------------------------------------------------------------
@@ -177,6 +179,10 @@ public class DataConvert implements WorkspaceConstants {
                 State.STATE_Cancelled);
 
         statusMap.put(new Integer(STATE_DESTROYING),
+                State.STATE_Cancelled);
+        statusMap.put(new Integer(STATE_DESTROY_SUCCEEDED),
+                State.STATE_Cancelled);
+        statusMap.put(new Integer(STATE_DESTROY_FAILED),
                 State.STATE_Cancelled);
     }
 

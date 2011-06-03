@@ -314,17 +314,14 @@ public abstract class StatefulResourceImpl extends InstanceResourceImpl
                 newstate == STATE_PAUSED ||
                 newstate == STATE_READYING_FOR_TRANSPORT ||
                 newstate == STATE_READY_FOR_TRANSPORT ||
+                newstate == STATE_DESTROY_SUCCEEDED ||
+                newstate == STATE_DESTROY_FAILED ||
                 newstate == STATE_STAGING_OUT) {
 
                 logger.debug("More termination work may be necessary, " +
                    "not ignoring setState during targetState==Destroying");
 
             } else {
-
-                logger.debug(Lager.id(this.id) + " is being destroyed, " +
-                    "ignoring set-state: " +
-                        this.dataConvert.stateName(newstate));
-
                 return;
             }
         }
@@ -362,7 +359,7 @@ public abstract class StatefulResourceImpl extends InstanceResourceImpl
                          "  = " + this.dataConvert.stateName(newstate));
         }
 
-        if (newstate == STATE_DESTROYING) {
+        if (newstate == STATE_DESTROY_SUCCEEDED) {
             do_remove();
             return;
         }
@@ -663,6 +660,7 @@ public abstract class StatefulResourceImpl extends InstanceResourceImpl
             case STATE_READY_FOR_TRANSPORT:
             case STATE_STAGED_OUT:
             case STATE_DESTROYING:
+            case STATE_DESTROY_FAILED:
             case STATE_CORRUPTED_GENERIC:
                 break;
             default:
@@ -684,5 +682,7 @@ public abstract class StatefulResourceImpl extends InstanceResourceImpl
                 && newstate <= STATE_LAST_LEGAL;
     }
 
-
+    public boolean isZombie() {
+        return this.state == STATE_DESTROY_FAILED;
+    }
 }

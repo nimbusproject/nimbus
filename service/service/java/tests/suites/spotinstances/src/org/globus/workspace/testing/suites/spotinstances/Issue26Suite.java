@@ -25,7 +25,6 @@ import org.globus.workspace.testing.NimbusTestContextLoader;
 import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.CreateRequest;
 import org.nimbustools.api.repr.CreateResult;
-import org.nimbustools.api.repr.vm.VM;
 import org.nimbustools.api.services.admin.RemoteNodeManagement;
 import org.nimbustools.api.services.rm.Manager;
 import org.nimbustools.api.services.rm.NotEnoughMemoryException;
@@ -39,8 +38,6 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 @Listeners({ org.globus.workspace.testing.suites.spotinstances.TestListener.class })
