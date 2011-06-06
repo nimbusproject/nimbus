@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+     Discover conf files.  The conf files hold name/value pairs that are
+     brought into the XML files in this directory via Spring's nice properties
+     mechanism.
+
+     Concentrate all uses of PropertyPlaceholderConfigurer into this bean
+     config so that the install script can do token replacements for absolute
+     paths throughout the entire spring configuration by just running the
+     token replacement on this file.
+
+     Spring wants "//" in front of absolute filesystem paths so that is why
+     "/TOKEN" is used here instead of "TOKEN"
+-->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+    <bean id="commonSettings"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+
+        <property name="location"
+                  value="$NIMBUS_HOME/services/etc/nimbus/workspace-service/other/common.conf" />
+        <property name="placeholderPrefix"
+                  value="$COMMON{" />
+    </bean>
+
+    <bean id="logSettings"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+
+        <property name="location"
+                  value="$NIMBUS_HOME/services/etc/nimbus/workspace-service/logging.conf" />
+        <property name="placeholderPrefix"
+                  value="$LOGGING{" />
+    </bean>
+
+    <bean id="globalPolicies"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+
+        <property name="location"
+                  value="$NIMBUS_HOME/services/etc/nimbus/workspace-service/global-policies.conf" />
+        <property name="placeholderPrefix"
+                  value="$GLOBAL{" />
+    </bean>
+
+    <bean id="repositorySettings"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+
+        <property name="location"
+                  value="$NIMBUS_HOME/services/etc/nimbus/workspace-service/repository.conf" />
+        <property name="placeholderPrefix"
+                  value="$REPO{" />
+    </bean>
+
+    <bean id="cumulusSettings"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+
+        <property name="location"
+                  value="$NIMBUS_HOME/services/etc/nimbus/workspace-service/cumulus.conf" />
+        <property name="placeholderPrefix"
+                  value="$CUMULUS{" />
+    </bean>
+
+    <bean id="asyncSettings"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+
+        <property name="location"
+                  value="$NIMBUS_HOME/services/etc/nimbus/workspace-service/async.conf" />
+        <property name="placeholderPrefix"
+                  value="$ASYNC{" />
+    </bean>
+
+    <bean id="accountingSettings"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+
+        <property name="location"
+                  value="$NIMBUS_HOME/services/etc/nimbus/workspace-service/accounting.conf" />
+        <property name="placeholderPrefix"
+                  value="$ACCOUNTING{" />
+    </bean>
+
+    <bean id="sshSettings"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+
+        <property name="location"
+                  value="$NIMBUS_HOME/services/etc/nimbus/workspace-service/ssh.conf" />
+        <property name="placeholderPrefix"
+                  value="$SSH{" />
+    </bean>
+
+    <bean id="networkSettings"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+
+        <property name="location"
+                  value="$NIMBUS_HOME/services/etc/nimbus/workspace-service/network.conf" />
+        <property name="placeholderPrefix"
+                  value="$NETWORK{" />
+    </bean>
+
+    <bean id="vmmReqs"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+
+        <property name="location"
+                  value="$NIMBUS_HOME/services/etc/nimbus/workspace-service/vmm.conf" />
+        <property name="placeholderPrefix"
+                  value="$VMM{" />
+    </bean>
+
+    <bean id="pilotSettings"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+
+        <property name="location"
+                  value="$NIMBUS_HOME/services/etc/nimbus/workspace-service/pilot.conf" />
+        <property name="placeholderPrefix"
+                  value="$PILOT{" />
+    </bean>
+
+    <bean id="metadataSettingsProperties"
+            class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <property name="location"
+                  value="$NIMBUS_HOME/services/etc/nimbus/workspace-service/metadata.conf"/>
+    </bean>
+    
+    <bean id="metadataSettings"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+
+        <property name="placeholderPrefix"
+                  value="$METADATA{" />
+        <property name="properties" ref="metadataSettingsProperties"/>
+    </bean>
+
+    <bean id="derbySettings"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="location"
+                  value="$NIMBUS_HOME/services/var/derby.properties" />
+        <property name="placeholderPrefix"
+                  value="$DERBY{" />
+        
+    </bean>
+
+    <bean id="adminSettings"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="location"
+                  value="$NIMBUS_HOME/services/etc/nimbus/workspace-service/admin.conf" />
+        <property name="placeholderPrefix"
+                  value="$ADMIN{" />
+    </bean>
+
+    <bean id="elasticSettings"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+
+        <property name="location" value="$NIMBUS_HOME/services/etc/nimbus/elastic/elastic.conf" />
+        <property name="placeholderPrefix" value="$ELASTIC{" />
+    </bean>
+
+    <bean id="otherElasticSettings"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+
+        <property name="location" value="$NIMBUS_HOME/services/etc/nimbus/elastic/other/other-elastic.conf" />
+        <property name="placeholderPrefix" value="$OTHER_ELASTIC{" />
+    </bean>
+</beans>

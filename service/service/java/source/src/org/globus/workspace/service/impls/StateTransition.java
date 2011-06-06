@@ -384,6 +384,13 @@ public class StateTransition implements WorkspaceConstants {
         int nextstate = STATE_INVALID;
 
         switch (current) {
+            case STATE_DESTROY_SUCCEEDED:
+                break;
+            case STATE_DESTROY_FAILED:
+                req = reqFactory.cancelAllAtVMM();
+                nextstate = STATE_CANCELLING_AT_VMM;
+                requestContext.setVm(resource.getVM());
+                break;
             case STATE_STAGING_IN: // now unused
             case STATE_UNPROPAGATED:
                 req = reqFactory.cancelUnpropagated();
@@ -468,10 +475,7 @@ public class StateTransition implements WorkspaceConstants {
         if (req != null) {
 
             resource.setStateUnderLock(nextstate, null);
-
-            // ctx does not have notify field set which triggers a conforming
-            // WorkspaceRequest implementation to NOT call back to us when
-            // its done with work.
+            requestContext.setNotify(STATE_DESTROYING);
             req.setRequestContext(requestContext);
 
             if (this.trace) {
@@ -493,13 +497,12 @@ public class StateTransition implements WorkspaceConstants {
             }
 
         } else {
+            resource.setStateUnderLock(STATE_DESTROY_SUCCEEDED, null);
             if (this.trace) {
                 logger.trace("\n\n   ***** ST--remove: " + idStr
                         + ", nothing to do\n");
             }
         }
-
-        resource.setStateUnderLock(STATE_DESTROYING, null);
 
         return true;
     }

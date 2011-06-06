@@ -1,0 +1,282 @@
+<project basedir="." default="checkjdk" name="Nimbus for GT4.0 build file">
+
+    <description>Internal Service Integration Test Suites</description>
+
+    <!-- load user nimbus.build.properties file, if it exists -->
+    <property file="${user.home}/nimbus.build.properties"/>
+
+    <!-- load defaults from colocated build.properties file -->
+    <property file="build.properties"/>
+
+    
+    <!-- *******************************************************************
+         CLASSPATHS
+         ******************************************************************* -->
+
+    <path id="suites.deps.cp">
+        <fileset dir="${nimbus.st.main.lib.dir}">
+             <include name="*.jar"/>
+        </fileset>
+        <fileset dir="${nimbus.st.test.lib.dir}">
+             <include name="*.jar"/>
+        </fileset>
+    </path>
+
+    <path id="suites.compile.cp">
+        <path refid="suites.deps.cp"/>
+        <fileset dir="${nimbus.st.authz.dist.dir}">
+              <include name="*.jar"/>
+        </fileset>
+        <fileset dir="${nimbus.st.service.api.dist.dir}">
+              <include name="*.jar"/>
+        </fileset>
+        <fileset dir="${nimbus.st.service.main.dist.dir}">
+              <include name="*.jar"/>
+        </fileset>
+        <fileset dir="${nimbus.st.metadata.dist.dir}">
+              <include name="*.jar"/>
+        </fileset>
+    </path>
+
+    <path id="suites.run.cp">
+        <path refid="suites.compile.cp"/>
+        <pathelement path="${nimbus.suites.testsrc.build.dest}" />
+    </path>
+
+    
+    <!-- *******************************************************************
+         INIT
+         ******************************************************************* -->
+
+    <taskdef resource="testngtasks" classpathref="suites.deps.cp"/>
+
+    <target name="checkjdk">
+        <available property="jdk1.5+"
+                   classname="java.lang.Readable"/>
+        <fail message="Aborting: determined you are not building with >= JDK 1.5"
+              unless="jdk1.5+" />
+    </target>
+
+    <target name="init" depends="checkjdk">
+        <mkdir dir="${nimbus.suites.testsrc.build.dest}"/>
+    </target>
+
+
+    <!-- *******************************************************************
+         BUILD
+         ******************************************************************* -->
+
+    <target name="depclean" depends="init">
+        <ant dir="${nimbus.st.authzdb.builddir}" target="clean" />
+        <ant dir="${nimbus.st.service.api.builddir}" target="clean" />
+        <ant dir="${nimbus.st.service.main.builddir}" target="clean" />
+        <ant dir="${nimbus.st.metadata.builddir}" target="clean" />
+    </target>
+
+    <target name="depdist" depends="init">
+        <ant dir="${nimbus.st.authzdb.builddir}" target="dist" />
+        <ant dir="${nimbus.st.service.api.builddir}" target="dist" />
+        <ant dir="${nimbus.st.service.main.builddir}" target="dist" />
+        <ant dir="${nimbus.st.metadata.builddir}" target="dist" />
+    </target>
+
+    <target name="clean" depends="init">
+        <delete dir="${nimbus.suites.testsrc.build.dest}"/>
+        <delete dir="tmp"/>
+        <echo message="Cleaned: ${basedir}" />
+    </target>
+
+    <target name="compile-common" depends="depdist">
+
+        <javac srcdir="${nimbus.suites.testsrc.src0.dir}"
+               destdir="${nimbus.suites.testsrc.build.dest}"
+               classpathref="suites.compile.cp"
+               includeantruntime="false"
+               source="1.5"
+               target="1.5"
+               debug="on">
+            <include name="**/*.java"/>
+            <compilerarg value="${nimbus.java.compilerarg}" />
+        </javac>
+
+    </target>
+
+    <target name="compile-suites" depends="compile-common">
+
+        <javac srcdir="${nimbus.suites.testsrc.src1.dir}"
+               destdir="${nimbus.suites.testsrc.build.dest}"
+               classpathref="suites.run.cp"
+               includeantruntime="false"
+               source="1.5"
+               target="1.5"
+               debug="on">
+            <include name="**/*.java"/>
+            <compilerarg value="${nimbus.java.compilerarg}" />
+        </javac>
+
+        <javac srcdir="${nimbus.suites.testsrc.src2.dir}"
+               destdir="${nimbus.suites.testsrc.build.dest}"
+               classpathref="suites.run.cp"
+               includeantruntime="false"
+               source="1.5"
+               target="1.5"
+               debug="on">
+            <include name="**/*.java"/>
+            <compilerarg value="${nimbus.java.compilerarg}" />
+        </javac>
+
+        <javac srcdir="${nimbus.suites.testsrc.src3.dir}"
+               destdir="${nimbus.suites.testsrc.build.dest}"
+               classpathref="suites.run.cp"
+               includeantruntime="false"
+               source="1.5"
+               target="1.5"
+               debug="on">
+            <include name="**/*.java"/>
+            <compilerarg value="${nimbus.java.compilerarg}" />
+        </javac>
+    </target>
+
+    <target name="setup" depends="depdist,compile-suites">
+        <fail unless="nimbussuites.test.reports.dir">
+            You have not set the 'nimbussuites.test.reports.dir' property, are you not
+            using the integration test shell script?
+        </fail>
+    </target>
+
+
+    <!-- *******************************************************************
+         ONE SUITE AT A TIME
+         ******************************************************************* -->
+
+    <!-- Derby database re-installation not working when one JVM is used for all suites.
+         So we do one JVM per suite, i.e. for each database full-wipe.
+         This has the unfortunate side effect of needing an html page per suite instead
+         of all suites being in a nice table.
+     -->
+
+    <target name="runone" depends="setup">
+        <testng classpathref="suites.run.cp"
+                outputDir="${nimbussuites.test.reports.dir}/${runone.suite.report.subdir}"
+                haltOnfailure="true"
+                parallel="false">
+            <sysproperty key="nimbus.servicetestsuites.abspath"
+                         value="${nimbus.suitesdir}" />
+            <xmlfileset file="${runone.suite.file}" />
+        </testng>
+    </target>
+
+    <!-- BASIC SUITES -->
+
+    <target name="basic01">
+        <antcall target="runone">
+            <param name="runone.suite.file" value="${st.basic.dir}/${st.basic01}.xml"/>
+            <param name="runone.suite.report.subdir" value="basic-${st.basic01}"/>
+        </antcall>
+    </target>
+    <target name="basic02">
+        <antcall target="runone">
+            <param name="runone.suite.file" value="${st.basic.dir}/${st.basic02}.xml"/>
+            <param name="runone.suite.report.subdir" value="basic-${st.basic02}"/>
+        </antcall>
+    </target>
+    <target name="basic03">
+        <antcall target="runone">
+            <param name="runone.suite.file" value="${st.basic.dir}/${st.basic03}.xml"/>
+            <param name="runone.suite.report.subdir" value="basic-${st.basic03}"/>
+        </antcall>
+    </target>
+    <target name="basic04">
+        <antcall target="runone">
+            <param name="runone.suite.file" value="${st.basic.dir}/${st.basic04}.xml"/>
+            <param name="runone.suite.report.subdir" value="basic-${st.basic04}"/>
+        </antcall>
+    </target>
+    <target name="basic05">
+        <antcall target="runone">
+            <param name="runone.suite.file" value="${st.basic.dir}/${st.basic05}.xml"/>
+            <param name="runone.suite.report.subdir" value="basic-${st.basic05}"/>
+        </antcall>
+    </target>
+    <target name="basic06">
+        <antcall target="runone">
+            <param name="runone.suite.file" value="${st.basic.dir}/${st.basic06}.xml"/>
+            <param name="runone.suite.report.subdir" value="basic-${st.basic06}"/>
+        </antcall>
+    </target>
+    <target name="allbasic" depends="basic01,basic02,basic03,basic04,basic05,basic06" />
+
+
+    <!-- FAILURE/TERMINATION SUITES -->
+
+    <target name="failure01">
+        <antcall target="runone">
+            <param name="runone.suite.file" value="${st.failure.dir}/${st.failure01}.xml"/>
+            <param name="runone.suite.report.subdir" value="basic-${st.failure01}"/>
+        </antcall>
+    </target>
+
+    <target name="allfailure" depends="failure01" />
+
+
+    <!-- SPOT INSTANCE SUITES -->
+
+    <target name="spot01">
+        <antcall target="runone">
+            <param name="runone.suite.file" value="${st.spot.dir}/${st.spot01}.xml"/>
+            <param name="runone.suite.report.subdir" value="basic-${st.spot01}"/>
+        </antcall>
+    </target>
+    <target name="spot02">
+        <antcall target="runone">
+            <param name="runone.suite.file" value="${st.spot.dir}/${st.spot02}.xml"/>
+            <param name="runone.suite.report.subdir" value="basic-${st.spot02}"/>
+        </antcall>
+    </target>
+    <target name="spot03">
+        <antcall target="runone">
+            <param name="runone.suite.file" value="${st.spot.dir}/${st.spot03}.xml"/>
+            <param name="runone.suite.report.subdir" value="basic-${st.spot03}"/>
+        </antcall>
+    </target>
+    <target name="spot04">
+        <antcall target="runone">
+            <param name="runone.suite.file" value="${st.spot.dir}/${st.spot04}.xml"/>
+            <param name="runone.suite.report.subdir" value="basic-${st.spot04}"/>
+        </antcall>
+    </target>
+    <target name="spot05">
+        <antcall target="runone">
+            <param name="runone.suite.file" value="${st.spot.dir}/${st.spot05}.xml"/>
+            <param name="runone.suite.report.subdir" value="basic-${st.spot05}"/>
+        </antcall>
+    </target>
+
+    <target name="allspot" depends="spot01,spot02,spot03,spot04,spot05" />
+
+
+    <!-- *******************************************************************
+         RUN ALL SUITES: FAILING
+         ******************************************************************* -->
+
+    <!-- Derby database re-installation not working when one JVM is used for all suites.
+         So this is broken, see above -->
+
+    <fileset id="allsuites.fileset" dir="${nimbus.suitesdir}">
+        <include name="basic/*.xml"/>
+        <include name="failure/*.xml"/>
+        <include name="spotinstances/*.xml"/>
+    </fileset>
+
+    <target name="broken-runall" depends="setup">
+        <testng classpathref="suites.run.cp"
+                outputDir="${nimbussuites.test.reports.dir}"
+                haltOnfailure="true"
+                parallel="false">
+            <sysproperty key="nimbus.servicetestsuites.abspath"
+                         value="${nimbus.suitesdir}" />
+            <xmlfileset refid="allsuites.fileset" />
+        </testng>
+    </target>
+
+</project>

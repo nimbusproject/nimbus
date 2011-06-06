@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xsi:schemaLocation="
+http://www.springframework.org/schema/beans 
+http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+http://www.springframework.org/schema/security
+http://www.springframework.org/schema/security/spring-security-3.0.xsd
+http://cxf.apache.org/jaxrs
+http://cxf.apache.org/schemas/jaxrs.xsd">
+
+    <import resource="classpath:META-INF/cxf/cxf.xml" />
+    <import resource="classpath:META-INF/cxf/cxf-extension-jaxrs-binding.xml" />
+    <import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
+
+    <jaxrs:server id="elasticQueryServer"
+                  address="/">
+        <jaxrs:serviceBeans>
+            <ref bean="elasticQuery"/>
+        </jaxrs:serviceBeans>
+        <jaxrs:providers>
+            <bean class="org.nimbustools.messaging.query.AxisBodyWriter"/>
+            <ref bean="queryExceptionMapper"/>
+        </jaxrs:providers>
+    </jaxrs:server>
+
+    <bean id="queryExceptionMapper" class="org.nimbustools.messaging.query.QueryExceptionMapper"/>
+
+    <bean id="queryExceptionTranslationFilter"
+          class="org.nimbustools.messaging.query.security.QueryExceptionTranslationFilter">
+        <property name="exceptionMapper" ref="queryExceptionMapper"/>
+    </bean>
+
+    <bean id="filterChainProxy" class="org.springframework.security.web.FilterChainProxy">
+        <security:filter-chain-map path-type="ant">
+            <security:filter-chain pattern="/**" filters="
+            queryExceptionTranslationFilter,
+            queryAuthenticationFilter
+            " />
+        </security:filter-chain-map>
+    </bean>
+    <bean id="queryAuthenticationFilter" class="org.nimbustools.messaging.query.security.QueryAuthenticationFilter">
+        <property name="userDetailsService" ref="userDetailsService"/>
+    </bean>
+
+    <bean id="other.AuthzDataSource"
+         class="org.apache.commons.dbcp.BasicDataSource">
+       <property name="driverClassName" value="org.sqlite.JDBC" />
+       <property name="maxActive" value="10" />
+       <property name="maxIdle" value="4" />
+       <property name="maxWait" value="2000" />
+       <property name="poolPreparedStatements" value="true" />
+
+       <property name="url"
+                 value="jdbc:sqlite://$CUMULUS{cumulus.authz.db}" />
+       <property name="username" value="nimbus"/>
+       <property name="password" value="nimbus"/>
+   </bean>
+
+    <bean id="authzDBAdapter" class="org.nimbus.authz.AuthzDBAdapter">
+        <constructor-arg ref="other.AuthzDataSource"/>
+
+        <property name="cumulusPublicUser" value="$CUMULUS{cumulus.publicuser}" />
+    </bean>
+
+    <bean id="userDetailsService" class="org.nimbustools.messaging.query.security.NimbusAuthzUserDetailsService">
+        <property name="authzDBAdapter" ref="authzDBAdapter" />
+    </bean>
+
+    <bean id="elasticQuery" class="org.nimbustools.messaging.query.ElasticQuery">
+        <property name="versions">
+            <map>
+                <entry key="2009-08-15"  value-ref="query_2009-08-15" />
+            </map>
+        </property>
+
+        <!-- we only support a single API version for the moment,
+        but there is general compatility with most recent versions -->
+        <property name="fallbackVersion" ref="query_2009-08-15"/>
+    </bean>
+
+    <bean id="query_2009-08-15" class="org.nimbustools.messaging.query.v2009_08_15.ElasticService">
+        <constructor-arg type="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.ServiceRM"
+                         ref="nimbus-query.rm"/>
+        <constructor-arg type="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.ServiceGeneral"
+                         ref="nimbus-query.general"/>
+        <constructor-arg type="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.ServiceImage"
+                         ref="nimbus-query.image"/>
+        <constructor-arg type="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.ServiceSecurity"
+                         ref="nimbus-query.security"/>
+    </bean>
+
+    <bean id="nimbus-query.rm.modulelocator"
+          class="org.nimbustools.messaging.gt4_0.common.NimbusLocalModuleLocator" />
+
+
+    <!-- ************ ServiceRM *********** -->
+
+    <bean id="nimbus-query.rm"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.ServiceRMImpl">
+
+        <constructor-arg ref="nimbus-query.rm.run" />
+        <constructor-arg ref="nimbus-query.rm.terminate" />
+        <constructor-arg ref="nimbus-query.rm.reboot" />
+        <constructor-arg ref="nimbus-query.rm.describe" />
+        <constructor-arg ref="nimbus-query.rm.requestSI" />
+        <constructor-arg ref="nimbus-query.rm.cancelSI" />
+        <constructor-arg ref="nimbus-query.rm.describeSI" /> 
+        <constructor-arg ref="nimbus-query.rm.spHistory" />                               
+        <constructor-arg ref="nimbus-query.rm.containerInterface" />
+        <constructor-arg ref="nimbus-query.rm.modulelocator" />
+
+    </bean>
+
+    <bean id="nimbus-query.rm.run"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultRun">
+
+        <constructor-arg ref="nimbus-query.general.ra" />
+        <constructor-arg ref="nimbus-query.general.networks" />
+        <constructor-arg ref="nimbus-query.rm.idmappings" />
+        <constructor-arg ref="nimbus-query.rm.describe" />
+        <constructor-arg ref="nimbus-query.rm.containerInterface" />
+        <constructor-arg ref="nimbus-query.security.sshkeys" />
+        <constructor-arg ref="nimbus-query.image.repository" />
+        <constructor-arg ref="nimbus-query.rm.modulelocator" />
+
+    </bean>
+
+    <bean id="nimbus-query.rm.terminate"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultTerminate">
+
+        <constructor-arg ref="nimbus-query.rm.idmappings" />
+
+    </bean>
+
+    <bean id="nimbus-query.rm.reboot"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultReboot">
+
+        <constructor-arg ref="nimbus-query.rm.idmappings" />
+
+    </bean>
+
+    <bean id="nimbus-query.rm.describe"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultDescribe">
+
+        <constructor-arg ref="nimbus-query.rm.idmappings" />
+        <constructor-arg ref="nimbus-query.general.validity" />
+        <constructor-arg ref="nimbus-query.general.networks" />
+        <constructor-arg ref="nimbus-query.general.kernels" />
+        <constructor-arg ref="nimbus-query.general.ra" />
+        <constructor-arg ref="nimbus-query.general.avzone" />
+
+    </bean>
+
+    <bean id="nimbus-query.rm.containerInterface"
+          class="org.nimbustools.messaging.query.security.QueryContainerInterface">
+        <constructor-arg ref="nimbus-query.rm.modulelocator" />
+        <constructor-arg ref="userDetailsService" />
+    </bean>
+
+
+    <bean id="nimbus-query.rm.idmappings"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultIDMgmtProxy" />
+
+    <!-- ************ Spot Instances *********** -->
+
+    <bean id="nimbus-query.rm.requestSI"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultRequestSI">
+
+        <constructor-arg ref="nimbus-query.general.ra" />
+        <constructor-arg ref="nimbus-query.general.networks" />
+        <constructor-arg ref="nimbus-query.image.repository" />        
+        <constructor-arg ref="nimbus-query.rm.idmappings" />
+        <constructor-arg ref="nimbus-query.rm.describe" />
+        <constructor-arg ref="nimbus-query.rm.describeSI" />    
+        <constructor-arg ref="nimbus-query.rm.cancelSI" />                    
+        <constructor-arg ref="nimbus-query.rm.containerInterface" />
+        <constructor-arg ref="nimbus-query.security.sshkeys" />
+        <constructor-arg ref="nimbus-query.rm.modulelocator" />
+
+    </bean>
+
+    <bean id="nimbus-query.rm.cancelSI"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultCancelSI" />
+
+    <bean id="nimbus-query.rm.describeSI"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultDescribeSI">
+
+        <constructor-arg ref="nimbus-query.rm.idmappings" />
+        <constructor-arg ref="nimbus-query.rm.describe" />
+        <constructor-arg ref="nimbus-query.general.ra" />
+    </bean>
+    
+    <bean id="nimbus-query.rm.spHistory"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultDescribeSpotPriceHistory">
+          
+        <constructor-arg ref="nimbus-query.general.ra" />
+    </bean>
+
+    <!-- ************ ServiceGeneral *********** -->
+
+    <bean id="nimbus-query.general"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.ServiceGeneralImpl">
+
+        <constructor-arg ref="nimbus-query.general.avzone" />
+
+    </bean>
+
+    <bean id="nimbus-query.general.validity"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.defaults.DefaultValidity" />
+
+     <bean id="nimbus-query.general.ra"
+           class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.defaults.DefaultResourceAllocations"
+           init-method="validate">
+
+         <constructor-arg ref="nimbus-query.rm.modulelocator" />
+
+         <property name="smallMemory" value="$ELASTIC{memory.small}" />
+         <property name="largeMemory" value="$ELASTIC{memory.large}" />
+         <property name="xlargeMemory" value="$ELASTIC{memory.xlarge}" />
+         <property name="smallName" value="$OTHER_ELASTIC{ra.name.small}" />
+         <property name="largeName" value="$OTHER_ELASTIC{ra.name.large}" />
+         <property name="xlargeName" value="$OTHER_ELASTIC{ra.name.xlarge}" />
+         <property name="unknownString" value="$OTHER_ELASTIC{ra.name.unknown}" />
+         <property name="siType" value="$ASYNC{async.instancetype}" />
+
+         <property name="cpuArch" value="$OTHER_ELASTIC{cpu.arch}" />
+         <property name="vmmType" value="$OTHER_ELASTIC{vmm.type}" />
+         <property name="vmmVersion" value="$OTHER_ELASTIC{vmm.version}" />
+
+    </bean>
+
+    <bean id="nimbus-query.general.networks"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.defaults.DefaultNetworks"
+          init-method="validate">
+
+        <property name="publicNetwork" value="$ELASTIC{net.public}" />
+        <property name="privateNetwork" value="$ELASTIC{net.private}" />
+        <property name="noPublicNetwork" value="$OTHER_ELASTIC{unknown.pubnet}" />
+        <property name="noPrivateNetwork" value="$OTHER_ELASTIC{unknown.privnet}" />
+
+    </bean>
+
+    <bean id="nimbus-query.general.avzone"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.defaults.DefaultAvailabilityZones">
+
+        <property name="zones" value="$OTHER_ELASTIC{availability.zones}" />
+
+    </bean>
+
+    <bean id="nimbus-query.general.kernels"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.defaults.DefaultKernels">
+
+        <property name="kernels" value="$OTHER_ELASTIC{kernels}" />
+
+    </bean>
+
+
+    <!-- ************ ServiceSecurity *********** -->
+
+    <bean id="nimbus-query.security"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.security.ServiceSecurityImpl">
+
+        <constructor-arg ref="nimbus-query.security.sshkeys" />
+        <constructor-arg ref="nimbus-query.security.keygen" />
+        <constructor-arg ref="nimbus-query.rm.containerInterface" />
+
+    </bean>
+
+    <bean id="nimbus-query.security.sshkeys"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.security.defaults.DefaultSSHKeys"
+          init-method="validate">
+
+        <!-- key cache provider -->
+        <constructor-arg ref="nimbus-query.rm.idmappings" />
+        <property name="pubkeyOnly" value="$ELASTIC{ssh.pubkey.only}" />
+        <property name="splitToken" value="$ELASTIC{ssh.split.token}" />
+
+    </bean>
+
+    <bean id="nimbus-query.security.keygen"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.security.defaults.DefaultKeyGen"
+          init-method="validate">
+
+        <constructor-arg ref="nimbus-query.security.sshkeys" />
+        <constructor-arg ref="nimbus-query.rm.containerInterface" />
+        <property name="pubkeyOnly" value="$ELASTIC{ssh.pubkey.only}" />
+        <property name="keyType" value="$ELASTIC{ssh.keygen.type}" />
+        <property name="keySize" value="$ELASTIC{ssh.keygen.size}" />
+
+    </bean>
+
+
+    <!-- ************ ServiceImage *********** -->
+
+    <bean id="nimbus-query.image"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.image.ServiceImageImpl">
+
+        <constructor-arg ref="nimbus-query.rm.containerInterface" />
+        <constructor-arg ref="nimbus-query.image.repository" />
+
+    </bean>
+
+     <bean id="nimbus-query.image.repository"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.image.defaults.CumulusRepository"
+          init-method="validate">
+
+        <constructor-arg ref="nimbus-query.rm.containerInterface" />
+        <constructor-arg ref="nimbus-query.rm.modulelocator" />
+        <constructor-arg ref="other.AuthzDataSource" />
+        <constructor-arg ref="other.repo-imageLocator" />
+
+        <property name="cumulusPublicUser" value="$CUMULUS{cumulus.publicuser}" />
+        <property name="repoBucket" value="$CUMULUS{cumulus.repo.bucket}" />
+        <property name="prefix" value="$CUMULUS{cumulus.repo.prefix}" />
+        <property name="rootFileMountAs" value="$OTHER_ELASTIC{rootfile.mountas}" />
+         
+    </bean>
+
+    <bean id="other.repo-imageLocator"
+          class="org.nimbus.authz.CumulusImageLocator"
+          init-method="validate">
+
+        <constructor-arg ref="other.AuthzDataSource" />
+
+        <property name="repoBucket" value="$CUMULUS{cumulus.repo.bucket}" />
+        <property name="prefix" value="$CUMULUS{cumulus.repo.prefix}" />
+        <property name="cumulusHost" value="$CUMULUS{cumulus.host}" />
+        <property name="rootFileMountAs" value="$OTHER_ELASTIC{rootfile.mountas}" />
+
+   </bean>
+
+
+    <!--
+        property sources are concentrated in this file
+    -->
+    <import resource="main.conflocator.xml"/>
+
+</beans>
