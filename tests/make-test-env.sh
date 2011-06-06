@@ -85,6 +85,7 @@ wsc_dst_src=$work_dir/control
 mkdir $wsc_dst_src
 
 install_dir=$work_dir/NIMBUSINSTALL
+export NIMBUS_HOME=$install_dir
 
 cd $nimbus_source_dir
 echo "========================================="
@@ -134,7 +135,10 @@ $install_dir/services/share/nimbus-autoconfig/autoconfig-adjustments.sh
 #cd $work_dir/control
 cd $wsc_dst_src
 pwd
-bash ./src/propagate-only-mode.sh
+if [ "X$NIMBUS_TEST_REAL" == "X" ]; then
+    bash ./src/propagate-only-mode.sh
+fi
+
 if [ $? -ne 0 ]; then
     echo "PROP ONLY MODE CONFIGURATION FAILED"
     exit 1
@@ -253,7 +257,7 @@ done=1
 try_count=0
 while [ $done -ne 0 ];
 do
-    $install_dir/bin/nimbus-nodes --add localhost --memory 10240
+    $src_dir/nimbus-nodes.sh
     if [ $? -eq 0 ]; then
         done=0
     else
@@ -281,7 +285,6 @@ cp $src_dir/public  $install_dir/services/etc/nimbus/workspace-service/network-p
 
 
 echo $work_dir
-export NIMBUS_HOME=$install_dir
 export NIMBUS_TEST_USER=$user_name
 
 echo "Your test environment is:"
@@ -297,4 +300,5 @@ echo "export NIMBUS_TEST_USER=$NIMBUS_TEST_USER" >> $src_dir/env.sh
 echo "export CLOUD_CLIENT_HOME=$CLOUD_CLIENT_HOME" >> $src_dir/env.sh
 echo "export NIMBUS_WORKSPACE_CONTROL_HOME=$NIMBUS_WORKSPACE_CONTROL_HOME" >> $src_dir/env.sh
 echo "export NIMBUS_TEST_USER_CAN_ID=$can_id" >> $src_dir/env.sh
+echo "export NIMBUS_TEST_IMAGE=/etc/group" >> $src_dir/env.sh
 

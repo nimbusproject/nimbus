@@ -4,7 +4,7 @@ backf=`mktemp`
 rm $backf
 cd $CLOUD_CLIENT_HOME
 ./bin/grid-proxy-init.sh
-./bin/cloud-client.sh --transfer --sourcefile /etc/group
+./bin/cloud-client.sh --transfer --sourcefile $NIMBUS_TEST_IMAGE
 if [ $? -ne 0 ]; then
     rm $backf
     echo "upload failed"
@@ -17,7 +17,7 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-diff $backf /etc/group
+diff $backf $NIMBUS_TEST_IMAGE
 if [ $? -ne 0 ]; then
     rm $backf
     echo "diff failed, file corrupted in transfer"

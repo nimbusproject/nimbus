@@ -89,14 +89,14 @@ class TestEC2Submit(unittest.TestCase):
 
     def test_upload_delete_common(self):
         image_name = str(uuid.uuid1())
-        rc = nimbus_public_image.main(["/etc/group", image_name])
+        rc = nimbus_public_image.main([os.environ['NIMBUS_TEST_IMAGE'], image_name])
         self.assertEqual(rc, 0, "public image upload return code should be 0 is %d" % (rc))
         rc = nimbus_public_image.main(["--delete", image_name])
         self.assertEqual(rc, 0, "public image upload return code should be 0 is %d" % (rc))
 
     def test_run_common(self):
         image_name = str(uuid.uuid1())
-        rc = nimbus_public_image.main(["/etc/group", image_name])
+        rc = nimbus_public_image.main([os.environ['NIMBUS_TEST_IMAGE'], image_name])
         self.assertEqual(rc, 0, "public image upload return code should be 0 is %d" % (rc))
 
         image = self.ec2conn.get_image(image_name)

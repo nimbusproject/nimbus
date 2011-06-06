@@ -11,7 +11,7 @@ nh=os.environ['NIMBUS_HOME']
 logfile = sys.stdout
 common_image = str(uuid.uuid1()).replace("-", "")
 
-src_file = "/etc/group"
+src_file = os.environ['NIMBUS_TEST_IMAGE']
 sfa = src_file.split("/")
 image_name = sfa[len(sfa) - 1]
 size=os.path.getsize(src_file)

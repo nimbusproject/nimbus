@@ -16,7 +16,7 @@ user_image_src = "/bin/bash"
 os.system("cp /bin/bash /tmp/%s" % (common_image))
 
 print "upload common image %s" % (common_image)
-cmd = "%s/bin/nimbus-public-image /etc/group %s" % (nh, common_image)
+cmd = "%s/bin/nimbus-public-image %s %s" % (nh, os.environ['NIMBUS_TEST_IMAGE'], common_image)
 (x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile)
 if rc != 0:
     print "failed create the public image"
@@ -41,9 +41,9 @@ if rc != 0:
     print "Down load of the common image failed"
     sys.exit(1)
 
-rc = filecmp.cmp(common_file, "/etc/group")
+rc = filecmp.cmp(common_file, os.environ['NIMBUS_TEST_IMAGE'])
 if not rc:
-    print "The common file download was wrong %s != %s %s" % (common_file, "/etc/group", str(rc))
+    print "The common file download was wrong %s != %s %s" % (common_file, os.environ['NIMBUS_TEST_IMAGE'], str(rc))
     sys.exit(1)
 os.remove(common_file)
 

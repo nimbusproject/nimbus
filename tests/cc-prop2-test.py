@@ -14,7 +14,7 @@ try:
     os.remove(newname)
 except:
     pass
-cmd = "%s/bin/cloud-client.sh --transfer --sourcefile /etc/group" % (cc_home)
+cmd = "%s/bin/cloud-client.sh --transfer --sourcefile %s" % (cc_home, os.environ['NIMBUS_TEST_IMAGE'])
 (x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile)
 
 cmd = "%s/bin/cloud-client.sh --run --name group --hours .25" % (cc_home)
@@ -46,7 +46,7 @@ if rc != 0:
     print "failed to terminate"
     sys.exit(1)
 
-rc = filecmp.cmp(newname, "/etc/group")
+rc = filecmp.cmp(newname, os.environ['NIMBUS_TEST_IMAGE'])
 os.remove(newname)
 if rc:
     sys.exit(0)
