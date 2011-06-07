@@ -260,7 +260,7 @@ class DefaultImageProcurement:
             # client requesting new names
             unproptargets_arg = self.p.get_arg_or_none(wc_args.UNPROPTARGETS)
             if unproptargets_arg:
-                self._process_new_unproptargets(l_files, unproptargets_arg)
+                self._validate_new_unproptargets(l_files, unproptargets_arg)
             
         elif action in [ACTIONS.REMOVE]:
             
@@ -528,12 +528,24 @@ class DefaultImageProcurement:
 
         imgstrs = images.split(';;')
 
+        unproptargets_arg = self.p.get_arg_or_none(wc_args.UNPROPTARGETS)
+        new_unprops = None
+        if unprop and unproptargets_arg:
+            new_unprops = self._get_new_unprop_targets(imgstrs, unproptargets_arg) 
+
         i = 0
         l_files = []
         for imgstr in imgstrs:
             i += 1
             logstr = "image #%d" % i
-            lf = self._one_imagestr(logstr, imgstr, unprop)
+            if unprop and new_unprops:
+                try:
+                    unprop_path = new_unprops[i-1]
+                except IndexError:
+                    unprop_path = None
+                lf = self._one_imagestr(logstr, imgstr, unprop, unprop_path)
+            else:
+                lf = self._one_imagestr(logstr, imgstr, unprop)
             self.c.log.debug("%s is valid" % logstr)
             
             # convention in the past is that first is rootdisk, a new arg
@@ -599,10 +611,9 @@ class DefaultImageProcurement:
     # _one_imagestr() supports _process_image_args() above
     # --------------------------------------------------------------------------
        
-    def _one_imagestr(self, logstr, imgstr, unprop=False):
+    def _one_imagestr(self, logstr, imgstr, unprop=False, new_unprop=None):
         """Convert given imagestr from arguments into LocalFile list.
         """
-
         lf_cls = self.c.get_class_by_keyword("LocalFile")
         lf = lf_cls()
         
@@ -697,7 +708,7 @@ class DefaultImageProcurement:
         # ---------------------------------------------------------------
             
         else:
-            self._one_imagestr_propagation(lf, imgstr, unprop)
+            self._one_imagestr_propagation(lf, imgstr, unprop, new_unprop)
             
         # ---------------------------------------------------------------
             
@@ -743,24 +754,29 @@ class DefaultImageProcurement:
         
         if self.c.trace:
             self.c.log.debug("partition of size %dM is going to be created (blankcreate) at '%s'" % (lf._blankspace, lf.path))
-        
-    def _one_imagestr_propagation(self, lf, imgstr, unprop):
-        
+
+    def _one_imagestr_propagation(self, lf, imgstr, unprop, new_unprop):
+
+        if unprop and new_unprop:
+            validate = new_unprop
+        else:
+            validate = imgstr
+
         for keyword in self.adapters.keys():
             schemestring = keyword + "://"
             schemestring_len = len(schemestring)
             self.c.log.debug("schemestring: %s" % schemestring)
             
             # note: relative paths for local files require "file://"
-            if len(imgstr) <= schemestring_len:
+            if len(validate) <= schemestring_len:
                 raise InvalidInput("image specified is not an absolute path and uses an unknown URL scheme, or perhaps no scheme at all: %s" % imgstr)
                 
-            if imgstr[:schemestring_len] == schemestring:
+            if validate[:schemestring_len] == schemestring:
                 self.c.log.debug("partition/HD is specified w/ %s" % schemestring)
                 
                 adapter = self.adapters[keyword]
                 if unprop:
-                    adapter.validate_unpropagate_target(imgstr)
+                    adapter.validate_unpropagate_target(validate)
                 else:
                     adapter.validate_propagate_source(imgstr)
                 
@@ -793,8 +809,32 @@ class DefaultImageProcurement:
                 ###this host but it does not exist: '%s'" % lf.path)
                 
                 return
-                
-    def _process_new_unproptargets(self, l_files, unproptargets_arg):
+ 
+    def _get_new_unprop_targets(self, original_images, unproptargets_arg):
+        
+        images = list(original_images)
+
+        if unproptargets_arg[0] == "'":
+            unproptargets_arg = unproptargets_arg[1:]
+        # (there is a pathological case where input was only a single quote)
+        if unproptargets_arg and unproptargets_arg[-1] == "'":
+            unproptargets_arg = unproptargets_arg[:-1]
+
+        unproptargets = unproptargets_arg.split(';;')
+
+        for i, image in enumerate(images):
+            try:
+                old_image = images[i]
+                images[i] = unproptargets[i]
+            except IndexError:
+                # No unprop target with to match
+                break
+            self.c.log.debug("old unpropagation target '%s' is now '%s'" % (old_image, images[i]))
+
+        return images
+
+               
+    def _validate_new_unproptargets(self, l_files, unproptargets_arg):
         
         # The given input string might be quoted to escape semicolons for
         # certain delivery methods (e.g., sh over ssh) and some methods may
@@ -824,7 +864,7 @@ class DefaultImageProcurement:
             
         if len(unproptargets) != num_needs:
             raise InvalidInput("received %s argument but cannot match unpropagations scheduled with targets.  There are %d unprop-targets and %d unpropagation needs" % (argname, len(unproptargets), num_needs))
-        
+
         # note how the order is assumed to match -- this is a precarious side
         # effect of the commandline based syntax
         counter = -1
@@ -834,6 +874,7 @@ class DefaultImageProcurement:
                 old = lf._unpropagation_target
                 lf._unpropagation_target = unproptargets[counter]
                 self.c.log.debug("old unpropagation target '%s' is now '%s'" % (old, lf._unpropagation_target))
+         
 
 def url_parse(url):
     parts = url.split('://', 1)
