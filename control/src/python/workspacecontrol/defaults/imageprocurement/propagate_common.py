@@ -260,7 +260,7 @@ class DefaultImageProcurement:
             # client requesting new names
             unproptargets_arg = self.p.get_arg_or_none(wc_args.UNPROPTARGETS)
             if unproptargets_arg:
-                self._validate_new_unproptargets(l_files, unproptargets_arg)
+                self._process_new_unproptargets(l_files, unproptargets_arg)
             
         elif action in [ACTIONS.REMOVE]:
             
@@ -528,10 +528,6 @@ class DefaultImageProcurement:
 
         imgstrs = images.split(';;')
 
-        unproptargets_arg = self.p.get_arg_or_none(wc_args.UNPROPTARGETS)
-        if unprop and unproptargets_arg:
-            imgstrs = self._get_new_unprop_targets(imgstrs, unproptargets_arg) 
-
         i = 0
         l_files = []
         for imgstr in imgstrs:
@@ -747,9 +743,9 @@ class DefaultImageProcurement:
         
         if self.c.trace:
             self.c.log.debug("partition of size %dM is going to be created (blankcreate) at '%s'" % (lf._blankspace, lf.path))
-
+        
     def _one_imagestr_propagation(self, lf, imgstr, unprop):
-
+        
         for keyword in self.adapters.keys():
             schemestring = keyword + "://"
             schemestring_len = len(schemestring)
@@ -797,32 +793,8 @@ class DefaultImageProcurement:
                 ###this host but it does not exist: '%s'" % lf.path)
                 
                 return
- 
-    def _get_new_unprop_targets(self, original_images, unproptargets_arg):
-        
-        images = list(original_images)
-
-        if unproptargets_arg[0] == "'":
-            unproptargets_arg = unproptargets_arg[1:]
-        # (there is a pathological case where input was only a single quote)
-        if unproptargets_arg and unproptargets_arg[-1] == "'":
-            unproptargets_arg = unproptargets_arg[:-1]
-
-        unproptargets = unproptargets_arg.split(';;')
-
-        for i, image in enumerate(images):
-            try:
-                old_image = images[i]
-                images[i] = unproptargets[i]
-            except IndexError:
-                # No unprop target with to match
-                break
-            self.c.log.debug("old unpropagation target '%s' is now '%s'" % (old_image, images[i]))
-
-        return images
-
-               
-    def _validate_new_unproptargets(self, l_files, unproptargets_arg):
+                
+    def _process_new_unproptargets(self, l_files, unproptargets_arg):
         
         # The given input string might be quoted to escape semicolons for
         # certain delivery methods (e.g., sh over ssh) and some methods may
@@ -853,6 +825,15 @@ class DefaultImageProcurement:
         if len(unproptargets) != num_needs:
             raise InvalidInput("received %s argument but cannot match unpropagations scheduled with targets.  There are %d unprop-targets and %d unpropagation needs" % (argname, len(unproptargets), num_needs))
         
+        # note how the order is assumed to match -- this is a precarious side
+        # effect of the commandline based syntax
+        counter = -1
+        for lf in l_files:
+            if lf._unpropagate_needed:
+                counter += 1
+                old = lf._unpropagation_target
+                lf._unpropagation_target = unproptargets[counter]
+                self.c.log.debug("old unpropagation target '%s' is now '%s'" % (old, lf._unpropagation_target))
 
 def url_parse(url):
     parts = url.split('://', 1)
