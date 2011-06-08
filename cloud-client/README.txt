@@ -34,7 +34,7 @@ This will do the following:
 
   6) Set up that directory as GLOBUS_LOCATION for the next step
 
-  7) Call the "../bin/clients-only-build-and-install.sh" script in the Nimbus source tree.
+  7) Call the "../scripts/gt/clients-only-build-and-install.sh" script in the Nimbus source tree.
      Since the embedded Globus directory is set up as GLOBUS_LOCATION, it will install the
      client libraries there.
 
