@@ -50,6 +50,9 @@
         <fileset dir="${nimbus.service.main.lib.dir}">
              <include name="*.jar"/>
         </fileset>
+        <fileset dir="${nimbus.service.main.baselib.dir}">
+             <include name="*.jar"/>
+        </fileset>
         <fileset dir="${nimbus.service.api.dist.dir}">
               <include name="*.jar"/>
         </fileset>

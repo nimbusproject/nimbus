@@ -52,6 +52,10 @@
              <include name="*.jar"/>
         </fileset>
 
+        <fileset dir="${nimbus.metadata-server.lib2.dir}">
+             <include name="*.jar"/>
+        </fileset>
+
         <fileset dir="${nimbus.service.api.dist.dir}">
               <include name="*.jar"/>
         </fileset>
