@@ -1,0 +1,160 @@
+<?xml version="1.0"?>
+
+<project default="create-dist" name="Nimbus ctx broker release build-file" basedir=".">
+
+    <description>
+        Nimbus Ctx Broker buildfile to generate releases.
+    </description>
+
+    <property environment="env"/>
+    <property name="deploy.dir" location="${env.GLOBUS_LOCATION}"/>
+    <property file="./build.properties"/>
+
+    <!-- ==== Clean targets ========================================= -->
+
+    <target name="clean" depends="clean-local, clean-distfiles"
+            description="Clean everything including '../*' project files">
+
+        <ant dir="${nimbus.main.builddir}" target="clean-all"/>
+    </target>
+
+    <target name="clean-local" description="Clean local artifacts">
+        <delete dir="${distbuild.dir}"/>
+        <delete file=".ant-targets-build.xml"/>
+    </target>
+
+    <target name="clean-distfiles" description="Clean release files">
+        <delete dir="${dist.dir}"/>
+    </target>
+
+    <!-- ==== Distribution target =========================== -->
+
+    <!-- The all encompassing target, use this to create a release: -->
+    <target name="create-dist"
+            depends="clean, create-src-dists"
+            description="Create the distribution">
+        <!-- afterwards, clean intermediate artifacts -->
+        <antcall target="clean-local"/>
+    </target>
+
+    <target name="init">
+        <mkdir dir="${distbuild.dir}"/>
+        <mkdir dir="${dist.dir}"/>
+    </target>
+
+    <!-- ==== Utility targets =========================== -->
+
+    <target name="fetch-wscore" unless="wscore.exists">
+        <mkdir dir="${wscore.destdir}"/>
+        <get src="${wscore.url}" dest="${wscore.dest}" />
+    </target>
+
+    <target name="assure-wscore">
+        <available file="${wscore.dest}" property="wscore.exists"/>
+        <antcall target="fetch-wscore"/>
+    </target>
+
+    <!-- ==== Source distribution targets =========================== -->
+
+    <target name="create-src-dists"
+            depends="service-src" />
+
+    <target name="service-src" depends="init, assure-wscore">
+
+        <mkdir dir="${distbuild.dir}/${nimbus.main}"/>
+
+        <copy todir="${distbuild.dir}/${nimbus.main}/scripts">
+            <fileset dir="${nimbus.basedir}/scripts">
+                <exclude name="${nimbus.basedir}/scripts/lib/gt4.0/dist" />
+                <exclude name="${nimbus.basedir}/scripts/lib/gt4.0/brokerdist" />
+            </fileset>
+        </copy>
+
+        <copy tofile="${distbuild.dir}/${nimbus.main}/install"
+            file="${nimbus.basedir}/scripts/install-broker-only"/>
+
+        <copy todir="${distbuild.dir}/${nimbus.main}/tmp">
+            <fileset dir="${nimbus.basedir}/tmp"/>
+        </copy>
+
+        <copy todir="${distbuild.dir}/${nimbus.main}/">
+            <fileset dir="topdocs"/>
+        </copy>
+
+        <copy todir="${distbuild.dir}/${nimbus.main}/home">
+            <fileset dir="${nimbus.basedir}/ctx-broker/home"/>
+        </copy>
+
+        <chmod perm="755">
+            <fileset dir="${distbuild.dir}/${nimbus.main}/scripts">
+                <include name="*"/>
+            </fileset>
+            <fileset dir="${distbuild.dir}/${nimbus.main}/home/bin">
+                <include name="*"/>
+            </fileset>
+        </chmod>
+        <copy todir="${distbuild.dir}/${nimbus.main}/authzdb">
+            <fileset dir="${nimbus.basedir}/authzdb"/>
+        </copy>
+        <copy todir="${distbuild.dir}/${nimbus.main}/query">
+            <fileset dir="${nimbus.basedir}/query"/>
+        </copy>
+        <copy todir="${distbuild.dir}/${nimbus.main}/autocommon">
+            <fileset dir="${nimbus.basedir}/autocommon"/>
+        </copy>
+        <copy todir="${distbuild.dir}/${nimbus.main}/autoconfiguration">
+            <fileset dir="${nimbus.basedir}/autoconfiguration"/>
+        </copy>
+        <copy todir="${distbuild.dir}/${nimbus.main}/ctx-broker">
+            <fileset dir="${nimbus.basedir}/ctx-broker"/>
+        </copy>
+        <mkdir dir="${distbuild.dir}/${nimbus.main}/lib" />
+        <copy todir="${distbuild.dir}/${nimbus.main}/lib/licenses">
+            <fileset dir="${nimbus.basedir}/lib/licenses"/>
+        </copy>
+        <copy todir="${distbuild.dir}/${nimbus.main}/lib/generated">
+            <fileset dir="${nimbus.basedir}/lib/generated"/>
+        </copy>
+        <copy todir="${distbuild.dir}/${nimbus.main}/lib/services">
+            <fileset dir="${nimbus.basedir}/lib/services"/>
+        </copy>
+        <copy todir="${distbuild.dir}/${nimbus.main}/service-api">
+            <fileset dir="${nimbus.basedir}/service-api"/>
+        </copy>
+        
+        <patternset id="service-src-fileset">
+            <include name="${nimbus.main}/*.*"/>
+            <include name="${nimbus.main}/scripts/**"/>
+            <include name="${nimbus.main}/home/**"/>
+            <include name="${nimbus.main}/authzdb/**"/>
+            <include name="${nimbus.main}/query/**"/>
+            <include name="${nimbus.main}/autocommon/**"/>
+            <include name="${nimbus.main}/autoconfiguration/**"/>
+            <include name="${nimbus.main}/ctx-broker/**"/>
+            <include name="${nimbus.main}/lib/**"/>
+            <include name="${nimbus.main}/service-api/**"/>
+            <include name="${nimbus.main}/tmp/**"/>
+        </patternset>
+
+        <fixcrlf srcdir="${distbuild.dir}/${nimbus.main}" includes="**/*.java"
+               tab="remove" tablength="4" eol="lf" javafiles="yes"/>
+
+        <tar destfile="${distbuild.dir}/${nimbus.main}.tar" longfile="gnu">
+
+            <tarfileset dir="${distbuild.dir}">
+                <patternset refid="service-src-fileset"/>
+            </tarfileset>
+            <tarfileset dir="${distbuild.dir}" mode="755">
+                <include name="${nimbus.main}/scripts/**" />
+                <include name="${nimbus.main}/install" />
+            </tarfileset>
+        </tar>
+
+        <gzip src="${distbuild.dir}/${nimbus.main}.tar"
+              destfile="${dist.dir}/${nimbus.main}.${tgz.suffix}"/>
+        
+        <delete file="${distbuild.dir}/${nimbus.main}.tar"/>
+        
+    </target>
+
+</project>

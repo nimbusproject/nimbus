@@ -131,6 +131,7 @@
         </echo>
 
         <ant dir="${nimbus.authzdb.builddir}" target="dist" />
+        <ant dir="${nimbus.querygeneral.builddir}" target="dist" />
         <ant dir="${nimbus.autocommon.gt4_0.builddir}" target="dist" /> <!-- dep -->
         <antcall target="dist-service-api" />
         <antcall target="dist-default-services" />
@@ -145,9 +146,18 @@
         <!-- Build Wizard GAR: -->
         <ant dir="${nimbus.wizard.gt4_0.builddir}" target="dist" />
 
-        <!-- Build Context Broker GAR -->
+        <!-- Build Context Broker -->
         <ant dir="${nimbus.ctx-broker.gt4_0.builddir}" target="dist" />
 
+
+    </target>
+
+    <target name="build-for-standalone-broker" depends="checkgl">
+
+        <ant dir="${nimbus.authzdb.builddir}" target="dist" />
+        <ant dir="${nimbus.querygeneral.builddir}" target="dist" />
+        <ant dir="${nimbus.autocommon.gt4_0.builddir}" target="dist" /> <!-- dep -->
+        <antcall target="dist-service-api" />
 
     </target>
 
@@ -177,7 +187,6 @@
 
 
     </target>
-
 
     <!-- *******************************************************************
          INSTALL JUST JARS (development target)
@@ -239,34 +248,16 @@
     </target>
 
     <!-- *******************************************************************
-         BUILD CONTEXT BROKER
-         ******************************************************************* -->
-
-    <target name="_build-broker"
-            if="build.also">
-        <antcall target="build-broker" />
-    </target>
-
-    <target name="build-broker"
-            depends="checkgl">
-
-        <echo>Building Context Broker:
-        </echo>
-
-        <ant dir="${nimbus.ctx-broker.gt4_0.builddir}" target="dist" />
-    </target>
-
-    <!-- *******************************************************************
          INSTALL CONTEXT BROKER
          ******************************************************************* -->
 
     <target name="deploy-broker"
-            depends="checkgl, _build-broker">
+            depends="checkgl, build-for-standalone-broker">
 
-        <echo>Default Context Broker installation to GT4.0 GLOBUS_LOCATION:
+        <echo>Standalone Context Broker installation:
         </echo>
 
-        <ant dir="${nimbus.ctx-broker.gt4_0.builddir}" target="deploy" />
+        <ant dir="${nimbus.ctx-broker.gt4_0.builddir}" target="deploy-standalone" />
     </target>
 
     <!-- *******************************************************************
