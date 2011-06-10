@@ -31,10 +31,9 @@ setup(name='lantorrent',
 Fast multicast of large files (designed for VM images)
 """,
       license="Apache2",
-      install_requires = ["simplejson <= 2.1, >= 1.9"],
+      install_requires = ["simplejson < 2.1, >= 1.9"],
 
       include_package_data = True,
-#      data_files = test_plans,
       package_data = {},
 
       classifiers=[
@@ -66,7 +65,12 @@ dir = os.path.dirname(__file__)
 if dir:
     ini_template = dir + "/" + ini_template
 ini_template = os.path.abspath(ini_template)
-dst = os.path.abspath(lt_home + "/etc/lt.ini")
+dst_dir = os.path.abspath(lt_home + "/etc")
+try:
+    os.makedirs(dst_dir)
+except Exception, ex:
+    print "Warning | %s" % (str(ex))
+dst = os.path.abspath(dst_dir + "/lt.ini")
 
 print ""
 print "======================="
