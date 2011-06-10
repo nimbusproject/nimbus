@@ -1,0 +1,116 @@
+<?xml version="1.0"?>
+
+<project default="dist" basedir="." name="Query-General Module">
+
+    <description>Query-General Module</description>
+
+    <!-- load user nimbus.build.properties file, if it exists -->
+    <property file="${user.home}/nimbus.build.properties"/>
+
+    <!-- load some defaults from colocated build.properties file -->
+    <property file="build.properties"/>
+
+
+    <!-- *******************************************************************
+         MODULE NAME
+         ******************************************************************* -->
+
+    <target name="disp">
+        <echo message="**** Module: ${basedir}" />
+    </target>
+
+
+    <!-- *******************************************************************
+         CHECK MINIMUM JDK
+         ******************************************************************* -->
+
+    <target name="checkjdk">
+        <available property="jdk1.4+" classname="java.lang.CharSequence"/>
+        <fail message="Aborting: determined you are not building with >= JDK 1.4"
+              unless="jdk1.4+" />
+    </target>
+    
+
+    <!-- *******************************************************************
+         INITIALIZE
+         ******************************************************************* -->
+
+    <target name="init" depends="checkjdk">
+        <mkdir dir="${nimbus.query.main.build.dir}"/>
+        <mkdir dir="${nimbus.query.main.build.dest}"/>
+        <mkdir dir="${nimbus.query.main.dist.dir}"/>
+    </target>
+
+
+    <!-- *******************************************************************
+         COMPILATION
+         ******************************************************************* -->
+
+    <path id="nimbus.query.main.classpath">
+        <fileset dir="${nimbus.query.main.lib.dir}">
+             <include name="*.jar"/>
+        </fileset>
+    </path>
+
+    <target name="compile" depends="init">
+
+        <javac srcdir="${nimbus.query.main.src.dir}"
+               destdir="${nimbus.query.main.build.dest}"
+               classpathref="nimbus.query.main.classpath"
+               source="1.5"
+               target="1.5"
+               includeantruntime="false"
+               debug="on">
+
+            <include name="**/*.java"/>
+            <compilerarg value="${nimbus.java.compilerarg}" />
+            
+        </javac>
+
+        <copy todir="${nimbus.query.main.build.dest}" >
+              <fileset dir="${nimbus.query.main.src.dir}"
+                       includes="**/*.properties" />
+              <fileset dir="${nimbus.query.main.src.dir}"
+                       includes="**/*.xml" />
+              <fileset dir="${nimbus.query.main.src.dir}"
+                       includes="**/*.txt" />
+        </copy>
+
+    </target>
+
+    
+    <!-- *******************************************************************
+         CREATE ARCHIVE FILE
+         ******************************************************************* -->
+
+    <target name="jar" depends="compile">
+        <jar destfile="${nimbus.query.main.dist.dir}/${nimbus.query.main.jar.name}"
+             basedir="${nimbus.query.main.build.dest}"/>
+    </target>
+
+    
+    <!-- *******************************************************************
+         CREATE DISTRIBUTION
+         ******************************************************************* -->
+
+    <target name="dist">
+        <echo message="**** Module: ${basedir}" />
+        <echo>Building: ${nimbus.query.main.print-noun}</echo>
+        <antcall target="jar" />
+        <echo>Built: ${nimbus.query.main.print-noun}
+        </echo>
+    </target>
+
+    
+    <!-- *******************************************************************
+         CLEAN
+         ******************************************************************* -->
+
+    <target name="clean">
+        <delete dir="${nimbus.query.main.build.dir}"/>
+        <delete dir="${nimbus.query.main.dist.dir}"/>
+        <delete dir="tmp"/>
+        <echo message="Cleaned: ${basedir}" />
+    </target>
+
+</project>
