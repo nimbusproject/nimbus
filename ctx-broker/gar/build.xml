@@ -130,6 +130,38 @@
 
     </target>
 
+
+    <!-- *******************************************************************
+         COPIES FOR LIB DIRECTORY FOR STANDALONE DISTRIBUTION
+         ******************************************************************* -->
+    
+    <target name="copy_libraries" depends="init">
+
+        <copy todir="${nimbusctx.gt4_0.gar.build.lib.dir}">
+
+            <fileset dir="${nimbusctx.baselibservices.dir}">
+                <include name="*.jar"/>
+                <include name="*LICENSE*"/>
+            </fileset>
+            <fileset dir="${nimbusctx.service.api.dist.dir}">
+                <include name="*.jar"/>
+                <include name="*LICENSE*"/>
+            </fileset>
+            <fileset dir="${nimbusctx.authzdbmodule.dist.dir}">
+                <include name="*.jar"/>
+                <include name="*LICENSE*"/>
+            </fileset>
+            <fileset dir="${nimbusctx.autocommon.dist.dir}">
+                <include name="*.jar"/>
+                <include name="*LICENSE*"/>
+            </fileset>
+            <fileset dir="${nimbusctx.querygeneral.dist.dir}">
+                <include name="*.jar"/>
+                <include name="*LICENSE*"/>
+            </fileset>
+        </copy>
+    </target>
+
     
     <!-- *******************************************************************
          COPIES FOR ETC DIRECTORY
@@ -140,7 +172,19 @@
             <fileset dir="${nimbusctx.gt4_0.gar.etc.dir}" />
         </copy>
     </target>
-    
+
+    <target name="copy-bundled-main.xml">
+        <copy tofile="${nimbusctx.gt4_0.gar.etc.dir}/other/main.xml"
+              file="${nimbusctx.gt4_0.gar.etc.dir}/other/bundled-main.xml" />
+        <echo>Broker context: bundled-main.xml</echo>
+    </target>
+
+    <target name="copy-standalone-main.xml">
+        <copy tofile="${nimbusctx.gt4_0.gar.etc.dir}/other/main.xml"
+              file="${nimbusctx.gt4_0.gar.etc.dir}/other/standalone-main.xml" />
+        <echo>Broker context: standalone-main.xml</echo>
+    </target>
+
     
     <!-- *******************************************************************
          CREATE DISTRIBUTION
@@ -165,7 +209,14 @@
         <delete dir="tmp"/>
     </target>
 
-    <target name="dist" depends="disp">
+    <target name="dist-bundled" depends="disp, copy-bundled-main.xml">
+        <echo>Building: ${nimbusctx.gt4_0.gar.print-noun}</echo>
+        <antcall target="_dist" />
+        <echo>Built: ${nimbusctx.gt4_0.gar.print-noun}
+        </echo>
+    </target>
+
+    <target name="dist-standalone" depends="disp, copy_libraries, copy-standalone-main.xml">
         <echo>Building: ${nimbusctx.gt4_0.gar.print-noun}</echo>
         <antcall target="_dist" />
         <echo>Built: ${nimbusctx.gt4_0.gar.print-noun}
@@ -264,4 +315,3 @@ Did you build?
     </target>
 
 </project>
-    
