@@ -43,3 +43,5 @@ setuptools-0.6c11-py2.7.egg
 cumulus/deps/boto-2.0b4.tar.gz
 /cumulus/pip-0.7.2.tar.gz
 lantorrent/lantorrent.egg-info/
+ctx-broker/gar/etc/other/main.xml
+
