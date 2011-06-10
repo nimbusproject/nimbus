@@ -15,6 +15,7 @@
  */
 package org.nimbustools.messaging.query.security;
 
+import org.nimbustools.querygeneral.security.QueryUser;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.Authentication;
 

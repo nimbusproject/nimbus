@@ -15,6 +15,8 @@
  */
 package org.nimbustools.messaging.query.security;
 
+import org.nimbustools.querygeneral.security.QueryUser;
+import org.nimbustools.querygeneral.security.QueryUserDetailsService;
 import org.nimbustools.api._repr._Caller;
 import org.nimbustools.api.brain.ModuleLocator;
 import org.nimbustools.api.repr.Caller;
