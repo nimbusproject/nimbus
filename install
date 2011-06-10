@@ -117,6 +117,7 @@ fi
 export NIMBUS_HOME
 source $pyve_path/bin/activate
 export LANTORRENT_HOME=$NIMBUS_HOME/lantorrent
+
 $NIMBUS_SRC/lantorrent/install.sh $LANTORRENT_HOME | tee -a $NIMBUS_HOME/install.log
 rc=$PIPESTATUS
 if [ $rc -ne 0 ]; then

@@ -34,7 +34,7 @@ setup(name='lantorrent',
 Fast multicast of large files (designed for VM images)
 """,
       license="Apache2",
-      install_requires = ["simplejson == 2.1", "sqlalchemy == 0.6"],
+      install_requires = ["simplejson <= 2.1, >= 1.9", "sqlalchemy == 0.6"],
 
       include_package_data = True,
 #      data_files = test_plans,
