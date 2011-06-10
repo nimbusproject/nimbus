@@ -61,7 +61,7 @@ for test_suite in $ALL_TEST_SUITES; do
   echo ""
   echo ""
   
-  ms_before=`echo $(($(date +%s%N)/1000000))`
+  ms_before=`python -c "import time; print int(time.time()*1000)"`
 
   ant -Dnimbussuites.test.reports.dir=$REPORTS_DIR -f $ANTFILE $test_suite
   RET=$?
@@ -75,7 +75,7 @@ for test_suite in $ALL_TEST_SUITES; do
 	FAILED_SUITES="$test_suite $FAILED_SUITES"
   fi
   
-  ms_after="$(($(date +%s%N)/1000000))"
+  ms_after=`python -c "import time; print int(time.time()*1000)"`
   ms_this=`expr $ms_after - $ms_before`
   TIMINGS="$TIMINGS - $test_suite: $ms_this ms\n"
   total_time=`expr $total_time + $ms_this`
@@ -113,7 +113,4 @@ else
 fi
 echo ""
 
-if [ $error_count -eq 0 ]; then
-  exit 1
-fi
-exit 0
+exit $error_count
