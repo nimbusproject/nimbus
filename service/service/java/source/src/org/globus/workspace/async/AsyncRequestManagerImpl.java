@@ -824,7 +824,7 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
 
                 final String sourceStr = "via async-Manager-preempt, request " +
                 "id = '" + request.getId() + "'";
-                String errorStr = home.destroyMultiple(preemptionList, sourceStr);
+                String errorStr = home.destroyMultiple(preemptionList, sourceStr, true);
                 if(errorStr != null && errorStr.length() != 0){
                     failRequest("pre-empting", request, errorStr, null);
                 }
