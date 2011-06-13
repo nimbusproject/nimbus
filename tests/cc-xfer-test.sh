@@ -17,7 +17,7 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-diff $backf $NIMBUS_TEST_IMAGE
+diff $backf $NIMBUS_SOURCE_TEST_IMAGE
 if [ $? -ne 0 ]; then
     rm $backf
     echo "diff failed, file corrupted in transfer"
