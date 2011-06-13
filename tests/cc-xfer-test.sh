@@ -10,7 +10,7 @@ if [ $? -ne 0 ]; then
     echo "upload failed"
     exit 1
 fi
-./bin/cloud-client.sh --download --name group --localfile $backf
+./bin/cloud-client.sh --download --name $NIMBUS_TEST_IMAGE --localfile $backf
 if [ $? -ne 0 ]; then
     rm $backf
     echo "download failed"
@@ -24,7 +24,7 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-./bin/cloud-client.sh --delete --name group --localfile $backf
+./bin/cloud-client.sh --delete --name $NIMBUS_TEST_IMAGE --localfile $backf
 rm $backf
 exit 0
 
