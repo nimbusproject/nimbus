@@ -202,6 +202,9 @@ public interface PersistenceAdapter {
     public List<ResourcepoolEntry> getAvailableEntriesSortedByFreeMemoryPercentage(int requestedMem) 
     
             throws WorkspaceDatabaseException;
+
+    // returns true if memory request is bigger than any VMM could ever handle
+    public boolean isInfeasibleRequest(int requestedMem) throws WorkspaceDatabaseException;
     
     //Spot Instances
     

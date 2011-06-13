@@ -21,6 +21,7 @@ import org.apache.commons.logging.LogFactory;
 import org.globus.workspace.Lager;
 import org.globus.workspace.persistence.PersistenceAdapter;
 import org.globus.workspace.persistence.WorkspaceDatabaseException;
+import org.nimbustools.api.services.rm.ImpossibleAmountOfMemoryException;
 import org.nimbustools.api.services.rm.NotEnoughMemoryException;
 import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
 import org.nimbustools.api.services.rm.ManageException;
@@ -218,7 +219,12 @@ class ResourcepoolUtil {
 
         if (trace) {
             traceLookingForResource(mem, neededAssociations, greedy);
-        }        
+        }
+
+        if (db.isInfeasibleRequest(mem)) {
+            throw new ImpossibleAmountOfMemoryException(mem + "MB memory request is too " +
+                                            "large to ever be fulfilled");
+        }
 
         //availableEntries is never empty
         final List<ResourcepoolEntry> availableEntries =

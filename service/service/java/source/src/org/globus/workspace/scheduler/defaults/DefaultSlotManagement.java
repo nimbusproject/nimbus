@@ -39,6 +39,7 @@ import org.globus.workspace.service.WorkspaceHome;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.globus.workspace.service.binding.vm.VirtualMachineDeployment;
 import org.nimbustools.api.services.rm.DoesNotExistException;
+import org.nimbustools.api.services.rm.ImpossibleAmountOfMemoryException;
 import org.nimbustools.api.services.rm.ManageException;
 import org.nimbustools.api.services.rm.NotEnoughMemoryException;
 import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
@@ -424,6 +425,8 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
                     throw new ProgrammingError(
                                     "returned node should not be null");
                 }
+            } catch (ImpossibleAmountOfMemoryException e) {
+                throw e;
             } catch (NotEnoughMemoryException e) {
                 if(!preemptable){
                     try {
@@ -440,6 +443,11 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
                         Integer realAvailable = availableMemory + usedPreemptable;
                         
                         Integer neededMem = (vmids.length-i)*memory;
+
+                        if (usedPreemptable == 0) {
+                            // impossible to fulfill the request
+                            throw e;
+                        }
 
                         if(realAvailable >= neededMem){
                             //There will be sufficient space to
