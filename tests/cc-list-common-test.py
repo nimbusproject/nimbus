@@ -5,7 +5,7 @@ import sys
 import os
 import uuid
 
-to=90
+int(os.environ[NIMBUS_TEST_TIMEOUT])
 tst_image_name = os.environ['NIMBUS_TEST_IMAGE']
 tst_image_src = os.environ['NIMBUS_SOURCE_TEST_IMAGE']
 

@@ -302,4 +302,5 @@ echo "export NIMBUS_WORKSPACE_CONTROL_HOME=$NIMBUS_WORKSPACE_CONTROL_HOME" >> $s
 echo "export NIMBUS_TEST_USER_CAN_ID=$can_id" >> $src_dir/env.sh
 echo "export NIMBUS_TEST_IMAGE=group" >> $src_dir/env.sh
 echo "export NIMBUS_SOURCE_TEST_IMAGE=/etc/group" >> $src_dir/env.sh
+echo "export NIMBUS_TEST_TIMEOUT=90" >> $src_dir/env.sh
 

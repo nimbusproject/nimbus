@@ -16,7 +16,7 @@ s3cfguser=os.path.join(os.environ['HOME'], ".s3cfg.reg")
 os.rename(s3cfg, bkname)
 shutil.copyfile(s3cfguser, s3cfg)
 try:
-    to=90
+    int(os.environ[NIMBUS_TEST_TIMEOUT])
     cc_home=os.environ['CLOUD_CLIENT_HOME']
     logfile = sys.stdout
     newname=str(uuid.uuid1()).replace("-", "")
