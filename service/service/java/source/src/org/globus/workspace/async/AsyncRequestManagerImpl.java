@@ -363,7 +363,10 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
      * @throws ManageException problem
      */
     public void stateNotification(int vmid, int state) throws ManageException {
-        if(state == WorkspaceConstants.STATE_DESTROYING){
+        if(state == WorkspaceConstants.STATE_DESTROYING  ||
+           state == WorkspaceConstants.STATE_DESTROY_FAILED ||
+           state == WorkspaceConstants.STATE_DESTROY_SUCCEEDED) {
+            
             AsyncRequest request = this.getRequestFromVM(vmid);
             if(request != null){
                 logger.debug(Lager.ev(-1) + "VM '" + vmid + "' from request '" + request.getId() + "' finished.");
@@ -1213,4 +1216,14 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
         return maxVMs;
     }
 
+
+    // -----------------------------------------------------------------------------------------
+    // LIFECYCLE
+    // -----------------------------------------------------------------------------------------
+
+    public void shutdownImmediately() {
+        if (this.asyncRequestMap != null) {
+            this.asyncRequestMap.shutdownImmediately();
+        }
+    }
 }

@@ -22,6 +22,7 @@ import java.net.URISyntaxException;
 import org.nimbustools.api._repr._Caller;
 import org.nimbustools.api._repr._CreateRequest;
 import org.nimbustools.api._repr._AsyncCreateRequest;
+import org.nimbustools.api._repr._ShutdownTasks;
 import org.nimbustools.api._repr._SpotCreateRequest;
 import org.nimbustools.api._repr.vm._NIC;
 import org.nimbustools.api._repr.vm._RequiredVMM;
@@ -32,6 +33,7 @@ import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.CreateRequest;
 import org.nimbustools.api.repr.ReprFactory;
 import org.nimbustools.api.repr.AsyncCreateRequest;
+import org.nimbustools.api.repr.ShutdownTasks;
 import org.nimbustools.api.repr.SpotCreateRequest;
 import org.nimbustools.api.repr.si.SIConstants;
 import org.nimbustools.api.repr.vm.NIC;
@@ -167,5 +169,11 @@ public class ReprPopulator {
         populate(backfill, 500, name, SIConstants.SI_TYPE_BASIC_MEM, numNodes, true, null, null);
                 
         return backfill;
-    }    
+    }
+
+    public ShutdownTasks getShutdownTasks() throws URISyntaxException {
+        final _ShutdownTasks sht = this.repr._newShutdownTasks();
+        sht.setBaseFileUnpropagationTarget(new URI("something"));
+        return sht;
+    }
 }

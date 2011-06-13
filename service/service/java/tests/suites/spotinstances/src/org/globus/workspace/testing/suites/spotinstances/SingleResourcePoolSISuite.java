@@ -422,7 +422,10 @@ public class SingleResourcePoolSISuite extends NimbusTestBase {
         assertEquals(1, cancelledBackfillReqs.length);
         assertEquals(RequestState.STATE_Canceled, cancelledBackfillReqs[0].getState().getStateStr());
         assertEquals(backfillResult.getRequestID(), cancelledBackfillReqs[0].getRequestID());        
-        
+
+        logger.debug("Waiting for termination.");
+        Thread.sleep(2100);
+
         //Check backfill request state
         RequestInfo backfillReq = rm.getBackfillRequest(backfillResult.getRequestID(), superuser);
         assertEquals(0, backfillReq.getVMIds().length);

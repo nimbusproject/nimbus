@@ -12,7 +12,7 @@ cc_home=os.environ['CLOUD_CLIENT_HOME']
 logfile = sys.stdout
 newname=str(uuid.uuid1()).replace("-", "")
 
-src_file = "/etc/group"
+src_file = os.environ['NIMBUS_TEST_IMAGE']
 sfa = src_file.split("/")
 image_name = sfa[len(sfa) - 1]
 

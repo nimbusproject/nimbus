@@ -139,4 +139,10 @@ public class AsyncRequestMap {
         }
         logger.info("Found " + count + " spot requests on disk.");
     }
+
+    void shutdownImmediately() {
+        if (this.cache != null) {
+            this.cache.removeAll();
+        }
+    }
 }

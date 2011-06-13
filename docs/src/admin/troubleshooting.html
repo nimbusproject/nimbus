@@ -31,6 +31,9 @@ _NIMBUS_IS_DEPRECATED
     <li>
         <a href="#service">Service related</a>
     </li>
+    <li>
+        <a href="#kvm">KVM VMM Setup</a>
+    </li>
 </ul>
 
 
@@ -371,6 +374,34 @@ org.nimbus.authz.AuthzDBException: no such parent file found Repo 1</pre>
         </p>
         <pre class="screen">$NIMBUS_HOME/ve/bin/cumulus-create-repo-admin nimbusadmin@localhost Repo</pre>
     </li>
+</ul>
+
+
+
+<a name="kvm"> </a>
+<h2>KVM VMM Setup</h2>
+
+<ul>
+    <li>
+        <a name="internalerroronly1ide"> </a>
+        <p>
+            Problem: When testing the sample KVM image virsh create throws the 
+            error 
+            <pre>
+# virsh -c 'qemu:///system' create /tmp/z2c.xml
+error: Failed to create domain from /tmp/z2c.xml
+error: internal error Only 1 ide controller is supported
+            </pre>
+
+            _NAMELINK(internalerroronly1ide)
+        </p>
+        <p>
+            Solution: Make sure that you specified the mountpoint hda and 
+            not sda1 or hda1.
+        </p>
+    </li>
+
+<br /><hr />
 </ul>
 
 <br />

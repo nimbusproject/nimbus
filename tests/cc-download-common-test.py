@@ -13,7 +13,7 @@ nh=os.environ['NIMBUS_HOME']
 logfile = sys.stdout
 common_image = str(uuid.uuid1()).replace("-", "")
 
-cmd = "%s/bin/nimbus-public-image /etc/group %s" % (nh, common_image)
+cmd = "%s/bin/nimbus-public-image %s %s" % (nh, os.environ['NIMBUS_TEST_IMAGE'], common_image)
 (x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile)
 if rc != 0:
     print "failed create the public image"
@@ -31,7 +31,7 @@ if rc != 0:
     print "Download of the common image failed"
     sys.exit(1)
 
-rc = filecmp.cmp(outFileName, "/etc/group")
+rc = filecmp.cmp(outFileName, os.environ['NIMBUS_TEST_IMAGE'])
 os.remove(outFileName)
 if not rc:
     sys.exit(1)

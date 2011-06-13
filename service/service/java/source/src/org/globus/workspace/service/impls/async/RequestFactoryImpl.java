@@ -73,6 +73,7 @@ public class RequestFactoryImpl implements RequestFactory {
 
     public static final String XEN_LOCAL = "xenlocal";
     public static final String XEN_SSH = "xenssh";
+    public static final String FAILURE_COMMANDS = "failure_commands"; // for test suites only
 
     private static final String sshP =
                                   "org.globus.workspace.xen.xenssh";
@@ -423,6 +424,9 @@ public class RequestFactoryImpl implements RequestFactory {
         } else if (keyword.trim().equalsIgnoreCase(XEN_LOCAL)) {
             result = loadLocal();
             this.commandSet = XEN_LOCAL;
+        } else if (keyword.trim().equalsIgnoreCase(FAILURE_COMMANDS)) {
+            result = loadFailureCommands();
+            this.commandSet = FAILURE_COMMANDS;
         }
 
         // addressed Bug 6998 until Bug 7063 can be fixed
@@ -444,6 +448,18 @@ public class RequestFactoryImpl implements RequestFactory {
     private boolean loadLocal() {
         try {
             loadXenCommon(locP);
+            return true;
+        } catch (Throwable e) {
+            logger.fatal("",e);
+            return false;
+        }
+    }
+
+    private boolean loadFailureCommands() {
+        try {
+            final String prefix = sshP;
+            loadXenCommon(prefix);
+            testingReplaceShutdownTrash(prefix);
             return true;
         } catch (Throwable e) {
             logger.fatal("",e);
@@ -482,5 +498,15 @@ public class RequestFactoryImpl implements RequestFactory {
         this.impls.put(cancelReadyingForTr, Class.forName(pre + ".ShutdownTrash"));
 
         this.impls.put(cancelReadyForTr, null);
+    }
+
+    // See the MockShutdownTrash notes.
+    private void testingReplaceShutdownTrash(String pre) throws Throwable {
+        this.impls.put(cancelPropagating, Class.forName(pre + ".MockShutdownTrash"));
+        this.impls.put(cancelPropToStart, Class.forName(pre + ".MockShutdownTrash"));
+        this.impls.put(cancelPropToPause, Class.forName(pre + ".MockShutdownTrash"));
+        this.impls.put(shutdownTrash, Class.forName(pre + ".MockShutdownTrash"));
+        this.impls.put(cancelAllAtVMM, Class.forName(pre + ".MockShutdownTrash"));
+        this.impls.put(cancelReadyingForTr, Class.forName(pre + ".MockShutdownTrash"));
     }
 }

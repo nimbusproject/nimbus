@@ -20,7 +20,7 @@ try:
     newname=str(uuid.uuid1()).replace("-", "")
     localfile=str(uuid.uuid1()).replace("-", "")
 
-    src_file = "/etc/group"
+    src_file = os.environ['NIMBUS_TEST_IMAGE']
     sfa = src_file.split("/")
     image_name = sfa[len(sfa) - 1]
     size=os.path.getsize(src_file)
@@ -56,7 +56,7 @@ try:
     if rc != 0:
         print "failed to save"
         sys.exit(1)
-    rc = filecmp.cmp(localfile, "/etc/group")
+    rc = filecmp.cmp(localfile, os.environ['NIMBUS_TEST_IMAGE'])
     os.remove(localfile)
     if not rc:
         print "files differ"

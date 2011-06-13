@@ -221,7 +221,7 @@ public class IdempotentInstanceResource implements InstanceResource {
         throw new UnsupportedOperationException(UNSUPPORTED_MSG);
     }
 
-    public void remove() {
+    public boolean remove() {
         throw new UnsupportedOperationException(UNSUPPORTED_MSG);
     }
 
@@ -314,6 +314,10 @@ public class IdempotentInstanceResource implements InstanceResource {
     }
 
     public double getChargeRatio() {
+        throw new UnsupportedOperationException(UNSUPPORTED_MSG);
+    }
+
+    public boolean isZombie() {
         throw new UnsupportedOperationException(UNSUPPORTED_MSG);
     }
 }

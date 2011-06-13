@@ -41,9 +41,9 @@ if [ -d $NIMBUS_HOME ] && [ "$(ls -A $NIMBUS_HOME)" ]; then
         echo "The destination directory '$NIMBUS_HOME' exists and is not empty."
         echo "It is not recommended to reinstall Nimbus into an existing install."
         echo ""
-        echo "If you are making changes to the services, you can build and install those directly:"
+        echo "If you are making changes to the service code, you can build and install those directly:"
         echo "    export GLOBUS_LOCATION=$NIMBUS_HOME/services"
-        echo "    scripts/all-build-and-install.sh"
+        echo "    scripts/jars-build-and-install.sh"
         echo ""
         echo "If you know what you are doing and want to reinstall, edit this script:"
         echo "    $0"
@@ -117,6 +117,7 @@ fi
 export NIMBUS_HOME
 source $pyve_path/bin/activate
 export LANTORRENT_HOME=$NIMBUS_HOME/lantorrent
+
 $NIMBUS_SRC/lantorrent/install.sh $LANTORRENT_HOME | tee -a $NIMBUS_HOME/install.log
 rc=$PIPESTATUS
 if [ $rc -ne 0 ]; then

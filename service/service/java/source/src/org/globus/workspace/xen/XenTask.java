@@ -37,6 +37,7 @@ public abstract class XenTask implements WorkspaceRequest {
 
     protected String name;
     protected boolean doFakeLag;
+    protected boolean doFakeFail;
     protected String[] cmd;
 
     // if success just means another asynchronous task was started
@@ -112,7 +113,7 @@ public abstract class XenTask implements WorkspaceRequest {
             }
         } else {
             if (event) {
-                logger.info(Lager.ev(ctx.getId()) + this.name + " failed");
+                logger.error(Lager.ev(ctx.getId()) + this.name + " failed");
             } else if (trace) {
                 logger.trace(Lager.id(ctx.getId()) + ": " +
                                                 this.name + " failed");
@@ -166,6 +167,12 @@ public abstract class XenTask implements WorkspaceRequest {
                 } catch (InterruptedException e) {
                     logger.error("",e);
                 }
+            }
+
+            // For testing with mock task system
+            if (this.doFakeFail) {
+                return XenUtil.translateReturnException(
+                        new ReturnException(1, "Instructed to fail."));
             }
 
             if (eventLog) {
@@ -231,11 +238,12 @@ public abstract class XenTask implements WorkspaceRequest {
             // before it is implemented (i.e., make just this one thing fake
             // for the timebeing without using the fakeness infrastructure
             // for other commands...).
-
             if (this.cmd != null) {
                 WorkspaceUtil.runCommand(this.cmd, eventLog, traceLog, id);
             }
+
             return null;
+
         } catch (ReturnException e) {
             return XenUtil.translateReturnException(e);
         } catch (WorkspaceException e) {

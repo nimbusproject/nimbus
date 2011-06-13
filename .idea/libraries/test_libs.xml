@@ -2,8 +2,8 @@
   <library name="test-libs">
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/lib/test/junit-4.8.2.jar!/" />
-      <root url="jar://$PROJECT_DIR$/lib/test/testng-5.12.1.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/test/org.springframework.test-3.0.0.RELEASE.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/test/testng-6.0.1.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

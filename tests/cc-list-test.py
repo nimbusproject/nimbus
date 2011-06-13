@@ -11,7 +11,7 @@ logfile = sys.stdout
 (x, rc)=pexpect.run("%s/bin/cloud-client.sh --delete --name group" % (cc_home), withexitstatus=1)
 print x
 
-cmd = "%s/bin/cloud-client.sh --transfer --sourcefile /etc/group" % (cc_home)
+cmd = "%s/bin/cloud-client.sh --transfer --sourcefile %s" % (cc_home, os.environ['NIMBUS_TEST_IMAGE'])
 (x, rc)=pexpect.run(cmd, withexitstatus=1)
 print x
 if rc != 0:

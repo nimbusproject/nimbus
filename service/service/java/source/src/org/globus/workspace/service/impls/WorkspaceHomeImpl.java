@@ -438,8 +438,9 @@ public abstract class WorkspaceHomeImpl implements WorkspaceHome,
 
         try {
             final InstanceResource resource = this.find(id);
-            resource.remove();
-            this.cache.remove(id);
+            if (resource.remove()) {
+                this.cache.remove(id);
+            }
 
         } finally {
             lock.unlock();
@@ -513,6 +514,9 @@ public abstract class WorkspaceHomeImpl implements WorkspaceHome,
         if (this.executor != null) {
             this.executor.shutdownNow();
         }
+        if (this.cache != null) {
+            this.cache.removeAll();
+        }
     }
 
     /**
@@ -542,6 +546,8 @@ public abstract class WorkspaceHomeImpl implements WorkspaceHome,
         this.scheduledExecutor.setRemoveOnCancelPolicy(true);
         this.scheduledExecutor.setMaximumPoolSize(5);
 
+        // Pass in the general executor, not the scheduled one.  Sweeper uses that to
+        // execute any tasks it creates.
         final ResourceSweeper sweeper =
                 new ResourceSweeper(this.executor, this, this.lager);
 

@@ -164,6 +164,14 @@ public class ResourceSweeper implements Runnable {
                                                   currentTime);
 
                 if (expired) {
+                    logger.debug("Sweep found that " + Lager.id(sw.getID()) + " is expired.");
+                }
+                if (sw.isZombie()) {
+                    logger.warn(Lager.ev(sw.getID()) + "Node that could not be destroyed " +
+                                        "previously, attempting again.");
+                }
+
+                if (expired || sw.isZombie()) {
                     final DestroyFutureTask task =
                             new DestroyFutureTask(sw.getID(), this.home);
 

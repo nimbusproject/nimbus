@@ -8,7 +8,7 @@ to=90
 cc_home=os.environ['CLOUD_CLIENT_HOME']
 logfile = sys.stdout
 
-cmd = "%s/bin/cloud-client.sh --transfer --sourcefile /etc/group" % (cc_home)
+cmd = "%s/bin/cloud-client.sh --transfer --sourcefile %s" % (cc_home, os.environ['NIMBUS_TEST_IMAGE'])
 (x, rc)=pexpect.run(cmd, withexitstatus=1)
 
 cmd = "%s/bin/cloud-client.sh --run --name group --hours .25" % (cc_home)

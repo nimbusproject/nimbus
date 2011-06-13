@@ -23,4 +23,6 @@ public interface Sweepable {
     public int getID();
     
     public Calendar getTerminationTime();
+
+    public boolean isZombie();
 }
