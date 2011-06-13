@@ -32,9 +32,10 @@ import java.rmi.NotBoundException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 
-public class AdminClient {
+public class AdminClient extends RMIConfig {
 
     private static final Log logger =
             LogFactory.getLog(AdminClient.class.getName());
@@ -44,7 +45,6 @@ public class AdminClient {
     public static final int EXIT_EXECUTION_PROBLEM = 2;
     public static final int EXIT_UNKNOWN_PROBLEM = 3;
 
-    private static final String PROP_SOCKET_DIR = "socket.dir";
     private static final String PROP_RMI_BINDING_NODEMGMT_DIR = "rmi.binding.nodemgmt";
     private static final String PROP_DEFAULT_MEMORY = "node.memory.default";
     private static final String PROP_DEFAULT_NETWORKS = "node.networks.default";
@@ -85,9 +85,6 @@ public class AdminClient {
     private boolean nodeActive = true;
     private boolean nodeActiveConfigured;
 
-    private String configPath;
-    private File socketDirectory;
-    private String nodePoolBindingName;
     private RemoteNodeManagement remoteNodeManagement;
     private Reporter reporter;
     private OutputStream outStream;
@@ -170,8 +167,8 @@ public class AdminClient {
             return;
         }
 
-        this.loadConfig(this.configPath);
-        this.setupRemoting();
+        this.loadAdminClientConfig();
+        this.remoteNodeManagement = (RemoteNodeManagement) super.setupRemoting();
 
         switch (this.action) {
             case AddNodes:
@@ -287,97 +284,15 @@ public class AdminClient {
         }
     }
 
-    private void setupRemoting() throws ExecutionProblem {
-        final RemotingClient client = new RemotingClient();
-        client.setSocketDirectory(this.socketDirectory);
 
-        try {
-            client.initialize();
-        } catch (RemoteException e) {
-            handleRemoteException(e);
-        }
+    private void loadAdminClientConfig() throws ParameterProblem, ExecutionProblem {
 
-        try {
-            final Remote remote = client.lookup(this.nodePoolBindingName);
-            logger.debug("Found remote object " + remote.toString());
-            this.remoteNodeManagement = (RemoteNodeManagement) remote;
-        } catch (RemoteException e) {
-            handleRemoteException(e);
-        } catch (NotBoundException e) {
-            throw new ExecutionProblem("Failed to bind to object '" +
-                    this.nodePoolBindingName +
-                    "'. There may be a configuration problem between the "+
-                    "client and service. Error: "+ e.getMessage(), e);
-        }
-    }
-
-    private void handleRemoteException(RemoteException e) throws ExecutionProblem {
-        throw new ExecutionProblem(
-                "Failed to connect to Nimbus service over domain sockets. "+
-                "Is the service running?\n\nSocket directory: " +
-                this.socketDirectory.getAbsolutePath() + "\n\nError: " +
-                e.getMessage(), e);
-    }
-
-    private void loadConfig(String configPath)
-            throws ParameterProblem, ExecutionProblem {
-        if (configPath == null) {
-            throw new ParameterProblem("Config path is invalid");
-        }
-
-        final File configFile = new File(configPath);
-
-        logger.debug("Loading config file: " + configFile.getAbsolutePath());
-
-        if (!configFile.canRead()) {
-            throw new ParameterProblem(
-                    "Specified config file path does not exist or is not readable: " +
-                            configFile.getAbsolutePath());
-        }
-
-        final Properties props = new Properties();
-        try {
-            FileInputStream inputStream = null;
-            try {
-                inputStream = new FileInputStream(configFile);
-                props.load(inputStream);
-            } finally {
-                if (inputStream != null) {
-                    inputStream.close();
-                }
-            }
-        } catch (IOException e) {
-            logger.debug("Caught error reading config file " + configFile.getAbsolutePath(), e);
-            throw new ParameterProblem("Failed to load config file: " +
-                    configFile.getAbsolutePath() + ": " + e.getMessage(), e);
-        }
-
-        final String sockDir = props.getProperty(PROP_SOCKET_DIR);
-        if (sockDir == null) {
-            throw new ExecutionProblem("Configuration file is missing "+
-                    PROP_SOCKET_DIR + " entry: " + configFile.getAbsolutePath());
-        }
-
-        final NimbusHomePathResolver resolver = new NimbusHomePathResolver();
-        String path = resolver.resolvePath(sockDir);
-        if (path == null) {
-            path = sockDir;
-        }
-        this.socketDirectory = new File(path);
-
-        final String nodePoolBinding = props.getProperty(PROP_RMI_BINDING_NODEMGMT_DIR);
-        if (nodePoolBinding == null) {
-            throw new ExecutionProblem("Configuration file is missing " +
-                    PROP_RMI_BINDING_NODEMGMT_DIR + " entry: "+
-                    configFile.getAbsolutePath());
-        }
-        this.nodePoolBindingName = nodePoolBinding;
-
+        super.loadConfig(PROP_RMI_BINDING_NODEMGMT_DIR);
 
         // only need node parameter values if doing add-nodes
         if (this.action == AdminAction.AddNodes) {
             if (!this.nodeMemoryConfigured) {
-                final String memString = props.getProperty(PROP_DEFAULT_MEMORY);
+                final String memString = properties.getProperty(PROP_DEFAULT_MEMORY);
                 if (memString != null) {
                     this.nodeMemory = parseMemory(memString);
                     this.nodeMemoryConfigured = true;
@@ -385,12 +300,12 @@ public class AdminClient {
             }
 
             if (this.nodeNetworks == null) {
-                this.nodeNetworks = props.getProperty(PROP_DEFAULT_NETWORKS);
+                this.nodeNetworks = properties.getProperty(PROP_DEFAULT_NETWORKS);
             }
 
             if (this.nodePool == null) {
                 // if missing or invalid, error will come later if this value is actually needed
-                this.nodePool = props.getProperty(PROP_DEFAULT_POOL);
+                this.nodePool = properties.getProperty(PROP_DEFAULT_POOL);
             }
         }
     }

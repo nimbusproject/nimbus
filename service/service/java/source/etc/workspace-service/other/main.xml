@@ -733,14 +733,25 @@
             <map>
                 <entry key="$ADMIN{rmi.binding.nodemgmt}"
                        value-ref="nimbus-remoting-nodemgmt" />
+                <entry key="$ADMIN{rmi.binding.admintools}"
+                       value-ref="nimbus-remoting-admintoolsmgmt" />
             </map>
         </property>
     </bean>
 
     <bean id="nimbus-remoting-nodemgmt"
-          class="org.globus.workspace.remoting.admin.defaults.DefaultRemoteNodeManagement"
-            init-method="initialize">
+          class="org.globus.workspace.remoting.admin.defaults.DefaultRemoteNodeManagement">
         <property name="nodeManagement" ref="nimbus-rm.scheduler.SlotManagement"/>
+    </bean>
+
+    <bean id="nimbus-remoting-admintoolsmgmt"
+          class="org.globus.workspace.remoting.admin.defaults.DefaultRemoteAdminToolsMgmt"
+            init-method="initialize">
+
+        <property name="manager"
+                  ref="nimbus-rm.manager" />
+        <property name="reprFactory"
+                  ref="nimbus-repr.ReprFactory" />
     </bean>
 
     <!-- ===================================================================
