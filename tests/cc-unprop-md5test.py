@@ -58,7 +58,7 @@ try:
     if rc != 0:
         print "failed to save"
         sys.exit(1)
-    rc = filecmp.cmp(localfile, os.environ['NIMBUS_TEST_IMAGE'])
+    rc = filecmp.cmp(localfile, tst_image_src)
     os.remove(localfile)
     if not rc:
         print "files differ"
