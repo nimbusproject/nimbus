@@ -34,7 +34,7 @@ try:
     child = pexpect.spawn (cmd, timeout=to, maxread=20000, logfile=logfile)
     rc = child.expect ('Running:')
     if rc != 0:
-        print "group not found in the list"
+        print "Running: not found in the list"
         sys.exit(1)
     handle = child.readline().strip().replace("'", "")
     rc = child.expect(pexpect.EOF)
@@ -69,7 +69,7 @@ try:
     child = pexpect.spawn (cmd, timeout=to, maxread=20000, logfile=logfile)
     rc = child.expect ('MD5 sum:')
     if rc != 0:
-        print "group not found in the list"
+        print "MD% sum not found in the list"
         sys.exit(1)
     sum1 = child.readline().strip()
     rc = child.expect(pexpect.EOF)
@@ -81,7 +81,7 @@ try:
     child = pexpect.spawn (cmd, timeout=to, maxread=20000, logfile=logfile)
     rc = child.expect ('MD5 sum:')
     if rc != 0:
-        print "group not found in the list"
+        print "MD5 not found in the list"
         sys.exit(1)
     sum2 = child.readline().strip()
     rc = child.expect(pexpect.EOF)

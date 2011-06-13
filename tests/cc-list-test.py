@@ -10,7 +10,7 @@ to=90
 cc_home=os.environ['CLOUD_CLIENT_HOME']
 logfile = sys.stdout
 
-(x, rc)=pexpect.run("%s/bin/cloud-client.sh --delete --name group" % (cc_home), withexitstatus=1)
+(x, rc)=pexpect.run("%s/bin/cloud-client.sh --delete --name %s" % (cc_home, tst_image_name), withexitstatus=1)
 print x
 
 cmd = "%s/bin/cloud-client.sh --transfer --sourcefile %s" % (cc_home, tst_image_src)
@@ -22,9 +22,9 @@ if rc != 0:
 
 cmd = "%s/bin/cloud-client.sh --list" % (cc_home)
 child = pexpect.spawn (cmd, timeout=to, maxread=20000, logfile=logfile)
-rc = child.expect ('group')
+rc = child.expect (tst_image_name)
 if rc != 0:
-    print "group not found in the list"
+    print "%s not found in the list" % (tst_image_name)
     sys.exit(1)
 print child.before
 rc = child.expect(pexpect.EOF)
@@ -33,7 +33,7 @@ if rc != 0:
     print "failed to list"
     sys.exit(1)
 
-(x, rc)=pexpect.run("%s/bin/cloud-client.sh --delete --name group" % (cc_home) , withexitstatus=1)
+(x, rc)=pexpect.run("%s/bin/cloud-client.sh --delete --name %s" % (cc_home, tst_image_name) , withexitstatus=1)
 print x
 if rc != 0:
     print "failed to delete"

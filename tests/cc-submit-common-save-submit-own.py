@@ -23,7 +23,7 @@ cmd = "%s/bin/cloud-client.sh --run --name %s --hours .25" % (cc_home, common_im
 child = pexpect.spawn (cmd, timeout=to, maxread=20000, logfile=logfile)
 rc = child.expect ('Running:')
 if rc != 0:
-    print "group not found in the list"
+    print "Running not found in the list"
     sys.exit(1)
 handle = child.readline().strip().replace("'", "")
 rc = child.expect(pexpect.EOF)
@@ -44,7 +44,7 @@ cmd = "%s/bin/cloud-client.sh --run --name %s --hours .25" % (cc_home, common_im
 child = pexpect.spawn (cmd, timeout=to, maxread=20000, logfile=logfile)
 rc = child.expect ('Running:')
 if rc != 0:
-    print "group not found in the list"
+    print "Running not found in the list"
     sys.exit(1)
 handle = child.readline().strip().replace("'", "")
 rc = child.expect(pexpect.EOF)

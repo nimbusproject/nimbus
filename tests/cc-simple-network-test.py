@@ -17,7 +17,7 @@ cmd = "%s/bin/cloud-client.sh --networks" % (cc_home)
 child = pexpect.spawn (cmd, timeout=to, maxread=20000, logfile=logfile)
 rc = child.expect ('Network')
 if rc != 0:
-    print "group not found in the list"
+    print "network not found in the list"
     sys.exit(1)
 line = child.readline()
 ndx = line.find("public")

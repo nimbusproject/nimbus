@@ -16,11 +16,11 @@ os.mkdir("%s/history/vm-999" % (cc_home))
 cmd = "%s/bin/cloud-client.sh --transfer --sourcefile %s" % (cc_home, tst_image_src)
 (x, rc)=pexpect.run(cmd, withexitstatus=1)
 
-cmd = "%s/bin/cloud-client.sh --run --name group --hours .25" % (cc_home)
+cmd = "%s/bin/cloud-client.sh --run --name %s --hours .25" % (cc_home, tst_image_name)
 child = pexpect.spawn (cmd, timeout=to, maxread=20000, logfile=logfile)
 rc = child.expect ('Running:')
 if rc != 0:
-    print "group not found in the list"
+    print "%s not found in the list" % (tst_image_name)
     sys.exit(1)
 handle = child.readline().strip().replace("'", "")
 rc = child.expect(pexpect.EOF)
@@ -36,11 +36,11 @@ if rc != 0:
     print "failed to terminate"
     sys.exit(1)
 
-cmd = "%s/bin/cloud-client.sh --run --name group --hours .25" % (cc_home)
+cmd = "%s/bin/cloud-client.sh --run --name %s --hours .25" % (cc_home, tst_image_name)
 child = pexpect.spawn (cmd, timeout=to, maxread=20000, logfile=logfile)
 rc = child.expect ('Running:')
 if rc != 0:
-    print "group not found in the list"
+    print "%s not found in the list" % (tst_image_name)
     sys.exit(1)
 handle = child.readline().strip().replace("'", "")
 rc = child.expect(pexpect.EOF)
@@ -57,6 +57,6 @@ if rc != 0:
     sys.exit(1)
 
 
-cmd = "%s/bin/cloud-client.sh --delete --name group" % (cc_home)
+cmd = "%s/bin/cloud-client.sh --delete --name %s" % (cc_home, tst_image_name)
 (x, rc)=pexpect.run(cmd, withexitstatus=1)
 sys.exit(0)
