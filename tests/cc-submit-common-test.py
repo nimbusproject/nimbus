@@ -33,14 +33,14 @@ if rc != 0:
 
 cmd = "%s/bin/cloud-client.sh --terminate --handle %s" % (cc_home, handle)
 print cmd
-(x, rc)=pexpect.run(cmd, withexitstatus=1)
+(x, rc)=pexpect.run(cmd, withexitstatus=1, timeout=to)
 print x
 if rc != 0:
     print "failed to terminate"
     sys.exit(1)
 
 cmd = "%s/bin/nimbus-public-image --delete %s" % (nh, common_image)
-(x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile)
+(x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile, timeout=to)
 if rc != 0:
     print "failed create the public image"
     sys.exit(1)
