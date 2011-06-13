@@ -4,7 +4,7 @@ import pexpect
 import sys
 import os
 
-int(os.environ[NIMBUS_TEST_TIMEOUT])
+to=int(os.environ["NIMBUS_TEST_TIMEOUT"])
 cc_home=os.environ['CLOUD_CLIENT_HOME']
 logfile = sys.stdout
 

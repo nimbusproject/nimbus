@@ -7,7 +7,7 @@ import uuid
 import tempfile
 import filecmp
 
-int(os.environ[NIMBUS_TEST_TIMEOUT])
+to=int(os.environ["NIMBUS_TEST_TIMEOUT"])
 cc_home=os.environ['CLOUD_CLIENT_HOME']
 nh=os.environ['NIMBUS_HOME']
 logfile = sys.stdout

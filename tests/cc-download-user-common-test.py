@@ -10,7 +10,7 @@ import filecmp
 tst_image_name = os.environ['NIMBUS_TEST_IMAGE']
 tst_image_src = os.environ['NIMBUS_SOURCE_TEST_IMAGE']
 
-int(os.environ[NIMBUS_TEST_TIMEOUT])
+to=int(os.environ["NIMBUS_TEST_TIMEOUT"])
 cc_home=os.environ['CLOUD_CLIENT_HOME']
 nh=os.environ['NIMBUS_HOME']
 logfile = sys.stdout
