@@ -15,7 +15,7 @@ logfile = sys.stdout
 common_image = str(uuid.uuid1()).replace("-", "")
 
 cmd = "%s/bin/nimbus-public-image %s %s" % (nh, tst_image_src, common_image)
-(x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile)
+(x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile, timeout=to)
 if rc != 0:
     print "failed create the public image"
     sys.exit(1)
@@ -32,7 +32,7 @@ if rc != 0:
     sys.exit(1)
 
 cmd = "%s/bin/nimbus-public-image --delete %s" % (nh, common_image)
-(x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile)
+(x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile, timeout=to)
 if rc != 0:
     print "failed create the public image"
     sys.exit(1)
