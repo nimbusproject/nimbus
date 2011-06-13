@@ -189,7 +189,7 @@ public class DelegatingManager implements Manager {
     // -------------------------------------------------------------------------
 
     public String report() {
-        final StringBuffer buf = new StringBuffer("Class: ");
+        final StringBuilder buf = new StringBuilder("Class: ");
         buf.append(this.getClass().getName())
            .append("\n")
            .append("Workspace Service Manager");
@@ -225,6 +225,7 @@ public class DelegatingManager implements Manager {
 
     public void shutdownImmediately() {
         this.home.shutdownImmediately();
+        this.asyncHome.shutdownImmediately();
     }
 
     

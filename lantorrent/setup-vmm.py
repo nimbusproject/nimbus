@@ -31,7 +31,7 @@ setup(name='lantorrent',
 Fast multicast of large files (designed for VM images)
 """,
       license="Apache2",
-      install_requires = ["simplejson < 2.1, >= 1.9"],
+      install_requires = ["simplejson < 2.2, >= 1.9"],
 
       include_package_data = True,
       package_data = {},

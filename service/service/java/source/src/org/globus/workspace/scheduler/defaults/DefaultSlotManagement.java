@@ -441,11 +441,6 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
                         
                         Integer neededMem = (vmids.length-i)*memory;
 
-                        if (usedPreemptable < neededMem) {
-                            // impossible to fulfill the request
-                            throw e;
-                        }
-                        
                         if(realAvailable >= neededMem){
                             //There will be sufficient space to
                             //fulfill this reservation

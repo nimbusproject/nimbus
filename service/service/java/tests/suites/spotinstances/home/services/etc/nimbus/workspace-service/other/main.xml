@@ -340,7 +340,7 @@
         <property name="sshIdentityFile" value="$SSH{use.identity}" />
 
         <!-- defaults -->
-        <property name="sweeperDelay" value="6000" /> <!-- ms -->
+        <property name="sweeperDelay" value="2000" /> <!-- ms -->
         <property name="threadPoolInitialSize" value="5" />
         <property name="threadPoolMaxSize" value="50" />
 

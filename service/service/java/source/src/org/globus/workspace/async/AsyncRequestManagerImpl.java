@@ -1216,4 +1216,14 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
         return maxVMs;
     }
 
+
+    // -----------------------------------------------------------------------------------------
+    // LIFECYCLE
+    // -----------------------------------------------------------------------------------------
+
+    public void shutdownImmediately() {
+        if (this.asyncRequestMap != null) {
+            this.asyncRequestMap.shutdownImmediately();
+        }
+    }
 }

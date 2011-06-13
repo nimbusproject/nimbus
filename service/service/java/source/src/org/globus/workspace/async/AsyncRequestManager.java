@@ -31,5 +31,9 @@ public interface AsyncRequestManager extends AsyncRequestHome, PreemptableSpaceM
      * @throws ResourceRequestDeniedException If this type of request is disabled
      */
     public void addRequest(AsyncRequest request) throws ResourceRequestDeniedException;
-    
+
+    /**
+     * Allow container shutdown and test suites to signal a clean exit.
+     */
+    public void shutdownImmediately();
 }
