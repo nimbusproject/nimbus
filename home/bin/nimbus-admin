@@ -1,0 +1,31 @@
+#!/bin/bash
+
+NIMBUS_HOME_REL="`dirname $0`/.."
+NIMBUS_HOME=`cd $NIMBUS_HOME_REL; pwd`
+export NIMBUS_HOME
+
+JAVALIB_DIR="$NIMBUS_HOME/services/lib"
+NATIVELIB_DIR="$NIMBUS_HOME/services/lib-native"
+CONF="$NIMBUS_HOME/services/etc/nimbus/workspace-service/admin.conf"
+
+EXEC="org.globus.workspace.remoting.admin.client.RemoteAdminToolsMain"
+JAVA_OPTIONS="-Dorg.newsclub.net.unix.library.path=${NATIVELIB_DIR}"
+CMD_OPTIONS="--conf ${CONF}"
+
+JARS="nimbus-workspace-service.jar nimbus-service-api.jar gson-1.4.jar \
+junixsocket-1.3.jar junixsocket-rmi-1.3.jar commons-cli-2.0.jar \
+log4j-1.2.15.jar commons-logging.jar"
+
+CLASSPATH=""
+for JAR in $JARS; do
+    CLASSPATH="${CLASSPATH}${JAVALIB_DIR}/${JAR}:"
+done
+
+if [ "X$JAVA_HOME" = "X" ] ; then
+    JAVA=java
+else
+    JAVA="$JAVA_HOME"/bin/java
+fi
+
+exec ${JAVA} ${JAVA_OPTIONS} ${OPTIONS} -classpath "${CLASSPATH}" ${EXEC} ${CMD_OPTIONS} "$@"
+
