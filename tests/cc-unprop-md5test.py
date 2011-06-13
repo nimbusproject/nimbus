@@ -8,6 +8,8 @@ import filecmp
 import uuid
 import datetime
 
+tst_image_name = os.environ['NIMBUS_TEST_IMAGE']
+tst_image_src = os.environ['NIMBUS_SOURCE_TEST_IMAGE']
 bkname=os.path.join(os.environ['HOME'], ".s3cfg.common")
 s3cfg=os.path.join(os.environ['HOME'], ".s3cfg")
 s3cfguser=os.path.join(os.environ['HOME'], ".s3cfg.reg")
@@ -20,7 +22,7 @@ try:
     newname=str(uuid.uuid1()).replace("-", "")
     localfile=str(uuid.uuid1()).replace("-", "")
 
-    src_file = os.environ['NIMBUS_TEST_IMAGE']
+    src_file = tst_image_src
     sfa = src_file.split("/")
     image_name = sfa[len(sfa) - 1]
     size=os.path.getsize(src_file)

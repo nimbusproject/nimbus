@@ -3,6 +3,8 @@
 import pexpect
 import sys
 import os
+tst_image_name = os.environ['NIMBUS_TEST_IMAGE']
+tst_image_src = os.environ['NIMBUS_SOURCE_TEST_IMAGE']
 
 to=90
 cc_home=os.environ['CLOUD_CLIENT_HOME']
@@ -11,7 +13,7 @@ logfile = sys.stdout
 (x, rc)=pexpect.run("%s/bin/cloud-client.sh --delete --name group" % (cc_home), withexitstatus=1)
 print x
 
-cmd = "%s/bin/cloud-client.sh --transfer --sourcefile %s" % (cc_home, os.environ['NIMBUS_TEST_IMAGE'])
+cmd = "%s/bin/cloud-client.sh --transfer --sourcefile %s" % (cc_home, tst_image_src)
 (x, rc)=pexpect.run(cmd, withexitstatus=1)
 print x
 if rc != 0:

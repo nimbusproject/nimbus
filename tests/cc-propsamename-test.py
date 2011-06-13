@@ -7,6 +7,8 @@ import filecmp
 
 to=180
 
+tst_image_name = os.environ['NIMBUS_TEST_IMAGE']
+tst_image_src = os.environ['NIMBUS_SOURCE_TEST_IMAGE']
 cc_home=os.environ['CLOUD_CLIENT_HOME']
 logfile = sys.stdout
 newname="XXXX"
@@ -14,7 +16,7 @@ try:
     os.remove(newname)
 except:
     pass
-cmd = "%s/bin/cloud-client.sh --transfer --sourcefile %s" % (cc_home, os.environ['NIMBUS_TEST_IMAGE'])
+cmd = "%s/bin/cloud-client.sh --transfer --sourcefile %s" % (cc_home, tst_image_src)
 (x, rc)=pexpect.run(cmd, withexitstatus=1)
 
 cmd = "%s/bin/cloud-client.sh --run --name group --hours .25" % (cc_home)

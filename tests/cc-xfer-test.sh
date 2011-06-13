@@ -4,7 +4,7 @@ backf=`mktemp`
 rm $backf
 cd $CLOUD_CLIENT_HOME
 ./bin/grid-proxy-init.sh
-./bin/cloud-client.sh --transfer --sourcefile $NIMBUS_TEST_IMAGE
+./bin/cloud-client.sh --transfer --sourcefile $NIMBUS_SOURCE_TEST_IMAGE
 if [ $? -ne 0 ]; then
     rm $backf
     echo "upload failed"

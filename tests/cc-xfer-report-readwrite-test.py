@@ -4,11 +4,13 @@ import pexpect
 import sys
 import os
 
+tst_image_name = os.environ['NIMBUS_TEST_IMAGE']
+tst_image_src = os.environ['NIMBUS_SOURCE_TEST_IMAGE']
 to=90
 cc_home=os.environ['CLOUD_CLIENT_HOME']
 logfile = sys.stdout
 
-src_file = os.environ['NIMBUS_TEST_IMAGE']
+src_file = tst_image_src
 sfa = src_file.split("/")
 image_name = sfa[len(sfa) - 1]
 cmd = "%s/bin/cloud-client.sh --transfer --sourcefile %s" % (cc_home, src_file)
