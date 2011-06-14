@@ -33,7 +33,7 @@ if rc != 0:
 
 cmd = "%s/bin/cloud-client.sh --handle %s --save --newname %s" % (cc_home, handle, newname)
 print cmd
-(x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile)
+(x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile, timeout=to)
 print x
 if rc != 0:
     print "failed to save"
@@ -42,7 +42,7 @@ cmd = "%s/bin/cloud-client.sh --list" % (cc_home)
 (x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile)
 cmd = "%s/bin/cloud-client.sh --download --name %s --localfile %s" % (cc_home, newname, newname)
 print cmd
-(x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile)
+(x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile, timeout=to)
 print x
 if rc != 0:
     print "failed to terminate"
