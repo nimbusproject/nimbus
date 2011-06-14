@@ -35,6 +35,7 @@ public class MockShutdownTrash extends XenTask {
 
     private static boolean fail = false;
     private static int failCount = 0;
+    private static long msAtLastAttempt = 0;
 
     // Point of control from tests, ANY created task object will respect this static field
     // when the init() method is called -- so creating a number of instances simultaneously
@@ -45,9 +46,13 @@ public class MockShutdownTrash extends XenTask {
     public static int getFailCount() {
         return failCount;
     }
+    public static long getMsAtLastAttempt() {
+        return msAtLastAttempt;
+    }
 
     public static void resetFailCount() {
         failCount = 0;
+        msAtLastAttempt = 0;
     }
 
     protected void init() throws WorkspaceException {
@@ -69,7 +74,7 @@ public class MockShutdownTrash extends XenTask {
             logger.warn(this.name + " forced to fail.");
             failCount += 1;
         }
-        
+        msAtLastAttempt = System.currentTimeMillis();
         this.cmd = (String[]) ssh.toArray(new String[ssh.size()]);
     }
 }

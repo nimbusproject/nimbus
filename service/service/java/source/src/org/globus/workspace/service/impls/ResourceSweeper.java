@@ -27,9 +27,11 @@ import org.globus.workspace.service.WorkspaceHome;
 import org.globus.workspace.Lager;
 
 import java.util.Calendar;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Used to sweep for terminated instances.
@@ -53,6 +55,9 @@ public class ResourceSweeper implements Runnable {
     protected final ExecutorService executor;
     protected final WorkspaceHome home;
     protected final Lager lager;
+
+    // instance ID : attempt count
+    protected final Map<Integer,Integer> zombieBackoffs = new Hashtable<Integer,Integer>();
     
 
     // -------------------------------------------------------------------------
@@ -124,7 +129,7 @@ public class ResourceSweeper implements Runnable {
             this.executor.submit(task);
         }
 
-        // Log any unexpected errors.  Wait two minutes (normal destroy time
+        // Log any unexpected errors.  Wait 30s (normal destroy time
         // should be a matter of seconds even if there is high congestion).
 
         // todo: make timeout configurable when this class comes via IoC
@@ -133,7 +138,7 @@ public class ResourceSweeper implements Runnable {
         while (iter2.hasNext()) {
             final FutureTask task = (FutureTask) iter2.next();
             try {
-                final String msg = (String) task.get(120L, TimeUnit.SECONDS);
+                final String msg = (String) task.get(30L, TimeUnit.SECONDS);
                 if (msg != null) {
                     logger.debug(msg);
                 }
@@ -149,7 +154,7 @@ public class ResourceSweeper implements Runnable {
         }
     }
 
-    protected List getDestroyTasks(Sweepable[] toSweep) {
+    protected synchronized List getDestroyTasks(Sweepable[] toSweep) {
 
         final Calendar currentTime = Calendar.getInstance();
         final LinkedList killList = new LinkedList();
@@ -166,9 +171,56 @@ public class ResourceSweeper implements Runnable {
                 if (expired) {
                     logger.debug("Sweep found that " + Lager.id(sw.getID()) + " is expired.");
                 }
+
                 if (sw.isZombie()) {
+                    
+                    // Only attempt on the following attempt # of sweeper runs:
+                    // 1st, 2nd, 3rd, 6th, 10th, 15th, 25th, and then on modulo 20's
+                    
+                    final Integer exists = this.zombieBackoffs.get(sw.getID());
+
+                    final Integer attemptCount;
+                    if (exists == null) {
+                        attemptCount = 1;
+                    } else {
+                        attemptCount = exists + 1;
+                    }
+                    this.zombieBackoffs.put(sw.getID(), attemptCount);
+
+                    int actualRetryNumber = attemptCount;
+                    if (attemptCount < 40) {
+                        switch (attemptCount) {
+                            case 1:
+                                break;
+                            case 2:
+                                break;
+                            case 3:
+                                break;
+                            case 6:
+                                actualRetryNumber = 4;
+                                break;
+                            case 10:
+                                actualRetryNumber = 5;
+                                break;
+                            case 15:
+                                actualRetryNumber = 6;
+                                break;
+                            case 25:
+                                actualRetryNumber = 7;
+                                break;
+                            default:
+                                continue;
+                        }
+                    } else {
+                        if (attemptCount % 20 != 0) {
+                            continue;
+                        } else {
+                            actualRetryNumber = 6 + attemptCount / 20;
+                        }
+                    }
+
                     logger.warn(Lager.ev(sw.getID()) + "Node that could not be destroyed " +
-                                        "previously, attempting again.");
+                                "previously, attempting again.  Retry #" + actualRetryNumber);
                 }
 
                 if (expired || sw.isZombie()) {
