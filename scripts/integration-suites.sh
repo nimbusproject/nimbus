@@ -2,6 +2,7 @@
 
 
 ALL_TEST_SUITES="basic01 basic02 basic03 basic04 basic05 basic06 failure01 failure02 spot01 spot02 spot03 spot04 spot05 spot06"
+ALL_TEST_SUITES="failure01 failure02"
 
 
 if [ "X" == "X$1" ]; then
