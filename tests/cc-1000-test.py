@@ -11,7 +11,11 @@ to=int(os.environ["NIMBUS_TEST_TIMEOUT"])
 cc_home=os.environ['CLOUD_CLIENT_HOME']
 logfile = sys.stdout
 
-os.mkdir("%s/history/vm-999" % (cc_home))
+try:
+    os.mkdir("%s/history/vm-999" % (cc_home))
+except:
+    print "The directory already exists"
+    pass
 
 cmd = "%s/bin/cloud-client.sh --transfer --sourcefile %s" % (cc_home, tst_image_src)
 (x, rc)=pexpect.run(cmd, withexitstatus=1)

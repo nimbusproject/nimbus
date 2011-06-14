@@ -15,7 +15,7 @@ common_image = str(uuid.uuid1()).replace("-", "")
 newname = str(uuid.uuid1()).replace("-", "")
 
 cmd = "%s/bin/nimbus-public-image %s %s" % (nh, tst_image_src, common_image)
-(x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile)
+(x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile, timeout=to)
 if rc != 0:
     print "failed create the public image"
     sys.exit(1)
@@ -43,7 +43,7 @@ while line:
 
 cmd = "%s/bin/cloud-client.sh --save --handle %s" % (cc_home, handle)
 print cmd
-(x, rc)=pexpect.run(cmd, withexitstatus=1)
+(x, rc)=pexpect.run(cmd, withexitstatus=1, timeout=to)
 print x
 if rc != 0:
     print "failed to terminate"
@@ -62,7 +62,7 @@ if not found:
     sys.exit(1)
 
 cmd = "%s/bin/nimbus-public-image --delete %s" % (nh, common_image)
-(x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile)
+(x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile, timeout=to)
 if rc != 0:
     print "failed create the public image"
     sys.exit(1)

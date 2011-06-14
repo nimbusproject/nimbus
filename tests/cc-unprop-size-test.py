@@ -20,7 +20,7 @@ image_name = sfa[len(sfa) - 1]
 size=os.path.getsize(src_file)
 
 cmd = "%s/bin/cloud-client.sh --transfer --sourcefile %s" % (cc_home, src_file)
-(x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile)
+(x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile, timeout=to)
 
 cmd = "%s/bin/cloud-client.sh --run --name %s --hours .25" % (cc_home, image_name)
 child = pexpect.spawn (cmd, timeout=to, maxread=20000, logfile=logfile)
@@ -36,7 +36,7 @@ if rc != 0:
 
 cmd = "%s/bin/cloud-client.sh --handle %s --save --newname %s" % (cc_home, handle, newname)
 print cmd
-(x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile)
+(x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile, timeout=to)
 print x
 if rc != 0:
     print "failed to save"
