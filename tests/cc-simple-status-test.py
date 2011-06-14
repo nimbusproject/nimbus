@@ -11,7 +11,7 @@ cc_home=os.environ['CLOUD_CLIENT_HOME']
 logfile = sys.stdout
 
 cmd = "%s/bin/cloud-client.sh --transfer --sourcefile %s" % (cc_home, tst_image_src)
-(x, rc)=pexpect.run(cmd, withexitstatus=1)
+(x, rc)=pexpect.run(cmd, withexitstatus=1, timeout=to)
 
 cmd = "%s/bin/cloud-client.sh --run --name %s --hours .25" % (cc_home, tst_image_name)
 child = pexpect.spawn (cmd, timeout=to, maxread=20000, logfile=logfile)
@@ -34,7 +34,7 @@ if rc != 0:
 
 cmd = "%s/bin/cloud-client.sh --terminate --handle %s" % (cc_home, handle)
 print cmd
-(x, rc)=pexpect.run(cmd, withexitstatus=1)
+(x, rc)=pexpect.run(cmd, withexitstatus=1, timeout=to)
 print x
 if rc != 0:
     print "failed to terminate"
@@ -42,7 +42,7 @@ if rc != 0:
 
 cmd = "%s/bin/cloud-client.sh --delete --name %s" % (cc_home, tst_image_name)
 print cmd
-(x, rc)=pexpect.run(cmd, withexitstatus=1)
+(x, rc)=pexpect.run(cmd, withexitstatus=1, timeout=to)
 print x
 if rc != 0:
     print "failed to terminate"
