@@ -465,12 +465,12 @@ public abstract class WorkspaceHomeImpl implements WorkspaceHome,
 
         final StringBuilder buf = new StringBuilder(tasks.length * 256);
 
-        // Log any unexpected errors.  Wait thirty seconds (normal destroy time
+        // Log any unexpected errors.  Wait twenty seconds (normal destroy time
         // should be a matter of seconds even if there is high congestion).
         // todo: make timeout configurable
         for (int i = 0; i < tasks.length; i++) {
             try {
-                final String msg = (String) tasks[i].get(30L, TimeUnit.SECONDS);
+                final String msg = (String) tasks[i].get(20L, TimeUnit.SECONDS);
                 if (msg != null) {
                     buf.append(msg);
                 }

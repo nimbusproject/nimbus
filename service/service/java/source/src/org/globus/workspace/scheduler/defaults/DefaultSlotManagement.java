@@ -410,8 +410,13 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
         final String[] nodes = new String[vmids.length];
         int bailed = -1;
         Throwable failure = null;
+        int maxAttempts = vmids.length + 2;
         
         for (int i = 0; i < vmids.length; i++) {
+
+            if (maxAttempts == 0) {
+                throw new NotEnoughMemoryException("Could not reclaim enough memory");
+            }
 
             try {
                 nodes[i] = ResourcepoolUtil.getResourcePoolEntry(memory,
@@ -429,6 +434,7 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
                 throw e;
             } catch (NotEnoughMemoryException e) {
                 if(!preemptable){
+                    maxAttempts -= 1;
                     try {
                         //If there isn't available memory
                         //for a non-preemptable reservation

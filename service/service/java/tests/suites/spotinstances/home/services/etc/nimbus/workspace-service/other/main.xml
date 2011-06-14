@@ -502,17 +502,9 @@
 
         <constructor-arg ref="nimbus-rm.loglevels" />
 
-        <!-- Current choices: xenlocal, xenssh -->
-        <property name="commandSet" value="xenssh" />
+        <!-- Mock command set for failure scenarios -->
+        <property name="commandSet" value="failure_commands" />
 
-        <!--
-             Not exposing the distinction between xenlocal and xenssh anymore,
-             the user should just set up localhost ssh logins if there is one
-             VMM node and it happens to be colocated.  workspace-control needs
-             to send notifications back over sshd anyhow, so this login has to
-             work regardless until reliable messaging system is introduced.
-        -->
-        
     </bean>
 
     <bean id="nimbus-rm.service.async.ResourceMessage"
