@@ -28,7 +28,6 @@ import org.nimbustools.api.repr.CreateResult;
 import org.nimbustools.api.services.admin.RemoteNodeManagement;
 import org.nimbustools.api.services.rm.ImpossibleAmountOfMemoryException;
 import org.nimbustools.api.services.rm.Manager;
-import org.nimbustools.api.services.rm.NotEnoughMemoryException;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.testng.annotations.AfterSuite;

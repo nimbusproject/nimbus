@@ -29,6 +29,8 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import com.google.gson.Gson;
 import org.apache.commons.dbcp.BasicDataSource;
@@ -40,7 +42,6 @@ import org.globus.workspace.ReturnException;
 import org.globus.workspace.WorkspaceException;
 import org.globus.workspace.WorkspaceUtil;
 import org.globus.workspace.remoting.admin.VmmNode;
-import org.globus.workspace.service.impls.WorkspaceHomeImpl;
 import org.globus.workspace.testing.utils.ReprPopulator;
 import org.nimbustools.api.brain.ModuleLocator;
 import org.nimbustools.api.brain.NimbusHomePathResolver;
@@ -86,6 +87,8 @@ public abstract class NimbusTestBase extends AbstractTestNGSpringContextTests {
 
     // 'logger' should be used only after suite setup, this class prevents NPEs beforehand
     protected Log logger = new FakeLog();
+
+    protected final ExecutorService suiteExecutor = Executors.newCachedThreadPool();
 
 
     // -----------------------------------------------------------------------------------------
@@ -223,6 +226,7 @@ public abstract class NimbusTestBase extends AbstractTestNGSpringContextTests {
         logger.debug(LOG_SEP + "\n*** TESTS DONE (beginning teardown): " +
                         this.getClass().getSimpleName() + LOG_SEP);
 
+        this.suiteExecutor.shutdownNow();
 
         final String nh = System.getProperty(NimbusHomePathResolver.NIMBUS_HOME_ENV_NAME);
         if (nh == null) {
