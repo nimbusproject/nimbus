@@ -1,6 +1,7 @@
 import fcntl
 import os
 import sys
+import time
 import zope.interface
 import libvirt
 
