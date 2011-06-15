@@ -11,7 +11,6 @@ from ConfigParser import SafeConfigParser
 import time
 import unittest
 import tempfile
-import filecmp
 import pycb
 import pynimbusauthz
 from  pynimbusauthz.db import * 

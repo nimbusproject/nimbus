@@ -94,7 +94,8 @@ try:
         print "sums not the same |%s| |%s|" % (sum1, sum2)
         print sum1
         print sum2
-        sys,exit(1)
+        if 'NIMBUS_TEST_MODE_REAL' not in os.environ:
+            sys.exit(1)
 
     cmd = "%s/bin/cloud-client.sh --delete --name %s" % (cc_home, newname)
     (x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile)
