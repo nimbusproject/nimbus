@@ -3,7 +3,6 @@
 import pexpect
 import sys
 import os
-import filecmp
 import uuid
 import datetime
 

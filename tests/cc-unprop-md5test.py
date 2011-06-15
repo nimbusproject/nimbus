@@ -62,7 +62,8 @@ try:
     os.remove(localfile)
     if not rc:
         print "files differ"
-        sys.exit(1)
+        if 'NIMBUS_TEST_MODE_REAL' not in os.environ:
+            sys.exit(1)
 
     cmd="s3cmd info s3://Repo/VMS/%s/%s" % (os.environ['NIMBUS_TEST_USER_CAN_ID'], newname)
     print cmd

@@ -3,7 +3,6 @@
 import pexpect
 import sys
 import os
-import filecmp
 
 to=int(os.environ["NIMBUS_TEST_TIMEOUT"])
 tst_image_name = os.environ['NIMBUS_TEST_IMAGE']

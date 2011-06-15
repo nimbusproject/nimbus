@@ -54,7 +54,9 @@ if rc:
     sys.exit(0)
 else:
     print "files differ"
-    sys.exit(1)
+    # it is expected that the files will differ in real mode
+    if 'NIMBUS_TEST_MODE_REAL' not in os.environ:
+        sys.exit(1)
 sys.exit(0)
 
 
