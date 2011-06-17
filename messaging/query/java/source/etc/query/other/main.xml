@@ -161,6 +161,11 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
         <constructor-arg ref="userDetailsService" />
     </bean>
 
+    <bean id="nimbus-elastic.rm.persistence"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultElasticPersistence"
+            init-method="initialize">
+        <constructor-arg value="$OTHER_ELASTIC{elastic.db}"/>
+    </bean>
 
     <bean id="nimbus-query.rm.idmappings"
           class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultIDMgmtProxy" />
@@ -274,8 +279,7 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
           class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.security.defaults.DefaultSSHKeys"
           init-method="validate">
 
-        <!-- key cache provider -->
-        <constructor-arg ref="nimbus-query.rm.idmappings" />
+        <constructor-arg ref="nimbus-elastic.rm.persistence" />
         <property name="pubkeyOnly" value="$ELASTIC{ssh.pubkey.only}" />
         <property name="splitToken" value="$ELASTIC{ssh.split.token}" />
 
