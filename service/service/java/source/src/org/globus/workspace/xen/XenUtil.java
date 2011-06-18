@@ -618,6 +618,31 @@ public class XenUtil implements WorkspaceConstants {
         return cmd;
     }
 
+    public static ArrayList constructQueryCommand() throws WorkspaceException {
+
+        // not possible, Home initializes
+        if (worksp == null) {
+            logger.error(NO_WRKSP);
+            throw new WorkspaceException(NO_WRKSP);
+        }
+
+        final ArrayList cmd = new ArrayList(5);
+
+//        cmd.add(worksp);     //deprecated
+//        cmd.add("--query");  //deprecated
+        cmd.add(worksp);
+        cmd.add("--action");
+        cmd.add("query");
+
+        if (logger.isDebugEnabled()) {
+            cmd.add("--loglevel");
+            cmd.add("DEBUG");
+        }
+
+        return cmd;
+    }
+
+
     // TODO: in the future, make more things pluggable
     public static String xenName(VirtualMachine vw) {
         return XEN_NAME_PREFIX + vw.getID();

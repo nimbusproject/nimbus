@@ -31,8 +31,9 @@ class ACTIONS:
     PROPAGATE = "propagate"
     UNPROPAGATE = "unpropagate"
     PRINTXML = "printxml"
+    QUERY = "query"
     ALL = [CREATE, REMOVE, INFO, REBOOT, PAUSE, UNPAUSE, 
-           PROPAGATE, UNPROPAGATE, PRINTXML]
+           PROPAGATE, UNPROPAGATE, PRINTXML, QUERY]
 
 # -----------------------------------------------------------------------------
 # "DEPENDENCY INJECTION"
@@ -71,7 +72,7 @@ def get_class( kls ):
     module = ".".join(parts[:-1])
     m = __import__( module )
     for comp in parts[1:]:
-        m = getattr(m, comp)            
+        m = getattr(m, comp) 
     return m
 
 

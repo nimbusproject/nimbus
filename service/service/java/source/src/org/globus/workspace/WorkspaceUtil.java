@@ -33,6 +33,7 @@ import edu.emory.mathcs.backport.java.util.concurrent.Callable;
 import edu.emory.mathcs.backport.java.util.concurrent.FutureTask;
 import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
 import edu.emory.mathcs.backport.java.util.concurrent.Semaphore;
+import org.apache.xpath.operations.String;
 
 
 public class WorkspaceUtil {
@@ -82,6 +83,7 @@ public class WorkspaceUtil {
     }
 
     /**
+     *
      * @param  command
      *         Array of command + arguments, to fork a process
      * @param eventLog log events to info?

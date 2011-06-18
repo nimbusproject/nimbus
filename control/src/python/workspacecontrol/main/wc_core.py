@@ -268,6 +268,10 @@ def _core(vm_name, action, p, c):
         
         wc_core_propagation.unpropagate(vm_name, c, async, images, editing)
 
+    elif action == ACTIONS.QUERY: #carla
+
+	platform.query()
+
     else:
         raise ProgrammingError("unhandled action %s" % action)
 
