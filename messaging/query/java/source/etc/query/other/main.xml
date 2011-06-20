@@ -162,7 +162,7 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
     </bean>
 
     <bean id="nimbus-elastic.rm.persistence"
-          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultElasticPersistence"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.defaults.DefaultElasticPersistence"
             init-method="initialize">
         <constructor-arg value="$OTHER_ELASTIC{elastic.db}"/>
     </bean>

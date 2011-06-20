@@ -13,11 +13,12 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults;
+package org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.defaults;
 
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.ElasticPersistence;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.security.SSHKey;
 import org.springframework.core.io.Resource;
 
@@ -30,7 +31,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DefaultElasticPersistence {
+public class DefaultElasticPersistence implements ElasticPersistence {
 
         private static final Log logger =
             LogFactory.getLog(DefaultElasticPersistence.class.getName());
@@ -69,42 +70,6 @@ public class DefaultElasticPersistence {
     // schema check query
     private static final String GET_SCHEMA_VERSION =
             "select version from schema_version limit 1";
-
-
-    static final String INSERT_INSTANCE = "insert into instances " +
-            "(elastic_id, manager_id, reservation_id, sshkey) values(?,?,?,?)";
-    static final String GET_MANAGER_FROM_ELASTIC_INSTANCE =
-            "select manager_id from instances where elastic_id = ?";
-    static final String GET_ELASTIC_FROM_MANAGER_INSTANCE =
-            "select elastic_id from instances where manager_id = ?";
-    static final String INSERT_RESERVATION = "insert into reservations " +
-            "(reservation_id, group_id, cosched_id) values(?,?,?)";
-    static final String GET_SSHKEY_FROM_ELASTIC_INSTANCE =
-            "select sshkey from instances where elastic_id = ?";
-    static final String GET_GROUP_FROM_ELASTIC_RESERVATION =
-            "select group_id from reservations where reservation_id = ?";
-    static final String GET_COSCHED_FROM_ELASTIC_RESERVATION =
-            "select cosched_id from reservations where reservation_id = ?";
-    static final String GET_RESERVATION_FROM_MANAGER_INSTANCE =
-            "select reservation_id from instances where manager_id = ?";
-    static final String GET_RESERVATION_FROM_GROUP =
-            "select reservation_id from reservations where group_id = ?";
-    static final String GET_RESERVATION_FROM_COSCHED =
-            "select reservation_id from reservations where cosched_id = ?";
-    // a little silly
-    static final String GET_RESERVATION =
-            "select reservation_id from reservations where reservation_id = ?";
-
-    static final String GET_SSH_KEY = "select owner, keyname, pubkey, fingerprint " +
-            "from ssh_keypairs where owner = ? and keyname = ?";
-    static final String GET_SSH_KEYS_BY_OWNER = "select owner, keyname, pubkey, " +
-            "fingerprint from ssh_keypairs where owner = ?";
-    static final String INSERT_SSH_KEY = "insert into ssh_keypairs " +
-            "(owner, keyname, pubkey, fingerprint) values(?,?,?,?)";
-    static final String UPDATE_SSH_KEY = "updatessh_keypairs " +
-                "set pubkey = ?, fingerprint = ? where owner = ? and keyname = ?";
-    static final String DELETE_SSH_KEY = "delete from ssh_keypairs " +
-            "where owner = ? and keyname = ?";
 
 
     private final DataSource dataSource;
@@ -209,7 +174,7 @@ public class DefaultElasticPersistence {
 
         try {
             c = dataSource.getConnection();
-            pstmt = c.prepareStatement(DefaultElasticPersistence.INSERT_INSTANCE);
+            pstmt = c.prepareStatement(ElasticPersistence.INSERT_INSTANCE);
             pstmt.setString(1, elasticInstanceId);
             pstmt.setString(2, managerInstanceId);
             pstmt.setString(3, elasticReservationId);
@@ -237,7 +202,7 @@ public class DefaultElasticPersistence {
     }
 
     public void insertReservation(String elasticReservationId,
-                                   String groupId, String coschedId)
+                                  String groupId, String coschedId)
             throws Exception {
 
         Connection c = null;
@@ -245,7 +210,7 @@ public class DefaultElasticPersistence {
 
         try {
             c = dataSource.getConnection();
-            pstmt = c.prepareStatement(DefaultElasticPersistence.INSERT_RESERVATION);
+            pstmt = c.prepareStatement(ElasticPersistence.INSERT_RESERVATION);
             pstmt.setString(1, elasticReservationId);
             pstmt.setString(2, groupId);
             pstmt.setString(3, coschedId);

@@ -17,6 +17,7 @@ package org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.ElasticPersistence;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.IDMappings;
 
 import java.util.Random;
@@ -42,14 +43,14 @@ public class DefaultIDMgmt implements IDMappings {
     // example instance id:    i-936e83fa
     // example reservation id: r-602bca09
     private final Random random = new Random();
-    private final DefaultElasticPersistence persistence;
+    private final ElasticPersistence persistence;
 
 
     // -------------------------------------------------------------------------
     // CONSTRUCTOR
     // -------------------------------------------------------------------------
 
-    public DefaultIDMgmt(DefaultElasticPersistence persistence) {
+    public DefaultIDMgmt(ElasticPersistence persistence) {
         this.persistence = persistence;
     }
 
@@ -215,7 +216,7 @@ public class DefaultIDMgmt implements IDMappings {
             throw new IllegalArgumentException("elasticInstanceID may not be null");
         }
         return persistence.selectIdFromId(
-                DefaultElasticPersistence.GET_MANAGER_FROM_ELASTIC_INSTANCE,
+                ElasticPersistence.GET_MANAGER_FROM_ELASTIC_INSTANCE,
                 elasticInstanceID);
     }
 
@@ -238,7 +239,7 @@ public class DefaultIDMgmt implements IDMappings {
             throw new IllegalArgumentException("elasticReservationID may not be null");
         }
         return persistence.selectIdFromId(
-                DefaultElasticPersistence.GET_GROUP_FROM_ELASTIC_RESERVATION,
+                ElasticPersistence.GET_GROUP_FROM_ELASTIC_RESERVATION,
                 elasticReservationID);
     }
 
@@ -261,7 +262,7 @@ public class DefaultIDMgmt implements IDMappings {
             throw new IllegalArgumentException("elasticReservationID may not be null");
         }
         return persistence.selectIdFromId(
-                DefaultElasticPersistence.GET_COSCHED_FROM_ELASTIC_RESERVATION,
+                ElasticPersistence.GET_COSCHED_FROM_ELASTIC_RESERVATION,
                 elasticReservationID);
     }
 
@@ -284,7 +285,7 @@ public class DefaultIDMgmt implements IDMappings {
             throw new IllegalArgumentException("managerInstanceID may not be null");
         }
         return persistence.selectIdFromId(
-                DefaultElasticPersistence.GET_ELASTIC_FROM_MANAGER_INSTANCE,
+                ElasticPersistence.GET_ELASTIC_FROM_MANAGER_INSTANCE,
                 managerInstanceID);
     }
 
@@ -299,7 +300,7 @@ public class DefaultIDMgmt implements IDMappings {
             throw new IllegalArgumentException("managerInstanceID may not be null");
         }
         return persistence.selectIdFromId(
-                DefaultElasticPersistence.GET_RESERVATION_FROM_MANAGER_INSTANCE,
+                ElasticPersistence.GET_RESERVATION_FROM_MANAGER_INSTANCE,
                 managerInstanceID);
     }
 
@@ -322,7 +323,7 @@ public class DefaultIDMgmt implements IDMappings {
             throw new IllegalArgumentException("managerGroupID may not be null");
         }
         return persistence.selectIdFromId(
-                DefaultElasticPersistence.GET_RESERVATION_FROM_GROUP,
+                ElasticPersistence.GET_RESERVATION_FROM_GROUP,
                 managerGroupID);
     }
 
@@ -345,7 +346,7 @@ public class DefaultIDMgmt implements IDMappings {
             throw new IllegalArgumentException("managerCoschedID may not be null");
         }
         return persistence.selectIdFromId(
-                DefaultElasticPersistence.GET_RESERVATION_FROM_COSCHED,
+                ElasticPersistence.GET_RESERVATION_FROM_COSCHED,
                 managerCoschedID);
     }
 
@@ -359,7 +360,7 @@ public class DefaultIDMgmt implements IDMappings {
             throw new IllegalArgumentException("elasticID may not be null");
         }
         return persistence.selectIdFromId(
-                DefaultElasticPersistence.GET_SSHKEY_FROM_ELASTIC_INSTANCE,
+                ElasticPersistence.GET_SSHKEY_FROM_ELASTIC_INSTANCE,
                 elasticID);
     }
 
@@ -395,9 +396,9 @@ public class DefaultIDMgmt implements IDMappings {
 
         final String query;
         if (instance) {
-            query = DefaultElasticPersistence.GET_MANAGER_FROM_ELASTIC_INSTANCE;
+            query = ElasticPersistence.GET_MANAGER_FROM_ELASTIC_INSTANCE;
         } else {
-            query = DefaultElasticPersistence.GET_RESERVATION;
+            query = ElasticPersistence.GET_RESERVATION;
         }
 
         final int TRIES = 512;

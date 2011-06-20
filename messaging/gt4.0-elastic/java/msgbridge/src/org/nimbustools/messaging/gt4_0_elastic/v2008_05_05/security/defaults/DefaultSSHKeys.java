@@ -16,16 +16,11 @@
 
 package org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.security.defaults;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.Element;
 import org.nimbustools.messaging.gt4_0_elastic.DisabledException;
-import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultElasticPersistence;
+import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.ElasticPersistence;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.security.SSHKey;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.security.SSHKeys;
 
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 public class DefaultSSHKeys implements SSHKeys {
@@ -41,7 +36,7 @@ public class DefaultSSHKeys implements SSHKeys {
     // INSTANCE VARIABLES
     // -------------------------------------------------------------------------
 
-    final private DefaultElasticPersistence persistence;
+    final private ElasticPersistence persistence;
 
     protected boolean pubkeyOnly;
     protected String splitToken;
@@ -51,7 +46,7 @@ public class DefaultSSHKeys implements SSHKeys {
     // CONSTRUCTORS
     // -------------------------------------------------------------------------
 
-    public DefaultSSHKeys(DefaultElasticPersistence persistence) {
+    public DefaultSSHKeys(ElasticPersistence persistence) {
         if (persistence == null) {
             throw new IllegalArgumentException("persistence may not be null");
         }
