@@ -76,10 +76,16 @@
     <bean id="nimbus-elastic.rm.idmappings"
           class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultIDMgmtProxy" />
 
+    <bean id="nimbus-elastic.rm.persistence"
+          class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.defaults.DefaultElasticPersistence"
+            init-method="initialize">
+        <constructor-arg value="$OTHER_ELASTIC{elastic.db}"/>
+    </bean>
+
     <!-- Don't reference this bean directly. See DefaultIDMgmtProxy class notes.  -->
     <bean id="nimbus-elastic.rm.realidmappings"
           class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults.DefaultIDMgmt">
-        <constructor-arg value="$OTHER_ELASTIC{caches.dir}" />
+        <constructor-arg ref="nimbus-elastic.rm.persistence"/>
     </bean>
 
     <!-- ************ Spot Instances *********** -->
@@ -191,8 +197,7 @@
           class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.security.defaults.DefaultSSHKeys"
           init-method="validate">
 
-        <!-- key cache provider -->
-        <constructor-arg ref="nimbus-elastic.rm.idmappings" />
+        <constructor-arg ref="nimbus-elastic.rm.persistence" />
         <property name="pubkeyOnly" value="$ELASTIC{ssh.pubkey.only}" />
         <property name="splitToken" value="$ELASTIC{ssh.split.token}" />
 
