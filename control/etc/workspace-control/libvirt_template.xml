@@ -24,12 +24,16 @@
         <on_crash>{{ domain.on_crash }}</on_crash>
     {% endif %}
 
+    <features>
+        <acpi />
+    </features>
+
     <devices>
         {% for disk in devices.disks %}
         <disk type='{{ disk._type }}'>
             {% if disk.driver %}{% if disk.driver == "tap:aio" %}<driver name='tap' type='aio' />{% endif %}{% endif %}
 
-            {% if disk._type == "block" %} 
+            {% if disk._type == "block" %}
             <source dev='{{ disk.source }}' />
             {% else %}
             <source file='{{ disk.source }}' />

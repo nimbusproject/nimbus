@@ -339,6 +339,7 @@
         <property name="sshAccount" value="$SSH{control.ssh.user}" />
         <property name="sshIdentityFile" value="$SSH{use.identity}" />
 
+        <!-- This is assumed to be a certain value in the suites. Tests will fail if you change this -->
         <property name="sweeperDelay" value="3000" /> <!-- ms -->
         <property name="threadPoolInitialSize" value="5" />
         <property name="threadPoolMaxSize" value="50" />

@@ -30,19 +30,26 @@ public class DestroyFutureTask implements Callable {
 
     private final int id;
     private final WorkspaceHome home;
-
+    private final boolean blockForSuccess;
 
     // -------------------------------------------------------------------------
-    // CONSTRUCTOR
+    // CONSTRUCTORS
     // -------------------------------------------------------------------------
     
     public DestroyFutureTask(int vmid,
                              WorkspaceHome whome) {
+        this(vmid, whome, false);
+    }
+
+    public DestroyFutureTask(int vmid,
+                             WorkspaceHome whome,
+                             boolean blockForSuccess) {
         this.id = vmid;
         if (whome == null) {
             throw new IllegalArgumentException("whome may not be null");
         }
         this.home = whome;
+        this.blockForSuccess = blockForSuccess;
     }
 
 
@@ -52,7 +59,7 @@ public class DestroyFutureTask implements Callable {
     
     public Object call() throws Exception {
 
-        final InstanceResource resource;
+        InstanceResource resource;
         try {
             resource = this.home.find(this.id);
         } catch (DoesNotExistException e) {
@@ -68,6 +75,18 @@ public class DestroyFutureTask implements Callable {
 
         this.home.destroy(this.id);
 
-        return null;
+        if (!this.blockForSuccess) {
+            return null;
+        }
+
+        // There should also be a higher level timeout
+        while (true) {
+            try {
+                Thread.sleep(1000);
+                resource = this.home.find(this.id);
+            } catch (Exception e) {
+                return null;
+            }
+        }
     }
 }

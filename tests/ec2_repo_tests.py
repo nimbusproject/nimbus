@@ -11,7 +11,6 @@ from ConfigParser import SafeConfigParser
 import time
 import unittest
 import tempfile
-import filecmp
 import pycb
 import pynimbusauthz
 from  pynimbusauthz.db import * 
@@ -77,7 +76,7 @@ class TestEC2List(unittest.TestCase):
         k = boto.s3.key.Key(bucket)
         image_id = self.cb_random_bucketname(25)
         k.key = "VMS/" + self.can_user.get_id() + "/" + image_id
-        k.set_contents_from_filename(os.environ['NIMBUS_TEST_IMAGE'])
+        k.set_contents_from_filename(os.environ['NIMBUS_SOURCE_TEST_IMAGE'])
 
         images = self.ec2conn.get_all_images()
         self.assertTrue(len(images) >= 1, "should be 1 image %d" % len(images))

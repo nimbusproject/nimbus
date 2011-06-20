@@ -11,7 +11,6 @@ from ConfigParser import SafeConfigParser
 import time
 import unittest
 import tempfile
-import filecmp
 import pycb
 import pynimbusauthz
 from  pynimbusauthz.db import * 
@@ -42,7 +41,7 @@ def get_nimbus_home():
 class TestEC2Submit(unittest.TestCase):
 
     def killall_running(self):
-	instances = self.ec2conn.get_all_instances()
+        instances = self.ec2conn.get_all_instances()
         print instances
         for reserv in instances:
             for inst in reserv.instances:
@@ -89,14 +88,14 @@ class TestEC2Submit(unittest.TestCase):
 
     def test_upload_delete_common(self):
         image_name = str(uuid.uuid1())
-        rc = nimbus_public_image.main([os.environ['NIMBUS_TEST_IMAGE'], image_name])
+        rc = nimbus_public_image.main([os.environ['NIMBUS_SOURCE_TEST_IMAGE'], image_name])
         self.assertEqual(rc, 0, "public image upload return code should be 0 is %d" % (rc))
         rc = nimbus_public_image.main(["--delete", image_name])
         self.assertEqual(rc, 0, "public image upload return code should be 0 is %d" % (rc))
 
     def test_run_common(self):
         image_name = str(uuid.uuid1())
-        rc = nimbus_public_image.main([os.environ['NIMBUS_TEST_IMAGE'], image_name])
+        rc = nimbus_public_image.main([os.environ['NIMBUS_SOURCE_TEST_IMAGE'], image_name])
         self.assertEqual(rc, 0, "public image upload return code should be 0 is %d" % (rc))
 
         image = self.ec2conn.get_image(image_name)

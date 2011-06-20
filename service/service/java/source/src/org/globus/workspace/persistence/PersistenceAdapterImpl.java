@@ -2419,6 +2419,50 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
             }
         }
     }
+
+    public boolean isInfeasibleRequest(int requestedMem)
+            throws WorkspaceDatabaseException{
+
+        Connection c = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            c = getConnection();
+            pstmt = c.prepareStatement(SQL_SELECT_INFEASIBLE_MEMORY);
+            pstmt.setInt(1, requestedMem);
+            rs = pstmt.executeQuery();
+
+            if (rs == null || !rs.next()) {
+                throw new WorkspaceDatabaseException("Should always have a result");
+            } else {
+                int numPossibleVmms = rs.getInt(1);
+                if (numPossibleVmms > 0) {
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+
+        } catch(SQLException e) {
+            logger.error("",e);
+            throw new WorkspaceDatabaseException(e);
+        } finally {
+            try {
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+                if (rs != null) {
+                    rs.close();
+                }
+                if (c != null) {
+                    returnConnection(c);
+                }
+            } catch (SQLException sql) {
+                logger.error("SQLException in finally cleanup", sql);
+            }
+        }
+    }
     
     public List<ResourcepoolEntry> getAvailableEntriesSortedByFreeMemoryPercentage(int requestedMem)
             throws WorkspaceDatabaseException{

@@ -215,8 +215,14 @@
             <param name="runone.suite.report.subdir" value="basic-${st.failure01}"/>
         </antcall>
     </target>
+    <target name="failure02">
+        <antcall target="runone">
+            <param name="runone.suite.file" value="${st.failure.dir}/${st.failure02}.xml"/>
+            <param name="runone.suite.report.subdir" value="basic-${st.failure02}"/>
+        </antcall>
+    </target>
 
-    <target name="allfailure" depends="failure01" />
+    <target name="allfailure" depends="failure01,failure02" />
 
 
     <!-- SPOT INSTANCE SUITES -->
@@ -251,8 +257,14 @@
             <param name="runone.suite.report.subdir" value="basic-${st.spot05}"/>
         </antcall>
     </target>
+    <target name="spot06">
+        <antcall target="runone">
+            <param name="runone.suite.file" value="${st.spot.dir}/${st.spot06}.xml"/>
+            <param name="runone.suite.report.subdir" value="basic-${st.spot06}"/>
+        </antcall>
+    </target>
 
-    <target name="allspot" depends="spot01,spot02,spot03,spot04,spot05" />
+    <target name="allspot" depends="spot01,spot02,spot03,spot04,spot05,spot06" />
 
 
     <!-- *******************************************************************

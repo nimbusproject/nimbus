@@ -85,14 +85,26 @@ public interface WorkspaceHome {
      * including if the workspace was not found, etc.  This does not cut out
      * early if there is any kind of problem.
      *
-     * (note: implement with multiple threads because the remove procedure is
-     * blocking)
-     *
      * @param workspaces list of workspace IDs
      * @param sourceStr string for log msgs
      * @return string report on what happened
      */
     public String destroyMultiple(int[] workspaces, String sourceStr);
+
+
+    /**
+     * Destroy a set of workspaces.  Return a list of errors separated by \n,
+     * including if the workspace was not found, etc.  This does not cut out
+     * early if there is any kind of problem.
+     *
+     * Allow parameter to set to block until work is complete (up to twenty seconds).
+     *
+     * @param workspaces list of workspace IDs
+     * @param sourceStr string for log msgs
+     * @param block set true if you want to block until complete (up to twenty seconds)
+     * @return string report on what happened
+     */
+    public String destroyMultiple(int[] workspaces, String sourceStr, boolean block);
 
 
     // -------------------------------------------------------------------------

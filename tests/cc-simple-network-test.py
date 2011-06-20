@@ -4,18 +4,20 @@ import pexpect
 import sys
 import os
 
-to=90
+tst_image_name = os.environ['NIMBUS_TEST_IMAGE']
+tst_image_src = os.environ['NIMBUS_SOURCE_TEST_IMAGE']
+to=int(os.environ["NIMBUS_TEST_TIMEOUT"])
 cc_home=os.environ['CLOUD_CLIENT_HOME']
 logfile = sys.stdout
 
-cmd = "%s/bin/cloud-client.sh --transfer --sourcefile %s" % (cc_home, os.environ['NIMBUS_TEST_IMAGE'])
+cmd = "%s/bin/cloud-client.sh --transfer --sourcefile %s" % (cc_home, tst_image_src)
 (x, rc)=pexpect.run(cmd, withexitstatus=1)
 
 cmd = "%s/bin/cloud-client.sh --networks" % (cc_home)
 child = pexpect.spawn (cmd, timeout=to, maxread=20000, logfile=logfile)
 rc = child.expect ('Network')
 if rc != 0:
-    print "group not found in the list"
+    print "network not found in the list"
     sys.exit(1)
 line = child.readline()
 ndx = line.find("public")

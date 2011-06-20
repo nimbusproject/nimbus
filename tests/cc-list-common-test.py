@@ -5,15 +5,17 @@ import sys
 import os
 import uuid
 
-to=90
+to=int(os.environ["NIMBUS_TEST_TIMEOUT"])
+tst_image_name = os.environ['NIMBUS_TEST_IMAGE']
+tst_image_src = os.environ['NIMBUS_SOURCE_TEST_IMAGE']
 
 cc_home=os.environ['CLOUD_CLIENT_HOME']
 nh=os.environ['NIMBUS_HOME']
 logfile = sys.stdout
 common_image = str(uuid.uuid1()).replace("-", "")
 
-cmd = "%s/bin/nimbus-public-image %s %s" % (nh, os.environ['NIMBUS_TEST_IMAGE'], common_image)
-(x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile)
+cmd = "%s/bin/nimbus-public-image %s %s" % (nh, tst_image_src, common_image)
+(x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile, timeout=to)
 if rc != 0:
     print "failed create the public image"
     sys.exit(1)
@@ -30,7 +32,7 @@ if rc != 0:
     sys.exit(1)
 
 cmd = "%s/bin/nimbus-public-image --delete %s" % (nh, common_image)
-(x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile)
+(x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile, timeout=to)
 if rc != 0:
     print "failed create the public image"
     sys.exit(1)

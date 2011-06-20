@@ -7,7 +7,10 @@ import uuid
 import tempfile
 import filecmp
 
-to=90
+tst_image_name = os.environ['NIMBUS_TEST_IMAGE']
+tst_image_src = os.environ['NIMBUS_SOURCE_TEST_IMAGE']
+
+to=int(os.environ["NIMBUS_TEST_TIMEOUT"])
 cc_home=os.environ['CLOUD_CLIENT_HOME']
 nh=os.environ['NIMBUS_HOME']
 logfile = sys.stdout
@@ -16,7 +19,7 @@ user_image_src = "/bin/bash"
 os.system("cp /bin/bash /tmp/%s" % (common_image))
 
 print "upload common image %s" % (common_image)
-cmd = "%s/bin/nimbus-public-image %s %s" % (nh, os.environ['NIMBUS_TEST_IMAGE'], common_image)
+cmd = "%s/bin/nimbus-public-image %s %s" % (nh, tst_image_src, common_image)
 (x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile)
 if rc != 0:
     print "failed create the public image"
@@ -41,9 +44,9 @@ if rc != 0:
     print "Down load of the common image failed"
     sys.exit(1)
 
-rc = filecmp.cmp(common_file, os.environ['NIMBUS_TEST_IMAGE'])
+rc = filecmp.cmp(common_file, tst_image_src)
 if not rc:
-    print "The common file download was wrong %s != %s %s" % (common_file, os.environ['NIMBUS_TEST_IMAGE'], str(rc))
+    print "The common file download was wrong %s != %s %s" % (common_file, tst_image_src, str(rc))
     sys.exit(1)
 os.remove(common_file)
 

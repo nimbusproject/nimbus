@@ -403,6 +403,23 @@ ssh when it boots.  This image does not run the context agent.
 </p>
 </div>
 
+<a name="hypervisor"> </a>
+<h3>Configure libvirt hypervisor _NAMELINK(hypervisor)</h3>
+
+<p>
+    Workspace control must be configured to use the correct libvirt hypervisor. This is done in
+    <tt class="literal">/opt/nimbus/etc/workspace-control/libvirt.conf</tt>. The default hypervisor
+    is Xen. If you are using KVM you'll need to edit the <tt class="literal">vmm</tt> property
+    in this file.
+</p>
+
+<div class="kvmpanel">
+<div class="panel"><pre>
+[libvirt]
+vmm: kvm0
+</pre></div>
+</div>
+
 <a name="bridge"> </a>
 <h3>Configure default bridge _NAMELINK(bridge)</h3>
 

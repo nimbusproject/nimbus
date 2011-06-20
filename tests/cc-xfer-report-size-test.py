@@ -4,11 +4,13 @@ import pexpect
 import sys
 import os
 
-to=90
+tst_image_name = os.environ['NIMBUS_TEST_IMAGE']
+tst_image_src = os.environ['NIMBUS_SOURCE_TEST_IMAGE']
+to=int(os.environ["NIMBUS_TEST_TIMEOUT"])
 cc_home=os.environ['CLOUD_CLIENT_HOME']
 logfile = sys.stdout
 
-src_file = os.environ['NIMBUS_TEST_IMAGE']
+src_file = tst_image_src
 sfa = src_file.split("/")
 image_name = sfa[len(sfa) - 1]
 size = os.path.getsize(src_file)

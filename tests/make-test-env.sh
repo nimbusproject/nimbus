@@ -300,5 +300,7 @@ echo "export NIMBUS_TEST_USER=$NIMBUS_TEST_USER" >> $src_dir/env.sh
 echo "export CLOUD_CLIENT_HOME=$CLOUD_CLIENT_HOME" >> $src_dir/env.sh
 echo "export NIMBUS_WORKSPACE_CONTROL_HOME=$NIMBUS_WORKSPACE_CONTROL_HOME" >> $src_dir/env.sh
 echo "export NIMBUS_TEST_USER_CAN_ID=$can_id" >> $src_dir/env.sh
-echo "export NIMBUS_TEST_IMAGE=/etc/group" >> $src_dir/env.sh
+echo "export NIMBUS_TEST_IMAGE=group" >> $src_dir/env.sh
+echo "export NIMBUS_SOURCE_TEST_IMAGE=/etc/group" >> $src_dir/env.sh
+echo "export NIMBUS_TEST_TIMEOUT=90" >> $src_dir/env.sh
 

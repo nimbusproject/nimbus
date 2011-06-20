@@ -12,7 +12,6 @@ from ConfigParser import SafeConfigParser
 import time
 import unittest
 import tempfile
-import filecmp
 import pycb
 import pynimbusauthz
 from  pynimbusauthz.db import * 
@@ -98,7 +97,7 @@ class TestEC2Submit(unittest.TestCase):
         k = boto.s3.key.Key(bucket)
         image_name = self.cb_random_bucketname(10)
         k.key = "WHATEVER/" + image_name
-        k.set_contents_from_filename(os.environ['NIMBUS_TEST_IMAGE'])
+        k.set_contents_from_filename(os.environ['NIMBUS_SOURCE_TEST_IMAGE'])
         url = "cumulus://HOST/" + bucket_name + "/" + k.key
         
         result = self.ec2conn.request_spot_instances("1.0",url)
@@ -155,7 +154,7 @@ class TestEC2Submit(unittest.TestCase):
         k = boto.s3.key.Key(bucket)
         image_name = self.cb_random_bucketname(10)
         k.key = "WHATEVER/" + image_name
-        k.set_contents_from_filename(os.environ['NIMBUS_TEST_IMAGE'])
+        k.set_contents_from_filename(os.environ['NIMBUS_SOURCE_TEST_IMAGE'])
         url = "cumulus://HOST/" + bucket_name + "/" + k.key
         
         result = self.ec2conn.request_spot_instances("1.0",url,count=2,type="persistent")
@@ -235,7 +234,7 @@ class TestEC2Submit(unittest.TestCase):
         k = boto.s3.key.Key(bucket)
         image_name = self.cb_random_bucketname(10)
         k.key = "WHATEVER/" + image_name
-        k.set_contents_from_filename(os.environ['NIMBUS_TEST_IMAGE'])
+        k.set_contents_from_filename(os.environ['NIMBUS_SOURCE_TEST_IMAGE'])
         url = "cumulus://HOST/" + bucket_name + "/" + k.key
         
         ts1 = now = datetime.datetime.now()

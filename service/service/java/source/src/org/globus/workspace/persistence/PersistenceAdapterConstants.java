@@ -207,6 +207,10 @@ public interface PersistenceAdapterConstants {
         "SELECT * FROM resourcepool_entries WHERE active = 1 AND " +
                 "available_memory >= ? " +
                 "ORDER BY (available_memory/maximum_memory) ASC";
+
+    public static final String SQL_SELECT_INFEASIBLE_MEMORY =
+        "SELECT COUNT(DISTINCT hostname) FROM resourcepool_entries WHERE active = 1 AND " +
+                "? <= maximum_memory";
     
     public static final String SQL_INSERT_SPOT_PRICE =
             "INSERT INTO spot_prices VALUES(?,?)";    
@@ -290,6 +294,7 @@ public interface PersistenceAdapterConstants {
                                     SQL_SELECT_TOTAL_AVAILABLE_MEMORY,
                                     SQL_SELECT_TOTAL_MAX_MEMORY,
                                     SQL_SELECT_TOTAL_PREEMPTABLE_MEMORY,
+                                    SQL_SELECT_INFEASIBLE_MEMORY,
                                     SQL_SELECT_USED_NON_PREEMPTABLE_MEMORY,
                                     SQL_INSERT_SPOT_PRICE,
                                     SQL_SELECT_LAST_SPOT_PRICE,

@@ -14,7 +14,6 @@ from ConfigParser import SafeConfigParser
 import time
 import tempfile
 import traceback
-import filecmp
 import logging
 import shlex
 from optparse import SUPPRESS_HELP
