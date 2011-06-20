@@ -31,6 +31,7 @@
     </orderEntry>
     <orderEntry type="module" module-name="workspace-service" />
     <orderEntry type="module" module-name="authzdb" />
+    <orderEntry type="library" name="workspace-service-libs" level="project" />
   </component>
 </module>
 

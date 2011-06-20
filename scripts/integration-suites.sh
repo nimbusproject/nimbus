@@ -11,6 +11,14 @@ fi
 
 REPORTS_DIR=$1
 
+# remaining arguments are specific tests to run. If unspecified, all will be run.
+shift 1
+RUN_TEST_SUITES=$@
+
+if [ "X$RUN_TEST_SUITES" = "X" ]; then
+    RUN_TEST_SUITES=$ALL_TEST_SUITES
+fi
+
 if [ -e $REPORTS_DIR ]; then
   echo "Directory exists, use a different argument: $REPORTS_DIR"
   exit 1
@@ -47,10 +55,10 @@ FAILED_SUITES=""
 TIMINGS="Timings:\n"
 total_time=0
 
-for test_suite in $ALL_TEST_SUITES; do
+for test_suite in $RUN_TEST_SUITES; do
   possible_count=`expr $possible_count + 1`
 done
-for test_suite in $ALL_TEST_SUITES; do
+for test_suite in $RUN_TEST_SUITES; do
 
   echo ""
   echo ""
