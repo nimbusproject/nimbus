@@ -97,7 +97,16 @@
         <constructor-arg ref="other.timerManager" />
         <constructor-arg ref="nimbus-rm.loglevels" />
         <constructor-arg ref="nimbus-rm.service.binding.BindNetwork" />
-        <constructor-arg ref="nimbus-rm.creation.idempotent" />
+
+        <!-- idempotent requests can be disabled by replacing this
+        last arg with a null reference, like:
+
+        <constructor-arg><null/></constructor-arg>
+
+        You can also comment out the idempotent bean definition below but it
+        is not required.
+        -->
+        <constructor-arg ref="nimbus-rm.creation.idempotent"/>
 
         <property name="accountingEventAdapter"
                   ref="nimbus-rm.accounting" />
@@ -605,7 +614,7 @@
     <bean id="nimbus-rm.si.pricingmodel" class="$ASYNC{si.pricingmodel}" />
 
     <bean id="nimbus-rm.si.asyncreqmap" class="org.globus.workspace.async.AsyncRequestMap">
-        <constructor-arg value="$COMMON{caches.dir}" />
+        <constructor-arg ref="nimbus-rm.persistence.PersistenceAdapter" />
     </bean>
 
     <bean id="nimbus-rm.async.manager"

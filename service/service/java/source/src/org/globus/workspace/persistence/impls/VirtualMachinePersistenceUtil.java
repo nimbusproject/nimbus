@@ -45,6 +45,13 @@ public class VirtualMachinePersistenceUtil
         if (vm == null) {
             throw new ProgrammingError("vm is null");
         }
+        return getInsertVM(vm, id, c);
+    }
+
+    public static PreparedStatement[] getInsertVM(VirtualMachine vm,
+                                                  int id,
+                                                  Connection c)
+            throws ManageException, SQLException {
 
         final PreparedStatement pstmt = c.prepareStatement(SQL_INSERT_VM);
 

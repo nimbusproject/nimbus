@@ -250,3 +250,10 @@ site_capacity INT NOT NULL,
 repo_user VARCHAR(512) NOT NULL,
 instance_mem SMALLINT NOT NULL
 );
+
+--
+-- Persistence for AsyncRequests
+CREATE TABLE async_requests
+(
+id VARCHAR(512) NOT NULL PRIMARY KEY
+);

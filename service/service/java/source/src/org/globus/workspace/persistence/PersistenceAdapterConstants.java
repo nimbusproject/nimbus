@@ -243,7 +243,26 @@ public interface PersistenceAdapterConstants {
 
     public static final String SQL_DELETE_IDEMPOTENT_CREATION =
             "DELETE FROM idempotency WHERE creator_dn=? AND client_token=?";
-    
+
+    public static final String SQL_INSERT_ASYNC_REQUEST =
+            "INSERT INTO async_requests (id, max_bid, spot, group_id, persistent, creator_dn, creator_is_superuser, ssh_key_name, creation_time, nics) " +
+                    "            VALUES (?,?,?,?,?,?,?,?,?,?)";
+
+    public static final String SQL_LOAD_ASYNC_REQUEST =
+            "SELECT id, max_bid, spot, group_id, persistent, creator_dn, creator_is_superuser, ssh_key_name, creation_time, nics FROM async_requests WHERE id=?";
+
+    public static final String SQL_LOAD_ALL_ASYNC_REQUESTS =
+            "SELECT id, max_bid, spot, group_id, persistent, creator_dn, creator_is_superuser, ssh_key_name, creation_time, nics FROM async_requests";
+
+    public static final String SQL_LOAD_ASYNC_REQUESTS_VMS =
+            "SELECT vmid FROM async_requests_vms WHERE id=?";
+
+    public static final String SQL_INSERT_ASYNC_REQUESTS_VMS =
+            "INSERT INTO async_requests_vms (id,vmid) VALUES (?,?)";
+
+    public static final String SQL_UPDATE_ASYNC_REQUEST =
+            "UPDATE async_requests SET id=?";
+
     public static final String[] PREPARED_STATEMENTS = {
                                     SQL_SELECT_RESOURCES,
                                     SQL_SELECT_ALL_ASSOCIATIONS,
@@ -304,5 +323,8 @@ public interface PersistenceAdapterConstants {
                                     SQL_SELECT_IDEMPOTENT_CREATION,
                                     SQL_INSERT_IDEMPOTENT_CREATION,
                                     SQL_DELETE_IDEMPOTENT_CREATION,
+//                                    SQL_INSERT_ASYNC_REQUEST,
+//                                    SQL_LOAD_ALL_ASYNC_REQUESTS,
+//                                    SQL_LOAD_ASYNC_REQUEST,
     };
 }

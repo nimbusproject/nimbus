@@ -143,7 +143,7 @@ public class AsyncRequest implements Comparable<AsyncRequest>, Serializable {
     public boolean isAlive(){
         return this.statusIsOpenOrActive() || (this.status.isCancelled() && !allocatedVMs.isEmpty());
     }
-    
+
     public boolean setStatus(AsyncRequestStatus status) {
         if(statusIsOpenOrActive()){
             this.status = status;
@@ -201,6 +201,10 @@ public class AsyncRequest implements Comparable<AsyncRequest>, Serializable {
 
     public void setProblem(Throwable problem) {
         this.problem = problem;
+    }
+
+    public void setBindings(VirtualMachine[] toBind) {
+        this.bindings = toBind;
     }
 
     @Override
