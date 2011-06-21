@@ -21,24 +21,19 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.*;
 import org.apache.log4j.varia.NullAppender;
-import org.globus.workspace.remoting.RemotingClient;
 import org.globus.workspace.remoting.admin.NodeReport;
 import org.globus.workspace.remoting.admin.VmmNode;
 import org.nimbustools.api.services.admin.RemoteNodeManagement;
-import org.nimbustools.api.brain.NimbusHomePathResolver;
 
 import java.io.*;
-import java.rmi.NotBoundException;
-import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 
 
 public class AdminClient extends RMIConfig {
 
     private static final Log logger =
-            LogFactory.getLog(AdminClient.class.getName());
+            LogFactory.getLog(RMIConfig.class.getName());
 
     public static final int EXIT_OK = 0;
     public static final int EXIT_PARAMETER_PROBLEM = 1;
@@ -91,7 +86,6 @@ public class AdminClient extends RMIConfig {
 
     public static void main(String args[]) {
 
-        // early check for debug options
         boolean isDebug = false;
         final String debugFlag = "--" + Opts.DEBUG_LONG;
         for (String arg : args) {
@@ -108,7 +102,8 @@ public class AdminClient extends RMIConfig {
             BasicConfigurator.configure(consoleAppender);
 
             logger.info("Debug mode enabled");
-        } else {
+        }
+        else {
             BasicConfigurator.configure(new NullAppender());
         }
 
@@ -407,7 +402,7 @@ public class AdminClient extends RMIConfig {
         if (config == null || config.trim().length() == 0) {
             throw new ParameterProblem("Config file path is invalid");
         }
-        this.configPath = config.trim();
+        super.configPath = config.trim();
 
         final boolean batchMode = line.hasOption(Opts.BATCH);
         final boolean json = line.hasOption(Opts.JSON);

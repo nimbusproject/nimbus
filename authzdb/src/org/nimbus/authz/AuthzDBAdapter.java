@@ -22,6 +22,7 @@ public class AuthzDBAdapter
     private static final String FIND_OBJECT_BY_NAME = "Select id from objects where name = ? and parent_id = ? and object_type = ?";
     private static final String FIND_OBJECT_BY_DATA_KEY = "Select id from objects where data_key = ?";
     private static final String FIND_USER_BY_ALIAS = "Select user_id from user_alias where alias_name = ? and alias_type = ?";
+    private static final String FIND_USER_BY_FRIENDLY = "Select user_id from user_alias where friendly_name = ? and alias_type = ?";
     private static final String CHECK_PERMISSIONS = "Select access_type_id from object_acl where object_id = ? and user_id = ?";
     private static final String GET_DATA_KEY = "select data_key from objects where id = ?";
     private static final String GET_CKSUM = "select md5sum from objects where id = ?";
@@ -63,6 +64,7 @@ public class AuthzDBAdapter
         return cumulusPublicUser;
     }
 
+
     public void setCumulusPublicUser(
         String                          pubUser)
     {
@@ -82,6 +84,10 @@ public class AuthzDBAdapter
             throws   AuthzDBException
     {
           return getCanonicalUserIdFromAlias(name, ALIAS_TYPE_DN);
+    }
+
+    public String getCanonicalUserIdFromFriendlyName(String name) throws AuthzDBException {
+        return getCanonicalUserIdFromFriendly(name, ALIAS_TYPE_DN);
     }
 
     public List<UserAlias> getUserAliases(String userId)
@@ -854,6 +860,53 @@ public class AuthzDBAdapter
 
             if(!rs.next())
             {                
+                throw new AuthzDBException("no such user found  " + name);
+            }
+            String canUserId = rs.getString(1);
+
+            return canUserId;
+
+        }
+        catch(SQLException e)
+        {
+            logger.error("",e);
+            throw new AuthzDBException(e);
+        }
+        finally
+        {
+            try
+            {
+                if (pstmt != null)
+                {
+                    pstmt.close();
+                }
+                if (c != null)
+                {
+                    returnConnection(c);
+                }
+            }
+            catch (SQLException sql)
+            {
+                logger.error("SQLException in finally cleanup", sql);
+            }
+        }
+    }
+
+    public String getCanonicalUserIdFromFriendly(String name, int type) throws   AuthzDBException {
+        Connection c = null;
+        PreparedStatement pstmt = null;
+
+        try
+        {
+            c = getConnection();
+            pstmt = c.prepareStatement(FIND_USER_BY_FRIENDLY);
+            pstmt.setString(1, name);
+            pstmt.setInt(2, type);
+            logger.debug("getting user " + pstmt.toString());
+            ResultSet rs = pstmt.executeQuery();
+
+            if(!rs.next())
+            {
                 throw new AuthzDBException("no such user found  " + name);
             }
             String canUserId = rs.getString(1);

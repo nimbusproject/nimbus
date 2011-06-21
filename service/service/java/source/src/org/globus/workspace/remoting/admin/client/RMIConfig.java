@@ -2,6 +2,10 @@ package org.globus.workspace.remoting.admin.client;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.PatternLayout;
+import org.apache.log4j.varia.NullAppender;
 import org.globus.workspace.remoting.RemotingClient;
 import org.nimbustools.api.brain.NimbusHomePathResolver;
 

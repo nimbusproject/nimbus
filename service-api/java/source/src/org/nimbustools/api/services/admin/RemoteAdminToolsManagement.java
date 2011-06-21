@@ -25,5 +25,8 @@ import java.util.Hashtable;
 public interface RemoteAdminToolsManagement extends Remote {
 
     public Hashtable getAllRunningVMs() throws RemoteException;
-
+    public Hashtable getVMsByUser(String user) throws RemoteException;
+    public String shutdownVM(String id, String seconds) throws RemoteException;
+    public String shutdownAllVMs(String seconds) throws RemoteException;
+    public String test(String user) throws RemoteException;
 }
