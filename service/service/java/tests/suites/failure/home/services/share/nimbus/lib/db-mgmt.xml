@@ -98,7 +98,7 @@
              also need a reset -->
         <echo message="Deleting disk-caches for the Workspace Service"/>
         <delete dir="${workspace.dbdir.prop}/caches" />
-        <delete dir="${workspace.dbdir.prop}/elastic-caches" />
+        <delete file="${workspace.dbdir.prop}/elastic.db" />
         <echo message="Deleting notification msgs for the Workspace Service"/>
         <delete dir="${workspace.dbdir.prop}/msg-sinks" />
     </target>
@@ -268,8 +268,6 @@
         <mkdir dir="${workspace.dbdir.prop}/pilot-logs" />
         
         <mkdir dir="${workspace.dbdir.prop}/caches" />
-
-        <mkdir dir="${workspace.dbdir.prop}/elastic-caches" />
 
         <mkdir dir="${workspace.dbdir.prop}/tmpfiles" />
 

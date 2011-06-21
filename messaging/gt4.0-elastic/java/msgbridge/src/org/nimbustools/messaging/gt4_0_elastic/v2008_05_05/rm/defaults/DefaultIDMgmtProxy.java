@@ -16,10 +16,8 @@
 
 package org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.defaults;
 
-import net.sf.ehcache.Cache;
 import org.nimbustools.messaging.gt4_0_elastic.context.ElasticContext;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.IDMappings;
-import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.security.defaults.KeyCacheProvider;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
@@ -37,7 +35,7 @@ import org.springframework.context.ApplicationContextAware;
  * JNDI config in your alternate installation. That will also then mean you'll get multiple
  * DefaultIDMgmt instances, one per service stack).
  */
-public class DefaultIDMgmtProxy implements IDMappings, KeyCacheProvider,
+public class DefaultIDMgmtProxy implements IDMappings,
                                            ApplicationContextAware {
 
     public static final String ID_MAPPING_BEAN_NAME = "nimbus-elastic.rm.realidmappings";
@@ -89,24 +87,11 @@ public class DefaultIDMgmtProxy implements IDMappings, KeyCacheProvider,
             throw new RuntimeException("bean does not implement" +
                                         " IDMappings? '" + ID_MAPPING_BEAN_NAME + "'");
         }
-        if (!(idMappings instanceof KeyCacheProvider)) {
-            throw new RuntimeException("bean does not implement" +
-                                        " KeyCacheProvider? '" + ID_MAPPING_BEAN_NAME + "'");
-        }
 
         return this.correctIDMappings;
     }
 
-    /**
-     * See class notes.
-     * @return the proper KeyCacheProvider instance, never null
-     * @throws Exception cannot find it
-     */
-    private KeyCacheProvider getRealKeyCacheProvider() throws RuntimeException {
-        return (KeyCacheProvider) this.getReal();
-    }
 
-    
     // **************************************************************************************
 
     public String newInstanceID(String managerInstanceID, String elasticReservationID,
@@ -207,9 +192,5 @@ public class DefaultIDMgmtProxy implements IDMappings, KeyCacheProvider,
         return this.getReal().getOrNewInstanceID(managerInstanceID,
                                                  elasticReservationID,
                                                  sshkeyUsed);
-    }
-
-    public Cache getKeyCache() {
-        return this.getRealKeyCacheProvider().getKeyCache();
     }
 }

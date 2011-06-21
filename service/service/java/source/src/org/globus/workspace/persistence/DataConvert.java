@@ -390,6 +390,11 @@ public class DataConvert implements WorkspaceConstants {
             throw new CannotTranslateException("no network?");
         }
 
+        return getNICs(network);
+    }
+
+    public NIC[] getNICs(String network) throws CannotTranslateException {
+
         // Create objects
 
         if (network.equalsIgnoreCase("NONE")) {
@@ -465,6 +470,37 @@ public class DataConvert implements WorkspaceConstants {
             return null;
         }
         return part;
+    }
+
+
+    public String nicsAsString(NIC[] nics) {
+
+        // NIC string format:
+        // Name;Assocaition;MAC;Network Mode;IP method
+        //      ;IP address;gateway;broadcast;subnetmask;dns;hostname
+        //      ;null;null;null;null  (maintain old protocol)
+
+        String nicString = "";
+        for (NIC nic : nics) {
+            nicString += nic.getName() + ";";
+            nicString += nic.getNetworkName() + ";";
+            nicString += nic.getMAC() + ";";
+            nicString += "null" + ";"; //No network mode
+            nicString += nic.getAcquisitionMethod() + ";";
+            nicString += nic.getIpAddress() + ";";
+            nicString += nic.getGateway() + ";";
+            nicString += nic.getBroadcast() + ";";
+            nicString += nic.getNetmask() + ";";
+            nicString += "null" + ";"; //No dns
+            nicString += nic.getHostname() + ";";
+            nicString += "null;null;null";
+
+            if (nic != nics[nics.length-1]) {
+                nicString += ";;";
+            }
+
+        }
+        return nicString;
     }
 
 

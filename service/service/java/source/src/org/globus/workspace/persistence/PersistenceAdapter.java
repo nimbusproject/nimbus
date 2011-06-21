@@ -16,10 +16,12 @@
 
 package org.globus.workspace.persistence;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Hashtable;
 import java.util.List;
 
+import org.globus.workspace.async.AsyncRequest;
 import org.globus.workspace.async.backfill.Backfill;
 import org.globus.workspace.creation.IdempotentReservation;
 import org.globus.workspace.network.AssociationEntry;
@@ -311,4 +313,13 @@ public interface PersistenceAdapter {
      */
     public void removeIdempotentReservation(String creatorId, String clientToken)
         throws WorkspaceDatabaseException;
+
+    public void addAsyncRequest(AsyncRequest asyncRequest)
+        throws WorkspaceDatabaseException;
+
+    public AsyncRequest getAsyncRequest(String id)
+            throws WorkspaceDatabaseException;
+
+    public ArrayList<AsyncRequest> getAllAsyncRequests()
+            throws WorkspaceDatabaseException;
 }

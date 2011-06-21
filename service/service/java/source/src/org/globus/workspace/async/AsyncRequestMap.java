@@ -16,18 +16,13 @@
 
 package org.globus.workspace.async;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Element;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.core.io.Resource;
-
+import org.globus.workspace.persistence.PersistenceAdapter;
+import org.globus.workspace.persistence.WorkspaceDatabaseException;
 import java.io.IOException;
-import java.net.URL;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
+
 
 public class AsyncRequestMap {
 
@@ -38,46 +33,26 @@ public class AsyncRequestMap {
     private static final Log logger =
             LogFactory.getLog(AsyncRequestMap.class.getName());
 
-    private static final String CACHE_NAME = "nimbus-siCache";
-    private static final String DISK_PROPKEY = "ehcache.disk.store.dir";
-    private static final String SHUTDOWN_PROPKEY = "net.sf.ehcache.enableShutdownHook";
 
 
     // -----------------------------------------------------------------------------------------
     // INSTANCE VARIABLES
     // -----------------------------------------------------------------------------------------
 
-    private final Cache cache;
+    private PersistenceAdapter persistence;
     
 
     // -----------------------------------------------------------------------------------------
     // CONSTRUCTORS
     // -----------------------------------------------------------------------------------------
 
-    public AsyncRequestMap(Resource diskStoreResource) throws IOException {
+    public AsyncRequestMap(PersistenceAdapter persistenceAdapter) throws IOException {
 
-        if (diskStoreResource == null) {
-            throw new IllegalArgumentException("diskStoreResource may not be null");
+        if (persistenceAdapter == null) {
+            throw new IllegalArgumentException("persistenceAdapter may not be null");
         }
 
-        final String diskStorePath = diskStoreResource.getFile().getAbsolutePath();
-
-        // TODO: Do dynamically. This must not be in conflict with other ehcache+diskstore
-        //       users (and there is at least one other), could not see how to set
-        //       on per-manager basis via spring (specifically, the to-disk part).
-        System.setProperty(DISK_PROPKEY, diskStorePath);
-
-        // TODO: We need a shutdown hook with disk-based.  This creates a jvm
-        //       shutdown hook and is the least-recommended solution.
-        System.setProperty(SHUTDOWN_PROPKEY, "true");
-
-        final URL url = this.getClass().getResource("ehcache.xml");
-        final CacheManager cacheManager = new CacheManager(url);
-        this.cache = cacheManager.getCache(CACHE_NAME);
-        if (this.cache == null) {
-            throw new IllegalArgumentException(
-                    "cacheManager does not provide '" + CACHE_NAME + "'");
-        }
+        this.persistence = persistenceAdapter;
         this.loadAllFromDisk();
     }
 
@@ -86,7 +61,7 @@ public class AsyncRequestMap {
     // IMPL
     // -----------------------------------------------------------------------------------------
 
-    synchronized void addOrReplace(AsyncRequest asyncRequest) {
+    synchronized public void addOrReplace(AsyncRequest asyncRequest) {
         if (asyncRequest == null) {
             throw new IllegalArgumentException("asyncRequest is missing");
         }
@@ -94,55 +69,57 @@ public class AsyncRequestMap {
         if (id == null) {
             throw new IllegalArgumentException("asyncRequest ID is missing");
         }
-        final Element el = new Element(id, asyncRequest);
-        this.cache.put(el);
-        this.cache.flush();
+
+        try {
+            this.persistence.addAsyncRequest(asyncRequest);
+        } catch(WorkspaceDatabaseException e) {
+            logger.error("Problem persisting AsyncRequest: ", e);
+        }
+
         logger.debug("saved spot request, id: '" + id + "'");
     }
 
-    synchronized AsyncRequest getByID(String id) {
+    synchronized public AsyncRequest getByID(String id) {
         if (id == null) {
             return null;
         }
-        final Element el = this.cache.get(id);
-        if (el == null) {
-            return null;
+
+        try {
+            final AsyncRequest asyncRequest = this.persistence.getAsyncRequest(id);
+            if (asyncRequest != null) {
+                return asyncRequest;
+            }
+        } catch(WorkspaceDatabaseException e) {
+            logger.error("Couldn't retrieve " + id + " from persistence");
         }
-        final AsyncRequest req = (AsyncRequest) el.getObjectValue();
-        if (req != null) {
-            return req;
-        }
+
+
         logger.fatal("illegal object extension, no null values allowed");
         return null;
     }
 
-    synchronized Collection<AsyncRequest> getAll() {
-        final List allIDs = this.cache.getKeys();
-        Collection<AsyncRequest> all = new HashSet<AsyncRequest>();
-        for (int i = 0; i < allIDs.size(); i++) {
-            String id = (String)allIDs.get(i);
-            all.add(this.getByID(id));
+    synchronized public Collection<AsyncRequest> getAll() {
+
+        Collection<AsyncRequest> all = null;
+        try {
+            all = this.persistence.getAllAsyncRequests();
+        } catch(WorkspaceDatabaseException e) {
+            logger.error("Unable to load spot instances from persistence");
         }
+
         return all;
     }
 
     private void loadAllFromDisk() throws IOException {
-        final List allIDs = this.cache.getKeys();
+        Collection<AsyncRequest> all = this.getAll();
         int count = 0;
-        for (int i = 0; i < allIDs.size(); i++) {
-            String id = (String)allIDs.get(i);
-            AsyncRequest ar = this.getByID(id);
-            if (ar == null) {
-                throw new IOException("SI Cache is inconsistent or corrupted");
-            }
-            count += 1;
+        if (all != null) {
+            count = all.size();
         }
         logger.info("Found " + count + " spot requests on disk.");
     }
 
     void shutdownImmediately() {
-        if (this.cache != null) {
-            this.cache.removeAll();
-        }
+        logger.debug("Shut down stub");
     }
 }

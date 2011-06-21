@@ -36,16 +36,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.globus.workspace.Lager;
 import org.globus.workspace.WorkspaceConstants;
+import org.globus.workspace.async.AsyncRequest;
+import org.globus.workspace.async.AsyncRequestMap;
 import org.globus.workspace.creation.IdempotentInstance;
 import org.globus.workspace.creation.IdempotentReservation;
 import org.globus.workspace.creation.defaults.IdempotentInstanceImpl;
 import org.globus.workspace.creation.defaults.IdempotentReservationImpl;
 import org.globus.workspace.network.Association;
 import org.globus.workspace.network.AssociationEntry;
-import org.globus.workspace.persistence.impls.AssociationPersistenceUtil;
-import org.globus.workspace.persistence.impls.IdempotencyPersistenceUtil;
-import org.globus.workspace.persistence.impls.VMPersistence;
-import org.globus.workspace.persistence.impls.VirtualMachinePersistenceUtil;
+import org.globus.workspace.persistence.impls.*;
 import org.globus.workspace.async.backfill.Backfill;
 import org.globus.workspace.scheduler.defaults.ResourcepoolEntry;
 import org.globus.workspace.service.CoschedResource;
@@ -55,8 +54,10 @@ import org.globus.workspace.service.binding.vm.FileCopyNeed;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.globus.workspace.service.binding.vm.VirtualMachinePartition;
 import org.nimbustools.api._repr._SpotPriceEntry;
+import org.nimbustools.api.repr.CannotTranslateException;
 import org.nimbustools.api.repr.ReprFactory;
 import org.nimbustools.api.repr.SpotPriceEntry;
+import org.nimbustools.api.repr.vm.NIC;
 import org.nimbustools.api.services.rm.DoesNotExistException;
 import org.nimbustools.api.services.rm.ManageException;
 
@@ -1501,6 +1502,77 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
                 logger.error("SQLException in finally cleanup", sql);
             }
         }
+    }
+
+    public VirtualMachine loadVM(int id) throws SQLException, DoesNotExistException, WorkspaceDatabaseException {
+
+        if (this.dbTrace) {
+            logger.trace(Lager.id(id) + ": load virtual machine");
+        }
+
+        Connection c = getConnection();
+        PreparedStatement[] pstmts = VirtualMachinePersistenceUtil.getVMQuery(id, c);
+        ResultSet rs = pstmts[0].executeQuery();
+        if (rs == null || !rs.next()) {
+            logger.error("resource with id=" + id + " not found");
+            throw new DoesNotExistException();
+        }
+
+        final VirtualMachine vm =
+                VirtualMachinePersistenceUtil.newVM(id, rs);
+
+        if (this.dbTrace) {
+            logger.trace(Lager.id(id) +
+                    ", created vm:\n" + vm.toString());
+        }
+
+        rs.close();
+
+        rs = pstmts[1].executeQuery();
+        if (rs == null || !rs.next()) {
+            logger.debug("resource with id=" + id + " has no" +
+                    " deployment information");
+        } else {
+            VirtualMachinePersistenceUtil.addDeployment(vm, rs);
+            if (this.dbTrace) {
+                logger.trace("added deployment info to vm object");
+            }
+            rs.close();
+        }
+
+        rs = pstmts[2].executeQuery();
+
+        if (rs == null || !rs.next()) {
+            logger.warn("resource with id=" + id + " has no" +
+                    " partitions");
+        } else {
+            final ArrayList partitions = new ArrayList(8);
+            do {
+                partitions.add(VirtualMachinePersistenceUtil.
+                        getPartition(rs));
+            } while (rs.next());
+
+            final VirtualMachinePartition[] parts =
+                    (VirtualMachinePartition[]) partitions.toArray(
+                            new VirtualMachinePartition[partitions.size()]);
+            vm.setPartitions(parts);
+        }
+
+        rs = pstmts[3].executeQuery();
+
+        if (rs == null || !rs.next()) {
+            if (this.lager.dbLog) {
+                logger.debug("resource with id=" + id + " has no" +
+                        " customization needs");
+            }
+        } else {
+            do {
+                vm.addFileCopyNeed(
+                        VirtualMachinePersistenceUtil.getNeed(rs));
+            } while (rs.next());
+        }
+
+        return vm;
     }
 
     public void loadGroup(String id, GroupResource resource)
@@ -3148,5 +3220,168 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
                 logger.error("SQLException in finally cleanup", sql);
             }
         }
+    }
+
+    public void addAsyncRequest(AsyncRequest asyncRequest)
+                                throws WorkspaceDatabaseException {
+
+        if (asyncRequest == null) {
+            throw new IllegalArgumentException("asyncRequest may not be null");
+        }
+
+
+        Connection c = null;
+        PreparedStatement pstmt = null;
+        PreparedStatement[] pstmts = null;
+        try {
+            c = getConnection();
+            logger.debug("SETTING spot = " + asyncRequest.isSpotRequest());
+            pstmt = AsyncRequestMapPersistenceUtil.getInsertAsyncRequest(asyncRequest, this.repr, c);
+            pstmt.executeUpdate();
+
+            VirtualMachine[] bindings = asyncRequest.getBindings();
+            if (bindings != null) {
+
+                for (VirtualMachine vm : asyncRequest.getBindings()) {
+
+                    pstmts = VirtualMachinePersistenceUtil.
+                            getInsertVM(vm, vm.getID(), c);
+
+                    if (this.dbTrace) {
+                        logger.trace("creating VirtualMachine db " +
+                                "entry for " + Lager.id(vm.getID()) + ": " +
+                                pstmts.length + " inserts");
+                    }
+
+                    for (int i = 0; i < pstmts.length; i++) {
+                        pstmts[i].executeUpdate();
+                    }
+
+                    pstmt = AsyncRequestMapPersistenceUtil.getInsertAsyncRequestVM(asyncRequest.getId(), vm.getID(), c);
+                    pstmt.executeUpdate();
+                }
+            }
+            c.commit();
+
+        } catch (ManageException e) {
+            logger.error("",e);
+            throw new WorkspaceDatabaseException(e);
+        } catch (SQLException e) {
+            logger.error("",e);
+            throw new WorkspaceDatabaseException(e);
+        } finally {
+            try {
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+                if (pstmts != null) {
+                    for (PreparedStatement p : pstmts) {
+                        p.close();
+                    }
+                }
+                if (c != null) {
+                    returnConnection(c);
+                }
+            } catch (SQLException sql) {
+                logger.error("SQLException in finally cleanup", sql);
+            }
+        }
+    }
+
+    public AsyncRequest getAsyncRequest(String id)
+                                throws WorkspaceDatabaseException {
+
+        if (id == null) {
+            throw new IllegalArgumentException("id may not be null");
+        }
+
+        AsyncRequest asyncRequest = null;
+
+        Connection c = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            c = getConnection();
+            pstmt = AsyncRequestMapPersistenceUtil.getAsyncRequest(id, c);
+            rs = pstmt.executeQuery();
+
+            if (rs == null || !rs.next()) {
+                logger.debug("No Asyncrequest with ID " + id);
+                return null;
+            }
+
+            asyncRequest = AsyncRequestMapPersistenceUtil.rsToAsyncRequest(rs, this.repr, c);
+            ArrayList<VirtualMachine> bindings = new ArrayList<VirtualMachine>();
+            for (int vmid : AsyncRequestMapPersistenceUtil.getVMIDs(asyncRequest.getId(), c)) {
+                bindings.add(loadVM(vmid));
+            }
+            VirtualMachine[] newBindings = bindings.toArray(new VirtualMachine[bindings.size()]);
+            asyncRequest.setBindings(newBindings);
+
+        } catch (SQLException e) {
+            logger.error("",e);
+            throw new WorkspaceDatabaseException(e);
+        } catch (DoesNotExistException e) {
+            logger.error("",e);
+            throw new WorkspaceDatabaseException(e);
+        } catch (CannotTranslateException e) {
+            logger.error("",e);
+            throw new WorkspaceDatabaseException(e);
+        } finally {
+            try {
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+                if (c != null) {
+                    returnConnection(c);
+                }
+            } catch (SQLException sql) {
+                logger.error("SQLException in finally cleanup", sql);
+            }
+        }
+
+        return asyncRequest;
+    }
+
+    public ArrayList<AsyncRequest> getAllAsyncRequests()
+            throws WorkspaceDatabaseException {
+
+        ArrayList<AsyncRequest> asyncRequests = new ArrayList<AsyncRequest>();
+
+        Connection c = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            c = getConnection();
+            pstmt = AsyncRequestMapPersistenceUtil.getAllAsyncRequests(c);
+            rs = pstmt.executeQuery();
+
+            if (rs == null || !rs.next()) {
+                logger.debug("No AsyncRequests");
+                return asyncRequests;
+            }
+
+            do {
+                String id = rs.getString("id");
+                asyncRequests.add(getAsyncRequest(id));
+            } while(rs.next());
+
+        } catch (SQLException e) {
+            logger.error("",e);
+            throw new WorkspaceDatabaseException(e);
+        } finally {
+            try {
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+                if (c != null) {
+                    returnConnection(c);
+                }
+            } catch (SQLException sql) {
+                logger.error("SQLException in finally cleanup", sql);
+            }
+        }
+
+        return asyncRequests;
     }
 }
