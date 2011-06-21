@@ -2181,14 +2181,14 @@ To install LANTorrent you must take the following steps:
             From the source distribution of Nimbus copy the lantorrent
             directory to all VMM nodes.  
         <li>optional: You may want to setup a python virtual environment for the installation</li>
-            To do this, run <tt class="literal">virtualenv /path_to_install_lantorrent</tt>
+            To do this, run <tt class="literal">virtualenv /path_to_install_lantorrent</tt>.
             Then, use the <tt class="literal">/path_to_install_lantorrent/bin/python</tt> binary instead of your system python.
         <li>optional: If you don't have Internet connectivity on the VMM, you
         will have to manually install the simplejson library from source (in the
         virtual env if you chose to create one).</li>
         <li>Run <tt class="literal">python setup-vmm.py install</tt> on each node.
             This will output the xinetd file that you will need to install
-            into /etc/xinetd.  Note the <i>user</i> value in the output:
+            into <tt class="literal">/etc/xinetd.d</tt>.  Note the <i>user</i> value in the output:
             this should be the same user as your workspace control user.
         </li>
     </ul>
