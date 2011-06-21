@@ -128,8 +128,6 @@ public class AsyncRequestMap {
     }
 
     void shutdownImmediately() {
-        if (this.cache != null) {
-            this.cache.removeAll();
-        }
+        logger.debug("Shut down stub");
     }
 }
