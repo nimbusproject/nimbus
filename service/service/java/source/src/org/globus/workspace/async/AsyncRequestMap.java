@@ -20,17 +20,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.globus.workspace.persistence.PersistenceAdapter;
 import org.globus.workspace.persistence.WorkspaceDatabaseException;
-import org.springframework.beans.factory.parsing.Problem;
-import org.springframework.core.io.Resource;
-import org.springframework.scheduling.annotation.Async;
-import sun.tools.asm.CatchData;
-
 import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
+
 
 public class AsyncRequestMap {
 
