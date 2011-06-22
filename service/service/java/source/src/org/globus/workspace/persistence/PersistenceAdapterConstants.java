@@ -245,23 +245,51 @@ public interface PersistenceAdapterConstants {
             "DELETE FROM idempotency WHERE creator_dn=? AND client_token=?";
 
     public static final String SQL_INSERT_ASYNC_REQUEST =
-            "INSERT INTO async_requests (id, max_bid, spot, group_id, persistent, creator_dn, creator_is_superuser, ssh_key_name, creation_time, nics) " +
-                    "            VALUES (?,?,?,?,?,?,?,?,?,?)";
+            "INSERT INTO async_requests (id, max_bid, spot, group_id, persistent, creator_dn, creator_is_superuser, ssh_key_name, creation_time, nics, status) " +
+                    "            VALUES (?,?,?,?,?,?,?,?,?,?,?)";
 
     public static final String SQL_LOAD_ASYNC_REQUEST =
-            "SELECT id, max_bid, spot, group_id, persistent, creator_dn, creator_is_superuser, ssh_key_name, creation_time, nics FROM async_requests WHERE id=?";
+            "SELECT id, max_bid, spot, group_id, persistent, creator_dn, creator_is_superuser, ssh_key_name, creation_time, nics, status FROM async_requests WHERE id=?";
 
     public static final String SQL_LOAD_ALL_ASYNC_REQUESTS =
-            "SELECT id, max_bid, spot, group_id, persistent, creator_dn, creator_is_superuser, ssh_key_name, creation_time, nics FROM async_requests";
+            "SELECT id, max_bid, spot, group_id, persistent, creator_dn, creator_is_superuser, ssh_key_name, creation_time, nics, status FROM async_requests";
 
     public static final String SQL_LOAD_ASYNC_REQUESTS_VMS =
-            "SELECT vmid FROM async_requests_vms WHERE id=?";
+            "SELECT async_id, binding_index, id, name, node, prop_required, unprop_required, network, kernel_parameters, vmm, vmm_version, assocs_needed, md_user_data, preemptable, credential_name FROM async_requests_vms WHERE async_id=?";
 
     public static final String SQL_INSERT_ASYNC_REQUESTS_VMS =
-            "INSERT INTO async_requests_vms (id,vmid) VALUES (?,?)";
+            "INSERT INTO async_requests_vms " +
+                "(async_id, binding_index, id, name, node, prop_required, unprop_required, network, kernel_parameters, vmm, vmm_version, assocs_needed, md_user_data, preemptable, credential_name) " +
+                " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
     public static final String SQL_UPDATE_ASYNC_REQUEST =
-            "UPDATE async_requests SET id=?";
+            "UPDATE async_requests SET id=?, max_bid=?, spot=?, group_id=?, persistent=?, creator_dn=?, creator_is_superuser=?, ssh_key_name=?, creation_time=?, nics=?, status=?";
+
+    public static final String SQL_LOAD_ASYNC_REQUESTS_VM_DEPLOYMENT =
+            "SELECT requested_state, requested_shutdown, min_duration, " +
+                    "ind_physmem, ind_physcpu " +
+                    "FROM async_requests_vm_deployment WHERE async_id=? AND binding_index=?";
+
+    public static final String SQL_LOAD_ASYNC_REQUESTS_VM_PARTITIONS =
+            "SELECT image, imagemount, readwrite, rootdisk, blankspace, " +
+                    "prop_required, unprop_required, alternate_unprop " +
+                    "FROM async_requests_vm_partitions WHERE async_id=? AND binding_index=?";
+
+    public static final String SQL_LOAD_ASYNC_REQUESTS_VM_FILE_COPY =
+            "SELECT sourcepath, destpath, on_image " +
+                    "FROM async_requests_vm_file_copy WHERE async_id=? AND binding_index=?";
+
+    public static final String SQL_DELETE_ASYNC_REQUESTS_VMS =
+            "DELETE FROM async_requests_vms WHERE async_id=?";
+
+    public static final String SQL_DELETE_ASYNC_REQUESTS_VM_DEPLOYMENT =
+            "DELETE FROM async_requests_vm_deployment WHERE async_id=?";
+
+    public static final String SQL_DELETE_ASYNC_REQUESTS_VM_PARTITIONS =
+            "DELETE FROM async_requests_vm_partitions WHERE async_id=?";
+
+    public static final String SQL_DELETE_ASYNC_REQUESTS_VM_FILE_COPY =
+            "DELETE FROM async_requests_vm_file_copy WHERE async_id=?";
 
     public static final String[] PREPARED_STATEMENTS = {
                                     SQL_SELECT_RESOURCES,

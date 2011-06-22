@@ -264,12 +264,83 @@ creator_is_superuser SMALLINT,
 group_id VARCHAR(512),
 ssh_key_name VARCHAR(512),
 creation_time BIGINT,
-nics VARCHAR(512)
+nics VARCHAR(512),
+status VARCHAR(512)
 );
 
 -- Persistence for AsyncRequest list of NICs
+--CREATE TABLE async_requests_vms
+--(
+--id VARCHAR(512),
+--vmid INT
+--);
+
+--
+-- Persistence for async virtual machines:
+
 CREATE TABLE async_requests_vms
 (
-id VARCHAR(512),
-vmid INT
+async_id VARCHAR(512) NOT NULL,
+binding_index INT NOT NULL,
+id INT NOT NULL,
+name VARCHAR(128) NOT NULL,
+node VARCHAR(128),
+prop_required SMALLINT NOT NULL,
+unprop_required SMALLINT NOT NULL,
+network VARCHAR(1024),
+kernel_parameters VARCHAR(128),
+vmm VARCHAR(32),
+vmm_version VARCHAR(32),
+assocs_needed VARCHAR(256),
+md_user_data VARCHAR(30720),
+preemptable SMALLINT,
+credential_name VARCHAR(128),
+PRIMARY KEY (async_id, binding_index, id)
 );
+
+--
+-- Persistence for async vm deployment-time data:
+
+CREATE TABLE async_requests_vm_deployment
+(
+async_id VARCHAR(512) NOT NULL,
+binding_index INT NOT NULL,
+vmid INT NOT NULL,
+requested_state SMALLINT,
+requested_shutdown SMALLINT,
+min_duration INT,
+ind_physmem INT,
+ind_physcpu INT
+);
+
+--
+-- async VM partitions
+
+CREATE TABLE async_requests_vm_partitions
+(
+async_id VARCHAR(512) NOT NULL,
+binding_index INT NOT NULL,
+vmid INT NOT NULL,
+image VARCHAR(4096) NOT NULL,
+imagemount VARCHAR(128) NOT NULL,
+readwrite SMALLINT NOT NULL,
+rootdisk SMALLINT NOT NULL,
+blankspace INT NOT NULL,
+prop_required SMALLINT NOT NULL,
+unprop_required SMALLINT NOT NULL,
+alternate_unprop VARCHAR(128)
+);
+
+--
+-- Persistence for async vm file copy tasks
+
+CREATE TABLE async_requests_vm_file_copy
+(
+async_id VARCHAR(512) NOT NULL,
+binding_index INT NOT NULL,
+vmid INT NOT NULL,
+sourcepath VARCHAR(36) NOT NULL,
+destpath VARCHAR(512),
+on_image SMALLINT NOT NULL
+);
+

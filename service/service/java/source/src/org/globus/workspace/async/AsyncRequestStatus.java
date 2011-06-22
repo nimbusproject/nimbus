@@ -24,6 +24,6 @@ public enum AsyncRequestStatus implements Serializable {
 
     public boolean isFailed() {
         return this.equals(FAILED);
-    }    
+    }
     
 }
