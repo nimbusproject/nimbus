@@ -1504,13 +1504,12 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
         }
     }
 
-    public VirtualMachine loadVM(int id) throws SQLException, DoesNotExistException, WorkspaceDatabaseException {
+    public VirtualMachine loadVM(int id, Connection c) throws SQLException, DoesNotExistException, WorkspaceDatabaseException {
 
         if (this.dbTrace) {
             logger.trace(Lager.id(id) + ": load virtual machine");
         }
 
-        Connection c = getConnection();
         PreparedStatement[] pstmts = VirtualMachinePersistenceUtil.getVMQuery(id, c);
         ResultSet rs = pstmts[0].executeQuery();
         if (rs == null || !rs.next()) {
@@ -3235,38 +3234,40 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
         PreparedStatement[] pstmts = null;
         try {
             c = getConnection();
-            logger.debug("SETTING spot = " + asyncRequest.isSpotRequest());
-            pstmt = AsyncRequestMapPersistenceUtil.getInsertAsyncRequest(asyncRequest, this.repr, c);
-            pstmt.executeUpdate();
 
-            VirtualMachine[] bindings = asyncRequest.getBindings();
-            if (bindings != null) {
+            AsyncRequest oldAsyncRequest = getAsyncRequest(asyncRequest.getId());
 
-                for (VirtualMachine vm : asyncRequest.getBindings()) {
+            if (oldAsyncRequest != null) {
+                logger.debug("Updating old request " + oldAsyncRequest.getId());
+                pstmt = AsyncRequestMapPersistenceUtil.getUpdateAsyncRequest(asyncRequest, this.repr, c);
+                pstmt.executeUpdate();
+                pstmt.close();
 
-                    pstmts = VirtualMachinePersistenceUtil.
-                            getInsertVM(vm, vm.getID(), c);
 
-                    if (this.dbTrace) {
-                        logger.trace("creating VirtualMachine db " +
-                                "entry for " + Lager.id(vm.getID()) + ": " +
-                                pstmts.length + " inserts");
-                    }
+                // We will later need to persist modified versions of our persisted VMs,
+                // so we need to remove all of our earlier copies
+                pstmts = AsyncRequestMapPersistenceUtil.getRemoveAsyncVMs(asyncRequest, c);
+                for (PreparedStatement p : pstmts) {
 
-                    for (int i = 0; i < pstmts.length; i++) {
-                        pstmts[i].executeUpdate();
-                    }
-
-                    pstmt = AsyncRequestMapPersistenceUtil.getInsertAsyncRequestVM(asyncRequest.getId(), vm.getID(), c);
-                    pstmt.executeUpdate();
+                    p.executeUpdate();
                 }
+
+                pstmt = AsyncRequestMapPersistenceUtil.getDeleteAsyncRequestVMs(asyncRequest, c);
+                pstmt.executeUpdate();
             }
+            else {
+                logger.debug("Persisting request: " + asyncRequest.getId());
+                pstmt = AsyncRequestMapPersistenceUtil.getInsertAsyncRequest(asyncRequest, this.repr, c);
+                pstmt.executeUpdate();
+            }
+
+            AsyncRequestMapPersistenceUtil.putAsyncRequestBindings(asyncRequest, c);
             c.commit();
 
-        } catch (ManageException e) {
+        } catch (SQLException e) {
             logger.error("",e);
             throw new WorkspaceDatabaseException(e);
-        } catch (SQLException e) {
+        } catch (ManageException e) {
             logger.error("",e);
             throw new WorkspaceDatabaseException(e);
         } finally {
@@ -3311,17 +3312,10 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
             }
 
             asyncRequest = AsyncRequestMapPersistenceUtil.rsToAsyncRequest(rs, this.repr, c);
-            ArrayList<VirtualMachine> bindings = new ArrayList<VirtualMachine>();
-            for (int vmid : AsyncRequestMapPersistenceUtil.getVMIDs(asyncRequest.getId(), c)) {
-                bindings.add(loadVM(vmid));
-            }
-            VirtualMachine[] newBindings = bindings.toArray(new VirtualMachine[bindings.size()]);
-            asyncRequest.setBindings(newBindings);
+            VirtualMachine[] bindings = AsyncRequestMapPersistenceUtil.getAsyncVMs(asyncRequest.getId(), c);
+            asyncRequest.setBindings(bindings);
 
         } catch (SQLException e) {
-            logger.error("",e);
-            throw new WorkspaceDatabaseException(e);
-        } catch (DoesNotExistException e) {
             logger.error("",e);
             throw new WorkspaceDatabaseException(e);
         } catch (CannotTranslateException e) {
@@ -3343,6 +3337,7 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
         return asyncRequest;
     }
 
+
     public ArrayList<AsyncRequest> getAllAsyncRequests()
             throws WorkspaceDatabaseException {
 
@@ -3363,9 +3358,14 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
 
             do {
                 String id = rs.getString("id");
-                asyncRequests.add(getAsyncRequest(id));
+                AsyncRequest asyncRequest = AsyncRequestMapPersistenceUtil.rsToAsyncRequest(rs, this.repr, c);
+                VirtualMachine[] bindings = AsyncRequestMapPersistenceUtil.getAsyncVMs(asyncRequest.getId(), c);
+                asyncRequest.setBindings(bindings);
+                asyncRequests.add(asyncRequest);
             } while(rs.next());
-
+        } catch (CannotTranslateException e) {
+            logger.error("",e);
+            throw new WorkspaceDatabaseException(e);
         } catch (SQLException e) {
             logger.error("",e);
             throw new WorkspaceDatabaseException(e);

@@ -136,6 +136,7 @@ public class AsyncRequestMapSuite extends NimbusTestBase {
         asyncRequestMap.addOrReplace(testRequest);
 
         allRequests = asyncRequestMap.getAll();
+        assert(allRequests != null);
         logger.debug("You have " + allRequests.size() + " requests.");
         assert(allRequests.size() == 1);
 
