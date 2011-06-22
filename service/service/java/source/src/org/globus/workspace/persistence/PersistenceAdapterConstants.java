@@ -277,6 +277,42 @@ public interface PersistenceAdapterConstants {
                     "(async_id, binding_index, vmid, sourcepath, destpath, on_image) " +
                     " VALUES (?,?,?,?,?,?)";
 
+    public static final String SQL_INSERT_ASYNC_REQUESTS_ALLOCATED_VMS =
+            "INSERT INTO async_requests_allocated_vms " +
+                    "(id, vmid) VALUES (?,?)";
+
+    public static final String SQL_INSERT_ASYNC_REQUESTS_FINISHED_VMS =
+            "INSERT INTO async_requests_finished_vms " +
+                    "(id, vmid) VALUES (?,?)";
+
+    public static final String SQL_INSERT_ASYNC_REQUESTS_TO_BE_PREEMPTED =
+            "INSERT INTO async_requests_to_be_preempted " +
+                    "(id, vmid) VALUES (?,?)";
+
+    public static final String SQL_DELETE_ASYNC_REQUESTS_ALLOCATED_VMS =
+            "DELETE FROM async_requests_allocated_vms " +
+                    "WHERE id=?";
+
+    public static final String SQL_DELETE_ASYNC_REQUESTS_FINISHED_VMS =
+            "DELETE FROM async_requests_finished_vms " +
+                    "WHERE id=?";
+
+    public static final String SQL_DELETE_ASYNC_REQUESTS_TO_BE_PREEMPTED =
+            "DELETE FROM async_requests_to_be_preempted " +
+                    "WHERE id=?";
+
+    public static final String SQL_LOAD_ASYNC_REQUESTS_ALLOCATED_VMS =
+            "SELECT vmid FROM async_requests_allocated_vms " +
+                    "WHERE id=?";
+
+    public static final String SQL_LOAD_ASYNC_REQUESTS_FINISHED_VMS =
+            "SELECT vmid FROM async_requests_finished_vms " +
+                    "WHERE id=?";
+
+    public static final String SQL_LOAD_ASYNC_REQUESTS_TO_BE_PREEMPTED =
+            "SELECT vmid FROM async_requests_to_be_preempted " +
+                    "WHERE id=?";
+
     public static final String SQL_UPDATE_ASYNC_REQUEST =
             "UPDATE async_requests SET id=?, max_bid=?, spot=?, group_id=?, persistent=?, creator_dn=?, creator_is_superuser=?, ssh_key_name=?, creation_time=?, nics=?, status=? WHERE id=?";
 

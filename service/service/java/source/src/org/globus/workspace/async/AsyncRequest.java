@@ -1,6 +1,8 @@
 package org.globus.workspace.async;
 
+import java.io.InterruptedIOException;
 import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
@@ -11,6 +13,7 @@ import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.ctx.Context;
 import org.nimbustools.api.repr.vm.NIC;
+import sun.text.normalizer.IntTrie;
 
 public class AsyncRequest implements Comparable<AsyncRequest>, Serializable {
  
@@ -119,7 +122,15 @@ public class AsyncRequest implements Comparable<AsyncRequest>, Serializable {
     public void addAllocatedVM(int createdId) {
         this.allocatedVMs.add(createdId);
     }
-    
+
+    public void addFinishedVM(int createdId) {
+        this.finishedVMs.add(createdId);
+    }
+
+    public void addToBePreempted(int createdId) {
+        this.toBePreempted.add(createdId);
+    }
+
     public Integer getUnallocatedInstances(){
         return this.getNeededInstances() - getAllocatedInstances();
     }
@@ -276,6 +287,36 @@ public class AsyncRequest implements Comparable<AsyncRequest>, Serializable {
         }
         
         return result;
+    }
+
+    public int[] getAllocatedVMs() {
+        int[] allocated = new int[this.allocatedVMs.size()];
+        int i=0;
+        for (int vm : this.allocatedVMs) {
+            allocated[i] = vm;
+            i++;
+        }
+        return allocated;
+    }
+
+    public int[] getFinishedVMs() {
+        int[] finished = new int[this.finishedVMs.size()];
+        int i=0;
+        for (int vm : this.finishedVMs) {
+            finished[i] = vm;
+            i++;
+        }
+        return finished;
+    }
+
+    public int[] getToBePreempted() {
+        int[] preempted = new int[this.toBePreempted.size()];
+        int i=0;
+        for (int vm : this.toBePreempted) {
+            preempted[i] = vm;
+            i++;
+        }
+        return preempted;
     }
 
     public Calendar getCreationTime() {

@@ -28,18 +28,21 @@ import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.globus.workspace.service.binding.vm.VirtualMachineDeployment;
 import org.globus.workspace.service.binding.vm.VirtualMachinePartition;
 import org.nimbustools.api._repr._Caller;
+import org.nimbustools.api.repr.AsyncCreateRequest;
 import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.CannotTranslateException;
 import org.nimbustools.api.repr.ReprFactory;
 import org.nimbustools.api.repr.ctx.Context;
 import org.nimbustools.api.repr.vm.NIC;
 import org.nimbustools.api.services.rm.ManageException;
+import org.springframework.scheduling.annotation.Async;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.ConcurrentNavigableMap;
 
 public class AsyncRequestMapPersistenceUtil
                         implements PersistenceAdapterConstants {
@@ -76,7 +79,7 @@ public class AsyncRequestMapPersistenceUtil
             pstmt.setLong(9, asyncRequest.getCreationTime().getTimeInMillis());
         }
         else {
-            pstmt.setInt(9,0);
+            pstmt.setInt(9, 0);
         }
         DataConvert dataConvert = new DataConvert(repr);
         String nics = dataConvert.nicsAsString(asyncRequest.getRequestedNics());
@@ -84,6 +87,114 @@ public class AsyncRequestMapPersistenceUtil
 
         pstmt.setString(11, asyncRequest.getStatus().toString());
         return pstmt;
+    }
+
+    public static void putAllocatedVMs(AsyncRequest asyncRequest, Connection c) throws SQLException {
+
+        for (int vmid : asyncRequest.getAllocatedVMs()) {
+            PreparedStatement pstmt = c.prepareStatement(SQL_INSERT_ASYNC_REQUESTS_ALLOCATED_VMS);
+            pstmt.setString(1, asyncRequest.getId());
+            pstmt.setInt(2, vmid);
+            pstmt.executeUpdate();
+            pstmt.close();
+        }
+    }
+
+    public static void putFinishedVMs(AsyncRequest asyncRequest, Connection c) throws SQLException {
+
+        for (int vmid : asyncRequest.getFinishedVMs()) {
+            PreparedStatement pstmt = c.prepareStatement(SQL_INSERT_ASYNC_REQUESTS_FINISHED_VMS);
+            pstmt.setString(1, asyncRequest.getId());
+            pstmt.setInt(2, vmid);
+            pstmt.executeUpdate();
+            pstmt.close();
+        }
+    }
+
+    public static void putToBePreempted(AsyncRequest asyncRequest, Connection c) throws SQLException {
+
+        for (int vmid : asyncRequest.getToBePreempted()) {
+            PreparedStatement pstmt = c.prepareStatement(SQL_INSERT_ASYNC_REQUESTS_TO_BE_PREEMPTED);
+            pstmt.setString(1, asyncRequest.getId());
+            pstmt.setInt(2, vmid);
+            pstmt.executeUpdate();
+            pstmt.close();
+        }
+    }
+
+    public static void removeAllocatedVMs(AsyncRequest asyncRequest, Connection c) throws SQLException {
+
+        PreparedStatement pstmt = c.prepareStatement(SQL_DELETE_ASYNC_REQUESTS_ALLOCATED_VMS);
+        pstmt.setString(1, asyncRequest.getId());
+        pstmt.executeUpdate();
+        pstmt.close();
+    }
+
+    public static void removeFinishedVMs(AsyncRequest asyncRequest, Connection c) throws SQLException {
+
+        PreparedStatement pstmt = c.prepareStatement(SQL_DELETE_ASYNC_REQUESTS_FINISHED_VMS);
+        pstmt.setString(1, asyncRequest.getId());
+        pstmt.executeUpdate();
+        pstmt.close();
+    }
+
+    public static void removeToBePreempted(AsyncRequest asyncRequest, Connection c) throws SQLException {
+
+        PreparedStatement pstmt = c.prepareStatement(SQL_DELETE_ASYNC_REQUESTS_TO_BE_PREEMPTED);
+        pstmt.setString(1, asyncRequest.getId());
+        pstmt.executeUpdate();
+        pstmt.close();
+    }
+
+    public static void addAllocatedVMs(AsyncRequest asyncRequest, Connection c) throws SQLException {
+
+        PreparedStatement pstmt = c.prepareStatement(SQL_LOAD_ASYNC_REQUESTS_ALLOCATED_VMS);
+        pstmt.setString(1, asyncRequest.getId());
+        ResultSet rs = pstmt.executeQuery();
+
+        if (rs == null || !rs.next()) {
+            return;
+        }
+
+        do {
+            asyncRequest.addAllocatedVM(rs.getInt(1));
+        } while (rs.next());
+
+        pstmt.close();
+    }
+
+    public static void addFinishedVMs(AsyncRequest asyncRequest, Connection c) throws SQLException {
+
+        PreparedStatement pstmt = c.prepareStatement(SQL_LOAD_ASYNC_REQUESTS_FINISHED_VMS);
+        pstmt.setString(1, asyncRequest.getId());
+        ResultSet rs = pstmt.executeQuery();
+
+        if (rs == null || !rs.next()) {
+            return;
+        }
+
+        do {
+            asyncRequest.addFinishedVM(rs.getInt(1));
+        } while (rs.next());
+
+        pstmt.close();
+    }
+
+    public static void addToBePreempted(AsyncRequest asyncRequest, Connection c) throws SQLException {
+
+        PreparedStatement pstmt = c.prepareStatement(SQL_LOAD_ASYNC_REQUESTS_TO_BE_PREEMPTED);
+        pstmt.setString(1, asyncRequest.getId());
+        ResultSet rs = pstmt.executeQuery();
+
+        if (rs == null || !rs.next()) {
+            return;
+        }
+
+        do {
+            asyncRequest.addToBePreempted(rs.getInt(1));
+        } while (rs.next());
+
+        pstmt.close();
     }
 
     public static PreparedStatement getUpdateAsyncRequest(AsyncRequest asyncRequest, ReprFactory repr, Connection c)
@@ -365,6 +476,10 @@ public class AsyncRequestMapPersistenceUtil
 
         VirtualMachine binding = asyncRequest.getBindings()[binding_index];
         VirtualMachineDeployment dep = binding.getDeployment();
+        if (dep == null) {
+            return;
+        }
+
         PreparedStatement pstmt = c.prepareStatement(SQL_INSERT_ASYNC_REQUESTS_VM_DEPLOYMENT);
 
         pstmt.setString(1, asyncRequest.getId());
@@ -382,6 +497,10 @@ public class AsyncRequestMapPersistenceUtil
     public static void putAsyncRequestVMPartitions(AsyncRequest asyncRequest, int binding_index, Connection c) throws SQLException {
 
         VirtualMachine binding = asyncRequest.getBindings()[binding_index];
+        VirtualMachinePartition[] partitions = binding.getPartitions();
+        if (partitions == null) {
+            return;
+        }
 
         for (VirtualMachinePartition partition : binding.getPartitions()) {
 
