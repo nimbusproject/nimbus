@@ -170,6 +170,18 @@ _NIMBUS_IS_DEPRECATED
         </p>
     </li>
 
+    <li>
+        <p>
+            <a href="#cpprop">Copy Propagation</a>
+        </p>
+        <ul>
+            <li>
+                <a href="#cpprop-config">Configuration</a>
+            </li>
+        </ul>
+    </li>
+
+
 
 
 </ul>
@@ -2365,6 +2377,37 @@ in the workspace control installation at:
 </tt>
 Admins can add site specific optimizations (like virtio) to this template.
 </p>
+
+ <p>
+            <a href="#cpprop">Copy Propagation</a>
+        </p>
+        <ul>
+            <li>
+                <a href="#cpprop-config">Configuration</a>
+
+<a name="cpprop"> </a>
+<h2>Copy Propagation _NAMELINK(cpprop)</h2>
+<p>
+Copy propagation is a very simple mechanism for getting a virtual machine 
+image out of Cumulus and coping it to the VMM for use as a VM instance.
+To use this mechanism all VMMs must have shared disk space with the 
+Cumulus repository.  In situations where users have a file system shared 
+among all nodes in the Nimbus setup boot times can be significantly reduced
+with the cp propagation driver.
+</p>
+
+<a name="cpprop-config"> </a>
+<h3>Copy Propagation Configuration _NAMELINK(cpprop-config)</h3>
+<p>
+In order to enable copy propagation you must edit the file 
+<tt class="literal">$NIMBUS_HOME/services/etc/nimbus/workspace-service/other/authz-callout-ACTIVE.xml</tt>
+        and change:
+    <pre class="panel">&lt;property name="repoScheme" value="scp" /&gt;</pre>
+    to:
+    <pre class="panel">&lt;property name="repoScheme" value="cp" /&gt;</pre>
+
+</p>
+
 
 <br />
 <br />
