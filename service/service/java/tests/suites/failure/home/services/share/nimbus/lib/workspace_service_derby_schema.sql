@@ -255,5 +255,21 @@ instance_mem SMALLINT NOT NULL
 -- Persistence for AsyncRequests
 CREATE TABLE async_requests
 (
-id VARCHAR(512) NOT NULL PRIMARY KEY
+id VARCHAR(512) NOT NULL PRIMARY KEY,
+max_bid DOUBLE,
+spot SMALLINT,
+persistent SMALLINT,
+creator_dn VARCHAR(512),
+creator_is_superuser SMALLINT,
+group_id VARCHAR(512),
+ssh_key_name VARCHAR(512),
+creation_time BIGINT,
+nics VARCHAR(512)
+);
+
+-- Persistence for AsyncRequest list of NICs
+CREATE TABLE async_requests_vms
+(
+id VARCHAR(512),
+vmid INT
 );

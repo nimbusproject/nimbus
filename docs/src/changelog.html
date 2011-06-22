@@ -22,8 +22,13 @@ _NIMBUS_IS_DEPRECATED
 <ul>
     <li>
         <p>
-Image propagation performance enhancing features have been introduced in 
-2.8.  Propagation by means of a file system copy has been introduced.  This
+            This release contains many important bug fixes as well as a few new features.
+        </p>
+    </li>
+    <li>
+        <p>
+Image propagation performance enhancing features have been introduced in.
+Propagation by means of a file system copy has been introduced.  This
 can greatly decrease the boot time of VMs on systems where a fast shared 
 file system is used.  We have also added support for a VM image cache on
 all VMMs.  This greatly increases the performance for clouds with a
@@ -36,41 +41,22 @@ base image that is booted often (a common use case).
 <ul>
     <li>
         <p>
-            libvirt template support added.  A cloud administrator can 
-            now completely control the options sent to libvirt when starting
-            a virtual machine by editing the template file 
-            /opt/nimbus/etc/workspace-control/libvirt_template.xml
-            on the VMM nodes.
-        </p>
-    </li>
-    <li>
-        <p>
-        A cache of propagated images can now be kept on each VMM.  Before 
-        an image is propagated the cache is checked for an image with a 
-        matching checksum.  If found that image is used and no propagation
-        is needed which can save a significant amount of time.
-        </p>
-    </li>
-    <li>
-        <p>
-        The cp (copy) propagation driver has been introduced in this release.
-        This prepares an image for use by a VMM by coping it directly out 
-        of the Cumulus data store and into a temporary location from which it
-        will be booted.  For users with shared fast file systems this can
-        bring great performance benefits.
-        </p>
-    </li>
-    <li>
-        <p>
         Internally the Nimbus team has introduced a build and test system
-        with <i>Jenkins</i>.  This has helped us create a more robust and
+        with <a href="http://build.nimbusproject.org">Jenkins</a>.
+            This has helped us create a more robust and
         well tested system as well as making it easier for the community
         to make contributions.
         </p>
     </li>
     <li>
         <p>
-            Documentation added to the <i>zero to cloud guide</i> describing
+            The Nimbus Context Broker has been factored out into a separate tarball install
+            in addition to being part of the default IaaS installation.
+        </p>
+    </li>
+    <li>
+        <p>
+            Documentation added to the <a href="http://www.nimbusproject.org/docs/latest/admin/z2c/">zero to cloud guide</a> describing
             how to setup Nimbus to work with KVM.
         </p>
     </li>
@@ -80,6 +66,11 @@ base image that is booted often (a common use case).
         </p>
 
         <ul>
+            <li>
+                <p>
+                    <a href="https://github.com/nimbusproject/nimbus/issues/59">ehcache unreliable for critical persistence</a>
+                </p>
+            </li>
             <li>
                 <p>
                     <a href="https://github.com/nimbusproject/nimbus/issues/56">Termination should be retried if there is a fatal issue</a>
@@ -115,11 +106,6 @@ base image that is booted often (a common use case).
                     <a href="https://github.com/nimbusproject/nimbus/issues/36">Implement EC2 ImportKeyPair</a>
                 </p>
             </li>
-            <li>
-                <p>
-                    <a href="https://github.com/nimbusproject/nimbus/issues/32">Pilot updates</a>
-                </p>
-            </li>
         </ul>
     </li>
 </ul>
@@ -130,7 +116,7 @@ base image that is booted often (a common use case).
         <p>
             In this release LANTorrent was repackaged for more pythonic
             distribution mechanisms and an important bug was fixed that
-            cased long term stability problems.
+            caused long term stability problems.
         </p>
     </li>
     <li>
@@ -153,6 +139,11 @@ base image that is booted often (a common use case).
                     <a href="https://github.com/nimbusproject/nimbus/issues/51">Add lantorrent tests to test suite.</a>
                 </p>
             </li>
+            <li>
+                <p>
+                    <a href="https://github.com/nimbusproject/nimbus/issues/32">Pilot updates</a>
+                </p>
+            </li>
         </ul>
     </li>
 </ul>
@@ -162,8 +153,29 @@ base image that is booted often (a common use case).
 <ul>
     <li>
         <p>
+            libvirt template support added.  A cloud administrator can
+            now completely control the options sent to libvirt when starting
+            a virtual machine by editing the template file
+            <tt class="literal">/opt/nimbus/etc/workspace-control/libvirt_template.xml</tt>
+            on the VMM nodes.
         </p>
-
+    </li>
+    <li>
+        <p>
+        A cache of propagated images can now be kept on each VMM.  Before
+        an image is propagated the cache is checked for an image with a
+        matching checksum.  If found that image is used and no propagation
+        is needed which can save a significant amount of time.
+        </p>
+    </li>
+    <li>
+        <p>
+        The cp (copy) propagation driver has been introduced in this release.
+        This prepares an image for use by a VMM by copying it directly out
+        of the Cumulus data store and into a temporary location from which it
+        will be booted.  For users with shared fast file systems this can
+        bring great performance benefits.
+        </p>
     </li>
     <li>
         <p>
@@ -189,6 +201,10 @@ base image that is booted often (a common use case).
 <ul>
     <li>
         <p>
+            List of
+            <a href="http://github.com/nimbusproject/nimbus/compare/nimbus-release-2.7...nimbus-release-2.8RC1">all
+            commits</a>
+            between Nimbus 2.7 final and Nimbus 2.8 RC1.
         </p>
     </li>
 </ul>

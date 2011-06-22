@@ -600,7 +600,7 @@
     <bean id="nimbus-rm.si.pricingmodel" class="$ASYNC{si.pricingmodel}" />
 
     <bean id="nimbus-rm.si.asyncreqmap" class="org.globus.workspace.async.AsyncRequestMap">
-        <constructor-arg value="$COMMON{caches.dir}" />
+        <constructor-arg ref="nimbus-rm.persistence.PersistenceAdapter" />
     </bean>
 
     <bean id="nimbus-rm.async.manager"
