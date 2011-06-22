@@ -262,8 +262,23 @@ public interface PersistenceAdapterConstants {
                 "(async_id, binding_index, id, name, node, prop_required, unprop_required, network, kernel_parameters, vmm, vmm_version, assocs_needed, md_user_data, preemptable, credential_name) " +
                 " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
+    public static final String SQL_INSERT_ASYNC_REQUESTS_VM_DEPLOYMENT =
+            "INSERT INTO async_requests_vm_deployment " +
+                    "(async_id, binding_index, vmid, requested_state, requested_shutdown, min_duration, ind_physmem, ind_physcpu) " +
+                    " VALUES (?,?,?,?,?,?,?,?)";
+
+    public static final String SQL_INSERT_ASYNC_REQUESTS_VM_PARTITIONS =
+            "INSERT INTO async_requests_vm_partitions " +
+                    "(async_id, binding_index, vmid, image, imagemount, readwrite, rootdisk, blankspace, prop_required, unprop_required, alternate_unprop) " +
+                    " VALUES (?,?,?,?,?,?,?,?,?,?,?)";
+
+    public static final String SQL_INSERT_ASYNC_REQUESTS_VM_FILE_COPY =
+            "INSERT INTO async_requests_vm_file_copy " +
+                    "(async_id, binding_index, vmid, sourcepath, destpath, on_image) " +
+                    " VALUES (?,?,?,?,?,?)";
+
     public static final String SQL_UPDATE_ASYNC_REQUEST =
-            "UPDATE async_requests SET id=?, max_bid=?, spot=?, group_id=?, persistent=?, creator_dn=?, creator_is_superuser=?, ssh_key_name=?, creation_time=?, nics=?, status=?";
+            "UPDATE async_requests SET id=?, max_bid=?, spot=?, group_id=?, persistent=?, creator_dn=?, creator_is_superuser=?, ssh_key_name=?, creation_time=?, nics=?, status=? WHERE id=?";
 
     public static final String SQL_LOAD_ASYNC_REQUESTS_VM_DEPLOYMENT =
             "SELECT requested_state, requested_shutdown, min_duration, " +
