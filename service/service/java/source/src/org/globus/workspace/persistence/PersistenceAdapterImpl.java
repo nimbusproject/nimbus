@@ -60,6 +60,7 @@ import org.nimbustools.api.repr.SpotPriceEntry;
 import org.nimbustools.api.repr.vm.NIC;
 import org.nimbustools.api.services.rm.DoesNotExistException;
 import org.nimbustools.api.services.rm.ManageException;
+import org.springframework.scheduling.annotation.Async;
 
 public class PersistenceAdapterImpl implements WorkspaceConstants,
                                                PersistenceAdapterConstants,
@@ -3254,11 +3255,20 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
 
                 pstmt = AsyncRequestMapPersistenceUtil.getDeleteAsyncRequestVMs(asyncRequest, c);
                 pstmt.executeUpdate();
+                AsyncRequestMapPersistenceUtil.removeAllocatedVMs(asyncRequest, c);
+                AsyncRequestMapPersistenceUtil.removeFinishedVMs(asyncRequest, c);
+                AsyncRequestMapPersistenceUtil.removeToBePreempted(asyncRequest, c);
+                AsyncRequestMapPersistenceUtil.putAllocatedVMs(asyncRequest, c);
+                AsyncRequestMapPersistenceUtil.putFinishedVMs(asyncRequest, c);
+                AsyncRequestMapPersistenceUtil.putToBePreempted(asyncRequest, c);
             }
             else {
                 logger.debug("Persisting request: " + asyncRequest.getId());
                 pstmt = AsyncRequestMapPersistenceUtil.getInsertAsyncRequest(asyncRequest, this.repr, c);
                 pstmt.executeUpdate();
+                AsyncRequestMapPersistenceUtil.putAllocatedVMs(asyncRequest, c);
+                AsyncRequestMapPersistenceUtil.putFinishedVMs(asyncRequest, c);
+                AsyncRequestMapPersistenceUtil.putToBePreempted(asyncRequest, c);
             }
 
             AsyncRequestMapPersistenceUtil.putAsyncRequestBindings(asyncRequest, c);
@@ -3314,6 +3324,9 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
             asyncRequest = AsyncRequestMapPersistenceUtil.rsToAsyncRequest(rs, this.repr, c);
             VirtualMachine[] bindings = AsyncRequestMapPersistenceUtil.getAsyncVMs(asyncRequest.getId(), c);
             asyncRequest.setBindings(bindings);
+            AsyncRequestMapPersistenceUtil.addAllocatedVMs(asyncRequest, c);
+            AsyncRequestMapPersistenceUtil.addFinishedVMs(asyncRequest, c);
+            AsyncRequestMapPersistenceUtil.addToBePreempted(asyncRequest, c);
 
         } catch (SQLException e) {
             logger.error("",e);
