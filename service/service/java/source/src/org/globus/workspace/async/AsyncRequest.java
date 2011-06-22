@@ -13,7 +13,6 @@ import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.ctx.Context;
 import org.nimbustools.api.repr.vm.NIC;
-import sun.text.normalizer.IntTrie;
 
 public class AsyncRequest implements Comparable<AsyncRequest>, Serializable {
  
