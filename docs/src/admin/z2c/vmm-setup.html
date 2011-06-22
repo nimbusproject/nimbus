@@ -247,7 +247,7 @@ dynamic_ownership = 0
   First, make the nimbus user a member of the root group:
 </p>
 <div class="panel"><pre>
-root # usermod -a -G root nimbus
+root # usermod -a -G libvirtd nimbus
 </pre></div>
 
 <p>
@@ -255,7 +255,7 @@ root # usermod -a -G root nimbus
 </p>
 
 <div class="panel"><pre>
-unix_sock_group = "root"
+unix_sock_group = "libvirtd"
 unix_sock_ro_perms = "0770"
 unix_sock_rw_perms = "0770"
 unix_sock_dir = "/var/run/libvirt"
@@ -298,7 +298,7 @@ nimbus $ virsh -c 'qemu:///system' list
 <div class="panel"><pre>
 root # wget http://www.nimbusproject.org/downloads/nimbus-controls-2.8.tar.gz
 root # tar xfz nimbus-controls-2.8.tar.gz
-root # mv nimbus-controls-2.8/workspace-control/ /opt/nimbus
+root # mv nimbus-controls-2.8/workspace-control/* /opt/nimbus
 </pre></div>
 
 <p>
@@ -365,6 +365,9 @@ nimbus $ KERNELDIR=/opt/nimbus/var/workspace-control/kernels
 nimbus $ cp /boot/vmlinuz-2.6.16.29-xen $KERNELDIR/default
 nimbus $ cp /boot/initrd-2.6.16.29-xen $KERNELDIR/default-initrd
 </pre></div>
+<div class="note">
+The files under /boot may only be readable by root so you may need to become root to access them.
+</div>
 
 <p>
   Now you have created a kernel called <tt class="literal">default</tt> that workspace-control will launch paravirtualized VMs with.  The default kernel and initrd to use for VMs is controlled by the <tt class="literal">authz_kernels</tt> configuration in <tt class="literal">/opt/nimbus/etc/workspace-control/kernels.conf</tt> (by default the authorized kernel is "default").
@@ -572,7 +575,9 @@ Options:
 </p>
 
 <p>
-  The <tt class="literal">--mountpoint</tt> value will be <tt class="literal">sda1</tt> for the nimbus-z2c image.
+  The <tt class="literal">--mountpoint</tt> value will be <tt class="literal">sda1</tt> if you are using xen and 
+<tt class="literal">hda</tt> if you are using kvm
+ for the nimbus-z2c image.
 </p>
 
 <p>
@@ -583,9 +588,13 @@ Options:
   Run the following:
 </p>
 
-<div class="panel"><pre>
+<div class="xenpanel"><pre>
 nimbus $ ./sbin/libvirt-xml.sh  --image /tmp/nimbus-z2c --netsample \
 /tmp/control.netsample.txt --memory 256 --mountpoint sda1
+</pre></div>
+<div class="kvmpanel"><pre>
+nimbus $ ./sbin/libvirt-xml.sh  --image /tmp/nimbus-z2c --netsample \
+/tmp/control.netsample.txt --memory 256 --mountpoint hda
 </pre></div>
 
 <p>
@@ -623,9 +632,13 @@ nimbus $ ./sbin/cat-latest-logfile.sh
 <p>
   Once you have the XML getting printed, capture it to a file:
 </p>
-<div class="panel"><pre>
+<div class="xenpanel"><pre>
 nimbus $ ./sbin/libvirt-xml.sh --image /tmp/nimbus-z2c --netsample \
 /tmp/control.netsample.txt --memory 256 --mountpoint sda1 > /tmp/z2c.xml
+</pre></div>
+<div class="kvmpanel"><pre>
+nimbus $ ./sbin/libvirt-xml.sh --image /tmp/nimbus-z2c --netsample \
+/tmp/control.netsample.txt --memory 256 --mountpoint hda > /tmp/z2c.xml
 </pre></div>
 
 <div class="note">
@@ -738,9 +751,16 @@ ssh root@192.168.0.2
   Gather the same arguments you used for <tt class="literal">./sbin/libvirt-xml.sh</tt> 
 </p>
 
-<div class="panel"><pre>
+<div class="xenpanel"><pre>
 $ ./sbin/control-test.sh --image /tmp/nimbus-z2c --netsample \
 /tmp/control.netsample.txt --memory 256 --mountpoint sda1
+
+$ echo $?
+0
+</pre></div>
+<div class="kvmpanel"><pre>
+$ ./sbin/control-test.sh --image /tmp/nimbus-z2c --netsample \
+/tmp/control.netsample.txt --memory 256 --mountpoint hda
 
 $ echo $?
 0
