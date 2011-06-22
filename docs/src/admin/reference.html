@@ -181,6 +181,18 @@ _NIMBUS_IS_DEPRECATED
         </ul>
     </li>
 
+    <li>
+        <p>
+            <a href="#imagecache">Image Cache</a>
+        </p>
+        <ul>
+            <li>
+                <a href="#imagecache-config">Configuration</a>
+            </li>
+        </ul>
+
+    </li>
+
 
 
 
@@ -2405,6 +2417,39 @@ In order to enable copy propagation you must edit the file
     <pre class="panel">&lt;property name="repoScheme" value="scp" /&gt;</pre>
     to:
     <pre class="panel">&lt;property name="repoScheme" value="cp" /&gt;</pre>
+
+</p>
+
+<a name="imagecache"> </a>
+<h2>Image Cache _NAMELINK(imagecache)</h2>
+<p>
+Image propagation is the process of sending a VM image from the Cumulus 
+repository to the VMM which boots that image for the user.  This can be 
+a time consuming part of the boot process.  Often times the same image is
+booted multiple times on the same VMM.  In order to prevent that image from
+having to be repeatedly propagated we introduced an image cache to the 
+workspace control software.  
+</p>
+<p>
+When a user uploads an image to the Cumulus repository its md5 sum is 
+calculated and kept as metadata with that image.  Then when a user launches 
+that VM image, first its md5 sum is sent to the selected VMM.  That VMM
+checks its cache to see if it has a matching image.  If a match is found 
+the cached image is used.  If not the image is propagated to that VMM
+and added to its cache keyed by its md5 sum.
+</p>
+<a name="imagecache-config"> </a>
+<h3>Image Cache Configuration _NAMELINK(imagecache-config)</h3>
+<p>
+Each VMM that will have a cache enabled must alter this file:
+<tt class="literal">/opt/nimbus/etc/workspace-control/images.conf</tt>.
+Search for the two values 
+<tt class="literal">cachedir:</tt> 
+<tt class="literal">cache_size:</tt>
+<i>cachedir</i> is the path to the image cache and <i>cache_size</i> is 
+the maximum size of the cache.  When these values are enabled the cache
+will be in effect.
+
 
 </p>
 
