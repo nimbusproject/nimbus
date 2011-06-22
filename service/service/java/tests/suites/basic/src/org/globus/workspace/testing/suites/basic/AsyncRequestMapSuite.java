@@ -126,6 +126,7 @@ public class AsyncRequestMapSuite extends NimbusTestBase {
         testVM.setUnPropagateRequired(true);
         VirtualMachine[] testBindings = new VirtualMachine[1];
         testBindings[0] = testVM;
+        int testAllocatedVM = 42;
 
         DataConvert dataConvert = new DataConvert(this.locator.getReprFactory());
         NIC[] testNICs = dataConvert.getNICs(testVM);
@@ -133,6 +134,7 @@ public class AsyncRequestMapSuite extends NimbusTestBase {
 
         //public AsyncRequest(String id, boolean spotinstances, Double spotPrice, boolean persistent, Caller caller, String groupID, VirtualMachine[] bindings, Context context, NIC[] requestedNics, String sshKeyName, Calendar creationTime) {
         AsyncRequest testRequest = new AsyncRequest(testID, testSpotinstances, testMaxBid, testIsPersistent, testCaller, testGroupID, testBindings, context, testNICs, testSshKeyName, testCreationTime);
+        testRequest.addAllocatedVM(testAllocatedVM);
         asyncRequestMap.addOrReplace(testRequest);
 
         allRequests = asyncRequestMap.getAll();
@@ -153,5 +155,6 @@ public class AsyncRequestMapSuite extends NimbusTestBase {
         assertEquals(testCreationTime, gotRequest.getCreationTime());
         assertEquals(testVM.getID(), gotRequest.getBindings()[0].getID());
         assertEquals(testNICs[0].getIpAddress(), gotRequest.getRequestedNics()[0].getIpAddress());
+        assertEquals(testAllocatedVM, gotRequest.getAllocatedVMs()[0]);
     }
 }

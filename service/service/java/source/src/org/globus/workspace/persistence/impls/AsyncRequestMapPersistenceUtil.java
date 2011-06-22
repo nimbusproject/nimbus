@@ -28,18 +28,21 @@ import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.globus.workspace.service.binding.vm.VirtualMachineDeployment;
 import org.globus.workspace.service.binding.vm.VirtualMachinePartition;
 import org.nimbustools.api._repr._Caller;
+import org.nimbustools.api.repr.AsyncCreateRequest;
 import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.CannotTranslateException;
 import org.nimbustools.api.repr.ReprFactory;
 import org.nimbustools.api.repr.ctx.Context;
 import org.nimbustools.api.repr.vm.NIC;
 import org.nimbustools.api.services.rm.ManageException;
+import org.springframework.scheduling.annotation.Async;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.ConcurrentNavigableMap;
 
 public class AsyncRequestMapPersistenceUtil
                         implements PersistenceAdapterConstants {
@@ -76,7 +79,7 @@ public class AsyncRequestMapPersistenceUtil
             pstmt.setLong(9, asyncRequest.getCreationTime().getTimeInMillis());
         }
         else {
-            pstmt.setInt(9,0);
+            pstmt.setInt(9, 0);
         }
         DataConvert dataConvert = new DataConvert(repr);
         String nics = dataConvert.nicsAsString(asyncRequest.getRequestedNics());
@@ -84,6 +87,114 @@ public class AsyncRequestMapPersistenceUtil
 
         pstmt.setString(11, asyncRequest.getStatus().toString());
         return pstmt;
+    }
+
+    public static void putAllocatedVMs(AsyncRequest asyncRequest, Connection c) throws SQLException {
+
+        for (int vmid : asyncRequest.getAllocatedVMs()) {
+            PreparedStatement pstmt = c.prepareStatement(SQL_INSERT_ASYNC_REQUESTS_ALLOCATED_VMS);
+            pstmt.setString(1, asyncRequest.getId());
+            pstmt.setInt(2, vmid);
+            pstmt.executeUpdate();
+            pstmt.close();
+        }
+    }
+
+    public static void putFinishedVMs(AsyncRequest asyncRequest, Connection c) throws SQLException {
+
+        for (int vmid : asyncRequest.getFinishedVMs()) {
+            PreparedStatement pstmt = c.prepareStatement(SQL_INSERT_ASYNC_REQUESTS_FINISHED_VMS);
+            pstmt.setString(1, asyncRequest.getId());
+            pstmt.setInt(2, vmid);
+            pstmt.executeUpdate();
+            pstmt.close();
+        }
+    }
+
+    public static void putToBePreempted(AsyncRequest asyncRequest, Connection c) throws SQLException {
+
+        for (int vmid : asyncRequest.getToBePreempted()) {
+            PreparedStatement pstmt = c.prepareStatement(SQL_INSERT_ASYNC_REQUESTS_TO_BE_PREEMPTED);
+            pstmt.setString(1, asyncRequest.getId());
+            pstmt.setInt(2, vmid);
+            pstmt.executeUpdate();
+            pstmt.close();
+        }
+    }
+
+    public static void removeAllocatedVMs(AsyncRequest asyncRequest, Connection c) throws SQLException {
+
+        PreparedStatement pstmt = c.prepareStatement(SQL_DELETE_ASYNC_REQUESTS_ALLOCATED_VMS);
+        pstmt.setString(1, asyncRequest.getId());
+        pstmt.executeUpdate();
+        pstmt.close();
+    }
+
+    public static void removeFinishedVMs(AsyncRequest asyncRequest, Connection c) throws SQLException {
+
+        PreparedStatement pstmt = c.prepareStatement(SQL_DELETE_ASYNC_REQUESTS_FINISHED_VMS);
+        pstmt.setString(1, asyncRequest.getId());
+        pstmt.executeUpdate();
+        pstmt.close();
+    }
+
+    public static void removeToBePreempted(AsyncRequest asyncRequest, Connection c) throws SQLException {
+
+        PreparedStatement pstmt = c.prepareStatement(SQL_DELETE_ASYNC_REQUESTS_TO_BE_PREEMPTED);
+        pstmt.setString(1, asyncRequest.getId());
+        pstmt.executeUpdate();
+        pstmt.close();
+    }
+
+    public static void addAllocatedVMs(AsyncRequest asyncRequest, Connection c) throws SQLException {
+
+        PreparedStatement pstmt = c.prepareStatement(SQL_LOAD_ASYNC_REQUESTS_ALLOCATED_VMS);
+        pstmt.setString(1, asyncRequest.getId());
+        ResultSet rs = pstmt.executeQuery();
+
+        if (rs == null || !rs.next()) {
+            return;
+        }
+
+        do {
+            asyncRequest.addAllocatedVM(rs.getInt(1));
+        } while (rs.next());
+
+        pstmt.close();
+    }
+
+    public static void addFinishedVMs(AsyncRequest asyncRequest, Connection c) throws SQLException {
+
+        PreparedStatement pstmt = c.prepareStatement(SQL_LOAD_ASYNC_REQUESTS_FINISHED_VMS);
+        pstmt.setString(1, asyncRequest.getId());
+        ResultSet rs = pstmt.executeQuery();
+
+        if (rs == null || !rs.next()) {
+            return;
+        }
+
+        do {
+            asyncRequest.addFinishedVM(rs.getInt(1));
+        } while (rs.next());
+
+        pstmt.close();
+    }
+
+    public static void addToBePreempted(AsyncRequest asyncRequest, Connection c) throws SQLException {
+
+        PreparedStatement pstmt = c.prepareStatement(SQL_LOAD_ASYNC_REQUESTS_TO_BE_PREEMPTED);
+        pstmt.setString(1, asyncRequest.getId());
+        ResultSet rs = pstmt.executeQuery();
+
+        if (rs == null || !rs.next()) {
+            return;
+        }
+
+        do {
+            asyncRequest.addToBePreempted(rs.getInt(1));
+        } while (rs.next());
+
+        pstmt.close();
     }
 
     public static PreparedStatement getUpdateAsyncRequest(AsyncRequest asyncRequest, ReprFactory repr, Connection c)
@@ -124,6 +235,8 @@ public class AsyncRequestMapPersistenceUtil
         String nics = dataConvert.nicsAsString(asyncRequest.getRequestedNics());
         pstmt.setString(10, nics);
         pstmt.setString(11, asyncRequest.getStatus().toString());
+
+        pstmt.setString(12, asyncRequest.getId());
         return pstmt;
     }
 
@@ -264,7 +377,7 @@ public class AsyncRequestMapPersistenceUtil
             return;
         }
 
-        final ArrayList partitions = new ArrayList(8);
+        final ArrayList<VirtualMachinePartition> partitions = new ArrayList<VirtualMachinePartition>(8);
 
         do {
             final VirtualMachinePartition partition =
@@ -281,7 +394,7 @@ public class AsyncRequestMapPersistenceUtil
             partitions.add(partition);
         } while (rs.next());
 
-        VirtualMachinePartition[] final_partitions = new VirtualMachinePartition[partitions.size()];
+        VirtualMachinePartition[] final_partitions = partitions.toArray(new VirtualMachinePartition[partitions.size()]);
         vm.setPartitions(final_partitions);
     }
 
@@ -350,6 +463,110 @@ public class AsyncRequestMapPersistenceUtil
                 pstmt.setInt(14, 0);
             }
             pstmt.setString(15, binding.getCredentialName());
+            pstmt.executeUpdate();
+            pstmt.close();
+
+            putAsyncRequestVMDeployment(asyncRequest, i, c);
+            putAsyncRequestVMPartitions(asyncRequest, i, c);
+            putAsyncRequestVMFileCopies(asyncRequest, i, c);
+        }
+    }
+
+    public static void putAsyncRequestVMDeployment(AsyncRequest asyncRequest, int binding_index, Connection c) throws SQLException {
+
+        VirtualMachine binding = asyncRequest.getBindings()[binding_index];
+        VirtualMachineDeployment dep = binding.getDeployment();
+        if (dep == null) {
+            return;
+        }
+
+        PreparedStatement pstmt = c.prepareStatement(SQL_INSERT_ASYNC_REQUESTS_VM_DEPLOYMENT);
+
+        pstmt.setString(1, asyncRequest.getId());
+        pstmt.setInt(2, binding_index);
+        pstmt.setInt(3, binding.getID());
+        pstmt.setInt(4, dep.getRequestedState());
+        pstmt.setInt(5, dep.getRequestedShutdown());
+        pstmt.setInt(6, dep.getMinDuration());
+        pstmt.setInt(7, dep.getIndividualPhysicalMemory());
+        pstmt.setInt(8, dep.getIndividualCPUCount());
+        pstmt.executeUpdate();
+        pstmt.close();
+    }
+
+    public static void putAsyncRequestVMPartitions(AsyncRequest asyncRequest, int binding_index, Connection c) throws SQLException {
+
+        VirtualMachine binding = asyncRequest.getBindings()[binding_index];
+        VirtualMachinePartition[] partitions = binding.getPartitions();
+        if (partitions == null) {
+            return;
+        }
+
+        for (VirtualMachinePartition partition : binding.getPartitions()) {
+
+            PreparedStatement pstmt = c.prepareStatement(SQL_INSERT_ASYNC_REQUESTS_VM_PARTITIONS);
+            pstmt.setString(1, asyncRequest.getId());
+            pstmt.setInt(2, binding_index);
+            pstmt.setInt(3, binding.getID());
+            pstmt.setString(4, partition.getImage());
+            pstmt.setString(5, partition.getImagemount());
+            boolean isReadWrite = partition.isReadwrite();
+            if (isReadWrite) {
+                pstmt.setInt(6, 1);
+            }
+            else {
+                pstmt.setInt(6, 0);
+            }
+            boolean isRootDisk = partition.isRootdisk();
+            if (isRootDisk) {
+                pstmt.setInt(7, 1);
+            }
+            else {
+                pstmt.setInt(7, 0);
+            }
+            pstmt.setInt(8, partition.getBlankspace());
+            boolean isPropRequired = partition.isPropRequired();
+            if (isPropRequired) {
+                pstmt.setInt(9, 1);
+            }
+            else {
+                pstmt.setInt(9, 0);
+            }
+            boolean isUnPropRequired = partition.isUnPropRequired();
+            if (isUnPropRequired) {
+                pstmt.setInt(10, 1);
+            }
+            else {
+                pstmt.setInt(10, 0);
+            }
+            pstmt.setString(11, partition.getAlternateUnpropTarget());
+
+            pstmt.executeUpdate();
+            pstmt.close();
+        }
+    }
+
+    public static void putAsyncRequestVMFileCopies(AsyncRequest asyncRequest, int binding_index, Connection c) throws SQLException {
+
+        VirtualMachine binding = asyncRequest.getBindings()[binding_index];
+
+        for (FileCopyNeed copy : binding.getFileCopyNeeds()) {
+
+            PreparedStatement pstmt = c.prepareStatement(SQL_INSERT_ASYNC_REQUESTS_VM_FILE_COPY);
+
+            pstmt.setString(1, asyncRequest.getId());
+            pstmt.setInt(2, binding_index);
+            pstmt.setInt(3, binding.getID());
+            pstmt.setString(4, copy.sourcePath);
+            pstmt.setString(5, copy.destPath);
+            boolean onImage = copy.onImage();
+            if (onImage) {
+                pstmt.setInt(6, 1);
+            }
+            else {
+                pstmt.setInt(6, 0);
+            }
+
             pstmt.executeUpdate();
             pstmt.close();
         }

@@ -262,8 +262,59 @@ public interface PersistenceAdapterConstants {
                 "(async_id, binding_index, id, name, node, prop_required, unprop_required, network, kernel_parameters, vmm, vmm_version, assocs_needed, md_user_data, preemptable, credential_name) " +
                 " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
+    public static final String SQL_INSERT_ASYNC_REQUESTS_VM_DEPLOYMENT =
+            "INSERT INTO async_requests_vm_deployment " +
+                    "(async_id, binding_index, vmid, requested_state, requested_shutdown, min_duration, ind_physmem, ind_physcpu) " +
+                    " VALUES (?,?,?,?,?,?,?,?)";
+
+    public static final String SQL_INSERT_ASYNC_REQUESTS_VM_PARTITIONS =
+            "INSERT INTO async_requests_vm_partitions " +
+                    "(async_id, binding_index, vmid, image, imagemount, readwrite, rootdisk, blankspace, prop_required, unprop_required, alternate_unprop) " +
+                    " VALUES (?,?,?,?,?,?,?,?,?,?,?)";
+
+    public static final String SQL_INSERT_ASYNC_REQUESTS_VM_FILE_COPY =
+            "INSERT INTO async_requests_vm_file_copy " +
+                    "(async_id, binding_index, vmid, sourcepath, destpath, on_image) " +
+                    " VALUES (?,?,?,?,?,?)";
+
+    public static final String SQL_INSERT_ASYNC_REQUESTS_ALLOCATED_VMS =
+            "INSERT INTO async_requests_allocated_vms " +
+                    "(id, vmid) VALUES (?,?)";
+
+    public static final String SQL_INSERT_ASYNC_REQUESTS_FINISHED_VMS =
+            "INSERT INTO async_requests_finished_vms " +
+                    "(id, vmid) VALUES (?,?)";
+
+    public static final String SQL_INSERT_ASYNC_REQUESTS_TO_BE_PREEMPTED =
+            "INSERT INTO async_requests_to_be_preempted " +
+                    "(id, vmid) VALUES (?,?)";
+
+    public static final String SQL_DELETE_ASYNC_REQUESTS_ALLOCATED_VMS =
+            "DELETE FROM async_requests_allocated_vms " +
+                    "WHERE id=?";
+
+    public static final String SQL_DELETE_ASYNC_REQUESTS_FINISHED_VMS =
+            "DELETE FROM async_requests_finished_vms " +
+                    "WHERE id=?";
+
+    public static final String SQL_DELETE_ASYNC_REQUESTS_TO_BE_PREEMPTED =
+            "DELETE FROM async_requests_to_be_preempted " +
+                    "WHERE id=?";
+
+    public static final String SQL_LOAD_ASYNC_REQUESTS_ALLOCATED_VMS =
+            "SELECT vmid FROM async_requests_allocated_vms " +
+                    "WHERE id=?";
+
+    public static final String SQL_LOAD_ASYNC_REQUESTS_FINISHED_VMS =
+            "SELECT vmid FROM async_requests_finished_vms " +
+                    "WHERE id=?";
+
+    public static final String SQL_LOAD_ASYNC_REQUESTS_TO_BE_PREEMPTED =
+            "SELECT vmid FROM async_requests_to_be_preempted " +
+                    "WHERE id=?";
+
     public static final String SQL_UPDATE_ASYNC_REQUEST =
-            "UPDATE async_requests SET id=?, max_bid=?, spot=?, group_id=?, persistent=?, creator_dn=?, creator_is_superuser=?, ssh_key_name=?, creation_time=?, nics=?, status=?";
+            "UPDATE async_requests SET id=?, max_bid=?, spot=?, group_id=?, persistent=?, creator_dn=?, creator_is_superuser=?, ssh_key_name=?, creation_time=?, nics=?, status=? WHERE id=?";
 
     public static final String SQL_LOAD_ASYNC_REQUESTS_VM_DEPLOYMENT =
             "SELECT requested_state, requested_shutdown, min_duration, " +

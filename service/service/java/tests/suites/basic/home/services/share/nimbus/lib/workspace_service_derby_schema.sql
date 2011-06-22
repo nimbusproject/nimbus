@@ -344,3 +344,21 @@ destpath VARCHAR(512),
 on_image SMALLINT NOT NULL
 );
 
+CREATE TABLE async_requests_allocated_vms
+(
+id VARCHAR(512) NOT NULL,
+vmid INT NOT NULL
+);
+
+CREATE TABLE async_requests_finished_vms
+(
+id VARCHAR(512) NOT NULL,
+vmid INT NOT NULL
+);
+
+CREATE TABLE async_requests_to_be_preempted
+(
+id VARCHAR(512) NOT NULL,
+vmid INT NOT NULL
+);
+
