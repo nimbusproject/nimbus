@@ -97,16 +97,7 @@
         <constructor-arg ref="other.timerManager" />
         <constructor-arg ref="nimbus-rm.loglevels" />
         <constructor-arg ref="nimbus-rm.service.binding.BindNetwork" />
-
-        <!-- idempotent requests can be disabled by replacing this
-        last arg with a null reference, like:
-
-        <constructor-arg><null/></constructor-arg>
-
-        You can also comment out the idempotent bean definition below but it
-        is not required.
-        -->
-        <constructor-arg ref="nimbus-rm.creation.idempotent"/>
+        <constructor-arg ref="nimbus-rm.creation.idempotent" />
 
         <property name="accountingEventAdapter"
                   ref="nimbus-rm.accounting" />
@@ -348,8 +339,8 @@
         <property name="sshAccount" value="$SSH{control.ssh.user}" />
         <property name="sshIdentityFile" value="$SSH{use.identity}" />
 
-        <!-- defaults -->
-        <property name="sweeperDelay" value="6000" /> <!-- ms -->
+        <!-- This is assumed to be a certain value in the suites. Tests will fail if you change this -->
+        <property name="sweeperDelay" value="3000" /> <!-- ms -->
         <property name="threadPoolInitialSize" value="5" />
         <property name="threadPoolMaxSize" value="50" />
 
@@ -511,16 +502,8 @@
 
         <constructor-arg ref="nimbus-rm.loglevels" />
 
-        <!-- Current choices: xenlocal, xenssh -->
-        <property name="commandSet" value="xenssh" />
-
-        <!--
-             Not exposing the distinction between xenlocal and xenssh anymore,
-             the user should just set up localhost ssh logins if there is one
-             VMM node and it happens to be colocated.  workspace-control needs
-             to send notifications back over sshd anyhow, so this login has to
-             work regardless until reliable messaging system is introduced.
-        -->
+        <!-- Mock command set for failure scenarios -->
+        <property name="commandSet" value="failure_commands" />
         
     </bean>
 
