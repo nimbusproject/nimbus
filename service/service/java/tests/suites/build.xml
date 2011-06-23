@@ -204,7 +204,13 @@
             <param name="runone.suite.report.subdir" value="basic-${st.basic06}"/>
         </antcall>
     </target>
-    <target name="allbasic" depends="basic01,basic02,basic03,basic04,basic05,basic06" />
+    <target name="basic07">
+        <antcall target="runone">
+            <param name="runone.suite.file" value="${st.basic.dir}/${st.basic07}.xml"/>
+            <param name="runone.suite.report.subdir" value="basic-${st.basic07}"/>
+        </antcall>
+    </target>
+    <target name="allbasic" depends="basic01,basic02,basic03,basic04,basic05,basic06,basic07" />
 
 
     <!-- FAILURE/TERMINATION SUITES -->
