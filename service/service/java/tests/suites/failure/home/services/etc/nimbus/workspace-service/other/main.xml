@@ -97,7 +97,16 @@
         <constructor-arg ref="other.timerManager" />
         <constructor-arg ref="nimbus-rm.loglevels" />
         <constructor-arg ref="nimbus-rm.service.binding.BindNetwork" />
-        <constructor-arg ref="nimbus-rm.creation.idempotent" />
+
+        <!-- idempotent requests can be disabled by replacing this
+        last arg with a null reference, like:
+
+        <constructor-arg><null/></constructor-arg>
+
+        You can also comment out the idempotent bean definition below but it
+        is not required.
+        -->
+        <constructor-arg ref="nimbus-rm.creation.idempotent"/>
 
         <property name="accountingEventAdapter"
                   ref="nimbus-rm.accounting" />
@@ -339,8 +348,8 @@
         <property name="sshAccount" value="$SSH{control.ssh.user}" />
         <property name="sshIdentityFile" value="$SSH{use.identity}" />
 
-        <!-- This is assumed to be a certain value in the suites. Tests will fail if you change this -->
-        <property name="sweeperDelay" value="3000" /> <!-- ms -->
+        <!-- defaults -->
+        <property name="sweeperDelay" value="6000" /> <!-- ms -->
         <property name="threadPoolInitialSize" value="5" />
         <property name="threadPoolMaxSize" value="50" />
 
@@ -502,8 +511,16 @@
 
         <constructor-arg ref="nimbus-rm.loglevels" />
 
-        <!-- Mock command set for failure scenarios -->
-        <property name="commandSet" value="failure_commands" />
+        <!-- Current choices: xenlocal, xenssh -->
+        <property name="commandSet" value="xenssh" />
+
+        <!--
+             Not exposing the distinction between xenlocal and xenssh anymore,
+             the user should just set up localhost ssh logins if there is one
+             VMM node and it happens to be colocated.  workspace-control needs
+             to send notifications back over sshd anyhow, so this login has to
+             work regardless until reliable messaging system is introduced.
+        -->
         
     </bean>
 
@@ -597,7 +614,7 @@
     <bean id="nimbus-rm.si.pricingmodel" class="$ASYNC{si.pricingmodel}" />
 
     <bean id="nimbus-rm.si.asyncreqmap" class="org.globus.workspace.async.AsyncRequestMap">
-        <constructor-arg value="$COMMON{caches.dir}" />
+        <constructor-arg ref="nimbus-rm.persistence.PersistenceAdapter" />
     </bean>
 
     <bean id="nimbus-rm.async.manager"
