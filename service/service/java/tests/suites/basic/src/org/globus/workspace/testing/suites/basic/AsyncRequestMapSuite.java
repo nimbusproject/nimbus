@@ -19,6 +19,7 @@ package org.globus.workspace.testing.suites.basic;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.globus.workspace.async.AsyncRequest;
 import org.globus.workspace.async.AsyncRequestMap;
+import org.globus.workspace.async.AsyncRequestStatus;
 import org.globus.workspace.persistence.DataConvert;
 import org.globus.workspace.persistence.PersistenceAdapter;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
@@ -136,6 +137,7 @@ public class AsyncRequestMapSuite extends NimbusTestBase {
         AsyncRequest testRequest = new AsyncRequest(testID, testSpotinstances, testMaxBid, testIsPersistent, testCaller, testGroupID, testBindings, context, testNICs, testSshKeyName, testCreationTime);
         testRequest.addAllocatedVM(testAllocatedVM);
         asyncRequestMap.addOrReplace(testRequest);
+        logger.debug("Status: " + testRequest.getStatus());
 
         allRequests = asyncRequestMap.getAll();
         assert(allRequests != null);
@@ -156,5 +158,18 @@ public class AsyncRequestMapSuite extends NimbusTestBase {
         assertEquals(testVM.getID(), gotRequest.getBindings()[0].getID());
         assertEquals(testNICs[0].getIpAddress(), gotRequest.getRequestedNics()[0].getIpAddress());
         assertEquals(testAllocatedVM, gotRequest.getAllocatedVMs()[0]);
+        assertEquals(AsyncRequestStatus.OPEN, gotRequest.getStatus());
+
+        gotRequest.setStatus(AsyncRequestStatus.ACTIVE);
+        asyncRequestMap.addOrReplace(gotRequest);
+
+        AsyncRequest updatedRequest = asyncRequestMap.getByID(testID);
+        assertEquals(AsyncRequestStatus.ACTIVE, updatedRequest.getStatus());
+        assertEquals(testAllocatedVM, updatedRequest.getAllocatedVMs()[0]);
+
+        asyncRequestMap.addOrReplace(updatedRequest);
+        AsyncRequest updatedRequest1 = asyncRequestMap.getByID(testID);
+        assertEquals(testAllocatedVM, updatedRequest1.getAllocatedVMs()[0]);
+
     }
 }

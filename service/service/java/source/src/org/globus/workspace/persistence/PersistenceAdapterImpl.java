@@ -37,7 +37,6 @@ import org.apache.commons.logging.LogFactory;
 import org.globus.workspace.Lager;
 import org.globus.workspace.WorkspaceConstants;
 import org.globus.workspace.async.AsyncRequest;
-import org.globus.workspace.async.AsyncRequestMap;
 import org.globus.workspace.creation.IdempotentInstance;
 import org.globus.workspace.creation.IdempotentReservation;
 import org.globus.workspace.creation.defaults.IdempotentInstanceImpl;
@@ -57,10 +56,8 @@ import org.nimbustools.api._repr._SpotPriceEntry;
 import org.nimbustools.api.repr.CannotTranslateException;
 import org.nimbustools.api.repr.ReprFactory;
 import org.nimbustools.api.repr.SpotPriceEntry;
-import org.nimbustools.api.repr.vm.NIC;
 import org.nimbustools.api.services.rm.DoesNotExistException;
 import org.nimbustools.api.services.rm.ManageException;
-import org.springframework.scheduling.annotation.Async;
 
 public class PersistenceAdapterImpl implements WorkspaceConstants,
                                                PersistenceAdapterConstants,
@@ -3238,39 +3235,34 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
 
             AsyncRequest oldAsyncRequest = getAsyncRequest(asyncRequest.getId());
 
+
             if (oldAsyncRequest != null) {
                 logger.debug("Updating old request " + oldAsyncRequest.getId());
-                pstmt = AsyncRequestMapPersistenceUtil.getUpdateAsyncRequest(asyncRequest, this.repr, c);
-                pstmt.executeUpdate();
-                pstmt.close();
-
-
                 // We will later need to persist modified versions of our persisted VMs,
                 // so we need to remove all of our earlier copies
-                pstmts = AsyncRequestMapPersistenceUtil.getRemoveAsyncVMs(asyncRequest, c);
+                pstmts = AsyncRequestMapPersistenceUtil.getRemoveAsyncBindings(oldAsyncRequest, c);
                 for (PreparedStatement p : pstmts) {
 
                     p.executeUpdate();
                 }
+                AsyncRequestMapPersistenceUtil.removeAllocatedVMs(oldAsyncRequest, c);
+                AsyncRequestMapPersistenceUtil.removeFinishedVMs(oldAsyncRequest, c);
+                AsyncRequestMapPersistenceUtil.removeToBePreempted(oldAsyncRequest, c);
 
-                pstmt = AsyncRequestMapPersistenceUtil.getDeleteAsyncRequestVMs(asyncRequest, c);
+
+                pstmt = AsyncRequestMapPersistenceUtil.getUpdateAsyncRequest(asyncRequest, this.repr, c);
                 pstmt.executeUpdate();
-                AsyncRequestMapPersistenceUtil.removeAllocatedVMs(asyncRequest, c);
-                AsyncRequestMapPersistenceUtil.removeFinishedVMs(asyncRequest, c);
-                AsyncRequestMapPersistenceUtil.removeToBePreempted(asyncRequest, c);
-                AsyncRequestMapPersistenceUtil.putAllocatedVMs(asyncRequest, c);
-                AsyncRequestMapPersistenceUtil.putFinishedVMs(asyncRequest, c);
-                AsyncRequestMapPersistenceUtil.putToBePreempted(asyncRequest, c);
+                c.commit();
             }
             else {
                 logger.debug("Persisting request: " + asyncRequest.getId());
                 pstmt = AsyncRequestMapPersistenceUtil.getInsertAsyncRequest(asyncRequest, this.repr, c);
                 pstmt.executeUpdate();
-                AsyncRequestMapPersistenceUtil.putAllocatedVMs(asyncRequest, c);
-                AsyncRequestMapPersistenceUtil.putFinishedVMs(asyncRequest, c);
-                AsyncRequestMapPersistenceUtil.putToBePreempted(asyncRequest, c);
             }
 
+            AsyncRequestMapPersistenceUtil.putAllocatedVMs(asyncRequest, c);
+            AsyncRequestMapPersistenceUtil.putFinishedVMs(asyncRequest, c);
+            AsyncRequestMapPersistenceUtil.putToBePreempted(asyncRequest, c);
             AsyncRequestMapPersistenceUtil.putAsyncRequestBindings(asyncRequest, c);
             c.commit();
 

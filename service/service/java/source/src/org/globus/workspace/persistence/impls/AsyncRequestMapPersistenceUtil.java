@@ -257,13 +257,6 @@ public class AsyncRequestMapPersistenceUtil
         return pstmt;
     }
 
-    public static PreparedStatement getDeleteAsyncRequestVMs(AsyncRequest asyncRequest, Connection c)
-                                                            throws SQLException {
-
-        final PreparedStatement pstmt = c.prepareStatement(SQL_DELETE_ASYNC_REQUESTS_VMS);
-        pstmt.setString(1, asyncRequest.getId());
-        return pstmt;
-    }
 
     public static AsyncRequest rsToAsyncRequest(ResultSet rs, ReprFactory repr, Connection c)
                                                             throws SQLException, CannotTranslateException {
@@ -580,7 +573,7 @@ public class AsyncRequestMapPersistenceUtil
         return pstmt;
     }
 
-    public static PreparedStatement[] getRemoveAsyncVMs(AsyncRequest asyncRequest, Connection c) throws SQLException {
+    public static PreparedStatement[] getRemoveAsyncBindings(AsyncRequest asyncRequest, Connection c) throws SQLException {
 
         PreparedStatement[] pstmts = new PreparedStatement[4];
 
