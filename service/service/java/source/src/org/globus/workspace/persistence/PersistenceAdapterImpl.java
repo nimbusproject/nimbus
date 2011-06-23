@@ -3357,20 +3357,14 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
             rs = pstmt.executeQuery();
 
             if (rs == null || !rs.next()) {
-                logger.debug("No AsyncRequests");
                 return asyncRequests;
             }
 
             do {
                 String id = rs.getString("id");
-                AsyncRequest asyncRequest = AsyncRequestMapPersistenceUtil.rsToAsyncRequest(rs, this.repr, c);
-                VirtualMachine[] bindings = AsyncRequestMapPersistenceUtil.getAsyncVMs(asyncRequest.getId(), c);
-                asyncRequest.setBindings(bindings);
+                AsyncRequest asyncRequest = this.getAsyncRequest(id);
                 asyncRequests.add(asyncRequest);
             } while(rs.next());
-        } catch (CannotTranslateException e) {
-            logger.error("",e);
-            throw new WorkspaceDatabaseException(e);
         } catch (SQLException e) {
             logger.error("",e);
             throw new WorkspaceDatabaseException(e);

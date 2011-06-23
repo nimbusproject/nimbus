@@ -31,6 +31,7 @@ import org.nimbustools.api.repr.ctx.Context;
 import org.nimbustools.api.repr.vm.NIC;
 import org.nimbustools.api.repr.vm.VM;
 import org.nimbustools.api.services.rm.Manager;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.test.context.ContextConfiguration;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.Test;
@@ -137,7 +138,15 @@ public class AsyncRequestMapSuite extends NimbusTestBase {
         AsyncRequest testRequest = new AsyncRequest(testID, testSpotinstances, testMaxBid, testIsPersistent, testCaller, testGroupID, testBindings, context, testNICs, testSshKeyName, testCreationTime);
         testRequest.addAllocatedVM(testAllocatedVM);
         asyncRequestMap.addOrReplace(testRequest);
-        logger.debug("Status: " + testRequest.getStatus());
+
+        String secondID = "this-is-the-other-one";
+        double secondMaxBid = 4.5;
+        VirtualMachine[] secondBindings = new VirtualMachine[1];
+        VirtualMachine secondVM = new VirtualMachine();
+        secondVM.setID(52);
+        secondBindings[0] = secondVM;
+
+        AsyncRequest secondRequest = new AsyncRequest(secondID, testSpotinstances, secondMaxBid, testIsPersistent, testCaller, testGroupID, secondBindings, context, testNICs, testSshKeyName, testCreationTime);
 
         allRequests = asyncRequestMap.getAll();
         assert(allRequests != null);
@@ -160,9 +169,14 @@ public class AsyncRequestMapSuite extends NimbusTestBase {
         assertEquals(testAllocatedVM, gotRequest.getAllocatedVMs()[0]);
         assertEquals(AsyncRequestStatus.OPEN, gotRequest.getStatus());
 
+
+        //Now Mutate the Map
+        asyncRequestMap.addOrReplace(secondRequest);
+
         gotRequest.setStatus(AsyncRequestStatus.ACTIVE);
         asyncRequestMap.addOrReplace(gotRequest);
 
+        AsyncRequest gotSecondRequest = asyncRequestMap.getByID(secondID);
         AsyncRequest updatedRequest = asyncRequestMap.getByID(testID);
         assertEquals(AsyncRequestStatus.ACTIVE, updatedRequest.getStatus());
         assertEquals(testAllocatedVM, updatedRequest.getAllocatedVMs()[0]);
@@ -170,6 +184,6 @@ public class AsyncRequestMapSuite extends NimbusTestBase {
         asyncRequestMap.addOrReplace(updatedRequest);
         AsyncRequest updatedRequest1 = asyncRequestMap.getByID(testID);
         assertEquals(testAllocatedVM, updatedRequest1.getAllocatedVMs()[0]);
-
+        assertEquals(0, gotSecondRequest.getAllocatedVMs().length);
     }
 }
