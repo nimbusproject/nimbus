@@ -22,17 +22,24 @@ _NIMBUS_IS_DEPRECATED
 <ul>
     <li>
         <p>
-            This release contains many important bug fixes as well as a few new features.
+            This release contains many important bug fixes as well as some new features.
         </p>
     </li>
     <li>
         <p>
-Image propagation performance enhancing features have been introduced in.
-Propagation by means of a file system copy has been introduced.  This
-can greatly decrease the boot time of VMs on systems where a fast shared 
-file system is used.  We have also added support for a VM image cache on
-all VMMs.  This greatly increases the performance for clouds with a
-base image that is booted often (a common use case).
+Propagation by means of a file system copy: this can greatly decrease the boot time of VMs on systems where a fast shared file system exists.  
+        </p>
+    </li>
+    <li>
+        <p>
+VM image caching: this will greatly increase the boot performance for clouds with a base image that is launched often (a common use case).  This works with any propagation method.
+        </p>
+    </li>
+    <li>
+        <p>
+            libvirt template support added.  A cloud administrator can
+            now completely control the options sent to libvirt when starting
+            a virtual machine by editing the template file
         </p>
     </li>
 </ul>
@@ -165,7 +172,8 @@ base image that is booted often (a common use case).
         A cache of propagated images can now be kept on each VMM.  Before
         an image is propagated the cache is checked for an image with a
         matching checksum.  If found that image is used and no propagation
-        is needed which can save a significant amount of time.
+        is needed which can save a significant amount of time.  This will
+        work with any propagation mechanism.
         </p>
     </li>
     <li>
