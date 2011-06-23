@@ -1,0 +1,230 @@
+#!/bin/bash
+
+GUIDEURL="http://www.nimbusproject.org/docs/2.8/"
+
+FORCE_FRESH_INSTALL="yes"
+
+NIMBUS_SRC_REL="`dirname $0`"
+NIMBUS_SRC=`cd $NIMBUS_SRC_REL; pwd`
+
+if [ "X$1" = "X" ]; then
+    echo ""
+    echo "Usage: $0 destination_dir"
+    echo "    You must specify the destination directory."
+    echo ""
+    exit 1
+fi
+
+NIMBUS_REL_BASE_HOME="`dirname $1`"
+NIMBUS_BASE_HOME=`cd $NIMBUS_REL_BASE_HOME; pwd`
+
+if [ ! -e $NIMBUS_REL_BASE_HOME ]; then
+    echo "The parent directory for the installation path $1 must exist"
+    exit 1
+fi
+
+NIMBUS_INST_DIR=`basename $1`
+NIMBUS_HOME="$NIMBUS_BASE_HOME/$NIMBUS_INST_DIR"
+echo "NIMBUS_HOME $NIMBUS_HOME"
+
+if [ "X$NIMBUS_ALLOW_ROOT_INSTALL" != "Xyes" ] && [ $EUID -eq 0 ]; then
+    echo ""
+    echo "It is not recommended to install or run the Context Broker as root."
+    echo "If you insist, set the NIMBUS_ALLOW_ROOT_INSTALL environment variable to \"yes\""
+    echo ""
+    exit 1
+fi
+
+if [ -d $NIMBUS_HOME ] && [ "$(ls -A $NIMBUS_HOME)" ]; then
+    if [ $FORCE_FRESH_INSTALL = "yes" ]; then
+        echo ""
+        echo "The destination directory '$NIMBUS_HOME' exists and is not empty."
+        echo "It is not recommended to reinstall the Context Broker into an existing install."
+        echo ""
+        echo "If you know what you are doing and want to reinstall, edit this script:"
+        echo "    $0"
+        echo "and change FORCE_FRESH_INSTALL to \"no\""
+        echo ""
+        echo "It is highly unlikely you want this.  Note you may not install"
+        echo "the context broker to the the same directory as a Nimbus IaaS"
+        echo "installation."
+        echo ""
+
+        exit 1
+    fi
+fi
+
+if [ ! -d $NIMBUS_HOME ]; then
+    mkdir $NIMBUS_HOME
+fi
+
+echo "Installing from $NIMBUS_SRC"
+
+CONTAINER_URL="https://github.com/downloads/nimbusproject/nimbus/ws-core-4.0.8-bin.tar.gz"
+CONTAINER_TARNAME="ws-core-4.0.8-bin.tar.gz"
+CONTAINER_UNTARREDNAME="ws-core-4.0.8"
+
+# destination directory inside $NIMBUS_HOME
+CONTAINER_DIRNAME="services"
+
+
+TMPDIR="$NIMBUS_SRC/tmp"
+
+if [ ! -d $TMPDIR ]; then
+    mkdir $TMPDIR
+    if [ $? -ne 0 ]; then
+        echo "Failed to create temp directory: $TMPDIR"
+        exit 1
+    fi
+fi
+
+echo ""
+echo "-----------------------------------------------------------------"
+echo " Preparing Context Broker installation directory"
+echo "-----------------------------------------------------------------"
+echo ""
+# first ensure we have a GT tarball. Most likely it has been bundled with
+# the Context Broker installer.
+if [ ! -f $TMPDIR/$CONTAINER_TARNAME ]; then
+    echo "Downloading service container.."
+    echo ""
+    wget --no-check-certificate -c -O $TMPDIR/$CONTAINER_TARNAME $CONTAINER_URL
+
+    if [ $? -ne 0 ]; then
+    echo ""
+        echo "Failed to download container tarball from: $CONTAINER_URL"
+        echo ""
+        echo "If you are unable to access the Internet, please retrieve this"
+        echo "file by other means and place it in $TMPDIR/." 
+        echo "Then rerun this script."
+
+        rm -f $TMPDIR/$CONTAINER_TARNAME
+
+        exit 1
+    fi
+fi
+
+
+CONTAINER_DIR="$NIMBUS_HOME/$CONTAINER_DIRNAME"
+if [ ! -d $CONTAINER_DIR ]; then
+
+    echo "Installing container.."
+
+    tar xzf $TMPDIR/$CONTAINER_TARNAME -C $TMPDIR
+    if [ $? -ne 0 ]; then
+        echo "Failed to expand container tarball: $TMPDIR/$CONTAINER_TARNAME"
+        echo "If this file is corrupted, you may delete it and rerun this script to download a new one."
+        exit 1
+    fi
+
+    mv $TMPDIR/$CONTAINER_UNTARREDNAME $CONTAINER_DIR
+    if [ $? -ne 0 ]; then
+        echo "Failed to move container directory to $CONTAINER_DIR"
+        exit 1
+    fi
+
+    CONTAINER_LOG_PROPS="$CONTAINER_DIR/container-log4j.properties"
+    echo "" >> $CONTAINER_LOG_PROPS
+    echo "# Change the following line from \"INFO\" to \"DEBUG\" to enable debugging" >> $CONTAINER_LOG_PROPS
+    echo "# Logging changes require a container restart." >> $CONTAINER_LOG_PROPS
+    echo "log4j.category.org.nimbustools=INFO" >> $CONTAINER_LOG_PROPS
+
+else
+    echo "Service container already exists at $CONTAINER_DIR"
+fi
+
+echo ""
+echo "-----------------------------------------------------------------"
+echo " Building and installing Nimbus Context Broker"
+echo "-----------------------------------------------------------------"
+
+GLOBUS_LOCATION=$CONTAINER_DIR
+export GLOBUS_LOCATION
+
+$NIMBUS_SRC/scripts/gt/broker-build-and-install.sh
+if [ $? -ne 0 ]; then
+    echo "Build and install FAILED!"
+    exit 1
+fi
+
+echo "Deploying skeleton directory structure.."
+cp -fr $NIMBUS_SRC/home/* $NIMBUS_HOME/
+if [ $? -ne 0 ]; then
+    echo "Failed to copy Context Broker home directory"
+    exit 1
+fi
+
+echo ""
+echo "-----------------------------------------------------------------"
+echo " Configuring installed services"
+echo "-----------------------------------------------------------------"
+
+# Override the default nimbus-setup.conf
+
+if [ ! -e $NIMBUS_HOME/nimbus-setup.conf ]; then
+
+    cat >> $NIMBUS_HOME/nimbus-setup.conf << "EOF"
+[nimbussetup]
+
+# relative to base directory
+hostcert: var/hostcert.pem
+hostkey: var/hostkey.pem
+ca.dir: var/ca
+ca.trustedcerts.dir: var/ca/trusted-certs
+
+gridmap: services/etc/nimbus-context-broker/user-mapfile
+envfile: var/environment.sh
+
+keystore: var/keystore.jks
+keystore.pass: changeit
+
+broker.enabled: True
+services.wait: 10
+EOF
+
+fi
+
+if [ ! -e $NIMBUS_HOME/var ]; then
+    mkdir $NIMBUS_HOME/var
+    if [ $? -ne 0 ]; then
+        echo "Could not make the var directory: $NIMBUS_HOME/var"
+        exit 1
+    fi
+    chmod +x $NIMBUS_HOME/bin/*
+    if [ $? -ne 0 ]; then
+        echo "Could not prepare the bin directory: $NIMBUS_HOME/bin"
+        exit 1
+    fi
+fi
+
+CONFIG_SCRIPT="$NIMBUS_HOME/bin/broker-configure"
+
+if [ ! -f $CONFIG_SCRIPT ]; then
+    echo "Configuration script could not be found: $CONFIG_SCRIPT"
+    exit 1
+fi
+
+$CONFIG_SCRIPT $EXTRA_CONFIG_SCRIPT_ARGS
+if [ $? -ne 0 ]; then
+    echo "Broker configuration script failed! You may try running it manually:"
+    echo "    $CONFIG_SCRIPT"
+    echo "You can also run the script with debugging output:"
+    echo "    $CONFIG_SCRIPT --debug"
+    exit 1
+fi
+
+echo ""
+echo "-----------------------------------------------------------------"
+echo " Context Broker installation succeeded!"
+echo "-----------------------------------------------------------------"
+echo ""
+echo "Additional configuration may be necessary, refer to this URL for information:"
+echo ""
+echo "    $GUIDEURL"
+echo ""
+echo "You can start/stop the Context Broker with the brokerctl command. e.g:"
+echo ""
+echo "    $NIMBUS_HOME/bin/brokerctl start"
+echo ""
+
+exit 0

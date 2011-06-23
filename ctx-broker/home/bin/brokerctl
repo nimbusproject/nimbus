@@ -1,0 +1,28 @@
+#!/bin/bash
+
+PYTHON_EXE="/usr/bin/env python -Wignore::DeprecationWarning"
+
+NIMBUS_HOME_REL="`dirname $0`/.."
+NIMBUS_HOME=`cd $NIMBUS_HOME_REL; pwd`
+
+export NIMBUS_HOME
+
+if [ -d $NIMBUS_HOME/lib/pynimbusconfig ]; then
+    NIMBUS_PYLIB=$NIMBUS_HOME/lib
+else
+    echo "Cannot locate Python lib directory"
+    exit 1
+fi
+
+PYTHONPATH="$NIMBUS_PYLIB:$PYTHONPATH"
+export PYTHONPATH
+
+# returns 0 if Python 2.5+
+$PYTHON_EXE -c "import sys; sys.exit(sys.version_info < (2,5))"
+if [ $? -ne 0 ]; then
+    echo "ERROR: Your system must have Python version 2.5 or later."
+    exit 1
+fi
+
+$PYTHON_EXE $NIMBUS_HOME/lib/brokerctl.py $@
+exit $?

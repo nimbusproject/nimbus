@@ -20,6 +20,8 @@ import org.apache.commons.logging.LogFactory;
 import org.nimbus.authz.AuthzDBAdapter;
 import org.nimbus.authz.AuthzDBException;
 import org.nimbus.authz.UserAlias;
+import org.nimbustools.querygeneral.security.QueryUser;
+import org.nimbustools.querygeneral.security.QueryUserDetailsService;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

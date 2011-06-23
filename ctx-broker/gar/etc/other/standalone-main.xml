@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xsi:schemaLocation="
+http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+http://www.springframework.org/schema/security
+http://www.springframework.org/schema/security/spring-security-3.0.xsd
+http://cxf.apache.org/jaxrs
+http://cxf.apache.org/schemas/jaxrs.xsd">
+
+    <import resource="classpath:META-INF/cxf/cxf.xml" />
+    <import resource="classpath:META-INF/cxf/cxf-extension-jaxrs-binding.xml" />
+    <import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
+
+    <bean id="userDetailsService" class="org.nimbustools.querygeneral.security.FileUserDetailsService">
+        <constructor-arg value="$NIMBUS_HOME/services/etc/nimbus-context-broker/user-mapfile"/>
+    </bean>
+
+    <jaxrs:server id="ContextBroker" address="/ContextBroker/">
+        <jaxrs:serviceBeans>
+            <ref bean="brokerResource" />
+        </jaxrs:serviceBeans>
+        <jaxrs:outFaultInterceptors>
+            <ref bean="outFaultInterceptor"/>
+        </jaxrs:outFaultInterceptors>
+        <jaxrs:properties>
+            <entry key="org.apache.cxf.propogate.exception" value="false"/>
+        </jaxrs:properties>
+    </jaxrs:server>
+
+    <bean id="brokerResource" class="org.nimbustools.ctxbroker.rest.BrokerResource"/>
+
+    <bean id="basicAuthenticationFilter"
+          class="org.springframework.security.web.authentication.www.BasicAuthenticationFilter">
+
+        <property name="authenticationManager" ref="authenticationManager"/>
+        <property name="authenticationEntryPoint" ref="authenticationEntryPoint"/>
+    </bean>
+
+    <security:authentication-manager alias="authenticationManager">
+        <security:authentication-provider user-service-ref="userDetailsService"/>
+    </security:authentication-manager>
+
+    <bean id="authenticationEntryPoint"
+          class="org.nimbustools.ctxbroker.rest.FailAuthenticationEntryPoint">
+        <property name="responseUtil" ref="responseUtil"/>
+    </bean>
+
+    <bean name="outFaultInterceptor" class="org.nimbustools.ctxbroker.rest.OutFaultInterceptor">
+        <property name="responseUtil" ref="responseUtil"/>
+    </bean>
+
+    <bean id="responseUtil" class="org.nimbustools.ctxbroker.rest.ResponseUtil"/>
+
+    <security:http auto-config="false" create-session="never" entry-point-ref="authenticationEntryPoint" >
+        <security:custom-filter ref="basicAuthenticationFilter" position="BASIC_AUTH_FILTER" />
+        <security:intercept-url pattern="/**" access="ROLE_USER"/>
+        <security:access-denied-handler ref="accessDeniedHandler"/>
+    </security:http>
+
+    <bean id="accessDeniedHandler" class="org.nimbustools.ctxbroker.rest.FailAccessDeniedHandler">
+        <property name="responseUtil" ref="responseUtil"/>
+    </bean>
+
+</beans>
+

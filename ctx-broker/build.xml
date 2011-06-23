@@ -72,12 +72,12 @@
               <include name="*.jar"/>
         </fileset>
 
-        <fileset dir="${nimbus.messaging.query.dist.dir}">
+        <fileset dir="${nimbus.authz.dist.dir}">
             <include name="*.jar"/>
         </fileset>
 
-        <fileset dir="${nimbus.authz.dist.dir}">
-            <include name="*.jar"/>
+        <fileset dir="${nimbus.querygeneral.dist.dir}">
+              <include name="*.jar"/>
         </fileset>
 
         <fileset dir="${nimbus.service.api.dist.dir}">
@@ -168,11 +168,19 @@
          GAR RELATED
          ******************************************************************* -->
 
-    <target name="gar">
-        <ant dir="${nimbus.ctxbroker.gar.dir}" target="dist" />
+    <target name="gar-bundled">
+        <ant dir="${nimbus.ctxbroker.gar.dir}" target="dist-bundled" />
     </target>
 
-    <target name="deploy" depends="dist, gar">
+    <target name="gar-standalone">
+        <ant dir="${nimbus.ctxbroker.gar.dir}" target="dist-standalone" />
+    </target>
+
+    <target name="deploy" depends="dist, gar-bundled">
+        <ant dir="${nimbus.ctxbroker.gar.dir}" target="deploy" />
+    </target>
+
+    <target name="deploy-standalone" depends="dist, gar-standalone">
         <ant dir="${nimbus.ctxbroker.gar.dir}" target="deploy" />
     </target>
 

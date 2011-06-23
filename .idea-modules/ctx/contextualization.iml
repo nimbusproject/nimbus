@@ -9,13 +9,12 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="ctxbroker-libs" level="project" />
-    <orderEntry type="module" module-name="common" />
     <orderEntry type="library" name="test-libs" level="project" />
-    <orderEntry type="library" name="cxf-libs" level="project" />
-    <orderEntry type="module" module-name="ec2query" />
-    <orderEntry type="library" name="workspace-service-libs" level="project" />
     <orderEntry type="module" module-name="authzdb" />
+    <orderEntry type="module" module-name="query-general" />
+    <orderEntry type="library" name="lib-services" level="project" />
+    <orderEntry type="library" name="generated-libs" level="project" />
+    <orderEntry type="module" module-name="rm-api" />
   </component>
 </module>
 
