@@ -177,7 +177,7 @@ echo "========================================="
 echo "Making a common user"
 echo "========================================="
 user_name="nimbus@$RANDOM"
-user_stuff=`$install_dir/bin/nimbus-new-user --group 04 --batch -r cloud_properties,cert,key,access_id,access_secret $user_name`
+user_stuff=`$install_dir/bin/nimbus-new-user --batch -r cloud_properties,cert,key,access_id,access_secret $user_name`
 aid=`echo $user_stuff | awk -F , '{ print $4 }'` 
 apw=`echo $user_stuff | awk -F , '{ print $5 }'` 
 
@@ -189,7 +189,7 @@ echo "Making a new user"
 echo "========================================="
 
 user_name="nimbus@$RANDOM"
-user_stuff=`$install_dir/bin/nimbus-new-user --group 04 --batch -r cloud_properties,cert,key,access_id,access_secret,canonical_id $user_name`
+user_stuff=`$install_dir/bin/nimbus-new-user --batch -r cloud_properties,cert,key,access_id,access_secret,canonical_id $user_name`
 
 echo $user_stuff
 cp=`echo $user_stuff | awk -F , '{ print $1 }'` 
