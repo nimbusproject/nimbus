@@ -324,7 +324,7 @@ public class TerminateSuite extends NimbusTestBase {
         MockShutdownTrash.setFail(false);
         logger.warn("Set to succeed.");
 
-        Thread.sleep(8000L);
+        Thread.sleep(12000L);
         
         // Should now be gone:
         assertFalse(rm.exists(vms[0].getID(), Manager.INSTANCE));
