@@ -17,6 +17,9 @@
         <fileset dir="${nimbus.st.main.lib.dir}">
              <include name="*.jar"/>
         </fileset>
+        <fileset dir="${nimbus.st.workspaceservice.lib.dir}">
+              <include name="*.jar"/>
+        </fileset>
         <fileset dir="${nimbus.st.test.lib.dir}">
              <include name="*.jar"/>
         </fileset>
