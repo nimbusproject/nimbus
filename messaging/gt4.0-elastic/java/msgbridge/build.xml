@@ -62,6 +62,10 @@
             <include name="*.jar"/>
         </fileset>
 
+        <fileset dir="${nimbus.messaging.gt4_0-elastic.workspaceservice.lib.dir}">
+            <include name="*.jar"/>
+        </fileset>
+
         <fileset dir="${nimbus.messaging.gt4_0.common.dist.dir}">
             <include name="*.jar"/>
         </fileset>
