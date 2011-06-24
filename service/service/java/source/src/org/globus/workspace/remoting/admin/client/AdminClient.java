@@ -15,12 +15,7 @@
  */
 package org.globus.workspace.remoting.admin.client;
 
-import com.google.gson.Gson;
 import org.apache.commons.cli.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.*;
-import org.apache.log4j.varia.NullAppender;
 import org.globus.workspace.remoting.admin.NodeReport;
 import org.globus.workspace.remoting.admin.VmmNode;
 import org.nimbustools.api.services.admin.RemoteNodeManagement;
@@ -31,14 +26,6 @@ import java.util.*;
 
 
 public class AdminClient extends RMIConfig {
-
-    private static final Log logger =
-            LogFactory.getLog(RMIConfig.class.getName());
-
-    public static final int EXIT_OK = 0;
-    public static final int EXIT_PARAMETER_PROBLEM = 1;
-    public static final int EXIT_EXECUTION_PROBLEM = 2;
-    public static final int EXIT_UNKNOWN_PROBLEM = 3;
 
     private static final String PROP_RMI_BINDING_NODEMGMT_DIR = "rmi.binding.nodemgmt";
     private static final String PROP_DEFAULT_MEMORY = "node.memory.default";
@@ -67,7 +54,7 @@ public class AdminClient extends RMIConfig {
     final static String[] NODE_REPORT_FIELDS_SHORT = new String[] {
             FIELD_HOSTNAME, FIELD_RESULT};
 
-    private final Gson gson = new Gson();
+
 
     private AdminAction action;
     private List<String> hosts;
@@ -81,31 +68,8 @@ public class AdminClient extends RMIConfig {
     private boolean nodeActiveConfigured;
 
     private RemoteNodeManagement remoteNodeManagement;
-    private Reporter reporter;
-    private OutputStream outStream;
 
     public static void main(String args[]) {
-
-        boolean isDebug = false;
-        final String debugFlag = "--" + Opts.DEBUG_LONG;
-        for (String arg : args) {
-            if (debugFlag.equals(arg)) {
-                isDebug = true;
-                break;
-            }
-        }
-
-        if (isDebug) {
-
-            final PatternLayout layout = new PatternLayout("%C{1}:%L - %m%n");
-            final ConsoleAppender consoleAppender = new ConsoleAppender(layout, "System.err");
-            BasicConfigurator.configure(consoleAppender);
-
-            logger.info("Debug mode enabled");
-        }
-        else {
-            BasicConfigurator.configure(new NullAppender());
-        }
 
         Throwable anyError = null;
         ParameterProblem paramError = null;
@@ -113,6 +77,7 @@ public class AdminClient extends RMIConfig {
         int ret = EXIT_OK;
         try {
             final AdminClient adminClient = new AdminClient();
+            adminClient.setupDebug(args);
             adminClient.run(args);
 
         } catch (ParameterProblem e) {
@@ -468,41 +433,6 @@ public class AdminClient extends RMIConfig {
         return memory;
     }
 
-    private static String[] parseFields(String fieldsString, AdminAction action)
-            throws ParameterProblem {
-        final String[] fieldsArray = fieldsString.trim().split("\\s*,\\s*");
-        if (fieldsArray.length == 0) {
-            throw new ParameterProblem("Report fields list is empty");
-        }
-
-        for (String field : fieldsArray) {
-            boolean found = false;
-            for (String actionField : action.fields()) {
-                if (field.equals(actionField)) {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                throw new ParameterProblem("Report field '"+ field +
-                        "' is not allowed for this action. Allowed fields are: " +
-                        csvString(action.fields()));
-            }
-        }
-
-        return fieldsArray;
-    }
-
-    private static String csvString(String[] fields) {
-        final StringBuilder sb = new StringBuilder();
-        for (String f : fields) {
-            if (sb.length() != 0) {
-                sb.append(", ");
-            }
-            sb.append(f);
-        }
-        return sb.toString();
-    }
     private static List<String> parseHosts(String hostString)
             throws ParameterProblem {
         if (hostString == null) {
@@ -612,13 +542,12 @@ public class AdminClient extends RMIConfig {
     }
 }
 
-enum AdminAction {
+enum AdminAction implements AdminEnum {
     AddNodes(Opts.ADD_NODES, AdminClient.NODE_REPORT_FIELDS),
     ListNodes(Opts.LIST_NODES, AdminClient.NODE_FIELDS),
     RemoveNodes(Opts.REMOVE_NODES, AdminClient.NODE_REPORT_FIELDS_SHORT),
     UpdateNodes(Opts.UPDATE_NODES, AdminClient.NODE_REPORT_FIELDS),
     Help(Opts.HELP, null);
-
 
     private final String option;
     private final String[] fields;

@@ -26,18 +26,15 @@ if rc != 0:
     print "run"
     sys.exit(1)
 
-cmd = "%s/bin/nimbus-admin" % (nimbus_home)
+cmd = "%s/bin/nimbus-admin --debug --list" % (nimbus_home)
 print cmd
 (x, rc)=pexpect.run(cmd, withexitstatus=1)
 print x
 
-cmd = "%s/bin/cloud-client.sh --terminate --handle %s" % (cc_home, handle)
+cmd = "%s/bin/nimbus-admin --batch --shutdown --all" % (nimbus_home)
 print cmd
 (x, rc)=pexpect.run(cmd, withexitstatus=1)
 print x
-if rc != 0:
-    print "failed to terminate"
-    sys.exit(1)
 
 cmd = "%s/bin/cloud-client.sh --delete --name group" % (cc_home)
 (x, rc)=pexpect.run(cmd, withexitstatus=1)

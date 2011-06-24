@@ -1,22 +1,3 @@
-package org.globus.workspace.remoting.admin.client;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.PatternLayout;
-import org.apache.log4j.varia.NullAppender;
-import org.globus.workspace.remoting.RemotingClient;
-import org.nimbustools.api.brain.NimbusHomePathResolver;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.rmi.NotBoundException;
-import java.rmi.Remote;
-import java.rmi.RemoteException;
-import java.util.Properties;
-
 /**
  * Copyright 1999-2010 University of Chicago
  *
@@ -32,25 +13,76 @@ import java.util.Properties;
  * License for the specific language governing permissions and limitations
  * under the License.
  *
- * User: rrusnak
  */
+
+package org.globus.workspace.remoting.admin.client;
+
+import com.google.gson.Gson;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.PatternLayout;
+import org.apache.log4j.varia.NullAppender;
+import org.globus.workspace.remoting.RemotingClient;
+import org.nimbustools.api.brain.NimbusHomePathResolver;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.rmi.NotBoundException;
+import java.rmi.Remote;
+import java.rmi.RemoteException;
+import java.util.Properties;
 
 /**
  * This class handles the basic configuration for an RMI connection
  */
 public class RMIConfig {
 
-    private static final Log logger =
+    protected static final Log logger =
             LogFactory.getLog(RMIConfig.class.getName());
+
+    public static final int EXIT_OK = 0;
+    public static final int EXIT_PARAMETER_PROBLEM = 1;
+    public static final int EXIT_EXECUTION_PROBLEM = 2;
+    public static final int EXIT_UNKNOWN_PROBLEM = 3;
 
     private static final String PROP_SOCKET_DIR = "socket.dir";
 
+    protected final Gson gson = new Gson();
+    protected Reporter reporter;
+    protected OutputStream outStream;
     protected Properties properties;
-    private File socketDirectory;
     protected String configPath;
 
+    private File socketDirectory;
     private String bindingName;
 
+
+    protected void setupDebug(String args[]) {
+        boolean isDebug = false;
+        final String debugFlag = "--" + Opts.DEBUG_LONG;
+        for (String arg : args) {
+            if (debugFlag.equals(arg)) {
+                isDebug = true;
+                break;
+            }
+        }
+
+        if (isDebug) {
+
+            final PatternLayout layout = new PatternLayout("%C{1}:%L - %m%n");
+            final ConsoleAppender consoleAppender = new ConsoleAppender(layout, "System.err");
+            BasicConfigurator.configure(consoleAppender);
+
+            logger.info("Debug mode enabled");
+        }
+        else {
+            BasicConfigurator.configure(new NullAppender());
+        }
+    }
 
     protected void loadConfig(String bindingDir) throws ParameterProblem, ExecutionProblem {
         if(configPath == null)
@@ -133,6 +165,42 @@ public class RMIConfig {
                     "'. There may be a configuration problem between the "+
                     "client and service. Error: "+ e.getMessage(), e);
         }
+    }
+
+    protected static String[] parseFields(String fieldsString, AdminEnum action)
+            throws ParameterProblem {
+        final String[] fieldsArray = fieldsString.trim().split("\\s*,\\s*");
+        if (fieldsArray.length == 0) {
+            throw new ParameterProblem("Report fields list is empty");
+        }
+
+        for (String field : fieldsArray) {
+            boolean found = false;
+            for (String actionField : action.fields()) {
+                if (field.equals(actionField)) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                throw new ParameterProblem("Report field '"+ field +
+                        "' is not allowed for this action. Allowed fields are: " +
+                        csvString(action.fields()));
+            }
+        }
+
+        return fieldsArray;
+    }
+
+    private static String csvString(String[] fields) {
+        final StringBuilder sb = new StringBuilder();
+        for (String f : fields) {
+            if (sb.length() != 0) {
+                sb.append(", ");
+            }
+            sb.append(f);
+        }
+        return sb.toString();
     }
 
     protected void handleRemoteException(RemoteException e) throws ExecutionProblem {
