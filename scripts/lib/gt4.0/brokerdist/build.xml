@@ -147,6 +147,7 @@
             <tarfileset dir="${distbuild.dir}" mode="755">
                 <include name="${nimbus.main}/scripts/**" />
                 <include name="${nimbus.main}/install" />
+                <include name="${nimbus.main}/home/lib/*.sh" />
             </tarfileset>
         </tar>
 
