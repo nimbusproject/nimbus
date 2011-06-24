@@ -35,6 +35,9 @@
     <orderEntry type="library" name="test-libs" level="project" />
     <orderEntry type="module" module-name="authzdb" />
     <orderEntry type="library" name="lib-services" level="project" />
+    <orderEntry type="library" name="lib-services" level="project" />
+    <orderEntry type="library" name="lib-services" level="project" />
+    <orderEntry type="library" name="lib-workspaceservice" level="project" />
   </component>
 </module>
 

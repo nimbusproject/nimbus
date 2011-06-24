@@ -25,6 +25,7 @@
     <orderEntry type="library" name="lib-workspaceservice" level="project" />
     <orderEntry type="module" module-name="authzdb" />
     <orderEntry type="module" module-name="query-general" />
+    <orderEntry type="library" name="lib-services" level="project" />
   </component>
 </module>
 
