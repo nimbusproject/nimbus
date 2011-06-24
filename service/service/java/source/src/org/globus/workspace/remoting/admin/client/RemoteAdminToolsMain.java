@@ -19,27 +19,28 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.*;
-import org.apache.log4j.varia.NullAppender;
+import org.globus.workspace.remoting.admin.VMTranslation;
 import org.nimbustools.api.services.admin.RemoteAdminToolsManagement;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.*;
 
 
 public class RemoteAdminToolsMain extends RMIConfig {
 
-    private static final Log logger =
-            LogFactory.getLog(RMIConfig.class.getName());
-
-    public static final int EXIT_OK = 0;
-    public static final int EXIT_PARAMETER_PROBLEM = 1;
-    public static final int EXIT_EXECUTION_PROBLEM = 2;
-    public static final int EXIT_UNKNOWN_PROBLEM = 3;
-
     private static final String PROP_RMI_BINDING_ADMINTOOLS_DIR = "rmi.binding.admintools";
+
+    private static final String FIELD_ID = "id";
+    private static final String FIELD_GROUP_ID = "group_id";
+    private static final String FIELD_CREATOR = "creator";
+    private static final String FIELD_STATE = "state";
+
+    final static String[] ADMIN_FIELDS = new String[] {
+            FIELD_ID, FIELD_GROUP_ID, FIELD_CREATOR, FIELD_STATE};
 
     private ToolAction action;
     private RemoteAdminToolsManagement remoteAdminToolsManagement;
@@ -50,33 +51,13 @@ public class RemoteAdminToolsMain extends RMIConfig {
 
     public static void main(String args[]) {
 
-        boolean isDebug = false;
-        final String debugFlag = "--" + Opts.DEBUG_LONG;
-        for (String arg : args) {
-            if (debugFlag.equals(arg)) {
-                isDebug = true;
-                break;
-            }
-        }
-
-        if (isDebug) {
-
-            final PatternLayout layout = new PatternLayout("%C{1}:%L - %m%n");
-            final ConsoleAppender consoleAppender = new ConsoleAppender(layout, "System.err");
-            BasicConfigurator.configure(consoleAppender);
-
-            logger.info("Debug mode enabled");
-        }
-        else {
-            BasicConfigurator.configure(new NullAppender());
-        }
-
         Throwable anyError = null;
         ParameterProblem paramError = null;
         ExecutionProblem execError = null;
         int ret = EXIT_OK;
         try {
             final RemoteAdminToolsMain ratm = new RemoteAdminToolsMain();
+            ratm.setupDebug(args);
             ratm.run(args);
 
         } catch (ParameterProblem e) {
@@ -113,12 +94,9 @@ public class RemoteAdminToolsMain extends RMIConfig {
         }
 
         System.exit(ret);
-
     }
 
-    public void run(String[] args)
-            throws ExecutionProblem, ParameterProblem {
-
+    public void run(String[] args) throws ExecutionProblem, ParameterProblem {
         this.loadArgs(args);
         super.loadConfig(PROP_RMI_BINDING_ADMINTOOLS_DIR);
         this.remoteAdminToolsManagement = (RemoteAdminToolsManagement) super.setupRemoting();
@@ -128,6 +106,7 @@ public class RemoteAdminToolsMain extends RMIConfig {
                 break;
             case ShutdownVMs:
                 shutdownVM(vmID, seconds);
+                break;
         }
     }
 
@@ -151,7 +130,6 @@ public class RemoteAdminToolsMain extends RMIConfig {
                 if (tAction == null) {
                     tAction = t;
                 } else {
-                    System.out.println("parameter problem");
                     throw new ParameterProblem("You may only specify a single action");
                 }
             }
@@ -192,7 +170,6 @@ public class RemoteAdminToolsMain extends RMIConfig {
                 }
         }
 
-
         //finally everything else
         if (!line.hasOption(Opts.CONFIG)) {
             throw new ParameterProblem(Opts.CONFIG_LONG + " option is required");
@@ -202,6 +179,50 @@ public class RemoteAdminToolsMain extends RMIConfig {
             throw new ParameterProblem("Config file path is invalid");
         }
         super.configPath = config.trim();
+
+        final boolean batchMode = line.hasOption(Opts.BATCH);
+        final boolean json = line.hasOption(Opts.JSON);
+
+        final Reporter.OutputMode mode;
+        if (batchMode && json) {
+            throw new ParameterProblem("You cannot specify both " +
+                    Opts.BATCH_LONG + " and " + Opts.JSON_LONG);
+        } else if (batchMode) {
+            mode = Reporter.OutputMode.Batch;
+        } else if (json) {
+            mode = Reporter.OutputMode.Json;
+        } else {
+            mode = Reporter.OutputMode.Friendly;
+        }
+
+        final String[] fields;
+        if (line.hasOption(Opts.REPORT)) {
+            fields = parseFields(line.getOptionValue(Opts.REPORT), tAction);
+        } else {
+            fields = tAction.fields();
+        }
+
+        String delimiter = null;
+        if (line.hasOption(Opts.DELIMITER)) {
+            delimiter = line.getOptionValue(Opts.DELIMITER);
+        }
+
+        if(fields != null)
+            this.reporter = new Reporter(mode, fields, delimiter);
+
+        if (line.hasOption(Opts.OUTPUT)) {
+            final String filename = line.getOptionValue(Opts.OUTPUT);
+            final File f = new File(filename);
+            try {
+                this.outStream = new FileOutputStream(f);
+            } catch (FileNotFoundException e) {
+                throw new ParameterProblem(
+                        "Specified output file could not be opened for writing: " +
+                                f.getAbsolutePath(), e);
+            }
+        } else {
+            this.outStream = System.out;
+        }
 
         final List leftovers = line.getArgList();
 		if (leftovers != null && !leftovers.isEmpty()) {
@@ -213,30 +234,27 @@ public class RemoteAdminToolsMain extends RMIConfig {
 
     private void listVMs() throws ExecutionProblem {
         try {
-            Hashtable vms;
+            VMTranslation[] vms;
             if(this.user == null) {
-                vms = this.remoteAdminToolsManagement.getAllRunningVMs();
+                final String vmsJson = this.remoteAdminToolsManagement.getAllRunningVMs();
+                vms = gson.fromJson(vmsJson, VMTranslation[].class);
             }
             else {
-                vms = this.remoteAdminToolsManagement.getVMsByUser(user);
+                final String vmsJson = this.remoteAdminToolsManagement.getVMsByUser(user);
+                vms = gson.fromJson(vmsJson, VMTranslation[].class);
             }
             if(vms == null) {
-                System.out.println("No Running vms found");
+                System.err.println("No Running vms found");
                 return;
             }
 
-            for(Enumeration<String> vmIds = vms.keys(); vmIds.hasMoreElements();) {
-                int i = 0;
-                String id = vmIds.nextElement();
-                ArrayList al = (ArrayList) vms.get(id);
-                System.out.println("ID: " + id);
-                System.out.println("Group ID: " + al.get(i++));
-                System.out.println("Creator: " + al.get(i++));
-                System.out.println("State: " + al.get(i));
-            }
+            reporter.report(vmsToMaps(vms), this.outStream);
         }
         catch (RemoteException e) {
             super.handleRemoteException(e);
+        }
+        catch (IOException e) {
+            throw new ExecutionProblem("Problem writing output: " + e.getMessage(), e);
         }
     }
 
@@ -245,23 +263,42 @@ public class RemoteAdminToolsMain extends RMIConfig {
             String result;
             if(allVMs) {
                 result = this.remoteAdminToolsManagement.shutdownAllVMs(seconds);
-                System.out.println(result);
+            }
+            else if(vmID != null) {
+                result = this.remoteAdminToolsManagement.shutdownVM(id, seconds);
             }
             else {
-                result = this.remoteAdminToolsManagement.shutdownVM(id, seconds);
-                System.out.println(result);
+                result = "Shutdown requires either --all or --id option";
             }
+            if(result != null)
+                System.err.println(result);
         }
         catch (RemoteException e) {
             super.handleRemoteException(e);
         }
     }
+
+    private static List<Map<String,String>> vmsToMaps(VMTranslation[] vmts) {
+        List<Map<String,String>> maps = new ArrayList<Map<String, String>>(vmts.length);
+        for (VMTranslation vmt : vmts) {
+            maps.add(vmToMap(vmt));
+        }
+        return maps;
+    }
+
+    private static Map<String, String> vmToMap(VMTranslation vmt) {
+        final HashMap<String, String> map = new HashMap(4);
+        map.put(FIELD_ID, vmt.getId());
+        map.put(FIELD_GROUP_ID, vmt.getGroupId());
+        map.put(FIELD_CREATOR, vmt.getCallerIdentity());
+        map.put(FIELD_STATE, vmt.getState());
+        return map;
+    }
 }
 
-enum ToolAction {
-    ListVMs(Opts.LIST_VMS, null),
+enum ToolAction implements AdminEnum {
+    ListVMs(Opts.LIST_VMS, RemoteAdminToolsMain.ADMIN_FIELDS),
     ShutdownVMs(Opts.SHUTDOWN_VMS, null);
-
 
     private final String option;
     private final String[] fields;

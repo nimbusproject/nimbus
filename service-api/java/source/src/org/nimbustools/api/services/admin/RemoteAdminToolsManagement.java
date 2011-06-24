@@ -1,10 +1,3 @@
-package org.nimbustools.api.services.admin;
-
-
-import java.rmi.Remote;
-import java.rmi.RemoteException;
-import java.util.Hashtable;
-
 /**
  * Copyright 1999-2010 University of Chicago
  *
@@ -20,13 +13,17 @@ import java.util.Hashtable;
  * License for the specific language governing permissions and limitations
  * under the License.
  *
- * User: rrusnak
  */
+package org.nimbustools.api.services.admin;
+
+
+import java.rmi.Remote;
+import java.rmi.RemoteException;
+
 public interface RemoteAdminToolsManagement extends Remote {
 
-    public Hashtable getAllRunningVMs() throws RemoteException;
-    public Hashtable getVMsByUser(String user) throws RemoteException;
+    public String getAllRunningVMs() throws RemoteException;
+    public String getVMsByUser(String user) throws RemoteException;
     public String shutdownVM(String id, String seconds) throws RemoteException;
     public String shutdownAllVMs(String seconds) throws RemoteException;
-    public String test(String user) throws RemoteException;
 }
