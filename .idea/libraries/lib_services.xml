@@ -1,0 +1,74 @@
+<component name="libraryTable">
+  <library name="lib-services">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/services/spring-security-config-3.0.3.RELEASE.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/spring-security-core-3.0.3.RELEASE.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/wss4j.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/commons-collections-3.2.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/jsr311-api-1.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/joda-time-1.6.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/jetty-util-6.1.21.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/neethi-2.0.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/gson-1.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/spring-security-web-3.0.3.RELEASE.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/wsdl4j-1.6.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/wstx-asl-3.2.8.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/geronimo-annotation_1.0_spec-1.1.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/geronimo-stax-api_1.0_spec-1.0.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/cxf-2.2.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/commons-httpclient-3.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/jets3t-0.7.3.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/commons-codec-1.3.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/jaxb-api-2.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/jaxb-impl-2.1.12.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/jetty-6.1.21.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/cxf-manifest.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/abdera-extensions-json-0.4.0-incubating.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/XmlSchema-1.4.5.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/abdera-parser-0.4.0-incubating.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/abdera-core-0.4.0-incubating.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/geronimo-activation_1.1_spec-1.0.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/axiom-impl-1.2.7.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/aopalliance-1.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/axiom-api-1.2.7.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/commons-cli-2.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/org.springframework.aop-3.0.0.RELEASE.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/org.springframework.transaction-3.0.0.RELEASE.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/commons-logging.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/log4j-1.2.15.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/org.springframework.expression-3.0.0.RELEASE.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/org.springframework.web-3.0.0.RELEASE.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/org.springframework.beans-3.0.0.RELEASE.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/org.springframework.asm-3.0.0.RELEASE.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/org.springframework.context.support-3.0.0.RELEASE.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/org.springframework.context-3.0.0.RELEASE.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/cglib-nodep-2.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/org.springframework.core-3.0.0.RELEASE.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/backport-util-concurrent-3.1-jdk1.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/jsch-0.1.39.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/servlet.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/xml-apis.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/addressing-1.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/abdera-extensions-main-0.4.0-incubating.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/jce-jdk13-125.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/FastInfoset-1.2.7.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/abdera-i18n-0.4.0-incubating.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/jug-2.0.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/jaxrpc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/commonj.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/wsrf_core.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/cog-jglobus.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/axis.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/ehcache-core-2.3.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/slf4j-jdk14-1.5.11.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/slf4j-api-1.5.11.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/bootstrap.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/xmlsec.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/wsrf_core_stubs.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/xalan-2.6.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/services/cog-axis.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
