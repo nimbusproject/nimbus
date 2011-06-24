@@ -19,6 +19,7 @@ package org.globus.workspace.testing.suites.basic;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.globus.workspace.async.AsyncRequest;
 import org.globus.workspace.async.AsyncRequestMap;
+import org.globus.workspace.async.AsyncRequestStatus;
 import org.globus.workspace.persistence.DataConvert;
 import org.globus.workspace.persistence.PersistenceAdapter;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
@@ -30,6 +31,7 @@ import org.nimbustools.api.repr.ctx.Context;
 import org.nimbustools.api.repr.vm.NIC;
 import org.nimbustools.api.repr.vm.VM;
 import org.nimbustools.api.services.rm.Manager;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.test.context.ContextConfiguration;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.Test;
@@ -137,6 +139,15 @@ public class AsyncRequestMapSuite extends NimbusTestBase {
         testRequest.addAllocatedVM(testAllocatedVM);
         asyncRequestMap.addOrReplace(testRequest);
 
+        String secondID = "this-is-the-other-one";
+        double secondMaxBid = 4.5;
+        VirtualMachine[] secondBindings = new VirtualMachine[1];
+        VirtualMachine secondVM = new VirtualMachine();
+        secondVM.setID(52);
+        secondBindings[0] = secondVM;
+
+        AsyncRequest secondRequest = new AsyncRequest(secondID, testSpotinstances, secondMaxBid, testIsPersistent, testCaller, testGroupID, secondBindings, context, testNICs, testSshKeyName, testCreationTime);
+
         allRequests = asyncRequestMap.getAll();
         assert(allRequests != null);
         logger.debug("You have " + allRequests.size() + " requests.");
@@ -156,5 +167,23 @@ public class AsyncRequestMapSuite extends NimbusTestBase {
         assertEquals(testVM.getID(), gotRequest.getBindings()[0].getID());
         assertEquals(testNICs[0].getIpAddress(), gotRequest.getRequestedNics()[0].getIpAddress());
         assertEquals(testAllocatedVM, gotRequest.getAllocatedVMs()[0]);
+        assertEquals(AsyncRequestStatus.OPEN, gotRequest.getStatus());
+
+
+        //Now Mutate the Map
+        asyncRequestMap.addOrReplace(secondRequest);
+
+        gotRequest.setStatus(AsyncRequestStatus.ACTIVE);
+        asyncRequestMap.addOrReplace(gotRequest);
+
+        AsyncRequest gotSecondRequest = asyncRequestMap.getByID(secondID);
+        AsyncRequest updatedRequest = asyncRequestMap.getByID(testID);
+        assertEquals(AsyncRequestStatus.ACTIVE, updatedRequest.getStatus());
+        assertEquals(testAllocatedVM, updatedRequest.getAllocatedVMs()[0]);
+
+        asyncRequestMap.addOrReplace(updatedRequest);
+        AsyncRequest updatedRequest1 = asyncRequestMap.getByID(testID);
+        assertEquals(testAllocatedVM, updatedRequest1.getAllocatedVMs()[0]);
+        assertEquals(0, gotSecondRequest.getAllocatedVMs().length);
     }
 }

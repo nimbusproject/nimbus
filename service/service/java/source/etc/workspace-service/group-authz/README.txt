@@ -9,6 +9,8 @@ in the "group01.txt" file (and so forth).   You can make multiple kinds of
 allocations in this manner, dropping people into different authorization groups
 as you add them to the cloud.
 
+You should use the nimbus-edit-user tool to change a user's group membership.
+
 You can have 1-15 groups (and zero groups, but that is just like disabling the
 plugin entirely).
 

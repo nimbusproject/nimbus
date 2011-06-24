@@ -66,6 +66,7 @@
         <copy todir="${distbuild.dir}/${nimbus.main}/scripts">
             <fileset dir="${nimbus.basedir}/scripts">
                 <exclude name="${nimbus.basedir}/scripts/lib/gt4.0/dist" />
+                <exclude name="${nimbus.basedir}/scripts/lib/gt4.0/brokerdist" />
             </fileset>
         </copy>
 
@@ -102,9 +103,6 @@
             <fileset dir="${distbuild.dir}/${nimbus.main}/lantorrent">
                 <include name="*.sh"/>
             </fileset>
-            <fileset dir="${distbuild.dir}/${nimbus.main}/lantorrent/bin">
-                <include name="*"/>
-            </fileset>
             <fileset dir="${nimbus.basedir}/libexec">
                 <include name="*"/>
             </fileset>
@@ -120,6 +118,9 @@
         </chmod>
         <copy todir="${distbuild.dir}/${nimbus.main}/authzdb">
             <fileset dir="${nimbus.basedir}/authzdb"/>
+        </copy>
+        <copy todir="${distbuild.dir}/${nimbus.main}/query">
+            <fileset dir="${nimbus.basedir}/query"/>
         </copy>
         <copy todir="${distbuild.dir}/${nimbus.main}/autocommon">
             <fileset dir="${nimbus.basedir}/autocommon"/>
@@ -159,13 +160,13 @@
             <include name="${nimbus.main}/*.*"/>
             <include name="${nimbus.main}/scripts/**"/>
             <include name="${nimbus.main}/authzdb/**"/>
+            <include name="${nimbus.main}/query/**"/>
             <include name="${nimbus.main}/autocommon/**"/>
             <include name="${nimbus.main}/autoconfiguration/**"/>
             <include name="${nimbus.main}/ctx-broker/**"/>
             <include name="${nimbus.main}/home/**"/>
             <include name="${nimbus.main}/lantorrent/**"/>
             <include name="${nimbus.main}/lib/**"/>
-            <include name="${nimbus.main}/authzdb/**"/>
             <include name="${nimbus.main}/messaging/**"/>
             <include name="${nimbus.main}/monitoring/**"/>
             <include name="${nimbus.main}/metadata/**"/>
@@ -190,7 +191,6 @@
                 <include name="${nimbus.main}/install" />
                 <include name="${nimbus.main}/scripts/install-from" />
                 <include name="${nimbus.main}/lantorrent/*sh" />
-                <include name="${nimbus.main}/lantorrent/bin/*" />
                 <include name="${nimbus.main}/home/bin/*" />
                 <include name="${nimbus.main}/home/libexec/**" />
                 <include name="${nimbus.main}/home/sbin/*" />
@@ -253,9 +253,6 @@
                    includes="workspace-control/" />
           <fileset dir="${nimbus.controls.dest}/lantorrent">
               <include name="*.sh"/>
-          </fileset>
-          <fileset dir="${nimbus.controls.dest}/lantorrent/bin">
-              <include name="*"/>
           </fileset>
         </chmod>
         

@@ -10,7 +10,8 @@
     <orderEntry type="module" module-name="rm-api" exported="" />
     <orderEntry type="module" module-name="workspace-service" exported="" />
     <orderEntry type="library" exported="" name="test-libs" level="project" />
-    <orderEntry type="library" exported="" name="workspace-service-libs" level="project" />
+    <orderEntry type="library" exported="" name="lib-workspaceservice" level="project" />
+    <orderEntry type="library" exported="" name="lib-services" level="project" />
   </component>
 </module>
 

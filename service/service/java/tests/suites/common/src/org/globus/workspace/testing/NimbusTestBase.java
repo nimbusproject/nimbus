@@ -466,19 +466,19 @@ public abstract class NimbusTestBase extends AbstractTestNGSpringContextTests {
         String libdir = null;
         String apath = nh.getAbsolutePath();
         while (apath != null) {
-            final File candidate = candidate(apath, "lib/services/");
+            final File candidate = candidate(apath, "lib/workspaceservice/");
             if (candidate != null) {
                 libdir = candidate.getAbsolutePath();
             }
             apath = new File(apath).getParent();
         }
         if (libdir == null) {
-            throw new Exception("could not determine proper lib/services directory, " +
+            throw new Exception("could not determine proper lib/workspaceservice directory, " +
                     "is your nimbus home somewhere outside of the repository");
         }
         final File sanityCheck = new File(libdir, "derby.jar");
         if (!sanityCheck.exists()) {
-            throw new Exception("could not determine proper lib/services directory, " +
+            throw new Exception("could not determine proper lib/workspaceservice directory, " +
                "is your nimbus home somewhere outside of the repository (derby.jar not found)");
         }
         conf.setProperty("derby.classpath.dir.prop", libdir);

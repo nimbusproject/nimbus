@@ -1,6 +1,6 @@
 #!/bin/bash
 
-NIMBUS_PRINTNAME="build and install Context Broker"
+NIMBUS_PRINTNAME="Build and install Context Broker"
 NIMBUS_ANT_CMD="deploy-broker -Dbuild.also=x $*"
 
 BASEDIR_REL="`dirname $0`/../.."

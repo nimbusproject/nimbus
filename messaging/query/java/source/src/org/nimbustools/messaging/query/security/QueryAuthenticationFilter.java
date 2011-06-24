@@ -18,6 +18,8 @@ package org.nimbustools.messaging.query.security;
 import org.apache.commons.codec.binary.Base64;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.nimbustools.querygeneral.security.QueryUser;
+import org.nimbustools.querygeneral.security.QueryUserDetailsService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.filter.GenericFilterBean;

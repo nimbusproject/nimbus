@@ -1,0 +1,3 @@
+In the next release, the configuration libraries for use with ctx-broker, web, and IaaS will all be housed in a common library.
+
+This is an interim solution, the future library will be this new "pynimbusconfig" library and it will be accessible from any install's home dir venv (iaas or ctx-broker only).

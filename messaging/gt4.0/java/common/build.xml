@@ -57,6 +57,10 @@
             <include name="*.jar"/>
         </fileset>
 
+        <fileset dir="${nimbus.messaging.gt4_0.workspaceservice.lib.dir}">
+            <include name="*.jar"/>
+        </fileset>
+
         <fileset dir="${vws.gt4_0.stubs.build.lib.dir}">
             <include name="*.jar"/>
         </fileset>

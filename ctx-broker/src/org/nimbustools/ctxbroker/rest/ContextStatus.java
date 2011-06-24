@@ -17,7 +17,6 @@ package org.nimbustools.ctxbroker.rest;
 
 import org.nimbustools.ctxbroker.blackboard.NodeStatus;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ContextStatus {

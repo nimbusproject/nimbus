@@ -22,17 +22,29 @@ _NIMBUS_IS_DEPRECATED
 <ul>
     <li>
         <p>
-            This release contains many important bug fixes as well as a few new features.
+            This release contains many important bug fixes as well as some new features.
         </p>
     </li>
     <li>
         <p>
-Image propagation performance enhancing features have been introduced in.
-Propagation by means of a file system copy has been introduced.  This
-can greatly decrease the boot time of VMs on systems where a fast shared 
-file system is used.  We have also added support for a VM image cache on
-all VMMs.  This greatly increases the performance for clouds with a
-base image that is booted often (a common use case).
+Propagation by means of a file system copy: this can greatly decrease the boot time of VMs on systems where a fast shared file system exists.  
+        </p>
+    </li>
+    <li>
+        <p>
+VM image caching: this will greatly increase the boot performance for clouds with a base image that is launched often (a common use case).  This works with any propagation method.
+        </p>
+    </li>
+    <li>
+        <p>
+            libvirt template support added.  A cloud administrator can
+            now completely control the options sent to libvirt when starting
+            a virtual machine by editing the template file
+        </p>
+    </li>
+    <li>
+        <p>
+            ImportKeyPair is implemented in the EC2 protocols (details below).
         </p>
     </li>
 </ul>
@@ -52,6 +64,14 @@ base image that is booted often (a common use case).
         <p>
             The Nimbus Context Broker has been factored out into a separate tarball install
             in addition to being part of the default IaaS installation.
+        </p>
+    </li>
+    <li>
+        <p>
+            Implemented EC2 ImportKeyPair operation. The old CreateKeyPair behavior is disabled (the behavior of allowing a "||" token based import mechanism with CreateKeyPair).
+        </p>
+        <p>
+            EC2 used to only have CreateKeyPair, now the EC2 protocols in Nimbus IaaS use ImportKeyPair and CreateKeyPair as intended as operations.  The old behavior can be enabled if the administrator wants.  (<a href="https://github.com/nimbusproject/nimbus/issues/36">enhancement 36</a>).
         </p>
     </li>
     <li>
@@ -99,11 +119,6 @@ base image that is booted often (a common use case).
             <li>
                 <p>
                     <a href="https://github.com/nimbusproject/nimbus/issues/37">Needed networks not being respected</a>
-                </p>
-            </li>
-            <li>
-                <p>
-                    <a href="https://github.com/nimbusproject/nimbus/issues/36">Implement EC2 ImportKeyPair</a>
                 </p>
             </li>
         </ul>
@@ -165,7 +180,8 @@ base image that is booted often (a common use case).
         A cache of propagated images can now be kept on each VMM.  Before
         an image is propagated the cache is checked for an image with a
         matching checksum.  If found that image is used and no propagation
-        is needed which can save a significant amount of time.
+        is needed which can save a significant amount of time.  This will
+        work with any propagation mechanism.
         </p>
     </li>
     <li>

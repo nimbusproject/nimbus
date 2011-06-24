@@ -907,8 +907,8 @@ public class AsyncRequestManagerImpl implements AsyncRequestManager {
                                               chargeRatio);
             for (InstanceResource resource : createdVMs) {
                 request.addAllocatedVM(resource.getID());
-                this.asyncRequestMap.addOrReplace(request);
             }
+            this.asyncRequestMap.addOrReplace(request);
         } catch (Exception e) {
             failRequest("allocating", request, e.getMessage(), e);
             return;

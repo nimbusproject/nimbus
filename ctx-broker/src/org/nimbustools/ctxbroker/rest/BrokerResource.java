@@ -30,7 +30,7 @@ import org.nimbustools.ctxbroker.blackboard.NodeStatus;
 import org.nimbustools.ctxbroker.service.ContextBrokerHomeImpl;
 import org.nimbustools.ctxbroker.service.ContextBrokerResourceImpl;
 import org.nimbustools.ctxbroker.service.ContextBrokerServiceImpl;
-import org.nimbustools.messaging.query.security.QueryUser;
+import org.nimbustools.querygeneral.security.QueryUser;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;

@@ -22,8 +22,9 @@
     <orderEntry type="module" module-name="common" />
     <orderEntry type="module" module-name="ec2soap" />
     <orderEntry type="library" name="test-libs" level="project" />
-    <orderEntry type="library" name="workspace-service-libs" level="project" />
+    <orderEntry type="library" name="lib-workspaceservice" level="project" />
     <orderEntry type="module" module-name="authzdb" />
+    <orderEntry type="module" module-name="query-general" />
   </component>
 </module>
 
