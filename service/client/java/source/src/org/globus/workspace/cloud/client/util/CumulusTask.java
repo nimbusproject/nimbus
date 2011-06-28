@@ -31,6 +31,7 @@ import org.globus.workspace.common.print.Print;
 import org.jets3t.service.Jets3tProperties;
 import org.jets3t.service.S3Service;
 import org.jets3t.service.S3ServiceException;
+import org.jets3t.service.acl.AccessControlList;
 import org.jets3t.service.impl.rest.httpclient.RestS3Service;
 import org.jets3t.service.io.BytesProgressWatcher;
 import org.jets3t.service.model.S3Object;
@@ -650,6 +651,15 @@ public class CumulusTask
             progressWatcher.flush();
             s3Object.closeDataInputStream();
             cis.close();
+
+            if(this.args.getCommonVMSet())
+            {
+                if (pr != null) {
+                    pr.println("Setting permissions for common use.");
+                }
+                AccessControlList acl = AccessControlList.REST_CANNED_PUBLIC_READ;
+                s3Object.setAcl(acl);
+            }
 
             if (pr != null) {
                 pr.println("");
