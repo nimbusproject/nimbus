@@ -157,6 +157,16 @@ public class Opts {
     public final Option USER_OPT =
                 OptionBuilder.withLongOpt(USER_LONG).hasOptionalArg().create(USER);
 
+    public static final String DN = "d";
+    public static final String DN_LONG = "dn";
+    public final Option DN_OPT =
+                OptionBuilder.withLongOpt(DN_LONG).hasOptionalArg().create(DN);
+
+    public static final String GROUP_ID = "g";
+    public static final String GROUP_ID_LONG = "gid";
+    public final Option GROUP_ID_OPT =
+                OptionBuilder.withLongOpt(GROUP_ID_LONG).hasOptionalArg().create(GROUP_ID);
+
     public static final String ID = "i";
     public static final String ID_LONG = "id";
     public final Option ID_OPT =
@@ -167,12 +177,22 @@ public class Opts {
     public final Option SECONDS_OPT =
                 OptionBuilder.withLongOpt(SECONDS_LONG).hasOptionalArg().create(SECONDS);
 
+    public static final String HOST_LIST = "hl";
+    public static final String HOST_LIST_LONG = "host";
+    public final Option HOST_LIST_OPT =
+                OptionBuilder.withLongOpt(HOST_LIST_LONG).hasOptionalArg().create(HOST_LIST);
+
+    public static final String HOST_SHUTDOWN = "hs";
+    public static final String HOST_SHUTDOWN_LONG = "hostname";
+    public final Option HOST_SHUTDOWN_OPT =
+                OptionBuilder.withLongOpt(HOST_SHUTDOWN_LONG).hasOptionalArg().create(HOST_SHUTDOWN);
+
     public final Option[] ALL_ENABLED_OPTIONS = {
             HELP_OPT, DEBUG_OPT, CONFIG_OPT, BATCH_OPT, DELIMITER_OPT,
             REPORT_OPT, JSON_OPT, OUTPUT_OPT, ADD_NODES_OPT, LIST_NODES_OPT,
             REMOVE_NODES_OPT, UPDATE_NODES_OPT, NETWORKS_OPT, MEMORY_OPT, POOL_OPT,
             ACTIVE_OPT, INACTIVE_OPT, LIST_VMS_OPT, SHUTDOWN_VMS_OPT, USER_OPT, ID_OPT,
-            SECONDS_OPT, ALL_VMS_OPT
+            SECONDS_OPT, ALL_VMS_OPT, HOST_LIST_OPT, HOST_SHUTDOWN_OPT, DN_OPT, GROUP_ID_OPT
     };
 
 }

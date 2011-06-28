@@ -22,8 +22,14 @@ import java.rmi.RemoteException;
 
 public interface RemoteAdminToolsManagement extends Remote {
 
+    public static final int SHUTDOWN_ALL = 0;
+    public static final int SHUTDOWN_ID = 1;
+    public static final int SHUTDOWN_HOST = 2;
+
     public String getAllRunningVMs() throws RemoteException;
+    public String getVMsByDN(String userDN) throws RemoteException;
     public String getVMsByUser(String user) throws RemoteException;
-    public String shutdownVM(String id, String seconds) throws RemoteException;
-    public String shutdownAllVMs(String seconds) throws RemoteException;
+    public String getAllVMsByHost(String hostname) throws RemoteException;
+    public String getAllVMsByGroup(String groupId) throws RemoteException;
+    public String shutdown(int type, String typeID, String seconds) throws RemoteException;
 }
