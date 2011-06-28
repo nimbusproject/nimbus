@@ -1,0 +1,50 @@
+Nimbus Admin Tool Help
+
+Queries and configures running virtual machines in the Nimbus IaaS service
+
+-----------------------------------------------------------------------------
+General
+
+    --help (-h)    Print this help information.
+
+    --conf (-c)    Specify an alternate configuration file.
+
+    --debug        Enable debug output
+
+
+-----------------------------------------------------------------------------
+Actions
+
+    --list (-l)          List the VMs known to the IaaS service
+        --user (-u)         -Option to list VMs by user display name
+        --dn (-d)           -Option to list VMs by user DN name
+        --gid (-g)          -Option to list VMs by group id
+        --host (-hl)        -Option to list VMs running under particular host
+
+
+    --shutdown (-s)      Shutdown VMs known to the IaaS service. Can
+                         shutdown by all, id or hostname
+        --all (-a)          -Option to shutdown all running VMs on service
+        --id (-i)           -Option to shutdown VM by VM ID
+        --hostname (-hs)    -Option to shutdown all VMs with specified host
+        --seconds (-s)      -Amount of time to wait for VMs to shutdown to
+                                propagation mode before being trashed. If
+                                seconds option not specified, default is a
+                                maximum of 30 seconds
+
+-----------------------------------------------------------------------------
+Output options
+
+    --report (-r) FIELDS   Only report specified fields. Argument is a comma-
+                           separated list.
+
+    --batch (-b)           Report results with one record per line, using an
+                           optional delimiter.
+
+    --delimiter (-D)       Delimiter between fields in batch mode. Default is
+                           a single space.
+
+    --json (-j)            Report results in JSON format.
+
+    --output (-o) FILE     Write results to FILE instead of stdout.
+

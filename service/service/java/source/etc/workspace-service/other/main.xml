@@ -756,6 +756,8 @@
                   ref="nimbus-repr.ReprFactory" />
         <property name="authzDataSource"
                   ref="other.AuthzDataSource" />
+        <property name="workspaceHome"
+                  ref="nimbus-rm.home.instance" />
     </bean>
 
     <!-- ===================================================================

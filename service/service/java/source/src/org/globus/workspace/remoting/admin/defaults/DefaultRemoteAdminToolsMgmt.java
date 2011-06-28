@@ -20,11 +20,14 @@ import com.google.gson.Gson;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.globus.workspace.remoting.admin.VMTranslation;
+import org.globus.workspace.service.WorkspaceHome;
+import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.nimbus.authz.AuthzDBException;
 import org.nimbus.authz.UserAlias;
 import org.nimbustools.api._repr._Caller;
 import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.ReprFactory;
+import org.nimbustools.api.repr.vm.ResourceAllocation;
 import org.nimbustools.api.repr.vm.VM;
 import org.nimbustools.api.services.admin.RemoteAdminToolsManagement;
 import org.nimbustools.api.services.rm.DoesNotExistException;
@@ -46,9 +49,11 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
     protected Manager manager;
     protected ReprFactory reprFactory;
     protected DataSource authzDataSource;
+    protected WorkspaceHome workspaceHome;
     private AuthzDBAdapter authz;
 
     private final Gson gson;
+    private String errorMsg;
 
     public DefaultRemoteAdminToolsMgmt() {
         this.gson = new Gson();
@@ -60,6 +65,7 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
     public String getAllRunningVMs() throws RemoteException {
         try {
             VM[] allRunningVms = manager.getGlobalAll();
+
             final List<VMTranslation> vmts = new ArrayList<VMTranslation>(allRunningVms.length);
             for(int i = 0; i < allRunningVms.length; i++) {
                 vmts.add(translateVM(allRunningVms[i]));
@@ -71,55 +77,86 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
         }
     }
 
+    public String getAllVMsByHost(String hostname) throws RemoteException {
+        VM[] vms = getVMByHost(hostname);
+
+        if(vms == null)
+            return null;
+
+        final List<VMTranslation> vmts = new ArrayList<VMTranslation>(vms.length);
+        for(int i = 0; i < vms.length; i++) {
+            vmts.add(translateVM(vms[i]));
+        }
+        return gson.toJson(vmts);
+    }
+
+    public String getAllVMsByGroup(String groupId) throws RemoteException {
+        VM[] vms = getVMByGroup(groupId);
+
+        if(vms == null)
+            return null;
+
+        final List<VMTranslation> vmts = new ArrayList<VMTranslation>(vms.length);
+        for(int i = 0; i < vms.length; i++) {
+            vmts.add(translateVM(vms[i]));
+        }
+        return gson.toJson(vmts);
+    }
+
+    public String getVMsByDN(String userDN) throws RemoteException {
+        try {
+            authz = new AuthzDBAdapter(authzDataSource);
+            String userId = authz.getCanonicalUserIdFromDn(userDN);
+            return getVMsByUserId(userId);
+        }
+        catch (AuthzDBException e) {
+            return null;
+        }
+    }
+
     public String getVMsByUser(String user) throws RemoteException {
         try {
             authz = new AuthzDBAdapter(authzDataSource);
             String userId = authz.getCanonicalUserIdFromFriendlyName(user);
-
-            List<UserAlias> userAlias;
-            userAlias = authz.getUserAliases(userId);
-            if(userAlias.size() == 0)
-                return null;
-
-            final List<VMTranslation> vmts = new ArrayList<VMTranslation>();
-
-            for(int i = 0; i < userAlias.size(); i++) {
-                String aliasDN = userAlias.get(i).getAliasName();
-                final _Caller caller = this.reprFactory._newCaller();
-                caller.setIdentity(aliasDN);
-                VM[] vmsByCaller = manager.getAllByCaller(caller);
-                for(int j = 0; j < vmsByCaller.length; j++) {
-                    vmts.add(translateVM(vmsByCaller[j]));
-                }
-
-            }
-            return gson.toJson(vmts);
+            return getVMsByUserId(userId);
         }
         catch (AuthzDBException e) {
-            throw new RemoteException(e.getMessage());
-        }
-        catch (ManageException e) {
-            throw new RemoteException(e.getMessage());
+            return null;
         }
     }
 
-    public String shutdownAllVMs(String seconds) throws RemoteException {
+    public String shutdown(int type, String typeID, String seconds) throws RemoteException {
         try {
-            VM[] allRunning = manager.getGlobalAll();
-            if(allRunning.length == 0)
-                return "No VMs currently running";
+            VM[] vms;
+            if(type == SHUTDOWN_HOST)
+                vms = getVMByHost(typeID);
+            else if(type == SHUTDOWN_ID)
+                vms = getVMById(typeID);
+            else
+                vms = manager.getGlobalAll();
 
-            for(int i = 0; i < allRunning.length; i++) {
-                String id = allRunning[i].getID();
-                Caller caller = allRunning[i].getCreator();
+            if(vms == null)
+                return errorMsg;
+            if(vms.length == 0)
+                return "No running VMs available for shutdown";
+
+            for(int i = 0; i < vms.length; i++) {
+                String id = vms[i].getID();
+                Caller caller = vms[i].getCreator();
                 manager.shutdown(id, manager.INSTANCE, null, caller);
             }
 
             if(seconds == null) {
                 for(int i = 0; i <= 10; i++) {
                     Thread.sleep(3000);
-                    allRunning = manager.getGlobalAll();
-                    if(allRunning[0].getState().getState().equals("Propagated"))
+                    if(type == SHUTDOWN_HOST)
+                        vms = getVMByHost(typeID);
+                    else if(type == SHUTDOWN_ID)
+                        vms = getVMById(typeID);
+                    else
+                        vms = manager.getGlobalAll();
+
+                    if(vms[0].getState().getState().equals("Propagated"))
                         break;
                 }
             }
@@ -127,19 +164,85 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
                 int mill = (Integer.parseInt(seconds)) * 1000;
                 for(int i = 0; i <= mill; i += 3000) {
                     Thread.sleep(3000);
-                    allRunning = manager.getGlobalAll();
-                    if(allRunning[0].getState().getState().equals("Propagated"))
+                    if(type == SHUTDOWN_HOST)
+                        vms = getVMByHost(typeID);
+                    else if(type == SHUTDOWN_ID)
+                        vms = getVMById(typeID);
+                    else
+                        vms = manager.getGlobalAll();
+                    if(vms[0].getState().getState().equals("Propagated"))
                         break;
                 }
             }
 
-            allRunning = manager.getGlobalAll();
-            for(int i = 0; i < allRunning.length; i++) {
-                String id = allRunning[i].getID();
-                Caller caller = allRunning[i].getCreator();
+            if(type == SHUTDOWN_HOST)
+                vms = getVMByHost(typeID);
+            else if(type == SHUTDOWN_ID)
+                vms = getVMById(typeID);
+            else
+                vms = manager.getGlobalAll();
+
+            for(int i = 0; i < vms.length; i++) {
+                String id = vms[i].getID();
+                Caller caller = vms[i].getCreator();
                 manager.trash(id, manager.INSTANCE, caller);
             }
             return null;
+        }
+        catch (ManageException e) {
+            throw new RemoteException(e.getMessage());
+        }
+        catch (DoesNotExistException e) {
+            throw new RemoteException(e.getMessage());
+        }
+        catch (OperationDisabledException e) {
+            throw new RemoteException(e.getMessage());
+        }
+        catch (InterruptedException e) {
+            throw new RemoteException(e.getMessage());
+        }
+    }
+
+    private String getVMsByUserId(String userId) throws RemoteException {
+        try {
+            List<UserAlias> userAlias;
+                userAlias = authz.getUserAliases(userId);
+                if(userAlias.size() == 0)
+                    return null;
+
+                final List<VMTranslation> vmts = new ArrayList<VMTranslation>();
+
+                for(int i = 0; i < userAlias.size(); i++) {
+                    String aliasDN = userAlias.get(i).getAliasName();
+                    final _Caller caller = this.reprFactory._newCaller();
+                    caller.setIdentity(aliasDN);
+                    VM[] vmsByCaller = manager.getAllByCaller(caller);
+                    for(int j = 0; j < vmsByCaller.length; j++) {
+                        vmts.add(translateVM(vmsByCaller[j]));
+                    }
+
+                }
+                return gson.toJson(vmts);
+        }
+        catch (AuthzDBException e) {
+            return null;
+        }
+        catch (ManageException e) {
+            throw new RemoteException(e.getMessage());
+        }
+    }
+
+    private VM[] getVMById(String id) throws RemoteException {
+        try {
+            if(!manager.exists(id, manager.INSTANCE)) {
+                errorMsg = "VM ID: " + id + " does not exist";
+                return null;
+            }
+
+            VM[] vms = new VM[1];
+            VM instance = manager.getInstance(id);
+            vms[0] = instance;
+            return vms;
         }
         catch (DoesNotExistException e) {
             throw new RemoteException(e.getMessage());
@@ -147,70 +250,87 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
         catch (ManageException e) {
             throw new RemoteException(e.getMessage());
         }
-        catch (OperationDisabledException e) {
-            throw new RemoteException(e.getMessage());
-        }
-        catch (InterruptedException e) {
-            throw new RemoteException(e.getMessage());
-        }
     }
 
-    public String shutdownVM(String id, String seconds) throws RemoteException {
+    private VM[] getVMByHost(String hostname) throws RemoteException {
         try {
-            if(!manager.exists(id, manager.INSTANCE))
-                return "VM ID: " + id + " does not exist";
+            VM[] vms;
+            VM[] all = manager.getGlobalAll();
+            int cnt = 0;
 
-            VM instance = manager.getInstance(id);
-            Caller caller = instance.getCreator();
-            manager.shutdown(id, manager.INSTANCE, null, caller);
+            vms = new VM[all.length];
+            for(int i = 0; i < all.length; i++) {
+                String id = all[i].getID();
+                String host = workspaceHome.find(id).getVM().getNode();
+                if(host.equals(hostname))
+                    vms[cnt++] = all[i];
+            }
 
-            if(seconds == null) {
-                for(int i = 0; i <= 10; i++) {
-                    Thread.sleep(3000);
-                    instance = manager.getInstance(id);
-                    if(instance.getState().getState().equals("Propagated")) {
-                        manager.trash(id, manager.INSTANCE, caller);
-                        return null;
-                    }
-                }
-                manager.trash(id, manager.INSTANCE, caller);
+            if(cnt == 0) {
+                errorMsg = "No running VMs with hostname " + hostname + " found";
                 return null;
             }
-            else {
-                int mill = (Integer.parseInt(seconds)) * 1000;
-                for(int i = 0; i <= mill; i += 3000) {
-                    Thread.sleep(3000);
-                    instance = manager.getInstance(id);
-                    if(instance.getState().getState().equals("Propagated")) {
-                           manager.trash(id, manager.INSTANCE, caller);
-                           return null;
-                    }
-                }
-                manager.trash(id, manager.INSTANCE, caller);
-                return null;
-            }
+            else
+                return vms;
         }
-        catch (DoesNotExistException d) {
-            return "VM " + id + " does not exist";
+        catch (DoesNotExistException e) {
+            throw new RemoteException(e.getMessage());
         }
         catch (ManageException e) {
             throw new RemoteException(e.getMessage());
         }
-        catch (OperationDisabledException e) {
-            throw new RemoteException(e.getMessage());
+    }
+
+    private VM[] getVMByGroup(String groupId) throws RemoteException {
+        try {
+            VM[] vms;
+            VM[] all = manager.getGlobalAll();
+            int cnt = 0;
+
+            vms = new VM[all.length];
+            for(int i = 0; i < all.length; i++) {
+                String group = all[i].getGroupID();
+                if(group != null && group.equals(groupId))
+                    vms[cnt++] = all[i];
+            }
+
+            if(cnt == 0) {
+                errorMsg = "No running VMs with group id " + groupId + " found";
+                return null;
+            }
+            else
+                return vms;
         }
-        catch (InterruptedException e) {
+        catch (ManageException e) {
             throw new RemoteException(e.getMessage());
         }
     }
 
-    private VMTranslation translateVM(VM vm) {
-        String id = vm.getID();
-        String groupId = vm.getGroupID();
-        String creatorId = vm.getCreator().getIdentity();
-        String state = vm.getState().getState();
-        VMTranslation vmt = new VMTranslation(id, groupId, creatorId, state);
-        return vmt;
+    private VMTranslation translateVM(VM vm) throws RemoteException {
+        try {
+            String id = vm.getID();
+            VirtualMachine vmlong = workspaceHome.find(id).getVM();
+            String node = vmlong.getNode();
+            String groupId = vm.getGroupID();
+            String creatorId = vm.getCreator().getIdentity();
+            String state = vm.getState().getState();
+            String startTime = vm.getSchedule().getStartTime().getTime().toString();
+            String endTime = vm.getSchedule().getDestructionTime().getTime().toString();
+
+            ResourceAllocation ra = vm.getResourceAllocation();
+            String memory = Integer.toString(ra.getMemory());
+            String cpuCount = Integer.toString(ra.getIndCpuCount());
+
+            VMTranslation vmt = new VMTranslation(id, node, groupId, creatorId, state, startTime, endTime,
+                    memory, cpuCount);
+            return vmt;
+        }
+        catch (ManageException e) {
+            throw new RemoteException(e.getMessage());
+        }
+        catch (DoesNotExistException e) {
+            throw new RemoteException(e.getMessage());
+        }
     }
 
     public void setManager(Manager manager) {
@@ -223,5 +343,9 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
 
     public void setAuthzDataSource(DataSource authzDataSource) {
         this.authzDataSource = authzDataSource;
+    }
+
+    public void setWorkspaceHome(WorkspaceHome workspaceHome) {
+        this.workspaceHome = workspaceHome;
     }
 }

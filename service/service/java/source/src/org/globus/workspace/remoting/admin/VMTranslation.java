@@ -18,21 +18,35 @@ package org.globus.workspace.remoting.admin;
 public class VMTranslation {
 
     private String id;
+    private String node;
     private String groupId;
     private String callerIdentity;
     private String state;
+    private String startTime;
+    private String endTime;
+    private String memory;
+    private String cpuCount;
 
     public VMTranslation() {}
 
-    public VMTranslation(String id, String groupId, String callerIdentity, String state) {
+    public VMTranslation(String id, String node, String groupId, String callerIdentity, String state,
+                            String startTime, String endTime, String memory, String cpuCount) {
         this.id = id;
+        this.node = node;
         this.groupId = groupId;
         this.callerIdentity = callerIdentity;
         this.state = state;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.memory = memory;
+        this.cpuCount = cpuCount;
     }
 
     public String getId() {
         return id;
+    }
+    public String getNode() {
+        return node;
     }
     public String getGroupId() {
         return groupId;
@@ -43,5 +57,16 @@ public class VMTranslation {
     public String getState() {
         return state;
     }
-
+    public String getStartTime() {
+        return startTime;
+    }
+    public String getEndTime() {
+        return endTime;
+    }
+    public String getMemory() {
+        return memory;
+    }
+    public String getCpuCount() {
+        return cpuCount;
+    }
 }
