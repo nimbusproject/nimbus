@@ -95,7 +95,7 @@ rootdisk SMALLINT NOT NULL,
 blankspace INT NOT NULL,
 prop_required SMALLINT NOT NULL,
 unprop_required SMALLINT NOT NULL,
-alternate_unprop VARCHAR(128)
+alternate_unprop VARCHAR(4096)
 );
 
 --
@@ -328,7 +328,7 @@ rootdisk SMALLINT NOT NULL,
 blankspace INT NOT NULL,
 prop_required SMALLINT NOT NULL,
 unprop_required SMALLINT NOT NULL,
-alternate_unprop VARCHAR(128)
+alternate_unprop VARCHAR(4096)
 );
 
 --
