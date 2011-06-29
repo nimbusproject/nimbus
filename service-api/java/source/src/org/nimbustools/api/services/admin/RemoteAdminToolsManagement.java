@@ -20,6 +20,9 @@ package org.nimbustools.api.services.admin;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
+/**
+ * This interface handles all the work done by RemoteAdminToolsMain and is mapped to the service over rmi
+ */
 public interface RemoteAdminToolsManagement extends Remote {
 
     public static final int SHUTDOWN_ALL = 0;

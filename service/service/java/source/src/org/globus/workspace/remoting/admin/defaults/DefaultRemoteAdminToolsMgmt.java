@@ -41,6 +41,10 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Remote class that connects service and RemoteAdminToolsMain
+ * Handles DB queries and information requests
+ */
 public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
 
     protected static final Log logger =
@@ -57,9 +61,6 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
 
     public DefaultRemoteAdminToolsMgmt() {
         this.gson = new Gson();
-    }
-
-    public void initialize() throws Exception {
     }
 
     public String getAllRunningVMs() throws RemoteException {
@@ -125,6 +126,12 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
         }
     }
 
+    /*
+     * This class handles shutdown by host, id and all.
+     * The constants for int type are in the interface for this class
+     * typeID is either the id or hostname, depending on if shutting down by id or host, or null if shutting down all
+     * seconds is optional
+     */
     public String shutdown(int type, String typeID, String seconds) throws RemoteException {
         try {
             VM[] vms;
@@ -146,6 +153,10 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
                 manager.shutdown(id, manager.INSTANCE, null, caller);
             }
 
+            //checks every 3 seconds to see if one of the vms has entered propagation mode
+            //up to a max of 30 seconds before trashing all vms
+            //I decided against checking every single vm for entering propagation mode since they mostly enter at
+            //about the same speed
             if(seconds == null) {
                 for(int i = 0; i <= 10; i++) {
                     Thread.sleep(3000);
@@ -160,6 +171,7 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
                         break;
                 }
             }
+            //same as above, but max time is the amount of seconds entered by the user
             else {
                 int mill = (Integer.parseInt(seconds)) * 1000;
                 for(int i = 0; i <= mill; i += 3000) {
@@ -175,6 +187,7 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
                 }
             }
 
+            //eventually trashes all vms regardless of whether or not they enter propagation mode
             if(type == SHUTDOWN_HOST)
                 vms = getVMByHost(typeID);
             else if(type == SHUTDOWN_ID)
@@ -252,6 +265,9 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
         }
     }
 
+    /*
+     * Looks through all running vms and compares hostnames
+     */
     private VM[] getVMByHost(String hostname) throws RemoteException {
         try {
             VM[] vms;
@@ -281,6 +297,9 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
         }
     }
 
+    /*
+     * Looks through all running vms and compares group ids
+     */
     private VM[] getVMByGroup(String groupId) throws RemoteException {
         try {
             VM[] vms;
@@ -306,6 +325,9 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
         }
     }
 
+    /*
+     * Translates vm info into string format for passing over rmi with Gson
+     */
     private VMTranslation translateVM(VM vm) throws RemoteException {
         try {
             String id = vm.getID();

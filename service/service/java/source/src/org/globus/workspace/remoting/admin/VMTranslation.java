@@ -15,6 +15,9 @@
  */
 package org.globus.workspace.remoting.admin;
 
+/*
+ * String translation class for VMs for sending VM info through rmi
+ */
 public class VMTranslation {
 
     private String id;
@@ -27,6 +30,7 @@ public class VMTranslation {
     private String memory;
     private String cpuCount;
 
+    //Used by Gson
     public VMTranslation() {}
 
     public VMTranslation(String id, String node, String groupId, String callerIdentity, String state,
