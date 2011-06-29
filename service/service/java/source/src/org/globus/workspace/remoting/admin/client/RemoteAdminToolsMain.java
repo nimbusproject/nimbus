@@ -27,6 +27,10 @@ import java.rmi.RemoteException;
 import java.util.*;
 
 
+/**
+ * This class runs the nimbus-admin tool and connects to the main service over rmi binding
+ * RMI setup and config is handled by parent class RMIConfig
+ */
 public class RemoteAdminToolsMain extends RMIConfig {
 
     private static final String PROP_RMI_BINDING_ADMINTOOLS_DIR = "rmi.binding.admintools";
@@ -160,6 +164,7 @@ public class RemoteAdminToolsMain extends RMIConfig {
             return;
         }
 
+        //numOpts just makes sure you don't have non-compatible options running at the same time
         if(this.action == ToolAction.ListVMs) {
                 if(line.hasOption(Opts.USER)) {
                     final String user = line.getOptionValue(Opts.USER);
