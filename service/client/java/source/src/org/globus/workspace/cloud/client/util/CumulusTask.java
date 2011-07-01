@@ -647,11 +647,6 @@ public class CumulusTask
             CumulusInputStream cis = new CumulusInputStream(
                 file.length(), pr, s3Object.getDataInputStream(), this.args.getNoSpinner());
             s3Object.setDataInputStream(cis);
-            s3Service.putObject(baseBucketName, s3Object);
-            progressWatcher.flush();
-            s3Object.closeDataInputStream();
-            cis.close();
-
             if(this.args.getCommonVMSet())
             {
                 if (pr != null) {
@@ -660,6 +655,10 @@ public class CumulusTask
                 AccessControlList acl = AccessControlList.REST_CANNED_PUBLIC_READ;
                 s3Object.setAcl(acl);
             }
+            s3Service.putObject(baseBucketName, s3Object);
+            progressWatcher.flush();
+            s3Object.closeDataInputStream();
+            cis.close();
 
             if (pr != null) {
                 pr.println("");

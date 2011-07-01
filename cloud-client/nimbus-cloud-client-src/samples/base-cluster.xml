@@ -6,7 +6,7 @@
   
     <name>head-node</name>
     
-    <image>base-cluster-cc12.gz</image>
+    <image>base-cluster-cc14.gz</image>
     
     <quantity>1</quantity>
     
@@ -41,7 +41,7 @@
   
     <name>compute-nodes</name>
     
-    <image>base-cluster-cc12.gz</image>
+    <image>base-cluster-cc14.gz</image>
     
     <quantity>2</quantity>
     

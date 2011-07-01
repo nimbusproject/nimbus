@@ -2,12 +2,8 @@ import os
 import sys
 from pycb.cbException import cbException
 import pycb
-import stat
-import urllib
-import glob
 import errno
 import logging
-import threading
 import tempfile
 import hashlib
 import traceback
