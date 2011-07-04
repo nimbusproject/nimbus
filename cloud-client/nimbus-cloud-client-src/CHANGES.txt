@@ -1,3 +1,10 @@
+nimbus-cloud-client-020
+-----------------------
+[*] Set the permissions on --common upload so that all users can read it.
+
+[*] Changed samples/base-cluster.xml so that is references the newer image
+    base-cluster-cc14.gz
+
 nimbus-cloud-client-019
 -----------------------
 [*] Removed all revocation policies from the distribution.  crl_url 

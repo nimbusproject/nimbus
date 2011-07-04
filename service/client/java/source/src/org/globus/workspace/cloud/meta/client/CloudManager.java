@@ -44,7 +44,7 @@ public class CloudManager {
         this.configDirectory = new File(configDirPath);
 
         if (!this.configDirectory.isDirectory()) {
-            throw new ParameterProblem("specified cloud configuration"+
+            throw new ParameterProblem("specified cloud configuration "+
                 "path must be a directory.");
         }
 
