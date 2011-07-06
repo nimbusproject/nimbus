@@ -38,6 +38,7 @@ public class RemoteAdminToolsMain extends RMIConfig {
     private static final String FIELD_ID = "id";
     private static final String FIELD_NODE = "node";
     private static final String FIELD_GROUP_ID = "group_id";
+    private static final String FIELD_GROUP_NAME = "group_name";
     private static final String FIELD_CREATOR = "creator";
     private static final String FIELD_STATE = "state";
     private static final String FIELD_START = "start time";
@@ -46,7 +47,7 @@ public class RemoteAdminToolsMain extends RMIConfig {
     private static final String FIELD_CPU_COUNT = "cpu count";
 
     final static String[] ADMIN_FIELDS = new String[] {
-            FIELD_ID, FIELD_NODE, FIELD_GROUP_ID, FIELD_CREATOR, FIELD_STATE, FIELD_START,
+            FIELD_ID, FIELD_NODE, FIELD_GROUP_ID, FIELD_GROUP_NAME, FIELD_CREATOR, FIELD_STATE, FIELD_START,
                 FIELD_END, FIELD_MEMORY, FIELD_CPU_COUNT};
 
     private ToolAction action;
@@ -54,6 +55,7 @@ public class RemoteAdminToolsMain extends RMIConfig {
     private String user;
     private String userDN;
     private String groupId;
+    private String groupName;
     private String vmID;
     private String hostname;
     private String seconds;
@@ -190,6 +192,14 @@ public class RemoteAdminToolsMain extends RMIConfig {
                     this.groupId = gid;
                     numOpts++;
                 }
+                if(line.hasOption(Opts.GROUP_NAME)) {
+                    final String gname = line.getOptionValue(Opts.GROUP_NAME);
+                    if(gname == null || gname.trim().length() == 0) {
+                        throw new ParameterProblem("Group name value is empty");
+                    }
+                    this.groupName = gname;
+                    numOpts++;
+                }
                 if(line.hasOption(Opts.HOST_LIST)) {
                     final String hostname = line.getOptionValue(Opts.HOST_LIST);
                     if(hostname == null || hostname.trim().length() == 0) {
@@ -315,12 +325,32 @@ public class RemoteAdminToolsMain extends RMIConfig {
                 vms = gson.fromJson(vmsJson, VMTranslation[].class);
             }
             else if(this.groupId != null) {
-                final String vmsJson = this.remoteAdminToolsManagement.getAllVMsByGroup(groupId);
+                final String[] vmsJson = this.remoteAdminToolsManagement.getAllVMsByGroupId(groupId);
                 if(vmsJson == null) {
                     System.err.println("No vms with group id " + groupId + " found");
                     return;
                 }
-                vms = gson.fromJson(vmsJson, VMTranslation[].class);
+                for(int i = 0; i < vmsJson.length; i++) {
+                    if(vmsJson[i] != null) {
+                        vms = gson.fromJson(vmsJson[i], VMTranslation[].class);
+                        reporter.report(vmsToMaps(vms), this.outStream);
+                    }
+                }
+                return;
+            }
+            else if(this.groupName != null) {
+                final String[] vmsJson = this.remoteAdminToolsManagement.getAllVMsByGroupName(groupName);
+                if(vmsJson == null) {
+                    System.err.println("No vms with group name " + groupName + " found");
+                    return;
+                }
+                for(int i = 0; i < vmsJson.length; i++) {
+                    if(vmsJson[i] != null) {
+                        vms = gson.fromJson(vmsJson[i], VMTranslation[].class);
+                        reporter.report(vmsToMaps(vms), this.outStream);
+                    }
+                }
+                return;
             }
             else if(this.hostname != null) {
                 final String vmsJson = this.remoteAdminToolsManagement.getAllVMsByHost(hostname);
@@ -341,7 +371,7 @@ public class RemoteAdminToolsMain extends RMIConfig {
             reporter.report(vmsToMaps(vms), this.outStream);
         }
         catch (RemoteException e) {
-            System.err.println(e.getMessage());
+            super.handleRemoteException(e);
         }
         catch (IOException e) {
             throw new ExecutionProblem("Problem writing output: " + e.getMessage(), e);
@@ -388,10 +418,11 @@ public class RemoteAdminToolsMain extends RMIConfig {
     }
 
     private static Map<String, String> vmToMap(VMTranslation vmt) {
-        final HashMap<String, String> map = new HashMap(7);
+        final HashMap<String, String> map = new HashMap(8);
         map.put(FIELD_ID, vmt.getId());
         map.put(FIELD_NODE, vmt.getNode());
         map.put(FIELD_GROUP_ID, vmt.getGroupId());
+        map.put(FIELD_GROUP_NAME, vmt.getGroupName());
         map.put(FIELD_CREATOR, vmt.getCallerIdentity());
         map.put(FIELD_STATE, vmt.getState());
         map.put(FIELD_START, vmt.getStartTime());

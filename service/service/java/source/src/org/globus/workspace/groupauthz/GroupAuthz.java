@@ -385,6 +385,14 @@ public class GroupAuthz implements CreationAuthorizationCallout,
         return null;
     }
 
+    public int getGroupIDFromCaller(String caller) {
+        for(int i = 0; i < this.groups.length; i++) {
+            if(groups[i].hasDN(caller))
+                return ++i;
+        }
+        return 0;
+    }
+
 
     // -------------------------------------------------------------------------
     // FOR CLOUD AUTOCONFIG

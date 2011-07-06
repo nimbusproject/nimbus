@@ -745,8 +745,7 @@
     </bean>
 
     <bean id="nimbus-remoting-admintools"
-          class="org.globus.workspace.remoting.admin.defaults.DefaultRemoteAdminToolsMgmt"
-            init-method="initialize">
+          class="org.globus.workspace.remoting.admin.defaults.DefaultRemoteAdminToolsMgmt">
 
         <property name="manager"
                   ref="nimbus-rm.manager" />
@@ -756,6 +755,8 @@
                   ref="other.AuthzDataSource" />
         <property name="workspaceHome"
                   ref="nimbus-rm.home.instance" />
+        <property name="authzCallout"
+                  ref="nimbus-rm.service.binding.AuthorizationCallout" />
     </bean>
 
     <!-- ===================================================================

@@ -19,8 +19,11 @@ package org.globus.workspace.remoting.admin.defaults;
 import com.google.gson.Gson;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.globus.workspace.groupauthz.Group;
+import org.globus.workspace.groupauthz.GroupAuthz;
 import org.globus.workspace.remoting.admin.VMTranslation;
 import org.globus.workspace.service.WorkspaceHome;
+import org.globus.workspace.service.binding.authorization.CreationAuthorizationCallout;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.nimbus.authz.AuthzDBException;
 import org.nimbus.authz.UserAlias;
@@ -54,6 +57,7 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
     protected ReprFactory reprFactory;
     protected DataSource authzDataSource;
     protected WorkspaceHome workspaceHome;
+    protected CreationAuthorizationCallout authzCallout;
     private AuthzDBAdapter authz;
 
     private final Gson gson;
@@ -91,17 +95,32 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
         return gson.toJson(vmts);
     }
 
-    public String getAllVMsByGroup(String groupId) throws RemoteException {
-        VM[] vms = getVMByGroup(groupId);
+    public String[] getAllVMsByGroupId(String groupId) throws RemoteException {
+        int id;
+        try {
+            id = Integer.parseInt(groupId);
+        }
+        catch(NumberFormatException e) {
+            return null;
+        }
 
-        if(vms == null)
+        GroupAuthz groupAuthz = (GroupAuthz) authzCallout;
+        Group[] groups = groupAuthz.getGroups();
+        if(id <= 0 || id > groups.length)
             return null;
 
-        final List<VMTranslation> vmts = new ArrayList<VMTranslation>(vms.length);
-        for(int i = 0; i < vms.length; i++) {
-            vmts.add(translateVM(vms[i]));
+        Group group = groups[--id];
+        return getAllVMsByGroup(group);
+    }
+
+    public String[] getAllVMsByGroupName(String groupName) throws RemoteException {
+        GroupAuthz groupAuthz = (GroupAuthz) authzCallout;
+        Group[] groups = groupAuthz.getGroups();
+        for(int i = 0; i < groups.length; i++) {
+            if(groups[i] != null && groups[i].getName().equals(groupName))
+                return getAllVMsByGroup(groups[i]);
         }
-        return gson.toJson(vmts);
+        return null;
     }
 
     public String getVMsByDN(String userDN) throws RemoteException {
@@ -297,32 +316,31 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
         }
     }
 
-    /*
-     * Looks through all running vms and compares group ids
-     */
-    private VM[] getVMByGroup(String groupId) throws RemoteException {
-        try {
-            VM[] vms;
-            VM[] all = manager.getGlobalAll();
-            int cnt = 0;
+    private String[] getAllVMsByGroup(Group group) throws RemoteException {
 
-            vms = new VM[all.length];
-            for(int i = 0; i < all.length; i++) {
-                String group = all[i].getGroupID();
-                if(group != null && group.equals(groupId))
-                    vms[cnt++] = all[i];
-            }
-
-            if(cnt == 0) {
-                errorMsg = "No running VMs with group id " + groupId + " found";
+        if(group != null) {
+            String[] dns = group.getIdentities();
+            if(dns.length == 0)
                 return null;
+
+            authz = new AuthzDBAdapter(authzDataSource);
+            String[] vms = new String[dns.length];
+            int vmcnt = 0;
+            for(int i = 0; i < dns.length; i++) {
+                try {
+                    String userId = authz.getCanonicalUserIdFromDn(dns[i]);
+                    String vm = getVMsByUserId(userId);
+                    if(vm != null)
+                        vms[vmcnt++] = vm;
+                }
+                catch(AuthzDBException e) {}
             }
-            else
-                return vms;
+            if(vms[0] == null)
+                return null;
+
+            return vms;
         }
-        catch (ManageException e) {
-            throw new RemoteException(e.getMessage());
-        }
+        return null;
     }
 
     /*
@@ -330,11 +348,14 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
      */
     private VMTranslation translateVM(VM vm) throws RemoteException {
         try {
+            GroupAuthz groupAuthz = (GroupAuthz) authzCallout;
+
             String id = vm.getID();
             VirtualMachine vmlong = workspaceHome.find(id).getVM();
             String node = vmlong.getNode();
-            String groupId = vm.getGroupID();
             String creatorId = vm.getCreator().getIdentity();
+            String groupId = Integer.toString(groupAuthz.getGroupIDFromCaller(creatorId));
+            String groupName = groupAuthz.getGroupName(creatorId);
             String state = vm.getState().getState();
             String startTime = vm.getSchedule().getStartTime().getTime().toString();
             String endTime = vm.getSchedule().getDestructionTime().getTime().toString();
@@ -343,7 +364,7 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
             String memory = Integer.toString(ra.getMemory());
             String cpuCount = Integer.toString(ra.getIndCpuCount());
 
-            VMTranslation vmt = new VMTranslation(id, node, groupId, creatorId, state, startTime, endTime,
+            VMTranslation vmt = new VMTranslation(id, node, creatorId, groupId, groupName, state, startTime, endTime,
                     memory, cpuCount);
             return vmt;
         }
@@ -369,5 +390,9 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
 
     public void setWorkspaceHome(WorkspaceHome workspaceHome) {
         this.workspaceHome = workspaceHome;
+    }
+
+    public void setAuthzCallout(CreationAuthorizationCallout authzCallout) {
+        this.authzCallout = authzCallout;
     }
 }
