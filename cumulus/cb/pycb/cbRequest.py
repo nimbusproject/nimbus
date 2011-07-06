@@ -803,7 +803,7 @@ class cbCopyObject(cbRequest):
 
             lm = doc.createElement("LastModified")
             cor.appendChild(lm)
-            lmText = doc.createTextNode(str(self.src_ctm))
+            lmText = doc.createTextNode(datetime(*self.src_ctm[:6]).isoformat())
             lm.appendChild(lmText)
 
             lm = doc.createElement("ETag")
