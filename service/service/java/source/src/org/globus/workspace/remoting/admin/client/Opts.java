@@ -167,6 +167,11 @@ public class Opts {
     public final Option GROUP_ID_OPT =
                 OptionBuilder.withLongOpt(GROUP_ID_LONG).hasOptionalArg().create(GROUP_ID);
 
+    public static final String GROUP_NAME = "gn";
+    public static final String GROUP_NAME_LONG= "gname";
+    public final Option GROUP_NAME_OPT =
+                OptionBuilder.withLongOpt(GROUP_NAME_LONG).hasOptionalArg().create(GROUP_NAME);
+
     public static final String ID = "i";
     public static final String ID_LONG = "id";
     public final Option ID_OPT =
@@ -192,7 +197,8 @@ public class Opts {
             REPORT_OPT, JSON_OPT, OUTPUT_OPT, ADD_NODES_OPT, LIST_NODES_OPT,
             REMOVE_NODES_OPT, UPDATE_NODES_OPT, NETWORKS_OPT, MEMORY_OPT, POOL_OPT,
             ACTIVE_OPT, INACTIVE_OPT, LIST_VMS_OPT, SHUTDOWN_VMS_OPT, USER_OPT, ID_OPT,
-            SECONDS_OPT, ALL_VMS_OPT, HOST_LIST_OPT, HOST_SHUTDOWN_OPT, DN_OPT, GROUP_ID_OPT
+            SECONDS_OPT, ALL_VMS_OPT, HOST_LIST_OPT, HOST_SHUTDOWN_OPT, DN_OPT, GROUP_ID_OPT,
+            GROUP_NAME_OPT
     };
 
 }

@@ -22,8 +22,9 @@ public class VMTranslation {
 
     private String id;
     private String node;
-    private String groupId;
     private String callerIdentity;
+    private String groupId;
+    private String groupName;
     private String state;
     private String startTime;
     private String endTime;
@@ -33,12 +34,13 @@ public class VMTranslation {
     //Used by Gson
     public VMTranslation() {}
 
-    public VMTranslation(String id, String node, String groupId, String callerIdentity, String state,
-                            String startTime, String endTime, String memory, String cpuCount) {
+    public VMTranslation(String id, String node, String callerIdentity, String groupId, String groupName,
+                         String state, String startTime, String endTime, String memory, String cpuCount) {
         this.id = id;
         this.node = node;
-        this.groupId = groupId;
         this.callerIdentity = callerIdentity;
+        this.groupId = groupId;
+        this.groupName = groupName;
         this.state = state;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -54,6 +56,9 @@ public class VMTranslation {
     }
     public String getGroupId() {
         return groupId;
+    }
+    public String getGroupName() {
+        return groupName;
     }
     public String getCallerIdentity() {
         return callerIdentity;

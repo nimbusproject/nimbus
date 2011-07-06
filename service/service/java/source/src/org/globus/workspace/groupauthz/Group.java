@@ -254,4 +254,12 @@ public class Group {
         }
         return sb.toString();
     }
+
+    public boolean hasDN(String dn) {
+        for(int i = 0; i < DNs.length; i++) {
+            if(dn.equals(DNs[i]))
+                return true;
+        }
+        return false;
+    }
 }

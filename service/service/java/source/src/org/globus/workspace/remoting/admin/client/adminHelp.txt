@@ -19,6 +19,7 @@ Actions
         --user (-u)         -Option to list VMs by user display name
         --dn (-d)           -Option to list VMs by user DN name
         --gid (-g)          -Option to list VMs by group id
+        --gname (-gn)       -Option to list VMs by group name
         --host (-hl)        -Option to list VMs running under particular host
 
 

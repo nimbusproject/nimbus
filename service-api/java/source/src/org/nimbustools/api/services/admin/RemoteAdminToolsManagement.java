@@ -33,6 +33,7 @@ public interface RemoteAdminToolsManagement extends Remote {
     public String getVMsByDN(String userDN) throws RemoteException;
     public String getVMsByUser(String user) throws RemoteException;
     public String getAllVMsByHost(String hostname) throws RemoteException;
-    public String getAllVMsByGroup(String groupId) throws RemoteException;
+    public String[] getAllVMsByGroupId(String groupId) throws RemoteException;
+    public String[] getAllVMsByGroupName(String groupName) throws RemoteException;
     public String shutdown(int type, String typeID, String seconds) throws RemoteException;
 }
