@@ -22,8 +22,14 @@ class WSCTemplateLoader(BaseLoader):
         if not exists(path):
             raise Exception("libvirt template not found %s" % (path))
         mtime = getmtime(path)
-        with file(path) as f:
+
+        f = None
+        try:
+            f = open(path)
             source = f.read().decode('utf-8')
+        finally:
+            if f:
+                f.close()
         return source, path, lambda: mtime == getmtime(path)
 
 def _xml_normalize_pretty(s):

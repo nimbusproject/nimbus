@@ -11,8 +11,11 @@ from workspacecontrol.api.exceptions import *
 from workspacecontrol.main import ACTIONS
 import workspacecontrol.main.wc_args as wc_args
 from propagate_adapter import PropagationAdapter
+from workspacecontrol.defaults.imageprocurement.propagate_cache import WSCCacheObj
+
 
 # keywords for 'adapters' dict as well as the expected URL schemes
+PROP_ADAPTER_CP = "cp"
 PROP_ADAPTER_SCP = "scp"
 PROP_ADAPTER_GUC = "gsiftp"
 PROP_ADAPTER_HDFS = "hdfs"
@@ -49,12 +52,23 @@ class DefaultImageProcurement:
     
     def validate(self):
         self._validate_localdir()
-        self._validate_securelocaldir()
+        self.securelocaldir = self._validate_securelocaldir("securelocaldir")
         
         self.blankcreate_path = None
         self._validate_blankspacecreate()
         
         self.adapters = {}
+
+        cp_path = self.p.get_conf_or_none("propagation", "cp")
+        if cp_path:
+            try:
+                import propagate_cp
+                self.adapters[PROP_ADAPTER_CP] = propagate_cp.cp_propadapter(self.p, self.c)
+            except Exception, ex:
+                msg = "CP configuration present (propagation->cp) but cannot load a suitable CP implementation in the code | %s" % (str(ex))
+                self.c.log.exception(msg + ": ")
+                raise InvalidConfig(msg)
+
         
         scp_path = self.p.get_conf_or_none("propagation", "scp")
         if scp_path:
@@ -134,18 +148,18 @@ class DefaultImageProcurement:
         self.localdir = localdir
         self.c.log.debug("local image directory (localdir): %s" % self.localdir)
         
-    def _validate_securelocaldir(self):
-        securelocaldir = self.p.get_conf_or_none("images", "securelocaldir")
+    def _validate_securelocaldir(self, confname):
+        securelocaldir = self.p.get_conf_or_none("images", confname)
         if not securelocaldir:
-            raise InvalidConfig("no images->securelocaldir configuration")
+            raise InvalidConfig("no images->%s configuration" % (confname))
             
         if not os.path.isabs(securelocaldir):
             securelocaldir = self.c.resolve_var_dir(securelocaldir)
         
         if not os.path.exists(securelocaldir):
-            self.c.log.warn("securelocaldir is configured, but '%s' does not"
+            self.c.log.warn("%s is configured, but '%s' does not"
                        " exist on the filesystem, attemping to create "
-                       " it" % securelocaldir)
+                       " it" % (confname, securelocaldir))
             try:
                 os.mkdir(securelocaldir)
                 os.chmod(securelocaldir, stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR)
@@ -155,8 +169,8 @@ class DefaultImageProcurement:
                     exceptname = exception_type.__name__ 
                 except AttributeError:
                     exceptname = exception_type
-                raise InvalidConfig("Problem creating securelocaldir: %s: %s" 
-                           % (str(exceptname), str(sys.exc_value)))
+                raise InvalidConfig("Problem creating %s: %s: %s" 
+                           % (confname, str(exceptname), str(sys.exc_value)))
 
             self.c.log.warn("created secure localdir '%s'" % securelocaldir)
 
@@ -168,8 +182,8 @@ class DefaultImageProcurement:
             raise InvalidConfig("'%s' exists on the filesystem but is not rwx" 
                        % securelocaldir)
             
-        self.securelocaldir = securelocaldir
         self.c.log.debug("secure image directory (per-instance images): %s" % self.securelocaldir)
+        return securelocaldir
         
     def _validate_blankspacecreate(self):
         blankcreate_path = self.p.get_conf_or_none("images", "blankcreate")
@@ -246,7 +260,7 @@ class DefaultImageProcurement:
             # client requesting new names
             unproptargets_arg = self.p.get_arg_or_none(wc_args.UNPROPTARGETS)
             if unproptargets_arg:
-                self._process_new_unproptargets(l_files, unproptargets_arg)
+                self._validate_new_unproptargets(l_files, unproptargets_arg)
             
         elif action in [ACTIONS.REMOVE]:
             
@@ -368,10 +382,42 @@ class DefaultImageProcurement:
         self.c.log.info("Destroyed VM's unique directory: %s" % vmdir)
         
     def _propagate(self, l_files):
+        cache_key = self.p.get_arg_or_none(wc_args.CACHECKSUM)
+        try:
+            cache_path = self._validate_securelocaldir("cachedir")
+        except Exception, ex:
+            self.c.log.warn("failure validating cache path | %s" % (str(ex)))
+            cache_path = None
+        cache = None
+        if cache_key and cache_path:
+            try:
+                max_size = self.p.get_conf_or_none("images", "cache_size")
+                if max_size is not None:
+                    max_size = int(max_size)
+                lockfile = self.p.get_conf_or_none("images", "cachelockfile")
+                if lockfile is None:
+                    lockfile = os.path.join(cache_path, "lock")
+                cache = WSCCacheObj(cache_path, lockfile, max_size=max_size, log=self.c.log)
+            except ValueError:
+                raise InvalidConfig("The images->cache_size configuration is not an integer: '%s'" % max_size)
+            except Exception, ex:
+                self.c.log.warn("failed to create the cache at %s | %s" % (cache_path, str(ex)))
+                
         for l_file in l_files:
             
             if not l_file._propagate_needed:
                 continue
+
+            if cache:
+                try:
+                    self.c.log.debug("cache lookup %s" % (cache_key))
+                    rc = cache.lookup(cache_key, l_file.path)
+                    if rc:
+                        self.c.log.info("The file was found in the cache and copied to %s" % (l_file.path))
+                        return
+                    self.c.log.info("cache miss for %s" % (cache_key))
+                except Exception, ex:
+                    self.c.log.warn("an exception occured while performing a cache lookup on %s | %s" % (cache_key, str(ex)))
                 
             for keyword in self.adapters.keys():
                 schemestring = keyword + "://"
@@ -392,6 +438,13 @@ class DefaultImageProcurement:
                     if not os.path.exists(l_file.path):
                         raise UnexpectedError("propagated from '%s' to '%s' but the file does not exist" % (l_file._propagation_source, l_file.path))
                     
+                    if cache:
+                        try:
+                            self.c.log.debug("adding %s" % (cache_key))
+                            cache.add(l_file.path, cache_key)
+                        except Exception, ex:
+                            self.c.log.warn("an exception occured while adding a file to the cache %s %s | %s" % (cache_key, l_file.path, str(ex)))
+
                     return
         
     def _unpropagate(self, l_files):
@@ -475,12 +528,24 @@ class DefaultImageProcurement:
 
         imgstrs = images.split(';;')
 
+        unproptargets_arg = self.p.get_arg_or_none(wc_args.UNPROPTARGETS)
+        new_unprops = None
+        if unprop and unproptargets_arg:
+            new_unprops = self._get_new_unprop_targets(imgstrs, unproptargets_arg) 
+
         i = 0
         l_files = []
         for imgstr in imgstrs:
             i += 1
             logstr = "image #%d" % i
-            lf = self._one_imagestr(logstr, imgstr, unprop)
+            if unprop and new_unprops:
+                try:
+                    unprop_path = new_unprops[i-1]
+                except IndexError:
+                    unprop_path = None
+                lf = self._one_imagestr(logstr, imgstr, unprop, unprop_path)
+            else:
+                lf = self._one_imagestr(logstr, imgstr, unprop)
             self.c.log.debug("%s is valid" % logstr)
             
             # convention in the past is that first is rootdisk, a new arg
@@ -546,10 +611,9 @@ class DefaultImageProcurement:
     # _one_imagestr() supports _process_image_args() above
     # --------------------------------------------------------------------------
        
-    def _one_imagestr(self, logstr, imgstr, unprop=False):
+    def _one_imagestr(self, logstr, imgstr, unprop=False, new_unprop=None):
         """Convert given imagestr from arguments into LocalFile list.
         """
-
         lf_cls = self.c.get_class_by_keyword("LocalFile")
         lf = lf_cls()
         
@@ -644,7 +708,7 @@ class DefaultImageProcurement:
         # ---------------------------------------------------------------
             
         else:
-            self._one_imagestr_propagation(lf, imgstr, unprop)
+            self._one_imagestr_propagation(lf, imgstr, unprop, new_unprop)
             
         # ---------------------------------------------------------------
             
@@ -690,24 +754,29 @@ class DefaultImageProcurement:
         
         if self.c.trace:
             self.c.log.debug("partition of size %dM is going to be created (blankcreate) at '%s'" % (lf._blankspace, lf.path))
-        
-    def _one_imagestr_propagation(self, lf, imgstr, unprop):
-        
+
+    def _one_imagestr_propagation(self, lf, imgstr, unprop, new_unprop):
+
+        if unprop and new_unprop:
+            validate = new_unprop
+        else:
+            validate = imgstr
+
         for keyword in self.adapters.keys():
             schemestring = keyword + "://"
             schemestring_len = len(schemestring)
             self.c.log.debug("schemestring: %s" % schemestring)
             
             # note: relative paths for local files require "file://"
-            if len(imgstr) <= schemestring_len:
+            if len(validate) <= schemestring_len:
                 raise InvalidInput("image specified is not an absolute path and uses an unknown URL scheme, or perhaps no scheme at all: %s" % imgstr)
                 
-            if imgstr[:schemestring_len] == schemestring:
+            if validate[:schemestring_len] == schemestring:
                 self.c.log.debug("partition/HD is specified w/ %s" % schemestring)
                 
                 adapter = self.adapters[keyword]
                 if unprop:
-                    adapter.validate_unpropagate_target(imgstr)
+                    adapter.validate_unpropagate_target(validate)
                 else:
                     adapter.validate_propagate_source(imgstr)
                 
@@ -740,8 +809,32 @@ class DefaultImageProcurement:
                 ###this host but it does not exist: '%s'" % lf.path)
                 
                 return
-                
-    def _process_new_unproptargets(self, l_files, unproptargets_arg):
+ 
+    def _get_new_unprop_targets(self, original_images, unproptargets_arg):
+        
+        images = list(original_images)
+
+        if unproptargets_arg[0] == "'":
+            unproptargets_arg = unproptargets_arg[1:]
+        # (there is a pathological case where input was only a single quote)
+        if unproptargets_arg and unproptargets_arg[-1] == "'":
+            unproptargets_arg = unproptargets_arg[:-1]
+
+        unproptargets = unproptargets_arg.split(';;')
+
+        for i, image in enumerate(images):
+            try:
+                old_image = images[i]
+                images[i] = unproptargets[i]
+            except IndexError:
+                # No unprop target with to match
+                break
+            self.c.log.debug("old unpropagation target '%s' is now '%s'" % (old_image, images[i]))
+
+        return images
+
+               
+    def _validate_new_unproptargets(self, l_files, unproptargets_arg):
         
         # The given input string might be quoted to escape semicolons for
         # certain delivery methods (e.g., sh over ssh) and some methods may
@@ -771,7 +864,7 @@ class DefaultImageProcurement:
             
         if len(unproptargets) != num_needs:
             raise InvalidInput("received %s argument but cannot match unpropagations scheduled with targets.  There are %d unprop-targets and %d unpropagation needs" % (argname, len(unproptargets), num_needs))
-        
+
         # note how the order is assumed to match -- this is a precarious side
         # effect of the commandline based syntax
         counter = -1
@@ -781,4 +874,39 @@ class DefaultImageProcurement:
                 old = lf._unpropagation_target
                 lf._unpropagation_target = unproptargets[counter]
                 self.c.log.debug("old unpropagation target '%s' is now '%s'" % (old, lf._unpropagation_target))
+         
+
+def url_parse(url):
+    parts = url.split('://', 1)
+    scheme = parts[0]
+    rest = parts[1]
+
+    parts = rest.split('@', 1)
+    if len(parts) == 1:
+        user = None
+        password = None
+    else:
+        rest = parts[1]
+        u_parts = parts[0].split(':')
+        user = parts[0]
+        if len(u_parts) == 1:
+            password = None
+        else:
+            password = parts[1]
+
+    parts = rest.split('/', 1)
+    contact_string = parts[0]
+    if len(parts) > 1:
+        path = '/' + parts[1]
+    else:
+        path = None
+
+    parts = contact_string.split(':')
+    hostname = parts[0]
+    if len(parts) == 1:
+        port = None
+    else:
+        port = int(parts[1])
+
+    return (scheme, user, password, hostname, port, path)
 
