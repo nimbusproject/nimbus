@@ -173,6 +173,7 @@ public class RequestFactoryImpl implements RequestFactory {
         this.cmdStr.put(readyForTransport, "readyForTransport");
         this.cmdStr.put(cancelReadyingForTr, "cancelReadyingForTransport");
         this.cmdStr.put(cancelReadyForTr, "cancelReadyForTransport");
+        this.cmdStr.put(query, "query");
     }
 
     private WorkspaceRequest get(Integer i) {
