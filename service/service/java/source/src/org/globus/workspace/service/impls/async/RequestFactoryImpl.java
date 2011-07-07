@@ -110,6 +110,7 @@ public class RequestFactoryImpl implements RequestFactory {
     private static final Integer readyForTransport = new Integer(17);
     private static final Integer cancelReadyingForTr = new Integer(18);
     private static final Integer cancelReadyForTr = new Integer(19);
+    private static final Integer query = new Integer(20);
 
     
     // -------------------------------------------------------------------------
@@ -384,6 +385,9 @@ public class RequestFactoryImpl implements RequestFactory {
         return get(shutdownTrash);
     }
 
+    public WorkspaceRequest query() {
+        return get(query);
+    }
     /*
      To cancel any state between propagated and before readyingForTransport
      */
@@ -480,6 +484,7 @@ public class RequestFactoryImpl implements RequestFactory {
         
         this.impls.put(readyForTransport, Class.forName(pre + ".ReadyTransport"));
         this.impls.put(cancelReadyingForTr, Class.forName(pre + ".ShutdownTrash"));
+        this.impls.put(query, Class.forName(pre + ".Query"));
 
         this.impls.put(cancelReadyForTr, null);
     }

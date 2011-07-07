@@ -41,6 +41,7 @@ public interface RequestFactory {
     public WorkspaceRequest shutdownSerialize();
     public WorkspaceRequest unserialize();
     public WorkspaceRequest shutdownTrash();
+    public WorkspaceRequest query();
 
     public WorkspaceRequest readyForTransport();
     public WorkspaceRequest cancelReadyingForTransport();
