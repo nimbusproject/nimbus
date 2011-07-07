@@ -4,6 +4,7 @@ import sys
 import time
 import zope.interface
 import libvirt
+import simplejson, json
 
 import workspacecontrol.api.modules
 from workspacecontrol.api.exceptions import *
@@ -331,15 +332,16 @@ class Platform:
 	try:
 	    res = {}
 	    #Defined domains
-	    ddomains = vmm().listDefinedDomains()
+	    ddomains = vmm.listDefinedDomains()
 	    for domain in ddomains:
-		res[domain] = vmm().lookupByName(domain).isActive()
+		res[domain] = vmm.lookupByName(domain).isActive()
 	    #Running domains
-	    rdomains = vmm().listDomainsID()
+	    rdomains = vmm.listDomainsID()
 	    for domain in rdomains:
-		name = vmm().lookupByID(domain).name()
-		res[name] = vmm().lookupByID(domain).isActive()
-	    return res
+		name = vmm.lookupByID(domain).name()
+		res[name] = vmm.lookupByID(domain).isActive()
+	    return json.dumps(res)
+
 
 	except libvirt.libvirtError,e:
 	    shorterr = "Generic error '%s'" % str(e)
