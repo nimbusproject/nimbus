@@ -34,6 +34,7 @@ import org.globus.workspace.persistence.PersistenceAdapter;
 import org.globus.workspace.persistence.WorkspaceDatabaseException;
 import org.globus.workspace.persistence.DataConvert;
 import org.globus.workspace.scheduler.Scheduler;
+import org.globus.workspace.scheduler.defaults.ResourcepoolEntry;
 import org.globus.workspace.service.InstanceResource;
 import org.globus.workspace.service.Sweepable;
 import org.globus.workspace.service.WorkspaceHome;
@@ -91,6 +92,7 @@ public abstract class WorkspaceHomeImpl implements WorkspaceHome,
     private String threadPoolInitialSize;
     private String threadPoolMaxSize;
     private long sweeperDelay = 60000;
+    private long reaperDelay = 600; //seconds
 
 
     // -------------------------------------------------------------------------
@@ -405,6 +407,20 @@ public abstract class WorkspaceHomeImpl implements WorkspaceHome,
         return sweeps;
     }
 
+    // -------------------------------------------------------------------------
+    // VMM REAPER
+    // -------------------------------------------------------------------------
+
+
+    public List<ResourcepoolEntry> vmmReaper() {
+        List<ResourcepoolEntry> resources = new ArrayList<ResourcepoolEntry>();
+        try {
+             resources = this.persistence.currentResourcepoolEntries();
+        } catch (WorkspaceDatabaseException e) {
+            logger.fatal(e.getMessage(), e);
+        }
+        return resources;
+    }
 
     // -------------------------------------------------------------------------
     // DESTROY
@@ -501,7 +517,6 @@ public abstract class WorkspaceHomeImpl implements WorkspaceHome,
         }
     }
 
-
     // -------------------------------------------------------------------------
     // LIFECYCLE
     // -------------------------------------------------------------------------
@@ -559,6 +574,15 @@ public abstract class WorkspaceHomeImpl implements WorkspaceHome,
                                                       this.sweeperDelay,
                                                       this.sweeperDelay,
                                                       TimeUnit.MILLISECONDS);
+
+        final VMMReaper reaper =
+                new VMMReaper(this.executor, this, this.lager);
+
+        this.scheduledExecutor.scheduleWithFixedDelay(reaper,
+                                                       this.reaperDelay,
+                                                       this.reaperDelay,
+                                                       TimeUnit.SECONDS);
+
     }
 
 
@@ -823,4 +847,6 @@ public abstract class WorkspaceHomeImpl implements WorkspaceHome,
     public String getVMMReport() {
         return this.scheduler.getVMMReport();
     }
+
+
 }

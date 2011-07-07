@@ -16,10 +16,13 @@
 
 package org.globus.workspace.service;
 
+import org.globus.workspace.scheduler.defaults.ResourcepoolEntry;
 import org.nimbustools.api.services.rm.DoesNotExistException;
 import org.nimbustools.api.services.rm.ManageException;
 import org.nimbustools.api.services.rm.CreationException;
 import edu.emory.mathcs.backport.java.util.concurrent.ExecutorService;
+
+import java.util.List;
 
 public interface WorkspaceHome {
 
@@ -66,6 +69,8 @@ public interface WorkspaceHome {
             throws ManageException;
 
     public Sweepable[] currentSweeps();
+
+    public List<ResourcepoolEntry> vmmReaper();
 
 
     // -------------------------------------------------------------------------

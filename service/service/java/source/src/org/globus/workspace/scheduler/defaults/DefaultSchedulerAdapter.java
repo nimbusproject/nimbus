@@ -77,8 +77,10 @@ public class DefaultSchedulerAdapter implements Scheduler {
 
     // optionally set via config
     protected long sweeperDelay = 2000;
+    protected long reaperDelay = 600000;
 
     protected DefaultSchedulerSweeper sweeper;
+    protected DefaultSchedulerReaper reaper;
 
     // see CreationPending class comment
     protected final CreationPending creationPending = new CreationPending();
@@ -173,6 +175,13 @@ public class DefaultSchedulerAdapter implements Scheduler {
             throw new Exception("Problem preparing DB statements: ", e);
         }
 
+        this.reaper =
+                new DefaultSchedulerReaper(this.timerManager,
+                                            this.home,
+                                            this.reaperDelay,
+                                            this.lager,
+                                            this);
+
         this.sweeper =
                 new DefaultSchedulerSweeper(this.timerManager,
                                             this.home,
@@ -221,6 +230,19 @@ public class DefaultSchedulerAdapter implements Scheduler {
 
     public long getSweeperDelay() {
         return this.sweeperDelay;
+    }
+
+    public void setReaperDelay(long delay) {
+        if (delay < 60000) {
+            logger.error("cannot set sweeper delay to less than one" +
+                    "minute, default is 5 minutes");
+        } else {
+            this.reaperDelay = delay;
+        }
+    }
+
+    public long getReaperDelay() {
+        return this.reaperDelay;
     }
 
     public Reservation schedule(int memory,

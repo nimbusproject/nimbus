@@ -16,19 +16,21 @@
 
 package org.globus.workspace.service.impls;
 
+import com.google.gson.Gson;
 import edu.emory.mathcs.backport.java.util.concurrent.ExecutorService;
 import edu.emory.mathcs.backport.java.util.concurrent.FutureTask;
 import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.globus.workspace.Lager;
+import org.globus.workspace.scheduler.defaults.ResourcepoolEntry;
+import org.globus.workspace.service.InstanceResource;
 import org.globus.workspace.service.Sweepable;
 import org.globus.workspace.service.WorkspaceHome;
+import org.globus.workspace.xen.xenssh.Query;
+import org.nimbustools.api.services.rm.ManageException;
 
-import java.util.Calendar;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Used to query for vm status
@@ -43,6 +45,7 @@ public class VMMReaper implements Runnable {
     private static final Log logger =
             LogFactory.getLog(VMMReaper.class.getName());
 
+    private final Gson gson = new Gson();
 
     // -------------------------------------------------------------------------
     // INSTANCE VARIABLES
@@ -84,7 +87,7 @@ public class VMMReaper implements Runnable {
 
     public void run() {
         try {
-            this.findAndDestroy();
+            this.reaperVMM();
         } catch (Throwable t) {
             logger.error("Problem sweeping resources: " + t.getMessage(), t);
         }
@@ -95,86 +98,37 @@ public class VMMReaper implements Runnable {
     // IMPL
     // -------------------------------------------------------------------------
 
-    protected void findAndDestroy() {
+    protected void reaperVMM() throws ManageException {
 
         if (this.lager.pollLog) {
-            logger.trace("findAndDestroy - sweeping");
+            logger.trace("Querying VMM for VMs states");
         }
-        
-        // this doesn't need to be synchronized anymore
-        final Sweepable[] toSweep = this.home.currentSweeps();
 
-        if (toSweep == null || toSweep.length == 0) {
+        final List<ResourcepoolEntry> vmms = this.home.vmmReaper();
+
+        if (vmms == null || vmms.size() == 0) {
             return; // *** EARLY RETURN ***
         }
 
-        // find things to destroy
-        final List killList = this.getDestroyTasks(toSweep);
+        for (ResourcepoolEntry r: vmms) {
+            Query query = new Query();
+            String hostname = r.getHostname();
 
-        if (killList.isEmpty()) {
-            return; // *** EARLY RETURN ***
+            //1: is running, 2: is stopped
+            HashMap<String,Integer> result = gson.fromJson("query vmm", HashMap.class);//TODO get returned json
         }
 
-        // destroy things
-        final Iterator iter = killList.iterator();
-        while (iter.hasNext()) {
-            final Runnable task = (Runnable) iter.next();
-            this.executor.submit(task);
+        InstanceResource[] ires =  this.home.findAll();
+
+        //29 = CORRUPTED_GENERIC
+        for (InstanceResource r: ires) {
+            Integer state = r.getState();
         }
 
-        // Log any unexpected errors.  Wait two minutes (normal destroy time
-        // should be a matter of seconds even if there is high congestion).
-
-        // todo: make timeout configurable when this class comes via IoC
-
-        final Iterator iter2 = killList.iterator();
-        while (iter2.hasNext()) {
-            final FutureTask task = (FutureTask) iter2.next();
-            try {
-                final String msg = (String) task.get(120L, TimeUnit.SECONDS);
-                if (msg != null) {
-                    logger.debug(msg);
-                }
-            } catch (Exception e) {
-                final String err = "Error while destroying sweeped " +
-                                            "instance: " + e.getMessage();
-                if (logger.isDebugEnabled()) {
-                    logger.error(err, e);
-                } else {
-                    logger.error(err);
-                }
-            }
-        }
+        //TODO compare states with isInconsistent()
     }
 
-    protected List getDestroyTasks(Sweepable[] toSweep) {
-
-        final Calendar currentTime = Calendar.getInstance();
-        final LinkedList killList = new LinkedList();
-
-        for (int i = 0; i < toSweep.length; i++) {
-
-            final Sweepable sw = toSweep[i];
-
-            if (sw != null) {
-
-                final boolean expired = isExpired(sw.getTerminationTime(),
-                                                  currentTime);
-
-                if (expired) {
-                    final DestroyFutureTask task =
-                            new DestroyFutureTask(sw.getID(), this.home);
-
-                    killList.add(new FutureTask(task));
-                }
-            }
-        }
-
-        return killList;
-    }
-
-    public static boolean isExpired(Calendar terminationTime,
-                                    Calendar currentTime) {
-        return terminationTime != null && terminationTime.before(currentTime);
+    public static boolean isInconsistent(Integer state, Integer queriedState) {
+        return state != null && state.equals(queriedState);
     }
 }

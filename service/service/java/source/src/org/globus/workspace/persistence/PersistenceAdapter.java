@@ -163,7 +163,9 @@ public interface PersistenceAdapter {
 
             throws WorkspaceDatabaseException;
 
-    public List<ResourcepoolEntry> currentResourcepoolEntries() throws WorkspaceDatabaseException;
+    public List<ResourcepoolEntry> currentResourcepoolEntries()
+
+            throws WorkspaceDatabaseException;
 
     public ResourcepoolEntry getResourcepoolEntry(String hostname)
 

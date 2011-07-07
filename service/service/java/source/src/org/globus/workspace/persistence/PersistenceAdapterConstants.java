@@ -43,8 +43,8 @@ public interface PersistenceAdapterConstants {
         "SELECT SUM(preemptable_memory) FROM resourcepool_entries";    
 
     public static final String SQL_SELECT_USED_NON_PREEMPTABLE_MEMORY =
-        "SELECT SUM(maximum_memory-available_memory-preemptable_memory) FROM resourcepool_entries";     
-    
+        "SELECT SUM(maximum_memory-available_memory-preemptable_memory) FROM resourcepool_entries";
+
     /* Prepared Statements with dynamic markers */
 
     public static final String SQL_SET_STATE =

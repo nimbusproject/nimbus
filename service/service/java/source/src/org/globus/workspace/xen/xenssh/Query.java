@@ -16,10 +16,10 @@ public class Query extends XenTask {
 
     protected void init() throws WorkspaceException {
         this.name = "Query";
-        this.doFakeLag = true; // what is this?
+        this.doFakeLag = true;
 
         final VirtualMachine vm = this.ctx.getVm();
-        final ArrayList ssh = SSHUtil.constructSshCommand(vm.getNode());
+        final ArrayList ssh = SSHUtil.constructSshCommand(vm.getVmm());
         final ArrayList exe = XenUtil.constructQueryCommand();
         ssh.addAll(exe);
         this.cmd = (String[]) ssh.toArray(new String[ssh.size()]);
