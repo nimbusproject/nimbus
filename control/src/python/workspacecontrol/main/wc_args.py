@@ -54,7 +54,7 @@ class ControlArg:
 ################################################################################
 
 ACTION = ControlArg("action", "-a", since="2.3", createarg=False)
-ACTION.help = "Action for the program to take: create, remove, info, reboot, pause, unpause, propagate, unpropagate, printxml"
+ACTION.help = "Action for the program to take: create, remove, info, reboot, pause, unpause, propagate, unpropagate, printxml, query"
 a.append(ACTION)
 
 CONF = ControlArg("conf", "-c", createarg=False, metavar="PATH")
@@ -120,6 +120,10 @@ a.append(VALIDATE_ONLY)
 VCPUS = ControlArg("vcpus", None, since="2.3", metavar="NUM")
 VCPUS.help = "Number of vcpus to assign the VM, overrides configuration"
 a.append(VCPUS)
+
+CACHECKSUM = ControlArg("cachecksum", None, since="2.7.1", metavar="STRING")
+CACHECKSUM.help = "This argument enables a cache lookup for a propagated image based on the associated argument which is the key to the cache.  An md5sum checksum is assumed"
+a.append(CACHECKSUM)
 
 ################################################################################
 # DEPRECATED ARGUMENTS

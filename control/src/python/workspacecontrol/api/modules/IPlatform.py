@@ -37,6 +37,8 @@ class IPlatform(workspacecontrol.api.IWCModule):
         
         Return instance of RunningVM or None if the handle was not found.
         """
+    def query():
+	"""query queries the VMM for VM status"""
 
     def print_create_spec(local_file_set, nic_set, kernel):
         """If possible, print to stdout something that the platform adapter

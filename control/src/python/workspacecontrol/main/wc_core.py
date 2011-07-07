@@ -58,11 +58,13 @@ def core(opts, dbgmsgs=None):
         
     action = validate_action(given_action)
     
-    given_vm_name = p.get_arg_or_none(wc_args.NAME)
-    if not given_vm_name:
-        raise InvalidInput("The %s argument is required, see help" % wc_args.NAME.long_syntax)
+    vm_name = None
+    if given_action != "query":
+        given_vm_name = p.get_arg_or_none(wc_args.NAME)
+        if not given_vm_name:
+            raise InvalidInput("The %s argument is required, see help" % wc_args.NAME.long_syntax)
     
-    vm_name = validate_name(given_vm_name)
+	vm_name = validate_name(given_vm_name)
     
     # -------------------------------------------------------------------------
     # Common
@@ -156,8 +158,11 @@ def _core(vm_name, action, p, c):
     else:
         c.log.info("Performing '%s' action for '%s'" % (action, vm_name))
         
-    running_vm = platform.info(vm_name)
-    nic_set = persistence.get_nic_set(vm_name)
+    running_vm = None
+    nic_set = None
+    if action != ACTIONS.QUERY:
+	running_vm = platform.info(vm_name)
+    	nic_set = persistence.get_nic_set(vm_name)
     
     if running_vm and not nic_set:
         infostr = running_vm_dump(running_vm)
