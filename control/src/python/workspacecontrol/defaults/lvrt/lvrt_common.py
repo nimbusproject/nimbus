@@ -334,12 +334,13 @@ class Platform:
 	    #Defined domains
 	    ddomains = vmm.listDefinedDomains()
 	    for domain in ddomains:
-		res[domain] = vmm.lookupByName(domain).isActive()
+		res[domain] = vmm.lookupByName(domain).info()[0]
 	    #Running domains
 	    rdomains = vmm.listDomainsID()
 	    for domain in rdomains:
 		name = vmm.lookupByID(domain).name()
-		res[name] = vmm.lookupByID(domain).isActive()
+		res[name] = vmm.lookupByID(domain).info()[0]
+	    print res
 	    return json.dumps(res)
 
 
