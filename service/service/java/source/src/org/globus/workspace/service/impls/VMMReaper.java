@@ -111,10 +111,10 @@ public class VMMReaper implements Runnable {
         }
 
         for (ResourcepoolEntry r: vmms) {
-            Query query = new Query();
             String hostname = r.getHostname();
 
-            //1: is running, 2: is stopped
+            // These are the libvirt guest states
+            // 1 = running; 2 = idle; 3 = paused; 4 = shutdown; 5 = shut off; 6 = crashed; 7 = dying
             HashMap<String,Integer> result = gson.fromJson("query vmm", HashMap.class);//TODO get returned json
         }
 
