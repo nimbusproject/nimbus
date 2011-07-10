@@ -655,8 +655,8 @@ class cbPutObject(cbRequest):
             gdEx = cbException('InvalidArgument')
             gdEx.sendErrorResponse(self.request, self.requestId)
 
-    #  recveive object looks strange because twisted has alrady received
-    #  the enitre file and put it in a temp location.  we now just have 
+    #  receive object looks strange because twisted has already received
+    #  the entire file and put it in a temp location.  we now just have
     #  to recognize that we have it all
     def recvObject(self, request, dataObj):
         self.set_common_headers()
