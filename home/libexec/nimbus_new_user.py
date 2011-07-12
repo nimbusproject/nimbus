@@ -92,7 +92,7 @@ def remove_gridmap(dn):
         print "WARNING! user not found in %s" % (dn)
     os.close(nf)
     f.close()
-    shutil.move((new_name, gmf)
+    shutil.move(new_name, gmf)
 
 def generate_cert(o):
     nimbus_home = get_nimbus_home()

@@ -141,7 +141,7 @@ def remove_gridmap(dn):
         print "WARNING! user not found in %s" % (dn)
     os.close(nf)
     f.close()
-    shutil.move((new_name, gmf)
+    shutil.move(new_name, gmf)
 
 
 def report_results(o, db):
