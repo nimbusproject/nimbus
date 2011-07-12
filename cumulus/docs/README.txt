@@ -189,7 +189,6 @@ The following features of S3 are not currently implemented in cumulus
 - Location
 - Logging
 - Object POST
-- Object COPY
 - torrent
 
 When using s3cmd it seems that all buckets must start with a capital 
