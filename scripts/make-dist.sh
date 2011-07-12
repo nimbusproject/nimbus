@@ -27,7 +27,7 @@ echo "Nimbus git repository: $repo"
 echo "Created temp directory: $co_dir"
 
 cd $co_dir
-git clone $repo
+git clone --depth 1 $repo
 
 cd nimbus/cumulus/deps
 ./get-em.sh
