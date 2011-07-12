@@ -1,7 +1,7 @@
 What is Cumulus?
 ----------------
 Cumulus is an open source implementation of the S3 REST API.  Some features
-such as versioning and COPY are not yet implemented, but some additional
+such as versioning are not yet implemented, but some additional
 features are added, such as file system usage quotas.
 
 What clients can I use with Cumulus?
