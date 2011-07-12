@@ -75,6 +75,14 @@ To install LANTorrent you must take the following steps:
 
     - run: python setup-vmm.py install.  This will output the contents of 
       the xinetd configuration file that you will need in the next step.
+      [optional] You may want to setup a python virtual environment for
+      the installation.
+      To do this, run: virtualenv /path_to_install_lantorrent
+      Then, use the /path_to_install_lantorrent/bin/python binary
+      instead of your system python.
+      [optional] If you don't have Internet connectivity on the VMM, you
+      will have to manually install the simplejson library from source
+      (in the virtual env if you chose to create one).
 
 4) install lantorrent into xinetd
     - the above step outputs and xinetd file like this:
