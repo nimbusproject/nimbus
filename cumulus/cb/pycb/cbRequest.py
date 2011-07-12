@@ -655,8 +655,8 @@ class cbPutObject(cbRequest):
             gdEx = cbException('InvalidArgument')
             gdEx.sendErrorResponse(self.request, self.requestId)
 
-    #  recveive object looks strange because twisted has alrady received
-    #  the enitre file and put it in a temp location.  we now just have 
+    #  receive object looks strange because twisted has already received
+    #  the entire file and put it in a temp location.  we now just have
     #  to recognize that we have it all
     def recvObject(self, request, dataObj):
         self.set_common_headers()
@@ -803,7 +803,7 @@ class cbCopyObject(cbRequest):
 
             lm = doc.createElement("LastModified")
             cor.appendChild(lm)
-            lmText = doc.createTextNode(str(self.src_ctm))
+            lmText = doc.createTextNode(datetime(*self.src_ctm[:6]).isoformat())
             lm.appendChild(lmText)
 
             lm = doc.createElement("ETag")
