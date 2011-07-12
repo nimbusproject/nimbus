@@ -28,12 +28,16 @@ public interface RemoteAdminToolsManagement extends Remote {
     public static final int SHUTDOWN_ALL = 0;
     public static final int SHUTDOWN_ID = 1;
     public static final int SHUTDOWN_HOST = 2;
+    public static final int SHUTDOWN_UNAME = 3;
+    public static final int SHUTDOWN_DN = 4;
+    public static final int SHUTDOWN_GID = 5;
+    public static final int SHUTDOWN_GNAME = 6;
 
     public String getAllRunningVMs() throws RemoteException;
     public String getVMsByDN(String userDN) throws RemoteException;
     public String getVMsByUser(String user) throws RemoteException;
     public String getAllVMsByHost(String hostname) throws RemoteException;
-    public String[] getAllVMsByGroupId(String groupId) throws RemoteException;
-    public String[] getAllVMsByGroupName(String groupName) throws RemoteException;
+    public String getAllVMsByGroupId(String groupId) throws RemoteException;
+    public String getAllVMsByGroupName(String groupName) throws RemoteException;
     public String shutdown(int type, String typeID, String seconds) throws RemoteException;
 }

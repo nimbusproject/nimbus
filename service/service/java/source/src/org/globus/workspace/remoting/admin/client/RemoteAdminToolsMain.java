@@ -45,10 +45,11 @@ public class RemoteAdminToolsMain extends RMIConfig {
     private static final String FIELD_END = "end time";
     private static final String FIELD_MEMORY = "memory";
     private static final String FIELD_CPU_COUNT = "cpu count";
+    private static final String FIELD_URI = "uri";
 
     final static String[] ADMIN_FIELDS = new String[] {
             FIELD_ID, FIELD_NODE, FIELD_GROUP_ID, FIELD_GROUP_NAME, FIELD_CREATOR, FIELD_STATE, FIELD_START,
-                FIELD_END, FIELD_MEMORY, FIELD_CPU_COUNT};
+                FIELD_END, FIELD_MEMORY, FIELD_CPU_COUNT, FIELD_URI};
 
     private ToolAction action;
     private RemoteAdminToolsManagement remoteAdminToolsManagement;
@@ -200,8 +201,8 @@ public class RemoteAdminToolsMain extends RMIConfig {
                     this.groupName = gname;
                     numOpts++;
                 }
-                if(line.hasOption(Opts.HOST_LIST)) {
-                    final String hostname = line.getOptionValue(Opts.HOST_LIST);
+                if(line.hasOption(Opts.HOST)) {
+                    final String hostname = line.getOptionValue(Opts.HOST);
                     if(hostname == null || hostname.trim().length() == 0) {
                         throw new ParameterProblem("Host value is empty");
                     }
@@ -222,8 +223,40 @@ public class RemoteAdminToolsMain extends RMIConfig {
                     this.vmID = id;
                     numOpts++;
                 }
-                if(line.hasOption(Opts.HOST_SHUTDOWN)) {
-                    final String hostname = line.getOptionValue(Opts.HOST_SHUTDOWN);
+                if(line.hasOption(Opts.USER)) {
+                    final String user = line.getOptionValue(Opts.USER);
+                    if(user == null || user.trim().length() == 0) {
+                        throw new ParameterProblem("User value is empty");
+                    }
+                    this.user = user;
+                    numOpts++;
+                }
+                if(line.hasOption(Opts.DN)) {
+                    final String dn = line.getOptionValue(Opts.DN);
+                    if(dn == null || dn.trim().length() == 0) {
+                        throw new ParameterProblem("DN value is empty");
+                    }
+                    this.userDN = dn;
+                    numOpts++;
+                }
+                if(line.hasOption(Opts.GROUP_ID)) {
+                    final String gid = line.getOptionValue(Opts.GROUP_ID);
+                    if(gid == null || gid.trim().length() == 0) {
+                        throw new ParameterProblem("Group id value is empty");
+                    }
+                    this.groupId = gid;
+                    numOpts++;
+                }
+                if(line.hasOption(Opts.GROUP_NAME)) {
+                    final String gname = line.getOptionValue(Opts.GROUP_NAME);
+                    if(gname == null || gname.trim().length() == 0) {
+                        throw new ParameterProblem("Group name value is empty");
+                    }
+                    this.groupName = gname;
+                    numOpts++;
+                }
+                if(line.hasOption(Opts.HOST)) {
+                    final String hostname = line.getOptionValue(Opts.HOST);
                     if(hostname == null || hostname.trim().length() == 0) {
                         throw new ParameterProblem("Hostname value is empty");
                     }
@@ -325,32 +358,20 @@ public class RemoteAdminToolsMain extends RMIConfig {
                 vms = gson.fromJson(vmsJson, VMTranslation[].class);
             }
             else if(this.groupId != null) {
-                final String[] vmsJson = this.remoteAdminToolsManagement.getAllVMsByGroupId(groupId);
+                final String vmsJson = this.remoteAdminToolsManagement.getAllVMsByGroupId(groupId);
                 if(vmsJson == null) {
                     System.err.println("No vms with group id " + groupId + " found");
                     return;
                 }
-                for(int i = 0; i < vmsJson.length; i++) {
-                    if(vmsJson[i] != null) {
-                        vms = gson.fromJson(vmsJson[i], VMTranslation[].class);
-                        reporter.report(vmsToMaps(vms), this.outStream);
-                    }
-                }
-                return;
+                vms = gson.fromJson(vmsJson, VMTranslation[].class);
             }
             else if(this.groupName != null) {
-                final String[] vmsJson = this.remoteAdminToolsManagement.getAllVMsByGroupName(groupName);
+                final String vmsJson = this.remoteAdminToolsManagement.getAllVMsByGroupName(groupName);
                 if(vmsJson == null) {
                     System.err.println("No vms with group name " + groupName + " found");
                     return;
                 }
-                for(int i = 0; i < vmsJson.length; i++) {
-                    if(vmsJson[i] != null) {
-                        vms = gson.fromJson(vmsJson[i], VMTranslation[].class);
-                        reporter.report(vmsToMaps(vms), this.outStream);
-                    }
-                }
-                return;
+                vms = gson.fromJson(vmsJson, VMTranslation[].class);
             }
             else if(this.hostname != null) {
                 final String vmsJson = this.remoteAdminToolsManagement.getAllVMsByHost(hostname);
@@ -394,12 +415,28 @@ public class RemoteAdminToolsMain extends RMIConfig {
                 result = this.remoteAdminToolsManagement.shutdown(
                         RemoteAdminToolsManagement.SHUTDOWN_ID, vmID, seconds);
             }
+            else if(user != null) {
+                result = this.remoteAdminToolsManagement.shutdown(
+                        RemoteAdminToolsManagement.SHUTDOWN_UNAME, user, seconds);
+            }
+            else if(userDN != null) {
+                result = this.remoteAdminToolsManagement.shutdown(
+                        RemoteAdminToolsManagement.SHUTDOWN_DN, userDN, seconds);
+            }
+            else if(groupId != null) {
+                result = this.remoteAdminToolsManagement.shutdown(
+                        RemoteAdminToolsManagement.SHUTDOWN_GID, groupId, seconds);
+            }
+            else if(groupName != null) {
+                result = this.remoteAdminToolsManagement.shutdown(
+                        RemoteAdminToolsManagement.SHUTDOWN_GNAME, groupName, seconds);
+            }
             else if(hostname != null) {
                 result = this.remoteAdminToolsManagement.shutdown(
                         RemoteAdminToolsManagement.SHUTDOWN_HOST, hostname, seconds);
             }
             else {
-                result = "Shutdown requires either --all, --id or --hostname option";
+                result = "Shutdown requires either --all, --id, --user or --hostname option";
             }
             if(result != null)
                 System.err.println(result);
@@ -418,7 +455,7 @@ public class RemoteAdminToolsMain extends RMIConfig {
     }
 
     private static Map<String, String> vmToMap(VMTranslation vmt) {
-        final HashMap<String, String> map = new HashMap(8);
+        final HashMap<String, String> map = new HashMap(11);
         map.put(FIELD_ID, vmt.getId());
         map.put(FIELD_NODE, vmt.getNode());
         map.put(FIELD_GROUP_ID, vmt.getGroupId());
@@ -429,6 +466,7 @@ public class RemoteAdminToolsMain extends RMIConfig {
         map.put(FIELD_END, vmt.getEndTime());
         map.put(FIELD_MEMORY, vmt.getMemory());
         map.put(FIELD_CPU_COUNT, vmt.getCpuCount());
+        map.put(FIELD_URI, vmt.getUri());
         return map;
     }
 

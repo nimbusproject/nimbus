@@ -95,42 +95,47 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
         return gson.toJson(vmts);
     }
 
-    public String[] getAllVMsByGroupId(String groupId) throws RemoteException {
-        int id;
-        try {
-            id = Integer.parseInt(groupId);
-        }
-        catch(NumberFormatException e) {
-            return null;
-        }
+    public String getAllVMsByGroupId(String groupId) throws RemoteException {
+        Group group = getGroupByGroupId(groupId);
+        VM[] vms = getAllVMsByGroup(group);
 
-        GroupAuthz groupAuthz = (GroupAuthz) authzCallout;
-        Group[] groups = groupAuthz.getGroups();
-        if(id <= 0 || id > groups.length)
+        if(vms == null)
             return null;
 
-        Group group = groups[--id];
-        return getAllVMsByGroup(group);
+        final List<VMTranslation> vmts = new ArrayList<VMTranslation>(vms.length);
+        for(int i = 0; i < vms.length; i++) {
+            vmts.add(translateVM(vms[i]));
+        }
+        return gson.toJson(vmts);
     }
 
-    public String[] getAllVMsByGroupName(String groupName) throws RemoteException {
-        GroupAuthz groupAuthz = (GroupAuthz) authzCallout;
-        Group[] groups = groupAuthz.getGroups();
-        for(int i = 0; i < groups.length; i++) {
-            if(groups[i] != null && groups[i].getName().equals(groupName))
-                return getAllVMsByGroup(groups[i]);
+    public String getAllVMsByGroupName(String groupName) throws RemoteException {
+        Group group = getGroupByGroupName(groupName);
+        VM[] vms = getAllVMsByGroup(group);
+
+        if(vms == null)
+            return null;
+
+        final List<VMTranslation> vmts = new ArrayList<VMTranslation>(vms.length);
+        for(int i = 0; i < vms.length; i++) {
+            vmts.add(translateVM(vms[i]));
         }
-        return null;
+        return gson.toJson(vmts);
     }
 
     public String getVMsByDN(String userDN) throws RemoteException {
         try {
-            authz = new AuthzDBAdapter(authzDataSource);
-            String userId = authz.getCanonicalUserIdFromDn(userDN);
-            return getVMsByUserId(userId);
+            final _Caller caller = this.reprFactory._newCaller();
+            caller.setIdentity(userDN);
+            VM[] vms = manager.getAllByCaller(caller);
+            final List<VMTranslation> vmts = new ArrayList<VMTranslation>(vms.length);
+            for(int i = 0; i < vms.length; i++) {
+                vmts.add(translateVM(vms[i]));
+            }
+            return gson.toJson(vmts);
         }
-        catch (AuthzDBException e) {
-            return null;
+        catch (ManageException e) {
+            throw new RemoteException(e.getMessage());
         }
     }
 
@@ -138,7 +143,12 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
         try {
             authz = new AuthzDBAdapter(authzDataSource);
             String userId = authz.getCanonicalUserIdFromFriendlyName(user);
-            return getVMsByUserId(userId);
+            VM[] vms = getVMsByUserId(userId);
+            final List<VMTranslation> vmts = new ArrayList<VMTranslation>(vms.length);
+            for(int i = 0; i < vms.length; i++) {
+                vmts.add(translateVM(vms[i]));
+            }
+            return gson.toJson(vmts);
         }
         catch (AuthzDBException e) {
             return null;
@@ -154,12 +164,7 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
     public String shutdown(int type, String typeID, String seconds) throws RemoteException {
         try {
             VM[] vms;
-            if(type == SHUTDOWN_HOST)
-                vms = getVMByHost(typeID);
-            else if(type == SHUTDOWN_ID)
-                vms = getVMById(typeID);
-            else
-                vms = manager.getGlobalAll();
+            vms = typeSet(type, typeID);
 
             if(vms == null)
                 return errorMsg;
@@ -179,13 +184,7 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
             if(seconds == null) {
                 for(int i = 0; i <= 10; i++) {
                     Thread.sleep(3000);
-                    if(type == SHUTDOWN_HOST)
-                        vms = getVMByHost(typeID);
-                    else if(type == SHUTDOWN_ID)
-                        vms = getVMById(typeID);
-                    else
-                        vms = manager.getGlobalAll();
-
+                    vms = typeSet(type, typeID);
                     if(vms[0].getState().getState().equals("Propagated"))
                         break;
                 }
@@ -195,24 +194,14 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
                 int mill = (Integer.parseInt(seconds)) * 1000;
                 for(int i = 0; i <= mill; i += 3000) {
                     Thread.sleep(3000);
-                    if(type == SHUTDOWN_HOST)
-                        vms = getVMByHost(typeID);
-                    else if(type == SHUTDOWN_ID)
-                        vms = getVMById(typeID);
-                    else
-                        vms = manager.getGlobalAll();
+                    vms = typeSet(type, typeID);
                     if(vms[0].getState().getState().equals("Propagated"))
                         break;
                 }
             }
 
             //eventually trashes all vms regardless of whether or not they enter propagation mode
-            if(type == SHUTDOWN_HOST)
-                vms = getVMByHost(typeID);
-            else if(type == SHUTDOWN_ID)
-                vms = getVMById(typeID);
-            else
-                vms = manager.getGlobalAll();
+            vms = typeSet(type, typeID);
 
             for(int i = 0; i < vms.length; i++) {
                 String id = vms[i].getID();
@@ -235,26 +224,61 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
         }
     }
 
-    private String getVMsByUserId(String userId) throws RemoteException {
+    private VM[] typeSet(int type, String typeID) throws RemoteException {
+        try {
+            if(type == SHUTDOWN_HOST)
+                return getVMByHost(typeID);
+            else if(type == SHUTDOWN_ID)
+                return getVMById(typeID);
+            else if(type == SHUTDOWN_UNAME) {
+                authz = new AuthzDBAdapter(authzDataSource);
+                String userId = authz.getCanonicalUserIdFromFriendlyName(typeID);
+                return getVMsByUserId(userId);
+            }
+            else if(type == SHUTDOWN_DN) {
+                final _Caller caller = this.reprFactory._newCaller();
+                caller.setIdentity(typeID);
+                return manager.getAllByCaller(caller);
+            }
+            else if(type == SHUTDOWN_GID) {
+                Group group = getGroupByGroupId(typeID);
+                return getAllVMsByGroup(group);
+            }
+            else if(type == SHUTDOWN_GNAME) {
+                Group group = getGroupByGroupName(typeID);
+                return getAllVMsByGroup(group);
+            }
+            else
+                return manager.getGlobalAll();
+        }
+        catch (ManageException e) {
+            throw new RemoteException(e.getMessage());
+        }
+        catch (AuthzDBException e) {
+            throw new RemoteException(e.getMessage());
+        }
+    }
+
+    private VM[] getVMsByUserId(String userId) throws RemoteException {
         try {
             List<UserAlias> userAlias;
-                userAlias = authz.getUserAliases(userId);
-                if(userAlias.size() == 0)
-                    return null;
+            userAlias = authz.getUserAliases(userId);
+            List<UserAlias> dnAlias = new ArrayList<UserAlias>(userAlias.size());
 
-                final List<VMTranslation> vmts = new ArrayList<VMTranslation>();
+            for(int i = 0; i < userAlias.size(); i++) {
+                if(userAlias.get(i).getAliasType() == AuthzDBAdapter.ALIAS_TYPE_DN)
+                    dnAlias.add(userAlias.get(i));
+            }
+            if(dnAlias.size() == 0)
+                return null;
+            else if(dnAlias.size() > 1)
+                throw new RemoteException("User_Alias size: " + dnAlias.size());
 
-                for(int i = 0; i < userAlias.size(); i++) {
-                    String aliasDN = userAlias.get(i).getAliasName();
-                    final _Caller caller = this.reprFactory._newCaller();
-                    caller.setIdentity(aliasDN);
-                    VM[] vmsByCaller = manager.getAllByCaller(caller);
-                    for(int j = 0; j < vmsByCaller.length; j++) {
-                        vmts.add(translateVM(vmsByCaller[j]));
-                    }
-
-                }
-                return gson.toJson(vmts);
+            String aliasDN = dnAlias.get(0).getAliasName();
+            final _Caller caller = this.reprFactory._newCaller();
+            caller.setIdentity(aliasDN);
+            VM[] vmsByCaller = manager.getAllByCaller(caller);
+            return vmsByCaller;
         }
         catch (AuthzDBException e) {
             return null;
@@ -316,29 +340,62 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
         }
     }
 
-    private String[] getAllVMsByGroup(Group group) throws RemoteException {
+    private VM[] getAllVMsByGroup(Group group) throws RemoteException {
+        try {
+            if(group != null) {
+                String[] dns = group.getIdentities();
+                if(dns.length == 0)
+                    return null;
 
-        if(group != null) {
-            String[] dns = group.getIdentities();
-            if(dns.length == 0)
-                return null;
+                authz = new AuthzDBAdapter(authzDataSource);
+                List<VM> allVMs = new ArrayList<VM>(0);
 
-            authz = new AuthzDBAdapter(authzDataSource);
-            String[] vms = new String[dns.length];
-            int vmcnt = 0;
-            for(int i = 0; i < dns.length; i++) {
-                try {
-                    String userId = authz.getCanonicalUserIdFromDn(dns[i]);
-                    String vm = getVMsByUserId(userId);
-                    if(vm != null)
-                        vms[vmcnt++] = vm;
+                for(int i = 0; i < dns.length; i++) {
+                    final _Caller caller = this.reprFactory._newCaller();
+                    caller.setIdentity(dns[i]);
+                    VM[] vmsByCaller = manager.getAllByCaller(caller);
+                    for(int j = 0; j < vmsByCaller.length; j++) {
+                        allVMs.add(vmsByCaller[j]);
+                    }
                 }
-                catch(AuthzDBException e) {}
-            }
-            if(vms[0] == null)
-                return null;
+                if(allVMs.size() == 0) {
+                    errorMsg = "No VMs under specified group found";
+                    return null;
+                }
 
-            return vms;
+                VM[] vms = new VM[allVMs.size()];
+                return allVMs.toArray(vms);
+            }
+            return null;
+        }
+        catch (ManageException e) {
+            throw new RemoteException(e.getMessage());
+        }
+    }
+
+    private Group getGroupByGroupId(String groupId) {
+        int id;
+        try {
+            id = Integer.parseInt(groupId);
+        }
+        catch(NumberFormatException e) {
+            return null;
+        }
+
+        GroupAuthz groupAuthz = (GroupAuthz) authzCallout;
+        Group[] groups = groupAuthz.getGroups();
+        if(id <= 0 || id > groups.length)
+            return null;
+
+        return groups[--id];
+    }
+
+    private Group getGroupByGroupName(String groupName) {
+        GroupAuthz groupAuthz = (GroupAuthz) authzCallout;
+        Group[] groups = groupAuthz.getGroups();
+        for(int i = 0; i < groups.length; i++) {
+            if(groups[i] != null && groups[i].getName().equals(groupName))
+                return groups[i];
         }
         return null;
     }
@@ -363,9 +420,10 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
             ResourceAllocation ra = vm.getResourceAllocation();
             String memory = Integer.toString(ra.getMemory());
             String cpuCount = Integer.toString(ra.getIndCpuCount());
+            String uri = vm.getVMFiles()[0].getURI().getPath();
 
             VMTranslation vmt = new VMTranslation(id, node, creatorId, groupId, groupName, state, startTime, endTime,
-                    memory, cpuCount);
+                    memory, cpuCount, uri);
             return vmt;
         }
         catch (ManageException e) {
