@@ -18,15 +18,15 @@ package org.globus.workspace.service.impls;
 
 import com.google.gson.Gson;
 import edu.emory.mathcs.backport.java.util.concurrent.ExecutorService;
-import edu.emory.mathcs.backport.java.util.concurrent.FutureTask;
-import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.globus.workspace.Lager;
 import org.globus.workspace.scheduler.defaults.ResourcepoolEntry;
 import org.globus.workspace.service.InstanceResource;
-import org.globus.workspace.service.Sweepable;
 import org.globus.workspace.service.WorkspaceHome;
+import org.globus.workspace.service.impls.async.RequestFactory;
+import org.globus.workspace.service.impls.async.RequestFactoryImpl;
+import org.globus.workspace.service.impls.async.WorkspaceRequest;
 import org.globus.workspace.xen.xenssh.Query;
 import org.nimbustools.api.services.rm.ManageException;
 
@@ -45,6 +45,7 @@ public class VMMReaper implements Runnable {
     private static final Log logger =
             LogFactory.getLog(VMMReaper.class.getName());
 
+    protected final RequestFactory reqFactory;
     private final Gson gson = new Gson();
 
     // -------------------------------------------------------------------------
@@ -78,6 +79,8 @@ public class VMMReaper implements Runnable {
             throw new IllegalArgumentException("lagerImpl may not be null");
         }
         this.lager = lagerImpl;
+
+        this.reqFactory = new RequestFactoryImpl(lager);
     }
 
     
@@ -115,6 +118,14 @@ public class VMMReaper implements Runnable {
 
             // These are the libvirt guest states
             // 1 = running; 2 = idle; 3 = paused; 4 = shutdown; 5 = shut off; 6 = crashed; 7 = dying
+            WorkspaceRequest req = reqFactory.query();
+            String state = null;
+            try{
+                state = req.execute();
+            } catch (Exception e) {
+                //do something
+            }
+
             HashMap<String,Integer> result = gson.fromJson("query vmm", HashMap.class);//TODO get returned json
         }
 

@@ -1,8 +1,6 @@
 package org.globus.workspace.xen.xenlocal;
 
 import org.globus.workspace.WorkspaceException;
-import org.globus.workspace.cmdutils.SSHUtil;
-import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.globus.workspace.xen.XenTask;
 import org.globus.workspace.xen.XenUtil;
 
