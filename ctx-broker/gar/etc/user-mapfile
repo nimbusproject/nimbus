@@ -1,0 +1,5 @@
+# this file contains mappings of Nimbus users to query credentials
+# format:
+#   DN accessID secret
+# example:
+#   "/O=Grid/OU=GlobusTest/OU=simple-workspace-ca/OU=uchicago.edu/CN=Fakey McAllister" 1234567890 thisisasecret

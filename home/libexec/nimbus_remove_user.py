@@ -25,6 +25,7 @@ import shlex
 from nimbusweb.setup.setuperrors import *
 from nimbusweb.setup.groupauthz import *
 import traceback
+import shutil
 
 g_created_cert_files=False
 g_report_options = ["cert", "key", "dn", "canonical_id", "access_id", "access_secret", "url", "web_id"]
@@ -89,8 +90,7 @@ def remove_gridmap(dn):
         print "WARNING! user DN not found in gridmap: %s" % (dn)
     os.close(nf)
     f.close()
-    os.unlink(gmf)
-    os.rename(new_name, gmf)
+    shutil.move(new_name, gmf)
 
 def delete_user(o):
     con_str = pycb.config.authzdb

@@ -25,6 +25,7 @@ import shlex
 from nimbusweb.setup.setuperrors import *
 from nimbusweb.setup.groupauthz import *
 from optparse import SUPPRESS_HELP
+import shutil
 
 g_report_options = ["dn", "canonical_id", "access_id", "access_secret", "group"]
 
@@ -140,8 +141,7 @@ def remove_gridmap(dn):
         print "WARNING! user not found in %s" % (dn)
     os.close(nf)
     f.close()
-    os.unlink(gmf)
-    os.rename(new_name, gmf)
+    shutil.move(new_name, gmf)
 
 
 def report_results(o, db):

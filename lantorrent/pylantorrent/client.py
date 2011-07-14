@@ -31,6 +31,8 @@ class LTClient(object):
         self.file_data = True
         self.pau = False
         self.incoming_data = ""
+        first_req = json_header['requests'][0]
+        self.first_rid = first_req['id']
 
         self.dest = {}
         ld = json_header['destinations']
@@ -89,7 +91,7 @@ class LTClient(object):
 
     def close(self):
         self.md5str = str(self.md5er.hexdigest()).strip()
-        close(self.data_file)
+        self.data_file.close()
 
     def write(self, data):
         self.incoming_data = self.incoming_data + data
@@ -97,18 +99,20 @@ class LTClient(object):
     def process_incoming_data(self):
         lines = self.incoming_data.split('\n')
         for data in lines:
-            try:
-                json_outs = json.loads(data)
-                rid = json_outs['id']
-                if int(json_outs['code']) == 0:
-                    c = self.dest.pop(rid)
-                    self.complete[rid] = json_out
-                    self.success_count = self.success_count + 1
-                else:
-                    d = self.dest[rid]
-                    d['emsg'] = json_outs
-            except Exception, ex:
-                pass
+            if data:
+                try:
+                    json_outs = json.loads(data)
+                    rid = json_outs['id']
+                    if int(json_outs['code']) == 0:
+                        if rid != self.first_rid:
+                            c = self.dest.pop(rid)
+                            self.complete[rid] = json_outs
+                            self.success_count = self.success_count + 1
+                    else:
+                        d = self.dest[rid]
+                        d['emsg'] = json_outs
+                except Exception, ex:
+                    raise
         self.incoming_data = ""
 
     def check_sum(self):
@@ -144,7 +148,11 @@ def main(argv=sys.argv[1:]):
         x = int(port)
         filename = "/" + a[1].strip()
 
+        degree = 1
+        block_size = 128 * 1024
         filenames = [filename,]
+        print "%s:%d %s" % (host, x, filename)
+
         json_dest = pylantorrent.create_endpoint_entry(host, filenames, data_size, port, block_size, degree)
         dests.append(json_dest)
 
@@ -169,7 +177,7 @@ def main(argv=sys.argv[1:]):
         if e['emsg'] == None:
             e['message'] = "Unknown error.  Please retry"
         else:
-            e = e['emsg']
+            e['message'] = e['emsg']
         print "ERROR: %s:%s%s %s" % (e['host'], e['port'], str(e['filename']), e['message'])       
     print "Succesfully sent to %d" % (c.success_count)
 
