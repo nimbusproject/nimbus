@@ -25,6 +25,9 @@ Actions
 
     --shutdown (-s)      Shutdown VMs known to the IaaS service. Can
                          shutdown by all, id or hostname
+                         All options except --all can accept a comma separated
+                         list of VM's to shutdown
+                         ie. --shutdown --id 3,5,2,33
         --all (-a)          -Option to shutdown all running VMs on service
         --id (-i)           -Option to shutdown VM by VM id
         --user (-u)         -Option to shutdown VM by user display name

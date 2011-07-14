@@ -166,10 +166,8 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
             VM[] vms;
             vms = typeSet(type, typeID);
 
-            if(vms == null)
+            if(vms == null || vms.length == 0)
                 return errorMsg;
-            if(vms.length == 0)
-                return "No running VMs available for shutdown";
 
             for(int i = 0; i < vms.length; i++) {
                 String id = vms[i].getID();
@@ -233,29 +231,50 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
             else if(type == SHUTDOWN_UNAME) {
                 authz = new AuthzDBAdapter(authzDataSource);
                 String userId = authz.getCanonicalUserIdFromFriendlyName(typeID);
-                return getVMsByUserId(userId);
+                VM[] vms = getVMsByUserId(userId);
+                if(vms == null)
+                    errorMsg = "No VMs with user name " + typeID + " found";
+                return vms;
             }
             else if(type == SHUTDOWN_DN) {
                 final _Caller caller = this.reprFactory._newCaller();
                 caller.setIdentity(typeID);
-                return manager.getAllByCaller(caller);
+                VM[] vms = manager.getAllByCaller(caller);
+                if(vms.length == 0)
+                    errorMsg = "No VMs with DN " + typeID + " found";
+                return vms;
             }
             else if(type == SHUTDOWN_GID) {
                 Group group = getGroupByGroupId(typeID);
-                return getAllVMsByGroup(group);
+                if(group == null)
+                    return null;
+                VM[] vms = getAllVMsByGroup(group);
+                if(vms == null)
+                    errorMsg = "No VMs with group id " + typeID + " found";
+                return vms;
             }
             else if(type == SHUTDOWN_GNAME) {
                 Group group = getGroupByGroupName(typeID);
-                return getAllVMsByGroup(group);
+                if(group == null)
+                    return null;
+                VM[] vms = getAllVMsByGroup(group);
+                if(vms == null)
+                    errorMsg = "No VMs with group name " + typeID + " found";
+                return vms;
             }
-            else
-                return manager.getGlobalAll();
+            else {
+                VM[] vms = manager.getGlobalAll();
+                if(vms.length == 0)
+                    errorMsg = "No running VMs available for shutdown";
+                return vms;
+            }
         }
         catch (ManageException e) {
             throw new RemoteException(e.getMessage());
         }
         catch (AuthzDBException e) {
-            throw new RemoteException(e.getMessage());
+            errorMsg = "User " + typeID + " does not exist";
+            return null;
         }
     }
 
@@ -269,8 +288,9 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
                 if(userAlias.get(i).getAliasType() == AuthzDBAdapter.ALIAS_TYPE_DN)
                     dnAlias.add(userAlias.get(i));
             }
-            if(dnAlias.size() == 0)
+            if(dnAlias.size() == 0) {
                 return null;
+            }
             else if(dnAlias.size() > 1)
                 throw new RemoteException("User_Alias size: " + dnAlias.size());
 
@@ -281,14 +301,14 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
             return vmsByCaller;
         }
         catch (AuthzDBException e) {
-            return null;
+            throw new RemoteException(e.getMessage());
         }
         catch (ManageException e) {
-            throw new RemoteException(e.getMessage());
+            return null;
         }
     }
 
-    private VM[] getVMById(String id) throws RemoteException {
+    private VM[] getVMById(String id) {
         try {
             if(!manager.exists(id, manager.INSTANCE)) {
                 errorMsg = "VM ID: " + id + " does not exist";
@@ -301,17 +321,19 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
             return vms;
         }
         catch (DoesNotExistException e) {
-            throw new RemoteException(e.getMessage());
+            errorMsg = "VM ID: " + id + " does not exist";
+            return null;
         }
         catch (ManageException e) {
-            throw new RemoteException(e.getMessage());
+            errorMsg = "VM ID: " + id + " does not exist";
+            return null;
         }
     }
 
     /*
      * Looks through all running vms and compares hostnames
      */
-    private VM[] getVMByHost(String hostname) throws RemoteException {
+    private VM[] getVMByHost(String hostname) {
         try {
             VM[] vms;
             VM[] all = manager.getGlobalAll();
@@ -326,17 +348,19 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
             }
 
             if(cnt == 0) {
-                errorMsg = "No running VMs with hostname " + hostname + " found";
+                errorMsg = "No vms with hostname " + hostname + " found";
                 return null;
             }
             else
                 return vms;
         }
         catch (DoesNotExistException e) {
-            throw new RemoteException(e.getMessage());
+            errorMsg = "Hostname " + hostname + " not found";
+            return null;
         }
         catch (ManageException e) {
-            throw new RemoteException(e.getMessage());
+            errorMsg = "No running VMs found";
+            return null;
         }
     }
 
@@ -344,11 +368,11 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
         try {
             if(group != null) {
                 String[] dns = group.getIdentities();
-                if(dns.length == 0)
+                if(dns == null || dns.length == 0)
                     return null;
 
                 authz = new AuthzDBAdapter(authzDataSource);
-                List<VM> allVMs = new ArrayList<VM>(0);
+                ArrayList<VM> allVMs = new ArrayList<VM>(0);
 
                 for(int i = 0; i < dns.length; i++) {
                     final _Caller caller = this.reprFactory._newCaller();
@@ -358,10 +382,8 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
                         allVMs.add(vmsByCaller[j]);
                     }
                 }
-                if(allVMs.size() == 0) {
-                    errorMsg = "No VMs under specified group found";
+                if(allVMs.size() == 0)
                     return null;
-                }
 
                 VM[] vms = new VM[allVMs.size()];
                 return allVMs.toArray(vms);
@@ -379,15 +401,18 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
             id = Integer.parseInt(groupId);
         }
         catch(NumberFormatException e) {
+            errorMsg = "Group id must be a positive integer";
             return null;
         }
 
         GroupAuthz groupAuthz = (GroupAuthz) authzCallout;
         Group[] groups = groupAuthz.getGroups();
-        if(id <= 0 || id > groups.length)
+        if(id <= 0 || id > groups.length || groups[id -1] == null) {
+            errorMsg = "Group " + groupId + " not found";
             return null;
+        }
 
-        return groups[--id];
+        return groups[id -1];
     }
 
     private Group getGroupByGroupName(String groupName) {
@@ -397,6 +422,7 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
             if(groups[i] != null && groups[i].getName().equals(groupName))
                 return groups[i];
         }
+        errorMsg = "Group " + groupName + " not found";
         return null;
     }
 
