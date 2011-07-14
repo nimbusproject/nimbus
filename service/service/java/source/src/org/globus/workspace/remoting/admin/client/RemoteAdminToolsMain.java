@@ -57,9 +57,14 @@ public class RemoteAdminToolsMain extends RMIConfig {
     private String userDN;
     private String groupId;
     private String groupName;
-    private String vmID;
     private String hostname;
     private String seconds;
+    private List<String> vmIDs;
+    private List<String> userList;
+    private List<String> DNList;
+    private List<String> gidList;
+    private List<String> gnameList;
+    private List<String> hostList;
     private boolean allVMs = false;
     private int numOpts = 0;
 
@@ -220,7 +225,7 @@ public class RemoteAdminToolsMain extends RMIConfig {
                     if(id == null || id.trim().length() == 0) {
                         throw new ParameterProblem("VM ID value is empty");
                     }
-                    this.vmID = id;
+                    this.vmIDs = parseValues(id);
                     numOpts++;
                 }
                 if(line.hasOption(Opts.USER)) {
@@ -228,7 +233,7 @@ public class RemoteAdminToolsMain extends RMIConfig {
                     if(user == null || user.trim().length() == 0) {
                         throw new ParameterProblem("User value is empty");
                     }
-                    this.user = user;
+                    this.userList = parseValues(user);
                     numOpts++;
                 }
                 if(line.hasOption(Opts.DN)) {
@@ -236,7 +241,7 @@ public class RemoteAdminToolsMain extends RMIConfig {
                     if(dn == null || dn.trim().length() == 0) {
                         throw new ParameterProblem("DN value is empty");
                     }
-                    this.userDN = dn;
+                    this.DNList = parseValues(dn);
                     numOpts++;
                 }
                 if(line.hasOption(Opts.GROUP_ID)) {
@@ -244,7 +249,7 @@ public class RemoteAdminToolsMain extends RMIConfig {
                     if(gid == null || gid.trim().length() == 0) {
                         throw new ParameterProblem("Group id value is empty");
                     }
-                    this.groupId = gid;
+                    this.gidList = parseValues(gid);
                     numOpts++;
                 }
                 if(line.hasOption(Opts.GROUP_NAME)) {
@@ -252,7 +257,7 @@ public class RemoteAdminToolsMain extends RMIConfig {
                     if(gname == null || gname.trim().length() == 0) {
                         throw new ParameterProblem("Group name value is empty");
                     }
-                    this.groupName = gname;
+                    this.gnameList = parseValues(gname);
                     numOpts++;
                 }
                 if(line.hasOption(Opts.HOST)) {
@@ -260,7 +265,7 @@ public class RemoteAdminToolsMain extends RMIConfig {
                     if(hostname == null || hostname.trim().length() == 0) {
                         throw new ParameterProblem("Hostname value is empty");
                     }
-                    this.hostname = hostname;
+                    this.hostList = parseValues(hostname);
                     numOpts++;
                 }
                 if(line.hasOption(Opts.SECONDS)) {
@@ -338,13 +343,13 @@ public class RemoteAdminToolsMain extends RMIConfig {
         try {
             VMTranslation[] vms;
             if(numOpts > 1) {
-                System.err.println("You may select only one of --user, --dn, --gid or --host");
+                System.err.println("You may select only one of --user, --dn, --gid, --gname, or --host");
                 return;
             }
             if(this.user != null) {
                 final String vmsJson = this.remoteAdminToolsManagement.getVMsByUser(user);
                 if(vmsJson == null) {
-                    System.err.println("User: " + user + " not found");
+                    System.err.println("No vms with user " + user + " found");
                     return;
                 }
                 vms = gson.fromJson(vmsJson, VMTranslation[].class);
@@ -352,7 +357,7 @@ public class RemoteAdminToolsMain extends RMIConfig {
             else if(this.userDN != null) {
                 final String vmsJson = this.remoteAdminToolsManagement.getVMsByDN(userDN);
                 if(vmsJson == null) {
-                    System.err.println("DN: " + userDN + " not found");
+                    System.err.println("No vms with DN " + userDN + " found");
                     return;
                 }
                 vms = gson.fromJson(vmsJson, VMTranslation[].class);
@@ -401,9 +406,10 @@ public class RemoteAdminToolsMain extends RMIConfig {
 
     private void shutdownVM() throws ExecutionProblem {
         try {
-            String result;
+            String result = "";
+            String feedback;
             if(numOpts > 1) {
-                result = "You must select only one of --all, --id or --hostname";
+                result = "You must select only one of --all, --id, --user, --dn, --gid, --gname, or --host";
                 System.err.println(result);
                 return;
             }
@@ -411,35 +417,59 @@ public class RemoteAdminToolsMain extends RMIConfig {
                 result = this.remoteAdminToolsManagement.shutdown(
                         RemoteAdminToolsManagement.SHUTDOWN_ALL, null, seconds);
             }
-            else if(vmID != null) {
-                result = this.remoteAdminToolsManagement.shutdown(
-                        RemoteAdminToolsManagement.SHUTDOWN_ID, vmID, seconds);
+            else if(vmIDs != null) {
+                for(int i = 0; i < vmIDs.size(); i++) {
+                    feedback = this.remoteAdminToolsManagement.shutdown(
+                        RemoteAdminToolsManagement.SHUTDOWN_ID, vmIDs.get(i), seconds);
+                    if(feedback != null)
+                        result += feedback + "\n";
+                }
             }
-            else if(user != null) {
-                result = this.remoteAdminToolsManagement.shutdown(
-                        RemoteAdminToolsManagement.SHUTDOWN_UNAME, user, seconds);
+            else if(userList != null) {
+                for(int i = 0; i < userList.size(); i++) {
+                    feedback = this.remoteAdminToolsManagement.shutdown(
+                        RemoteAdminToolsManagement.SHUTDOWN_UNAME, userList.get(i), seconds);
+                    if(feedback != null)
+                        result += feedback + "\n";
+                }
             }
-            else if(userDN != null) {
-                result = this.remoteAdminToolsManagement.shutdown(
-                        RemoteAdminToolsManagement.SHUTDOWN_DN, userDN, seconds);
+            else if(DNList != null) {
+                for(int i = 0; i < DNList.size(); i++) {
+                    feedback = this.remoteAdminToolsManagement.shutdown(
+                        RemoteAdminToolsManagement.SHUTDOWN_DN, DNList.get(i), seconds);
+                    if(feedback != null)
+                        result += feedback + "\n";
+                }
             }
-            else if(groupId != null) {
-                result = this.remoteAdminToolsManagement.shutdown(
-                        RemoteAdminToolsManagement.SHUTDOWN_GID, groupId, seconds);
+            else if(gidList != null) {
+                for(int i = 0; i < gidList.size(); i++) {
+                    feedback = this.remoteAdminToolsManagement.shutdown(
+                        RemoteAdminToolsManagement.SHUTDOWN_GID, gidList.get(i), seconds);
+                    if(feedback != null)
+                        result += feedback + "\n";
+                }
             }
-            else if(groupName != null) {
-                result = this.remoteAdminToolsManagement.shutdown(
-                        RemoteAdminToolsManagement.SHUTDOWN_GNAME, groupName, seconds);
+            else if(gnameList != null) {
+                for(int i = 0; i < gnameList.size(); i++) {
+                    feedback = this.remoteAdminToolsManagement.shutdown(
+                        RemoteAdminToolsManagement.SHUTDOWN_GNAME, gnameList.get(i), seconds);
+                    if(feedback != null)
+                        result += feedback + "\n";
+                }
             }
-            else if(hostname != null) {
-                result = this.remoteAdminToolsManagement.shutdown(
-                        RemoteAdminToolsManagement.SHUTDOWN_HOST, hostname, seconds);
+            else if(hostList != null) {
+                for(int i = 0; i < hostList.size(); i++) {
+                    feedback = this.remoteAdminToolsManagement.shutdown(
+                        RemoteAdminToolsManagement.SHUTDOWN_HOST, hostList.get(i), seconds);
+                    if(feedback != null)
+                        result += feedback + "\n";
+                }
             }
             else {
-                result = "Shutdown requires either --all, --id, --user or --hostname option";
+                result = "Shutdown requires either --all, --id, --user, --dn, --gid, --gname, or --host option";
             }
-            if(result != null)
-                System.err.println(result);
+            if(result != null && !result.isEmpty())
+                System.err.print(result);
         }
         catch (RemoteException e) {
             System.err.println(e.getMessage());
@@ -468,6 +498,23 @@ public class RemoteAdminToolsMain extends RMIConfig {
         map.put(FIELD_CPU_COUNT, vmt.getCpuCount());
         map.put(FIELD_URI, vmt.getUri());
         return map;
+    }
+
+    private static List<String> parseValues(String valueString) throws ParameterProblem {
+        if (valueString == null) {
+            throw new ParameterProblem("list is invalid");
+        }
+
+        final String[] valueArray = valueString.trim().split("\\s*,\\s*");
+        if (valueArray.length == 0) {
+            throw new ParameterProblem("list is empty");
+        }
+
+        final List<String> values = new ArrayList<String>(valueArray.length);
+        for (final String value : valueArray) {
+            values.add(value);
+        }
+        return values;
     }
 
     private static String getHelpText() {
