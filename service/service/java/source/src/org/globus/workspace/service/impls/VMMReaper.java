@@ -27,6 +27,9 @@ import org.globus.workspace.scheduler.defaults.ResourcepoolEntry;
 import org.globus.workspace.service.InstanceResource;
 import org.globus.workspace.service.Sweepable;
 import org.globus.workspace.service.WorkspaceHome;
+import org.globus.workspace.service.impls.async.RequestFactory;
+import org.globus.workspace.service.impls.async.RequestFactoryImpl;
+import org.globus.workspace.service.impls.async.WorkspaceRequest;
 import org.globus.workspace.xen.xenssh.Query;
 import org.nimbustools.api.services.rm.ManageException;
 
@@ -45,6 +48,7 @@ public class VMMReaper implements Runnable {
     private static final Log logger =
             LogFactory.getLog(VMMReaper.class.getName());
 
+    protected final RequestFactory reqFactory;
     private final Gson gson = new Gson();
 
     // -------------------------------------------------------------------------
@@ -78,6 +82,7 @@ public class VMMReaper implements Runnable {
             throw new IllegalArgumentException("lagerImpl may not be null");
         }
         this.lager = lagerImpl;
+        this.reqFactory = new RequestFactoryImpl(lager);
     }
 
     
@@ -115,7 +120,20 @@ public class VMMReaper implements Runnable {
 
             // These are the libvirt guest states
             // 1 = running; 2 = idle; 3 = paused; 4 = shutdown; 5 = shut off; 6 = crashed; 7 = dying
-            HashMap<String,Integer> result = gson.fromJson("query vmm", HashMap.class);//TODO get returned json
+            WorkspaceRequest req = reqFactory.query();
+            //set context
+            String state = null;
+            try{
+//                state = req.execute();
+                req.execute();
+            } catch (Exception e) {
+                //do something
+            }
+
+            if (state != null) {
+                HashMap<String,Integer> result = gson.fromJson(state, HashMap.class);
+            }
+
         }
 
         InstanceResource[] ires =  this.home.findAll();
@@ -126,6 +144,10 @@ public class VMMReaper implements Runnable {
         }
 
         //TODO compare states with isInconsistent()
+    }
+
+    public int getCurrentState() {
+        return 0;
     }
 
     public static boolean isInconsistent(Integer state, Integer queriedState) {
