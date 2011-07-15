@@ -27,7 +27,7 @@ public interface WorkspaceRequest {
      * WorkspaceRequestQueue just knows how to dequeue work requests
      * and call execute.
      */
-    public String execute() throws WorkspaceException;
+    public void execute();
 
     /**
      * Information needed by request is supplied in context

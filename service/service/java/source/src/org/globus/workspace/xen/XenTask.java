@@ -68,29 +68,27 @@ public abstract class XenTask implements WorkspaceRequest {
         return e;
     }
 
-    public String execute() throws WorkspaceException {
+    public void execute() {
 
         if (this.ctx == null) {
             logger.fatal("request had null request ctx: " + this.name +
                     " [[ " + this.getClass().getName() + " ]]");
-            return null;
+            return;
         }
 
         try {
             this.init();
         } catch (WorkspaceException e) {
             this.done(e);
-            return null;
+            return;
         }
 
         final boolean fake = this.ctx.getLocator().getGlobalPolicies().isFake();
 
         Exception e = this.preExecute(fake);
 
-        String ret = null;
-
         if (e == null) {
-            ret = this._execute(fake);
+            this._execute(fake);
             e = this.postExecute(e, fake);
         }
 
@@ -102,7 +100,7 @@ public abstract class XenTask implements WorkspaceRequest {
                 logger.trace(Lager.id(ctx.getId()) + ": " +
                                         this.name + " async task started");
             }
-            return null;
+            return;
         }
 
         if (e == null) {
@@ -122,10 +120,9 @@ public abstract class XenTask implements WorkspaceRequest {
         }
 
         this.done(e);
-        return ret;
     }
 
-    private String _execute(boolean fake) throws WorkspaceException {
+    private Exception _execute(boolean fake) {
 
         final int id = this.ctx.getId();
         final boolean traceLog = this.ctx.lager().traceLog;
@@ -227,7 +224,7 @@ public abstract class XenTask implements WorkspaceRequest {
                     err = "Do not run have rights to run " +
                             this.name + " with ctx ID = " + id;
                 }
-                throw new WorkspaceException(err);
+                return new WorkspaceException(err);
             }
 
             // while developing it is sometimes helpful to set cmd to null
@@ -238,13 +235,13 @@ public abstract class XenTask implements WorkspaceRequest {
             //TODO: add json content here
             String ret = null;
             if (this.cmd != null) {
-                ret = WorkspaceUtil.runCommand(this.cmd, eventLog, traceLog, id);
+                WorkspaceUtil.runCommand(this.cmd, eventLog, traceLog, id);
             }
-            return ret;
+            return null;
         } catch (ReturnException e) {
-            throw XenUtil.translateReturnException(e);
+            return XenUtil.translateReturnException(e);
         } catch (WorkspaceException e) {
-            throw e;
+            return e;
         }
     }
 }
