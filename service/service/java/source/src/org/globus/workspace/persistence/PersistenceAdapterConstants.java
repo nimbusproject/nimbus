@@ -27,6 +27,10 @@ public interface PersistenceAdapterConstants {
     public static final String SQL_SELECT_RESOURCES =
             "SELECT id FROM resources";
 
+   //TODO add select to resource state
+    public static final String SQL_SELECT_RESOURCE_BASIC_INFORMATION =
+            "SELECT id, name, state FROM resources";
+
     public static final String SQL_SELECT_ALL_ASSOCIATIONS =
             "SELECT * FROM associations";
 
@@ -242,6 +246,7 @@ public interface PersistenceAdapterConstants {
     
     public static final String[] PREPARED_STATEMENTS = {
                                     SQL_SELECT_RESOURCES,
+                                    SQL_SELECT_RESOURCE_BASIC_INFORMATION,
                                     SQL_SELECT_ALL_ASSOCIATIONS,
                                     SQL_SET_STATE,
                                     SQL_SET_OPS_ENABLED,
