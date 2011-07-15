@@ -18,14 +18,11 @@ package org.globus.workspace.service.impls;
 
 import com.google.gson.Gson;
 import edu.emory.mathcs.backport.java.util.concurrent.ExecutorService;
-import edu.emory.mathcs.backport.java.util.concurrent.FutureTask;
-import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.globus.workspace.Lager;
 import org.globus.workspace.scheduler.defaults.ResourcepoolEntry;
 import org.globus.workspace.service.InstanceResource;
-import org.globus.workspace.service.Sweepable;
 import org.globus.workspace.service.WorkspaceHome;
 import org.globus.workspace.service.impls.async.RequestFactory;
 import org.globus.workspace.service.impls.async.RequestFactoryImpl;
@@ -117,6 +114,10 @@ public class VMMReaper implements Runnable {
 
         for (ResourcepoolEntry r: vmms) {
             String hostname = r.getHostname();
+
+//            final WorkspaceRequestContext requestContext =
+//                new WorkspaceRequestContext(id, resource.getName(),
+//                                            this.locator, this.lager);
 
             // These are the libvirt guest states
             // 1 = running; 2 = idle; 3 = paused; 4 = shutdown; 5 = shut off; 6 = crashed; 7 = dying

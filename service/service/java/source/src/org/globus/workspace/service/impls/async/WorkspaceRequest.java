@@ -16,6 +16,8 @@
 
 package org.globus.workspace.service.impls.async;
 
+import org.globus.workspace.WorkspaceException;
+
 // TODO: move to executor
 public interface WorkspaceRequest {
 
@@ -25,7 +27,7 @@ public interface WorkspaceRequest {
      * WorkspaceRequestQueue just knows how to dequeue work requests
      * and call execute.
      */
-    public void execute();
+    public String execute() throws WorkspaceException;
 
     /**
      * Information needed by request is supplied in context
