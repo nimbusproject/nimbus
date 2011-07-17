@@ -16,8 +16,6 @@
 
 package org.globus.workspace.service.impls.async;
 
-import org.globus.workspace.WorkspaceException;
-
 // TODO: move to executor
 public interface WorkspaceRequest {
 

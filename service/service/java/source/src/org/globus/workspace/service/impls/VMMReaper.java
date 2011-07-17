@@ -24,9 +24,7 @@ import org.globus.workspace.Lager;
 import org.globus.workspace.scheduler.defaults.ResourcepoolEntry;
 import org.globus.workspace.service.InstanceResource;
 import org.globus.workspace.service.WorkspaceHome;
-import org.globus.workspace.service.impls.async.RequestFactory;
-import org.globus.workspace.service.impls.async.RequestFactoryImpl;
-import org.globus.workspace.service.impls.async.WorkspaceRequest;
+import org.globus.workspace.service.impls.async.*;
 import org.globus.workspace.xen.xenssh.Query;
 import org.nimbustools.api.services.rm.ManageException;
 
@@ -45,7 +43,7 @@ public class VMMReaper implements Runnable {
     private static final Log logger =
             LogFactory.getLog(VMMReaper.class.getName());
 
-    protected final RequestFactory reqFactory;
+    protected final VMMRequestFactory reqFactory;
     private final Gson gson = new Gson();
 
     // -------------------------------------------------------------------------
@@ -121,6 +119,7 @@ public class VMMReaper implements Runnable {
 
             // These are the libvirt guest states
             // 1 = running; 2 = idle; 3 = paused; 4 = shutdown; 5 = shut off; 6 = crashed; 7 = dying
+            VMMRequest req;
             WorkspaceRequest req = reqFactory.query();
             //set context
             String state = null;
