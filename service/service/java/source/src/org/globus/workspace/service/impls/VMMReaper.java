@@ -77,7 +77,7 @@ public class VMMReaper implements Runnable {
             throw new IllegalArgumentException("lagerImpl may not be null");
         }
         this.lager = lagerImpl;
-        this.reqFactory = new RequestFactoryImpl(lager);
+        this.reqFactory = new VMMRequestFactoryImpl(lager);
     }
 
     
@@ -119,8 +119,7 @@ public class VMMReaper implements Runnable {
 
             // These are the libvirt guest states
             // 1 = running; 2 = idle; 3 = paused; 4 = shutdown; 5 = shut off; 6 = crashed; 7 = dying
-            VMMRequest req;
-            WorkspaceRequest req = reqFactory.query();
+            VMMRequest req = reqFactory.query();
             //set context
             String state = null;
             try{
