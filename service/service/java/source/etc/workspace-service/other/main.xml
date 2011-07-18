@@ -744,6 +744,7 @@
     <bean id="nimbus-remoting-nodemgmt"
           class="org.globus.workspace.remoting.admin.defaults.DefaultRemoteNodeManagement">
         <property name="nodeManagement" ref="nimbus-rm.scheduler.SlotManagement"/>
+        <property name="persistenceAdapter" ref="nimbus-rm.persistence.PersistenceAdapter"/>
     </bean>
 
     <bean id="nimbus-remoting-admintools"

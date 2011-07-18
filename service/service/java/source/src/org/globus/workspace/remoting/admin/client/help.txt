@@ -30,6 +30,18 @@ Actions
     --remove (-d) HOSTS  Removes VMM nodes from the Nimbus resource pool.
                          Nodes that are in use cannot be removed.
 
+    --allocation (-N)    Provides network pool allocation information.
+                         Displays ip, MAC, and other pool entry info as well
+                         as whether or not the ip is currently in use.
+
+         --pool (-p)     --allocation option that provides info for specific
+                         pool name (ie. public)
+
+             --free      Optional --allocation argument that only lists
+                         ips that are not in use
+             --used      Optional --allocation argument that only lists
+                         ips that are in use
+
 
 -----------------------------------------------------------------------------
 VMM Node Parameters                      Values used in adding/updating nodes

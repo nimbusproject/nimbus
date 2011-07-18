@@ -27,6 +27,8 @@ public class AssociationEntry {
     private boolean inUse;
     private boolean explicitMac;
 
+    public AssociationEntry() {}; //used for Gson
+
     public AssociationEntry(String ipAddress,
                             String macAddress,
                             String hostname,

@@ -20,6 +20,11 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 public interface RemoteNodeManagement extends Remote {
+
+    public static final int ALL_ENTRIES = 0;
+    public static final int FREE_ENTRIES = 1;
+    public static final int USED_ENTRIES = 2;
+
     //Create
     public String addNodes(String nodeJson) throws RemoteException;
 
@@ -42,4 +47,8 @@ public interface RemoteNodeManagement extends Remote {
 
     //Delete
     public String removeNodes(String[] hostnames) throws RemoteException;
+
+    public String getAllNetworkPools(int inUse) throws RemoteException;
+
+    public String getNetworkPool(String pool, int inUse) throws RemoteException;
 }
