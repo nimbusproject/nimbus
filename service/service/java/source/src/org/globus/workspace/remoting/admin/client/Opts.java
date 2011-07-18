@@ -102,6 +102,11 @@ public class Opts {
     public final Option UPDATE_NODES_OPT =
                 OptionBuilder.withLongOpt(UPDATE_NODES_LONG).hasArg().create(UPDATE_NODES);
 
+    public static final String POOL_AVAILABILITY = "N";
+    public static final String POOL_AVAILABILITY_LONG = "allocation";
+    public final Option POOL_AVAILABILITY_OPT =
+                OptionBuilder.withLongOpt(POOL_AVAILABILITY_LONG).hasOptionalArg().create(POOL_AVAILABILITY);
+
 
     //*************************************************************************
     // NODE SETTINGS
@@ -131,6 +136,16 @@ public class Opts {
     public static final String POOL_LONG = "pool";
     public final Option POOL_OPT =
                 OptionBuilder.withLongOpt(POOL_LONG).hasArg().create(POOL);
+
+    public static final String FREE = "F";
+    public static final String FREE_LONG = "free";
+    public final Option FREE_OPT =
+                OptionBuilder.withLongOpt(FREE_LONG).create(FREE);
+
+    public static final String USED = "U";
+    public static final String USED_LONG = "used";
+    public final Option USED_OPT =
+                OptionBuilder.withLongOpt(USED_LONG).create(USED);
 
 
     //*************************************************************************
@@ -190,10 +205,10 @@ public class Opts {
     public final Option[] ALL_ENABLED_OPTIONS = {
             HELP_OPT, DEBUG_OPT, CONFIG_OPT, BATCH_OPT, DELIMITER_OPT,
             REPORT_OPT, JSON_OPT, OUTPUT_OPT, ADD_NODES_OPT, LIST_NODES_OPT,
-            REMOVE_NODES_OPT, UPDATE_NODES_OPT, NETWORKS_OPT, MEMORY_OPT, POOL_OPT,
+            REMOVE_NODES_OPT, UPDATE_NODES_OPT, POOL_AVAILABILITY_OPT, NETWORKS_OPT, MEMORY_OPT, POOL_OPT,
             ACTIVE_OPT, INACTIVE_OPT, LIST_VMS_OPT, SHUTDOWN_VMS_OPT, USER_OPT, ID_OPT,
             SECONDS_OPT, ALL_VMS_OPT, HOST_OPT, DN_OPT, GROUP_ID_OPT,
-            GROUP_NAME_OPT
+            GROUP_NAME_OPT, FREE_OPT, USED_OPT
     };
 
 }

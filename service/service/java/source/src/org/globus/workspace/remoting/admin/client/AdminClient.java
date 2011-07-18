@@ -16,6 +16,7 @@
 package org.globus.workspace.remoting.admin.client;
 
 import org.apache.commons.cli.*;
+import org.globus.workspace.network.AssociationEntry;
 import org.globus.workspace.remoting.admin.NodeReport;
 import org.globus.workspace.remoting.admin.VmmNode;
 import org.nimbustools.api.services.admin.RemoteNodeManagement;
@@ -40,6 +41,12 @@ public class AdminClient extends RMIConfig {
     private static final String FIELD_IN_USE = "in_use";
     private static final String FIELD_RESULT = "result";
 
+    private static final String FIELD_IP = "ip";
+    private static final String FIELD_MAC = "mac";
+    private static final String FIELD_BROADCAST = "broadcast";
+    private static final String FIELD_SUBNET_MASK = "subnet mask";
+    private static final String FIELD_GATEWAY = "gateway";
+    private static final String FIELD_EXPLICIT_MAC = "explicit mac";
 
     final static String[] NODE_FIELDS = new String[] {
             FIELD_HOSTNAME, FIELD_POOL, FIELD_MEMORY, FIELD_NETWORKS,
@@ -54,6 +61,11 @@ public class AdminClient extends RMIConfig {
     final static String[] NODE_REPORT_FIELDS_SHORT = new String[] {
             FIELD_HOSTNAME, FIELD_RESULT};
 
+    final static String[] NODE_ALLOCATION_FIELDS = new String[] {
+            FIELD_HOSTNAME, FIELD_IP, FIELD_MAC, FIELD_BROADCAST,
+            FIELD_SUBNET_MASK, FIELD_GATEWAY, FIELD_IN_USE, FIELD_EXPLICIT_MAC
+    };
+
 
 
     private AdminAction action;
@@ -66,6 +78,7 @@ public class AdminClient extends RMIConfig {
     private String nodePool;
     private boolean nodeActive = true;
     private boolean nodeActiveConfigured;
+    private int inUse = 0;
 
     private RemoteNodeManagement remoteNodeManagement;
 
@@ -142,6 +155,9 @@ public class AdminClient extends RMIConfig {
                 break;
             case UpdateNodes:
                 run_updateNodes();
+                break;
+            case PoolAvailability:
+                run_poolAvail();
                 break;
         }
     }
@@ -234,12 +250,44 @@ public class AdminClient extends RMIConfig {
                     hostnames, active, resourcepool, memory, networks);
             reports = gson.fromJson(reportJson, NodeReport[].class);
         } catch (RemoteException e) {
-            handleRemoteException(e);
+            super.handleRemoteException(e);
         }
 
         try {
             reporter.report(nodeReportsToMaps(reports), this.outStream);
         } catch (IOException e) {
+            throw new ExecutionProblem("Problem writing output: " + e.getMessage(), e);
+        }
+    }
+
+    private void run_poolAvail() throws ExecutionProblem {
+        AssociationEntry[] entries = null;
+        try {
+            if(this.nodePool != null) {
+                final String entriesJson = this.remoteNodeManagement.getNetworkPool(this.nodePool, this.inUse);
+                if(entriesJson == null) {
+                    System.err.println("No entries with pool name " + nodePool + " found");
+                    return;
+                }
+                entries = gson.fromJson(entriesJson, AssociationEntry[].class);
+            }
+            else {
+                final String entriesJson = this.remoteNodeManagement.getAllNetworkPools(this.inUse);
+                if(entriesJson == null) {
+                    System.err.println("No pool entries found");
+                    return;
+                }
+                entries = gson.fromJson(entriesJson, AssociationEntry[].class);
+            }
+        }
+        catch(RemoteException e) {
+            System.err.println(e.getMessage());
+        }
+
+        try {
+            reporter.report(nodeAllocationToMaps(entries), this.outStream);
+        }
+        catch (IOException e) {
             throw new ExecutionProblem("Problem writing output: " + e.getMessage(), e);
         }
     }
@@ -356,6 +404,20 @@ public class AdminClient extends RMIConfig {
             final String hostArg = line.getOptionValue(AdminAction.ListNodes.option());
             if (hostArg != null) {
                 this.hosts = parseHosts(hostArg);
+            }
+        } else if (theAction == AdminAction.PoolAvailability) {
+            if(line.hasOption(Opts.POOL)) {
+                final String pool = line.getOptionValue(Opts.POOL);
+                if(pool == null || pool.trim().length() == 0) {
+                    throw new ParameterProblem("Pool name value is empty");
+                }
+                this.nodePool = pool;
+            }
+            if(line.hasOption(Opts.FREE)) {
+                this.inUse = RemoteNodeManagement.FREE_ENTRIES;
+            }
+            if(line.hasOption(Opts.USED)) {
+                this.inUse = RemoteNodeManagement.USED_ENTRIES;
             }
         }
 
@@ -540,6 +602,27 @@ public class AdminClient extends RMIConfig {
         }
         return map;
     }
+
+    private static List<Map<String,String>> nodeAllocationToMaps(AssociationEntry[] entries) {
+        List<Map<String,String>> maps = new ArrayList<Map<String, String>>(entries.length);
+        for (AssociationEntry entry : entries) {
+            maps.add(nodeAllocationToMap(entry));
+        }
+        return maps;
+    }
+
+    private static Map<String,String> nodeAllocationToMap(AssociationEntry entry) {
+        final HashMap<String, String> map = new HashMap(8);
+        map.put(FIELD_HOSTNAME, entry.getHostname());
+        map.put(FIELD_IP, entry.getIpAddress());
+        map.put(FIELD_MAC, entry.getMac());
+        map.put(FIELD_BROADCAST, entry.getBroadcast());
+        map.put(FIELD_SUBNET_MASK, entry.getSubnetMask());
+        map.put(FIELD_GATEWAY, entry.getGateway());
+        map.put(FIELD_IN_USE, Boolean.toString(entry.isInUse()));
+        map.put(FIELD_EXPLICIT_MAC, Boolean.toString(entry.isExplicitMac()));
+        return map;
+    }
 }
 
 enum AdminAction implements AdminEnum {
@@ -547,6 +630,7 @@ enum AdminAction implements AdminEnum {
     ListNodes(Opts.LIST_NODES, AdminClient.NODE_FIELDS),
     RemoveNodes(Opts.REMOVE_NODES, AdminClient.NODE_REPORT_FIELDS_SHORT),
     UpdateNodes(Opts.UPDATE_NODES, AdminClient.NODE_REPORT_FIELDS),
+    PoolAvailability(Opts.POOL_AVAILABILITY, AdminClient.NODE_ALLOCATION_FIELDS),
     Help(Opts.HELP, null);
 
     private final String option;
