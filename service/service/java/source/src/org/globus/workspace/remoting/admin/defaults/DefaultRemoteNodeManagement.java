@@ -359,8 +359,11 @@ public class DefaultRemoteNodeManagement implements RemoteNodeManagement {
         if (entry == null) {
              return null;
         }
-        return new VmmNode(entry.getHostname(), entry.isActive(),
+        VmmNode vmm = new VmmNode(entry.getHostname(), entry.isActive(),
                 entry.getResourcePool(), entry.getMemMax(),
                 entry.getSupportedAssociations(), entry.isVacant());
+
+        vmm.setMemRemain(entry.getMemCurrent());
+        return vmm;
     }
 }
