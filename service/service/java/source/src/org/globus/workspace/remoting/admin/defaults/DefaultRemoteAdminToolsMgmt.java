@@ -128,6 +128,10 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
             final _Caller caller = this.reprFactory._newCaller();
             caller.setIdentity(userDN);
             VM[] vms = manager.getAllByCaller(caller);
+
+            if(vms.length == 0)
+                return null;
+
             final List<VMTranslation> vmts = new ArrayList<VMTranslation>(vms.length);
             for(int i = 0; i < vms.length; i++) {
                 vmts.add(translateVM(vms[i]));
