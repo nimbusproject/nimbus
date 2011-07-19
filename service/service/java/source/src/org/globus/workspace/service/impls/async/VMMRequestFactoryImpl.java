@@ -8,13 +8,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
 
-/**
- * Created by IntelliJ IDEA.
- * User: carla
- * Date: 18/07/11
- * Time: 13:29
- * To change this template use File | Settings | File Templates.
- */
 public class VMMRequestFactoryImpl  implements VMMRequestFactory {
 
     private static final Log logger =
@@ -35,6 +28,7 @@ public class VMMRequestFactoryImpl  implements VMMRequestFactory {
 
     private static final int numCommands = 1;
 
+    //for now there is only query command available
     private static final Integer query = new Integer(0);
 
 
@@ -70,7 +64,6 @@ public class VMMRequestFactoryImpl  implements VMMRequestFactory {
         }
     }
 
-
     // -------------------------------------------------------------------------
     // SETUP
     // -------------------------------------------------------------------------
@@ -79,8 +72,6 @@ public class VMMRequestFactoryImpl  implements VMMRequestFactory {
     private void initCmdStr() {
         this.cmdStr.put(query, "query");
     }
-
-
 
     private VMMRequest get(Integer i) {
         try {

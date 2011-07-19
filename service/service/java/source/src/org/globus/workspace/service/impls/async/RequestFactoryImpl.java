@@ -386,9 +386,6 @@ public class RequestFactoryImpl implements RequestFactory {
         return get(shutdownTrash);
     }
 
-//    public WorkspaceRequest query() {
-//        return get(query);
-//    }
     /*
      To cancel any state between propagated and before readyingForTransport
      */
