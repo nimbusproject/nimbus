@@ -36,6 +36,7 @@ public class AdminClient extends RMIConfig {
     private static final String FIELD_HOSTNAME = "hostname";
     private static final String FIELD_POOL = "pool";
     private static final String FIELD_MEMORY = "memory";
+    private static final String FIELD_MEM_REMAIN = "memory remaining";
     private static final String FIELD_NETWORKS = "networks";
     private static final String FIELD_ACTIVE = "active";
     private static final String FIELD_IN_USE = "in_use";
@@ -49,8 +50,8 @@ public class AdminClient extends RMIConfig {
     private static final String FIELD_EXPLICIT_MAC = "explicit mac";
 
     final static String[] NODE_FIELDS = new String[] {
-            FIELD_HOSTNAME, FIELD_POOL, FIELD_MEMORY, FIELD_NETWORKS,
-            FIELD_IN_USE, FIELD_ACTIVE };
+            FIELD_HOSTNAME, FIELD_POOL, FIELD_MEMORY, FIELD_MEM_REMAIN,
+            FIELD_NETWORKS, FIELD_IN_USE, FIELD_ACTIVE };
 
 
     final static String[] NODE_REPORT_FIELDS = new String[] {
@@ -563,10 +564,11 @@ public class AdminClient extends RMIConfig {
 
     private static Map<String,String> nodeToMap(VmmNode node) {
         final HashMap<String, String> map =
-                new HashMap<String, String>(5);
+                new HashMap<String, String>(7);
         map.put(FIELD_HOSTNAME, node.getHostname());
         map.put(FIELD_POOL, node.getPoolName());
         map.put(FIELD_MEMORY, String.valueOf(node.getMemory()));
+        map.put(FIELD_MEM_REMAIN, String.valueOf(node.getMemRemain()));
         map.put(FIELD_NETWORKS, node.getNetworkAssociations());
         map.put(FIELD_IN_USE, String.valueOf(!node.isVacant()));
         map.put(FIELD_ACTIVE, String.valueOf(node.isActive()));

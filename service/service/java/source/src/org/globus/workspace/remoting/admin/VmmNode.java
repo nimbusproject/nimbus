@@ -37,6 +37,7 @@ public class VmmNode {
     private boolean active;
     private String poolName;
     private int memory;
+    private int memRemain;
     private String networkAssociations;
     private boolean vacant;
 
@@ -57,12 +58,20 @@ public class VmmNode {
         return memory;
     }
 
+    public int getMemRemain() {
+        return memRemain;
+    }
+
     public String getNetworkAssociations() {
         return networkAssociations;
     }
 
     public boolean isVacant() {
         return vacant;
+    }
+
+    public void setMemRemain(int memRemain) {
+        this.memRemain = memRemain;
     }
 
     @Override
@@ -72,6 +81,7 @@ public class VmmNode {
                 ", active=" + active +
                 ", poolName='" + poolName + '\'' +
                 ", memory=" + memory +
+                ", memory remaining=" + memRemain +
                 ", networkAssociations='" + networkAssociations + '\'' +
                 ", vacant=" + vacant +
                 '}';
