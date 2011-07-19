@@ -1,5 +1,7 @@
 package org.globus.workspace.service.impls.async;
 
+import org.globus.workspace.WorkspaceException;
+
 /**
  * Created by IntelliJ IDEA.
  * User: carla
@@ -9,6 +11,6 @@ package org.globus.workspace.service.impls.async;
  */
 public interface VMMRequest {
 
-    public String execute();
+    public String execute() throws WorkspaceException;
 
 }
