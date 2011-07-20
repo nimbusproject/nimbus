@@ -51,6 +51,10 @@ public class RemoteAdminToolsMain extends RMIConfig {
             FIELD_ID, FIELD_NODE, FIELD_GROUP_ID, FIELD_GROUP_NAME, FIELD_CREATOR, FIELD_STATE, FIELD_START,
                 FIELD_END, FIELD_MEMORY, FIELD_CPU_COUNT, FIELD_URI};
 
+    final static String[] NODE_LIST_FIELDS = new String[] {
+            FIELD_NODE, FIELD_ID
+    };
+
     private ToolAction action;
     private RemoteAdminToolsManagement remoteAdminToolsManagement;
     private String user;
@@ -119,7 +123,8 @@ public class RemoteAdminToolsMain extends RMIConfig {
         this.loadArgs(args);
 
         if (this.action == ToolAction.Help) {
-            System.out.println(getHelpText());
+            InputStream is = RemoteAdminToolsMain.class.getResourceAsStream("adminHelp.txt");
+            System.out.println(super.getHelpText(is));
             return;
         }
 
@@ -128,6 +133,9 @@ public class RemoteAdminToolsMain extends RMIConfig {
         switch (this.action) {
             case ListVMs:
                 listVMs();
+                break;
+            case ListNodes:
+                listNodes();
                 break;
             case ShutdownVMs:
                 shutdownVM();
@@ -404,7 +412,23 @@ public class RemoteAdminToolsMain extends RMIConfig {
         }
     }
 
-    private void shutdownVM() throws ExecutionProblem {
+    private void listNodes() throws ExecutionProblem {
+        try {
+            Hashtable ht = this.remoteAdminToolsManagement.showVMsForAllHosts();
+            if(ht == null)
+                System.err.println("No nodes with running VMs found");
+            else
+                reporter.report(nodesToMaps(ht), this.outStream);
+        }
+        catch(RemoteException e) {
+            System.err.println(e.getMessage());
+        }
+        catch(IOException e) {
+            throw new ExecutionProblem("Problem writing output: " + e.getMessage(), e);
+        }
+    }
+
+    private void shutdownVM() {
         try {
             String result = "";
             String feedback;
@@ -500,6 +524,28 @@ public class RemoteAdminToolsMain extends RMIConfig {
         return map;
     }
 
+    private static List<Map<String,String>> nodesToMaps(Hashtable<String, String[]> ht) {
+        List<Map<String,String>> maps = new ArrayList<Map<String, String>>(ht.size());
+
+        Enumeration<String> hosts = ht.keys();
+        while(hosts.hasMoreElements()) {
+            String host = hosts.nextElement();
+            String[] ids = ht.get(host);
+            String idList = "";
+            for(int i = 0; i < ids.length; i++) {
+                if(i+1 != ids.length)
+                    idList += ids[i] + ", ";
+                else
+                    idList += ids[i];
+            }
+            final HashMap<String, String> map = new HashMap(2);
+            map.put(FIELD_NODE, host);
+            map.put(FIELD_ID, idList);
+            maps.add(map);
+        }
+        return maps;
+    }
+
     private static List<String> parseValues(String valueString) throws ParameterProblem {
         if (valueString == null) {
             throw new ParameterProblem("list is invalid");
@@ -516,47 +562,11 @@ public class RemoteAdminToolsMain extends RMIConfig {
         }
         return values;
     }
-
-    private static String getHelpText() {
-
-        InputStream is = null;
-        BufferedInputStream bis = null;
-        try {
-            is = RemoteAdminToolsMain.class.getResourceAsStream("adminHelp.txt");
-            if (is == null) {
-                return "";
-            }
-
-            bis = new BufferedInputStream(is);
-            StringBuilder sb = new StringBuilder();
-            byte[] chars = new byte[1024];
-            int bytesRead;
-            while( (bytesRead = bis.read(chars)) > -1){
-                sb.append(new String(chars, 0, bytesRead));
-            }
-            return sb.toString();
-
-        } catch (IOException e) {
-            logger.error("Error reading help text", e);
-            return "";
-        } finally {
-            try {
-            if (bis != null) {
-                bis.close();
-            }
-
-            if (is != null) {
-                is.close();
-            }
-            } catch (IOException e) {
-                logger.error("Error reading help text", e);
-            }
-        }
-    }
 }
 
 enum ToolAction implements AdminEnum {
     ListVMs(Opts.LIST_VMS, RemoteAdminToolsMain.ADMIN_FIELDS),
+    ListNodes(Opts.NODE_LIST, RemoteAdminToolsMain.NODE_LIST_FIELDS),
     ShutdownVMs(Opts.SHUTDOWN_VMS, null),
     Help(Opts.HELP, null);
 

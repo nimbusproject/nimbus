@@ -19,6 +19,8 @@ package org.nimbustools.api.services.admin;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.Hashtable;
+import java.util.List;
 
 /**
  * This interface handles all the work done by RemoteAdminToolsMain and is mapped to the service over rmi
@@ -39,5 +41,6 @@ public interface RemoteAdminToolsManagement extends Remote {
     public String getAllVMsByHost(String hostname) throws RemoteException;
     public String getAllVMsByGroupId(String groupId) throws RemoteException;
     public String getAllVMsByGroupName(String groupName) throws RemoteException;
+    public Hashtable<String, String[]> showVMsForAllHosts() throws RemoteException;
     public String shutdown(int type, String typeID, String seconds) throws RemoteException;
 }
