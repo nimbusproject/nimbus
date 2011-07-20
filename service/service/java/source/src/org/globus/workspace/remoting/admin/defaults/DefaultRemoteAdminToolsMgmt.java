@@ -42,6 +42,7 @@ import org.nimbustools.api.services.rm.OperationDisabledException;
 import javax.sql.DataSource;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
 
 /**
@@ -156,6 +157,41 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
         }
         catch (AuthzDBException e) {
             return null;
+        }
+    }
+
+    public Hashtable<String, String[]> showVMsForAllHosts() throws RemoteException {
+        try {
+            List<String> hostnames = new ArrayList<String>();
+            VM[] vms = manager.getGlobalAll();
+
+            if(vms.length == 0)
+                return null;
+
+            for(int i = 0; i < vms.length; i++) {
+                String id = vms[i].getID();
+                String host = workspaceHome.find(id).getVM().getNode();
+                if(!hostnames.contains(host))
+                    hostnames.add(host);
+            }
+
+            Hashtable<String, String[]> allVMs = new Hashtable<String, String[]>();
+            for(String hostname : hostnames) {
+                vms = getVMByHost(hostname);
+                String[] parsedVMs = new String[vms.length];
+                for(int i = 0; i < vms.length; i++) {
+                    parsedVMs[i] = vms[i].getID();
+                }
+                allVMs.put(hostname, parsedVMs);
+            }
+
+            return allVMs;
+        }
+        catch(ManageException e) {
+            throw new RemoteException(e.getMessage());
+        }
+        catch(DoesNotExistException e) {
+            throw new RemoteException(e.getMessage());
         }
     }
 

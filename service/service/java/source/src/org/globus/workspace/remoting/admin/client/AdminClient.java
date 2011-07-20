@@ -36,7 +36,7 @@ public class AdminClient extends RMIConfig {
     private static final String FIELD_HOSTNAME = "hostname";
     private static final String FIELD_POOL = "pool";
     private static final String FIELD_MEMORY = "memory";
-    private static final String FIELD_MEM_REMAIN = "memory remaining";
+    private static final String FIELD_MEM_REMAIN = "memory available";
     private static final String FIELD_NETWORKS = "networks";
     private static final String FIELD_ACTIVE = "active";
     private static final String FIELD_IN_USE = "in_use";
@@ -137,7 +137,8 @@ public class AdminClient extends RMIConfig {
         this.loadArgs(args);
 
         if (this.action == AdminAction.Help) {
-            System.out.println(getHelpText());
+            InputStream is = AdminClient.class.getResourceAsStream("help.txt");
+            System.out.println(super.getHelpText(is));
             return;
         }
 
@@ -515,43 +516,6 @@ public class AdminClient extends RMIConfig {
             hosts.add(host);
         }
         return hosts;
-    }
-
-    private static String getHelpText() {
-
-        InputStream is = null;
-        BufferedInputStream bis = null;
-        try {
-            is = AdminClient.class.getResourceAsStream("help.txt");
-            if (is == null) {
-                return "";
-            }
-
-            bis = new BufferedInputStream(is);
-            StringBuilder sb = new StringBuilder();
-            byte[] chars = new byte[1024];
-            int bytesRead;
-            while( (bytesRead = bis.read(chars)) > -1){
-                sb.append(new String(chars, 0, bytesRead));
-            }
-            return sb.toString();
-
-        } catch (IOException e) {
-            logger.error("Error reading help text", e);
-            return "";
-        } finally {
-            try {
-            if (bis != null) {
-                bis.close();
-            }
-
-            if (is != null) {
-                is.close();
-            }
-            } catch (IOException e) {
-                logger.error("Error reading help text", e);
-            }
-        }
     }
 
     private static List<Map<String,String>> nodesToMaps(VmmNode[] nodes) {

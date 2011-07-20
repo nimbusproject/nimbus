@@ -27,10 +27,7 @@ import org.apache.log4j.varia.NullAppender;
 import org.globus.workspace.remoting.RemotingClient;
 import org.nimbustools.api.brain.NimbusHomePathResolver;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.rmi.NotBoundException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -190,6 +187,42 @@ public class RMIConfig {
         }
 
         return fieldsArray;
+    }
+
+    protected String getHelpText(InputStream input) {
+        InputStream is = null;
+        BufferedInputStream bis = null;
+        try {
+            is = input;
+            if (is == null) {
+                return "";
+            }
+
+            bis = new BufferedInputStream(is);
+            StringBuilder sb = new StringBuilder();
+            byte[] chars = new byte[1024];
+            int bytesRead;
+            while( (bytesRead = bis.read(chars)) > -1){
+                sb.append(new String(chars, 0, bytesRead));
+            }
+            return sb.toString();
+
+        } catch (IOException e) {
+            logger.error("Error reading help text", e);
+            return "";
+        } finally {
+            try {
+            if (bis != null) {
+                bis.close();
+            }
+
+            if (is != null) {
+                is.close();
+            }
+            } catch (IOException e) {
+                logger.error("Error reading help text", e);
+            }
+        }
     }
 
     private static String csvString(String[] fields) {

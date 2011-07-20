@@ -202,13 +202,18 @@ public class Opts {
     public final Option HOST_OPT =
                 OptionBuilder.withLongOpt(HOST_LONG).hasOptionalArg().create(HOST);
 
+    public static final String NODE_LIST = "N";
+    public static final String NODE_LIST_LONG = "nodes";
+    public final Option NODE_LIST_OPT =
+                OptionBuilder.withLongOpt(NODE_LIST_LONG).create(NODE_LIST);
+
     public final Option[] ALL_ENABLED_OPTIONS = {
             HELP_OPT, DEBUG_OPT, CONFIG_OPT, BATCH_OPT, DELIMITER_OPT,
             REPORT_OPT, JSON_OPT, OUTPUT_OPT, ADD_NODES_OPT, LIST_NODES_OPT,
             REMOVE_NODES_OPT, UPDATE_NODES_OPT, POOL_AVAILABILITY_OPT, NETWORKS_OPT, MEMORY_OPT, POOL_OPT,
             ACTIVE_OPT, INACTIVE_OPT, LIST_VMS_OPT, SHUTDOWN_VMS_OPT, USER_OPT, ID_OPT,
             SECONDS_OPT, ALL_VMS_OPT, HOST_OPT, DN_OPT, GROUP_ID_OPT,
-            GROUP_NAME_OPT, FREE_OPT, USED_OPT
+            GROUP_NAME_OPT, FREE_OPT, USED_OPT, NODE_LIST_OPT
     };
 
 }
