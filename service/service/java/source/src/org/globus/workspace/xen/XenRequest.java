@@ -83,11 +83,9 @@ public abstract class XenRequest implements VMMRequest {
         final boolean fake = this.ctx.getLocator().getGlobalPolicies().isFake();
 
         Exception e = this.preExecute(fake);
-
-        if (e == null) {
-            this._execute(fake);
-            e = this.postExecute(e, fake);
-        }
+        String ret = "";
+        ret = this._execute(fake);
+//        this.postExecute(e, fake);
 
         final boolean trace = this.ctx.lager().traceLog;
         final boolean event = this.ctx.lager().eventLog;
@@ -115,11 +113,10 @@ public abstract class XenRequest implements VMMRequest {
             }
         }
 
-        this.done(e);
-        return "";
+        return ret;
     }
 
-    private Exception _execute(boolean fake) {
+    private String _execute(boolean fake) throws WorkspaceException {
 
         final int id = this.ctx.getId();
         final boolean traceLog = this.ctx.lager().traceLog;
@@ -221,7 +218,7 @@ public abstract class XenRequest implements VMMRequest {
                     err = "Do not run have rights to run " +
                             this.name + " with ctx ID = " + id;
                 }
-                return new WorkspaceException(err);
+                throw new WorkspaceException(err);
             }
 
             // while developing it is sometimes helpful to set cmd to null
@@ -229,16 +226,15 @@ public abstract class XenRequest implements VMMRequest {
             // for the timebeing without using the fakeness infrastructure
             // for other commands...).
 
-            //TODO: add json content here
             String ret = null;
             if (this.cmd != null) {
-                WorkspaceUtil.runCommand(this.cmd, eventLog, traceLog, id);
+                ret = WorkspaceUtil.runCommand(this.cmd, eventLog, traceLog, id);
             }
-            return null;
+            return ret;
         } catch (ReturnException e) {
-            return XenUtil.translateReturnException(e);
+            throw XenUtil.translateReturnException(e);
         } catch (WorkspaceException e) {
-            return e;
+            throw e;
         }
     }
 }
