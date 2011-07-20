@@ -22,6 +22,8 @@ Actions
         --gname (-gn)       -Option to list VMs by group name
         --host (-hn)        -Option to list VMs running under particular host
 
+    --nodes              Lists all nodes on the service with a list of all
+                         VM ids running on each particular node
 
     --shutdown (-s)      Shutdown VMs known to the IaaS service. Can
                          shutdown by all, id or hostname
