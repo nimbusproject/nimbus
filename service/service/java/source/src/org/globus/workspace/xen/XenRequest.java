@@ -201,12 +201,11 @@ public abstract class XenRequest implements VMMRequest {
                     notif.message(this.ctx.getId(), stateNotify, null);
                 }
             }
-
+//            String vmm = this.ctx.getVm().getVmm();
             return null;
         }
 
         try {
-            // See WorkspaceResource.isVMMaccessOK() javadoc
             if (this.ctx != null && !this.ctx.isVmmAccessOK()) {
                 final VirtualMachine vm = this.ctx.getVm();
                 final String err;
@@ -220,11 +219,6 @@ public abstract class XenRequest implements VMMRequest {
                 }
                 throw new WorkspaceException(err);
             }
-
-            // while developing it is sometimes helpful to set cmd to null
-            // before it is implemented (i.e., make just this one thing fake
-            // for the timebeing without using the fakeness infrastructure
-            // for other commands...).
 
             String ret = null;
             if (this.cmd != null) {
