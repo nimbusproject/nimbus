@@ -30,6 +30,15 @@ public class VMMRequestContext {
         this.lager = lagerImpl;
     }
 
+
+    public ResourceEntry getVmm() {
+        return this.vmm;
+    }
+
+    public void setVm(ResourceEntry vmm) {
+        this.vm = vmm;
+    }
+
     public int getId() {
         return this.id;
     }
