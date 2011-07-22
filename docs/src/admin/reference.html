@@ -178,6 +178,9 @@ _NIMBUS_IS_DEPRECATED
             <li>
                 <a href="#cpprop-config">Configuration</a>
             </li>
+            <li>
+                <a href="#cpprop-passthrough">Copy Propagation Pass Through</a>
+            </li>
         </ul>
     </li>
 
@@ -2419,6 +2422,24 @@ In order to enable copy propagation you must edit the file
     <pre class="panel">&lt;property name="repoScheme" value="cp" /&gt;</pre>
 
 </p>
+<a name="#cpprop-passthrough"> </a>
+<h3>Copy Propagation Pass Through _NAMELINK(cpprop-passthrough)</h3>
+<p>
+It is possible to use copy propagation as a <i>pass through</i> propagation
+adapter.  This means that instead of only being able to boot files in the Cumulus 
+repository an administrator can allow users to specify any file on the 
+file system to which the VMM node's nimbus user has access.
+</p>
+<p>
+<B>WARNING: This should NOT be enabled in most cases due to security
+implications</b>.
+<BR>
+When using the copy propagation pass through adapter the Cumulus security
+ACL authz protection is entirely bypassed.  A user can boot and copy
+any image that the <i>nimbus</i> user can read.  This should be used with
+extreme care and only on cloud with nothing but completely trusted users.
+</p>
+
 
 <a name="imagecache"> </a>
 <h2>Image Cache _NAMELINK(imagecache)</h2>
