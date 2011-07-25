@@ -3,6 +3,7 @@ package org.globus.workspace.service.impls.async;
 
 import org.globus.workspace.Lager;
 import org.globus.workspace.TempLocator;
+import org.globus.workspace.scheduler.defaults.ResourcepoolEntry;
 
 public class VMMRequestContext {
 
@@ -10,6 +11,7 @@ public class VMMRequestContext {
     private final String name;
     private final TempLocator locator;
     private final Lager lager;
+    private ResourcepoolEntry vmm;
 
     public VMMRequestContext(int id,
                                    String name,
@@ -31,12 +33,12 @@ public class VMMRequestContext {
     }
 
 
-    public ResourceEntry getVmm() {
+    public ResourcepoolEntry getVmm() {
         return this.vmm;
     }
 
-    public void setVm(ResourceEntry vmm) {
-        this.vm = vmm;
+    public void setVm(ResourcepoolEntry vmm) {
+        this.vmm = vmm;
     }
 
     public int getId() {
