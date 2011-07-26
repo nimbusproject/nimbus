@@ -41,6 +41,7 @@ public interface RemoteAdminToolsManagement extends Remote {
     public String getAllVMsByHost(String hostname) throws RemoteException;
     public String getAllVMsByGroupId(String groupId) throws RemoteException;
     public String getAllVMsByGroupName(String groupName) throws RemoteException;
+    public String getVMsByState(String state) throws RemoteException;
     public Hashtable<String, String[]> showVMsForAllHosts() throws RemoteException;
     public String shutdown(int type, String typeID, String seconds) throws RemoteException;
 }

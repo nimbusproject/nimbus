@@ -193,6 +193,26 @@ _NIMBUS_IS_DEPRECATED
 
     </li>
 
+	<li>
+		<p>
+			<a href="#nimbusadministration">Nimbus Administration Tools</a>
+		</p>
+		<ul>
+			<li>
+				<a href="#nimbus-admin">nimbus-admin</a>
+			</li>
+			<li>
+				<a href="#nimbus-nodes">nimbus-nodes</a>
+			</li>
+			<li>
+				<a href="#gen-opts">General Options</a>
+			</li>
+			<li>
+				<a href="#output-opts">Output Options</a>
+			</li>
+		</ul>
+	</li>
+
 
 
 
@@ -2449,10 +2469,193 @@ Search for the two values
 <i>cachedir</i> is the path to the image cache and <i>cache_size</i> is 
 the maximum size of the cache.  When these values are enabled the cache
 will be in effect.
-
-
 </p>
 
+<a name="nimbusadministration"> </a>
+<h2>Nimbus Administration _NAMELINK(nimbusadministration)</h2>
+<p>
+The nimbus administration tools, nimbus-admin and nimbus-nodes, can be
+used for a number of useful things by an administrator of a nimbus
+service. The nimbus-nodes tool is used for administrating all the VMM
+nodes running on the service. With this tool you are able to list,
+add, update and remove nodes on the service. 
+The nimbus-admin tool allows you to administrate all the running
+virtual machines running on the service. With this tool you can
+list the running VMs in a variety of contexts, as well as manually
+shutdown currently running VMs.
+</p>
+<p>
+Both tools also have a host of reporting output options which will
+be covered later in the following sections.
+</p>
+
+<a name="nimbus-admin"> </a>
+<h3>Nimbus Admin _NAMELINK(nimbus-admin)</h3>
+<p>
+To start using the nimbus-admin tool first go to your nimbus home
+directory. $NIMBUS_HOME/bin where you will find the script
+nimbus-admin. Run ./nimbus-admin --help to see the help file which
+lists all available commands. 
+</p>
+<p>
+<b>List:</b><br />
+The --list command will display a list of virtual machines with the
+following information:<br />
+<b>id:</b> the VM id number<br />
+<b>node:</b> the physical VMM node the VM is running on<br />
+<b>group_id:</b> the group id number this VM is associated with<br />
+<b>group_name:</b> the group name this VM is associated with<br />
+<b>creator:</b> The users DN name who started this VM<br />
+<b>state:</b> Current state of the VM (Running, propagated, etc)<br />
+<b>start time:</b> Time when the VM was created<br />
+<b>end time:</b> Time when the VM gets destroyed<br />
+<b>memory:</b> Amount of memory being used by this VM<br />
+<b>cpu count:</b> Number of cpu cores being used by this VM<br />
+<b>uri:</b> Image and repo information of this VM<br />
+</p>
+<p>
+The following commands can be used with list<br />
+--list (-l)          List the VMs known to the IaaS service<br />
+        --user (-u)     -Option to list VMs by user display name<br />
+        --dn (-d)       -Option to list VMs by user DN name<br />
+        --gid (-g)      -Option to list VMs by group id<br />
+        --gname (-gn)   -Option to list VMs by group name<br />
+        --host (-hn)    -Option to list VMs running under particular host<br />
+<br />
+So an example command would look like:<br />
+./nimbus-admin --list --host localhost
+<br />
+</p>
+<p>
+<b>Shutdown:</b><br />
+The --shutdown command destroys all the virtual machines specified.
+When shutting down a VM, a soft shutdown is called first, which puts
+the VM in "propagated" mode. Once the VM is propagated, it is then
+fully destroyed. VMs can be shutdown in the following ways:<br />
+--all (-a)       -Option to shutdown all running VMs on service<br />
+--id (-i)        -Option to shutdown VM by VM id<br />
+--user (-u)      -Option to shutdown VM by user display name<br />
+--dn (-d)        -Option to shutdown VM by user DN name<br />
+--gid (-g)       -Option to shutdown VM by group id<br />
+--gname (-gn)    -Option to shutdown VM by group name<br />
+--host (-hn)     -Option to shutdown all VMs with specified host<br />
+--seconds (-s)   -Amount of time to wait for VMs to shutdown to
+                            propagation mode before being trashed. If
+                            seconds option not specified, default is a
+                            maximum of 30 seconds
+<br /><br />
+Example: ./nimbus-admin --shutdown --all<br /><br />
+The --shutdown command also allows you to shutdown a list of VMs at once
+by using a comma-separated list.<br />
+Example: ./nimbus-admin --shutdown --id 3,4,5,6,10,13<br />
+</p>
+<p>
+<b>Nodes:</b><br />
+The --nodes command shows a list of all the VMM nodes running on the
+service with a list of VM ids each one is running.
+Example: ./nimbus-admin --nodes<br /><br />
+node1: 3,4,5<br />
+node2: 1,2,6<br /><br />
+</p>
+
+<a name="nimbus-nodes"> </a>
+<h3>Nimbus Nodes _NAMELINK(nimbus-nodes)</h3>
+<p>
+To start using the nimbus-nodes tool first go to your nimbus home
+directory. $NIMBUS_HOME/bin where you will find the script
+nimbus-nodes. Run ./nimbus-nodes --help to see the help file which
+lists all available commands.
+</p>
+<p>
+<b>List:</b><br />
+The --list command of nimbus-nodes lists all the VMM nodes running
+on the service. You can also input a comma separated list of VMMs
+to list if you want to specify which VMMs you want to see. The
+list function outputs the following information about each node:
+<br /><br />
+<b>hostname:</b>the VMM node name<br />
+<b>pool:</b>Resource pool name for this node<br />
+<b>memory:</b>total memory available for this node<br />
+<b>memory available:</b>current memory available on the node<br />
+<b>networks:</b>list of networks associated with this node.
+Value of * means all available networks<br />
+<b>in_use:</b>whether or not this node is being used<br />
+<b>active:</b>whether or not this node is currently running<br />
+<br />
+</p>
+<p>
+<b>Add:</b><br />
+The --add (-a) HOSTS command adds the specified VMM nodes to the
+pool. Node paramets can be specified as additional arguments and
+if no parameter is specified a default will be read from the
+config file.
+</p>
+<p>
+<b>Update:</b><br />
+The --update (-u) HOSTS command updates the configuration values
+of VMM nodes. At least one node parameter must be specified as
+an additional argument. 
+</p>
+<p>
+<b>VMM Node Parameters</b><br />
+The following node parameters can be used as additional arguments
+for the --add and --update commands. 
+<br /><br />
+<i>--active (-A)</i> Allow VMM nodes to take on new virtual machines.
+Default for new nodes.<br />
+<i>--inactive (-i)</i> Prevent VMM nodes from accepting new VMs.
+This will not terminate any already running VMs.<br />
+<i>--memory (-m)</i> Maximum memory available on node for VMs<br />
+<i>--networks (-n)</i> List of networks associated with a node.
+A value of * means all available networks<br />
+<i>--pool (-p)</i> Resource pool name for this VMM node<br />
+</p>
+<p>
+<b>Remove</b><br />
+The --remove (-d) command removes VMM nodes from the nimbus resource 
+pool. In use nodes cannot be removed.
+</p>
+<p>
+<b>Network Pool Allocation</b><br />
+The --allocation (-N) command provides network pool allocation
+information. Outputs the following information for each pool
+entry: hostname, ip, mac address, broadcast, subnet mask, gateway,
+in_use, explicit mac.<br /><br />
+This command also has three optional commands.<br/>
+<b>--pool</b> allows you to enter a pool name and only displays
+entries from that pool<br />
+<b>--free</b> displays only entries that are not in_use<br />
+<b>--used</b> displays only entries that are in_use<br />
+</p>
+
+<a name="gen-opts"> </a>
+<h3>General Options _NAMELINK(gen-opts)</h3>
+<p>
+These options are for general usage of nimbus-nodes and nimbus-admin
+<br /><br />
+<b>--help (-h)</b> Prints help file<br />
+<b>--conf (-c)</b> Use to specify an alternate configuration file.<br />
+<b>--debug</b> Enables debug output for troubleshooting
+</p>
+
+<a name="output-opts"> </a>
+<h3>Reporting Output Options _NAMELINK(output-opts)</h3>
+<p>
+nimbus-nodes and nimbus-admin also have various reporting outputs
+that can be used. These options work with any of the commands listed
+above.
+<br /><br />
+<b>--report (-r) FIELDS: </b>Only report specified fields. Argument
+is a comma-separated list<br />
+<b>--batch (-b): </b>Report results with one record perline, using
+an optional delimiter.<br />
+<b>--delimiter (-D): </b>Delimiter between fields in batch mode.
+Default is a single space.<br />
+<b>--json (-j): </b>Report results in JSON format.<br />
+<b>--output (-o) FILE:</b>Write results to FILE instead of stdout.
+</p>
+
+ 
 
 <br />
 <br />

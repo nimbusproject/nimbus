@@ -63,6 +63,7 @@ public class RemoteAdminToolsMain extends RMIConfig {
     private String groupName;
     private String hostname;
     private String seconds;
+    private String state;
     private List<String> vmIDs;
     private List<String> userList;
     private List<String> DNList;
@@ -220,6 +221,14 @@ public class RemoteAdminToolsMain extends RMIConfig {
                         throw new ParameterProblem("Host value is empty");
                     }
                     this.hostname = hostname;
+                    numOpts++;
+                }
+                if(line.hasOption(Opts.STATE)) {
+                    final String state = line.getOptionValue(Opts.STATE);
+                    if(state == null || state.trim().length() == 0) {
+                        throw new ParameterProblem("State value is empty");
+                    }
+                    this.state = state;
                     numOpts++;
                 }
         }
@@ -390,6 +399,14 @@ public class RemoteAdminToolsMain extends RMIConfig {
                 final String vmsJson = this.remoteAdminToolsManagement.getAllVMsByHost(hostname);
                 if(vmsJson == null) {
                     System.err.println("No vms with host " + hostname + " found");
+                    return;
+                }
+                vms = gson.fromJson(vmsJson, VMTranslation[].class);
+            }
+            else if(this.state != null) {
+                final String vmsJson = this.remoteAdminToolsManagement.getVMsByState(state);
+                if(vmsJson == null) {
+                    System.err.println("No vms with state " + state + " found");
                     return;
                 }
                 vms = gson.fromJson(vmsJson, VMTranslation[].class);
