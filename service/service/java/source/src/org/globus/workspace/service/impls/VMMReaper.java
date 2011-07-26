@@ -113,9 +113,8 @@ public class VMMReaper implements Runnable {
         for (ResourcepoolEntry r: vmms) {
             String hostname = r.getHostname();
 
-//            final WorkspaceRequestContext requestContext =
-//                new WorkspaceRequestContext(id, resource.getName(),
-//                                            this.locator, this.lager);
+            final VMMRequestContext requestContext =
+                new VMMRequestContext(0, r.getHostname(), this.lager); //fixme remove id
 
             // These are the libvirt guest states
             // 1 = running; 2 = idle; 3 = paused; 4 = shutdown; 5 = shut off; 6 = crashed; 7 = dying
