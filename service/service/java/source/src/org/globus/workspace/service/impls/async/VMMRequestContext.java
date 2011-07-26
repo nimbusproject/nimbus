@@ -9,32 +9,22 @@ public class VMMRequestContext {
 
     private final int id;
     private final String name;
-    private final TempLocator locator;
     private final Lager lager;
     private ResourcepoolEntry vmm;
 
-    public VMMRequestContext(int id,
-                                   String name,
-                                   TempLocator aLocator,
-                                   Lager lagerImpl) {
+    public ResourcepoolEntry getVmm() {
+        return this.vmm;
+    }
+
+    public VMMRequestContext(int id, String name, Lager lagerImpl) {
 
         this.id = id;
         this.name = name;
-
-        if (aLocator == null) {
-            throw new IllegalArgumentException("aLocator may not be null");
-        }
-        this.locator = aLocator;
 
         if (lagerImpl == null) {
             throw new IllegalArgumentException("lagerImpl may not be null");
         }
         this.lager = lagerImpl;
-    }
-
-
-    public ResourcepoolEntry getVmm() {
-        return this.vmm;
     }
 
     public void setVm(ResourcepoolEntry vmm) {
@@ -47,10 +37,6 @@ public class VMMRequestContext {
 
     public String getName() {
         return this.name;
-    }
-
-    public TempLocator getLocator() {
-        return this.locator;
     }
 
     public Lager lager() {
