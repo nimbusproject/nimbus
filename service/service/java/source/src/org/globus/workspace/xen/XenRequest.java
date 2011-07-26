@@ -17,11 +17,9 @@ package org.globus.workspace.xen;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.globus.workspace.scheduler.defaults.ResourcepoolEntry;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
-import org.globus.workspace.service.impls.async.ResourceMessage;
-import org.globus.workspace.service.impls.async.VMMRequest;
-import org.globus.workspace.service.impls.async.WorkspaceRequest;
-import org.globus.workspace.service.impls.async.WorkspaceRequestContext;
+import org.globus.workspace.service.impls.async.*;
 
 import org.globus.workspace.Lager;
 import org.globus.workspace.ReturnException;
@@ -34,7 +32,7 @@ public abstract class XenRequest implements VMMRequest {
     protected static final Log logger =
                             LogFactory.getLog(XenTask.class.getName());
 
-    protected WorkspaceRequestContext ctx;
+    protected VMMRequestContext ctx;
 
     protected String name;
     protected boolean doFakeLag;
@@ -44,16 +42,8 @@ public abstract class XenRequest implements VMMRequest {
     // then this task goes away without calling back to the service
     protected boolean async;
 
-    public void setRequestContext(WorkspaceRequestContext context) {
+    public void setRequestContext(VMMRequestContext context) {
         this.ctx = context;
-    }
-
-    private void done(Exception err) {
-        if (this.ctx.getNotify() != WorkspaceConstants.STATE_INVALID) {
-            final ResourceMessage notif =
-                    this.ctx.getLocator().getResourceMessage();
-            notif.message(this.ctx.getId(), this.ctx.getNotify(), err);
-        }
     }
 
     protected abstract void init() throws WorkspaceException;
@@ -80,7 +70,8 @@ public abstract class XenRequest implements VMMRequest {
 
         this.init();
 
-        final boolean fake = this.ctx.getLocator().getGlobalPolicies().isFake();
+        final boolean fake = false;
+//        this.ctx.getLocator().getGlobalPolicies().isFake();
 
         Exception e = this.preExecute(fake);
         String ret = "";
@@ -148,8 +139,8 @@ public abstract class XenRequest implements VMMRequest {
             }
 
             if (this.doFakeLag) {
-                final long lag =
-                        this.ctx.getLocator().getGlobalPolicies().getFakelag();
+                final long lag = 1000; //FIXME
+//                        this.ctx.getLocator().getGlobalPolicies().getFakelag();
                 try {
 
                     if (lag > 0) {
@@ -195,24 +186,23 @@ public abstract class XenRequest implements VMMRequest {
                     stateNotify = WorkspaceConstants.STATE_READY_FOR_TRANSPORT;
                 }
 
-                if (stateNotify != WorkspaceConstants.STATE_INVALID) {
-                    final ResourceMessage notif =
-                                this.ctx.getLocator().getResourceMessage();
-                    notif.message(this.ctx.getId(), stateNotify, null);
-                }
+//                if (stateNotify != WorkspaceConstants.STATE_INVALID) {
+//                    final ResourceMessage notif =
+//                                this.ctx.getLocator().getResourceMessage();
+//                    notif.message(this.ctx.getId(), stateNotify, null);
+//                }
             }
 //            String vmm = this.ctx.getVm().getVmm();
             return null;
         }
 
         try {
-            if (this.ctx != null && !this.ctx.isVmmAccessOK()) {
-                final VirtualMachine vm = this.ctx.getVm();
+            if (this.ctx != null) {
+                final ResourcepoolEntry vmm = this.ctx.getVmm();
                 final String err;
-                if (vm != null) {
+                if (vmm != null) {
                     err = "Do not run have rights to run " +
-                           this.name + " for VM " + vm.getID() +
-                           " on node " + vm.getNode();
+                           this.name + " for VMM " + vmm.getHostname();
                 } else {
                     err = "Do not run have rights to run " +
                             this.name + " with ctx ID = " + id;
