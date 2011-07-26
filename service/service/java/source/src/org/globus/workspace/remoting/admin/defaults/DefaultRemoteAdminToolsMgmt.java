@@ -160,6 +160,25 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
         }
     }
 
+    public String getVMsByState(String state) throws RemoteException {
+        try {
+            VM[] vms = manager.getGlobalAll();
+            final List<VMTranslation> vmts = new ArrayList<VMTranslation>();
+            for(VM vm : vms) {
+                if(vm.getState().getState().equalsIgnoreCase(state))
+                    vmts.add(translateVM(vm));
+            }
+
+            if(vmts.size() == 0)
+                return null;
+
+            return gson.toJson(vmts);
+        }
+        catch(ManageException e) {
+            throw new RemoteException(e.getMessage());
+        }
+    }
+
     public Hashtable<String, String[]> showVMsForAllHosts() throws RemoteException {
         try {
             List<String> hostnames = new ArrayList<String>();
