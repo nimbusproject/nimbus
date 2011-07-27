@@ -54,11 +54,6 @@ public abstract class XenRequest implements VMMRequest {
         return null;
     }
 
-    // give children a chance to interpret the exception
-    protected Exception postExecute(Exception e, boolean fake) {
-        return e;
-    }
-
     public String execute() throws WorkspaceException {
 
         if (this.ctx == null) {
@@ -76,7 +71,6 @@ public abstract class XenRequest implements VMMRequest {
         Exception e = this.preExecute(fake);
         String ret = "";
         ret = this._execute(fake);
-//        this.postExecute(e, fake);
 
         final boolean trace = this.ctx.lager().traceLog;
         final boolean event = this.ctx.lager().eventLog;
@@ -142,7 +136,6 @@ public abstract class XenRequest implements VMMRequest {
                 final long lag = 1000; //FIXME
 //                        this.ctx.getLocator().getGlobalPolicies().getFakelag();
                 try {
-
                     if (lag > 0) {
                         logger.debug(Lager.id(id) + ": Fake " + this.name +
                                 " request, sleeping for " + lag + " ms");
@@ -169,31 +162,6 @@ public abstract class XenRequest implements VMMRequest {
                 logger.debug(Lager.id(id) + "Fake " + this.name
                                                     + " request complete");
             }
-
-            // Since this is fake mode, we can cheat all we need to.  Simulate
-            // asynchronous notifications:
-            if (this.async) {
-
-                int stateNotify = WorkspaceConstants.STATE_INVALID;
-
-                if (this.name.equals("Propagate-To-Start")) {
-                    stateNotify = WorkspaceConstants.STATE_STARTED;
-                } else if (this.name.equals("Propagate-Only")) {
-                    stateNotify = WorkspaceConstants.STATE_PROPAGATED;
-                } else if (this.name.equals("Propagate-To-Pause")) {
-                    stateNotify = WorkspaceConstants.STATE_PAUSED;
-                } else if (this.name.equals("Ready-For-Transport")) {
-                    stateNotify = WorkspaceConstants.STATE_READY_FOR_TRANSPORT;
-                }
-
-//                if (stateNotify != WorkspaceConstants.STATE_INVALID) {
-//                    final ResourceMessage notif =
-//                                this.ctx.getLocator().getResourceMessage();
-//                    notif.message(this.ctx.getId(), stateNotify, null);
-//                }
-            }
-//            String vmm = this.ctx.getVm().getVmm();
-            return null;
         }
 
         try {
