@@ -576,7 +576,7 @@ public abstract class WorkspaceHomeImpl implements WorkspaceHome,
                                                       TimeUnit.MILLISECONDS);
 
         final VMMReaper reaper =
-                new VMMReaper(this.executor, this, this.lager);
+                new VMMReaper(this.executor, this.persistence, this, this.lager);
 
         this.scheduledExecutor.scheduleWithFixedDelay(reaper,
                                                        this.reaperDelay,
