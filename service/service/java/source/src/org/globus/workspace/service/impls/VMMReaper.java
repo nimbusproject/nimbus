@@ -21,6 +21,7 @@ import edu.emory.mathcs.backport.java.util.concurrent.ExecutorService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.globus.workspace.Lager;
+import org.globus.workspace.WorkspaceException;
 import org.globus.workspace.persistence.PersistenceAdapter;
 import org.globus.workspace.scheduler.defaults.ResourcepoolEntry;
 import org.globus.workspace.service.InstanceResource;
@@ -109,7 +110,7 @@ public class VMMReaper implements Runnable {
     // IMPL
     // -------------------------------------------------------------------------
 
-    protected void reaperVMM() throws ManageException {
+    protected void reaperVMM() throws ManageException, WorkspaceException {
 
         if (this.lager.pollLog) {
             logger.trace("Querying VMM for VMs states");
@@ -121,7 +122,7 @@ public class VMMReaper implements Runnable {
             return; // *** EARLY RETURN ***
         }
 
-        HashMap<String,Integer> result = null;
+        Map<String,Integer> result = new HashMap<String,Integer>();
 
         for (ResourcepoolEntry r: vmms) {
             String hostname = r.getHostname();
@@ -136,37 +137,32 @@ public class VMMReaper implements Runnable {
             //set context
             VirtualMachine m = new VirtualMachine();
 
-            String state = null;
-            try {
-//                state = req.execute();
-                req.execute();
-            } catch (Exception e) {
-                //do something
-            }
+            String state = req.execute();
 
             if (state != null) {
-                result = gson.fromJson(state, HashMap.class);
+                result.putAll(gson.fromJson(state, HashMap.class));
             }
 
         }
 
         InstanceResource[] ires =  this.home.findAll();
 
-        Map vms = new HashMap<String, InstanceResource>();
+        Map<String,InstanceResource> vms = new HashMap<String, InstanceResource>();
         for (InstanceResource r: ires) {
             vms.put(r.getName(), r);
         }
 
-        if (!result.isEmpty()) {
-            result.keySet();
-        }
-
         for (InstanceResource r: ires) {
             Integer state = r.getState();
-
-            this.persistence.setState(r.getID(),
+            String VMname = r.getName();
+            if (vms.containsKey(VMname) && result.containsKey(VMname)) {
+                if (result.get(VMname) > 3 && r.getState() > 6 && r.getState() < 14) {
+                    this.persistence.setState(r.getID(),
                                           WorkspaceConstants.STATE_CORRUPTED_GENERIC,
                                           null);
+                }
+            }
+
         }
 
         //TODO compare states with isInconsistent()
