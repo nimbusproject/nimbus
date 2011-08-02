@@ -1,9 +1,9 @@
 #!/bin/bash
 
-NIMBUS_PRINTNAME="build all"
-NIMBUS_ANT_CMD="build-stubs $*"
+NIMBUS_PRINTNAME="install Context Broker"
+NIMBUS_ANT_CMD="deploy-broker $*"
 
-BASEDIR_REL="`dirname $0`/../.."
+BASEDIR_REL="`dirname $0`/.."
 BASEDIR=`cd $BASEDIR_REL; pwd`
 RUN=$BASEDIR/scripts/lib/gt4.0/build/run.sh
 

@@ -1,9 +1,9 @@
 #!/bin/bash
 
-NIMBUS_PRINTNAME="install Context Broker"
-NIMBUS_ANT_CMD="deploy-broker $*"
+NIMBUS_PRINTNAME="uninstall all"
+NIMBUS_ANT_CMD="undeploy-GT4.0-all $*"
 
-BASEDIR_REL="`dirname $0`/../.."
+BASEDIR_REL="`dirname $0`/.."
 BASEDIR=`cd $BASEDIR_REL; pwd`
 RUN=$BASEDIR/scripts/lib/gt4.0/build/run.sh
 

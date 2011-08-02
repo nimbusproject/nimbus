@@ -134,7 +134,7 @@ echo "-----------------------------------------------------------------"
 GLOBUS_LOCATION=$CONTAINER_DIR
 export GLOBUS_LOCATION
 
-$NIMBUS_SRC/scripts/gt/all-build-and-install.sh
+$NIMBUS_SRC/scripts/all-build-and-install.sh
 if [ $? -ne 0 ]; then
     echo "Build and install FAILED!"
     exit 1

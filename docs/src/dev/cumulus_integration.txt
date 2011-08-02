@@ -213,6 +213,6 @@ The variables are:
 
 NOTE: If you move $NIMBUS_HOME, you need to call nimbus-configure again. 
 
-If Nimbus is installed via ./scripts/gt/all-build-and-install.sh these 
+If Nimbus is installed via ./scripts/all-build-and-install.sh these 
 variables will have to be manually set.
 
