@@ -156,23 +156,18 @@ public class VMMReaper implements Runnable {
             Integer state = r.getState();
             String VMname = r.getName();
             if (vms.containsKey(VMname) && result.containsKey(VMname)) {
-                if (result.get(VMname) > 3 && r.getState() > 6 && r.getState() < 14) {
+                if (isInconsistent(r.getState(), result.get(VMname))) {
                     this.persistence.setState(r.getID(),
                                           WorkspaceConstants.STATE_CORRUPTED_GENERIC,
                                           null);
                 }
             }
-
         }
 
-        //TODO compare states with isInconsistent()
     }
 
-    public int getCurrentState() {
-        return 0;
-    }
-
-    public static boolean isInconsistent(Integer state, Integer queriedState) {
-        return state != null && state.equals(queriedState);
+    //FIXME it is hardcoded
+    private boolean isInconsistent(Integer state, Integer queriedState) {
+        return queriedState > 3 && state > 6 && state < 14;
     }
 }
