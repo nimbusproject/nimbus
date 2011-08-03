@@ -16,12 +16,13 @@
 
 package org.globus.workspace.service.impls.async;
 
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 // TODO: move to executor
 public class WorkspaceThreadPool {
 
-    private final Vector workThreads = new Vector();
+    private final List workThreads = new ArrayList<WorkspaceThread>();
     private final WorkspaceRequestQueue queue;
 
     public WorkspaceThreadPool(WorkspaceRequestQueue queue) {
@@ -32,7 +33,7 @@ public class WorkspaceThreadPool {
         for (int i = 0; i < threads; i++) {
             WorkspaceThread thread = createThread();
             thread.setName(thread.getName() + "_WorkspTaskThrd");
-            this.workThreads.addElement(thread);
+            this.workThreads.add(thread);
             thread.start();
         }
     }
@@ -54,7 +55,7 @@ public class WorkspaceThreadPool {
     }
 
     public void removeThread(WorkspaceThread thread) {
-        this.workThreads.removeElement(thread);
+        this.workThreads.remove(thread);
         synchronized (this) {
             notifyAll();
         }
