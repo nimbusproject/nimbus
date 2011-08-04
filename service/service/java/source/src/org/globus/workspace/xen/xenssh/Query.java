@@ -18,9 +18,8 @@ package org.globus.workspace.xen.xenssh;
 
 import org.globus.workspace.WorkspaceException;
 import org.globus.workspace.cmdutils.SSHUtil;
-import org.globus.workspace.service.binding.vm.VirtualMachine;
+import org.globus.workspace.scheduler.defaults.ResourcepoolEntry;
 import org.globus.workspace.xen.XenRequest;
-import org.globus.workspace.xen.XenTask;
 import org.globus.workspace.xen.XenUtil;
 
 import java.util.ArrayList;
@@ -35,8 +34,8 @@ public class Query extends XenRequest {
         this.name = "Query";
         this.doFakeLag = true;
 
-        final VirtualMachine vm = this.ctx.getVmm();
-        final ArrayList ssh = SSHUtil.constructSshCommand(vm.getNode());
+        final ResourcepoolEntry vmm = this.ctx.getVmm();
+        final ArrayList ssh = SSHUtil.constructSshCommand(vmm.getHostname());
         final ArrayList exe = XenUtil.constructQueryCommand();
         ssh.addAll(exe);
         this.cmd = (String[]) ssh.toArray(new String[ssh.size()]);
