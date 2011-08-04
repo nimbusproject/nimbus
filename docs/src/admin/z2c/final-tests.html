@@ -48,23 +48,37 @@ No files.
 </p>
 <h3>Upload image</h3>
 
-<p>It is recommended to start with the
-    <tt class="literal">nimbus-z2c</tt> image that you used earlier to
-    test the VMM. If you don't still have it, fetch it again.
+<p>It is recommended to start with the image that you used earlier to test the VMM.
+   If you don't still have it, fetch it again. Remember that there is a different
+    sample image for Xen vs. KVM.
 </p>
+
+<div class="xenpanel">
 <div class="panel"><pre>
 $ wget http://www.nimbusproject.org/downloads/nimbus-z2c.gz
 $ gunzip nimbus-z2c.gz
 </pre></div>
+</div>
+
+<div class="kvmpanel">
+<div class="panel"><pre>
+$ wget http://www.nimbusproject.org/downloads/ubuntu10.10.gz
+$ gunzip ubuntu10.10.gz
+</pre></div>
+</div>
+
 <p>
     Now use the cloud-client to upload the VM image to the Cumulus repository.
+    For the following commands, replace <tt class="literal"><b><em>image</em></b></tt>
+    with the name of the image file you just unzipped. So <tt class="literal">nimbus-z2c</tt>
+    or <tt class="literal">ubuntu10.10</tt>.
 </p>
 <pre class="panel">
-$ ./bin/cloud-client.sh --transfer --sourcefile nimbus-z2c
+$ ./bin/cloud-client.sh --transfer --sourcefile <b><em>image</em></b>
 
 Transferring
-  - Source: nimbus-z2c
-  - Destination: cumulus://Repo/VMS/04NjWi75iz1TzNf4Y3zvU/nimbus-z2c
+  - Source: <em>image</em>
+  - Destination: cumulus://Repo/VMS/04NjWi75iz1TzNf4Y3zvU/<em>image</em>
 </pre>
 
 <p>
@@ -74,16 +88,35 @@ Transferring
 <pre class="panel">
 $ ./bin/cloud-client.sh --list
 
-[Image] 'nimbus-z2c'                     Read/write
+[Image] '<em>image</em>'                     Read/write
         Modified: Jun 7 2010 @ 12:43   Size: 288358400 bytes (~275 MB)
 </pre>
 <h3>Start VM</h3>
+
+<div class="kvmpanel">
+    <p>
+        For KVM you need to make an additional configuration change to the
+        <tt class="literal">cloud.properties</tt> file. You must tell Nimbus to
+        treat the image as a disk, not just a single partition. Add the following
+        line to <tt class="literal">conf/cloud.properties</tt>:
+    </p>
+    <pre class="panel">
+    vws.metadata.mountAs=hda
+    </pre>
+
+    <p>
+        Once you have everything working, you should also add this (along with any
+        other customizations) to the cloud properties template file used for new
+        users. It is located in the service installation at
+        <tt class="literal">$NIMBUS_HOME/var/cloud.properties.in</tt>.
+    </p>
+</div>
 
 <p>
     Now we are ready to boot this image and see if we can ssh into it.
 </p>
 <pre class="panel">
-$ ./bin/cloud-client.sh --run --name nimbus-z2c --hours 1
+$ ./bin/cloud-client.sh --run --name <b><em>image</em></b> --hours 1
 
 Launching workspace.
 
@@ -107,7 +140,9 @@ Waiting for updates.
     If all goes well, a VM should be booting and its IP should be
     printed to the screen. The client will not exit until the
     image is distributed and the VM is booting. When this happens,
-    you can attempt to SSH into the new VM.
+    you can attempt to SSH into the new VM. SSH may not immediately
+    work because the VM may take some time to boot and start its
+    networking and daemons.
 </p>
 
 <pre class="panel">
@@ -133,11 +168,18 @@ $ ./bin/cloud-client.sh --terminate --handle vm-001
 
 <h3>Once more, with contextualization</h3>
 
+<div class="kvmpanel">
+    <p>
+        The KVM sample image does not support contextualization at this time, so you
+        can skip this step.
+    </p>
+</div>
+
 <p>
     The cloud client also supports launching VMs with <em>contextualization</em>.
-    The VM image has an agent installed that securely contacts a broker and exchanges
-    information about itself and other nodes. This allows launching groups of nodes
-    that are contextualized into clusters.
+    The <tt class="literal">nimbus-z2c</tt> image has an agent installed that securely
+    contacts a broker and exchanges information about itself and other nodes. This allows
+    launching groups of nodes that are contextualized into clusters.
 </p>
 
 <div class="note">
