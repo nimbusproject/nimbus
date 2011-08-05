@@ -23,7 +23,14 @@
 
         <property name="repoDir" value="$CUMULUS{cumulus.repo.dir}" />
         <property name="repoHost" value="$SSH{service.sshd.contact.string}" />
+
+        <!-- Configures the propagation mechanism from Cumulus to the VMMs -->
+        <!-- Alternatives to "scp": "lantorrent" or "cp" -->
         <property name="repoScheme" value="scp" />
+
+        <!-- Propagation mechanisms that bypass the Cumulus repository -->
+        <!-- WARNING: don't enable cp as a passthrough scheme, or users could
+                      access arbitrary files from the VMM -->
         <property name="passthroughSchemes" value="file,hdfs,http,https" />
      </bean>
 
