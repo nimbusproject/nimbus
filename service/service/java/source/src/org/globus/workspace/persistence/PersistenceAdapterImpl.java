@@ -870,64 +870,6 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
         }
     }
 
-    public List<ResourceEntry> findWorkspacesBasicInformation() throws WorkspaceDatabaseException, SQLException {
-
-        if (this.dbTrace) {
-            logger.trace("findActiveWorkspacesIDs()");
-        }
-
-        Connection c = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            c = getConnection();
-            pstmt = c.prepareStatement(SQL_SELECT_RESOURCE_BASIC_INFORMATION);
-            rs = pstmt.executeQuery();
-
-
-            if (rs == null || !rs.next())
-                return null;
-
-            final ArrayList<ResourceEntry> results = new ArrayList<ResourceEntry>();
-            do {
-
-                Integer id = new Integer(rs.getInt(1));
-                String name = rs.getString(2);
-                Integer state = new Integer(rs.getInt(3));
-
-                ResourceEntry res = new ResourceEntry(id);
-                res.setName(id);
-                res.setState(state);
-
-                results.add(res);
-                if (this.dbTrace) {
-                    logger.trace("found id: " + id);
-                }
-            } while (rs.next());
-
-
-            return results;
-
-        } catch (SQLException e) {
-            logger.error("",e);
-            throw new WorkspaceDatabaseException(e);
-        } finally {
-            try {
-                if (rs != null) {
-                    rs.close();
-                }
-                if (pstmt != null) {
-                    pstmt.close();
-                }
-                if (c != null) {
-                    returnConnection(c);
-                }
-            } catch (SQLException sql) {
-                logger.error("SQLException in finally cleanup", sql);
-            }
-        }
-    }
-
     public boolean isActiveWorkspaceID(int id)
 
             throws WorkspaceDatabaseException {
