@@ -98,6 +98,7 @@ To install LANTorrent you must take the following steps:
         wait        = no
         port        = 2893
         server      = /home/bresnaha/lt1/bin/ltserver
+        env         = HOME=/opt/nimbus
     }                                                                               
     =============== END WITH THE PREVIOUS LINE =================
 

@@ -8,4 +8,5 @@ service @SERVICENAME@
 	wait		= no
     port        = @PORT@
     server      = @SERVER@
+    env         = HOME=/opt/nimbus
 }                                                                               

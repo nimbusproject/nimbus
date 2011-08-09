@@ -116,6 +116,10 @@ class LTDestConnection(object):
             self.valid = False
             self.ex = LTException(506, "%s:%s %s" % (self.host, str(self.port), str(ex)), self.host, self.port, self.requests)
             pylantorrent.log(logging.WARNING, "send error " + str(self.ex), traceback)
+            data = self._read_from_socket()
+            while(data):
+                pylantorrent.log(logging.WARNING, "bad data s" + str(data))
+                data = self._read_from_socket()
             j = self.ex.get_json()
             s = json.dumps(j)
             self.output_printer.print_results(s)
