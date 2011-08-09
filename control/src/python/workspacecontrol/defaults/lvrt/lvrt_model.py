@@ -85,44 +85,8 @@ class Domain:
         template = env.get_template(self._template)
         xml1 = template.render(domain=self, os=self.os, devices=self.devices)
         return _xml_normalize_pretty(xml1)
-        
-    def _toXML_old(self):
-        x = StringIO()
-        
-        x.write(LINE_ONE)
-        x.write(L(0, "<domain type='%s'>" % self._type))
-        
-        if not self.name:
-            raise Exception("assuming <name> is required")
-        
-        x.write(L(1, "<name>%s</name>" % self.name))
-        
-        if self.bootloader:
-            x.write(L(1, "<bootloader>%s</bootloader>" % self.bootloader))
-            
-        if not self.os:
-            raise Exception("assuming <os> is required")
-        x.write(self.os.toXML())
-        
-        x.write(L(1, "<memory>%d</memory>" % self.memory))
-        x.write(L(1, "<vcpu>%d</vcpu>" % self.vcpu))
-        
-        if self.on_poweroff:
-            x.write(L(1, "<on_poweroff>%s</on_poweroff>" % self.on_poweroff))
-        if self.on_reboot:
-            x.write(L(1, "<on_reboot>%s</on_reboot>" % self.on_reboot))
-        if self.on_crash:
-            x.write(L(1, "<on_crash>%s</on_crash>" % self.on_crash))
-        
-        if not self.devices:
-            raise Exception("assuming <devices> is required")
-        x.write(self.devices.toXML())
-        
-        x.write(L(0, "</domain>"))
-        content = x.getvalue()
-        x.close()
-        return content
-        
+
+
 class OS:
     
     # Three Xen boot types:
