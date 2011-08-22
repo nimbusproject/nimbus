@@ -29,6 +29,7 @@ import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.globus.workspace.service.impls.async.*;
 import org.globus.workspace.WorkspaceConstants;
 import org.globus.workspace.xen.xenssh.Query;
+import org.junit.internal.matchers.Each;
 import org.nimbustools.api.services.rm.ManageException;
 
 import java.util.*;
@@ -120,6 +121,8 @@ public class VMMReaper implements Runnable {
             return; // *** EARLY RETURN ***
         }
 
+        HashMap<String,Integer> result = null;
+
         for (ResourcepoolEntry r: vmms) {
             String hostname = r.getHostname();
 
@@ -142,17 +145,24 @@ public class VMMReaper implements Runnable {
             }
 
             if (state != null) {
-                HashMap<String,Integer> result = gson.fromJson(state, HashMap.class);
+                result = gson.fromJson(state, HashMap.class);
             }
 
         }
 
         InstanceResource[] ires =  this.home.findAll();
 
-        //29 = CORRUPTED_GENERIC
+        Map vms = new HashMap<String, InstanceResource>();
+        for (InstanceResource r: ires) {
+            vms.put(r.getName(), r);
+        }
+
+        if (!result.isEmpty()) {
+            result.keySet();
+        }
+
         for (InstanceResource r: ires) {
             Integer state = r.getState();
-
 
             this.persistence.setState(r.getID(),
                                           WorkspaceConstants.STATE_CORRUPTED_GENERIC,
