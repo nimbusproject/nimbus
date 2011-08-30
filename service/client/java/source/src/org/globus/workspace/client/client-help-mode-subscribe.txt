@@ -1,4 +1,3 @@
-
 Definition:
 ==========
 
@@ -20,7 +19,7 @@ Optional for subscribe:
                            listening for notifications and receiving a
                            'cancelled' or 'corrupted' notification.
 
-  --exit-at-state <state>  Client will exit once the given state has been
+  --exit-state <state>     Client will exit once the given state has been
                            reached.
 
                            These are the current, valid state values. They
