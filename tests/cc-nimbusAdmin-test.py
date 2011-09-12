@@ -9,7 +9,11 @@ cc_home=os.environ['CLOUD_CLIENT_HOME']
 nimbus_home=os.environ['NIMBUS_HOME']
 logfile = sys.stdout
 
-os.mkdir("%s/history/vm-999" % (cc_home))
+try:
+    os.mkdir("%s/history/vm-999" % (cc_home))
+except:
+    print "The directory already exists"
+    pass
 
 cmd = "%s/bin/cloud-client.sh --transfer --sourcefile /etc/group" % (cc_home)
 (x, rc)=pexpect.run(cmd, withexitstatus=1)
