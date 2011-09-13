@@ -2495,28 +2495,23 @@ will be in effect.
 <a name="nimbusadministration"> </a>
 <h2>Nimbus Administration _NAMELINK(nimbusadministration)</h2>
 <p>
-The nimbus administration tools, nimbus-admin and nimbus-nodes, can be
-used for a number of useful things by an administrator of a nimbus
-service. The nimbus-nodes tool is used for administrating all the VMM
-nodes running on the service. With this tool you are able to list,
+The Nimbus administration tools, nimbus-admin and nimbus-nodes, allow
+administrators to configure VMMs and monitor the VMs running on them.
+The nimbus-nodes tool is used for configuring the VMM
+nodes available to the service. It allows you to list,
 add, update and remove nodes on the service. 
-The nimbus-admin tool allows you to administrate all the running
-virtual machines running on the service. With this tool you can
-list the running VMs in a variety of contexts, as well as manually
-shutdown currently running VMs.
-</p>
-<p>
-Both tools also have a host of reporting output options which will
-be covered later in the following sections.
+The nimbus-admin tool allows you to monitor and shut down the virtual machines
+running on the service. 
 </p>
 
 <a name="nimbus-admin"> </a>
 <h3>Nimbus Admin _NAMELINK(nimbus-admin)</h3>
 <p>
-To start using the nimbus-admin tool first go to your nimbus home
-directory. $NIMBUS_HOME/bin where you will find the script
-nimbus-admin. Run ./nimbus-admin --help to see the help file which
-lists all available commands. 
+The nimbus-admin tool, is in the $NIMBUS_HOME/bin directory.
+You can view the nimbus-admin help with:
+<pre class="panel">
+$ nimbus-admin --help
+</pre>
 </p>
 <p>
 <b>List:</b><br />
@@ -2524,59 +2519,82 @@ The --list command will display a list of virtual machines with the
 following information:<br />
 <b>id:</b> the VM id number<br />
 <b>node:</b> the physical VMM node the VM is running on<br />
-<b>group_id:</b> the group id number this VM is associated with<br />
-<b>group_name:</b> the group name this VM is associated with<br />
-<b>creator:</b> The users DN name who started this VM<br />
-<b>state:</b> Current state of the VM (Running, propagated, etc)<br />
+<b>group_id:</b> the group id number associated with the VM<br />
+<b>group_name:</b> the group name associated with the VM<br />
+<b>creator:</b> The Distinguished Name of the user who started this VM<br />
+<b>state:</b> Current state of the VM (Running, Propagated, etc)<br />
 <b>start time:</b> Time when the VM was created<br />
-<b>end time:</b> Time when the VM gets destroyed<br />
+<b>end time:</b> Time when the VM's lease expires<br />
 <b>memory:</b> Amount of memory being used by this VM<br />
 <b>cpu count:</b> Number of cpu cores being used by this VM<br />
-<b>uri:</b> Image and repo information of this VM<br />
+<b>uri:</b> Image and repository information of this VM<br />
 </p>
 <p>
-The following commands can be used with list<br />
---list (-l)          List the VMs known to the IaaS service<br />
-        --user (-u)     -Option to list VMs by user display name<br />
-        --dn (-d)       -Option to list VMs by user DN name<br />
-        --gid (-g)      -Option to list VMs by group id<br />
-        --gname (-gn)   -Option to list VMs by group name<br />
-        --host (-hn)    -Option to list VMs running under particular host<br />
+The following options can be used to filter which VMs are listed:<br />
+<b>--user (-u)</b> filter VMs by user display name<br />
+<b>--dn (-d)</b> filter VMs by user DN name<br />
+<b>--gid (-g)</b> filter VMs by group id<br />
+<b>--gname (-gn)</b> filter VMs by group name<br />
+<b>--host (-hn)</b> filter VMs running on a particular VMM host<br />
 <br />
-So an example command would look like:<br />
-./nimbus-admin --list --host localhost
+As an example, let's list by host:<br />
+<div class="screen"><pre>
+$ ./nimbus-admin --list --host worker02.example.org
+id         :  4
+node       :  worker02.example.org
+group_id   :  1
+group_name :  UNLIMITED
+creator    :  /O=Auto/OU=0718075a-873f-4eef-b0b3-d10a975e8c7d/CN=test@example.org
+state      :  Running
+start time :  Tue Sep 13 09:55:30 PDT 2011
+end time   :  Tue Sep 13 18:17:30 PDT 2011
+memory     :  512
+cpu count  :  1
+uri        :  /vms/sl54base_i386.img.gz
+</pre></div>
 <br />
 </p>
 <p>
 <b>Shutdown:</b><br />
-The --shutdown command destroys all the virtual machines specified.
+The --shutdown command destroys specified virtual machines.
 When shutting down a VM, a soft shutdown is called first, which puts
 the VM in "propagated" mode. Once the VM is propagated, it is then
-fully destroyed. VMs can be shutdown in the following ways:<br />
---all (-a)       -Option to shutdown all running VMs on service<br />
---id (-i)        -Option to shutdown VM by VM id<br />
---user (-u)      -Option to shutdown VM by user display name<br />
---dn (-d)        -Option to shutdown VM by user DN name<br />
---gid (-g)       -Option to shutdown VM by group id<br />
---gname (-gn)    -Option to shutdown VM by group name<br />
---host (-hn)     -Option to shutdown all VMs with specified host<br />
---seconds (-s)   -Amount of time to wait for VMs to shutdown to
-                            propagation mode before being trashed. If
-                            seconds option not specified, default is a
-                            maximum of 30 seconds
+fully destroyed. You can specify which VMs to shutdown in the following ways:<br />
+<b>--all (-a)</b> shutdown all running VMs on service<br />
+<b>--id (-i)</b> shutdown VM by VM id<br />
+<b>--user (-u)</b> shutdown VM by user display name<br />
+<b>--dn (-d)</b> shutdown VM by user DN name<br />
+<b>--gid (-g)</b> shutdown VM by group id<br />
+<b>--gname (-gn)</b> shutdown VM by group name<br />
+<b>--host (-hn)</b> shutdown all VMs with specified host<br />
+<b>--seconds (-s)</b> amount of time to wait for VMs to shutdown to
+                      propagation mode before being trashed. If
+                      seconds option not specified, default is a
+                      maximum of 30 seconds
 <br /><br />
-Example: ./nimbus-admin --shutdown --all<br /><br />
+Example:
+<div class="screen"><pre>
+$ nimbus-admin --shutdown --all
+</pre></div>
+<br /><br />
 The --shutdown command also allows you to shutdown a list of VMs at once
 by using a comma-separated list.<br />
-Example: ./nimbus-admin --shutdown --id 3,4,5,6,10,13<br />
+Example: 
+<div class="screen"><pre>
+./nimbus-admin --shutdown --id 3,4,5,6,10,13
+</pre></div>
+<br />
 </p>
 <p>
 <b>Nodes:</b><br />
 The --nodes command shows a list of all the VMM nodes running on the
 service with a list of VM ids each one is running.
-Example: ./nimbus-admin --nodes<br /><br />
-node1: 3,4,5<br />
-node2: 1,2,6<br /><br />
+Example:
+<div class="screen"><pre>
+./nimbus-admin --nodes
+node1: 3,4,5
+node2: 1,2,6
+</pre></div>
 </p>
 
 <a name="nimbus-nodes"> </a>
@@ -2622,14 +2640,14 @@ an additional argument.
 The following node parameters can be used as additional arguments
 for the --add and --update commands. 
 <br /><br />
-<i>--active (-A)</i> Allow VMM nodes to take on new virtual machines.
+<b>--active (-A)</b> Allow VMM nodes to take on new virtual machines.
 Default for new nodes.<br />
-<i>--inactive (-i)</i> Prevent VMM nodes from accepting new VMs.
+<b>--inactive (-i)</b> Prevent VMM nodes from accepting new VMs.
 This will not terminate any already running VMs.<br />
-<i>--memory (-m)</i> Maximum memory available on node for VMs<br />
-<i>--networks (-n)</i> List of networks associated with a node.
+<b>--memory (-m)</b> Maximum memory available on node for VMs<br />
+<b>--networks (-n)</b> List of networks associated with a node.
 A value of * means all available networks<br />
-<i>--pool (-p)</i> Resource pool name for this VMM node<br />
+<b>--pool (-p)</b> Resource pool name for this VMM node<br />
 </p>
 <p>
 <b>Remove</b><br />
