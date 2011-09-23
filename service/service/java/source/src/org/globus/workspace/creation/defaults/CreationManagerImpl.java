@@ -364,13 +364,13 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
         }
 
         this.legals.checkCreateRequest(req);
-        
+
         final VirtualMachine[] bound = this.binding.processRequest(req);
         if (bound == null || bound.length == 0) {
             throw new CreationException("no binding result but no binding " +
                     "error: illegal binding implementation");
-        }         
-        
+        }
+
         final String creatorID = caller.getIdentity();
         if (creatorID == null || creatorID.trim().length() == 0) {
             throw new CreationException("Cannot determine identity");
@@ -875,7 +875,8 @@ public class CreationManagerImpl implements CreationManager, InternalCreationMan
             assocs = assocStr.split(",");
         }
 
-        return this.scheduler.schedule(memory, cores, duration, assocs, numNodes,
+        final String resourcePool = vm.getResourcePool();
+        return this.scheduler.schedule(memory, cores, duration, assocs, resourcePool, numNodes,
                                        groupid, coschedid, vm.isPreemptable(), callerID);
     }
 

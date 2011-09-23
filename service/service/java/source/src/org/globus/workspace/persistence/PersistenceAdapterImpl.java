@@ -2533,7 +2533,7 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
         }
     }
     
-    public List<ResourcepoolEntry> getAvailableEntriesSortedByFreeMemoryPercentage(int requestedMem)
+    public List<ResourcepoolEntry> getAvailableEntriesSortedByFreeMemoryPercentage(int requestedMem, String resourcePool)
             throws WorkspaceDatabaseException{
 
         Connection c = null;
@@ -2544,8 +2544,15 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
 
         try {
             c = getConnection();
-            pstmt = c.prepareStatement(SQL_SELECT_AVAILABLE_ENTRIES);
-            pstmt.setInt(1, requestedMem);
+            if (resourcePool != null && resourcePool.length() > 0) {
+                pstmt = c.prepareStatement(SQL_SELECT_AVAILABLE_ENTRIES_BY_POOL);
+                pstmt.setInt(1, requestedMem);
+                pstmt.setString(2, resourcePool);
+            }
+            else {
+                pstmt = c.prepareStatement(SQL_SELECT_AVAILABLE_ENTRIES);
+                pstmt.setInt(1, requestedMem);
+            }
             rs = pstmt.executeQuery();
 
             if (rs == null || !rs.next()) {
@@ -2600,6 +2607,54 @@ public class PersistenceAdapterImpl implements WorkspaceConstants,
                 logger.error("SQLException in finally cleanup", sql);
             }
         }                
+    }
+
+    public String[] getResourcePools()  throws WorkspaceDatabaseException{
+        Connection c = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        ArrayList<String> entries = new ArrayList<String>();
+
+        try {
+            c = getConnection();
+            pstmt = c.prepareStatement(SQL_SELECT_ALL_RESOURCE_POOLS);
+            rs = pstmt.executeQuery();
+
+            if (rs == null || !rs.next()) {
+                if (lager.traceLog) {
+                    logger.debug("no available resource pool entries");
+                }
+            } else do {
+                // rs was next'd above already
+                String name = rs.getString(1);
+
+                entries.add(name);
+
+            } while (rs.next());
+
+            String[] zones = new String[entries.size()];
+            entries.toArray(zones);
+            return zones;
+
+        } catch(SQLException e) {
+            logger.error("",e);
+            throw new WorkspaceDatabaseException(e);
+        } finally {
+            try {
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+                if (rs != null) {
+                    rs.close();
+                }
+                if (c != null) {
+                    returnConnection(c);
+                }
+            } catch (SQLException sql) {
+                logger.error("SQLException in finally cleanup", sql);
+            }
+        }
     }
 
 

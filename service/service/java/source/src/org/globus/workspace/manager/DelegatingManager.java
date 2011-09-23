@@ -101,7 +101,7 @@ public class DelegatingManager implements Manager {
     protected final ReprFactory repr;
     protected final DataConvert dataConvert;
     protected final Lager lager;
-    
+
     protected AccountingReaderAdapter accounting;
     
     // -------------------------------------------------------------------------
@@ -240,9 +240,9 @@ public class DelegatingManager implements Manager {
                   ResourceRequestDeniedException,
                   SchedulingException,
                   AuthorizationException {
-        
+
         InstanceResource[] resources = this.creation.create(req, caller);
-        final _CreateResult result = this.repr._newCreateResult();        
+        final _CreateResult result = this.repr._newCreateResult();
         if(resources.length > 0){
             result.setCoscheduledID(resources[0].getEnsembleId());
             result.setGroupID(resources[0].getGroupId());
@@ -444,7 +444,6 @@ public class DelegatingManager implements Manager {
             case INSTANCE:
                 final VM vm = this.getInstance(id);
                 return new VM[]{vm};
-            
             case GROUP:
                 return this.getGroup(id);
 
@@ -565,6 +564,10 @@ public class DelegatingManager implements Manager {
 
     public String getVMMReport() {
         return this.home.getVMMReport();
+    }
+
+    public String[] getResourcePools() {
+        return this.home.getResourcePools();
     }
 
     // -------------------------------------------------------------------------

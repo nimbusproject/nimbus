@@ -127,4 +127,6 @@ public interface WorkspaceHome {
 
     /* Human readable VMM insight */
     public String getVMMReport();
+
+    public String[] getResourcePools();
 }

@@ -37,6 +37,7 @@ public class DefaultCreateRequest implements _CreateRequest {
     protected String name;
     protected VMFile[] vmFiles;
     protected NIC[] nics;
+    protected String resourcePool;
     protected Schedule schedule;
     protected String coscheduleID;
     protected boolean coscheduleDone;
@@ -68,6 +69,10 @@ public class DefaultCreateRequest implements _CreateRequest {
 
     public NIC[] getRequestedNics() {
         return this.nics;
+    }
+
+    public String getRequestedResourcePool() {
+        return this.resourcePool;
     }
 
     public Schedule getRequestedSchedule() {
@@ -145,6 +150,10 @@ public class DefaultCreateRequest implements _CreateRequest {
 
     public void setRequestedNics(NIC[] nics) {
         this.nics = nics;
+    }
+
+    public void setRequestedResourcePool(String resourcePool) {
+        this.resourcePool = resourcePool;
     }
 
     public void setRequestedSchedule(Schedule schedule) {

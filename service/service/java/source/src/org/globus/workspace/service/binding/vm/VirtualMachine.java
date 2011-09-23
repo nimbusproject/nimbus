@@ -60,6 +60,8 @@ public class VirtualMachine extends WorkspaceInstantiation implements Serializab
     //requested vmm version
     private String vmmVersion;
 
+    private String resourcePool;
+
     /* ------------------------------------------------ */
     /*   get/set                                        */
     /* ------------------------------------------------ */
@@ -164,6 +166,14 @@ public class VirtualMachine extends WorkspaceInstantiation implements Serializab
 
     public void setCredentialName(String credentialName) {
         this.credentialName = credentialName;
+    }
+
+    public String getResourcePool() {
+        return this.resourcePool;
+    }
+
+    public void setResourcePool(String resourcePool) {
+        this.resourcePool = resourcePool;
     }
 
     public synchronized void addFileCopyNeed(FileCopyNeed need) {
@@ -293,6 +303,7 @@ public class VirtualMachine extends WorkspaceInstantiation implements Serializab
         return "VirtualMachine{" +
                 "deployment=" + this.deployment +
                 ", network='" + this.network + '\'' +
+                ", resourcePool='" + this.resourcePool + '\'' +
                 ", kernel='" + this.kernel + '\'' +
                 ", kernelParameters='" + this.kernelParameters + '\'' +
                 ", node=" + this.node +
@@ -341,6 +352,7 @@ public class VirtualMachine extends WorkspaceInstantiation implements Serializab
         newvm.kernelParameters = vm.kernelParameters;
         newvm.name = vm.name;
         newvm.network = vm.network;
+        newvm.resourcePool = vm.resourcePool;
         newvm.node = vm.node;
         newvm.propagateRequired = vm.propagateRequired;
         newvm.propagateStartOK = vm.propagateStartOK;

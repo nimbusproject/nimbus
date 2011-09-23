@@ -281,6 +281,10 @@ public class DefaultManager implements Manager {
         return "No report";
     }
 
+    public String[] getResourcePools() {
+        return new String[0];
+    }
+
     // -------------------------------------------------------------------------
     // SPOT INSTANCES OPERATIONS
     // -------------------------------------------------------------------------        

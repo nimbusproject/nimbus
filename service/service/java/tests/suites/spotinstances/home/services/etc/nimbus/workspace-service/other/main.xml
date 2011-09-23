@@ -221,6 +221,8 @@
         <constructor-arg ref="nimbus-rm.persistence.DataConvert" />
 
     </bean>
+    <bean id="nimbus-rm.service.binding.BindResourcePool"
+              class="org.globus.workspace.service.binding.defaults.DefaultBindResourcePool" />
 
 
     <!-- ===================================================================

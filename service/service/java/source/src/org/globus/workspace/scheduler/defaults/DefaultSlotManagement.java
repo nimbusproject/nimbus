@@ -235,7 +235,8 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
 
             final String[] hostnames =
                     this.reserveSpace(vmids, req.getMemory(),
-                                      req.getNeededAssociations(), preemptable);
+                                      req.getNeededAssociations(),
+                                      req.getResourcePool(), preemptable);
 
             return new Reservation(vmids, hostnames);
         } finally {
@@ -288,7 +289,9 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
                 final String[] hostnames =
                         this.reserveSpace(ids,
                                           request.getMemory(),
-                                          request.getNeededAssociations(), false);
+                                          request.getNeededAssociations(),
+                                          request.getResourcePool(),
+                                          false);
 
                 final Integer duration = new Integer(request.getDuration());
 
@@ -372,7 +375,8 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
      */
     private String[] reserveSpace(final int[] vmids,
                                   final int memory,
-                                  final String[] assocs, 
+                                  final String[] assocs,
+                                  final String availabilityZone,
                                   boolean preemptable)
                   throws ResourceRequestDeniedException {
 
@@ -421,6 +425,7 @@ public class DefaultSlotManagement implements SlotManagement, NodeManagement {
             try {
                 nodes[i] = ResourcepoolUtil.getResourcePoolEntry(memory,
                                                                  assocs,
+                                                                 availabilityZone,
                                                                  this.db,
                                                                  this.lager,
                                                                  vmids[i],

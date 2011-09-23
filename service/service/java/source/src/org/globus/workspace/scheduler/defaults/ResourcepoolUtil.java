@@ -27,12 +27,7 @@ import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
 import org.nimbustools.api.services.rm.ManageException;
 
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * TODO: move from static and passing in arguments etc.
@@ -199,6 +194,7 @@ class ResourcepoolUtil {
      */
     static String getResourcePoolEntry(int mem,
             String[] neededAssociations,
+            String resourcePool,
             final PersistenceAdapter db,
             Lager lager,
             int vmid,
@@ -228,7 +224,7 @@ class ResourcepoolUtil {
 
         //availableEntries is never empty
         final List<ResourcepoolEntry> availableEntries =
-                getAvailableEntries(mem, neededAssociations, db, trace);
+                getAvailableEntries(mem, neededAssociations, resourcePool, db, trace);
         
         if (trace) {
             traceAvailableEntries(availableEntries);
@@ -261,12 +257,21 @@ class ResourcepoolUtil {
     }
 
     private static List<ResourcepoolEntry> getAvailableEntries(int mem,
-            String[] neededAssociations, final PersistenceAdapter db,
+            String[] neededAssociations, String resourcePool, final PersistenceAdapter db,
             final boolean trace) throws WorkspaceDatabaseException,
             ResourceRequestDeniedException {
-        
+
+
+        String[] pools = db.getResourcePools();
+        if (resourcePool != null && Arrays.asList(pools).contains(resourcePool) == false) {
+
+            String err = "Resource pool (Availability Zone) '" + resourcePool + "' does not exist.";
+            logger.error(err);
+            throw new ResourceRequestDeniedException(err);
+        }
+
         final List<ResourcepoolEntry> availableEntries =
-                db.getAvailableEntriesSortedByFreeMemoryPercentage(mem);
+                db.getAvailableEntriesSortedByFreeMemoryPercentage(mem, resourcePool);
 
         if(availableEntries.isEmpty()){
             String err = "No resource is available for this request (based on memory).";

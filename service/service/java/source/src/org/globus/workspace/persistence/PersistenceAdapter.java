@@ -201,9 +201,11 @@ public interface PersistenceAdapter {
     
     //SQL processing
     
-    public List<ResourcepoolEntry> getAvailableEntriesSortedByFreeMemoryPercentage(int requestedMem) 
+    public List<ResourcepoolEntry> getAvailableEntriesSortedByFreeMemoryPercentage(int requestedMem, String resourcePool)
     
             throws WorkspaceDatabaseException;
+
+    public String[] getResourcePools()  throws WorkspaceDatabaseException;
 
     // returns true if memory request is bigger than any VMM could ever handle
     public boolean isInfeasibleRequest(int requestedMem) throws WorkspaceDatabaseException;

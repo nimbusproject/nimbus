@@ -820,4 +820,14 @@ public abstract class WorkspaceHomeImpl implements WorkspaceHome,
     public String getVMMReport() {
         return this.scheduler.getVMMReport();
     }
+
+    public String[] getResourcePools() {
+        try {
+            return this.persistence.getResourcePools();
+        }
+        catch(WorkspaceDatabaseException e) {
+            // Error logged down the call stack
+            return new String[0];
+        }
+    }
 }

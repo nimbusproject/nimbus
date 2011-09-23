@@ -165,6 +165,9 @@ public interface PersistenceAdapterConstants {
     public static final String SQL_SELECT_ASSOCIATION =
             "SELECT * FROM association_entries WHERE association=?";
 
+    public static final String SQL_SELECT_ALL_RESOURCE_POOLS =
+            "SELECT resourcepool FROM resourcepool_entries";
+
     public static final String SQL_SELECT_ALL_RESOURCE_POOL_ENTRIES =
                 "SELECT * FROM resourcepool_entries ORDER BY hostname";
 
@@ -203,10 +206,16 @@ public interface PersistenceAdapterConstants {
     public static final String SQL_SELECT_ALL_VMS_BY_OWNER =
             "SELECT id FROM resources WHERE creator_dn=?";
     
-    public static final String SQL_SELECT_AVAILABLE_ENTRIES =
+    public static final String SQL_SELECT_AVAILABLE_ENTRIES_BY_POOL =
         "SELECT * FROM resourcepool_entries WHERE active = 1 AND " +
-                "available_memory >= ? " +
+                "available_memory >= ? AND " +
+                "resourcepool = ?" +
                 "ORDER BY (available_memory/maximum_memory) ASC";
+
+    public static final String SQL_SELECT_AVAILABLE_ENTRIES =
+            "SELECT * FROM resourcepool_entries WHERE active = 1 AND " +
+                    "available_memory >= ? " +
+                    "ORDER BY (available_memory/maximum_memory) ASC";
 
     public static final String SQL_SELECT_INFEASIBLE_MEMORY =
         "SELECT COUNT(DISTINCT hostname) FROM resourcepool_entries WHERE active = 1 AND " +
@@ -388,6 +397,7 @@ public interface PersistenceAdapterConstants {
                                     SQL_SELECT_ALL_VMS_IN_ENSEMBLE,
                                     SQL_SELECT_ALL_VMS_BY_OWNER,
                                     SQL_SELECT_AVAILABLE_ENTRIES,
+                                    SQL_SELECT_AVAILABLE_ENTRIES_BY_POOL,
                                     SQL_SELECT_MULTIPLE_OF_AVAILABLE_MEMORY,
                                     SQL_SELECT_TOTAL_AVAILABLE_MEMORY,
                                     SQL_SELECT_TOTAL_MAX_MEMORY,
@@ -402,6 +412,7 @@ public interface PersistenceAdapterConstants {
                                     SQL_SELECT_IDEMPOTENT_CREATION,
                                     SQL_INSERT_IDEMPOTENT_CREATION,
                                     SQL_DELETE_IDEMPOTENT_CREATION,
+                                    SQL_SELECT_ALL_RESOURCE_POOLS
 //                                    SQL_INSERT_ASYNC_REQUEST,
 //                                    SQL_LOAD_ALL_ASYNC_REQUESTS,
 //                                    SQL_LOAD_ASYNC_REQUEST,

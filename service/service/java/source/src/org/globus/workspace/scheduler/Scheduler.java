@@ -41,6 +41,7 @@ public interface Scheduler extends StateChangeInterested{
      * @param cores CPU cores needed
      * @param duration seconds needed
      * @param neededAssociations networks needed
+     * @param resourcePool needed
      * @param numNodes number needed
      * @param groupid group ID, can be null
      * @param coschedid co-scheduling ID, can be null
@@ -53,6 +54,7 @@ public interface Scheduler extends StateChangeInterested{
                                 int cores,
                                 int duration,
                                 String[] neededAssociations,
+                                String resourcePool,
                                 int numNodes,
                                 String groupid,
                                 String coschedid,

@@ -227,6 +227,7 @@ public class DefaultSchedulerAdapter implements Scheduler {
                                 int cores,
                                 int duration,
                                 String[] neededAssociations,
+                                String resourcePool,
                                 int numNodes,
                                 String groupid,
                                 String coschedid,
@@ -264,7 +265,7 @@ public class DefaultSchedulerAdapter implements Scheduler {
         this.creationPending.pending(ids);
 
         final NodeRequest req =
-                new NodeRequest(ids, memory, cores, duration, assocs, groupid, creatorDN);
+                new NodeRequest(ids, memory, cores, duration, assocs, resourcePool, groupid, creatorDN);
 
         try {
 
@@ -937,7 +938,7 @@ public class DefaultSchedulerAdapter implements Scheduler {
 
         // leaving out some fields that don't matter
         NodeRequest request = new NodeRequest(reservation.getIds(),
-                memory, cores, duration, null, null, null);
+                memory, cores, duration, null, null, null, null);
 
         this.slotManager.releaseSpace(request, reservation, preemptible);
     }

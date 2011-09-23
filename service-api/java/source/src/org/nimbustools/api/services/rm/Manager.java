@@ -180,7 +180,9 @@ public interface Manager extends NimbusModule {
 
     /* Human readable VMM insight */
     public String getVMMReport();
-    
+
+    public String[] getResourcePools();
+
     // -------------------------------------------------------------------------
     // SPOT INSTANCES OPERATIONS
     // -------------------------------------------------------------------------    

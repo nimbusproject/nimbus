@@ -31,6 +31,7 @@ public interface _CreateRequest extends CreateRequest {
     public void setName(String name);
     public void setVMFiles(VMFile[] vmFiles);
     public void setRequestedNics(NIC[] requested);
+    public void setRequestedResourcePool(String requested);
     public void setRequestedSchedule(Schedule requested);
     public void setCoScheduleID(String id);
     public void setCoScheduleDone(boolean done);

@@ -210,6 +210,9 @@
     <bean id="nimbus-rm.service.binding.BindResourceRequest"
           class="org.globus.workspace.service.binding.defaults.DefaultBindResourceRequest" />
 
+    <bean id="nimbus-rm.service.binding.BindResourcePool"
+          class="org.globus.workspace.service.binding.defaults.DefaultBindResourcePool" />
+
     <bean id="nimbus-rm.service.binding.BindDisks"
               class="org.globus.workspace.service.binding.defaults.DefaultBindDisks">
 

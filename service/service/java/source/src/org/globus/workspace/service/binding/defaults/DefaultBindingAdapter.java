@@ -30,6 +30,7 @@ import org.globus.workspace.service.binding.BindResourceRequest;
 import org.globus.workspace.service.binding.BindSchedule;
 import org.globus.workspace.service.binding.BindShutdownMechanism;
 import org.globus.workspace.service.binding.BindVMM;
+import org.globus.workspace.service.binding.BindResourcePool;
 import org.globus.workspace.service.binding.BindingAdapter;
 import org.globus.workspace.service.binding.vm.FileCopyNeed;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
@@ -64,6 +65,7 @@ public class DefaultBindingAdapter implements BindingAdapter,
     protected final BindDisks bindDisks;
     protected final BindVMM bindVMM;
     protected final BindNetwork bindNetwork;
+    protected final BindResourcePool bindResourcePool;
 
     
     // -------------------------------------------------------------------------
@@ -79,7 +81,8 @@ public class DefaultBindingAdapter implements BindingAdapter,
                                  BindDisks bindDisksImpl,
                                  BindResourceRequest bindResourceRequestImpl,
                                  BindVMM bindVMMImpl,
-                                 BindNetwork bindNetworkImpl) {
+                                 BindNetwork bindNetworkImpl,
+                                 BindResourcePool bindResourcePoolImpl) {
 
         if (bindScheduleImpl == null) {
             throw new IllegalArgumentException("bindScheduleImpl may not be null");
@@ -130,6 +133,11 @@ public class DefaultBindingAdapter implements BindingAdapter,
             throw new IllegalArgumentException("bindNetworkImpl may not be null");
         }
         this.bindNetwork = bindNetworkImpl;
+
+        if (bindResourcePoolImpl == null) {
+            throw new IllegalArgumentException("bindResourcePoolImpl may not be null");
+        }
+        this.bindResourcePool = bindResourcePoolImpl;
     }
 
 
@@ -168,6 +176,7 @@ public class DefaultBindingAdapter implements BindingAdapter,
         vm.setDeployment(dep);
 
         this.bindNetwork.neededAllocations(vm, req.getRequestedNics());
+        this.bindResourcePool.consume(vm, req.getRequestedResourcePool());
         this.bindSchedule.consume(dep, req.getRequestedSchedule());
         this.bindInitialState.consume(vm, req.getInitialStateRequest());
         this.bindShutdownMechanism.consume(dep, req.getShutdownType());

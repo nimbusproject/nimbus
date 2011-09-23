@@ -222,6 +222,9 @@
 
     </bean>
 
+    <bean id="nimbus-rm.service.binding.BindResourcePool"
+              class="org.globus.workspace.service.binding.defaults.DefaultBindResourcePool" />
+
 
     <!-- ===================================================================
          org.globus.workspace.* interfaces

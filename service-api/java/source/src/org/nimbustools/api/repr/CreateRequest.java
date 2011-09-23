@@ -38,6 +38,7 @@ public interface CreateRequest {
     public String getName();
     public VMFile[] getVMFiles();
     public NIC[] getRequestedNics();
+    public String getRequestedResourcePool();
     public Schedule getRequestedSchedule();
     public String getCoScheduleID();
     public boolean isCoScheduleDone();

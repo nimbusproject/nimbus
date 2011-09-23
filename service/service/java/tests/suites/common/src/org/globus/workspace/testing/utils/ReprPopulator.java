@@ -72,25 +72,37 @@ public class ReprPopulator {
         return getCreateRequest(name, 240, 64, 1, null, networkName);
     }
 
+    public CreateRequest getCreateRequestCustomZone(String name, String zoneName) throws Exception {
+        return getCreateRequest(name, 240, 64, 1, null, null, zoneName);
+    }
+
     public CreateRequest getCreateRequest(String name, int durationSecs, int mem, int numNodes) throws Exception {
-        return getCreateRequest(name, durationSecs, mem, numNodes, null, null);
+        return getCreateRequest(name, durationSecs, mem, numNodes, null, null, null);
     }
 
     public CreateRequest getCreateRequest(String name, int durationSecs, int mem, int numNodes, String idemToken) throws Exception {
-        return getCreateRequest(name, durationSecs, mem, numNodes, idemToken, null);
+        return getCreateRequest(name, durationSecs, mem, numNodes, idemToken, null, null);
     }
 
     public CreateRequest getCreateRequest(String name, int durationSecs, int mem, int numNodes, String idemToken, String networkName) throws Exception {
         final _CreateRequest req = this.repr._newCreateRequest();
 
-        populate(req, durationSecs, name, mem, numNodes, false, idemToken, networkName);
+        populate(req, durationSecs, name, mem, numNodes, false, idemToken, networkName, null);
 
         return req;
-    }    
+    }
+
+    public CreateRequest getCreateRequest(String name, int durationSecs, int mem, int numNodes, String idemToken, String networkName, String zoneName) throws Exception {
+        final _CreateRequest req = this.repr._newCreateRequest();
+
+        populate(req, durationSecs, name, mem, numNodes, false, idemToken, networkName, zoneName);
+
+        return req;
+    }
 
     private void populate(final _CreateRequest req, int durationSeconds, String name,
                           int mem, int numNodes, boolean preemptable, String idemToken,
-                          String networkName)
+                          String networkName, String zoneName)
             throws URISyntaxException {
         req.setName(name);
         
@@ -130,6 +142,7 @@ public class ReprPopulator {
         req.setVMFiles(new _VMFile[]{file});
 
         req.setClientToken(idemToken);
+        req.setRequestedResourcePool(zoneName);
     }
 
     public Caller getCaller() {
@@ -156,7 +169,7 @@ public class ReprPopulator {
         reqSI.setSpotPrice(spotPrice);
         reqSI.setPersistent(persistent);        
         
-        populate(reqSI, 500, name, SIConstants.SI_TYPE_BASIC_MEM, numNodes, true, null, null);
+        populate(reqSI, 500, name, SIConstants.SI_TYPE_BASIC_MEM, numNodes, true, null, null, null);
         
         return reqSI;
     }
@@ -166,7 +179,7 @@ public class ReprPopulator {
         final _AsyncCreateRequest backfill = this.repr._newBackfillRequest();
         backfill.setInstanceType(SIConstants.SI_TYPE_BASIC);                
         
-        populate(backfill, 500, name, SIConstants.SI_TYPE_BASIC_MEM, numNodes, true, null, null);
+        populate(backfill, 500, name, SIConstants.SI_TYPE_BASIC_MEM, numNodes, true, null, null, null);
                 
         return backfill;
     }
