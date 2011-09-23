@@ -252,7 +252,7 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
     <bean id="nimbus-query.general.avzone"
           class="org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.defaults.DefaultAvailabilityZones">
 
-        <property name="zones" value="$OTHER_ELASTIC{availability.zones}" />
+        <constructor-arg ref="nimbus-query.rm.modulelocator" />
 
     </bean>
 
