@@ -226,6 +226,8 @@ public class ElasticService implements ElasticVersion {
                 @FormParam("KeyName") String keyName,
                 @FormParam("UserData") String userData,
                 @FormParam("InstanceType") String instanceType,
+                @FormParam("Placement.GroupName") String groupName,
+                @FormParam("Placement.AvailabilityZone") String availabilityZone,
                 @FormParam("ClientToken") String clientToken) {
             // only including parameters that are actually used right now
 
@@ -244,7 +246,12 @@ public class ElasticService implements ElasticVersion {
                 request.setUserData(data);
             }
             request.setInstanceType(instanceType);
-
+            if (groupName != null || availabilityZone != null) {
+                PlacementRequestType placement = new PlacementRequestType();
+                placement.setGroupName(groupName);
+                placement.setAvailabilityZone(availabilityZone);
+                request.setPlacement(placement);
+            }
             request.setClientToken(clientToken);
 
             try {
@@ -264,8 +271,10 @@ public class ElasticService implements ElasticVersion {
                 @FormParam("KeyName") String keyName,
                 @FormParam("UserData") String userData,
                 @FormParam("InstanceType") String instanceType,
+                @FormParam("Placement.GroupName") String groupName,
+                @FormParam("Placement.AvailabilityZone") String availabilityZone,
                 @FormParam("ClientToken") String clientToken) {
-            return handleGet(imageId, minCount, maxCount, keyName, userData, instanceType, clientToken);
+            return handleGet(imageId, minCount, maxCount, keyName, userData, instanceType, groupName, availabilityZone, clientToken);
         }
     }
 

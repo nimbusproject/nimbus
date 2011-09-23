@@ -16,6 +16,8 @@
 
 package org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.defaults;
 
+import org.nimbustools.api.brain.ModuleLocator;
+import org.nimbustools.api.services.rm.Manager;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.AvailabilityZones;
 
 public class DefaultAvailabilityZones implements AvailabilityZones {
@@ -32,24 +34,25 @@ public class DefaultAvailabilityZones implements AvailabilityZones {
     // -------------------------------------------------------------------------
 
     private String[] availableZones = EMPTY;
+    private ModuleLocator locator = null;
+    protected Manager manager; // the real RM
+
+
+    public DefaultAvailabilityZones(ModuleLocator locatorImpl) throws Exception {
+
+        if (locatorImpl == null) {
+            throw new IllegalArgumentException("locator may not be null");
+        }
+        this.locator = locatorImpl;
+        this.manager = locator.getManager();
+    }
+
 
     // -------------------------------------------------------------------------
     // GET/SET
     // -------------------------------------------------------------------------
 
-    public void setZones(String zones) {
-        if (zones == null || zones.trim().length() == 0) {
-            this.availableZones = EMPTY;
-        } else {
-            this.availableZones = zones.split(",");
-            for (int i = 0; i < this.availableZones.length; i++) {
-                final String zone = this.availableZones[i];
-                this.availableZones[i] = zone.trim();
-            }
-        }
-    }
-
     public String[] getAvailabilityZones() {
-        return this.availableZones;
+        return this.manager.getResourcePools();
     }
 }

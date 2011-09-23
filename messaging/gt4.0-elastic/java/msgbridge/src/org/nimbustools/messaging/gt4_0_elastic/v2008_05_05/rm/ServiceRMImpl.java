@@ -150,7 +150,7 @@ public class ServiceRMImpl extends UnimplementedOperations
         if (req == null) {
             throw new RemoteException("RunInstancesType request is missing");
         }
-        
+
         final Caller caller = this.container.getCaller();
 
         final CreateResult result;

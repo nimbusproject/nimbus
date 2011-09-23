@@ -208,6 +208,12 @@ public class DefaultRun implements Run {
 
         final String clientToken = req.getClientToken();
 
+        String availabilityZone = null;
+        if (req.getPlacement() != null) {
+            availabilityZone = req.getPlacement().getAvailabilityZone();
+        }
+
+
         final _CreateRequest creq = this.repr._newCreateRequest();
 
         creq.setContext(null);
@@ -227,6 +233,7 @@ public class DefaultRun implements Run {
         creq.setMdUserData(userData);
         creq.setSshKeyName(keyname);
         creq.setClientToken(clientToken);
+        creq.setRequestedResourcePool(availabilityZone);
 
         return creq;
     }
