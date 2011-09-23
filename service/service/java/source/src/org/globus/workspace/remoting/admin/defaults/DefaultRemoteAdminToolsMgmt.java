@@ -517,6 +517,9 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
         catch (DoesNotExistException e) {
             throw new RemoteException(e.getMessage());
         }
+        catch (Exception e) {
+            throw new RemoteException(e.getMessage());
+        }
     }
 
     public void setManager(Manager manager) {
