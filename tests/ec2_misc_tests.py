@@ -77,3 +77,10 @@ class TestEC2Misc(unittest.TestCase):
         pair = self.ec2conn.get_key_pair(keyname)
         self.assertFalse(pair)
 
+    def test_availability_zones(self):
+        """Test wheter AZs are described correctly
+        """
+
+        got_zones = self.ec2conn.get_all_zones()
+        print dir(got_zones[0])
+        self.assertEqual("default", got_zones[0].name)

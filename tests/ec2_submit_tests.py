@@ -2,6 +2,7 @@ import string
 import random
 import os
 import boto
+import pexpect
 from boto.ec2.connection import EC2Connection
 from boto.exception import BotoServerError
 import boto.ec2 
@@ -105,6 +106,48 @@ class TestEC2Submit(unittest.TestCase):
         print "==================================="
 
         res = image.run() 
+
+    def test_ec2_submit_availability_zone(self):
+        image_name = self.store_new_image()
+        image = self.ec2conn.get_image(image_name)
+        print "==================================="
+        print image.name
+        print image.location
+        print image_name
+        print "==================================="
+
+
+        #Ensure that starting a VM with a non-existant zone fails
+        zone = "notarealzone"
+        try:
+            res = image.run(placement=zone) 
+        except Exception, e:
+            print e.body
+            assert e.body.find("Resource pool (Availability Zone) '%s' does not exist" % zone) >= 0
+
+        #Ensure that starting a VM with a no zone defined still works
+        res = image.run() 
+        
+        #Ensure that starting a VM with default zone works
+        res = image.run(placement="default") 
+
+        #Add a node in a zone, submit to it
+        nimbus_home = get_nimbus_home()
+        cmd = "%s/bin/nimbus-nodes -a zonetest -p %s -m 10240" % (nimbus_home, zone)
+        (x, rc)=pexpect.run(cmd, withexitstatus=1)
+
+        res = image.run(placement=zone) 
+
+        cmd = "%s/bin/nimbus-nodes -d zonetest" % nimbus_home
+        (x, rc)=pexpect.run(cmd, withexitstatus=1)
+
+        # Make sure when we remove the zone, it still fails
+        try:
+            res = image.run(placement=zone) 
+        except Exception, e:
+            print e.body
+            assert e.body.find("Resource pool (Availability Zone) '%s' does not exist" % zone) >= 0
+        
 
     def test_ec2_submit_url(self):
         bucket_name = "Repo"
