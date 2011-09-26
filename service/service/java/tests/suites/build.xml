@@ -213,6 +213,12 @@
             <param name="runone.suite.report.subdir" value="basic-${st.basic07}"/>
         </antcall>
     </target>
+    <target name="basic08">
+        <antcall target="runone">
+            <param name="runone.suite.file" value="${st.basic.dir}/${st.basic08}.xml"/>
+            <param name="runone.suite.report.subdir" value="basic-${st.basic08}"/>
+        </antcall>
+    </target>
     <target name="allbasic" depends="basic01,basic02,basic03,basic04,basic05,basic06,basic07" />
 
 
