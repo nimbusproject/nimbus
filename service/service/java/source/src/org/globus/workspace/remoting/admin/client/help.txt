@@ -58,8 +58,9 @@ VMM Node Parameters                      Values used in adding/updating nodes
     --networks (-n)   List of networks associated with a node. A value of '*'
                       means all available networks.
 
-    --pool (-p)       Resource pool name for this VMM node. This option is
-                      purely organizational at this time.
+    --pool (-p)       Resource pool name for this VMM node. Use this to
+                      organize your VMM nodes into logical groups. In the EC2
+                      interfaces, this maps to an Availability Zone.
 
 
 -----------------------------------------------------------------------------
