@@ -8,6 +8,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="tests-common" />
+    <orderEntry type="module" module-name="ec2soap" />
   </component>
 </module>
 

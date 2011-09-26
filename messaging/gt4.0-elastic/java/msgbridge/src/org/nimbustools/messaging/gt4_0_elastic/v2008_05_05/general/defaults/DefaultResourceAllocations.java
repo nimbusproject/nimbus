@@ -51,6 +51,10 @@ public class DefaultResourceAllocations implements ResourceAllocations {
     protected int largeMemory;
     protected int xlargeMemory;
 
+    protected int smallCPUs;
+    protected int largeCPUs;
+    protected int xlargeCPUs;
+
     protected String smallName;
     protected String largeName;
     protected String xlargeName;
@@ -106,6 +110,19 @@ public class DefaultResourceAllocations implements ResourceAllocations {
                     "or negative: " + this.xlargeMemory);
         }
 
+        if (this.smallCPUs < 1) {
+            throw new Exception("Invalid: Small RA CPUs is zero " +
+                    "or negative: " + this.smallMemory);
+        }
+        if (this.largeCPUs < 1) {
+            throw new Exception("Invalid: Large RA CPUs is zero " +
+                    "or negative: " + this.largeMemory);
+        }
+        if (this.xlargeCPUs < 1) {
+            throw new Exception("Invalid: Extra-large RA CPUs is zero " +
+                    "or negative: " + this.xlargeMemory);
+        }
+
         if (this.vmmType == null || this.vmmType.trim().length() == 0) {
             logger.warn("No VMM type configured to send in requests?");
         }
@@ -140,6 +157,18 @@ public class DefaultResourceAllocations implements ResourceAllocations {
 
     public void setXlargeMemory(int xlargeMemory) {
         this.xlargeMemory = xlargeMemory;
+    }
+
+    public void setSmallCPUs(int smallCPUs) {
+        this.smallCPUs = smallCPUs;
+    }
+
+    public void setLargeCPUs(int largeCPUs) {
+        this.largeCPUs = largeCPUs;
+    }
+
+    public void setXlargeCPUs(int xlargeCPUs) {
+        this.xlargeCPUs = xlargeCPUs;
     }
 
     public void setSmallName(String smallName) {
@@ -264,7 +293,11 @@ public class DefaultResourceAllocations implements ResourceAllocations {
         Integer memory = getInstanceMemory(cmpName);
         
         ra.setMemory(memory);
-        
+
+        Integer cpus = getInstanceCPUs(cmpName);
+
+        ra.setIndCpuCount(cpus);
+
         ra.setSpotInstance(spot);
         
         ra.setArchitecture(this.cpuArch);
@@ -280,6 +313,20 @@ public class DefaultResourceAllocations implements ResourceAllocations {
             return this.largeMemory;
         } else if (cmpName.equals(this.getXlargeName())) {
             return this.xlargeMemory;
+        } else {
+            throw new CannotTranslateException(
+                    "Unknown instance type '" + cmpName + "'");
+        }
+    }
+
+    protected Integer getInstanceCPUs(final String cmpName)
+            throws CannotTranslateException {
+        if (cmpName.equals(this.getSmallName())) {
+            return this.smallCPUs;
+        } else if (cmpName.equals(this.getLargeName())) {
+            return this.largeCPUs;
+        } else if (cmpName.equals(this.getXlargeName())) {
+            return this.xlargeCPUs;
         } else {
             throw new CannotTranslateException(
                     "Unknown instance type '" + cmpName + "'");

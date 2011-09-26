@@ -145,6 +145,9 @@
          <property name="smallMemory" value="$ELASTIC{memory.small}" />
          <property name="largeMemory" value="$ELASTIC{memory.large}" />
          <property name="xlargeMemory" value="$ELASTIC{memory.xlarge}" />
+         <property name="smallCPUs" value="$ELASTIC{cpus.small}" />
+         <property name="largeCPUs" value="$ELASTIC{cpus.large}" />
+         <property name="xlargeCPUs" value="$ELASTIC{cpus.xlarge}" />
          <property name="smallName" value="$OTHER_ELASTIC{ra.name.small}" />
          <property name="largeName" value="$OTHER_ELASTIC{ra.name.large}" />
          <property name="xlargeName" value="$OTHER_ELASTIC{ra.name.xlarge}" />
