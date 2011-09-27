@@ -9,10 +9,14 @@ echo "Run tests...."
 echo "========================================="
 cd $src_dir
 
+if [ -z "$RUN_TESTS" ] ; then
+    RUN_TESTS=`ls *test.{sh,py}`
+fi
+
 cnt="0"
 error_cnt="0"
 error_ts=""
-for t in *test.{sh,py}
+for t in $RUN_TESTS
 do
     echo $t
     ./$t 2>&1 | tee $t.log
