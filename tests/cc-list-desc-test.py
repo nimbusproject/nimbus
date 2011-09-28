@@ -16,7 +16,7 @@ logfile = sys.stdout
 print x
 
 image_description = "Hello Worl Nimbus %s" % (str(uuid.uuid4()))
-cmd = "%s/bin/cloud-client.sh --imagedesc %s --transfer --sourcefile %s" % (cc_home, image_description, tst_image_src)
+cmd = "%s/bin/cloud-client.sh --imagedesc '%s' --transfer --sourcefile %s" % (cc_home, image_description, tst_image_src)
 (x, rc)=pexpect.run(cmd, withexitstatus=1)
 print x
 if rc != 0:
