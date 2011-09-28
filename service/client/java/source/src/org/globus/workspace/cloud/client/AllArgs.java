@@ -130,6 +130,8 @@ public class AllArgs {
     private boolean common_image = false;
     private boolean nospinner = false;
 
+    private String imageDescString = null;
+
     // ------------------------------------
 
     private String metadata_mountAs;
@@ -521,6 +523,14 @@ public class AllArgs {
         if (line.hasOption(Opts.COMMON_OPT_STRING)) {
             this.common_image = true;
             this.gotCmdLine(Opts.COMMON_OPT_STRING, "enabled");
+        }
+
+        if (line.hasOption(Opts.IMAGE_DESC_OPT_STRING))
+        {
+            final String imageDescString =
+                    line.getOptionValue(Opts.IMAGE_DESC_OPT_STRING);
+            this.imageDescString = imageDescString;
+            this.gotCmdLine(Opts.IMAGE_DESC_OPT_STRING, imageDescString);
         }
 
         if (line.hasOption(Opts.NOSPINNER_OPT_STRING)) {
@@ -1251,6 +1261,10 @@ public class AllArgs {
 
     public void setCommonVMSet(boolean b) {
            this.common_image = b;
+    }
+
+    public String getVMDescription() {
+        return this.imageDescString;
     }
 
     public boolean getNoSpinner() {

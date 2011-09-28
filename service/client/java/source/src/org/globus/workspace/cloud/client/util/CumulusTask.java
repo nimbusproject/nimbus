@@ -40,11 +40,7 @@ import org.jets3t.service.utils.Mimetypes;
 import org.jets3t.service.utils.ObjectUtils;
 
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -510,6 +506,7 @@ public class CumulusTask
     public static final int UPLOAD_TASK = 2;
     public static final int DOWNLOAD_TASK = 3;
     public static final int LIST_TASK = 4;
+    public static final String descSuffix = ".description";
 
     private int task = -1;
 
@@ -604,6 +601,7 @@ public class CumulusTask
     public void uploadVM(
         String                          localfile,
         String                          vmName,
+        String                          description,
         PrintStream                     info,
         PrintStream                     debug)
             throws ExecutionProblem
@@ -611,6 +609,7 @@ public class CumulusTask
         S3Service s3Service = null;
         try
         {
+            AccessControlList acl = null;
             String awsAccessKey = this.args.getXferS3ID();
             s3Service = this.getService();
 
@@ -652,13 +651,24 @@ public class CumulusTask
                 if (pr != null) {
                     pr.println("Setting permissions for common use.");
                 }
-                AccessControlList acl = AccessControlList.REST_CANNED_PUBLIC_READ;
+                acl = AccessControlList.REST_CANNED_PUBLIC_READ;
                 s3Object.setAcl(acl);
             }
             s3Service.putObject(baseBucketName, s3Object);
             progressWatcher.flush();
             s3Object.closeDataInputStream();
             cis.close();
+
+            if(description != null)
+            {
+                String descObjName = key + this.descSuffix;
+                S3Object descObj = new S3Object(descObjName, description);
+                if (acl != null)
+                {
+                    descObj.setAcl(acl);
+                }
+                s3Service.putObject(baseBucketName, descObj);
+            }
 
             if (pr != null) {
                 pr.println("");
@@ -982,6 +992,49 @@ public class CumulusTask
         }
     }
 
+    private String s3DownloadImageDescription(String name, boolean rw)
+            throws ExecutionProblem
+    {
+        String description = null;
+        String descriptionName = name + this.descSuffix;
+        S3Service s3Service = null;
+        
+        try
+        {
+            String baseBucketName = this.args.getS3Bucket();
+            String ID = "common";
+            if(rw)
+            {
+                ID = this.args.getXferCanonicalID();
+            }
+            String baseKey = this.args.getXferS3BaseKey();
+            String key = baseKey + "/" + ID + "/" + descriptionName;
+
+            s3Service = this.getService();
+            S3Object s3Object = s3Service.getObject(baseBucketName, key);
+            BufferedReader reader = new BufferedReader(
+                new InputStreamReader(s3Object.getDataInputStream()));
+
+            String data;
+            StringBuffer sb = new StringBuffer();
+            while ((data = reader.readLine()) != null)
+            {
+                sb.append(data);
+            }
+            description = sb.toString();                        
+        }
+        catch(Exception s3ex)
+        {
+            //throw new ExecutionProblem(s3ex.toString());
+        }
+        finally
+        {
+            this.shutdownService(s3Service);
+        }
+
+        return description;
+    }
+
     private void s3ObjToFileList(
         ArrayList                       files,
         S3Object []                     s3Objs,
@@ -1010,6 +1063,9 @@ public class CumulusTask
                 fl.setDirectory(false);
                 fl.setReadWrite(rw);
                 fl.setOwner(s3Objs[i].getOwner().getDisplayName());
+
+                String desc = this.s3DownloadImageDescription(name, rw);
+                fl.setDescription(desc);
 
                 files.add(fl);
             }
@@ -1085,6 +1141,7 @@ public class CumulusTask
                 this.uploadVM(
                     this.localfile,
                     this.vmName,
+                    this.args.getVMDescription(),
                     this.info,
                     this.debug);
                 break;

@@ -168,6 +168,11 @@ public class Opts {
     public final Option COMMON_OPT =
         OptionBuilder.withLongOpt(COMMON_OPT_STRING).create();
 
+
+    public static final String IMAGE_DESC_OPT_STRING = "imagedesc";
+    public final Option IMAGE_DESC_OPT =
+            OptionBuilder.withLongOpt(IMAGE_DESC_OPT_STRING).create();
+
     public static final String NOSPINNER_OPT_STRING = "nospinner";
     public final Option NOSPINNER_OPT =
         OptionBuilder.withLongOpt(NOSPINNER_OPT_STRING).create();
@@ -267,6 +272,7 @@ public class Opts {
                                                  this.DEBUG_OPT,
                                                  this.TIMEOUT_OPT,
                                                  this.COMMON_OPT,
+                                                 this.IMAGE_DESC_OPT,
                                                  this.NOSPINNER_OPT,
                                                  this.SSH_FILE_OPT,
                                                  this.POLL_INTERVAL_OPT,

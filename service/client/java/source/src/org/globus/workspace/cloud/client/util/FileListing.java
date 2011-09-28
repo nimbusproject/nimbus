@@ -29,6 +29,7 @@ public class FileListing {
     private String date;
     private String time;
     private String owner;
+    private String desc = null;
 
     // -------------------------------------------------------------------------
     // GET/SET
@@ -88,5 +89,14 @@ public class FileListing {
 
     public void setOwner(String owner) {
         this.owner = owner;
+    }
+
+    public void setDescription(String desc) {
+        this.desc = desc;
+    }
+
+    public String getDescription()
+    {
+        return this.desc;
     }
 }
