@@ -976,9 +976,9 @@ public class CumulusTask
             ArrayList files = new ArrayList();
             // first get all of this users objects
             S3Object[] usersVMs = s3Service.listObjects(baseBucketName, keyName, "", 1000);
-            s3ObjToFileList(files, usersVMs, true);
+            s3ObjToFileList(files, usersVMs, true, s3Service);
             S3Object[] VMs = s3Service.listObjects(baseBucketName, this.makeKey("", "common"), "", 1000);
-            s3ObjToFileList(files, VMs, false);
+            s3ObjToFileList(files, VMs, false, s3Service);
 
             return (FileListing[]) files.toArray(new FileListing[files.size()]);
         }
@@ -992,13 +992,12 @@ public class CumulusTask
         }
     }
 
-    private String s3DownloadImageDescription(String name, boolean rw)
+    private String s3DownloadImageDescription(String name, boolean rw, S3Service s3Service)
             throws ExecutionProblem
     {
         String description = null;
         String descriptionName = name + this.descSuffix;
-        S3Service s3Service = null;
-        
+
         try
         {
             String baseBucketName = this.args.getS3Bucket();
@@ -1027,10 +1026,6 @@ public class CumulusTask
         {
             //throw new ExecutionProblem(s3ex.toString());
         }
-        finally
-        {
-            this.shutdownService(s3Service);
-        }
 
         return description;
     }
@@ -1038,7 +1033,8 @@ public class CumulusTask
     private void s3ObjToFileList(
         ArrayList                       files,
         S3Object []                     s3Objs,
-        boolean                         rw)
+        boolean                         rw,
+        S3Service                       s3Service)
           throws ExecutionProblem 
     {
         Calendar cal = Calendar.getInstance();
@@ -1064,7 +1060,7 @@ public class CumulusTask
                 fl.setReadWrite(rw);
                 fl.setOwner(s3Objs[i].getOwner().getDisplayName());
 
-                String desc = this.s3DownloadImageDescription(name, rw);
+                String desc = this.s3DownloadImageDescription(name, rw, s3Service);
                 fl.setDescription(desc);
 
                 files.add(fl);

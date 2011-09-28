@@ -171,7 +171,7 @@ public class Opts {
 
     public static final String IMAGE_DESC_OPT_STRING = "imagedesc";
     public final Option IMAGE_DESC_OPT =
-            OptionBuilder.withLongOpt(IMAGE_DESC_OPT_STRING).create();
+            OptionBuilder.hasArg().withLongOpt(IMAGE_DESC_OPT_STRING).create();
 
     public static final String NOSPINNER_OPT_STRING = "nospinner";
     public final Option NOSPINNER_OPT =
