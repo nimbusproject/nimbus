@@ -637,8 +637,13 @@ public class AllArgs {
         final Enumeration e = props.keys();
         while (e.hasMoreElements()) {
             final String key = (String) e.nextElement();
-            final String val = props.getProperty(key);
+            String val = props.getProperty(key);
             this.print.dbg("  KEY  : " + key);
+
+            if (key == "vws.repository.s3key" || key == "vws.repository.s3id")
+            {
+                val = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
+            }
             this.print.dbg("  VALUE: " + val);
             this.print.dbg("  ");
         }

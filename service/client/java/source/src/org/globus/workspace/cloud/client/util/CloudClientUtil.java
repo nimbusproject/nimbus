@@ -413,6 +413,12 @@ public class CloudClientUtil {
             .append(mbEstimate)
             .append(" MB)");
 
+        String desc = fl.getDescription();
+        if (desc != null)
+        {
+            send.append("\n" + desc);
+        }
+
         return send.toString();
     }
 
