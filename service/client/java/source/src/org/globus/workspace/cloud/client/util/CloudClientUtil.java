@@ -416,7 +416,7 @@ public class CloudClientUtil {
         String desc = fl.getDescription();
         if (desc != null)
         {
-            send.append("\n" + desc);
+            send.append("\n        " + desc);
         }
 
         return send.toString();
