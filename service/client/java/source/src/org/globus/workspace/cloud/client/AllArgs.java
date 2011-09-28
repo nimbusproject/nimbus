@@ -640,7 +640,7 @@ public class AllArgs {
             String val = props.getProperty(key);
             this.print.dbg("  KEY  : " + key);
 
-            if (key == "vws.repository.s3key" || key == "vws.repository.s3id")
+            if (key.equals("vws.repository.s3key") || key.equals("vws.repository.s3id"))
             {
                 val = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
             }
