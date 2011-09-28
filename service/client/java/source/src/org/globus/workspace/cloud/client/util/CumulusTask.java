@@ -607,6 +607,7 @@ public class CumulusTask
             throws ExecutionProblem
     {
         S3Service s3Service = null;
+        boolean rw = true;
         try
         {
             AccessControlList acl = null;
@@ -651,6 +652,7 @@ public class CumulusTask
                 if (pr != null) {
                     pr.println("Setting permissions for common use.");
                 }
+                rw = false;
                 acl = AccessControlList.REST_CANNED_PUBLIC_READ;
                 s3Object.setAcl(acl);
             }
@@ -661,7 +663,8 @@ public class CumulusTask
 
             if(description != null)
             {
-                String descObjName = key + this.descSuffix;
+                String descObjName = getDescriptionFileKey(vmName, rw);
+
                 S3Object descObj = new S3Object(descObjName, description);
                 if (acl != null)
                 {
@@ -992,22 +995,28 @@ public class CumulusTask
         }
     }
 
+    private String getDescriptionFileKey(String name, boolean rw)
+    {
+        String ID = "common";
+        if(rw)
+        {
+            ID = this.args.getXferCanonicalID();
+        }
+        String baseKey = this.args.getXferS3BaseKey() + this.descSuffix;
+        String key = baseKey + "/" + ID + "/" + name;
+
+        return key;
+    }
+
     private String s3DownloadImageDescription(String name, boolean rw, S3Service s3Service)
             throws ExecutionProblem
     {
         String description = null;
-        String descriptionName = name + this.descSuffix;
 
         try
         {
-            String baseBucketName = this.args.getS3Bucket();
-            String ID = "common";
-            if(rw)
-            {
-                ID = this.args.getXferCanonicalID();
-            }
-            String baseKey = this.args.getXferS3BaseKey();
-            String key = baseKey + "/" + ID + "/" + descriptionName;
+            String baseBucketName = this.args.getS3Bucket();            
+            String key = getDescriptionFileKey(name, rw);
 
             s3Service = this.getService();
             S3Object s3Object = s3Service.getObject(baseBucketName, key);
