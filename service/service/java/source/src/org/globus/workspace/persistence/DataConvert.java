@@ -230,6 +230,7 @@ public class DataConvert implements WorkspaceConstants {
         vm.setState(this.getState(resource));
         vm.setCreator(this.getCreator(resource));
         vm.setClientToken(resource.getClientToken());
+        vm.setDetails(this.getDetails(resource.getVM()));
         
         if(resource.getVM().isPreemptable()){
             vm.setLifeCycle(VMConstants.LIFE_CYCLE_SPOT);
@@ -534,6 +535,14 @@ public class DataConvert implements WorkspaceConstants {
         return ra;
     }
 
+    private String getDetails(VirtualMachine vm)
+            throws CannotTranslateException {
+
+        if (vm == null) {
+            throw new CannotTranslateException("null VirtualMachine?");
+        }
+        return vm.getNode();
+    }
 
     // -------------------------------------------------------------------------
     // SCHEDULE RELATED

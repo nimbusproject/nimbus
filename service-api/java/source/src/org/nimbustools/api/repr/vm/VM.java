@@ -37,4 +37,6 @@ public interface VM {
     public String getSpotInstanceRequestID();
 
     String getClientToken();
+
+    public String getDetails();
 }

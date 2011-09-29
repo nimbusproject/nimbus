@@ -48,6 +48,7 @@ public class DefaultVM implements _VM {
     private String lifeCycle;
     private String spotReqID;
     private String clientToken;
+    private String details;
 
 
     // -------------------------------------------------------------------------
@@ -186,6 +187,13 @@ public class DefaultVM implements _VM {
         this.clientToken = clientToken;
     }
 
+    public void setDetails(String details) {
+        this.details = details;
+    }
+
+    public String getDetails() {
+        return this.details;
+    }
 
     // -------------------------------------------------------------------------
     // DEBUG STRING

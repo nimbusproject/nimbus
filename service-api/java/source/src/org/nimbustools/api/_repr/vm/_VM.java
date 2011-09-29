@@ -44,4 +44,6 @@ public interface _VM extends VM {
     public void setSpotInstanceRequestID(String reqID);
 
     public void setClientToken(String clientToken);
+
+    public void setDetails(String details);
 }
