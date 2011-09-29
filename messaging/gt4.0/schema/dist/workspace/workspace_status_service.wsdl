@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <wsdl:definitions name="WorkspaceStatusService" targetNamespace="http://www.globus.org/2008/06/workspace/status/service" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:binding="http://www.globus.org/2008/06/workspace/status/bindings" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
-  <wsdl:import namespace="http://www.globus.org/2008/06/workspace/status/bindings" location="workspace_status_bindings.wsdl"/>
+  <wsdl:import namespace="http://www.globus.org/2008/06/workspace/status/bindings" location="workspace_status_bindings.wsdl">
+    </wsdl:import>
   <wsdl:service name="WorkspaceStatusService">
     <wsdl:port name="WorkspaceStatusPortTypePort" binding="binding:WorkspaceStatusPortTypeSOAPBinding">
       <soap:address location="http://localhost:8080/wsrf/services/"/>

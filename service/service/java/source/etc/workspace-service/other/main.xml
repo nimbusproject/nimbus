@@ -443,6 +443,8 @@
 
         <constructor-arg ref="nimbus-repr.ReprFactory" />
 
+        <property name="exposeVMMHostname" value="$COMMON{details.hostname}" />
+
     </bean>
 
 

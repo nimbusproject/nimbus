@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <wsdl:definitions name="WorkspaceContextBroker" targetNamespace="http://www.globus.org/2008/06/workspace/contextualization" xmlns:wsrpw="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties-1.2-draft-01.wsdl" xmlns:wsdlpp="http://www.globus.org/namespaces/2004/10/WSDLPreprocessor" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/03/addressing" xmlns:cloud-types="http://www.globus.org/2008/06/workspace/cloudtypes" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsbf="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-BaseFaults-1.2-draft-01.xsd" xmlns:tns="http://www.globus.org/2008/06/workspace/contextualization" xmlns:wsrp="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties-1.2-draft-01.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:work-types="http://www.globus.org/2008/06/workspace/types">
-  <wsdl:import namespace="http://docs.oasis-open.org/wsn/2004/06/wsn-WS-BaseNotification-1.2-draft-01.wsdl" location="../wsrf/notification/WS-BaseN.wsdl"/>
-  <wsdl:import namespace="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceLifetime-1.2-draft-01.wsdl" location="../wsrf/lifetime/WS-ResourceLifetime.wsdl"/>
-  <wsdl:import namespace="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties-1.2-draft-01.wsdl" location="../wsrf/properties/WS-ResourceProperties.wsdl"/>
+  <wsdl:import namespace="http://docs.oasis-open.org/wsn/2004/06/wsn-WS-BaseNotification-1.2-draft-01.wsdl" location="../wsrf/notification/WS-BaseN.wsdl">
+    </wsdl:import>
+  <wsdl:import namespace="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceLifetime-1.2-draft-01.wsdl" location="../wsrf/lifetime/WS-ResourceLifetime.wsdl">
+    </wsdl:import>
+  <wsdl:import namespace="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties-1.2-draft-01.wsdl" location="../wsrf/properties/WS-ResourceProperties.wsdl">
+    </wsdl:import>
   <wsdl:types>
-    <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://www.globus.org/2008/06/workspace/contextualization" xmlns:tns="http://www.globus.org/2008/06/workspace/contextualization">
+    <xs:schema elementFormDefault="qualified" targetNamespace="http://www.globus.org/2008/06/workspace/contextualization" xmlns:tns="http://www.globus.org/2008/06/workspace/contextualization">
 <xs:import namespace="http://schemas.xmlsoap.org/ws/2004/03/addressing" schemaLocation="../ws/addressing/WS-Addressing.xsd"/>
 
 
@@ -56,89 +59,131 @@
         </xs:schema>
   </wsdl:types>
   <wsdl:message name="IdentitiesOutputMessage">
-    <wsdl:part name="parameters" element="tns:identitiesResponse"/>
+    <wsdl:part name="parameters" element="tns:identitiesResponse">
+    </wsdl:part>
   </wsdl:message>
   <wsdl:message name="LockOutputMessage">
-    <wsdl:part name="parameters" element="tns:lockResponse"/>
+    <wsdl:part name="parameters" element="tns:lockResponse">
+    </wsdl:part>
   </wsdl:message>
   <wsdl:message name="OKExitingOutputMessage">
-    <wsdl:part name="parameters" element="tns:okExitingResponse"/>
+    <wsdl:part name="parameters" element="tns:okExitingResponse">
+    </wsdl:part>
   </wsdl:message>
   <wsdl:message name="IdentitiesInputMessage">
-    <wsdl:part name="parameters" element="tns:identities"/>
+    <wsdl:part name="parameters" element="tns:identities">
+    </wsdl:part>
   </wsdl:message>
   <wsdl:message name="LockInputMessage">
-    <wsdl:part name="parameters" element="tns:lock"/>
+    <wsdl:part name="parameters" element="tns:lock">
+    </wsdl:part>
   </wsdl:message>
   <wsdl:message name="ErrorExitingOutputMessage">
-    <wsdl:part name="parameters" element="tns:errorExitingResponse"/>
+    <wsdl:part name="parameters" element="tns:errorExitingResponse">
+    </wsdl:part>
   </wsdl:message>
   <wsdl:message name="InjectDataInputMessage">
-    <wsdl:part name="parameters" element="tns:injectData"/>
+    <wsdl:part name="parameters" element="tns:injectData">
+    </wsdl:part>
   </wsdl:message>
   <wsdl:message name="RetrieveOutputMessage">
-    <wsdl:part name="parameters" element="tns:retrieveResponse"/>
+    <wsdl:part name="parameters" element="tns:retrieveResponse">
+    </wsdl:part>
   </wsdl:message>
   <wsdl:message name="ContextualizationFaultMessage">
-    <wsdl:part name="description" element="work-types:WorkspaceContextualizationFault"/>
+    <wsdl:part name="description" element="work-types:WorkspaceContextualizationFault">
+    </wsdl:part>
   </wsdl:message>
   <wsdl:message name="ErrorExitingInputMessage">
-    <wsdl:part name="parameters" element="tns:errorExiting"/>
+    <wsdl:part name="parameters" element="tns:errorExiting">
+    </wsdl:part>
   </wsdl:message>
   <wsdl:message name="InjectDataOutputMessage">
-    <wsdl:part name="parameters" element="tns:injectDataResponse"/>
+    <wsdl:part name="parameters" element="tns:injectDataResponse">
+    </wsdl:part>
   </wsdl:message>
   <wsdl:message name="RetrieveInputMessage">
-    <wsdl:part name="parameters" element="tns:retrieve"/>
+    <wsdl:part name="parameters" element="tns:retrieve">
+    </wsdl:part>
   </wsdl:message>
   <wsdl:message name="OKExitingInputMessage">
-    <wsdl:part name="parameters" element="tns:okExiting"/>
+    <wsdl:part name="parameters" element="tns:okExiting">
+    </wsdl:part>
   </wsdl:message>
   <wsdl:portType name="WorkspaceContextBrokerPortType" wsrp:ResourceProperties="tns:ContextBrokerRPSet">
     <wsdl:operation name="lock">
-      <wsdl:input message="tns:LockInputMessage"/>
-      <wsdl:output message="tns:LockOutputMessage"/>
-      <wsdl:fault name="ContextualizationFault" message="tns:ContextualizationFaultMessage"/>
+      <wsdl:input message="tns:LockInputMessage">
+    </wsdl:input>
+      <wsdl:output message="tns:LockOutputMessage">
+    </wsdl:output>
+      <wsdl:fault name="ContextualizationFault" message="tns:ContextualizationFaultMessage">
+    </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="injectdata">
-      <wsdl:input message="tns:InjectDataInputMessage"/>
-      <wsdl:output message="tns:InjectDataOutputMessage"/>
-      <wsdl:fault name="ContextualizationFault" message="tns:ContextualizationFaultMessage"/>
+      <wsdl:input message="tns:InjectDataInputMessage">
+    </wsdl:input>
+      <wsdl:output message="tns:InjectDataOutputMessage">
+    </wsdl:output>
+      <wsdl:fault name="ContextualizationFault" message="tns:ContextualizationFaultMessage">
+    </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="retrieve">
-      <wsdl:input message="tns:RetrieveInputMessage"/>
-      <wsdl:output message="tns:RetrieveOutputMessage"/>
-      <wsdl:fault name="ContextualizationFault" message="tns:ContextualizationFaultMessage"/>
+      <wsdl:input message="tns:RetrieveInputMessage">
+    </wsdl:input>
+      <wsdl:output message="tns:RetrieveOutputMessage">
+    </wsdl:output>
+      <wsdl:fault name="ContextualizationFault" message="tns:ContextualizationFaultMessage">
+    </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="errorExiting">
-      <wsdl:input message="tns:ErrorExitingInputMessage"/>
-      <wsdl:output message="tns:ErrorExitingOutputMessage"/>
-      <wsdl:fault name="ContextualizationFault" message="tns:ContextualizationFaultMessage"/>
+      <wsdl:input message="tns:ErrorExitingInputMessage">
+    </wsdl:input>
+      <wsdl:output message="tns:ErrorExitingOutputMessage">
+    </wsdl:output>
+      <wsdl:fault name="ContextualizationFault" message="tns:ContextualizationFaultMessage">
+    </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="okExiting">
-      <wsdl:input message="tns:OKExitingInputMessage"/>
-      <wsdl:output message="tns:OKExitingOutputMessage"/>
-      <wsdl:fault name="ContextualizationFault" message="tns:ContextualizationFaultMessage"/>
+      <wsdl:input message="tns:OKExitingInputMessage">
+    </wsdl:input>
+      <wsdl:output message="tns:OKExitingOutputMessage">
+    </wsdl:output>
+      <wsdl:fault name="ContextualizationFault" message="tns:ContextualizationFaultMessage">
+    </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="identities">
-      <wsdl:input message="tns:IdentitiesInputMessage"/>
-      <wsdl:output message="tns:IdentitiesOutputMessage"/>
-      <wsdl:fault name="ContextualizationFault" message="tns:ContextualizationFaultMessage"/>
+      <wsdl:input message="tns:IdentitiesInputMessage">
+    </wsdl:input>
+      <wsdl:output message="tns:IdentitiesOutputMessage">
+    </wsdl:output>
+      <wsdl:fault name="ContextualizationFault" message="tns:ContextualizationFaultMessage">
+    </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="QueryResourceProperties">
-      <wsdl:input name="QueryResourcePropertiesRequest" message="wsrpw:QueryResourcePropertiesRequest" wsa:Action="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties/QueryResourceProperties"/>
-      <wsdl:output name="QueryResourcePropertiesResponse" message="wsrpw:QueryResourcePropertiesResponse" wsa:Action="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties/QueryResourcePropertiesResponse"/>
-      <wsdl:fault name="UnknownQueryExpressionDialectFault" message="wsrpw:UnknownQueryExpressionDialectFault"/>
-      <wsdl:fault name="QueryEvaluationErrorFault" message="wsrpw:QueryEvaluationErrorFault"/>
-      <wsdl:fault name="InvalidQueryExpressionFault" message="wsrpw:InvalidQueryExpressionFault"/>
-      <wsdl:fault name="InvalidResourcePropertyQNameFault" message="wsrpw:InvalidResourcePropertyQNameFault"/>
-      <wsdl:fault name="ResourceUnknownFault" message="wsrpw:ResourceUnknownFault"/>
+      <wsdl:input name="QueryResourcePropertiesRequest" message="wsrpw:QueryResourcePropertiesRequest" wsa:Action="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties/QueryResourceProperties">
+    </wsdl:input>
+      <wsdl:output name="QueryResourcePropertiesResponse" message="wsrpw:QueryResourcePropertiesResponse" wsa:Action="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties/QueryResourcePropertiesResponse">
+    </wsdl:output>
+      <wsdl:fault name="UnknownQueryExpressionDialectFault" message="wsrpw:UnknownQueryExpressionDialectFault">
+    </wsdl:fault>
+      <wsdl:fault name="QueryEvaluationErrorFault" message="wsrpw:QueryEvaluationErrorFault">
+    </wsdl:fault>
+      <wsdl:fault name="InvalidQueryExpressionFault" message="wsrpw:InvalidQueryExpressionFault">
+    </wsdl:fault>
+      <wsdl:fault name="InvalidResourcePropertyQNameFault" message="wsrpw:InvalidResourcePropertyQNameFault">
+    </wsdl:fault>
+      <wsdl:fault name="ResourceUnknownFault" message="wsrpw:ResourceUnknownFault">
+    </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="GetResourceProperty">
-      <wsdl:input name="GetResourcePropertyRequest" message="wsrpw:GetResourcePropertyRequest" wsa:Action="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties/GetResourceProperty"/>
-      <wsdl:output name="GetResourcePropertyResponse" message="wsrpw:GetResourcePropertyResponse" wsa:Action="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties/GetResourcePropertyResponse"/>
-      <wsdl:fault name="InvalidResourcePropertyQNameFault" message="wsrpw:InvalidResourcePropertyQNameFault"/>
-      <wsdl:fault name="ResourceUnknownFault" message="wsrpw:ResourceUnknownFault"/>
+      <wsdl:input name="GetResourcePropertyRequest" message="wsrpw:GetResourcePropertyRequest" wsa:Action="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties/GetResourceProperty">
+    </wsdl:input>
+      <wsdl:output name="GetResourcePropertyResponse" message="wsrpw:GetResourcePropertyResponse" wsa:Action="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties/GetResourcePropertyResponse">
+    </wsdl:output>
+      <wsdl:fault name="InvalidResourcePropertyQNameFault" message="wsrpw:InvalidResourcePropertyQNameFault">
+    </wsdl:fault>
+      <wsdl:fault name="ResourceUnknownFault" message="wsrpw:ResourceUnknownFault">
+    </wsdl:fault>
     </wsdl:operation>
   </wsdl:portType>
 </wsdl:definitions>

@@ -361,6 +361,28 @@ public class CloudClientUtil {
         }
     }
 
+    private static String formatDescription(String input, String lb) {
+        int maxLineLength = 60;
+        
+        StringTokenizer tok = new StringTokenizer(input, " ");
+        StringBuilder output = new StringBuilder(input.length());
+        int lineLen = 0;
+        while (tok.hasMoreTokens()) {
+            String word = tok.nextToken();
+
+            if (lineLen + word.length() > maxLineLength) {
+                output.append(lb);
+                lineLen = 0;
+            }
+            output.append(word);
+            lineLen += word.length();
+        }
+        return output.toString();
+
+
+        return desc;
+    }
+
     private static String onePrintStr(String name,
                                       FileListing fl,
                                       int goodRightJust,
@@ -416,7 +438,7 @@ public class CloudClientUtil {
         String desc = fl.getDescription();
         if (desc != null)
         {
-            send.append("\n        " + desc);
+            send.append("\n        Description:\n        ------------" + formatDescription(desc, "\n        "));
         }
 
         return send.toString();

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <wsdl:definitions name="WorkspaceService" targetNamespace="http://www.globus.org/2008/06/workspace/service" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:binding="http://www.globus.org/2008/06/workspace/bindings" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
-  <wsdl:import namespace="http://www.globus.org/2008/06/workspace/bindings" location="workspace_bindings.wsdl"/>
+  <wsdl:import namespace="http://www.globus.org/2008/06/workspace/bindings" location="workspace_bindings.wsdl">
+    </wsdl:import>
   <wsdl:service name="WorkspaceService">
     <wsdl:port name="WorkspacePortTypePort" binding="binding:WorkspacePortTypeSOAPBinding">
       <soap:address location="http://localhost:8080/wsrf/services/"/>

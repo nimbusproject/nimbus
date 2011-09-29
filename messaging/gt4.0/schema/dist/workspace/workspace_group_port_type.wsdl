@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <wsdl:definitions name="WorkspaceGroupService" targetNamespace="http://www.globus.org/2008/06/workspace/group" xmlns:wsdlpp="http://www.globus.org/namespaces/2004/10/WSDLPreprocessor" xmlns:neg="http://www.globus.org/2008/06/workspace/negotiable" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/03/addressing" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsbf="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-BaseFaults-1.2-draft-01.xsd" xmlns:tns="http://www.globus.org/2008/06/workspace/group" xmlns:wsrlw="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceLifetime-1.2-draft-01.wsdl" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:work-types="http://www.globus.org/2008/06/workspace/types">
-  <wsdl:import namespace="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceLifetime-1.2-draft-01.wsdl" location="../wsrf/lifetime/WS-ResourceLifetime.wsdl"/>
+  <wsdl:import namespace="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceLifetime-1.2-draft-01.wsdl" location="../wsrf/lifetime/WS-ResourceLifetime.wsdl">
+    </wsdl:import>
   <wsdl:types>
-    <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://www.globus.org/2008/06/workspace/group" xmlns:tns="http://www.globus.org/2008/06/workspace/group">
+    <xs:schema elementFormDefault="qualified" targetNamespace="http://www.globus.org/2008/06/workspace/group" xmlns:tns="http://www.globus.org/2008/06/workspace/group">
 <xs:import namespace="http://schemas.xmlsoap.org/ws/2004/03/addressing" schemaLocation="../ws/addressing/WS-Addressing.xsd"/>
 
 
@@ -23,49 +24,71 @@
         </xs:schema>
   </wsdl:types>
   <wsdl:message name="ShutdownFaultMessage">
-    <wsdl:part name="description" element="work-types:WorkspaceShutdownFault"/>
+    <wsdl:part name="description" element="work-types:WorkspaceShutdownFault">
+    </wsdl:part>
   </wsdl:message>
   <wsdl:message name="DisabledFaultMessage">
-    <wsdl:part name="description" element="work-types:OperationDisabledFault"/>
+    <wsdl:part name="description" element="work-types:OperationDisabledFault">
+    </wsdl:part>
   </wsdl:message>
   <wsdl:message name="StartFaultMessage">
-    <wsdl:part name="description" element="work-types:WorkspaceStartFault"/>
+    <wsdl:part name="description" element="work-types:WorkspaceStartFault">
+    </wsdl:part>
   </wsdl:message>
   <wsdl:message name="ShutdownWorkspacesInputMessage">
-    <wsdl:part name="parameters" element="tns:shutdownWorkspaces"/>
+    <wsdl:part name="parameters" element="tns:shutdownWorkspaces">
+    </wsdl:part>
   </wsdl:message>
   <wsdl:message name="StartWorkspacesOutputMessage">
-    <wsdl:part name="parameters" element="tns:startWorkspacesResponse"/>
+    <wsdl:part name="parameters" element="tns:startWorkspacesResponse">
+    </wsdl:part>
   </wsdl:message>
   <wsdl:message name="StartWorkspacesInputMessage">
-    <wsdl:part name="parameters" element="tns:startWorkspaces"/>
+    <wsdl:part name="parameters" element="tns:startWorkspaces">
+    </wsdl:part>
   </wsdl:message>
   <wsdl:message name="UnknownFaultMessage">
-    <wsdl:part name="description" element="work-types:WorkspaceUnknownFault"/>
+    <wsdl:part name="description" element="work-types:WorkspaceUnknownFault">
+    </wsdl:part>
   </wsdl:message>
   <wsdl:message name="ShutdownWorkspacesOutputMessage">
-    <wsdl:part name="parameters" element="tns:shutdownWorkspacesResponse"/>
+    <wsdl:part name="parameters" element="tns:shutdownWorkspacesResponse">
+    </wsdl:part>
   </wsdl:message>
   <wsdl:portType name="WorkspaceGroupPortType">
     <wsdl:operation name="start">
-      <wsdl:input message="tns:StartWorkspacesInputMessage"/>
-      <wsdl:output message="tns:StartWorkspacesOutputMessage"/>
-      <wsdl:fault name="UnknownWorkspaceFault" message="tns:UnknownFaultMessage"/>
-      <wsdl:fault name="OperationDisabledFault" message="tns:DisabledFaultMessage"/>
-      <wsdl:fault name="WorkspaceStartFault" message="tns:StartFaultMessage"/>
+      <wsdl:input message="tns:StartWorkspacesInputMessage">
+    </wsdl:input>
+      <wsdl:output message="tns:StartWorkspacesOutputMessage">
+    </wsdl:output>
+      <wsdl:fault name="UnknownWorkspaceFault" message="tns:UnknownFaultMessage">
+    </wsdl:fault>
+      <wsdl:fault name="OperationDisabledFault" message="tns:DisabledFaultMessage">
+    </wsdl:fault>
+      <wsdl:fault name="WorkspaceStartFault" message="tns:StartFaultMessage">
+    </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="shutdown">
-      <wsdl:input message="tns:ShutdownWorkspacesInputMessage"/>
-      <wsdl:output message="tns:ShutdownWorkspacesOutputMessage"/>
-      <wsdl:fault name="UnknownWorkspaceFault" message="tns:UnknownFaultMessage"/>
-      <wsdl:fault name="OperationDisabledFault" message="tns:DisabledFaultMessage"/>
-      <wsdl:fault name="WorkspaceShutdownFault" message="tns:ShutdownFaultMessage"/>
+      <wsdl:input message="tns:ShutdownWorkspacesInputMessage">
+    </wsdl:input>
+      <wsdl:output message="tns:ShutdownWorkspacesOutputMessage">
+    </wsdl:output>
+      <wsdl:fault name="UnknownWorkspaceFault" message="tns:UnknownFaultMessage">
+    </wsdl:fault>
+      <wsdl:fault name="OperationDisabledFault" message="tns:DisabledFaultMessage">
+    </wsdl:fault>
+      <wsdl:fault name="WorkspaceShutdownFault" message="tns:ShutdownFaultMessage">
+    </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="Destroy">
-      <wsdl:input message="wsrlw:DestroyRequest" wsa:Action="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceLifetime/Destroy"/>
-      <wsdl:output message="wsrlw:DestroyResponse" wsa:Action="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceLifetime/DestroyResponse"/>
-      <wsdl:fault name="ResourceUnknownFault" message="wsrlw:ResourceUnknownFault"/>
-      <wsdl:fault name="ResourceNotDestroyedFault" message="wsrlw:ResourceNotDestroyedFault"/>
+      <wsdl:input message="wsrlw:DestroyRequest" wsa:Action="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceLifetime/Destroy">
+    </wsdl:input>
+      <wsdl:output message="wsrlw:DestroyResponse" wsa:Action="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceLifetime/DestroyResponse">
+    </wsdl:output>
+      <wsdl:fault name="ResourceUnknownFault" message="wsrlw:ResourceUnknownFault">
+    </wsdl:fault>
+      <wsdl:fault name="ResourceNotDestroyedFault" message="wsrlw:ResourceNotDestroyedFault">
+    </wsdl:fault>
     </wsdl:operation>
   </wsdl:portType>
 </wsdl:definitions>

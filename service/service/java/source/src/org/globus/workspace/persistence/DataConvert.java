@@ -194,6 +194,9 @@ public class DataConvert implements WorkspaceConstants {
     protected final ReprFactory repr;
     private static final VMFile[] EMPTY_VM_FILES = new VMFile[0];
 
+
+    private boolean exposeVMMHostname = false;
+
     // -------------------------------------------------------------------------
     // CONSTRUCTOR
     // -------------------------------------------------------------------------
@@ -230,12 +233,26 @@ public class DataConvert implements WorkspaceConstants {
         vm.setState(this.getState(resource));
         vm.setCreator(this.getCreator(resource));
         vm.setClientToken(resource.getClientToken());
+        vm.setDetails(this.getDetails(resource.getVM()));
         
         if(resource.getVM().isPreemptable()){
             vm.setLifeCycle(VMConstants.LIFE_CYCLE_SPOT);
         }
         
         return vm;
+    }
+
+    private String getDetails(VirtualMachine vm)
+            throws CannotTranslateException {
+        if (vm == null) {
+            throw new CannotTranslateException("null VirtualMachine?");
+        }
+
+        String details = "";
+        if (this.exposeVMMHostname) {
+            details = "VMM: " + vm.getNode();
+        }
+        return details;
     }
     
     public RequestInfo getRequestInfo(AsyncRequest backfillRequest) throws CannotTranslateException {
@@ -670,5 +687,14 @@ public class DataConvert implements WorkspaceConstants {
         final _Caller creator = this.repr._newCaller();
         creator.setIdentity(creatorID);
         return creator;
+    }
+
+
+    public void setExposeVMMHostname(boolean b) {
+        this.exposeVMMHostname = b;
+    }
+
+    public boolean getExposeVMMHostname() {
+        return this.exposeVMMHostname;
     }
 }

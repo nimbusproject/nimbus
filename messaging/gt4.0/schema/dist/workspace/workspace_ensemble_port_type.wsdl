@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <wsdl:definitions name="WorkspaceEnsembleService" targetNamespace="http://www.globus.org/2008/06/workspace/ensemble" xmlns:wsdlpp="http://www.globus.org/namespaces/2004/10/WSDLPreprocessor" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/03/addressing" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsbf="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-BaseFaults-1.2-draft-01.xsd" xmlns:tns="http://www.globus.org/2008/06/workspace/ensemble" xmlns:wsrlw="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceLifetime-1.2-draft-01.wsdl" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:work-types="http://www.globus.org/2008/06/workspace/types">
-  <wsdl:import namespace="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceLifetime-1.2-draft-01.wsdl" location="../wsrf/lifetime/WS-ResourceLifetime.wsdl"/>
+  <wsdl:import namespace="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceLifetime-1.2-draft-01.wsdl" location="../wsrf/lifetime/WS-ResourceLifetime.wsdl">
+    </wsdl:import>
   <wsdl:types>
-    <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://www.globus.org/2008/06/workspace/ensemble" xmlns:tns="http://www.globus.org/2008/06/workspace/ensemble">
+    <xs:schema elementFormDefault="qualified" targetNamespace="http://www.globus.org/2008/06/workspace/ensemble" xmlns:tns="http://www.globus.org/2008/06/workspace/ensemble">
 <xs:import namespace="http://schemas.xmlsoap.org/ws/2004/03/addressing" schemaLocation="../ws/addressing/WS-Addressing.xsd"/>
 
 
@@ -33,41 +34,59 @@
         </xs:schema>
   </wsdl:types>
   <wsdl:message name="UnknownFaultMessage">
-    <wsdl:part name="description" element="work-types:WorkspaceUnknownFault"/>
+    <wsdl:part name="description" element="work-types:WorkspaceUnknownFault">
+    </wsdl:part>
   </wsdl:message>
   <wsdl:message name="DoneOutputMessage">
-    <wsdl:part name="parameters" element="tns:doneResponse"/>
+    <wsdl:part name="parameters" element="tns:doneResponse">
+    </wsdl:part>
   </wsdl:message>
   <wsdl:message name="DoneInputMessage">
-    <wsdl:part name="parameters" element="tns:done"/>
+    <wsdl:part name="parameters" element="tns:done">
+    </wsdl:part>
   </wsdl:message>
   <wsdl:message name="ReportInputMessage">
-    <wsdl:part name="parameters" element="tns:report"/>
+    <wsdl:part name="parameters" element="tns:report">
+    </wsdl:part>
   </wsdl:message>
   <wsdl:message name="ReportOutputMessage">
-    <wsdl:part name="parameters" element="tns:reportResponse"/>
+    <wsdl:part name="parameters" element="tns:reportResponse">
+    </wsdl:part>
   </wsdl:message>
   <wsdl:message name="EnsembleFaultMessage">
-    <wsdl:part name="description" element="tns:WorkspaceEnsembleFault"/>
+    <wsdl:part name="description" element="tns:WorkspaceEnsembleFault">
+    </wsdl:part>
   </wsdl:message>
   <wsdl:portType name="WorkspaceEnsemblePortType">
     <wsdl:operation name="done">
-      <wsdl:input message="tns:DoneInputMessage"/>
-      <wsdl:output message="tns:DoneOutputMessage"/>
-      <wsdl:fault name="EnsembleFault" message="tns:EnsembleFaultMessage"/>
-      <wsdl:fault name="UnknownWorkspaceFault" message="tns:UnknownFaultMessage"/>
+      <wsdl:input message="tns:DoneInputMessage">
+    </wsdl:input>
+      <wsdl:output message="tns:DoneOutputMessage">
+    </wsdl:output>
+      <wsdl:fault name="EnsembleFault" message="tns:EnsembleFaultMessage">
+    </wsdl:fault>
+      <wsdl:fault name="UnknownWorkspaceFault" message="tns:UnknownFaultMessage">
+    </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="report">
-      <wsdl:input message="tns:ReportInputMessage"/>
-      <wsdl:output message="tns:ReportOutputMessage"/>
-      <wsdl:fault name="EnsembleFault" message="tns:EnsembleFaultMessage"/>
-      <wsdl:fault name="UnknownWorkspaceFault" message="tns:UnknownFaultMessage"/>
+      <wsdl:input message="tns:ReportInputMessage">
+    </wsdl:input>
+      <wsdl:output message="tns:ReportOutputMessage">
+    </wsdl:output>
+      <wsdl:fault name="EnsembleFault" message="tns:EnsembleFaultMessage">
+    </wsdl:fault>
+      <wsdl:fault name="UnknownWorkspaceFault" message="tns:UnknownFaultMessage">
+    </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="Destroy">
-      <wsdl:input message="wsrlw:DestroyRequest" wsa:Action="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceLifetime/Destroy"/>
-      <wsdl:output message="wsrlw:DestroyResponse" wsa:Action="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceLifetime/DestroyResponse"/>
-      <wsdl:fault name="ResourceUnknownFault" message="wsrlw:ResourceUnknownFault"/>
-      <wsdl:fault name="ResourceNotDestroyedFault" message="wsrlw:ResourceNotDestroyedFault"/>
+      <wsdl:input message="wsrlw:DestroyRequest" wsa:Action="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceLifetime/Destroy">
+    </wsdl:input>
+      <wsdl:output message="wsrlw:DestroyResponse" wsa:Action="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceLifetime/DestroyResponse">
+    </wsdl:output>
+      <wsdl:fault name="ResourceUnknownFault" message="wsrlw:ResourceUnknownFault">
+    </wsdl:fault>
+      <wsdl:fault name="ResourceNotDestroyedFault" message="wsrlw:ResourceNotDestroyedFault">
+    </wsdl:fault>
     </wsdl:operation>
   </wsdl:portType>
 </wsdl:definitions>

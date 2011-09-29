@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <wsdl:definitions name="WorkspaceService" targetNamespace="http://www.globus.org/2008/06/workspace" xmlns:neg="http://www.globus.org/2008/06/workspace/negotiable" xmlns:wsrpw="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties-1.2-draft-01.wsdl" xmlns:wsbf="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-BaseFaults-1.2-draft-01.xsd" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsntw="http://docs.oasis-open.org/wsn/2004/06/wsn-WS-BaseNotification-1.2-draft-01.wsdl" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:log="http://www.globus.org/2008/06/workspace/metadata/logistics" xmlns:work-types="http://www.globus.org/2008/06/workspace/types" xmlns:wsdlpp="http://www.globus.org/namespaces/2004/10/WSDLPreprocessor" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/03/addressing" xmlns:vwmeta="http://www.globus.org/2008/06/workspace/metadata" xmlns:tns="http://www.globus.org/2008/06/workspace" xmlns:wsrlw="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceLifetime-1.2-draft-01.wsdl" xmlns:wsrp="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties-1.2-draft-01.xsd" xmlns:wsnt="http://docs.oasis-open.org/wsn/2004/06/wsn-WS-BaseNotification-1.2-draft-01.xsd">
-  <wsdl:import namespace="http://docs.oasis-open.org/wsn/2004/06/wsn-WS-BaseNotification-1.2-draft-01.wsdl" location="../wsrf/notification/WS-BaseN.wsdl"/>
-  <wsdl:import namespace="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceLifetime-1.2-draft-01.wsdl" location="../wsrf/lifetime/WS-ResourceLifetime.wsdl"/>
-  <wsdl:import namespace="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties-1.2-draft-01.wsdl" location="../wsrf/properties/WS-ResourceProperties.wsdl"/>
+  <wsdl:import namespace="http://docs.oasis-open.org/wsn/2004/06/wsn-WS-BaseNotification-1.2-draft-01.wsdl" location="../wsrf/notification/WS-BaseN.wsdl">
+    </wsdl:import>
+  <wsdl:import namespace="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceLifetime-1.2-draft-01.wsdl" location="../wsrf/lifetime/WS-ResourceLifetime.wsdl">
+    </wsdl:import>
+  <wsdl:import namespace="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties-1.2-draft-01.wsdl" location="../wsrf/properties/WS-ResourceProperties.wsdl">
+    </wsdl:import>
   <wsdl:types>
-    <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://www.globus.org/2008/06/workspace" xmlns:rpns0="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceLifetime-1.2-draft-01.xsd" xmlns:tns="http://www.globus.org/2008/06/workspace">
+    <xs:schema elementFormDefault="qualified" targetNamespace="http://www.globus.org/2008/06/workspace" xmlns:rpns0="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceLifetime-1.2-draft-01.xsd" xmlns:tns="http://www.globus.org/2008/06/workspace">
 <xs:import namespace="http://schemas.xmlsoap.org/ws/2004/03/addressing" schemaLocation="../ws/addressing/WS-Addressing.xsd"/>
 
 <xs:import namespace="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceLifetime-1.2-draft-01.xsd" schemaLocation="../wsrf/lifetime/WS-ResourceLifetime.xsd"/>
@@ -58,94 +61,149 @@
         </xs:schema>
   </wsdl:types>
   <wsdl:message name="StartWorkspaceInputMessage">
-    <wsdl:part name="parameters" element="tns:startWorkspace"/>
+    <wsdl:part name="parameters" element="tns:startWorkspace">
+    </wsdl:part>
   </wsdl:message>
   <wsdl:message name="UnknownFaultMessage">
-    <wsdl:part name="description" element="work-types:WorkspaceUnknownFault"/>
+    <wsdl:part name="description" element="work-types:WorkspaceUnknownFault">
+    </wsdl:part>
   </wsdl:message>
   <wsdl:message name="ShutdownWorkspaceInputMessage">
-    <wsdl:part name="parameters" element="tns:shutdownWorkspace"/>
+    <wsdl:part name="parameters" element="tns:shutdownWorkspace">
+    </wsdl:part>
   </wsdl:message>
   <wsdl:message name="DisabledFaultMessage">
-    <wsdl:part name="description" element="work-types:OperationDisabledFault"/>
+    <wsdl:part name="description" element="work-types:OperationDisabledFault">
+    </wsdl:part>
   </wsdl:message>
   <wsdl:message name="StartFaultMessage">
-    <wsdl:part name="description" element="work-types:WorkspaceStartFault"/>
+    <wsdl:part name="description" element="work-types:WorkspaceStartFault">
+    </wsdl:part>
   </wsdl:message>
   <wsdl:message name="StartWorkspaceOutputMessage">
-    <wsdl:part name="parameters" element="tns:startWorkspaceResponse"/>
+    <wsdl:part name="parameters" element="tns:startWorkspaceResponse">
+    </wsdl:part>
   </wsdl:message>
   <wsdl:message name="ShutdownFaultMessage">
-    <wsdl:part name="description" element="work-types:WorkspaceShutdownFault"/>
+    <wsdl:part name="description" element="work-types:WorkspaceShutdownFault">
+    </wsdl:part>
   </wsdl:message>
   <wsdl:message name="ShutdownWorkspaceOutputMessage">
-    <wsdl:part name="parameters" element="tns:shutdownWorkspaceResponse"/>
+    <wsdl:part name="parameters" element="tns:shutdownWorkspaceResponse">
+    </wsdl:part>
   </wsdl:message>
   <wsdl:portType name="WorkspacePortType" wsrp:ResourceProperties="tns:ServiceRPSet">
     <wsdl:operation name="start">
-      <wsdl:input message="tns:StartWorkspaceInputMessage"/>
-      <wsdl:output message="tns:StartWorkspaceOutputMessage"/>
-      <wsdl:fault name="UnknownWorkspaceFault" message="tns:UnknownFaultMessage"/>
-      <wsdl:fault name="OperationDisabledFault" message="tns:DisabledFaultMessage"/>
-      <wsdl:fault name="WorkspaceStartFault" message="tns:StartFaultMessage"/>
+      <wsdl:input message="tns:StartWorkspaceInputMessage">
+    </wsdl:input>
+      <wsdl:output message="tns:StartWorkspaceOutputMessage">
+    </wsdl:output>
+      <wsdl:fault name="UnknownWorkspaceFault" message="tns:UnknownFaultMessage">
+    </wsdl:fault>
+      <wsdl:fault name="OperationDisabledFault" message="tns:DisabledFaultMessage">
+    </wsdl:fault>
+      <wsdl:fault name="WorkspaceStartFault" message="tns:StartFaultMessage">
+    </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="shutdown">
-      <wsdl:input message="tns:ShutdownWorkspaceInputMessage"/>
-      <wsdl:output message="tns:ShutdownWorkspaceOutputMessage"/>
-      <wsdl:fault name="UnknownWorkspaceFault" message="tns:UnknownFaultMessage"/>
-      <wsdl:fault name="OperationDisabledFault" message="tns:DisabledFaultMessage"/>
-      <wsdl:fault name="WorkspaceShutdownFault" message="tns:ShutdownFaultMessage"/>
+      <wsdl:input message="tns:ShutdownWorkspaceInputMessage">
+    </wsdl:input>
+      <wsdl:output message="tns:ShutdownWorkspaceOutputMessage">
+    </wsdl:output>
+      <wsdl:fault name="UnknownWorkspaceFault" message="tns:UnknownFaultMessage">
+    </wsdl:fault>
+      <wsdl:fault name="OperationDisabledFault" message="tns:DisabledFaultMessage">
+    </wsdl:fault>
+      <wsdl:fault name="WorkspaceShutdownFault" message="tns:ShutdownFaultMessage">
+    </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="GetResourceProperty">
-      <wsdl:input name="GetResourcePropertyRequest" message="wsrpw:GetResourcePropertyRequest" wsa:Action="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties/GetResourceProperty"/>
-      <wsdl:output name="GetResourcePropertyResponse" message="wsrpw:GetResourcePropertyResponse" wsa:Action="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties/GetResourcePropertyResponse"/>
-      <wsdl:fault name="InvalidResourcePropertyQNameFault" message="wsrpw:InvalidResourcePropertyQNameFault"/>
-      <wsdl:fault name="ResourceUnknownFault" message="wsrpw:ResourceUnknownFault"/>
+      <wsdl:input name="GetResourcePropertyRequest" message="wsrpw:GetResourcePropertyRequest" wsa:Action="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties/GetResourceProperty">
+    </wsdl:input>
+      <wsdl:output name="GetResourcePropertyResponse" message="wsrpw:GetResourcePropertyResponse" wsa:Action="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties/GetResourcePropertyResponse">
+    </wsdl:output>
+      <wsdl:fault name="InvalidResourcePropertyQNameFault" message="wsrpw:InvalidResourcePropertyQNameFault">
+    </wsdl:fault>
+      <wsdl:fault name="ResourceUnknownFault" message="wsrpw:ResourceUnknownFault">
+    </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="Subscribe">
-      <wsdl:input message="wsntw:SubscribeRequest" wsa:Action="http://docs.oasis-open.org/wsn/2004/06/wsn-WS-BaseNotification/Subscribe"/>
-      <wsdl:output message="wsntw:SubscribeResponse" wsa:Action="http://docs.oasis-open.org/wsn/2004/06/wsn-WS-BaseNotification/SubscribeResponse"/>
-      <wsdl:fault name="TopicNotSupportedFault" message="wsntw:TopicNotSupportedFault"/>
-      <wsdl:fault name="SubscribeCreationFailedFault" message="wsntw:SubscribeCreationFailedFault"/>
-      <wsdl:fault name="InvalidTopicExpressionFault" message="wsntw:InvalidTopicExpressionFault"/>
-      <wsdl:fault name="ResourceUnknownFault" message="wsntw:ResourceUnknownFault"/>
-      <wsdl:fault name="TopicPathDialectUnknownFault" message="wsntw:TopicPathDialectUnknownFault"/>
+      <wsdl:input message="wsntw:SubscribeRequest" wsa:Action="http://docs.oasis-open.org/wsn/2004/06/wsn-WS-BaseNotification/Subscribe">
+    </wsdl:input>
+      <wsdl:output message="wsntw:SubscribeResponse" wsa:Action="http://docs.oasis-open.org/wsn/2004/06/wsn-WS-BaseNotification/SubscribeResponse">
+    </wsdl:output>
+      <wsdl:fault name="TopicNotSupportedFault" message="wsntw:TopicNotSupportedFault">
+    </wsdl:fault>
+      <wsdl:fault name="SubscribeCreationFailedFault" message="wsntw:SubscribeCreationFailedFault">
+    </wsdl:fault>
+      <wsdl:fault name="InvalidTopicExpressionFault" message="wsntw:InvalidTopicExpressionFault">
+    </wsdl:fault>
+      <wsdl:fault name="ResourceUnknownFault" message="wsntw:ResourceUnknownFault">
+    </wsdl:fault>
+      <wsdl:fault name="TopicPathDialectUnknownFault" message="wsntw:TopicPathDialectUnknownFault">
+    </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="GetCurrentMessage">
-      <wsdl:input message="wsntw:GetCurrentMessageRequest" wsa:Action="http://docs.oasis-open.org/wsn/2004/06/wsn-WS-BaseNotification/GetCurrentMessage"/>
-      <wsdl:output message="wsntw:GetCurrentMessageResponse" wsa:Action="http://docs.oasis-open.org/wsn/2004/06/wsn-WS-BaseNotification/GetCurrentMessageResponse"/>
-      <wsdl:fault name="TopicNotSupportedFault" message="wsntw:TopicNotSupportedFault"/>
-      <wsdl:fault name="InvalidTopicExpressionFault" message="wsntw:InvalidTopicExpressionFault"/>
-      <wsdl:fault name="ResourceUnknownFault" message="wsntw:ResourceUnknownFault"/>
-      <wsdl:fault name="NoCurrentMessageOnTopicFault" message="wsntw:NoCurrentMessageOnTopicFault"/>
+      <wsdl:input message="wsntw:GetCurrentMessageRequest" wsa:Action="http://docs.oasis-open.org/wsn/2004/06/wsn-WS-BaseNotification/GetCurrentMessage">
+    </wsdl:input>
+      <wsdl:output message="wsntw:GetCurrentMessageResponse" wsa:Action="http://docs.oasis-open.org/wsn/2004/06/wsn-WS-BaseNotification/GetCurrentMessageResponse">
+    </wsdl:output>
+      <wsdl:fault name="TopicNotSupportedFault" message="wsntw:TopicNotSupportedFault">
+    </wsdl:fault>
+      <wsdl:fault name="InvalidTopicExpressionFault" message="wsntw:InvalidTopicExpressionFault">
+    </wsdl:fault>
+      <wsdl:fault name="ResourceUnknownFault" message="wsntw:ResourceUnknownFault">
+    </wsdl:fault>
+      <wsdl:fault name="NoCurrentMessageOnTopicFault" message="wsntw:NoCurrentMessageOnTopicFault">
+    </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="Destroy">
-      <wsdl:input message="wsrlw:DestroyRequest" wsa:Action="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceLifetime/Destroy"/>
-      <wsdl:output message="wsrlw:DestroyResponse" wsa:Action="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceLifetime/DestroyResponse"/>
-      <wsdl:fault name="ResourceUnknownFault" message="wsrlw:ResourceUnknownFault"/>
-      <wsdl:fault name="ResourceNotDestroyedFault" message="wsrlw:ResourceNotDestroyedFault"/>
+      <wsdl:input message="wsrlw:DestroyRequest" wsa:Action="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceLifetime/Destroy">
+    </wsdl:input>
+      <wsdl:output message="wsrlw:DestroyResponse" wsa:Action="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceLifetime/DestroyResponse">
+    </wsdl:output>
+      <wsdl:fault name="ResourceUnknownFault" message="wsrlw:ResourceUnknownFault">
+    </wsdl:fault>
+      <wsdl:fault name="ResourceNotDestroyedFault" message="wsrlw:ResourceNotDestroyedFault">
+    </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="SetTerminationTime">
-      <wsdl:input message="wsrlw:SetTerminationTimeRequest" wsa:Action="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceLifetime/SetTerminationTime"/>
-      <wsdl:output message="wsrlw:SetTerminationTimeResponse" wsa:Action="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceLifetime/SetTerminationTimeResponse"/>
-      <wsdl:fault name="ResourceUnknownFault" message="wsrlw:ResourceUnknownFault"/>
-      <wsdl:fault name="UnableToSetTerminationTimeFault" message="wsrlw:UnableToSetTerminationTimeFault"/>
-      <wsdl:fault name="TerminationTimeChangeRejectedFault" message="wsrlw:TerminationTimeChangeRejectedFault"/>
+      <wsdl:input message="wsrlw:SetTerminationTimeRequest" wsa:Action="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceLifetime/SetTerminationTime">
+    </wsdl:input>
+      <wsdl:output message="wsrlw:SetTerminationTimeResponse" wsa:Action="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceLifetime/SetTerminationTimeResponse">
+    </wsdl:output>
+      <wsdl:fault name="ResourceUnknownFault" message="wsrlw:ResourceUnknownFault">
+    </wsdl:fault>
+      <wsdl:fault name="UnableToSetTerminationTimeFault" message="wsrlw:UnableToSetTerminationTimeFault">
+    </wsdl:fault>
+      <wsdl:fault name="TerminationTimeChangeRejectedFault" message="wsrlw:TerminationTimeChangeRejectedFault">
+    </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="QueryResourceProperties">
-      <wsdl:input name="QueryResourcePropertiesRequest" message="wsrpw:QueryResourcePropertiesRequest" wsa:Action="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties/QueryResourceProperties"/>
-      <wsdl:output name="QueryResourcePropertiesResponse" message="wsrpw:QueryResourcePropertiesResponse" wsa:Action="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties/QueryResourcePropertiesResponse"/>
-      <wsdl:fault name="UnknownQueryExpressionDialectFault" message="wsrpw:UnknownQueryExpressionDialectFault"/>
-      <wsdl:fault name="QueryEvaluationErrorFault" message="wsrpw:QueryEvaluationErrorFault"/>
-      <wsdl:fault name="InvalidQueryExpressionFault" message="wsrpw:InvalidQueryExpressionFault"/>
-      <wsdl:fault name="InvalidResourcePropertyQNameFault" message="wsrpw:InvalidResourcePropertyQNameFault"/>
-      <wsdl:fault name="ResourceUnknownFault" message="wsrpw:ResourceUnknownFault"/>
+      <wsdl:input name="QueryResourcePropertiesRequest" message="wsrpw:QueryResourcePropertiesRequest" wsa:Action="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties/QueryResourceProperties">
+    </wsdl:input>
+      <wsdl:output name="QueryResourcePropertiesResponse" message="wsrpw:QueryResourcePropertiesResponse" wsa:Action="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties/QueryResourcePropertiesResponse">
+    </wsdl:output>
+      <wsdl:fault name="UnknownQueryExpressionDialectFault" message="wsrpw:UnknownQueryExpressionDialectFault">
+    </wsdl:fault>
+      <wsdl:fault name="QueryEvaluationErrorFault" message="wsrpw:QueryEvaluationErrorFault">
+    </wsdl:fault>
+      <wsdl:fault name="InvalidQueryExpressionFault" message="wsrpw:InvalidQueryExpressionFault">
+    </wsdl:fault>
+      <wsdl:fault name="InvalidResourcePropertyQNameFault" message="wsrpw:InvalidResourcePropertyQNameFault">
+    </wsdl:fault>
+      <wsdl:fault name="ResourceUnknownFault" message="wsrpw:ResourceUnknownFault">
+    </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="GetMultipleResourceProperties">
-      <wsdl:input name="GetMultipleResourcePropertiesRequest" message="wsrpw:GetMultipleResourcePropertiesRequest" wsa:Action="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties/GetMultipleResourceProperties"/>
-      <wsdl:output name="GetMultipleResourcePropertiesResponse" message="wsrpw:GetMultipleResourcePropertiesResponse" wsa:Action="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties/GetMultipleResourcePropertiesResponse"/>
-      <wsdl:fault name="InvalidResourcePropertyQNameFault" message="wsrpw:InvalidResourcePropertyQNameFault"/>
-      <wsdl:fault name="ResourceUnknownFault" message="wsrpw:ResourceUnknownFault"/>
+      <wsdl:input name="GetMultipleResourcePropertiesRequest" message="wsrpw:GetMultipleResourcePropertiesRequest" wsa:Action="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties/GetMultipleResourceProperties">
+    </wsdl:input>
+      <wsdl:output name="GetMultipleResourcePropertiesResponse" message="wsrpw:GetMultipleResourcePropertiesResponse" wsa:Action="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties/GetMultipleResourcePropertiesResponse">
+    </wsdl:output>
+      <wsdl:fault name="InvalidResourcePropertyQNameFault" message="wsrpw:InvalidResourcePropertyQNameFault">
+    </wsdl:fault>
+      <wsdl:fault name="ResourceUnknownFault" message="wsrpw:ResourceUnknownFault">
+    </wsdl:fault>
     </wsdl:operation>
   </wsdl:portType>
 </wsdl:definitions>

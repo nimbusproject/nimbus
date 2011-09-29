@@ -36,5 +36,7 @@ public interface VM {
     public String getLifeCycle();
     public String getSpotInstanceRequestID();
 
+    public String getDetails();
+
     String getClientToken();
 }

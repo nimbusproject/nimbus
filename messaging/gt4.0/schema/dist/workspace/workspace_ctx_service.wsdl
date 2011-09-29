@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <wsdl:definitions name="WorkspaceContextBroker" targetNamespace="http://www.globus.org/2008/06/workspace/contextualization/service" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:binding="http://www.globus.org/2008/06/workspace/contextualization/bindings" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
-  <wsdl:import namespace="http://www.globus.org/2008/06/workspace/contextualization/bindings" location="workspace_ctx_bindings.wsdl"/>
+  <wsdl:import namespace="http://www.globus.org/2008/06/workspace/contextualization/bindings" location="workspace_ctx_bindings.wsdl">
+    </wsdl:import>
   <wsdl:service name="WorkspaceContextBrokerService">
     <wsdl:port name="WorkspaceContextBrokerPortTypePort" binding="binding:WorkspaceContextBrokerPortTypeSOAPBinding">
       <soap:address location="http://localhost:8080/wsrf/services/"/>

@@ -92,6 +92,7 @@ public class StatusTranslate extends BaseTranslate {
         one.setLogistics(this.trinst.getLogistics(vm));
         one.setResourceAllocation(this.trinst.getResourceAllocation_Type(vm));
         one.setSchedule(this.trinst.getSchedule_Type(vm));
+        one.setDetails(this.trinst.getDetails(vm));
 
         return one;
     }
