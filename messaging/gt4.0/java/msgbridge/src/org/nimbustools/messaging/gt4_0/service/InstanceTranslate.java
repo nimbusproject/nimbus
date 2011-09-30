@@ -293,7 +293,7 @@ public class InstanceTranslate extends BaseTranslate {
 
     public String getDetails(VM vm)
     {
-        return "";
+        return vm.getDetails();
     }
     
 

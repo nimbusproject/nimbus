@@ -253,6 +253,12 @@ public class StringUtils {
         if (termTime != null) {
             buf.append("\n      ").append(termTime);
         }
+
+        String desc = workspace.getDetails();
+        if(desc != null && !desc.equals(""))
+        {
+            buf.append("\n      Details: " + desc);
+        }
         return buf.toString();
     }
 }
