@@ -157,6 +157,7 @@ public class Status_QueryAll extends WSAction_Status {
         }
 
         workspace.setEpr(oneCurrent.getEpr());
+        workspace.setDetails(oneCurrent.getDetails());
 
         final Schedule_Type xmlSched = oneCurrent.getSchedule();
         if (xmlSched != null) {

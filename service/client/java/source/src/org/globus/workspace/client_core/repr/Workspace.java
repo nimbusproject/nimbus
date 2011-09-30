@@ -112,6 +112,8 @@ public class Workspace {
 
     private ShutdownMech requestedShutdownMech;
 
+    private String details = null;
+
     // future:
     // private DiskCollection diskCollection;
 
@@ -153,6 +155,14 @@ public class Workspace {
         }
 
         return name;
+    }
+
+    public void setDetails(String d) {
+        this.details = d;
+    }
+
+    public String getDetails() {
+        return this.details;
     }
 
     public void setDisplayName(String name) {

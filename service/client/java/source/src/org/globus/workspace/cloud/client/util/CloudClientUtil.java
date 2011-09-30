@@ -378,9 +378,6 @@ public class CloudClientUtil {
             lineLen += word.length();
         }
         return output.toString();
-
-
-        return desc;
     }
 
     private static String onePrintStr(String name,
