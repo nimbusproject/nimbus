@@ -364,7 +364,7 @@ public class CloudClientUtil {
     private static String formatDescription(String input, String lb) {
         int maxLineLength = 60;
         
-        StringTokenizer tok = new StringTokenizer(input, " ");
+        StringTokenizer tok = new StringTokenizer(input, " ", true);
         StringBuilder output = new StringBuilder(input.length());
         int lineLen = 0;
         while (tok.hasMoreTokens()) {
