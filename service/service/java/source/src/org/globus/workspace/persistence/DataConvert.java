@@ -250,7 +250,7 @@ public class DataConvert implements WorkspaceConstants {
 
         String details = "";
         if (this.exposeVMMHostname) {
-            details = "VMM: " + vm.getNode();
+            details = "VMM=" + vm.getNode();
         }
         return details;
     }
