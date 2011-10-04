@@ -1501,7 +1501,7 @@ $ ./bin/nimbus-nodes --add $NODES --memory 7680
 </p>
 
 <p>
-    There are several other options discussed in the <tt class="literal">nimbus-nodes -h</tt> text, we will highlight one of the most important ones here.
+    There are several other options discussed in the <tt class="literal">nimbus-nodes -h</tt> text, we will highlight a few of the most important ones here.
 </p>
 
 <p>
@@ -1510,6 +1510,16 @@ $ ./bin/nimbus-nodes --add $NODES --memory 7680
 
 <div class="screen"><pre>
 $ ./bin/nimbus-nodes --update nequals08 --inactive
+</pre>
+</div>
+
+<p>
+    Nimbus also lets you divide your nodes into multiple resource pools. This can be used to provide multiple sets of resources to your users. For example, you could divide heterogeneous resources into different resource pools, for example by processor manufacturer. For example:
+</p>
+
+<div class="screen"><pre>
+$ ./bin/nimbus-nodes -a amdnode01 -m 4096 -p amd
+$ ./bin/nimbus-nodes -a intelnode01 -m 4096 -p intel
 </pre>
 </div>
 
