@@ -30,7 +30,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="lib-workspaceservice" level="project" />
+    <orderEntry type="library" exported="" name="lib-workspaceservice" level="project" />
     <orderEntry type="module" module-name="rm-api" />
     <orderEntry type="library" name="test-libs" level="project" />
     <orderEntry type="module" module-name="authzdb" />
