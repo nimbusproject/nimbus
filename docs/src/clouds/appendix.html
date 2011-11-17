@@ -32,6 +32,11 @@ _NIMBUS_CENTER2_COLUMN
     </li>
     <li>
         <p>
+            <a href="#transcommon">Uploading public images</a>
+        </p>
+    </li>
+    <li>
+        <p>
             <a href="#ec2">Using the Cloud Client with Amazon EC2</a>
         </p>
     </li>
@@ -259,6 +264,28 @@ _EXAMPLE_CMD_END
     (The order of commandline flags does not matter, the client will
     do the sensible thing.)
 </p>
+
+<a name="transcommon"> </a>
+
+<h2>Uploading public images</h2>
+
+<p>
+    The cloud client can also be used to publish an image to public 
+    space.  Any user of the Nimbus cloud can create an image and 
+    upload it to public space so that it can be shared by other 
+    users on the system.
+</p>
+<p>
+    To upload a common image you follow the steps on the previous
+    step adding <i>--common</i> to the command line.
+</p>
+_EXAMPLE_GENERICCMD_BEGIN
+./bin/cloud-client.sh --transfer --sourcefile /tmp/helloworld --common
+_EXAMPLE_CMD_END
+<p>
+Once it is uploaded users will see it listed as a <i>read-only</i> image.
+</p>
+
 
 <a name="ec2"></a>
 <h2>Using the Cloud Client with Amazon EC2 _NAMELINK(ec2)</h2>
