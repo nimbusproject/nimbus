@@ -34,6 +34,16 @@ class TestEC2List(unittest.TestCase):
         host = 'localhost'
         cumport = 8888
         ec2port = 8444
+        try:
+            ec2port = int(os.environ['NIMBUS_TEST_EC2_PORT'])
+        except:
+            pass
+        try:
+            cumport = int(os.environ['NIMBUS_TEST_S3_PORT'])
+        except:
+            pass
+
+
         self.db = DB(pycb.config.authzdb)
         self.friendly = self.cb_random_bucketname(21)
         self.can_user = User(self.db, friendly=self.friendly, create=True)

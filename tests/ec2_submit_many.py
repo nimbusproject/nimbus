@@ -65,7 +65,13 @@ def main(argv=sys.argv[1:]):
             sys.exit(1)
 
         print "getting connection"
-        ec2conn = EC2Connection(s3id, pw, host='locahost', port=8444, debug=2)
+        ec2port = 8444
+        try:
+            ec2port = int(os.environ['NIMBUS_TEST_EC2_PORT'])
+        except:
+            pass
+
+        ec2conn = EC2Connection(s3id, pw, host='locahost', port=ec2port, debug=2)
         ec2conn.host = 'localhost'
         print "getting image"
         image = ec2conn.get_image(imagename)
