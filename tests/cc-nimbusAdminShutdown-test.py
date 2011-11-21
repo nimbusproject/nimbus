@@ -13,13 +13,12 @@ cc_home=os.environ['CLOUD_CLIENT_HOME']
 nimbus_home=os.environ['NIMBUS_HOME']
 nimbus_user=os.environ['NIMBUS_TEST_USER']
 group_name="UNLIMITED"
-#logfile = sys.stdout
-logfile = None
+logfile = sys.stdout
 
 def id_from_handle(handle):
     cmd = "%s/bin/cloud-client.sh --status " % (cc_home)
     #print cmd
-    (out, rc)=pexpect.run(cmd, withexitstatus=1)
+    (out, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile, timeout=to)
     m = re.search(".*Workspace #(\d*?)\..*Handle: %s.*" % handle, out, re.S|re.M)
     if m:
         id = m.group(1)
@@ -46,18 +45,18 @@ def start_vm():
 def assert_no_vms():
     cmd = "%s/bin/nimbus-admin --list " % (nimbus_home)
     #print cmd
-    (x, rc)=pexpect.run(cmd, withexitstatus=1)
+    (x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile, timeout=to)
     if rc != 0 or x != "":
-        print "error"
+        print "error 1"
         sys.exit(1)
 
 def assert_vms():
     cmd = "%s/bin/nimbus-admin --list " % (nimbus_home)
     #print cmd
-    (x, rc)=pexpect.run(cmd, withexitstatus=1)
+    (x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile, timeout=to)
     #print x
     if rc != 0 or x == "":
-        print "error"
+        print "error 2"
         sys.exit(1)
 
 
@@ -68,7 +67,7 @@ except:
 	pass
 
 cmd = "%s/bin/cloud-client.sh --transfer --sourcefile %s" % (cc_home, tst_image_src)
-(x, rc)=pexpect.run(cmd, withexitstatus=1)
+(x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile, timeout=to)
 
 id = start_vm()
 assert_vms()
@@ -76,10 +75,10 @@ assert_vms()
 # Shutdown started VM
 cmd = "%s/bin/nimbus-admin --shutdown --id %s" % (nimbus_home, id)
 print cmd
-(x, rc)=pexpect.run(cmd, withexitstatus=1)
+(x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile, timeout=to)
 print x
 if rc != 0:
-    print "error"
+    print "error shutdown id %s" % (cmd)
     sys.exit(1)
 
 assert_no_vms()
@@ -91,10 +90,10 @@ assert_vms()
 # Shutdown started VM
 cmd = "%s/bin/nimbus-admin --shutdown --dn /O=Auto/OU=CA/CN=%s" % (nimbus_home, nimbus_user)
 print cmd
-(x, rc)=pexpect.run(cmd, withexitstatus=1)
+(x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile, timeout=to)
 print x
 if rc != 0:
-    print "error"
+    print "error shutdown dn %s" % (cmd)
     sys.exit(1)
 
 assert_no_vms()
@@ -104,10 +103,10 @@ assert_vms()
 
 cmd = "%s/bin/nimbus-admin --shutdown --host localhost" % (nimbus_home)
 print cmd
-(x, rc)=pexpect.run(cmd, withexitstatus=1)
+(x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile, timeout=to)
 print x
 if rc != 0:
-    print "error"
+    print "error shutdown host %s" % (cmd)
     sys.exit(1)
 
 assert_no_vms()
@@ -118,10 +117,10 @@ assert_vms()
 
 cmd = "%s/bin/nimbus-admin --shutdown --gid 1" % (nimbus_home)
 print cmd
-(x, rc)=pexpect.run(cmd, withexitstatus=1)
+(x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile, timeout=to)
 print x
 if rc != 0:
-    print "error"
+    print "error gid %s" % (cmd)
     sys.exit(1)
 
 assert_no_vms()
@@ -132,10 +131,10 @@ assert_vms()
 
 cmd = "%s/bin/nimbus-admin --shutdown --gname %s" % (nimbus_home, group_name)
 print cmd
-(x, rc)=pexpect.run(cmd, withexitstatus=1)
+(x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile, timeout=to)
 print x
 if rc != 0:
-    print "error"
+    print "error gname %s" % (cmd)
     sys.exit(1)
 
 assert_no_vms()
@@ -146,10 +145,10 @@ assert_vms()
 
 cmd = "%s/bin/nimbus-admin --shutdown --user %s --seconds 35" % (nimbus_home, nimbus_user)
 print cmd
-(x, rc)=pexpect.run(cmd, withexitstatus=1)
+(x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile, timeout=to)
 print x
 if rc != 0:
-    print "error"
+    print "error %dhutdown user %s" % (cmd)
     sys.exit(1)
 
 assert_no_vms()
@@ -160,18 +159,18 @@ assert_vms()
 
 cmd = "%s/bin/nimbus-admin --shutdown --all --seconds 30" % (nimbus_home)
 print cmd
-(x, rc)=pexpect.run(cmd, withexitstatus=1)
+(x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile, timeout=to)
 print x
 if rc != 0:
-    print "error"
+    print "error shutdown all %s" % (cmd)
     sys.exit(1)
 
 assert_no_vms()
 
 cmd = "%s/bin/cloud-client.sh --delete --name %s" % (cc_home, tst_image_name)
-(x, rc)=pexpect.run(cmd, withexitstatus=1)
+(x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile, timeout=to)
 if rc != 0:
-    print "error"
+    print "error delete %s" % (cmd)
     sys.exit(1)
 
 sys.exit(0)
