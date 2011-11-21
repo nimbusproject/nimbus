@@ -31,7 +31,7 @@ try:
     (x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile, timeout=to)
 
     cmd = "%s/bin/cloud-client.sh --run --name %s --hours .25" % (cc_home, image_name)
-    child = pexpect.spawn (cmd, timeout=to, maxread=20000, logfile=logfile, timeout=to)
+    child = pexpect.spawn (cmd, timeout=to, maxread=20000, logfile=logfile)
     rc = child.expect ('Running:')
     if rc != 0:
         print "Running: not found in the list"

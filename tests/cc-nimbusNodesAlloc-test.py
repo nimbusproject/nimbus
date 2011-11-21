@@ -4,9 +4,12 @@ import pexpect
 import sys
 import os
 
-to=90
+to=int(os.environ["NIMBUS_TEST_TIMEOUT"])
 cc_home=os.environ['CLOUD_CLIENT_HOME']
 nimbus_home=os.environ['NIMBUS_HOME']
+tst_image_name = os.environ['NIMBUS_TEST_IMAGE']
+tst_image_src = os.environ['NIMBUS_SOURCE_TEST_IMAGE']
+
 logfile = sys.stdout
 
 try:
@@ -15,14 +18,14 @@ except:
 	print "The directory already exists"
 	pass
 
-cmd = "%s/bin/cloud-client.sh --transfer --sourcefile /etc/group" % (cc_home)
+cmd = "%s/bin/cloud-client.sh --transfer --sourcefile %s" % (cc_home, tst_image_src)
 (x, rc)=pexpect.run(cmd, withexitstatus=1)
 
-cmd = "%s/bin/cloud-client.sh --run --name group --hours .25" % (cc_home)
+cmd = "%s/bin/cloud-client.sh --run --name %s --hours .25" % (cc_home, tst_image_name)
 child = pexpect.spawn (cmd, timeout=to, maxread=20000, logfile=logfile)
 rc = child.expect ('Running:')
 if rc != 0:
-    print "group not found in the list"
+    print "%s not found in the list" % (tst_image_name)
     sys.exit(1)
 handle = child.readline().strip().replace("'", "")
 rc = child.expect(pexpect.EOF)
@@ -78,7 +81,7 @@ if rc != 0:
     print "error"
     sys.exit(1)
 
-cmd = "%s/bin/cloud-client.sh --delete --name group" % (cc_home)
+cmd = "%s/bin/cloud-client.sh --delete --name %s" % (cc_home, tst_image_name)
 (x, rc)=pexpect.run(cmd, withexitstatus=1)
 if rc != 0:
     print "error"

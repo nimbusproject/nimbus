@@ -25,7 +25,7 @@ if rc != 0:
     sys.exit(1)
 
 cmd = "%s/bin/cloud-client.sh --run --name %s --hours .25" % (cc_home, common_image)
-child = pexpect.spawn (cmd, timeout=to, maxread=20000, logfile=logfile, timeout=to)
+child = pexpect.spawn (cmd, timeout=to, maxread=20000, logfile=logfile)
 rc = child.expect ('Running:')
 if rc != 0:
     print "Running not found in the list"
