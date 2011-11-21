@@ -18,7 +18,7 @@ try:
 except:
     pass
 cmd = "%s/bin/cloud-client.sh --transfer --sourcefile %s" % (cc_home, tst_image_src)
-(x, rc)=pexpect.run(cmd, withexitstatus=1)
+(x, rc)=pexpect.run(cmd, withexitstatus=True)
 
 cmd = "%s/bin/cloud-client.sh --run --name %s --hours .25 --newname %s" % (cc_home, tst_image_name, newname)
 child = pexpect.spawn (cmd, timeout=to, maxread=20000, logfile=logfile)
@@ -34,16 +34,16 @@ if rc != 0:
 
 cmd = "%s/bin/cloud-client.sh --handle %s --save" % (cc_home, handle)
 print cmd
-(x, rc)=pexpect.run(cmd, withexitstatus=1)
+(x, rc)=pexpect.run(cmd, withexitstatus=True, timeout=to)
 print x
 if rc != 0:
     print "failed to save"
     sys.exit(1)
 cmd = "%s/bin/cloud-client.sh --list" % (cc_home)
-(x, rc)=pexpect.run(cmd, withexitstatus=1)
+(x, rc)=pexpect.run(cmd, withexitstatus=True)
 cmd = "%s/bin/cloud-client.sh --download --name %s --localfile %s" % (cc_home, newname, newname)
 print cmd
-(x, rc)=pexpect.run(cmd, withexitstatus=1)
+(x, rc)=pexpect.run(cmd, withexitstatus=True, timeout=to)
 print x
 if rc != 0:
     print "failed to terminate"

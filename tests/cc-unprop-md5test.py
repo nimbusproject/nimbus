@@ -28,10 +28,10 @@ try:
     size=os.path.getsize(src_file)
 
     cmd = "%s/bin/cloud-client.sh --transfer --sourcefile %s" % (cc_home, src_file)
-    (x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile)
+    (x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile, timeout=to)
 
     cmd = "%s/bin/cloud-client.sh --run --name %s --hours .25" % (cc_home, image_name)
-    child = pexpect.spawn (cmd, timeout=to, maxread=20000, logfile=logfile)
+    child = pexpect.spawn (cmd, timeout=to, maxread=20000, logfile=logfile, timeout=to)
     rc = child.expect ('Running:')
     if rc != 0:
         print "Running: not found in the list"
@@ -44,7 +44,7 @@ try:
 
     cmd = "%s/bin/cloud-client.sh --handle %s --save --newname %s" % (cc_home, handle, newname)
     print cmd
-    (x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile)
+    (x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile, timeout=to)
     print x
     if rc != 0:
     	print "failed to save"
@@ -53,7 +53,7 @@ try:
     # down load the new name with s3cmd
     cmd="s3cmd get s3://Repo/VMS/%s/%s %s" % (os.environ['NIMBUS_TEST_USER_CAN_ID'], image_name, localfile)
     print cmd
-    (x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile)
+    (x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile, timeout=to)
     print x
     if rc != 0:
         print "failed to save"
