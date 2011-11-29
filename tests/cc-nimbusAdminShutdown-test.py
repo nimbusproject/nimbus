@@ -73,6 +73,10 @@ except:
 	print "The directory already exists"
 	pass
 
+cmd = "%s/bin/nimbus-admin --shutdown --all" % (nimbus_home)
+print cmd
+(x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile, timeout=to)
+
 cmd = "%s/bin/cloud-client.sh --transfer --sourcefile %s" % (cc_home, tst_image_src)
 (x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile, timeout=to)
 
@@ -121,16 +125,16 @@ assert_no_vms()
 id = start_vm()
 assert_vms()
 
+if 'NIMBUS_TEST_MODE_REAL' not in os.environ:
+    cmd = "%s/bin/nimbus-admin --shutdown --gid 1" % (nimbus_home)
+    print cmd
+    (x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile, timeout=to)
+    print x
+    if rc != 0:
+        print "error gid %s" % (cmd)
+        sys.exit(1)
 
-cmd = "%s/bin/nimbus-admin --shutdown --gid 1" % (nimbus_home)
-print cmd
-(x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile, timeout=to)
-print x
-if rc != 0:
-    print "error gid %s" % (cmd)
-    sys.exit(1)
-
-assert_no_vms()
+    assert_no_vms()
 
 id = start_vm()
 assert_vms()

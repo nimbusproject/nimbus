@@ -27,6 +27,11 @@ except:
 	print "The directory already exists"
 	pass
 
+cmd = "%s/bin/nimbus-admin --shutdown --all" % (nimbus_home)
+print cmd
+(x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile, timeout=to)
+
+
 cmd = "%s/bin/nimbus-list-users %%" % (nimbus_home)
 (x, rc)=pexpect.run(cmd, withexitstatus=1, timeout=to)
 print x
