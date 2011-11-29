@@ -14,13 +14,13 @@ logfile = sys.stdout
 common_image = str(uuid.uuid1()).replace("-", "")
 
 cmd = "%s/bin/nimbus-public-image %s %s" % (nh, tst_image_src, common_image)
-cmd = "%s/bin/cloud-client.sh --transfer --common --sourcefile %s --hours .25" % (cc_home, tst_image_src)
+cmd = "%s/bin/cloud-client.sh --transfer --common --sourcefile %s --hours .5" % (cc_home, tst_image_src)
 (x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile, timeout=to)
 if rc != 0:
     print "failed create the public image"
     sys.exit(1)
 
-cmd = "%s/bin/cloud-client.sh --common --run --name %s --hours .25" % (cc_home, tst_image_name)
+cmd = "%s/bin/cloud-client.sh --common --run --name %s --hours .5" % (cc_home, tst_image_name)
 child = pexpect.spawn (cmd, timeout=to, maxread=20000, logfile=logfile)
 rc = child.expect ('Running:')
 if rc != 0:

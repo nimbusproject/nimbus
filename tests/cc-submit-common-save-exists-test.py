@@ -20,7 +20,7 @@ if rc != 0:
     print "failed create the public image"
     sys.exit(1)
 
-cmd = "%s/bin/cloud-client.sh --run --name %s --hours .25 --newname %s" % (cc_home, common_image, newname)
+cmd = "%s/bin/cloud-client.sh --run --name %s --hours .5 --newname %s" % (cc_home, common_image, newname)
 child = pexpect.spawn (cmd, timeout=to, maxread=20000, logfile=logfile)
 rc = child.expect ('Running:')
 if rc != 0:

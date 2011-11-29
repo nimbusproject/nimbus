@@ -20,7 +20,7 @@ except:
 cmd = "%s/bin/cloud-client.sh --transfer --sourcefile %s" % (cc_home, tst_image_src)
 (x, rc)=pexpect.run(cmd, withexitstatus=1)
 
-cmd = "%s/bin/cloud-client.sh --run --name %s --hours .25" % (cc_home, tst_image_name)
+cmd = "%s/bin/cloud-client.sh --run --name %s --hours .5" % (cc_home, tst_image_name)
 child = pexpect.spawn (cmd, timeout=to, maxread=20000, logfile=logfile)
 rc = child.expect ('Running:')
 if rc != 0:
@@ -40,7 +40,7 @@ if rc != 0:
     print "failed to terminate"
     sys.exit(1)
 
-cmd = "%s/bin/cloud-client.sh --run --name %s --hours .25" % (cc_home, tst_image_name)
+cmd = "%s/bin/cloud-client.sh --run --name %s --hours .5" % (cc_home, tst_image_name)
 child = pexpect.spawn (cmd, timeout=to, maxread=20000, logfile=logfile)
 rc = child.expect ('Running:')
 if rc != 0:
