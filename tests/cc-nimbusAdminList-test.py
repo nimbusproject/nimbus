@@ -5,6 +5,11 @@ import sys
 import os
 import re
 
+try:
+    node_host = os.environ['NIMBUS_TEST_NODE_HOST']
+except:
+    node_host = "localhost"
+
 tst_ca = os.environ['NIMBUS_TEST_CA']
 
 to=int(os.environ["NIMBUS_TEST_TIMEOUT"])
@@ -57,7 +62,7 @@ if rc != 0 or not re.match(".*id\s*?:\s*?\d.*", x):
 	print "error"
 	sys.exit(1)
 
-cmd = "%s/bin/nimbus-admin --list --host localhost" % (nimbus_home)
+cmd = "%s/bin/nimbus-admin --list --host %s" % (nimbus_home, node_host)
 print cmd
 (x, rc)=pexpect.run(cmd, withexitstatus=1, timeout=to)
 print x
@@ -108,11 +113,11 @@ print x
 if rc != 0:
     print "error"
     sys.exit(1)
-if not re.search("node\s*:\s*localhost", x):
-    print "not showing localhost node?"
+if not re.search("node\s*:\s*%s" % (node_host), x):
+    print "not showing %s node?" % (node_host)
     sys.exit(1)
 if not re.search("id\s*:\s*\d*,\s\d*", x):
-    print "not showing two vms on localhost node?"
+    print "not showing two vms on %s node?" % (node_host)
     sys.exit(1)
 
 cmd = "%s/bin/nimbus-admin --batch --shutdown --all" % (nimbus_home)
