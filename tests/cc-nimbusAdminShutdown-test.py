@@ -5,6 +5,11 @@ import sys
 import os
 import re
 
+try:
+    node_host = os.environ['NIMBUS_TEST_NODE_HOST']
+except:
+    node_host = "localhost"
+
 to=int(os.environ["NIMBUS_TEST_TIMEOUT"])
 tst_image_name = os.environ['NIMBUS_TEST_IMAGE']
 tst_image_src = os.environ['NIMBUS_SOURCE_TEST_IMAGE']
@@ -103,7 +108,7 @@ assert_no_vms()
 id = start_vm()
 assert_vms()
 
-cmd = "%s/bin/nimbus-admin --shutdown --host localhost" % (nimbus_home)
+cmd = "%s/bin/nimbus-admin --shutdown --host %s" % (nimbus_home, node_host)
 print cmd
 (x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile, timeout=to)
 print x
