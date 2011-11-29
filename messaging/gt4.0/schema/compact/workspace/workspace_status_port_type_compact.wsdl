@@ -113,7 +113,9 @@
                     <xs:element ref="work-types:schedule" />
                     <xs:element ref="neg:ResourceAllocation" />
                     <xs:element ref="log:logistics" />
-                    <xs:element name="details" type="xs:string" use="optional" />
+                    <xs:element name="details" type="xs:string"
+                        minOccurs="0"
+                            maxOccurs="1"/>
                 </xs:sequence>
             </xs:complexType>
 
