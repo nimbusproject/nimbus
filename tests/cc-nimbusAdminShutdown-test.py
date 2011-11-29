@@ -30,7 +30,7 @@ def id_from_handle(handle):
     return id
 
 def start_vm():
-    cmd = "%s/bin/cloud-client.sh --run --name %s --hours .25" % (cc_home, tst_image_name)
+    cmd = "%s/bin/cloud-client.sh --run --name %s --hours .5" % (cc_home, tst_image_name)
     child = pexpect.spawn (cmd, timeout=to, maxread=20000, logfile=logfile)
     rc = child.expect ('Running:')
     if rc != 0:
