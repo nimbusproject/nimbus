@@ -287,12 +287,15 @@ cp $src_dir/public  $install_dir/services/etc/nimbus/workspace-service/network-p
 echo $work_dir
 export NIMBUS_TEST_USER=$user_name
 
+export NIMBUS_TEST_CA="/O=Auto/OU=CA"
+
 echo "Your test environment is:"
 echo "NIMBUS_HOME:          $NIMBUS_HOME"
 echo "NIMBUS_TEST_USER:     $NIMBUS_TEST_USER"
 echo "CLOUD_CLIENT_HOME:    $CLOUD_CLIENT_HOME"
 echo "NIMBUS_WORKSPACE_CONTROL_HOME:          $NIMBUS_WORKSPACE_CONTROL_HOME"
 echo "NIMBUS_TEST_USER_CAN_ID:          $can_id"
+echo "NIMBUS_TEST_CA:       $NIMBUS_TEST_CA"
 
 
 echo "export NIMBUS_HOME=$NIMBUS_HOME" > $src_dir/env.sh
@@ -303,4 +306,5 @@ echo "export NIMBUS_TEST_USER_CAN_ID=$can_id" >> $src_dir/env.sh
 echo "export NIMBUS_TEST_IMAGE=group" >> $src_dir/env.sh
 echo "export NIMBUS_SOURCE_TEST_IMAGE=/etc/group" >> $src_dir/env.sh
 echo "export NIMBUS_TEST_TIMEOUT=90" >> $src_dir/env.sh
+echo "export NIMBUS_TEST_CA=$NIMBUS_TEST_CA" >> $src_dir/env.sh
 

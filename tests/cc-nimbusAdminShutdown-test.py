@@ -9,6 +9,8 @@ to=int(os.environ["NIMBUS_TEST_TIMEOUT"])
 tst_image_name = os.environ['NIMBUS_TEST_IMAGE']
 tst_image_src = os.environ['NIMBUS_SOURCE_TEST_IMAGE']
 
+tst_ca = os.environ['NIMBUS_TEST_CA']
+
 cc_home=os.environ['CLOUD_CLIENT_HOME']
 nimbus_home=os.environ['NIMBUS_HOME']
 nimbus_user=os.environ['NIMBUS_TEST_USER']
@@ -88,7 +90,7 @@ id = start_vm()
 assert_vms()
 
 # Shutdown started VM
-cmd = "%s/bin/nimbus-admin --shutdown --dn /O=Auto/OU=CA/CN=%s" % (nimbus_home, nimbus_user)
+cmd = "%s/bin/nimbus-admin --shutdown --dn %s/CN=%s" % (nimbus_home, tst_ca, nimbus_user)
 print cmd
 (x, rc)=pexpect.run(cmd, withexitstatus=1, logfile=logfile, timeout=to)
 print x

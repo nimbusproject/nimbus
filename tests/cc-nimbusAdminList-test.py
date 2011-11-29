@@ -5,6 +5,8 @@ import sys
 import os
 import re
 
+tst_ca = os.environ['NIMBUS_TEST_CA']
+
 to=int(os.environ["NIMBUS_TEST_TIMEOUT"])
 tst_image_name = os.environ['NIMBUS_TEST_IMAGE']
 tst_image_src = os.environ['NIMBUS_SOURCE_TEST_IMAGE']
@@ -47,7 +49,7 @@ if rc != 0 or not re.match(".*id\s*?:\s*?\d.*", x):
     print "error"
     sys.exit(1)
 
-cmd = "%s/bin/nimbus-admin --list --dn /O=Auto/OU=CA/CN=%s" % (nimbus_home, nimbus_user)
+cmd = "%s/bin/nimbus-admin --list --dn %s/CN=%s" % (nimbus_home, tst_ca, nimbus_user)
 print cmd
 (x, rc)=pexpect.run(cmd, withexitstatus=1, timeout=to)
 print x
