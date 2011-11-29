@@ -117,6 +117,11 @@ class TestEC2Submit(unittest.TestCase):
         res = image.run() 
 
     def test_ec2_submit_availability_zone(self):
+
+        # we cant run this test in real mode
+        if 'NIMBUS_TEST_MODE_REAL' in os.environ:
+            return
+
         image_name = self.store_new_image()
         image = self.ec2conn.get_image(image_name)
         print "==================================="
