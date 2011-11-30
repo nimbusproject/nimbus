@@ -10,7 +10,9 @@ import hmac
 try:
     from hashlib import sha1 as sha
     from hashlib import sha256 as sha256
-except ImportError:
+
+    sha.new()
+except:
     import sha
 import base64
 import uuid
