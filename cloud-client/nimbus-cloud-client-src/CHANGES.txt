@@ -1,3 +1,19 @@
+
+nimbus-cloud-client-021
+-----------------------
+[*] Added support to associate metadata with images
+    https://github.com/nimbusproject/nimbus/issues/73
+
+[*] Added --help output for lesser known features
+    https://github.com/nimbusproject/nimbus/issues/80
+
+[*] Added support to see on what physical hostname a given VM is running
+    (assuming the cloud admin enables this feature)
+    https://github.com/nimbusproject/nimbus/issues/79
+
+[*] Eliminated the display of secrets from the debug output
+    https://github.com/nimbusproject/nimbus/issues/72
+
 nimbus-cloud-client-020
 -----------------------
 [*] Set the permissions on --common upload so that all users can read it.

@@ -77,3 +77,14 @@ Workspace Cloud Client.  See README.txt for examples and overview.
       * Required terminate option:
           --handle <handle>      Handle of one to terminate (e.g. "vm-023")
                                  or cluster to terminate (e.g. "cluster-012")
+
+-----------------------------------------------------------------------------
+
+    --common       Force the interaction with images in the common namespace
+                   (often labeled "read/only").  This command is useful with
+                   the following actions:
+
+                   --run
+                   --transfer
+                   --download
+                   --delete
