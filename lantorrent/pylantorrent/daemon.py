@@ -113,7 +113,7 @@ def do_it_live(con, rows):
     try:
         v.store_and_forward()
     except Exception, ex:
-        pylantorrent.log(logging.ERROR, "an error occured on store and forward: %s" % (str(ex)))
+        pylantorrent.log(logging.ERROR, "an error occured on store and forward: %s" % (str(ex)), traceback)
     rc = 0
     es = client.get_incomplete()
     bad_rid = []
@@ -170,7 +170,7 @@ def main(argv=sys.argv[1:]):
             else:
                 time.sleep(5)
         except Exception, ex:
-            pylantorrent.log(logging.ERROR, "top level error %s" % (str(ex)))
+            pylantorrent.log(logging.ERROR, "top level error %s" % (str(ex)), traceback)
             con = sqlite3.connect(con_str, detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
 
     return 0

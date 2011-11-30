@@ -122,7 +122,10 @@ class LTClient(object):
                 raise Exception("There was data corruption in the chain")
 
     def get_incomplete(self):
-        self.process_incoming_data()
+        try:
+            self.process_incoming_data()
+        except Exception, ex:
+            pylantorrent.log(logging.ERROR, "An error occurred while trying to process the data received so far: %s" % (str(ex)), traceback)
         return self.dest
 
 
