@@ -2295,6 +2295,14 @@ $ $NIMBUS_HOME/bin/nimbusctl restart
 
 <li>
     <p>
+        On VMM nodes find the file <i>workspace-control/etc/workspace-control/propagation.conf</i>
+        and change <tt class="literal">lantorrent: false</tt> to 
+        <tt class="literal">lantorrent: true</tt>.
+    </p>
+</li>
+
+<li>
+    <p>
         [optional] If the path to nimbus on the workspace-control nodes (VMMs)
     is not <tt class="literal">/opt/nimbus</tt> you will also need to edit a configuration file on
     all backend nodes.
