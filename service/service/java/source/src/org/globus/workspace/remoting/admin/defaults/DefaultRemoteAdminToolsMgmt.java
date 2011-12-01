@@ -394,16 +394,16 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
      */
     private VM[] getVMByHost(String hostname) {
         try {
-            VM[] vms;
+            ArrayList<VM> vms;
             VM[] all = manager.getGlobalAll();
             int cnt = 0;
 
-            vms = new VM[all.length];
+            vms = new ArrayList<VM>(all.length);
             for(int i = 0; i < all.length; i++) {
                 String id = all[i].getID();
                 String host = workspaceHome.find(id).getVM().getNode();
                 if(host.equals(hostname))
-                    vms[cnt++] = all[i];
+                    vms.add(all[i]);
             }
 
             if(cnt == 0) {
@@ -411,7 +411,7 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
                 return null;
             }
             else
-                return vms;
+                return vms.toArray(new VM[0]);
         }
         catch (DoesNotExistException e) {
             errorMsg = "Hostname " + hostname + " not found";
