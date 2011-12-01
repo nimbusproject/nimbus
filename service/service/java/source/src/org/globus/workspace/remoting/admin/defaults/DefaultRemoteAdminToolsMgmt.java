@@ -406,7 +406,7 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
                     vms.add(all[i]);
             }
 
-            if(cnt == 0) {
+            if(vms.size() == 0) {
                 errorMsg = "No vms with hostname " + hostname + " found";
                 return null;
             }
