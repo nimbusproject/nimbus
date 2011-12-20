@@ -66,5 +66,8 @@ NH_REL="`dirname $0`/.."
 NH=`cd $NH_REL; pwd`
 FAB_SCRIPT=$NH/scripts/lib/web_ball.py
 
-fab -f $FAB_SCRIPT $FABSSHKEY -u $USERNAME -H $HOSTNAME newball:builddir=$REMOTE_BUILDDIR,webdir=$REMOTE_WEBDIR,printbase=$PRINT_URL_BASE,gitref=$1
+cmd="fab -f $FAB_SCRIPT $FABSSHKEY -u $USERNAME -H $HOSTNAME newball:builddir=$REMOTE_BUILDDIR,webdir=$REMOTE_WEBDIR,printbase=$PRINT_URL_BASE,gitref=$1"
+
+echo $cmd
+$cmd
 

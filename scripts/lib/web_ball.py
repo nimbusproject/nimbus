@@ -4,7 +4,10 @@ import os
 import uuid
 
 def newball(builddir=None, webdir=None, printbase=None, gitref=None):
-    
+   
+    print "HI!"
+    run("hostname")
+ 
     if not builddir:
         raise Exception("builddir required")
     if not webdir:

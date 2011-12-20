@@ -7,13 +7,6 @@ from optparse import OptionParser
 from optparse import SUPPRESS_HELP
 
 import hmac
-try:
-    from hashlib import sha1 as sha
-    from hashlib import sha256 as sha256
-
-    sha.new()
-except:
-    import sha
 import base64
 import uuid
 
@@ -111,7 +104,7 @@ class VConfig(object):
 config = VConfig()
 
 def get_auth_hash(header_str):
-    myhmac = hmac.new(config.pw, digestmod=sha)
+    myhmac = hmac.new(config.pw)
     header_str = header_str.replace("\n", "")
     header_str = header_str.replace("\r", "")
     myhmac.update(header_str)
