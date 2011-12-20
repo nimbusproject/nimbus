@@ -134,6 +134,7 @@ def request(argv, con):
             time.sleep(random.random() * 2.0)
 
     # should never get here
+    raise Exception("LANTorrent should not have gotten here")
 
 
 def main(argv=sys.argv[1:]):

@@ -11,6 +11,8 @@ localpath=$5
 rid=$6
 ltcs=$7
 
+localpath_basedir=`dirname $localpath`
+
 retry_count=3
 cnt=0
 done_req=0
@@ -65,6 +67,12 @@ do
                 fi
             fi
         fi
+    fi
+
+    if [ ! -e $localpath_basedir ]; then
+        echo "the directory for the receiving file does not exist"
+        echo "this likely means that the request was terminated"
+        exit 2
     fi
 done
 if [ "X$done" == "XFalse" ]; then
