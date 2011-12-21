@@ -163,9 +163,11 @@ def main(argv=sys.argv[1:]):
 
     done = False
     while not done:
+        pylantorrent.log(logging.DEBUG, "Top of the getrows loop")
         try:
             rows = getrows(con)
             if rows and len(rows) > 0:
+                pylantorrent.log(logging.DEBUG, "%d rows found" % (len(rows)))
                 do_it_live(con, rows)
             else:
                 time.sleep(5)
