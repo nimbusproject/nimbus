@@ -421,8 +421,14 @@ public class ElasticService implements ElasticVersion {
         @GET
         public DescribeImagesResponseType handleGet(
                 @FormParam("ExecutableBy") String executableBy,
-                @FormParam("ImageId") String imageId,
-                @FormParam("Owner") String owner) {
+                @FormParam("Owner") String owner,
+                @Context UriInfo uriInfo) {
+
+              final MultivaluedMap<String,String> queryParams =
+                uriInfo.getQueryParameters();
+
+            final List<String> imageNames =
+                                getParameterList(uriInfo, "ImageId");
 
             final DescribeImagesType request = new DescribeImagesType();
 
@@ -436,11 +442,13 @@ public class ElasticService implements ElasticVersion {
                 request.setExecutableBySet(executableBySet);
             }
 
-            if (imageId != null) {
-                DescribeImagesInfoType imagesSet =
-                        new DescribeImagesInfoType(new DescribeImagesItemType[] {
-                                new DescribeImagesItemType(imageId)
-                        });
+            if (imageNames != null) {
+                DescribeImagesItemType[] diit = new DescribeImagesItemType[imageNames.size()];
+                for(int i = 0; i < imageNames.size(); i++)
+                {
+                    diit[i] = new DescribeImagesItemType(imageNames.get(i));
+                }
+                DescribeImagesInfoType imagesSet = new DescribeImagesInfoType(diit);
                 request.setImagesSet(imagesSet);
             }
 
@@ -464,9 +472,9 @@ public class ElasticService implements ElasticVersion {
         @POST
         public DescribeImagesResponseType handlePost(
                 @FormParam("ExecutableBy") String executableBy,
-                @FormParam("ImageId") String imageId,
-                @FormParam("Owner") String owner) {
-            return handleGet(executableBy, imageId, owner);
+                @FormParam("Owner") String owner,
+                @Context UriInfo uriInfo) {
+            return handleGet(executableBy, owner, uriInfo);
         }
     }
 
