@@ -430,6 +430,13 @@ public class ElasticService implements ElasticVersion {
             final List<String> imageNames =
                                 getParameterList(uriInfo, "ImageId");
 
+            return this.handle(executableBy, owner, imageNames);
+        }
+
+        private DescribeImagesResponseType handle(String executableBy,
+                                                  String owner,
+                                                  List<String> imageNames) {
+
             final DescribeImagesType request = new DescribeImagesType();
 
             if (executableBy != null) {
@@ -473,8 +480,12 @@ public class ElasticService implements ElasticVersion {
         public DescribeImagesResponseType handlePost(
                 @FormParam("ExecutableBy") String executableBy,
                 @FormParam("Owner") String owner,
-                @Context UriInfo uriInfo) {
-            return handleGet(executableBy, owner, uriInfo);
+                MultivaluedMap<String,String> formParams) {
+
+            final List<String> imageNames =
+                                getParameterList(formParams, "ImageId");
+
+            return this.handle(executableBy, owner, imageNames);
         }
     }
 
