@@ -122,7 +122,7 @@ public class ServiceImageImpl extends UnimplementedOperations
                     "Problem contacting repository: " + e.getMessage(), e);
         }
 
-        return this.convertFileListings(listings, ownerID, caller);
+        return this.convertFileListings(listings, ownerID, caller, req);
     }
 
     
@@ -213,10 +213,28 @@ public class ServiceImageImpl extends UnimplementedOperations
         }
     }
 
+    // this method is used to limit the list of images to the list the user requested.  if the user
+    // made no specific requests then the full list is sent
+    private boolean inReq(String name, DescribeImagesType req) {
+        DescribeImagesItemType [] imgs = req.getImagesSet().getItem();
+
+        if (imgs == null || imgs.length == 0) {
+            return true;
+        }
+        for(int i = 0; i < imgs.length; i++) {
+            String req_name = imgs[0].getImageId();
+            if (name.equals(req_name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     protected DescribeImagesResponseType convertFileListings(
                             FileListing[] listings,
                             String ownerID,
-                            Caller caller) {
+                            Caller caller,
+                            DescribeImagesType req) {
 
         final DescribeImagesResponseType dirt = new DescribeImagesResponseType();
         final DescribeImagesResponseInfoType dirits =
@@ -243,6 +261,10 @@ public class ServiceImageImpl extends UnimplementedOperations
 
 
             final String name = listing.getName();
+            if (!inReq(name, req)) {
+                continue;
+            }
+
             try {
                 // all from same place currently
                 givenLocationBase = this.repository.getImageLocation(caller, name);
