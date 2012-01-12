@@ -403,7 +403,7 @@ class DefaultImageProcurement:
         return vm_securedir
 
     def _derive_blankspace_dir(self):
-        vm_name = self.p.get_arg_or_none(sc_args.NAME)
+        vm_name = self.p.get_arg_or_none(wc_args.NAME)
         if not vm_name:
             raise InvalidInput("The %s argument is required." % wc_args.NAME.long_syntax)
         vm_blankspacedir = os.path.join(self.blankspacedir, vm_name)
@@ -431,12 +431,12 @@ class DefaultImageProcurement:
         self.c.log.info("Destroyed VM's unique directory: %s" % vmdir)
 
     def _ensure_blankspace_dir(self):
-        blankspacedir = self._derive_blankspacedir()
-        if os.path.exists(vmdir):
+        blankspacedir = self._derive_blankspace_dir()
+        if os.path.exists(blankspacedir):
             return
         self.c.log.info("Creating VM's blankspace directory: %s" % blankspacedir)
         os.mkdir(blankspacedir)
-        os.chmod(vmdir, stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR)
+        os.chmod(blankspacedir, stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR)
         self.c.log.debug("created %s" % blankspacedir)
 
     def _destroy_blankspace_dir(self):
@@ -812,7 +812,8 @@ class DefaultImageProcurement:
             lf._blankspace = int(size)
         except:
             raise InvalidInput("blank partition name is expected to have embedded size")
-    
+
+        lf.path = self._derive_instance_dir()
         lf.blankspacepath = self._derive_blankspace_dir()
         lf.blankspacepath = os.path.join(lf.blankspacepath, blank_filename)
         
