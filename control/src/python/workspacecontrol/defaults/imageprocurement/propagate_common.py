@@ -444,7 +444,7 @@ class DefaultImageProcurement:
         if not os.path.exists(blankspacedir):
             return
         self.c.log.debug("Destroying %s" % blankspacedir)
-        shutuil.rmtree(blankspacedir)
+        shutil.rmtree(blankspacedir)
         self.c.log.info("Destroyed VM's unique blankspace directory: %s" % blankspacedir)
         
     def _propagate(self, l_files):
