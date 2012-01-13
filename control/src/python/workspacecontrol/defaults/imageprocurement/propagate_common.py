@@ -542,7 +542,7 @@ class DefaultImageProcurement:
             if l_file._blankspace == 0:
                 continue
 
-            cmd = "%s %s %s" % (self.blankcreate_path, l_file.blankspacepath, l_file._blankspace)
+            cmd = "%s %s %s" % (self.blankcreate_path, l_file.path, l_file._blankspace)
             self.c.log.debug("running '%s'" % cmd)
             if self.c.dryrun:
                 self.c.log.debug("(dryrun, not running that)")
@@ -558,7 +558,7 @@ class DefaultImageProcurement:
                 errmsg += ": %d ::: output:\n%s" % (ret, output)
                 raise EnvironmentProblem(errmsg)
             else:
-                self.c.log.info("blank partition of size %dMB created at '%s'" % (l_file._blankspace, l_file.blankspacepath))
+                self.c.log.info("blank partition of size %dMB created at '%s'" % (l_file._blankspace, l_file.path))
 
     # --------------------------------------------------------------------------
     # _process_image_args(), IMPL of common validation/preparation functionality
@@ -693,7 +693,6 @@ class DefaultImageProcurement:
         
         # These are the fields the LocalFile interface expects:
         lf.path = None
-        lf.blankspacepath = None
         lf.mountpoint = None # not set in this method
         lf.rootdisk = False # not set in this method
         lf.editable = True
@@ -813,15 +812,14 @@ class DefaultImageProcurement:
         except:
             raise InvalidInput("blank partition name is expected to have embedded size")
 
-        lf.path = self._derive_instance_dir()
-        lf.blankspacepath = self._derive_blankspace_dir()
-        lf.blankspacepath = os.path.join(lf.blankspacepath, blank_filename)
+        lf.path = self._derive_blankspace_dir()
+        lf.path = os.path.join(lf.path, blank_filename)
         
-        if os.path.exists(lf.blankspacepath):
-            raise InvalidInput("blank partition is going to be created but the file exists already: '%s'" % lf.blankspacepath)
+        if os.path.exists(lf.path):
+            raise InvalidInput("blank partition is going to be created but the file exists already: '%s'" % lf.path)
         
         if self.c.trace:
-            self.c.log.debug("partition of size %dM is going to be created (blankcreate) at '%s'" % (lf._blankspace, lf.blankspacepath))
+            self.c.log.debug("partition of size %dM is going to be created (blankcreate) at '%s'" % (lf._blankspace, lf.path))
 
     def _one_imagestr_propagation(self, lf, imgstr, unprop, new_unprop):
 
