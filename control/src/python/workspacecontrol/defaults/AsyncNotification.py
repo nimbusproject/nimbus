@@ -122,7 +122,7 @@ class DefaultAsyncNotification:
         """returns \ escapes for some bash special characters"""
         if not cmd:
             return cmd
-        escs = "\\'`|;()?#$^&*="
+        escs = "\\'`|;()?#$^&*=[]<>"
         for e in escs:
             idx = 0
             ret = 0
