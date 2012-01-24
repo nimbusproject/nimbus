@@ -98,7 +98,11 @@ class DefaultAsyncNotification:
                     
             else:
                 raise ProgrammingError("unknown actiondone for notification")
-        
+       
+            max_error_str_len = 256 
+            if len(errtxt) > max_error_str_len:
+                self.c.log.warn("error message %s is being truncated" % (errtxt))
+                errtxt = errtxt[:max_error_str_len - 3] + "..."
             errtxt = self._bashEscape(errtxt)
 
 

@@ -62,9 +62,7 @@ do
             message=`echo $out | awk -F , '{ print $3 }'`
             echo $out
             if [ "X$done" == "XTrue" ]; then
-                if [ $rc -ne 0 ]; then
-                    exit $rc
-                fi
+                exit $rc
             fi
             # once it succeds we can reset the error counter
             ssh_error_cnt=0
@@ -79,15 +77,25 @@ do
 done
 
 echo "$localpath exists"
-if [ "X$done" == "XFalse" ]; then
-    echo "running a blocking query"
-    # if we get here the file exists but we have not yet received word of 
-    # suceess from the head node.  run a blocking query
+echo "running a blocking query"
+done=0
+ssh_error_cnt=0
+# if we get here the file exists but we have not yet received word of 
+# suceess from the head node.  run a blocking query
+while [ $done -eq 0 ];
+do
     ssh -p $port $userhost "$remoteexe" --reattach "$rid"
     rc=$?
-else
-    echo "already cleared done flag"
-    rc=0
-fi
+    if [ $rc -ne 0 ]; then
+        ssh_error_cnt=`expr $ssh_error_cnt + 1`
+        if [ $ssh_error_cnt -gt 3 ]; then
+            done=1
+        else
+            sleep 0.$RANDOM
+        fi
+    else
+        done=1
+    fi
+done
 echo "exiting with $rc"
 exit $rc
