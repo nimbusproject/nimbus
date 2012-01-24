@@ -27,7 +27,8 @@ do
             echo "could not submit request adter $cnt tries"
             exit $rc
         fi
-        sleep 0.$RANDOM
+        sp=`expr $RANDOM % 2`
+        sleep $sp.$RANDOM
         done_req=0
     fi
 done
@@ -88,4 +89,5 @@ else
     echo "already cleared done flag"
     rc=0
 fi
+echo "exiting with $rc"
 exit $rc
