@@ -195,7 +195,9 @@ def main(argv=sys.argv[1:]):
     msg = "%d,%s,%s" % (rc, str(done), message)
     print msg
 
-    return rc
+    # always return 0 if we echo the rc to stdout.  this tells the 
+    # user to check the output for the real rc
+    return 0
 
 
 if __name__ == "__main__":

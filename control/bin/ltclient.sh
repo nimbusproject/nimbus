@@ -49,9 +49,12 @@ do
         thresh=30
         out=`ssh -p $port $userhost "$remoteexe" --nonblock --reattach "$rid"`
         rc=$?
-        msgrc=`echo $out | awk -F , '{ print $1 }'`
-        done=`echo $out | awk -F , '{ print $2 }'`
-        message=`echo $out | awk -F , '{ print $3 }'`
+        # we only parse the output if the return code was 0
+        if [ $rc -eq 0 ]; then
+            rc=`echo $out | awk -F , '{ print $1 }'`
+            done=`echo $out | awk -F , '{ print $2 }'`
+            message=`echo $out | awk -F , '{ print $3 }'`
+        fi
         echo $out
         if [ $rc -ne 0 ]; then
             ssh_error_cnt=`expr $ssh_error_cnt + 1`
@@ -89,11 +92,12 @@ while [ "X$done" == "XFalse" ];
 do
     out=`ssh -p $port $userhost "$remoteexe" --reattach "$rid"`
     rc=$?
-    done=`echo $out | awk -F , '{ print $2 }'`
-    message=`echo $out | awk -F , '{ print $3 }'`
-    echo $out
-
-    echo "------> $done"
+    if [ $rc -eq 0 ]; then
+        rc=`echo $out | awk -F , '{ print $1 }'`
+        done=`echo $out | awk -F , '{ print $2 }'`
+        message=`echo $out | awk -F , '{ print $3 }'`
+        echo $out
+    fi
 
     if [ $rc -ne 0 ]; then
         if [ "X$done" == "XFalse" ]; then
