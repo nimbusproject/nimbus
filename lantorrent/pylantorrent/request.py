@@ -27,6 +27,8 @@ Submit a transfer request
     all_opts.append(opt)
     opt = cbOpts("reattach", "a", "Reattach", None)
     all_opts.append(opt)
+    opt = cbOpts("cancel", "c", "Cancel", False, flag=True)
+    all_opts.append(opt)
 
     (o, args) = pylantorrent.parse_args(parser, all_opts, argv)
     return (o, args, parser)
@@ -167,7 +169,7 @@ def main(argv=sys.argv[1:]):
     sz = -1
     done = False
     message = ""
-    if o.reattach == None:
+    if o.reattach is None:
         (rid, sz) = request(args, con)
         try:
             (done, rc, message) = is_done(con, rid)
@@ -177,6 +179,10 @@ def main(argv=sys.argv[1:]):
             message = "Check on status later, db not ready for polling"
     else:
         rid = o.reattach
+        if o.cancel:
+            delete_rid(con, rid)
+            return 0
+        
         (done, rc, message) = is_done(con, rid)
 
     if not o.nonblock and not done:

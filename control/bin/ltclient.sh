@@ -47,54 +47,65 @@ do
     if [ $cnt -gt $thresh ]; then
         echo "ltclient checking in..."
         thresh=30
-        cnt=0
         out=`ssh -p $port $userhost "$remoteexe" --nonblock --reattach "$rid"`
-        if [ $? -ne 0 ]; then
+        rc=$?
+        msgrc=`echo $out | awk -F , '{ print $1 }'`
+        done=`echo $out | awk -F , '{ print $2 }'`
+        message=`echo $out | awk -F , '{ print $3 }'`
+        echo $out
+        if [ $rc -ne 0 ]; then
             ssh_error_cnt=`expr $ssh_error_cnt + 1`
-            echo $out
             echo "ssh failed, we allow this to happen a few times"
             if [ $ssh_error_cnt -gt 3 ]; then
                 exit 1
             fi
         else
-            rc=`echo $out | awk -F , '{ print $1 }'`
-            done=`echo $out | awk -F , '{ print $2 }'`
-            message=`echo $out | awk -F , '{ print $3 }'`
-            echo $out
-            if [ "X$done" == "XTrue" ]; then
-                exit $rc
-            fi
             # once it succeds we can reset the error counter
             ssh_error_cnt=0
+        fi
+
+        if [ "X$done" == "XTrue" ]; then
+            echo "exiting"
+            exit $rc
         fi
     fi
 
     if [ ! -e $localpath_basedir ]; then
         echo "the directory for the receiving file does not exist"
         echo "this likely means that the request was terminated"
+        ssh -p $port $userhost "$remoteexe" --nonblock --cancel --reattach "$rid"
+        echo $?
         exit 2
     fi
 done
 
 echo "$localpath exists"
 echo "running a blocking query"
-done=0
+done="False"
 ssh_error_cnt=0
 # if we get here the file exists but we have not yet received word of 
 # suceess from the head node.  run a blocking query
-while [ $done -eq 0 ];
+while [ "X$done" == "XFalse" ];
 do
-    ssh -p $port $userhost "$remoteexe" --reattach "$rid"
+    out=`ssh -p $port $userhost "$remoteexe" --reattach "$rid"`
     rc=$?
+    done=`echo $out | awk -F , '{ print $2 }'`
+    message=`echo $out | awk -F , '{ print $3 }'`
+    echo $out
+
+    echo "------> $done"
+
     if [ $rc -ne 0 ]; then
-        ssh_error_cnt=`expr $ssh_error_cnt + 1`
-        if [ $ssh_error_cnt -gt 3 ]; then
-            done=1
-        else
-            sleep 0.$RANDOM
+        if [ "X$done" == "XFalse" ]; then
+            ssh_error_cnt=`expr $ssh_error_cnt + 1`
+            if [ $ssh_error_cnt -gt 3 ]; then
+                done="True"
+            else
+                sleep 0.$RANDOM
+            fi
         fi
     else
-        done=1
+        done="True"
     fi
 done
 echo "exiting with $rc"
