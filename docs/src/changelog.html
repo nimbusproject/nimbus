@@ -16,51 +16,10 @@ _NIMBUS_IS_DEPRECATED
 <a href="http://github.com/nimbusproject/nimbus/raw/master/cloud-client/nimbus-cloud-client-src/CHANGES.txt">here.</a>
 </p>
 
-<a name="2.9RC2"> </a>
+<a name="2.9"> </a>
 <br><hr><br>
 
-<i>2.9RC2 - Summary</i>
-<ul>
-    <li>
-        <p>
-In this release candidate we made minor bug fixes. The first is a propagation bug in LANTorrent and the second is a bug in the ec2 query token API that occurs
-when looking up the details of specific image IDs.
-        </p>
-    </li>
-</ul>
-
-<i>2.9 - IaaS Services</i>
-<ul>
-    <li>
-        <p>
-            <i>Bug Fixes</i>
-        </p>
-
-        <ul>
-            <li>
-                <p>
-                    <a href="https://github.com/nimbusproject/nimbus/issues/84">ec2 query command with image Id parameter not returning the correct results</a>
-                </p>
-            </li>
-            <li>
-                <p>
-                    <a href="https://github.com/nimbusproject/nimbus/issues/81">Bugs in LANTorrent when a request is canceled during propagation.</a>
-                </p>
-            </li>
-        </ul>
-    </li>
-</ul>
-
-<a name="2.9RC1"> </a>
-<br><hr><br>
-
-<i>2.9RC1 - Summary</i>
-<ul>
-    <li>
-        <p>
-The major additions in this release are there introduction of availability zones and new administrative tools; it also contains many important bug fixes.
-        </p>
-    </li>
+<i>2.9 - Summary</i>
 <ul>
     <li>
         <p>
@@ -88,9 +47,17 @@ The major additions in this release are there introduction of availability zones
         running. 
         </p>
     </li>
-
-</ul>
-</ul>
+    <li>
+        <p>
+LANTorrent propagation has been made more robust.  Complex bugs 
+related to cancellation have been fixed.
+        </p>
+    </li>
+        <p>
+A bug in the ec2 query token API that occurs when looking up the details of specific image IDs has been fixed.
+        </p>
+    </li>
+<ul>
 
 <i>2.9 - IaaS Services</i>
 <ul>
@@ -100,6 +67,16 @@ The major additions in this release are there introduction of availability zones
         </p>
 
         <ul>
+            <li>
+                <p>
+                    <a href="https://github.com/nimbusproject/nimbus/issues/84">ec2 query command with image Id parameter not returning the correct results</a>
+                </p>
+            </li>
+            <li>
+                <p>
+                    <a href="https://github.com/nimbusproject/nimbus/issues/81">Bugs in LANTorrent when a request is canceled during propagation.</a>
+                </p>
+            </li>
             <li>
                 <p>
                     <a href="https://github.com/nimbusproject/nimbus/issues/79">Allow end users the ability to query for the location of their VM (admin option))</a>
@@ -134,9 +111,9 @@ The major additions in this release are there introduction of availability zones
     <li>
         <p>
             List of
-            <a href="http://github.com/nimbusproject/nimbus/compare/nimbus-release-2.8...nimbus-release-2.9RC1">all
+            <a href="http://github.com/nimbusproject/nimbus/compare/nimbus-release-2.8...nimbus-release-2.9">all
             commits</a>
-            between Nimbus 2.8 final and Nimbus 2.9 RC1.
+            between Nimbus 2.8 final and Nimbus 2.9 final.
         </p>
     </li>
 </ul>
@@ -319,7 +296,7 @@ VM image caching: this will greatly increase the boot performance for clouds wit
             </li>
             <li>
                 <p>
-                    <a href="https://github.com/nimbusproject/nimbus/issues/51">Add lantorrent tests to test suite.</a>
+                    <a href="https://github.com/nimbusproject/nimbus/issues/51">Add LANTorrent tests to test suite.</a>
                 </p>
             </li>
             <li>
@@ -488,7 +465,7 @@ VM image caching: this will greatly increase the boot performance for clouds wit
             </li>
             <li>
                 <p>
-                    <a href="https://github.com/nimbusproject/nimbus/issues/closed#issue/7">Fix unpropagation exception in lantorrent</a>
+                    <a href="https://github.com/nimbusproject/nimbus/issues/closed#issue/7">Fix unpropagation exception in LANTorrent</a>
                 </p>
             </li>
             <li>
@@ -1461,7 +1438,7 @@ VM image caching: this will greatly increase the boot performance for clouds wit
             <i>We are happy to announce the first version of Cumulus!</i>
         </p>
         <p>
-            Cumulus is a storage cloud implementation compatible with the Amazon Web Services S3 REST API (with small exceptions), it works seamlessy with S3 clients such as s3cmd, jets3t, and boto.  In addition, it offers extra functionality such as disk quota enforcement.
+            Cumulus is a storage cloud implementation compatible with the Amazon Web Services S3 REST API (with small exceptions), it works seamlessly with S3 clients such as s3cmd, jets3t, and boto.  In addition, it offers extra functionality such as disk quota enforcement.
         </p>
         <p>
             Cumulus replaces the current GridFTP-based upload and download of VM images: it integrates tightly in a Nimbus installation as the VM image repository solution.  And it can be also installed on its own to manage a storage cloud: a Nimbus IaaS installation needs Cumulus but not vice versa.
@@ -2815,7 +2792,7 @@ VM image caching: this will greatly increase the boot performance for clouds wit
             Local-locked the control of dhcpd start and stop: now works for
             situations where multiple workspaces are deployed on a VMM
             simultaneously (such as one VM per core and launching as part of
-            a cluster).  The DHCP adjustment was being excercised
+            a cluster).  The DHCP adjustment was being exercised
             simultaneously, revealing the race.
         </p>
     </li>
@@ -3166,7 +3143,7 @@ VM image caching: this will greatly increase the boot performance for clouds wit
         <p>
             The VM name prefix sent to the VMM has been shortened from
             "workspace" to "wrksp".  String length limits for NIC names were
-            being reached too early ("wrksp" should accomodate workspace IDs in
+            being reached too early ("wrksp" should accommodate workspace IDs in
             the millions).
         </p>
     </li>
@@ -3452,7 +3429,7 @@ VM image caching: this will greatly increase the boot performance for clouds wit
     <li>
         <p>
             The defaults paths for <i>ebtables</i> and the <i>dhcpd.conf</i>
-            file are now the more common occurences:
+            file are now the more common occurrences:
             <ul>
                 <li><i>/sbin/ebtables</i> is now <i>/usr/sbin/ebtables</i></li>
                 <li><i>/etc/dhcp/dhcpd.conf</i> is now <i>/etc/dhcpd.conf</i></li>
@@ -3526,7 +3503,7 @@ VM image caching: this will greatly increase the boot performance for clouds wit
     <li>
         <p>
             The <a href="interfaces/factory.html">Workspace Factory Service</a>
-            was extended to support starting a homogenous group of workspaces
+            was extended to support starting a homogeneous group of workspaces
             in one deployment request.  A global maximum group size can be
             specified natively (without needing to use an authorization
             callout).
@@ -3743,7 +3720,7 @@ VM image caching: this will greatly increase the boot performance for clouds wit
     </li>
     <li>
         <p>
-            Removed unecessary configurations from sample <i>worksp.conf</i>
+            Removed unnecessary configurations from sample <i>worksp.conf</i>
             file.
         </p>
     </li>
@@ -3878,7 +3855,7 @@ VM image caching: this will greatly increase the boot performance for clouds wit
             Resolved
             <a href="http://bugzilla.globus.org/globus/show_bug.cgi?id=5212">Bug 5212</a>:
             queries on the Workspace Factory resource properties gave
-            incorrect asssocaition information after a container restart.
+            incorrect association information after a container restart.
         </p>
     </li>
     <li>
@@ -3935,7 +3912,7 @@ VM image caching: this will greatly increase the boot performance for clouds wit
 
     <li>
         <p>
-            Internal refactoring to better accomodate unit tests.
+            Internal refactoring to better accommodate unit tests.
         </p>
     </li>
 
@@ -4148,7 +4125,7 @@ VM image caching: this will greatly increase the boot performance for clouds wit
     </li>
 
     <li>
-        <p>The workspace client has been extended to accomodate new
+        <p>The workspace client has been extended to accommodate new
         functionality. In addition the client interface has been extended to
         enable subscribing for notifications and specifying the resource
         allocation information at command-line.</p>
