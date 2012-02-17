@@ -23,7 +23,7 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-CMD="/sbin/mke2fs -L blankspce -F $FILE"
+CMD="/sbin/mke2fs -L blankspace -F $FILE"
 echo "          running:  $CMD"
 
 $CMD
