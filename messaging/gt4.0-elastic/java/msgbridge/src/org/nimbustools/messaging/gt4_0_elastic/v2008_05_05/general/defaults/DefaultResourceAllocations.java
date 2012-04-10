@@ -101,6 +101,9 @@ public class DefaultResourceAllocations implements ResourceAllocations {
         if (this.xlargeName == null || this.xlargeName.trim().length() == 0) {
             throw new Exception("Invalid: Missing x-large RA name");
         }
+        if (this.customName == null || this.customName.trim().length() == 0) {
+            throw new Exception("Invalid: Missing custom RA name");
+        }
         if (this.unknownString == null || this.unknownString.trim().length() == 0) {
             throw new Exception("Invalid: Missing 'unknown' RA string");
         }
@@ -117,6 +120,10 @@ public class DefaultResourceAllocations implements ResourceAllocations {
             throw new Exception("Invalid: Extra-large RA memory is zero " +
                     "or negative: " + this.xlargeMemory);
         }
+        if (this.customMemory < 1) {
+            throw new Exception("Invalid: custom RA memory is zero " +
+                    "or negative: " + this.customMemory);
+        }
 
         if (this.smallCPUs < 1) {
             throw new Exception("Invalid: Small RA CPUs is zero " +
@@ -129,6 +136,10 @@ public class DefaultResourceAllocations implements ResourceAllocations {
         if (this.xlargeCPUs < 1) {
             throw new Exception("Invalid: Extra-large RA CPUs is zero " +
                     "or negative: " + this.xlargeMemory);
+        }
+        if (this.customCPUs < 1) {
+            throw new Exception("Invalid: custom RA CPUs is zero " +
+                    "or negative: " + this.customMemory);
         }
 
         if (this.vmmType == null || this.vmmType.trim().length() == 0) {
@@ -241,6 +252,8 @@ public class DefaultResourceAllocations implements ResourceAllocations {
             this.siType = this.getLargeName();
         } else if(siType.equalsIgnoreCase("xlarge")){
             this.siType = this.getXlargeName();
+        } else if(siType.equalsIgnoreCase("custom")){
+            this.siType = this.getCustomName();
         } else {
             throw new Exception("Invalid SI type in spotinstances configuration file. " +
             		            "Valid values are: small, large or xlarge");
