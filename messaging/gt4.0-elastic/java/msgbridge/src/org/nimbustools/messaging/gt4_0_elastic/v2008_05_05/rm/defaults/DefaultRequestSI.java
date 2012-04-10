@@ -193,12 +193,13 @@ public class DefaultRequestSI extends DefaultRun implements RequestSI {
             custRequests = null;
         }
 
-        final NIC[] nics = this.getNICs();
+
         final String raType = launchSpec.getInstanceType();
         final ResourceAllocation ra = this.RAs.getMatchingRA(raType,
                                                              req.getInstanceCount().intValue(),
                                                              req.getInstanceCount().intValue(),
                                                              true);
+        final NIC[] nics = this.getNICs(ra.getNetwork());
 
         final RequiredVMM reqVMM = this.RAs.getRequiredVMM();
 
