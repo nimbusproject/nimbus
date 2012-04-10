@@ -25,6 +25,7 @@ public interface ResourceAllocations {
     public String getSmallName();
     public String getLargeName();
     public String getXlargeName();
+    public String getCustomName();
 
     public String getCpuArch();
     public String getVmmType();

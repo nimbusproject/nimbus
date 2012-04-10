@@ -50,14 +50,22 @@ public class DefaultResourceAllocations implements ResourceAllocations {
     protected int smallMemory;
     protected int largeMemory;
     protected int xlargeMemory;
+    protected int customMemory;
 
     protected int smallCPUs;
     protected int largeCPUs;
     protected int xlargeCPUs;
+    protected int customCPUs;
 
     protected String smallName;
     protected String largeName;
     protected String xlargeName;
+    protected String customName;
+
+    protected String smallNetwork = null;
+    protected String largeNetwork = null;
+    protected String xlargeNetwork = null;
+    protected String customNetwork = null;
 
     protected String unknownString;
 
@@ -146,6 +154,25 @@ public class DefaultResourceAllocations implements ResourceAllocations {
     // -------------------------------------------------------------------------
     // SET
     // -------------------------------------------------------------------------
+    public void setSmallNetwork(String smallNetwork) {
+        this.smallNetwork = smallNetwork;
+    }
+
+    public void setCustomNetwork(String customNetwork) {
+        this.customNetwork = customNetwork;
+    }
+
+    public void setLargeNetwork(String largeNetwork) {
+        this.largeNetwork = largeNetwork;
+    }
+
+    public void setXlargeNetwork(String xlargeNetwork) {
+        this.xlargeNetwork = xlargeNetwork;
+    }
+
+    public void setCustomMemory(int customMemory) {
+        this.customMemory = customMemory;
+    }
 
     public void setSmallMemory(int smallMemory) {
         this.smallMemory = smallMemory;
@@ -159,6 +186,10 @@ public class DefaultResourceAllocations implements ResourceAllocations {
         this.xlargeMemory = xlargeMemory;
     }
 
+    public void setCustomCPUs(int customCPUs) {
+        this.customCPUs = customCPUs;
+    }
+
     public void setSmallCPUs(int smallCPUs) {
         this.smallCPUs = smallCPUs;
     }
@@ -169,6 +200,10 @@ public class DefaultResourceAllocations implements ResourceAllocations {
 
     public void setXlargeCPUs(int xlargeCPUs) {
         this.xlargeCPUs = xlargeCPUs;
+    }
+
+    public void setCustomName(String customName) {
+        this.customName = customName;
     }
 
     public void setSmallName(String smallName) {
@@ -215,14 +250,33 @@ public class DefaultResourceAllocations implements ResourceAllocations {
     // -------------------------------------------------------------------------
     // implements ResourceAllocations
     // -------------------------------------------------------------------------
+    public String getSmallNetwork() {
+        return this.smallNetwork;
+    }
+
+    public String getCustomNetwork() {
+        return this.customNetwork;
+    }
+
+    public String getLargeNetwork() {
+        return this.largeNetwork;
+    }
+
+    public String getXlargeNetwork() {
+        return this.xlargeNetwork;
+    }
 
     public String getSpotInstanceType(){
         return this.siType;
     }
     
+    public String getCustomName() {
+            return this.customName;
+        }
+
     public String getSmallName() {
-        return this.smallName;
-    }
+            return this.smallName;
+        }
 
     public String getLargeName() {
         return this.largeName;
@@ -251,6 +305,8 @@ public class DefaultResourceAllocations implements ResourceAllocations {
             return this.getLargeName();
         } else if (this.xlargeMemory == memory) {
             return this.getXlargeName();
+        } else if (this.customMemory == memory) {
+            return this.getCustomName();
         } else {
             return this.unknownString;
         }
@@ -296,11 +352,15 @@ public class DefaultResourceAllocations implements ResourceAllocations {
 
         Integer cpus = getInstanceCPUs(cmpName);
 
+        String network = getInstanceNetwork(cmpName);
+
         ra.setIndCpuCount(cpus);
 
         ra.setSpotInstance(spot);
         
         ra.setArchitecture(this.cpuArch);
+
+        ra.setNetwork(network);
 
         return ra;
     }
@@ -313,6 +373,8 @@ public class DefaultResourceAllocations implements ResourceAllocations {
             return this.largeMemory;
         } else if (cmpName.equals(this.getXlargeName())) {
             return this.xlargeMemory;
+        } else if (cmpName.equals(this.getCustomName())) {
+            return this.customMemory;
         } else {
             throw new CannotTranslateException(
                     "Unknown instance type '" + cmpName + "'");
@@ -327,11 +389,30 @@ public class DefaultResourceAllocations implements ResourceAllocations {
             return this.largeCPUs;
         } else if (cmpName.equals(this.getXlargeName())) {
             return this.xlargeCPUs;
+        } else if (cmpName.equals(this.getCustomName())) {
+            return this.customCPUs;
         } else {
             throw new CannotTranslateException(
                     "Unknown instance type '" + cmpName + "'");
         }
     }
+
+    protected String getInstanceNetwork(final String cmpName)
+            throws CannotTranslateException {
+        if (cmpName.equals(this.getSmallName())) {
+            return this.smallNetwork;
+        } else if (cmpName.equals(this.getLargeName())) {
+            return this.largeNetwork;
+        } else if (cmpName.equals(this.getXlargeName())) {
+            return this.xlargeNetwork;
+        } else if (cmpName.equals(this.getCustomName())) {
+            return this.customNetwork;
+        } else {
+            throw new CannotTranslateException(
+                    "Unknown instance type '" + cmpName + "'");
+        }
+    }
+
 
     public RequiredVMM getRequiredVMM() {
         return this.requestThisVMM;

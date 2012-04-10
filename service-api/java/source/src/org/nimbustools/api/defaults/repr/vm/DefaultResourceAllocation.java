@@ -31,6 +31,7 @@ public class DefaultResourceAllocation implements _ResourceAllocation {
     private int memory;
     private int nodeNumber;
     private boolean spotInstance;
+    private String network;
 
     // -------------------------------------------------------------------------
     // implements org.nimbustools.api.repr.vm.ResourceAllocation
@@ -46,6 +47,10 @@ public class DefaultResourceAllocation implements _ResourceAllocation {
 
     public int getIndCpuCount() {
         return this.indCpuCount;
+    }
+
+    public String getNetwork() {
+        return this.network;
     }
 
 
@@ -87,6 +92,10 @@ public class DefaultResourceAllocation implements _ResourceAllocation {
 
     public void setMemory(int memory) {
         this.memory = memory;
+    }
+
+    public void setNetwork(String network) {
+        this.network = network;
     }
 
     public void setNodeNumber(int nodeNumber) {

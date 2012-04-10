@@ -27,4 +27,5 @@ public interface _ResourceAllocation extends ResourceAllocation {
     public void setMemory(int memory);
     public void setNodeNumber(int nodeNumber);
     public void setSpotInstance(boolean spot);
+    public void setNetwork(String network);
 }

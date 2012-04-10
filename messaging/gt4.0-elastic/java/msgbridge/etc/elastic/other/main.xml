@@ -142,15 +142,26 @@
 
          <constructor-arg ref="nimbus-elastic.rm.modulelocator" />
 
+         <property name="smallNetwork" value="$ELASTIC{network.small}" />
+         <property name="largeNetwork" value="$ELASTIC{network.large}" />
+         <property name="xlargeNetwork" value="$ELASTIC{network.xlarge}" />
+         <property name="customNetwork" value="$ELASTIC{network.custom}" />
+
          <property name="smallMemory" value="$ELASTIC{memory.small}" />
          <property name="largeMemory" value="$ELASTIC{memory.large}" />
          <property name="xlargeMemory" value="$ELASTIC{memory.xlarge}" />
+         <property name="customMemory" value="$ELASTIC{memory.custom}" />
+
          <property name="smallCPUs" value="$ELASTIC{cpus.small}" />
          <property name="largeCPUs" value="$ELASTIC{cpus.large}" />
          <property name="xlargeCPUs" value="$ELASTIC{cpus.xlarge}" />
+         <property name="customCPUs" value="$ELASTIC{cpus.custom}" />
+
          <property name="smallName" value="$OTHER_ELASTIC{ra.name.small}" />
          <property name="largeName" value="$OTHER_ELASTIC{ra.name.large}" />
          <property name="xlargeName" value="$OTHER_ELASTIC{ra.name.xlarge}" />
+         <property name="customName" value="$OTHER_ELASTIC{ra.name.custom}" />
+
          <property name="unknownString" value="$OTHER_ELASTIC{ra.name.unknown}" />
          
          <property name="cpuArch" value="$OTHER_ELASTIC{cpu.arch}" />

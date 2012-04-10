@@ -180,13 +180,12 @@ public class DefaultRun implements Run {
             custRequests = null;
         }
 
-        final NIC[] nics = this.getNICs();
         final String raType = req.getInstanceType();
         final ResourceAllocation ra = this.RAs.getMatchingRA(raType,
                                                              req.getMinCount(),
                                                              req.getMaxCount(),
                                                              false);
-
+        final NIC[] nics = this.getNICs(ra.getNetwork());
         final RequiredVMM reqVMM = this.RAs.getRequiredVMM();
 
         String userData = null;
@@ -334,7 +333,7 @@ public class DefaultRun implements Run {
     // NETWORK REQUEST
     // -------------------------------------------------------------------------
 
-    protected NIC[] getNICs() throws CannotTranslateException {
+    protected NIC[] getNICs(String networkName) throws CannotTranslateException {
 
         // if the network mappings are the same value, that currently means
         // only make one real NIC request
@@ -348,7 +347,11 @@ public class DefaultRun implements Run {
         }
 
         final NIC[] nics;
-        if (pubNet.equals(privNet)) {
+        if (networkName != null) {
+            nics = new NIC[1];
+            nics[0] = this.oneRequestedNIC(networkName, "autoeth0");
+        }
+        else if (pubNet.equals(privNet)) {
             nics = new NIC[1];
             nics[0] = this.oneRequestedNIC(pubNet, "autoeth0");
         } else {
