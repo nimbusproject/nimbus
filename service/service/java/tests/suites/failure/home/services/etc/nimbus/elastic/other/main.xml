@@ -151,6 +151,7 @@
          <property name="largeName" value="$OTHER_ELASTIC{ra.name.large}" />
          <property name="xlargeName" value="$OTHER_ELASTIC{ra.name.xlarge}" />
          <property name="customName" value="$OTHER_ELASTIC{ra.name.custom}" />
+
          <property name="unknownString" value="$OTHER_ELASTIC{ra.name.unknown}" />
          
          <property name="cpuArch" value="$OTHER_ELASTIC{cpu.arch}" />

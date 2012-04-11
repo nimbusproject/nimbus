@@ -147,7 +147,7 @@
          <property name="xlargeNetwork" value="$ELASTIC{network.xlarge}" />
          <property name="customNetwork" value="$ELASTIC{network.custom}" />
 
-         <property name="smallMemory" value="$ELASTIC{memory.small}" />
+         <property name="smallMemory" value="$ELASTIC{memory.small}" />                                   h
          <property name="largeMemory" value="$ELASTIC{memory.large}" />
          <property name="xlargeMemory" value="$ELASTIC{memory.xlarge}" />
          <property name="customMemory" value="$ELASTIC{memory.custom}" />
