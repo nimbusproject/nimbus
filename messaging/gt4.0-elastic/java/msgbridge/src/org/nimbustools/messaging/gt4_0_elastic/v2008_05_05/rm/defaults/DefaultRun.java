@@ -347,7 +347,7 @@ public class DefaultRun implements Run {
         }
 
         final NIC[] nics;
-        if (networkName != null) {
+        if (networkName != null && !networkName.trim().equals("")) {
             nics = new NIC[1];
             nics[0] = this.oneRequestedNIC(networkName, "autoeth0");
         }

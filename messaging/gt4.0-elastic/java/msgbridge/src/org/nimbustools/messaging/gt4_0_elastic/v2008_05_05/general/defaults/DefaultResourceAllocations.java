@@ -139,7 +139,7 @@ public class DefaultResourceAllocations implements ResourceAllocations {
         }
         if (this.customCPUs < 1) {
             throw new Exception("Invalid: custom RA CPUs is zero " +
-                    "or negative: " + this.customMemory);
+                    "or negative: " + this.customCPUs);
         }
 
         if (this.vmmType == null || this.vmmType.trim().length() == 0) {
