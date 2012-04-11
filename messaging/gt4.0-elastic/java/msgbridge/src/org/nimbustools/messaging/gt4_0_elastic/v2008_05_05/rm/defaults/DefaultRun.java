@@ -349,6 +349,8 @@ public class DefaultRun implements Run {
         final NIC[] nics;
         if (networkName != null && !networkName.trim().equals("")) {
             nics = new NIC[1];
+            networkName = networkName.trim();
+            logger.info("Using network name " + networkName);
             nics[0] = this.oneRequestedNIC(networkName, "autoeth0");
         }
         else if (pubNet.equals(privNet)) {
@@ -521,6 +523,7 @@ public class DefaultRun implements Run {
         String privateAssignedIp = null;
         String publicAssignedIp = null;
 
+        logger.info("Using network " + netName);
         if (this.networks.isPrivateNetwork(netName)) {
             riit.setPrivateDnsName(hostname);
             riit.setPrivateIpAddress(ipAddress);
