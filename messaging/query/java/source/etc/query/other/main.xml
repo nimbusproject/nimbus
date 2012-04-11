@@ -223,6 +223,11 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
 
          <constructor-arg ref="nimbus-query.rm.modulelocator" />
 
+         <property name="smallNetwork" value="$ELASTIC{network.small}" />
+         <property name="largeNetwork" value="$ELASTIC{network.large}" />
+         <property name="xlargeNetwork" value="$ELASTIC{network.xlarge}" />
+         <property name="customNetwork" value="$ELASTIC{network.custom}" />
+
          <property name="smallMemory" value="$ELASTIC{memory.small}" />
          <property name="largeMemory" value="$ELASTIC{memory.large}" />
          <property name="xlargeMemory" value="$ELASTIC{memory.xlarge}" />
