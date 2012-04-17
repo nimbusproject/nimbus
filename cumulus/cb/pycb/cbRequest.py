@@ -273,7 +273,8 @@ class cbGetService(cbRequest):
         request = self.request
         doc = Document()
 
-        # Create the <wml> base element
+        self.setHeader(request, "content-type", "application/xml")
+        # Create the <xml> base element
         listAll = doc.createElement("ListAllMyBucketsResult")
         listAll.setAttribute("xmlns", "http://doc.s3.amazonaws.com/2006-03-01")
         doc.appendChild(listAll)
