@@ -37,6 +37,13 @@ class TestFile(unittest.TestCase):
         b2 = file1.get_object_type()
         self.assertEqual(pynimbusauthz.object_type_s3, b2, "Type wrong")
 
+    def test_international_file(self):
+        user1 = User(self.db)
+        name = os.environ['CUMULUS_WORD']
+        data = "/etc/group"
+        file1 = File.create_file(self.db, name, user1, data, pynimbusauthz.object_type_s3)
+        self.db.commit()
+
     def test_file_children(self):
         user1 = User(self.db)
         name = "/file/name"

@@ -13,6 +13,7 @@ def make_test_database(db_str=":memory:"):
     f.close()
     commands = s.split(";")
     conn = sqlite3.connect(db_str)
+    conn.text_factory = str
     c = conn.cursor()
     for e in commands:
         c.execute(e)
@@ -38,6 +39,7 @@ class DB(object):
             url = urlparse.urlparse("http://" + rest)
             if scheme == "sqlite" or scheme == '':
                 self.con = sqlite3.connect(url.path)
+                self.con.text_factory = str
             elif scheme == "psycopg2":
                 import psycopg2
 
