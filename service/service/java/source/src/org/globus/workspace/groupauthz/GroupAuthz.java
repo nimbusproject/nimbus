@@ -387,7 +387,8 @@ public class GroupAuthz implements CreationAuthorizationCallout,
 
     public int getGroupIDFromCaller(String caller) {
         for(int i = 0; i < this.groups.length; i++) {
-            if(groups[i].hasDN(caller))
+            // there may be null values in this.groups, see getRights method
+            if (groups[i] != null && groups[i].hasDN(caller))
                 return ++i;
         }
         return 0;
