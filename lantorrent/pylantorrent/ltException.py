@@ -20,7 +20,7 @@ class LTException(Exception):
     errorsCode[506] = "A connection error occured on send %s"
     errorsCode[507] = "A peer returned non json output %s"
     errorsCode[508] = "Access denied: %s"
-    errorsCode[509] = "completion status never recieved %s"
+    errorsCode[509] = "completion status never received %s"
     errorsCode[510] = "Incorrect checksum %s"
 
     def __init__(self, code, msg, host=None, port=None, reqs=None, md5sum=""):
