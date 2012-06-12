@@ -10,11 +10,13 @@ do
     wget --no-check-certificate $url
     if [ $? -ne 0 ]; then
         echo "wget failed"
+        continue
     fi
     tar -C ../ -zxvf cumulus-deps.tar.gz
     if [ $? -ne 0 ]; then
         echo "untar failed"
         rm cumulus-deps.tar.gz
+        continue
     fi
     exit 0
 done
