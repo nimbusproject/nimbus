@@ -1,5 +1,5 @@
 #/bin/bash
-urls="http://www.mcs.anl.gov/~bresnaha/cumulus/cumulus-deps.tar.gz http://github.com/downloads/nimbusproject/nimbus/cumulus-deps.tar.gz"
+urls="http://www.nimbusproject.org/downloads/cumulus-deps.tar.gz http://github.com/downloads/nimbusproject/nimbus/cumulus-deps.tar.gz"
 
 if [ -f cumulus-deps.tar.gz ]; then
     exit 0
