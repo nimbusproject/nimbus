@@ -13,5 +13,6 @@ NIMBUS_PYSRC="$NIMBUS_WEBDIR/src/python"
 PYTHONPATH="$NIMBUS_PYSRC:$NIMBUS_PYLIB:$PYTHONPATH"
 export PYTHONPATH
 
+source $NIMBUS_HOME/ve/bin/activate
 $PYTHON_EXE $NIMBUS_HOME/libexec//nimbus-new-cert.py $@
 exit $?
