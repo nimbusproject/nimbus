@@ -99,7 +99,11 @@ echo "-----------------------------------------------------------------"
 echo ""
 # install deps
 cd $source_dir
-$PIP install  --requirement=reqs.txt
+if [ "X$OLD_OPENSSL_VERSION" == "X" ]; then
+  $PIP install --requirement=reqs.txt
+else
+  $PIP install --requirement=reqs-old-openssl-version.txt
+fi
 if [ $? -ne 0 ]; then
     echo "$PIP failed to install deps"
     exit 1
