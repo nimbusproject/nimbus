@@ -170,9 +170,6 @@ public abstract class NimbusTestBase extends AbstractTestNGSpringContextTests {
         // directory instead of a fresh one.
         this.fullWipeResetDbAndVar();
 
-        String libNativePath = nimbusHome + "/services/lib-native";
-        System.setProperty(REMOTING_NATIVE_PROPERTY, libNativePath);
-
         logger.debug(LOG_SEP + "\n*** SUITE SETUP DONE (tests will begin): " +
                         this.getClass().getSimpleName() + LOG_SEP);
     }

@@ -1,5 +1,10 @@
 #!/bin/bash
 
+NIMBUS_SRC_REL="`dirname $0`/.."
+NIMBUS_SRC=`cd $NIMBUS_SRC_REL; pwd`
+
+NATIVELIB_DIR="$NIMBUS_SRC/lib/native"
+JAVA_OPTIONS="-Dorg.newsclub.net.unix.library.path=${NATIVELIB_DIR}"
 
 ALL_TEST_SUITES="basic01 basic02 basic03 basic04 basic05 basic06 basic07 failure01 failure02 spot01 spot02 spot03 spot04 spot05 spot06"
 
@@ -71,7 +76,7 @@ for test_suite in $RUN_TEST_SUITES; do
   
   ms_before=`python -c "import time; print int(time.time()*1000)"`
 
-  ant -Dnimbussuites.test.reports.dir=$REPORTS_DIR -f $ANTFILE $test_suite
+  ant ${JAVA_OPTIONS} -Dnimbussuites.test.reports.dir=$REPORTS_DIR -f $ANTFILE $test_suite
   RET=$?
 
   if [ $RET -eq 0 ]; then

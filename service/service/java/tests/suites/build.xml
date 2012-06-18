@@ -165,6 +165,8 @@
                 parallel="false">
             <sysproperty key="nimbus.servicetestsuites.abspath"
                          value="${nimbus.suitesdir}" />
+            <sysproperty key="org.newsclub.net.unix.library.path"
+                         value="${org.newsclub.net.unix.library.path}" />
             <xmlfileset file="${runone.suite.file}" />
         </testng>
     </target>
