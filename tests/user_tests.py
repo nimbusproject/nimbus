@@ -117,6 +117,22 @@ class TestUsers(unittest.TestCase):
         rc = nimbus_remove_user.main([friendly_name])
         self.assertEqual(rc, 0, "should be 0 %d" % (rc))
 
+    def test_complex_dn(self):
+        friendly_name = self.get_user_name()
+        rc = nimbus_new_user.main(["-n", "%s/Email=%s@example.com" % (friendly_name, friendly_name), friendly_name])
+        self.assertEqual(rc, 0, "should be 0 %d" % (rc))
+        users = self._get_users()
+
+        found = False
+        for u in users:
+            if users[u]['display_name'] == friendly_name:
+                found = True
+                self.assertEqual(users[u]['dn'], '/O=Auto/OU=CA/CN=%s/Email=%s@example.com' % (friendly_name, friendly_name))
+
+        self.assertTrue(found)
+        rc = nimbus_remove_user.main([friendly_name])
+        self.assertEqual(rc, 0, "should be 0 %d" % (rc))
+
     def test_no_cert(self):
         friendly_name = self.get_user_name()
 

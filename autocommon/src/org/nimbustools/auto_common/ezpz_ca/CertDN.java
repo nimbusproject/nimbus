@@ -15,52 +15,24 @@
  */
 package org.nimbustools.auto_common.ezpz_ca;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.FileReader;
 import java.security.cert.X509Certificate;
-import java.security.Security;
 
-import org.bouncycastle.openssl.PEMReader;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.globus.gsi.CertUtil;
-
-import javax.security.auth.x500.X500Principal;
 
 public class CertDN {
 
+    public static String dnFromPath(String path) {
+        X509Certificate cert = null;
 
-    static {
-        Security.addProvider(new BouncyCastleProvider());
-    }
-
-    public static String dnFromPath(String path) throws IOException {
-
-        final File certFile = new File(path);
-        if (!certFile.canRead()) {
-            final String msg = "File '" + path + "' can not be read.";
-            throw new IOException(msg);
+        try {
+            cert = CertUtil.loadCertificate(path);
+        } catch(Exception e) {
+            System.err.println("Unable to load the certificate : " + e.getMessage());
+            System.exit(1);
         }
 
-		final FileReader fr = new FileReader(certFile);
-		try {
-			final PEMReader reader =
-					new PEMReader(fr, null, BouncyCastleProvider.PROVIDER_NAME);
-			try {
-				final X509Certificate cert = (X509Certificate) reader.readObject();
-                final X500Principal principal = cert.getSubjectX500Principal();
-                final String DN = principal.getName(X500Principal.RFC2253);
-
-                return CertUtil.toGlobusID(DN, false);
-
-            } finally {
-				reader.close();
-			}
-		} finally {
-			fr.close();
-		}
+        return CertUtil.toGlobusID(cert.getSubjectDN());
     }
-
 
     public static void main(String[] args) {
 
