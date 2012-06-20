@@ -320,7 +320,7 @@ public class Backfill {
         final URI imageURI;
         try {
             String imageURL =
-                    this.imageLocator.getImageLocation(this.getRepoUser(), this.getDiskImage());
+                    this.imageLocator.getImageLocation(this.getRepoUser(), this.getDiskImage()) + "/" + this.getDiskImage();
             imageURI = new URI(imageURL);
         } catch (Exception e) {
             throw new CreationException(e.getMessage(), e);
