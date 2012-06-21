@@ -131,7 +131,7 @@ def generate_cert(o):
     cn = o.cn
     if not cn:
         cn = o.emailaddr
-    # check for ilegal characters in emailaddr
+    # check for illegal characters in emailaddr
     bad_chars = "+"
     for c in bad_chars:
         if c in cn:
