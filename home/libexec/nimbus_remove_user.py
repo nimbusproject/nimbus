@@ -33,7 +33,7 @@ g_report_options = ["cert", "key", "dn", "canonical_id", "access_id", "access_se
 
 def get_nimbus_home():
     """Determines home directory of Nimbus install we are using.
-    
+
     First looks for a NIMBUS_HOME enviroment variable, else assumes that
     the home directory is the parent directory of the directory with this
     script.
@@ -53,6 +53,10 @@ def setup_options(argv):
 Remove a nimbus user
     """
     (parser, all_opts) = pynimbusauthz.get_default_options(u)
+    opt = cbOpts("web_id", "w", "Set the web user name to remove.  If not set and the user is to be removed from webapp, a username will be created from the email address.", None)
+    all_opts.append(opt)
+    opt = cbOpts("web", "W", "Remove user from webapp", False, flag=True)
+    all_opts.append(opt)
     (o, args) = pynimbusauthz.parse_args(parser, all_opts, argv)
 
     # def verify_opts(o, args, parser):
@@ -66,7 +70,7 @@ def remove_gridmap(dn):
     configpath = os.path.join(nimbus_home, 'nimbus-setup.conf')
     config = SafeConfigParser()
     if not config.read(configpath):
-        raise CLIError('ENIMBUSHOME', 
+        raise CLIError('ENIMBUSHOME',
                 "Failed to read config from '%s'. Has Nimbus been configured?"
                 % configpath)
     gmf = config.get('nimbussetup', 'gridmap')
@@ -116,8 +120,31 @@ def delete_user(o):
         except Exception, ex:
             print "WARNING %s" % (ex)
 
+        if o.web:
+            if o.web_id == None:
+                o.web_id = o.emailaddr.split("@")[0]
+            remove_web(o)
+
     user.destroy_brutally()
     db.commit()
+
+def remove_web(o):
+    # import this here because otherwise errors will be thrown when
+    # the settings.py is imported (transitively).  Web is disabled by
+    # default in a Nimbus install, we should keep the experience cleanest
+    # for new admins.
+    try:
+        import nimbusweb.portal.nimbus.remove_web_user as remove_web_user
+    except Exception, e:
+        msg = "\nERROR linking with web application (have you ever sets up the web application?)\n"
+        msg += "\nSee: http://www.nimbusproject.org/docs/current/admin/reference.html#nimbusweb-config\n"
+        msg += "\n%s\n" % e
+        raise CLIError('EUSER', "%s" % msg)
+
+    errmsg = remove_web_user.remove_web_user(o.web_id)
+
+    if errmsg:
+        raise CLIError('EUSER', "Problem removing user from webapp: %s" % (errmsg))
 
 def main(argv=sys.argv[1:]):
 

@@ -1,6 +1,8 @@
 import sys
+
 from django.db import models
 from django.contrib.auth.models import User, UserManager
+from django.core.exceptions import ObjectDoesNotExist
 
 class TokenFailure(models.Model):
     ip = models.IPAddressField(primary_key=True)
@@ -10,7 +12,7 @@ class TokenFailure(models.Model):
 
 class UserProfile(models.Model):
     """Extension to properties in django's user model, we hang things off the user record."""
-    
+
     # Required field
     user = models.ForeignKey(User, unique=True, related_name="%(class)s_related")
 
@@ -29,13 +31,16 @@ class UserProfile(models.Model):
     query_secret = models.TextField(null=True)
     cloudprop_file = models.TextField(null=True)
     nimbus_userid = models.TextField(null=True)
-    
 
 def user_post_save(sender, instance, **kwargs):
     profile, new = UserProfile.objects.get_or_create(user=instance)
 models.signals.post_save.connect(user_post_save, User)
 
 def user_post_delete(sender, instance, **kwargs):
-    profile = UserProfile.objects.get_or_create(user=instance)
-    profile.delete()
+    try:
+        profile = UserProfile.objects.get(user=instance)
+        profile.delete()
+    except ObjectDoesNotExist:
+        pass
+
 models.signals.post_delete.connect(user_post_delete, User)
