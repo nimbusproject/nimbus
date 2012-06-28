@@ -211,7 +211,8 @@ def _core(vm_name, action, p, c):
                     exceptname = exception_type
                 errstr = "Issue with shutdown/destroy: %s: %s" % (str(exceptname), str(sys.exc_value))
                 c.log.error(errstr)
-        
+                raise
+
         vacate_networking(c, netbootstrap, netsecurity, netlease, vm_name, nic_set, persistence)
         c.log.info("vacated '%s' from workspace-control (networking)" % vm_name)
         
