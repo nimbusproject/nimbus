@@ -43,6 +43,7 @@ class DefaultImageProcurement:
         self.c = common
         self.localdir = None
         self.securelocaldir = None
+        self.blankspacedir = None
         self.adapters = None # dict: {keyword: instance of PropagationAdapter}
         
             
@@ -56,7 +57,8 @@ class DefaultImageProcurement:
         
         self.blankcreate_path = None
         self._validate_blankspacecreate()
-        
+        self.blankspacedir = self._validate_blankspacedir("blankspacedir")
+ 
         self.adapters = {}
 
         cp_path = self.p.get_conf_or_none("propagation", "cp")
@@ -184,7 +186,44 @@ class DefaultImageProcurement:
             
         self.c.log.debug("secure image directory (per-instance images): %s" % self.securelocaldir)
         return securelocaldir
-        
+
+    def _validate_blankspacedir(self, confname):
+        blankspacedir = self.p.get_conf_or_none("images", confname)
+        if not blankspacedir:
+            raise InvalidConfig("no images->%s configuration" % (confname))
+            # Alternatively
+            #blankspacedir = self.securelocaldir
+
+        if not os.path.isabs(blankspacedir):
+            blankspacedir = self.c.resolve_var_dir(blankspacedir)
+
+        if not os.path.exists(blankspacedir):
+            self.c.log.warn("%s is configured, but '%s' does not"
+                       " exist on the filesystem, attemping to create "
+                       " it" % (confname, blankspacedir))
+            try:
+                os.mkdir(blankspacedir)
+                os.chmod(blankspacedir, stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR)
+            except:
+                exception_type = sys.exc_type
+                try:
+                    exceptname = exception_type.__name__
+                except AttributeError:
+                    exceptname = exception_type
+                raise InvalidConfig("Problem creating %s: %s: %s"
+                           % (confname, str(exceptname), str(sys.exc_value)))
+            self.c.log.warn("created blankspace dir '%s'" % blankspacedir)
+
+        x = os.access(blankspacedir, os.W_OK | os.X_OK | os.R_OK)
+        if x:
+            self.c.log.debug("'%s' exists on the filesystem and is "
+                       "rwx-able" % blankspacedir)
+        else:
+            raise InvalidConfig("'%s' exists on the filesystem but is not rwx"
+                       % blankspacedir)
+        self.c.log.debug("blankspace partition directory (per-instance blankspace): %s" % self.blankspacedir)
+        return blankspacedir
+    
     def _validate_blankspacecreate(self):
         blankcreate_path = self.p.get_conf_or_none("images", "blankcreate")
         if not blankcreate_path:
@@ -271,6 +310,7 @@ class DefaultImageProcurement:
             
         if action == ACTIONS.CREATE:
             if self._is_blankspace_needed(l_files):
+                self._ensure_blankspace_dir()
                 self._blankspace(l_files)
             
         local_file_set_cls = self.c.get_class_by_keyword("LocalFileSet")
@@ -296,6 +336,7 @@ class DefaultImageProcurement:
             self._unpropagate(l_files)
             
         self._destroy_instance_dir()
+        self._destroy_blankspace_dir()
         
         
     # --------------------------------------------------------------------------
@@ -314,6 +355,7 @@ class DefaultImageProcurement:
         """
         
         self._destroy_instance_dir()
+        self._destroy_blankspace_dir()
 
 
     # --------------------------------------------------------------------------
@@ -359,6 +401,13 @@ class DefaultImageProcurement:
             raise InvalidInput("The %s argument is required." % wc_args.NAME.long_syntax)
         vm_securedir = os.path.join(self.securelocaldir, vm_name)
         return vm_securedir
+
+    def _derive_blankspace_dir(self):
+        vm_name = self.p.get_arg_or_none(wc_args.NAME)
+        if not vm_name:
+            raise InvalidInput("The %s argument is required." % wc_args.NAME.long_syntax)
+        vm_blankspacedir = os.path.join(self.blankspacedir, vm_name)
+        return vm_blankspacedir
         
     # --------------------------------------------------------------------------
     # IMPLs for actual actions the module takes
@@ -380,6 +429,23 @@ class DefaultImageProcurement:
         self.c.log.debug("Destroying %s" % vmdir)
         shutil.rmtree(vmdir)
         self.c.log.info("Destroyed VM's unique directory: %s" % vmdir)
+
+    def _ensure_blankspace_dir(self):
+        blankspacedir = self._derive_blankspace_dir()
+        if os.path.exists(blankspacedir):
+            return
+        self.c.log.info("Creating VM's blankspace directory: %s" % blankspacedir)
+        os.mkdir(blankspacedir)
+        os.chmod(blankspacedir, stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR)
+        self.c.log.debug("created %s" % blankspacedir)
+
+    def _destroy_blankspace_dir(self):
+        blankspacedir = self._derive_blankspace_dir()
+        if not os.path.exists(blankspacedir):
+            return
+        self.c.log.debug("Destroying %s" % blankspacedir)
+        shutil.rmtree(blankspacedir)
+        self.c.log.info("Destroyed VM's unique blankspace directory: %s" % blankspacedir)
         
     def _propagate(self, l_files):
         cache_key = self.p.get_arg_or_none(wc_args.CACHECKSUM)
@@ -747,8 +813,8 @@ class DefaultImageProcurement:
             lf._blankspace = int(size)
         except:
             raise InvalidInput("blank partition name is expected to have embedded size")
-    
-        lf.path = self._derive_instance_dir()
+
+        lf.path = self._derive_blankspace_dir()
         lf.path = os.path.join(lf.path, blank_filename)
         
         if os.path.exists(lf.path):
