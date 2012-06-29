@@ -476,7 +476,7 @@ class DefaultImageProcurement:
             if l_file._blankspace == 0:
                 continue
 
-            cmd = "%s %s %s" % (self.blankcreate_path, l_file.path, l_file._blankspace)
+            cmd = "%s %s %s %s" % (self.blankcreate_path, l_file.path, l_file._blankspace, l_file._label)
             self.c.log.debug("running '%s'" % cmd)
             if self.c.dryrun:
                 self.c.log.debug("(dryrun, not running that)")
@@ -492,7 +492,7 @@ class DefaultImageProcurement:
                 errmsg += ": %d ::: output:\n%s" % (ret, output)
                 raise EnvironmentProblem(errmsg)
             else:
-                self.c.log.info("blank partition of size %dMB created at '%s'" % (l_file._blankspace, l_file.path))
+                self.c.log.info("blank partition of size %dMB and label %s created at '%s'" % (l_file._blankspace, l_file._label, l_file.path))
 
     # --------------------------------------------------------------------------
     # _process_image_args(), IMPL of common validation/preparation functionality
@@ -741,7 +741,9 @@ class DefaultImageProcurement:
             raise InvalidInput("blank partition has no name ('%s' given)" % imgstr)
     
         try:
+            label = blank_filename.split("-size-")[0]
             size = blank_filename.split("-size-")[1]
+            lf._label = label
             lf._blankspace = int(size)
         except:
             raise InvalidInput("blank partition name is expected to have embedded size")
@@ -753,7 +755,7 @@ class DefaultImageProcurement:
             raise InvalidInput("blank partition is going to be created but the file exists already: '%s'" % lf.path)
         
         if self.c.trace:
-            self.c.log.debug("partition of size %dM is going to be created (blankcreate) at '%s'" % (lf._blankspace, lf.path))
+            self.c.log.debug("partition of size %dM and label %s is going to be created (blankcreate) at '%s'" % (lf._blankspace, lf._label, lf.path))
 
     def _one_imagestr_propagation(self, lf, imgstr, unprop, new_unprop):
 
@@ -909,4 +911,3 @@ def url_parse(url):
         port = int(parts[1])
 
     return (scheme, user, password, hostname, port, path)
-
