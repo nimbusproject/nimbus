@@ -193,8 +193,13 @@ class Platform:
             shorterr = "Problem rebooting the '%s' VM: %s" % (name, str(e))
             self.c.log.error(shorterr)
             self.c.log.exception(e)
-            raise UnexpectedError(shorterr)
-       
+
+            # Raise exception only if VM is not running anymore
+            # The service will mark it as corrupted
+            vm = self.info(name)
+            if not vm.running:
+                raise UnexpectedError(shorterr)
+
     def pause(self, running_vm):
         """pause pauses a running VM in place"""
         name = running_vm.wchandle
