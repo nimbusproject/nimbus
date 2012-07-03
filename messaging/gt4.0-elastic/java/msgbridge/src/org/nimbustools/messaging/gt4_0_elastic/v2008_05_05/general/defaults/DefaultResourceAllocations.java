@@ -338,7 +338,7 @@ public class DefaultResourceAllocations implements ResourceAllocations {
                 network = "";
         }
 
-        return this.getMatchingName(ra.getMemory(), ra.getIndCpuCount(), ra.getNetwork());
+        return this.getMatchingName(ra.getMemory(), ra.getIndCpuCount(), network);
     }
 
     public ResourceAllocation getMatchingRA(String name,
