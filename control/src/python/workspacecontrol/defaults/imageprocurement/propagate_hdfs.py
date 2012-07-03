@@ -102,10 +102,10 @@ class propadapter(PropagationAdapter):
             self.c.log.info("Transfer complete:  %fs" % round(transfer_time))
 
     def unpropagate(self, local_absolute_source, remote_target):
-        self.c.log.info("HDFS unpropagation - local target: %s" % local_absolute_target)
-        self.c.log.info("HDFS unpropagation - remote source: %s" % remote_source)
+        self.c.log.info("HDFS unpropagation - local source: %s" % local_absolute_source)
+        self.c.log.info("HDFS unpropagation - remote target: %s" % remote_target)
                 
-        cmd = self.__generate_hdfs_push_cmd(remote_source, local_absolute_target)
+        cmd = self.__generate_hdfs_push_cmd(local_absolute_source, remote_target)
         self.c.log.info("Running HDFS command: %s" % cmd)
         transfer_time = -time()
         try:
@@ -127,11 +127,11 @@ class propadapter(PropagationAdapter):
     #--------------------------------------------------------------------------
     # Private helper functions
     
-    def __generate_hdfs_pull_cmd(self, remote_target, local_absolute_target):
+    def __generate_hdfs_pull_cmd(self, remote_source, local_absolute_target):
         # Generate command in the form of:
         # /path/to/hadoop/bin/hadoop fs -fs <files system uri> -copyToLocal <src> <localdst>
         if not self.parsed_source_url:
-            self.parsed_source_url = self.__parse_url(remote_target)
+            self.parsed_source_url = self.__parse_url(remote_source)
             
         ops = [self.hadoop, "fs",
                "-fs", self.parsed_source_url[0]+'://'+self.parsed_source_url[1],
@@ -139,15 +139,15 @@ class propadapter(PropagationAdapter):
         cmd = " ".join(ops)
         return cmd
     
-    def __generate_hdfs_push_cmd(self, remote_target, local_absolute_target):
+    def __generate_hdfs_push_cmd(self, local_absolute_source, remote_target):
         # Generate command in the form of:
         # /path/to/hadoop/bin/hadoop fs -fs <files system uri> -copyFromLocal <local> <dst>
         if not self.parsed_dest_url:
             self.parsed_dest_url = self.__parse_url(remote_target)
             
         ops = [self.hadoop, "fs",
-               "-fs", self.parsed_dest_url[0]+'://'+self.parsed_dest_url[1],
-               "-copyFromLocal", local_absolute_target ,self.parsed_dest_url[2]]
+               "-fs", self.parsed_dest_url[0] + '://'+self.parsed_dest_url[1],
+               "-copyFromLocal", local_absolute_source, self.parsed_dest_url[2]]
         cmd = " ".join(ops)
         return cmd
     
