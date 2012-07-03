@@ -82,6 +82,8 @@ function strlen (){
 MOUNT="/bin/mount"
 UMOUNT="/bin/umount"
 CP="/bin/cp"
+MKDIR="/bin/mkdir"
+CHMOD="/bin/chmod"
 
 FLOCKFILE=/opt/nimbus/var/workspace-control/lock/loopback.lock
 FLOCK=/usr/bin/flock
@@ -97,6 +99,14 @@ fi
 #######################
 
 DRYRUN="false"  # or "true"
+
+# If CREATE_SSH_DIR is set to true (default), mount-alter will create the
+# /root/.ssh directory before copying the authorized_keys file. This allows to
+# make propagation succeed with VM images which do not have a /root/.ssh
+# directory (as it is often the case when no SSH key has ever been installed).
+#
+# If set to false, this script will not try to create the /root/.ssh directory.
+CREATE_SSH_DIR="true" # or "false"
 
 # Only requests to mount files UNDER this directory are honored.
 # You must use absolute path and include trailing slash.
@@ -333,6 +343,30 @@ if [ "$DRYRUN" != "true" ]; then
 fi
 
 problem="false"
+
+if [ "$CREATE_SSH_DIR" == "true" -a "$datatarget" == "/root/.ssh/authorized_keys" ]; then
+  cmd="$MKDIR -p $mountpoint/root/.ssh"
+  echo "command = $cmd"
+  if [ "$DRYRUN" != "true" ]; then
+    ( $cmd )
+    if [ $? -eq 0 ]; then
+      echo "  - successful"
+    else
+      problem="true"
+    fi
+  fi
+
+  cmd="$CHMOD 700 $mountpoint/root/.ssh"
+  echo "command = $cmd"
+  if [ "$DRYRUN" != "true" ]; then
+    ( $cmd )
+    if [ $? -eq 0 ]; then
+      echo "  - successful"
+    else
+      problem="true"
+    fi
+  fi
+fi
 
 if [ "$subcommand" = "ONE" ]; then
   cmd="$CP $datafile $mountpoint/$datatarget"
