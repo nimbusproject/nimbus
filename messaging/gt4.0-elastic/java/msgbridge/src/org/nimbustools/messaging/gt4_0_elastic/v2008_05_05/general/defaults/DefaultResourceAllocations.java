@@ -311,14 +311,14 @@ public class DefaultResourceAllocations implements ResourceAllocations {
         return this.vmmVersion;
     }
 
-    protected String getMatchingName(int memory) {
-        if (this.smallMemory == memory) {
+    protected String getMatchingName(int memory, int cpus, String network) {
+        if (this.smallMemory == memory && this.smallCPUs == cpus && this.smallNetwork.equals(network)) {
             return this.getSmallName();
-        } else if (this.largeMemory == memory) {
+        } else if (this.largeMemory == memory && this.largeCPUs == cpus && this.largeNetwork.equals(network)) {
             return this.getLargeName();
-        } else if (this.xlargeMemory == memory) {
+        } else if (this.xlargeMemory == memory && this.xlargeCPUs == cpus && this.xlargeNetwork.equals(network)) {
             return this.getXlargeName();
-        } else if (this.customMemory == memory) {
+        } else if (this.customMemory == memory && this.customCPUs == cpus && this.customNetwork.equals(network)) {
             return this.getCustomName();
         } else {
             return this.unknownString;
@@ -332,8 +332,13 @@ public class DefaultResourceAllocations implements ResourceAllocations {
             throw new CannotTranslateException("RA is missing");
         }
 
-        // only based on memory at the moment
-        return this.getMatchingName(ra.getMemory());
+        // Undefined networks in elastic.conf are declared with empty strings
+        String network = ra.getNetwork();
+        if (network == null) {
+                network = "";
+        }
+
+        return this.getMatchingName(ra.getMemory(), ra.getIndCpuCount(), ra.getNetwork());
     }
 
     public ResourceAllocation getMatchingRA(String name,
