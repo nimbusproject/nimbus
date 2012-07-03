@@ -123,6 +123,7 @@ class DefaultCommon:
             return
         if not self.logfilehandler:
             return
+        self.log.removeHandler(self.logfilehandler)
         self.logfilehandler.close()
         self.logfilehandler = None
         
