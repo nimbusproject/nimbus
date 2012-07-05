@@ -480,7 +480,7 @@ public class StateTransition implements WorkspaceConstants {
 
             if (this.trace) {
                 logger.trace("\n\n   ***** ST--remove: " + idStr
-                                    + ", excecuting " + req.toString() + "\n");
+                                    + ", executing " + req.toString() + "\n");
             }
 
             // TODO: add a timeout
@@ -493,7 +493,7 @@ public class StateTransition implements WorkspaceConstants {
 
             if (this.trace) {
                 logger.trace("\n\n   ***** ST--remove: " + idStr
-                              + ", done excecuting " + req.toString() + "\n");
+                              + ", done executing " + req.toString() + "\n");
             }
 
         } else {
