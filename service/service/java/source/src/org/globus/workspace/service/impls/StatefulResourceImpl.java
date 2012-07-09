@@ -111,6 +111,13 @@ public abstract class StatefulResourceImpl extends InstanceResourceImpl
         this.timerManager = timerManagerImpl;
     }
 
+    // -------------------------------------------------------------------------
+    // ACCESSORS
+    // -------------------------------------------------------------------------
+
+    public LockManager getLockManager() {
+        return this.lockMgr;
+    }
 
     // -------------------------------------------------------------------------
     // ACTIVATION
@@ -169,12 +176,21 @@ public abstract class StatefulResourceImpl extends InstanceResourceImpl
                                     throws LockAcquisitionFailure {
 
         Lock lock = null;
+        Lock destroy_lock = null;
         if (evaluate) {
+            destroy_lock = lockMgr.getLock("destroy_" + this.id);
             lock = lockMgr.getLock(this.id);
+
+            try {
+                destroy_lock.lockInterruptibly();
+            } catch (InterruptedException e) {
+                throw new LockAcquisitionFailure(e);
+            }
 
             try {
                 lock.lockInterruptibly();
             } catch (InterruptedException e) {
+                destroy_lock.unlock();
                 throw new LockAcquisitionFailure(e);
             }
 
@@ -191,6 +207,7 @@ public abstract class StatefulResourceImpl extends InstanceResourceImpl
                     logger.trace(Lager.id(this.id) + ": releasing lock");
                 }
                 lock.unlock();
+                destroy_lock.unlock();
             }
         }
     }
@@ -611,6 +628,10 @@ public abstract class StatefulResourceImpl extends InstanceResourceImpl
 
     void setTargetStateUnderLock(int newstate) throws ManageException {
         setTargetStateImpl(newstate, false, false);
+    }
+
+    public void setTargetStateUnderLockEvaluate(int newstate) throws ManageException {
+        setTargetStateImpl(newstate, false, true);
     }
 
     /**

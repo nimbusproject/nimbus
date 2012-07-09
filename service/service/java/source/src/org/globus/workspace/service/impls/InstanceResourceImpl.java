@@ -770,7 +770,7 @@ public abstract class InstanceResourceImpl implements InstanceResource {
             }
         }
 
-        this.setTargetState(WorkspaceConstants.STATE_DESTROYING);
+        this.setTargetStateUnderLockEvaluate(WorkspaceConstants.STATE_DESTROYING);
         if (this.getState() != WorkspaceConstants.STATE_DESTROY_SUCCEEDED) {
             logger.debug(Lager.id(this.id) + " destroy failed (state " + this.getState() + ")");
             return false;

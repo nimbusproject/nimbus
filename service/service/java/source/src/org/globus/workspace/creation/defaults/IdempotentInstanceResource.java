@@ -241,6 +241,10 @@ public class IdempotentInstanceResource implements InstanceResource {
         throw new UnsupportedOperationException(UNSUPPORTED_MSG);
     }
 
+    public void setTargetStateUnderLockEvaluate(int state) {
+        throw new UnsupportedOperationException(UNSUPPORTED_MSG);
+    }
+
     public int getTargetState() {
         throw new UnsupportedOperationException(UNSUPPORTED_MSG);
     }

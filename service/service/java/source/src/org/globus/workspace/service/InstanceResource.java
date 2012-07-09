@@ -214,6 +214,10 @@ public interface InstanceResource extends Sweepable {
 
             throws ManageException;
 
+    public void setTargetStateUnderLockEvaluate(int newstate)
+
+            throws ManageException;
+
     public int getTargetState();
 
     /**

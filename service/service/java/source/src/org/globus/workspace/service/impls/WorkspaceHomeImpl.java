@@ -429,10 +429,18 @@ public abstract class WorkspaceHomeImpl implements WorkspaceHome,
             throw new IllegalArgumentException("id may not be null");
         }
 
+        final Lock destroy_lock = this.lockManager.getLock("destroy_" + id);
         final Lock lock = this.lockManager.getLock(id);
+        try {
+            destroy_lock.lockInterruptibly();
+        } catch (InterruptedException e) {
+            throw new ManageException(e.getMessage(), e);
+        }
+
         try {
             lock.lockInterruptibly();
         } catch (InterruptedException e) {
+            destroy_lock.unlock();
             throw new ManageException(e.getMessage(), e);
         }
 
@@ -444,6 +452,7 @@ public abstract class WorkspaceHomeImpl implements WorkspaceHome,
 
         } finally {
             lock.unlock();
+            destroy_lock.unlock();
         }
     }
 

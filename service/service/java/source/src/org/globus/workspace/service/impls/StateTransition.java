@@ -16,9 +16,11 @@
 
 package org.globus.workspace.service.impls;
 
+import edu.emory.mathcs.backport.java.util.concurrent.locks.Lock;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.globus.workspace.Lager;
+import org.globus.workspace.LockManager;
 import org.globus.workspace.ProgrammingError;
 import org.globus.workspace.WorkspaceConstants;
 import org.globus.workspace.persistence.DataConvert;
@@ -330,6 +332,10 @@ public class StateTransition implements WorkspaceConstants {
 
             throws ManageException {
 
+        final LockManager lockManager = resource.getLockManager();
+        final Lock lock = lockManager.getLock(id);
+        final Lock destroy_lock = lockManager.getLock("destroy_" + id);
+
         if (current >= STATE_CANCELLING_STAGING_IN
                         && current <= STATE_CANCELLING_STAGING_OUT) {
 
@@ -483,12 +489,27 @@ public class StateTransition implements WorkspaceConstants {
                                     + ", executing " + req.toString() + "\n");
             }
 
+            try {
+                destroy_lock.lockInterruptibly();
+            } catch (InterruptedException e) {
+                throw new ManageException(e.getMessage(), e);
+            }
+
+            lock.unlock();
+
             // TODO: add a timeout
             try {
                 req.execute(); // could block
             } catch (Throwable t) {
                 // candidate for admin log/trigger of severe issues
                 logger.error("",t);
+            } finally {
+              try {
+                  lock.lockInterruptibly();
+                  destroy_lock.unlock();
+              } catch (InterruptedException e) {
+                  throw new ManageException(e.getMessage(), e);
+              }
             }
 
             if (this.trace) {
