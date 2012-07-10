@@ -3,6 +3,7 @@ import os
 import re
 import shutil
 import stat
+import struct
 import sys
 import zope.interface
 
@@ -35,6 +36,7 @@ class DefaultImageEditing:
         self.sudo_path = None
         self.mounttool_path = None
         self.fdisk_path = None
+        self.qemu_nbd_path = None
         self.mountdir = None
         self.tmpdir = None
         
@@ -46,6 +48,10 @@ class DefaultImageEditing:
         self.fdisk_path = self.p.get_conf_or_none("mount", "fdisk")
         if not self.fdisk_path:
             self.c.log.warn("no fdisk configuration, mount+edit functionality for HD images is disabled")
+
+        self.qemu_nbd_path = self.p.get_conf_or_none("mount", "qemu_nbd")
+        if not self.qemu_nbd_path:
+            self.c.log.warn("no qemu_nbd configuration, mount+edit functionality for qcow2 images is disabled")
             
         # if functionality is disabled but arg exists, should fail program
         self._validate_args_if_exist()
@@ -447,9 +453,29 @@ class DefaultImageEditing:
             
         error = None
         try:
-            offsetint = self._guess_offset(imagepath)
-            cmd = "%s %s hdone %s %s %s %s %d" % (self.sudo_path, self.mounttool_path, imagepath, mntpath, src, dst, offsetint)
-            error = self._doOneMountCopyInnerTask(src, cmd)
+            f = open(imagepath, 'r')
+            magic = f.read(4)
+
+            # Version number (1 or 2) is in big endian format.
+            # We only support version 2 (qcow2).
+            be_version = f.read(4)
+            version = struct.unpack('>I', be_version)[0]
+            f.close()
+
+            if magic[0:3] == 'QFI':
+                if version == 2:
+                    if self.qemu_nbd_path:
+                        # Mounting the partition as a qcow2 image
+                        cmd = "%s %s qcowone %s %s %s %s %s" % (self.sudo_path, self.mounttool_path, imagepath, mntpath, src, dst, self.qemu_nbd_path)
+                        error = self._doOneMountCopyInnerTask(src, cmd)
+                    else:
+                        raise IncompatibleEnvironment("qcow2 image detected, but qemu_nbd configuration is missing from mount.conf")
+                else:
+                    raise IncompatibleEnvironment("qcow image detected with unsupported version number %d" % version)
+            else:
+                offsetint = self._guess_offset(imagepath)
+                cmd = "%s %s hdone %s %s %s %s %d" % (self.sudo_path, self.mounttool_path, imagepath, mntpath, src, dst, offsetint)
+                error = self._doOneMountCopyInnerTask(src, cmd)
         except Exception,e:
             error = e
         

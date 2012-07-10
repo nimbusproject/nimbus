@@ -84,6 +84,8 @@ UMOUNT="/bin/umount"
 CP="/bin/cp"
 MKDIR="/bin/mkdir"
 CHMOD="/bin/chmod"
+MODPROBE="/sbin/modprobe"
+EXPR="/usr/bin/expr"
 
 FLOCKFILE=/opt/nimbus/var/workspace-control/lock/loopback.lock
 FLOCK=/usr/bin/flock
@@ -156,6 +158,8 @@ elif [ "$subcommand" = "one" ]; then
   subcommand="ONE"
 elif [ "$subcommand" = "hdone" ]; then
   subcommand="HDONE"
+elif [ "$subcommand" = "qcowone" ]; then
+  subcommand="QCOWONE"
 else
   echo "invalid subcommand"
   exit 1
@@ -196,6 +200,18 @@ elif [ "$subcommand" = "HDONE" ]; then
   sourcefiles="$datafile"
   targetfiles="$datatarget"
   
+elif [ "$subcommand" = "QCOWONE" ]; then
+  if [ $# -ne 6 ]; then
+    echo "qcowone subcommand requires 6 and only 6 arguments: qcowone <imagefile> <mntpoint> <datafile> <datatarget> <qemu-nbd-path>"
+    exit 1
+  fi
+  echo "  - datafile: $datafile"
+  echo "  - datatarget: $datatarget"
+
+  sourcefiles="$datafile"
+  targetfiles="$datatarget"
+  qemu_nbd=$6
+
 else
   echo "??"
   exit 64
@@ -315,6 +331,21 @@ done
 # ALTER IMAGE #
 ###############
 
+function qemu_nbd_disconnect () {
+  cmd="$qemu_nbd -d /dev/nbd0"
+
+  echo "command = $cmd"
+  if [ "$DRYRUN" != "true" ]; then
+    ( $cmd )
+    if [ $? -ne 0 ]; then
+      # nbd will print to stderr
+      problem="true"
+    else
+      echo "  - successful"
+    fi
+  fi
+}
+
 (
 $FLOCK -x 200
 
@@ -322,10 +353,56 @@ echo ""
 echo "Altering image (dryrun = $DRYRUN):"
 echo ""
 
+problem="false"
+
+if [ "$subcommand" = "QCOWONE" ]; then
+  cmd="$MODPROBE nbd max_part=8"
+  echo "command = $cmd"
+  if [ "$DRYRUN" != "true" ]; then
+    ( $cmd )
+    if [ $? -ne 0 ]; then
+      # xm will print to stderr
+      exit 5
+    else
+      echo "  - successful"
+    fi
+  fi
+
+  cmd="$qemu_nbd --connect /dev/nbd0 $imagefile"
+
+  echo "command = $cmd"
+  if [ "$DRYRUN" != "true" ]; then
+    ( $cmd )
+    if [ $? -ne 0 ]; then
+      # xm will print to stderr
+      exit 6
+    else
+      echo "  - successful"
+    fi
+  fi
+
+  # qemu-nbd takes some time to connect the image to the device.
+  # Wait for maximum 30 seconds for nbd0p1 to show up.
+  i=30
+  while [ $i -ne 0 ]; do
+    ls /dev/nbd0p1 > /dev/null 2>&1 && break
+    i=`$EXPR $i - 1`
+    echo "No /dev/nbd0p1 yet, will try again for $i seconds"
+    sleep 1
+  done
+  if ! ls /dev/nbd0p1 > /dev/null 2>&1; then
+    echo "Waited 30 seconds but no /dev/nbd0p1 showed up, exiting"
+    qemu_nbd_disconnect
+    exit 66
+  fi
+fi
+
 if [ "$subcommand" = "ONE" ]; then
   cmd="$MOUNT -o loop,noexec,nosuid,nodev,noatime,sync $imagefile $mountpoint"
 elif [ "$subcommand" = "HDONE" ]; then
   cmd="$MOUNT -o loop,noexec,nosuid,nodev,noatime,sync,offset=$offsetint $imagefile $mountpoint"
+elif [ "$subcommand" = "QCOWONE" ]; then
+  cmd="$MOUNT /dev/nbd0p1 $mountpoint"
 else
   echo "??"
   exit 65
@@ -336,13 +413,15 @@ if [ "$DRYRUN" != "true" ]; then
   ( $cmd )
   if [ $? -ne 0 ]; then
     # mount will print to stderr
+    if [ "$subcommand" = "QCOWONE" ]; then
+      # disconnect the nbd device
+      qemu_nbd_disconnect
+    fi
     exit 5
   else
     echo "  - successful"
   fi
 fi
-
-problem="false"
 
 if [ "$CREATE_SSH_DIR" == "true" -a "$datatarget" == "/root/.ssh/authorized_keys" -a -d "$mountpoint/root" ]; then
   cmd="$MKDIR -p $mountpoint/root/.ssh"
@@ -372,6 +451,8 @@ if [ "$subcommand" = "ONE" ]; then
   cmd="$CP $datafile $mountpoint/$datatarget"
 elif [ "$subcommand" = "HDONE" ]; then
   cmd="$CP $datafile $mountpoint/$datatarget"
+elif [ "$subcommand" = "QCOWONE" ]; then
+  cmd="$CP $datafile $mountpoint/$datatarget"
 else
   echo "??"
   problem="true"
@@ -394,14 +475,19 @@ if [ "$DRYRUN" != "true" ]; then
   ( $cmd )
   if [ $? -ne 0 ]; then
     # umount will print to stderr
-    exit 6
+    problem="true"
   else
     echo "  - successful"
-    # notify that one or more CP invocations did not succeed:
-    if [ "$problem" = "true" ]; then
-      exit 7
-    fi
   fi
+fi
+
+if [ "$subcommand" = "QCOWONE" ]; then
+  qemu_nbd_disconnect
+fi
+
+# notify that one or more command invocations did not succeed:
+if [ "$problem" = "true" ]; then
+  exit 7
 fi
 
 ) 200<$FLOCKFILE

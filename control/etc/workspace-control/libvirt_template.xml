@@ -31,7 +31,13 @@
     <devices>
         {% for disk in devices.disks %}
         <disk type='{{ disk._type }}'>
-            {% if disk.driver %}{% if disk.driver == "tap:aio" %}<driver name='tap' type='aio' />{% endif %}{% endif %}
+            {% if disk.driver %}
+            {% if disk.driver == "tap:aio" %}
+            <driver name='tap' type='aio' />
+            {% elif disk.driver == "qemu:qcow2" %}
+            <driver name='qemu' type='qcow2'/>
+            {% endif %}
+            {% endif %}
 
             {% if disk._type == "block" %}
             <source dev='{{ disk.source }}' />
