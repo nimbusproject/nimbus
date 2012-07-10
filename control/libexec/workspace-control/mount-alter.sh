@@ -344,7 +344,7 @@ fi
 
 problem="false"
 
-if [ "$CREATE_SSH_DIR" == "true" -a "$datatarget" == "/root/.ssh/authorized_keys" ]; then
+if [ "$CREATE_SSH_DIR" == "true" -a "$datatarget" == "/root/.ssh/authorized_keys" -a -d "$mountpoint/root" ]; then
   cmd="$MKDIR -p $mountpoint/root/.ssh"
   echo "command = $cmd"
   if [ "$DRYRUN" != "true" ]; then
