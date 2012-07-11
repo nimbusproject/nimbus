@@ -76,7 +76,7 @@ class WSCCacheObj(object):
 
         # if removing anything actually helps
         for f in remove_list:
-            self._log.info("removing %s form the cache" % (f))
+            self._log.info("removing %s from the cache" % (f))
             os.remove(self._dir + "/" + f)
         return True
 
