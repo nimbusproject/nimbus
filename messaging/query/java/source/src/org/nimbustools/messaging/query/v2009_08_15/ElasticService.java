@@ -228,7 +228,8 @@ public class ElasticService implements ElasticVersion {
                 @FormParam("InstanceType") String instanceType,
                 @FormParam("Placement.GroupName") String groupName,
                 @FormParam("Placement.AvailabilityZone") String availabilityZone,
-                @FormParam("ClientToken") String clientToken) {
+                @FormParam("ClientToken") String clientToken,
+                @FormParam("KernelId") String kernelId) {
             // only including parameters that are actually used right now
 
             assureRequiredParameter("ImageId", imageId);
@@ -253,6 +254,7 @@ public class ElasticService implements ElasticVersion {
                 request.setPlacement(placement);
             }
             request.setClientToken(clientToken);
+            request.setKernelId(kernelId);
 
             try {
                 return serviceRM.runInstances(request);
@@ -273,8 +275,9 @@ public class ElasticService implements ElasticVersion {
                 @FormParam("InstanceType") String instanceType,
                 @FormParam("Placement.GroupName") String groupName,
                 @FormParam("Placement.AvailabilityZone") String availabilityZone,
-                @FormParam("ClientToken") String clientToken) {
-            return handleGet(imageId, minCount, maxCount, keyName, userData, instanceType, groupName, availabilityZone, clientToken);
+                @FormParam("ClientToken") String clientToken,
+                @FormParam("KernelId") String kernelId) {
+            return handleGet(imageId, minCount, maxCount, keyName, userData, instanceType, groupName, availabilityZone, clientToken, kernelId);
         }
     }
 
