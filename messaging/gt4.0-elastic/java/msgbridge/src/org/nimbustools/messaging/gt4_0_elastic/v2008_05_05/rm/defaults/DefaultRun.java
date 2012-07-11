@@ -23,6 +23,7 @@ import org.nimbustools.api._repr._CreateRequest;
 import org.nimbustools.api._repr._CustomizationRequest;
 import org.nimbustools.api._repr.vm._NIC;
 import org.nimbustools.api.brain.ModuleLocator;
+import org.nimbustools.api.defaults.repr.vm.DefaultKernel;
 import org.nimbustools.api.repr.Caller;
 import org.nimbustools.api.repr.CannotTranslateException;
 import org.nimbustools.api.repr.CreateRequest;
@@ -46,6 +47,8 @@ import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.Run;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.security.SSHKey;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.security.SSHKeys;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.rmi.RemoteException;
 
 public class DefaultRun implements Run {
@@ -215,6 +218,18 @@ public class DefaultRun implements Run {
 
         final _CreateRequest creq = this.repr._newCreateRequest();
 
+        DefaultKernel kernel = null;
+        String kernelRequestString = req.getKernelId();
+        if (kernelRequestString != null) {
+            kernel = new DefaultKernel();
+            try {
+                URI kernelURI = new URI("file://" + kernelRequestString);
+                kernel.setKernel(kernelURI);
+            } catch(URISyntaxException ueie) {
+                throw new RemoteException(ueie.toString());
+            }
+        }
+
         creq.setContext(null);
         creq.setCoScheduleDone(false);
         creq.setCoScheduleID(null);
@@ -222,7 +237,7 @@ public class DefaultRun implements Run {
         creq.setCustomizationRequests(custRequests);
         creq.setInitialStateRequest(State.STATE_Running);
         creq.setName(imageID);
-        creq.setRequestedKernel(null); // todo
+        creq.setRequestedKernel(kernel); // todo
         creq.setRequestedNics(nics);
         creq.setRequestedRA(ra);
         creq.setRequestedSchedule(null); // ask for default
