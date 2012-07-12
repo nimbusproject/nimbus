@@ -46,6 +46,7 @@ class WSCCacheObj(object):
             self._unlock()
 
     def _order_dir(self, list):
+        # We can use getmtime because we call os.utime on each lookup
         list.sort(key=lambda x : os.path.getmtime(self._dir + "/" + x), reverse=True)
         return list
 
