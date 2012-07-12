@@ -104,6 +104,10 @@ class TestEC2Submit(unittest.TestCase):
             self.db.close()
         self.killall_running()
 
+    def test_ec2_submit_kernel(self):
+        image_name = self.store_new_image()
+        image = self.ec2conn.get_image(image_name)
+        res = image.run(kernel_id="default")
 
     def test_ec2_submit_name_format(self):
         image_name = self.store_new_image()
