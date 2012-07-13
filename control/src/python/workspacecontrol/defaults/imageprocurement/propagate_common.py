@@ -729,7 +729,7 @@ class DefaultImageProcurement:
         # ---------------------------------------------------------------
             
         elif prop and imgstr[:8] == "file:///":
-            lf.path = imgstr[8:]
+            lf.path = imgstr[7:]
             self.c.log.debug("partition/HD is absolute path w/ file://")
             
             if self.securelocaldir in lf.path:
