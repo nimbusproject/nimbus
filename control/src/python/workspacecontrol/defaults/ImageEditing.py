@@ -5,7 +5,7 @@ import shutil
 import stat
 import struct
 import sys
-import uuid
+import tempfile
 import zope.interface
 
 import workspacecontrol.api.modules
@@ -304,10 +304,12 @@ class DefaultImageEditing:
                         # copy and replace the link by it
                         filestat = os.stat(image_local_path)
                         if filestat[stat.ST_NLINK] > 1:
-                            tmpfile = image_local_path + uuid.uuid4().hex
-                            shutil.copy(image_local_path, tmpfile)
+                            tmpfile = tempfile.mkstemp(dir=instance_dir)
+                            os.close(tmpfile[0])
+                            tmpfilename = tmpfile[1]
+                            shutil.copy(image_local_path, tmpfilename)
                             os.unlink(image_local_path)
-                            os.rename(tmpfile, image_local_path)
+                            os.rename(tmpfilename, image_local_path)
                             # Add write permissions to the image
                             os.chmod(image_local_path, 0600)
 
