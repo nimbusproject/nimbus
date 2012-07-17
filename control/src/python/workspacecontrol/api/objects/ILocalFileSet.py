@@ -8,4 +8,7 @@ class ILocalFileSet(workspacecontrol.api.IWCObject):
     def flist():
         """Return Python list of LocalFile instances
         """
-    
+
+    def instance_dir():
+        """Return the instance directory within securelocaldir
+        """

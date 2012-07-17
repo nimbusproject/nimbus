@@ -1,7 +1,8 @@
 import fcntl
-import shutil
-import os
 import logging
+import os
+import shutil
+import stat
 
 class WSCCacheObj(object):
 
@@ -30,7 +31,7 @@ class WSCCacheObj(object):
     def _unmangle_name(self, name):
         return name.replace(self._prefix + "_", "")
 
-    def lookup(self, md5sum, newname):
+    def lookup(self, md5sum, newname, link=False):
         name = self._mangle_name(md5sum)
         absname = os.path.abspath(self._dir + "/" + name)
         self._lock()
@@ -39,7 +40,13 @@ class WSCCacheObj(object):
             if name in list:
                 # touch the file
                 os.utime(absname, None)
-                shutil.copyfile(absname, newname)
+
+                if link:
+                    os.link(absname, newname)
+                    # Mark the cache image as read-only
+                    os.chmod(absname, 0400)
+                else:
+                    shutil.copyfile(absname, newname)
                 return True
             return False
         finally:
@@ -57,6 +64,11 @@ class WSCCacheObj(object):
     def _make_room_for(self, list, sz):
 
         list = self._order_dir(list)
+
+        # Keep only files without hardlinks, because linked files cannot
+        # free any room in cache
+        filter(lambda x: os.stat(os.path.join(self._dir, x))[stat.ST_NLINK] == 1, list)
+
         current_size = self._get_size(list)
         max = self._max_size
         fsinfo = os.statvfs(self._dir)
@@ -133,4 +145,3 @@ class WSCCacheObj(object):
         list = self.list_cache()
         for l in list:
             self.remove(l)
-

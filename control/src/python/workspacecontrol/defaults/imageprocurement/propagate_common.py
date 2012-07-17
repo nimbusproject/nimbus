@@ -275,10 +275,12 @@ class DefaultImageProcurement:
         """
         
         action = self.p.get_arg_or_none(wc_args.ACTION)
+        instance_dir = None
         
         if action in [ACTIONS.CREATE, ACTIONS.PROPAGATE]:
             
             self._ensure_instance_dir()
+            instance_dir = self._derive_instance_dir()
             
             l_files = self._process_image_args()
             if self._is_propagation_needed(l_files):
@@ -291,6 +293,7 @@ class DefaultImageProcurement:
         elif action in [ACTIONS.UNPROPAGATE]:
             
             self._ensure_instance_dir()
+            instance_dir = self._derive_instance_dir()
             
             l_files = self._process_image_args(unprop=True)
             
@@ -312,7 +315,7 @@ class DefaultImageProcurement:
                 self._blankspace(l_files)
             
         local_file_set_cls = self.c.get_class_by_keyword("LocalFileSet")
-        local_file_set = local_file_set_cls(l_files)
+        local_file_set = local_file_set_cls(l_files, instance_dir=instance_dir)
         return local_file_set
     
     # --------------------------------------------------------------------------
@@ -473,9 +476,13 @@ class DefaultImageProcurement:
                 continue
 
             if cache:
+                cow = self.p.get_conf_or_none("cow", "qemu_img")
                 try:
                     self.c.log.debug("cache lookup %s" % (cache_key))
-                    rc = cache.lookup(cache_key, l_file.path)
+                    if cow is not None:
+                        rc = cache.lookup(cache_key, l_file.path, link=True)
+                    else:
+                        rc = cache.lookup(cache_key, l_file.path, link=False)
                     if rc:
                         self.c.log.info("The file was found in the cache and copied to %s" % (l_file.path))
                         return

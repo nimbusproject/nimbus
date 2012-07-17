@@ -5,6 +5,7 @@ import shutil
 import stat
 import struct
 import sys
+import uuid
 import zope.interface
 
 import workspacecontrol.api.modules
@@ -37,6 +38,7 @@ class DefaultImageEditing:
         self.mounttool_path = None
         self.fdisk_path = None
         self.qemu_nbd_path = None
+        self.qemu_img_path = None
         self.mountdir = None
         self.tmpdir = None
         
@@ -53,6 +55,12 @@ class DefaultImageEditing:
         if not self.qemu_nbd_path:
             self.c.log.warn("no qemu_nbd configuration, mount+edit functionality for qcow2 images is disabled")
             
+        self.qemu_img_path = self.p.get_conf_or_none("cow", "qemu_img")
+        if not self.qemu_img_path:
+            self.c.log.warn("no qemu_img configuration, copy-on-write support is disabled")
+        elif not self.qemu_nbd_path:
+            self.c.log.warn("cannot enable copy-on-write support without qemu_nbd configuration")
+
         # if functionality is disabled but arg exists, should fail program
         self._validate_args_if_exist()
             
@@ -222,11 +230,16 @@ class DefaultImageEditing:
         
         Return nothing, local_file_set will be modified as necessary.
         """
-        
+
         for lf in local_file_set.flist():
             if lf.path.count(".gz") > 0 :
                 lf.path = self._gunzip_file_inplace(lf.path)
         
+        # copy-on-write
+        if self.qemu_img_path:
+            for lf in local_file_set.flist():
+                lf.path = self._create_cow_file(lf.path, local_file_set.instance_dir())
+
         # disabled
         if not self.mounttool_path:
             return
@@ -268,7 +281,39 @@ class DefaultImageEditing:
         
         Return nothing, local_file_set will be modified as necessary.
         """
-        
+
+        for lf in local_file_set.flist():
+            instance_dir = local_file_set.instance_dir()
+            if instance_dir is not None:
+                image_name = os.path.basename(lf.path)
+                image_local_path = os.path.join(instance_dir, image_name)
+
+                cow_name = image_name + "__cow__.qcow2"
+                cow_path = os.path.join(instance_dir, cow_name)
+
+                # If a file with a suffix of __cow__.qcow2 exists in the
+                # instance directory, it means that we were using
+                # copy-on-write.
+                if os.path.exists(cow_path):
+                    # If the base image is from a shared location (started with
+                    # file:///), make a copy in the instance directory first
+                    if not os.path.exists(image_local_path):
+                        shutil.copy(lf.path, image_local_path)
+                    else:
+                        # If the base image is linked from the cache, make a
+                        # copy and replace the link by it
+                        filestat = os.stat(image_local_path)
+                        if filestat[stat.ST_NLINK] > 1:
+                            tmpfile = image_local_path + uuid.uuid4().hex
+                            shutil.copy(image_local_path, tmpfile)
+                            os.unlink(image_local_path)
+                            os.rename(tmpfile, image_local_path)
+                            # Add write permissions to the image
+                            os.chmod(image_local_path, 0600)
+
+                    # Commit the changes back into the backing image.
+                    lf.path = self._commit_cow_file(image_local_path, cow_path)
+
         for lf in local_file_set.flist():
             
             # The following edit is applicable for either case, if unprop target
@@ -371,6 +416,89 @@ class DefaultImageEditing:
                 exceptname = exception_type
             errstr = "problem gunzipping '%s': %s: %s" % \
                    (path, str(exceptname), str(sys.exc_value))
+            self.c.log.error(errstr)
+            raise UnexpectedError(errstr)
+
+
+    # --------------------------------------------------------------------------
+    # COPY-ON-WRITE IMPL
+    # --------------------------------------------------------------------------
+
+    # returns newfilename
+    def _create_cow_file(self, path, instance_dir):
+
+        if instance_dir is None:
+            self.c.log.warn("skipping copy-on-write volume creation because instance_dir is None")
+            return path
+
+        self.c.log.info("creating copy-on-write volume for base image '%s'" % path)
+
+        image_name = os.path.basename(path)
+        cow_name = image_name + "__cow__.qcow2"
+        newpath = os.path.join(instance_dir, cow_name)
+
+        if os.path.exists(newpath):
+            errstr = "copy-on-write file already exists: '%s'" % newpath
+            self.c.log.error(errstr)
+            raise UnexpectedError(errstr)
+
+        # Create the copy-on-write volume
+        cmd = "%s create -f qcow2 -o backing_file=%s %s" % (self.qemu_img_path, path, newpath)
+        if self.c.dryrun:
+            self.c.log.debug("dryrun, command is: %s" % cmd)
+            return newpath
+
+        (ret, output) = getstatusoutput(cmd)
+        if ret:
+            errmsg = "problem running command: '%s' ::: return code" % cmd
+            errmsg += ": %d ::: output:\n%s" % (ret, output)
+            self.c.log.error(errmsg)
+            raise UnexpectedError(errmsg)
+        else:
+            errstr = "successfully created copy-on-write volume '%s' for image '%s'" % (newpath, path)
+            self.c.log.info(errstr)
+
+        return newpath
+
+    def _commit_cow_file(self, image_local_path, cow_path):
+        self.c.log.info("committing copy-on-write changes of '%s' into '%s'" % (cow_path, image_local_path))
+
+        try:
+            cmd = "%s rebase -f qcow2 -u -b %s %s" % (self.qemu_img_path, image_local_path, cow_path)
+            if self.c.dryrun:
+                self.c.log.debug("dryrun, command is: %s" % cmd)
+            else:
+                (ret, output) = getstatusoutput(cmd)
+                if ret:
+                    errmsg = "problem running command: '%s' ::: return code" % cmd
+                    errmsg += ": %d ::: output:\n%s" % (ret, output)
+                    self.c.log.error(errmsg)
+                    raise UnexpectedError(errmsg)
+
+            self.c.log.info("rebased '%s'" % cow_path)
+
+            cmd = "%s commit %s" % (self.qemu_img_path, cow_path)
+            if self.c.dryrun:
+                self.c.log.debug("dryrun, command is: %s" % cmd)
+            else:
+                (ret, output) = getstatusoutput(cmd)
+                if ret:
+                    errmsg = "problem running command: '%s' ::: return code" % cmd
+                    errmsg += ": %d ::: output:\n%s" % (ret, output)
+                    self.c.log.error(errmsg)
+                    raise UnexpectedError(errmsg)
+
+            self.c.log.info("committed '%s' into '%s'" % (cow_path, image_local_path))
+            return image_local_path
+
+        except:
+            exception_type = sys.exc_type
+            try:
+                exceptname = exception_type.__name__
+            except AttributeError:
+                exceptname = exception_type
+            errstr = "problem committing '%s': %s: %s" % \
+                   (cow_path, str(exceptname), str(sys.exc_value))
             self.c.log.error(errstr)
             raise UnexpectedError(errstr)
 
