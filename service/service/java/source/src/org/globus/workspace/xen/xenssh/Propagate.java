@@ -62,7 +62,7 @@ public class Propagate extends XenTask {
         final boolean traceLog = this.ctx.lager().traceLog;
 
         if (traceLog) {
-            logger.trace("Beginning start pre-execute");
+            logger.trace("Beginning propagate pre-execute");
         }
 
         // init would have thrown exception if null
