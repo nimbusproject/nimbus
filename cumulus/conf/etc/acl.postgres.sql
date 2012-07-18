@@ -126,7 +126,7 @@ create table objects(
     parent_id INTEGER REFERENCES objects(id) ON DELETE CASCADE DEFAULT NULL,
 
     md5sum CHAR(32),
-    object_size INTEGER DEFAULT 0,
+    object_size bigint DEFAULT 0,
     creation_time TIMESTAMP,
     UNIQUE(object_type, name, parent_id)
 );
