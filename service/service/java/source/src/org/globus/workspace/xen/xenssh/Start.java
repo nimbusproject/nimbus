@@ -16,6 +16,7 @@
 
 package org.globus.workspace.xen.xenssh;
 
+import org.globus.workspace.PathConfigs;
 import org.globus.workspace.WorkspaceException;
 import org.globus.workspace.persistence.WorkspaceDatabaseException;
 import org.globus.workspace.cmdutils.SSHUtil;
@@ -46,8 +47,30 @@ public class Start extends XenTask {
 
     protected Exception preExecute(boolean fake) {
 
+        final boolean eventLog = this.ctx.lager().eventLog;
+        final boolean traceLog = this.ctx.lager().traceLog;
+
+        if (traceLog) {
+            logger.trace("Beginning start pre-execute");
+        }
+
         final VirtualMachine vm = this.ctx.getVm();
         final FileCopyNeed[] needs = vm.getFileCopyNeeds();
+
+        final PathConfigs paths = this.ctx.getLocator().getPathConfigs();
+        final String backendDirectory = paths.getBackendTempDirPath();
+        final String localDirectory = paths.getLocalTempDirPath();
+
+        try {
+            XenUtil.doFilePushRemoteTarget(vm,
+                                           localDirectory,
+                                           backendDirectory,
+                                           fake,
+                                           eventLog,
+                                           traceLog);
+        } catch (Exception e) {
+            return e;
+        }
 
         // todo: do not like this concept (waiting for ORM overhaul)
         final int vmid = vm.getID().intValue();

@@ -16,15 +16,12 @@
 
 package org.globus.workspace.xen.xenssh;
 
-import org.globus.workspace.PathConfigs;
 import org.globus.workspace.WorkspaceException;
 import org.globus.workspace.cmdutils.SSHUtil;
 import org.globus.workspace.persistence.WorkspaceDatabaseException;
-import org.globus.workspace.service.binding.vm.FileCopyNeed;
 import org.globus.workspace.service.binding.vm.VirtualMachine;
 import org.globus.workspace.service.impls.site.PropagationAdapter;
 import org.globus.workspace.xen.XenTask;
-import org.globus.workspace.xen.XenUtil;
 
 import java.util.ArrayList;
 
@@ -58,37 +55,10 @@ public class Propagate extends XenTask {
 
     protected Exception preExecute(boolean fake) {
 
-        final boolean eventLog = this.ctx.lager().eventLog;
         final boolean traceLog = this.ctx.lager().traceLog;
 
         if (traceLog) {
             logger.trace("Beginning propagate pre-execute");
-        }
-
-        // init would have thrown exception if null
-        final VirtualMachine vm = this.ctx.getVm();
-
-        final FileCopyNeed[] needs = vm.getFileCopyNeeds();
-        if (needs == null || needs.length == 0) {
-            if (traceLog) {
-                logger.debug("FileCopy push: nothing to do");
-            }
-            return null;
-        }
-
-        final PathConfigs paths = this.ctx.getLocator().getPathConfigs();
-        final String backendDirectory = paths.getBackendTempDirPath();
-        final String localDirectory = paths.getLocalTempDirPath();
-
-        try {
-            XenUtil.doFilePushRemoteTarget(vm,
-                                           localDirectory,
-                                           backendDirectory,
-                                           fake,
-                                           eventLog,
-                                           traceLog);
-        } catch (Exception e) {
-            return e;
         }
 
         return _preExecute(fake,
