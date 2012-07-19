@@ -196,6 +196,30 @@ _NIMBUS_IS_DEPRECATED
 
     </li>
 
+    <li>
+        <p>
+            <a href="#qcow2">qcow2 Image Support</a>
+        </p>
+        <ul>
+            <li>
+                <a href="#qcow2-config">Configuration</a>
+            </li>
+        </ul>
+
+    </li>
+
+    <li>
+        <p>
+            <a href="#cow">Copy-on-write Support</a>
+        </p>
+        <ul>
+            <li>
+                <a href="#cow-config">Configuration</a>
+            </li>
+        </ul>
+
+    </li>
+
 	<li>
 		<p>
 			<a href="#nimbusadministration">Nimbus Administration Tools</a>
@@ -2509,6 +2533,85 @@ Search for the two values
 the maximum size of the cache.  When these values are enabled the cache
 will be in effect.
 </p>
+
+
+<a name="qcow2"> </a>
+<h2>qcow2 Image Support _NAMELINK(qcow2)</h2>
+<p>
+<a href="http://en.wikibooks.org/wiki/QEMU/Images">qcow2</a> is a virtual
+machine image format with many features: smaller images without using sparse
+files, optional AES encryption, optional zlib compression, etc.
+Starting with Nimbus IaaS 2.10, users can run virtual machines from qcow2
+images.
+The image format is automatically detected, which means they work just like
+regular virtual machine images.
+</p>
+<p>
+</p>
+<a name="qcow2-config"> </a>
+<h3>qcow2 Image Support Configuration _NAMELINK(qcow2-config)</h3>
+<p>
+This feature is disabled by default.
+As qcow2 images can dynamically grow while virtual machines are being executed,
+Nimbus IaaS administrators should be careful and monitor disk usage when
+enabling qcow2 support.
+qcow2 images as small as megabytes can be configured with virtual sizes of
+gigabytes or terabytes.
+Once virtual machines are started with such images, they can make their images
+grow up to their virtual size limit.
+</p>
+<p>
+The following file must be altered on each VMM that will support qcow2 images:
+<tt class="literal">/opt/nimbus/etc/workspace-control/mount.conf</tt>.
+Search for the value
+<tt class="literal">qemu_nbd</tt>.
+<i>qemu_nbd</i> is the path to the qemu-nbd executable included in QEMU and KVM
+packages.
+It is required for the mount-alter script to inject files inside the qcow2
+image, since it is not possible to directly mount a file system included in a
+qcow2 image.
+</p>
+
+
+<a name="cow"> </a>
+<h2>Copy-on-write Support _NAMELINK(cow)</h2>
+<p>
+Copy-on-write support creates copy-on-write files (based on the qcow2 format)
+in order to store disk writes from virtual machine.
+Virtual machine images stay read-only and are used as backing files for the copy-on-write files.
+When used in coordination with the image cache, the backing file can be shared
+between multiple virtual machines and read directly from cache.
+This allows to decrease the time needed to start several virtual machines based
+on the same image on the same VMM.
+The backing file can be a raw or qcow2 image.
+Please note that this functionality is <b>experimental</b>.
+</p>
+<p>
+</p>
+<a name="cow-config"> </a>
+<h3>Copy-on-write Configuration _NAMELINK(cow-config)</h3>
+<p>
+This feature is disabled by default and must be enabled by administrators.
+For the same reasons as qcow2 support, administrators need to carefully monitor
+their disk usage.
+Additionally, administrators should be aware of the potential security
+implications of sharing the same backing file for multiple virtual machines
+owned by different users.
+</p>
+<p>
+First, qcow2 support must be configured on each VMM (see <a
+href="#qcow2-config">qcow2 Image Support Configuration</a>).
+Additionally, the following file must be altered on each VMM that will support
+copy-on-write:
+<tt class="literal">/opt/nimbus/etc/workspace-control/images.conf</tt>.
+Search for the value
+<tt class="literal">qemu_img</tt>.
+<i>qemu_img</i> is the path to the qemu-img executable included in QEMU and KVM
+packages.
+It is required for creating copy-on-write files and preparing images for
+unpropagation.
+</p>
+
 
 <a name="nimbusadministration"> </a>
 <h2>Nimbus Administration _NAMELINK(nimbusadministration)</h2>
