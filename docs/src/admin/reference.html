@@ -2545,6 +2545,7 @@ Starting with Nimbus IaaS 2.10, users can run virtual machines from qcow2
 images.
 The image format is automatically detected, which means they work just like
 regular virtual machine images.
+Please note that this feature is <b>restricted to KVM hypervisors.</b>
 </p>
 <p>
 </p>
@@ -2584,7 +2585,8 @@ between multiple virtual machines and read directly from cache.
 This allows to decrease the time needed to start several virtual machines based
 on the same image on the same VMM.
 The backing file can be a raw or qcow2 image.
-Please note that this functionality is <b>experimental</b>.
+Please note that this functionality is <b>experimental</b> and <b>restricted to
+KVM hypervisors.</b>
 </p>
 <p>
 </p>
