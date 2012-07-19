@@ -2565,13 +2565,13 @@ grow up to their virtual size limit.
 The following file must be altered on each VMM that will support qcow2 images:
 <tt class="literal">/opt/nimbus/etc/workspace-control/mount.conf</tt>.
 Search for the value
-<tt class="literal">qemu_nbd</tt>.
-<i>qemu_nbd</i> is the path to the qemu-nbd executable included in QEMU and KVM
-packages.
-It is required for the mount-alter script to inject files inside the qcow2
-image, since it is not possible to directly mount a file system included in a
-qcow2 image.
-</p>
+<tt class="literal">qcow2</tt> and set it to <tt class="literal">true</tt>.
+Nimbus uses the qemu-nbd executable to inject files inside qcow2 images, since
+it is not possible to directly mount a file system from such images.
+If your qemu-nbd executable is not using the default path of <tt
+class="literal">/usr/bin/qemu-nbd</tt>, you need to modify the QEMU_NBD
+variable in the <tt class="literal">/opt/nimbus/libexec/workspace-control/mount-alter.sh</tt>
+script.</p>
 
 
 <a name="cow"> </a>

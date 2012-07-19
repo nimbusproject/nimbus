@@ -37,7 +37,7 @@ class DefaultImageEditing:
         self.sudo_path = None
         self.mounttool_path = None
         self.fdisk_path = None
-        self.qemu_nbd_path = None
+        self.qcow2_enabled = False
         self.qemu_img_path = None
         self.mountdir = None
         self.tmpdir = None
@@ -51,15 +51,17 @@ class DefaultImageEditing:
         if not self.fdisk_path:
             self.c.log.warn("no fdisk configuration, mount+edit functionality for HD images is disabled")
 
-        self.qemu_nbd_path = self.p.get_conf_or_none("mount", "qemu_nbd")
-        if not self.qemu_nbd_path:
-            self.c.log.warn("no qemu_nbd configuration, mount+edit functionality for qcow2 images is disabled")
+        qcow2 = self.p.get_conf_or_none("mount", "qcow2")
+        if qcow2 and qcow2.strip().lower() == "true":
+            self.qcow2_enabled = True
+        if not self.qcow2_enabled:
+            self.c.log.warn("mount+edit functionality for qcow2 images is disabled")
             
         self.qemu_img_path = self.p.get_conf_or_none("cow", "qemu_img")
         if not self.qemu_img_path:
             self.c.log.warn("no qemu_img configuration, copy-on-write support is disabled")
-        elif not self.qemu_nbd_path:
-            self.c.log.warn("cannot enable copy-on-write support without qemu_nbd configuration")
+        elif not self.qcow2_enabled:
+            self.c.log.warn("cannot enable copy-on-write support without qcow2 support")
 
         # if functionality is disabled but arg exists, should fail program
         self._validate_args_if_exist()
@@ -594,12 +596,12 @@ class DefaultImageEditing:
 
             if magic[0:3] == 'QFI':
                 if version == 2:
-                    if self.qemu_nbd_path:
+                    if self.qcow2_enabled:
                         # Mounting the partition as a qcow2 image
-                        cmd = "%s %s qcowone %s %s %s %s %s" % (self.sudo_path, self.mounttool_path, imagepath, mntpath, src, dst, self.qemu_nbd_path)
+                        cmd = "%s %s qcowone %s %s %s %s" % (self.sudo_path, self.mounttool_path, imagepath, mntpath, src, dst)
                         error = self._doOneMountCopyInnerTask(src, cmd)
                     else:
-                        raise IncompatibleEnvironment("qcow2 image detected, but qemu_nbd configuration is missing from mount.conf")
+                        raise IncompatibleEnvironment("qcow2 image detected, but qcow2 support is disabled in mount.conf")
                 else:
                     raise IncompatibleEnvironment("qcow image detected with unsupported version number %d" % version)
             else:

@@ -87,6 +87,11 @@ CHMOD="/bin/chmod"
 MODPROBE="/sbin/modprobe"
 EXPR="/usr/bin/expr"
 
+# qemu-nbd is used when an HD image is in qcow2 format.
+# It will be used to attach the HD image as an nbd device, which allows to
+# mount the root partition inside.
+QEMU_NBD="/usr/bin/qemu-nbd"
+
 FLOCKFILE=/opt/nimbus/var/workspace-control/lock/loopback.lock
 FLOCK=/usr/bin/flock
 if [ ! -O $FLOCK ]; then
@@ -201,8 +206,8 @@ elif [ "$subcommand" = "HDONE" ]; then
   targetfiles="$datatarget"
   
 elif [ "$subcommand" = "QCOWONE" ]; then
-  if [ $# -ne 6 ]; then
-    echo "qcowone subcommand requires 6 and only 6 arguments: qcowone <imagefile> <mntpoint> <datafile> <datatarget> <qemu-nbd-path>"
+  if [ $# -ne 5 ]; then
+    echo "qcowone subcommand requires 6 and only 6 arguments: qcowone <imagefile> <mntpoint> <datafile> <datatarget>"
     exit 1
   fi
   echo "  - datafile: $datafile"
@@ -210,7 +215,6 @@ elif [ "$subcommand" = "QCOWONE" ]; then
 
   sourcefiles="$datafile"
   targetfiles="$datatarget"
-  qemu_nbd=$6
 
 else
   echo "??"
@@ -332,7 +336,7 @@ done
 ###############
 
 function qemu_nbd_disconnect () {
-  cmd="$qemu_nbd -d /dev/nbd0"
+  cmd="$QEMU_NBD -d /dev/nbd0"
 
   echo "command = $cmd"
   if [ "$DRYRUN" != "true" ]; then
@@ -368,7 +372,7 @@ if [ "$subcommand" = "QCOWONE" ]; then
     fi
   fi
 
-  cmd="$qemu_nbd --connect /dev/nbd0 $imagefile"
+  cmd="$QEMU_NBD --connect /dev/nbd0 $imagefile"
 
   echo "command = $cmd"
   if [ "$DRYRUN" != "true" ]; then
