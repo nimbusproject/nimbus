@@ -16,6 +16,171 @@ _NIMBUS_IS_DEPRECATED
 <a href="http://github.com/nimbusproject/nimbus/raw/master/cloud-client/nimbus-cloud-client-src/CHANGES.txt">here.</a>
 </p>
 
+<a name="2.10"> </a>
+<br><hr><br>
+
+<i>2.10 - Summary</i>
+<ul>
+    <li>
+        <p>
+            qcow2 images are now supported.
+            This feature is disabled by default and must be enabled by administrators.
+        </p>
+    </li>
+    <li>
+        <p>
+            Copy-on-write support based on the qcow2 format has been added to Nimbus.
+            When used in coordination with the image cache, this feature allows to decrease the time needed to start virtual machines.
+            This functionality is disabled by default and must be enabled by administrators.
+        </p>
+    </li>
+    <li>
+        <p>
+            It is now possible to set the network associated with an instance type in the same way CPU and memory are set.
+        </p>
+    </li>
+</ul>
+
+<i>2.10 - IaaS Services</i>
+<ul>
+
+        <p>
+            <i>Bug Fixes</i>
+        </p>
+
+        <ul>
+            <li>
+                <p>
+                    <a href="https://github.com/nimbusproject/nimbus/issues/107">Fix customization tasks for file:/// images</a>
+                </p>
+            </li>
+        </ul>
+        <ul>
+            <li>
+                <p>
+                    <a href="https://github.com/nimbusproject/nimbus/issues/102">Prevent status queries from blocking status queries</a>
+                </p>
+            </li>
+        </ul>
+        <ul>
+            <li>
+                <p>
+                    <a href="https://github.com/nimbusproject/nimbus/issues/90">Report the right EC2 instance type</a>
+                </p>
+            </li>
+        </ul>
+        <ul>
+            <li>
+                <p>
+                    <a href="https://github.com/nimbusproject/nimbus/issues/78">Make it possible to remove the webapp user with nimbus-remove-user</a>
+                </p>
+            </li>
+        </ul>
+        <ul>
+            <li>
+                <p>
+                    <a href="https://github.com/nimbusproject/nimbus/issues/75">Fix parsing DNs with an equal sign in the CN</a>
+                </p>
+            </li>
+        </ul>
+    </li>
+</ul>
+
+<i>2.10 - Cumulus</i>
+
+<ul>
+    <li>
+        <p>
+            <i>Bug Fixes</i>
+        </p>
+        <ul>
+            <li>
+                <p>
+                    <a href="https://github.com/nimbusproject/nimbus/issues/108">Handle files larger than 2GB when using PostgreSQL</a>
+                </p>
+            </li>
+        </ul>
+        <ul>
+            <li>
+                <p>
+                    <a href="https://github.com/nimbusproject/nimbus/issues/98">Support new Ubuntu releases which do not include SSLv2 support in OpenSSL.</a>
+                </p>
+            </li>
+        </ul>
+    </li>
+</ul>
+
+<i>2.10 - Control Agents</i>
+
+<ul>
+    <li>
+        <p>
+            Added a partition label to blankspace partitions.
+            Virtual machines can now mount blankspace partitions without knowing the virtual disk device name.
+        </p>
+    </li>
+    <li>
+        <p>
+            Automatically create /root/.ssh directories before injecting authorized_keys in virtual machines.
+            The directory is created only when /root already exists in the image.
+        </p>
+    </li>
+    <li>
+        <p>
+            Added support for creating blankspace in a different location from staged images.
+            Using different mount points for blankspace partitions and images can improve performance in some Nimbus deployments.
+        </p>
+    </li>
+    <li>
+        <p>
+            <i>Bug Fixes</i>
+        </p>
+
+        <ul>
+            <li>
+                <p>
+                    <a href="https://github.com/nimbusproject/nimbus/issues/103">Don't write duplicate log entries after being daemonized</a>
+                </p>
+            </li>
+        </ul>
+        <ul>
+            <li>
+                <p>
+                    <a href="https://github.com/nimbusproject/nimbus/issues/101">Don't ignore VM shutdown failure</a>
+                </p>
+            </li>
+        </ul>
+        <ul>
+            <li>
+                <p>
+                    <a href="https://github.com/nimbusproject/nimbus/issues/100">Fix HDFS unpropagation</a>
+                </p>
+            </li>
+        </ul>
+        <ul>
+            <li>
+                <p>
+                    <a href="https://github.com/nimbusproject/nimbus/issues/82">Gracefully handle KVM reboot failures</a>
+                </p>
+            </li>
+        </ul>
+    </li>
+</ul>
+
+<i>2.10 - Additional Notes</i>
+<ul>
+    <li>
+        <p>
+            List of
+            <a href="http://github.com/nimbusproject/nimbus/compare/nimbus-release-2.9...nimbus-release-2.10">all
+            commits</a>
+            between Nimbus 2.9 final and Nimbus 2.10 final.
+        </p>
+    </li>
+</ul>
+
+
+
 <a name="2.9"> </a>
 <br><hr><br>
 
