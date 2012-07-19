@@ -90,6 +90,17 @@ $ ./install $NIMBUS_HOME
     </p>
 </div>
 
+<div class="note">
+    <p class="note-title">pyOpenSSL and OpenSSL compatibility</p>
+    <p>
+        Nimbus installs pyOpenSSL 0.13 by default, which requires OpenSSL
+        0.9.8f of later.
+        If you are using a distribution with an earlier OpenSSL version, such
+        as CentOS 5, set the OLD_OPENSSL_VERSION environment variable to
+        install pyOpenSSL 0.10 instead.
+    </p>
+</div>
+
 <p>
     The installer performs several steps:
 </p>
