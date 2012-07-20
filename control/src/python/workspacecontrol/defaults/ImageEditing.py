@@ -468,6 +468,17 @@ class DefaultImageEditing:
         self.c.log.info("committing copy-on-write changes of '%s' into '%s'" % (cow_path, image_local_path))
 
         try:
+            cmd = "%s | grep rebase" % self.qemu_img_path
+            if self.c.dryrun:
+                self.c.log.debug("dryrun, command is: %s" % cmd)
+            else:
+                (ret, output) = getstatusoutput(cmd)
+                if ret:
+                    errmsg = "%s is missing the rebase command required for unpropagation of copy-on-write images. " % self.qemu_img_path
+                    errmsg += "QEMU 0.13 or later is needed."
+                    self.c.log.error(errmsg)
+                    raise UnexpectedError(errmsg)
+
             cmd = "%s rebase -f qcow2 -u -b %s %s" % (self.qemu_img_path, image_local_path, cow_path)
             if self.c.dryrun:
                 self.c.log.debug("dryrun, command is: %s" % cmd)
