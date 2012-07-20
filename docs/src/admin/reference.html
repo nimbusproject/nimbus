@@ -2587,6 +2587,9 @@ on the same image on the same VMM.
 The backing file can be a raw or qcow2 image.
 Please note that this functionality is <b>experimental</b> and <b>restricted to
 KVM hypervisors.</b>
+Also note that unpropagation of copy-on-write images requires a qemu-img
+executable with the rebase command.
+This command is available with QEMU 0.13 or later.
 </p>
 <p>
 </p>
