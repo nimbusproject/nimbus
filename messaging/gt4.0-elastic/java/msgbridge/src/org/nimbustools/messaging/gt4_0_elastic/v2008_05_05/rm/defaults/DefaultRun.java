@@ -196,11 +196,14 @@ public class DefaultRun implements Run {
         if (t_userData != null) {
             final String base64Encoded = t_userData.getData();
             if (base64Encoded != null) {
-                if (!Base64.isBase64(base64Encoded)) {
+                // Remove newlines from the base64 string since they are not
+                // supported by the Globus implementation
+                final String base64EncodedNoCRLF = base64Encoded.replaceAll("[\r\n]", "");
+                if (!Base64.isBase64(base64EncodedNoCRLF)) {
                     throw new RemoteException("userdata does not appear to " +
                             "be base64 encoded?");
                 }
-                final byte[] bytes = Base64.decode(base64Encoded.getBytes());
+                final byte[] bytes = Base64.decode(base64EncodedNoCRLF.getBytes());
                 userData = new String(bytes);
             }
         }
