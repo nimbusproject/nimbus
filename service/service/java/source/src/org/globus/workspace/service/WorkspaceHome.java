@@ -72,11 +72,11 @@ public interface WorkspaceHome {
     // DESTRUCTION
     // -------------------------------------------------------------------------
 
-    public void destroy(int id)
+    public boolean destroy(int id)
 
             throws ManageException, DoesNotExistException;
 
-    public void destroy(String id)
+    public boolean destroy(String id)
 
             throws ManageException, DoesNotExistException;
 

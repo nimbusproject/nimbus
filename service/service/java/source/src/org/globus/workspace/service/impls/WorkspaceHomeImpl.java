@@ -343,8 +343,10 @@ public abstract class WorkspaceHomeImpl implements WorkspaceHome,
                 final Calendar currTime = Calendar.getInstance();
                 final Calendar termTime = resource.getTerminationTime();
                 if (termTime != null && termTime.before(currTime)) {
-                    this.destroy(id);
-                    throw new DoesNotExistException(Lager.id(id) + " expired");
+                    boolean destroyed = this.destroy(id);
+                    if (destroyed) {
+                      throw new DoesNotExistException(Lager.id(id) + " expired");
+                    }
                 }
 
             } else {
@@ -410,10 +412,10 @@ public abstract class WorkspaceHomeImpl implements WorkspaceHome,
     // DESTROY
     // -------------------------------------------------------------------------
 
-    public void destroy(int id)
+    public boolean destroy(int id)
             throws ManageException, DoesNotExistException {
 
-        this.destroy(this.convertID(id));
+        return this.destroy(this.convertID(id));
     }
 
     /**
@@ -421,9 +423,11 @@ public abstract class WorkspaceHomeImpl implements WorkspaceHome,
      * @throws ManageException error
      * @throws DoesNotExistException already gone
      */
-    public void destroy(String id)
+    public boolean destroy(String id)
 
             throws ManageException, DoesNotExistException {
+
+        boolean destroyed;
 
         if (id == null) {
             throw new IllegalArgumentException("id may not be null");
@@ -446,7 +450,8 @@ public abstract class WorkspaceHomeImpl implements WorkspaceHome,
 
         try {
             final InstanceResource resource = this.find(id);
-            if (resource.remove()) {
+            destroyed = resource.remove();
+            if (destroyed) {
                 this.cache.remove(id);
             }
 
@@ -454,6 +459,8 @@ public abstract class WorkspaceHomeImpl implements WorkspaceHome,
             lock.unlock();
             destroy_lock.unlock();
         }
+
+        return destroyed;
     }
 
     public String destroyMultiple(int[] workspaces, String sourceStr) {
