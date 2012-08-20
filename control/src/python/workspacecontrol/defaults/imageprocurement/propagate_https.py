@@ -14,7 +14,7 @@ class propadapter(PropagationAdapter):
     def __init__(self, params, common):
         PropagationAdapter.__init__(self, params, common)
         allow_xserver = self.p.get_conf_or_none('propagation', 'https-cross-server-redirect')
-        if allow_xserver.strip().lower() == "true":
+        if allow_xserver is not None and allow_xserver.strip().lower() == "true":
             self.allow_xserver_redirect = True
         else:
             self.allow_xserver_redirect = False
