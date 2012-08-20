@@ -13,6 +13,11 @@ class propadapter(PropagationAdapter):
 
     def __init__(self, params, common):
         PropagationAdapter.__init__(self, params, common)
+        allow_xserver = self.p.get_conf_or_none('propagation', 'https-cross-server-redirect')
+        if allow_xserver.strip().lower() == "true":
+            self.allow_xserver_redirect = True
+        else:
+            self.allow_xserver_redirect = False
 
     def validate(self):
         self.c.log.debug("validating https propagation adapter")
@@ -182,7 +187,7 @@ class propadapter(PropagationAdapter):
             host = host_port[0]
             redirect_path = url[2] + "?" + url[4]
 
-            if host != connection.host:
+            if host != connection.host and not self.allow_xserver_redirect:
                 errmsg = "Cannot follow cross-server redirect from %s to %s" % (connection.host, host)
                 self.c.log.error(errmsg)
                 raise UnexpectedError(errmsg)
