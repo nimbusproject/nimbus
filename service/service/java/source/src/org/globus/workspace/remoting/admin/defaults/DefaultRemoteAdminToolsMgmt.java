@@ -356,7 +356,7 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
             else {
                 VM[] vms = manager.getGlobalAll();
                 if(vms.length == 0)
-                    errorMsg = "No running VMs available for shutdown";
+                    errorMsg = "No running VMs available for shutdown or cleanup";
                 return vms;
             }
         }
