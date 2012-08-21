@@ -120,6 +120,9 @@ public interface Manager extends NimbusModule {
                              ShutdownTasks tasks, Caller caller)
             throws DoesNotExistException, ManageException, OperationDisabledException;
 
+    public void cleanup(String id, int type, Caller caller)
+            throws DoesNotExistException, ManageException, OperationDisabledException;
+
     public void pause(String id, int type,
                       ShutdownTasks tasks, Caller caller)
             throws DoesNotExistException, ManageException, OperationDisabledException;

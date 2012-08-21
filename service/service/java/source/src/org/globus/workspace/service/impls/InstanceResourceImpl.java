@@ -789,6 +789,10 @@ public abstract class InstanceResourceImpl implements InstanceResource {
         return true;
     }
 
+    public synchronized void cleanup() {
+        do_remove();
+    }
+
     protected void do_remove() {
 
         // scheduler already notified by doStateChange()

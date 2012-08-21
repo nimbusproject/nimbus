@@ -114,6 +114,15 @@ public interface Scheduler extends StateChangeInterested{
     
 
     /**
+     * Used when something went wrong with the VMM and the node reservation
+     * needs to be removed manually by the administrator.
+     * @param vmid id
+     */
+    public void cleanup(int vmid)
+
+            throws ManageException;
+
+    /**
      * Used just in backout situations, when request did not reach STATE_FIRST_LEGAL
      * NOTE: This is to be used instead of scheduler.stateNotification(id, WorkspaceConstants.STATE_DESTROYING),
      * when the request did not reach the first legal state

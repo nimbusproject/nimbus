@@ -152,6 +152,11 @@ public class Opts {
     // NIMBUS-ADMIN
     //*************************************************************************
 
+    public static final String CLEANUP_VMS = "x";
+    public static final String CLEANUP_VMS_LONG = "cleanup";
+    public final Option CLEANUP_VMS_OPT =
+                OptionBuilder.withLongOpt(CLEANUP_VMS_LONG).hasOptionalArg().create(CLEANUP_VMS);
+
     public static final String LIST_VMS = "l";
     public static final String LIST_VMS_LONG = "list";
     public final Option LIST_VMS_OPT =
@@ -216,7 +221,7 @@ public class Opts {
             HELP_OPT, DEBUG_OPT, CONFIG_OPT, BATCH_OPT, DELIMITER_OPT,
             REPORT_OPT, JSON_OPT, OUTPUT_OPT, ADD_NODES_OPT, LIST_NODES_OPT,
             REMOVE_NODES_OPT, UPDATE_NODES_OPT, POOL_AVAILABILITY_OPT, NETWORKS_OPT, MEMORY_OPT, POOL_OPT,
-            ACTIVE_OPT, INACTIVE_OPT, LIST_VMS_OPT, SHUTDOWN_VMS_OPT, USER_OPT, ID_OPT,
+            ACTIVE_OPT, INACTIVE_OPT, CLEANUP_VMS_OPT, LIST_VMS_OPT, SHUTDOWN_VMS_OPT, USER_OPT, ID_OPT,
             SECONDS_OPT, ALL_VMS_OPT, HOST_OPT, DN_OPT, GROUP_ID_OPT,
             GROUP_NAME_OPT, FREE_OPT, USED_OPT, NODE_LIST_OPT, STATE_OPT
     };

@@ -324,6 +324,16 @@ public class DelegatingManager implements Manager {
         }
     }
 
+    public void cleanup(String id, int type, Caller caller)
+            throws DoesNotExistException,
+                   ManageException,
+                   OperationDisabledException {
+
+        this.opIntake("CLEANUP", id, type, caller);
+
+        this.home.cleanup(id);
+    }
+
     public void pause(String id, int type,
                       ShutdownTasks tasks, Caller caller)
             throws DoesNotExistException,

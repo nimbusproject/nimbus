@@ -225,6 +225,10 @@ public class IdempotentInstanceResource implements InstanceResource {
         throw new UnsupportedOperationException(UNSUPPORTED_MSG);
     }
 
+    public void cleanup() {
+        throw new UnsupportedOperationException(UNSUPPORTED_MSG);
+    }
+
     public void setState(int state, Throwable throwable) {
         throw new UnsupportedOperationException(UNSUPPORTED_MSG);
     }

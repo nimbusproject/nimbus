@@ -873,6 +873,15 @@ public class DefaultSchedulerAdapter implements Scheduler {
         }
     }
 
+    public void cleanup(int vmid) throws ManageException {
+        if (lager.traceLog) {
+            logger.trace("cleanup(): reservation " + Lager.id(vmid));
+        }
+
+        this.slotManager.releaseSpace(vmid);  // *** SYNCHRONIZED ISSUE ***
+        this.db.deleteNodeRequest(vmid);
+    }
+
     private void remove(int vmid) throws ManageException {
 
         if (lager.traceLog) {

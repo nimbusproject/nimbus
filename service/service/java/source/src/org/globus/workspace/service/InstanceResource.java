@@ -179,6 +179,8 @@ public interface InstanceResource extends Sweepable {
 
             throws ManageException, DoesNotExistException;
 
+    public void cleanup();
+
     /**
      * Called when a new state is actually achieved.  Depending on the
      * target state, this can cause task requests to be issued from

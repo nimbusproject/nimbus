@@ -407,6 +407,47 @@ public abstract class WorkspaceHomeImpl implements WorkspaceHome,
         return sweeps;
     }
 
+    // -------------------------------------------------------------------------
+    // CLEANUP
+    // -------------------------------------------------------------------------
+
+    public void cleanup(String id)
+            throws ManageException, DoesNotExistException {
+
+        if (id == null) {
+            throw new IllegalArgumentException("id may not be null");
+        }
+
+        this._cleanup(this.convertID(id));
+        this.cache.remove(id);
+    }
+
+    public void _cleanup(int id)
+            throws ManageException, DoesNotExistException {
+        final Lock destroy_lock = this.lockManager.getLock("destroy_" + id);
+        final Lock lock = this.lockManager.getLock(id);
+        try {
+            destroy_lock.lockInterruptibly();
+        } catch (InterruptedException e) {
+            throw new ManageException(e.getMessage(), e);
+        }
+
+        try {
+            lock.lockInterruptibly();
+        } catch (InterruptedException e) {
+            destroy_lock.unlock();
+            throw new ManageException(e.getMessage(), e);
+        }
+
+        try {
+            final InstanceResource resource = this.find(id);
+            this.scheduler.cleanup(id);
+            resource.cleanup();
+        } finally {
+            lock.unlock();
+            destroy_lock.unlock();
+        }
+    }
 
     // -------------------------------------------------------------------------
     // DESTROY

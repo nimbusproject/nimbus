@@ -132,6 +132,9 @@ public class RemoteAdminToolsMain extends RMIConfig {
         super.loadConfig(PROP_RMI_BINDING_ADMINTOOLS_DIR);
         this.remoteAdminToolsManagement = (RemoteAdminToolsManagement) super.setupRemoting();
         switch (this.action) {
+            case CleanupVMs:
+                cleanupVMs();
+                break;
             case ListVMs:
                 listVMs();
                 break;
@@ -232,7 +235,8 @@ public class RemoteAdminToolsMain extends RMIConfig {
                     numOpts++;
                 }
         }
-        else if(this.action == ToolAction.ShutdownVMs) {
+        else if(this.action == ToolAction.ShutdownVMs ||
+            this.action == ToolAction.CleanupVMs) {
                 if(line.hasOption(Opts.ALL_VMS)) {
                     allVMs = true;
                     numOpts++;
@@ -510,7 +514,79 @@ public class RemoteAdminToolsMain extends RMIConfig {
                 result = "Shutdown requires either --all, --id, --user, --dn, --gid, --gname, or --host option";
             }
             if(result != null && !result.isEmpty())
-                System.err.print(result);
+                System.err.println(result);
+        }
+        catch (RemoteException e) {
+            System.err.println(e.getMessage());
+        }
+    }
+
+    private void cleanupVMs() {
+        try {
+            String result = "";
+            String feedback;
+            if(numOpts > 1) {
+                result = "You must select only one of --all, --id, --user, --dn, --gid, --gname, or --host";
+                System.err.println(result);
+                return;
+            }
+            if(allVMs) {
+                result = this.remoteAdminToolsManagement.cleanup(
+                        RemoteAdminToolsManagement.CLEANUP_ALL, null);
+            }
+            else if(vmIDs != null) {
+                for(int i = 0; i < vmIDs.size(); i++) {
+                    feedback = this.remoteAdminToolsManagement.cleanup(
+                        RemoteAdminToolsManagement.CLEANUP_ID, vmIDs.get(i));
+                    if(feedback != null)
+                        result += feedback + "\n";
+                }
+            }
+            else if(userList != null) {
+                for(int i = 0; i < userList.size(); i++) {
+                    feedback = this.remoteAdminToolsManagement.cleanup(
+                        RemoteAdminToolsManagement.CLEANUP_UNAME, userList.get(i));
+                    if(feedback != null)
+                        result += feedback + "\n";
+                }
+            }
+            else if(DNList != null) {
+                for(int i = 0; i < DNList.size(); i++) {
+                    feedback = this.remoteAdminToolsManagement.cleanup(
+                        RemoteAdminToolsManagement.CLEANUP_DN, DNList.get(i));
+                    if(feedback != null)
+                        result += feedback + "\n";
+                }
+            }
+            else if(gidList != null) {
+                for(int i = 0; i < gidList.size(); i++) {
+                    feedback = this.remoteAdminToolsManagement.cleanup(
+                        RemoteAdminToolsManagement.CLEANUP_GID, gidList.get(i));
+                    if(feedback != null)
+                        result += feedback + "\n";
+                }
+            }
+            else if(gnameList != null) {
+                for(int i = 0; i < gnameList.size(); i++) {
+                    feedback = this.remoteAdminToolsManagement.cleanup(
+                        RemoteAdminToolsManagement.CLEANUP_GNAME, gnameList.get(i));
+                    if(feedback != null)
+                        result += feedback + "\n";
+                }
+            }
+            else if(hostList != null) {
+                for(int i = 0; i < hostList.size(); i++) {
+                    feedback = this.remoteAdminToolsManagement.cleanup(
+                        RemoteAdminToolsManagement.CLEANUP_HOST, hostList.get(i));
+                    if(feedback != null)
+                        result += feedback + "\n";
+                }
+            }
+            else {
+                result = "Cleanup requires either --all, --id, --user, --dn, --gid, --gname, or --host option";
+            }
+            if(result != null && !result.isEmpty())
+                System.err.println(result);
         }
         catch (RemoteException e) {
             System.err.println(e.getMessage());
@@ -582,6 +658,7 @@ public class RemoteAdminToolsMain extends RMIConfig {
 }
 
 enum ToolAction implements AdminEnum {
+    CleanupVMs(Opts.CLEANUP_VMS, null),
     ListVMs(Opts.LIST_VMS, RemoteAdminToolsMain.ADMIN_FIELDS),
     ListNodes(Opts.NODE_LIST, RemoteAdminToolsMain.NODE_LIST_FIELDS),
     ShutdownVMs(Opts.SHUTDOWN_VMS, null),
@@ -603,5 +680,3 @@ enum ToolAction implements AdminEnum {
         return fields;
     }
 }
-
-

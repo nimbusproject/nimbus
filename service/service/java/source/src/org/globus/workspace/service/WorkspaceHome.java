@@ -67,6 +67,13 @@ public interface WorkspaceHome {
 
     public Sweepable[] currentSweeps();
 
+    // -------------------------------------------------------------------------
+    // CLEANUP
+    // -------------------------------------------------------------------------
+
+    public void cleanup(String id)
+
+            throws ManageException, DoesNotExistException;
 
     // -------------------------------------------------------------------------
     // DESTRUCTION

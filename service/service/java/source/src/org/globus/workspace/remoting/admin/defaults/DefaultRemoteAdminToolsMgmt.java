@@ -281,13 +281,45 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
         }
     }
 
+    /*
+     * This class handles cleanup by host, id and all.
+     * The constants for int type are in the interface for this class
+     * typeID is either the id or hostname, depending on if cleaning up by id or host, or null if cleaning up all
+     */
+    public String cleanup(int type, String typeID) throws RemoteException {
+        try {
+            VM[] vms;
+            vms = typeSet(type, typeID);
+
+            if(vms == null || vms.length == 0)
+                return errorMsg;
+
+            for(int i = 0; i < vms.length; i++) {
+                String id = vms[i].getID();
+                Caller caller = vms[i].getCreator();
+                manager.cleanup(id, manager.INSTANCE, caller);
+            }
+
+            return null;
+        }
+        catch (ManageException e) {
+            throw new RemoteException(e.getMessage());
+        }
+        catch (DoesNotExistException e) {
+            throw new RemoteException(e.getMessage());
+        }
+        catch (OperationDisabledException e) {
+            throw new RemoteException(e.getMessage());
+        }
+    }
+
     private VM[] typeSet(int type, String typeID) throws RemoteException {
         try {
-            if(type == SHUTDOWN_HOST)
+            if(type == SHUTDOWN_HOST || type == CLEANUP_HOST)
                 return getVMByHost(typeID);
-            else if(type == SHUTDOWN_ID)
+            else if(type == SHUTDOWN_ID || type == CLEANUP_ID)
                 return getVMById(typeID);
-            else if(type == SHUTDOWN_UNAME) {
+            else if(type == SHUTDOWN_UNAME || type == CLEANUP_UNAME) {
                 authz = new AuthzDBAdapter(authzDataSource);
                 String userId = authz.getCanonicalUserIdFromFriendlyName(typeID);
                 VM[] vms = getVMsByUserId(userId);
@@ -295,7 +327,7 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
                     errorMsg = "No VMs with user name " + typeID + " found";
                 return vms;
             }
-            else if(type == SHUTDOWN_DN) {
+            else if(type == SHUTDOWN_DN || type == CLEANUP_DN) {
                 final _Caller caller = this.reprFactory._newCaller();
                 caller.setIdentity(typeID);
                 VM[] vms = manager.getAllByCaller(caller);
@@ -303,7 +335,7 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
                     errorMsg = "No VMs with DN " + typeID + " found";
                 return vms;
             }
-            else if(type == SHUTDOWN_GID) {
+            else if(type == SHUTDOWN_GID || type == CLEANUP_GID) {
                 Group group = getGroupByGroupId(typeID);
                 if(group == null)
                     return null;
@@ -312,7 +344,7 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
                     errorMsg = "No VMs with group id " + typeID + " found";
                 return vms;
             }
-            else if(type == SHUTDOWN_GNAME) {
+            else if(type == SHUTDOWN_GNAME || type == CLEANUP_GNAME) {
                 Group group = getGroupByGroupName(typeID);
                 if(group == null)
                     return null;

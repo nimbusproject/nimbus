@@ -15,6 +15,22 @@ General
 -----------------------------------------------------------------------------
 Actions
 
+    --cleanup (-x)       Cleanup VMs known to the IaaS service. Can
+                         cleanup by all, id or hostname
+                         All options except --all can accept a comma separated
+                         list of VMs to cleanup
+                         ie. --cleanup --id 3,5,2,33
+                         Careful: this only removes VM from the
+                         service, if resources are still allocated on
+                         a VMM they will stay in use.
+        --all (-a)          -Option to cleanup all running VMs on service
+        --id (-i)           -Option to cleanup VM by VM id
+        --user (-u)         -Option to cleanup VM by user display name
+        --dn (-d)           -Option to cleanup VM by user DN name
+        --gid (-g)          -Option to cleanup VM by group id
+        --gname (-gn)       -Option to cleanup VM by group name
+        --host (-hn)        -Option to cleanup all VMs with specified host
+
     --list (-l)          List the VMs known to the IaaS service
         --user (-u)         -Option to list VMs by user display name
         --dn (-d)           -Option to list VMs by user DN name
@@ -29,7 +45,7 @@ Actions
     --shutdown (-s)      Shutdown VMs known to the IaaS service. Can
                          shutdown by all, id or hostname
                          All options except --all can accept a comma separated
-                         list of VM's to shutdown
+                         list of VMs to shutdown
                          ie. --shutdown --id 3,5,2,33
         --all (-a)          -Option to shutdown all running VMs on service
         --id (-i)           -Option to shutdown VM by VM id

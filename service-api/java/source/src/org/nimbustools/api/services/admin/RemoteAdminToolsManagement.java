@@ -35,6 +35,14 @@ public interface RemoteAdminToolsManagement extends Remote {
     public static final int SHUTDOWN_GID = 5;
     public static final int SHUTDOWN_GNAME = 6;
 
+    public static final int CLEANUP_ALL = 0;
+    public static final int CLEANUP_ID = 1;
+    public static final int CLEANUP_HOST = 2;
+    public static final int CLEANUP_UNAME = 3;
+    public static final int CLEANUP_DN = 4;
+    public static final int CLEANUP_GID = 5;
+    public static final int CLEANUP_GNAME = 6;
+
     public String getAllRunningVMs() throws RemoteException;
     public String getVMsByDN(String userDN) throws RemoteException;
     public String getVMsByUser(String user) throws RemoteException;
@@ -44,4 +52,5 @@ public interface RemoteAdminToolsManagement extends Remote {
     public String getVMsByState(String state) throws RemoteException;
     public Hashtable<String, String[]> showVMsForAllHosts() throws RemoteException;
     public String shutdown(int type, String typeID, String seconds) throws RemoteException;
+    public String cleanup(int type, String typeID) throws RemoteException;
 }

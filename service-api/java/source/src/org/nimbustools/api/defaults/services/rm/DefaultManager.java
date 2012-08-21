@@ -169,6 +169,13 @@ public class DefaultManager implements Manager {
                         "', caller '" + caller + "'");
     }
 
+    public void cleanup(String id, int type, Caller caller)
+           throws DoesNotExistException, ManageException,
+                           OperationDisabledException {
+        Logging.debug("Manager.cleanup() -- id '" + id + "', type '" + type +
+            "', caller '" + caller + "'");
+    }
+
     public void pause(String id, int type, ShutdownTasks tasks,
                       Caller caller) throws DoesNotExistException,
                                             ManageException,
