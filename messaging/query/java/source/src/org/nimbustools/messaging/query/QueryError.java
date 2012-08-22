@@ -28,4 +28,5 @@ public enum QueryError {
     MissingClientTokenId,
     InvalidParameterValue,
     IdempotentParameterMismatch,
+    InstanceLimitExceeded,
 }

@@ -18,6 +18,7 @@ package org.nimbustools.messaging.query.v2009_08_15;
 import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.*;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.*;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.IdempotentCreationMismatchRemoteException;
+import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.rm.ResourceRequestDeniedRemoteException;
 import org.nimbustools.messaging.query.*;
 import static org.nimbustools.messaging.query.QueryUtils.*;
 import org.apache.commons.logging.Log;
@@ -261,6 +262,8 @@ public class ElasticService implements ElasticVersion {
 
             } catch (IdempotentCreationMismatchRemoteException e) {
                 throw new QueryException(QueryError.IdempotentParameterMismatch, e);
+            } catch (ResourceRequestDeniedRemoteException e) {
+                throw new QueryException(QueryError.InstanceLimitExceeded, e);
             } catch (RemoteException e) {
                 throw new QueryException(QueryError.GeneralError, e);
             }

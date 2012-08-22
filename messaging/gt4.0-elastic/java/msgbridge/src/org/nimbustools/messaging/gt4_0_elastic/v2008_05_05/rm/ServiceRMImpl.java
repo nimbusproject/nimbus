@@ -30,6 +30,7 @@ import org.nimbustools.api.services.metadata.MetadataServer;
 import org.nimbustools.api.services.rm.IdempotentCreationMismatchException;
 import org.nimbustools.api.services.rm.ManageException;
 import org.nimbustools.api.services.rm.Manager;
+import org.nimbustools.api.services.rm.ResourceRequestDeniedException;
 import org.nimbustools.messaging.gt4_0.common.AddCustomizations;
 import org.nimbustools.messaging.gt4_0_elastic.generated.v2010_08_31.*;
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.ServiceRM;
@@ -166,7 +167,8 @@ public class ServiceRMImpl extends UnimplementedOperations
             // would be better to have a more general way of handling EC2
             // server error responses for both SOAP and Query
             throw new IdempotentCreationMismatchRemoteException(e.getMessage(), e);
-
+        } catch (ResourceRequestDeniedException e) {
+            throw new ResourceRequestDeniedRemoteException(e.getMessage(), e);
         } catch (Exception e) {
             throw new RemoteException(e.getMessage(), e);
         }
