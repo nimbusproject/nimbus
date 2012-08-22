@@ -58,6 +58,8 @@ Actions
                                 propagation mode before being trashed. If
                                 seconds option not specified, default is a
                                 maximum of 30 seconds
+        --force (-f)        -Option to force trashing of instances that
+                                do not shut down properly
 
 -----------------------------------------------------------------------------
 Output options
