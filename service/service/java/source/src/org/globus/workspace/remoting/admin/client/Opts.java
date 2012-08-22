@@ -52,6 +52,11 @@ public class Opts {
     public final Option CONFIG_OPT =
                 OptionBuilder.withLongOpt(CONFIG_LONG).hasArg().create(CONFIG);
 
+    public static final String FORCE = "f";
+    public static final String FORCE_LONG = "force";
+    public final Option FORCE_OPT =
+                OptionBuilder.withLongOpt(FORCE_LONG).create(FORCE);
+
     public static final String BATCH = "b";
     public static final String BATCH_LONG = "batch";
     public final Option BATCH_OPT =
@@ -218,7 +223,7 @@ public class Opts {
                 OptionBuilder.withLongOpt(STATE_LONG).hasArg().create(STATE);
 
     public final Option[] ALL_ENABLED_OPTIONS = {
-            HELP_OPT, DEBUG_OPT, CONFIG_OPT, BATCH_OPT, DELIMITER_OPT,
+            HELP_OPT, DEBUG_OPT, CONFIG_OPT, FORCE_OPT, BATCH_OPT, DELIMITER_OPT,
             REPORT_OPT, JSON_OPT, OUTPUT_OPT, ADD_NODES_OPT, LIST_NODES_OPT,
             REMOVE_NODES_OPT, UPDATE_NODES_OPT, POOL_AVAILABILITY_OPT, NETWORKS_OPT, MEMORY_OPT, POOL_OPT,
             ACTIVE_OPT, INACTIVE_OPT, CLEANUP_VMS_OPT, LIST_VMS_OPT, SHUTDOWN_VMS_OPT, USER_OPT, ID_OPT,

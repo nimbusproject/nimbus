@@ -72,6 +72,7 @@ public class RemoteAdminToolsMain extends RMIConfig {
     private List<String> hostList;
     private boolean allVMs = false;
     private int numOpts = 0;
+    private boolean force = false;
 
     public static void main(String args[]) {
 
@@ -310,6 +311,7 @@ public class RemoteAdminToolsMain extends RMIConfig {
 
         final boolean batchMode = line.hasOption(Opts.BATCH);
         final boolean json = line.hasOption(Opts.JSON);
+        force = line.hasOption(Opts.FORCE);
 
         final Reporter.OutputMode mode;
         if (batchMode && json) {
@@ -353,10 +355,10 @@ public class RemoteAdminToolsMain extends RMIConfig {
         }
 
         final List leftovers = line.getArgList();
-		if (leftovers != null && !leftovers.isEmpty()) {
-			throw new ParameterProblem("There are unrecognized arguments, check -h to make " +
-					"sure you are doing the intended thing: " + leftovers.toString());
-		}
+        if (leftovers != null && !leftovers.isEmpty()) {
+            throw new ParameterProblem("There are unrecognized arguments, check -h to make " +
+                "sure you are doing the intended thing: " + leftovers.toString());
+        }
 
     }
 
@@ -460,12 +462,12 @@ public class RemoteAdminToolsMain extends RMIConfig {
             }
             if(allVMs) {
                 result = this.remoteAdminToolsManagement.shutdown(
-                        RemoteAdminToolsManagement.SHUTDOWN_ALL, null, seconds);
+                        RemoteAdminToolsManagement.SHUTDOWN_ALL, null, seconds, force);
             }
             else if(vmIDs != null) {
                 for(int i = 0; i < vmIDs.size(); i++) {
                     feedback = this.remoteAdminToolsManagement.shutdown(
-                        RemoteAdminToolsManagement.SHUTDOWN_ID, vmIDs.get(i), seconds);
+                        RemoteAdminToolsManagement.SHUTDOWN_ID, vmIDs.get(i), seconds, force);
                     if(feedback != null)
                         result += feedback + "\n";
                 }
@@ -473,7 +475,7 @@ public class RemoteAdminToolsMain extends RMIConfig {
             else if(userList != null) {
                 for(int i = 0; i < userList.size(); i++) {
                     feedback = this.remoteAdminToolsManagement.shutdown(
-                        RemoteAdminToolsManagement.SHUTDOWN_UNAME, userList.get(i), seconds);
+                        RemoteAdminToolsManagement.SHUTDOWN_UNAME, userList.get(i), seconds, force);
                     if(feedback != null)
                         result += feedback + "\n";
                 }
@@ -481,7 +483,7 @@ public class RemoteAdminToolsMain extends RMIConfig {
             else if(DNList != null) {
                 for(int i = 0; i < DNList.size(); i++) {
                     feedback = this.remoteAdminToolsManagement.shutdown(
-                        RemoteAdminToolsManagement.SHUTDOWN_DN, DNList.get(i), seconds);
+                        RemoteAdminToolsManagement.SHUTDOWN_DN, DNList.get(i), seconds, force);
                     if(feedback != null)
                         result += feedback + "\n";
                 }
@@ -489,7 +491,7 @@ public class RemoteAdminToolsMain extends RMIConfig {
             else if(gidList != null) {
                 for(int i = 0; i < gidList.size(); i++) {
                     feedback = this.remoteAdminToolsManagement.shutdown(
-                        RemoteAdminToolsManagement.SHUTDOWN_GID, gidList.get(i), seconds);
+                        RemoteAdminToolsManagement.SHUTDOWN_GID, gidList.get(i), seconds, force);
                     if(feedback != null)
                         result += feedback + "\n";
                 }
@@ -497,7 +499,7 @@ public class RemoteAdminToolsMain extends RMIConfig {
             else if(gnameList != null) {
                 for(int i = 0; i < gnameList.size(); i++) {
                     feedback = this.remoteAdminToolsManagement.shutdown(
-                        RemoteAdminToolsManagement.SHUTDOWN_GNAME, gnameList.get(i), seconds);
+                        RemoteAdminToolsManagement.SHUTDOWN_GNAME, gnameList.get(i), seconds, force);
                     if(feedback != null)
                         result += feedback + "\n";
                 }
@@ -505,7 +507,7 @@ public class RemoteAdminToolsMain extends RMIConfig {
             else if(hostList != null) {
                 for(int i = 0; i < hostList.size(); i++) {
                     feedback = this.remoteAdminToolsManagement.shutdown(
-                        RemoteAdminToolsManagement.SHUTDOWN_HOST, hostList.get(i), seconds);
+                        RemoteAdminToolsManagement.SHUTDOWN_HOST, hostList.get(i), seconds, force);
                     if(feedback != null)
                         result += feedback + "\n";
                 }

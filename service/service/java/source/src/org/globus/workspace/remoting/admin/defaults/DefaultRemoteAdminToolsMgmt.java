@@ -220,9 +220,10 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
      * typeID is either the id or hostname, depending on if shutting down by id or host, or null if shutting down all
      * seconds is optional
      */
-    public String shutdown(int type, String typeID, String seconds) throws RemoteException {
+    public String shutdown(int type, String typeID, String seconds, boolean force) throws RemoteException {
         try {
             VM[] vms;
+            String returnMsg = null;
             vms = typeSet(type, typeID);
 
             if(vms == null || vms.length == 0)
@@ -231,7 +232,16 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
             for(int i = 0; i < vms.length; i++) {
                 String id = vms[i].getID();
                 Caller caller = vms[i].getCreator();
-                manager.shutdown(id, manager.INSTANCE, null, caller);
+                try {
+                    manager.shutdown(id, manager.INSTANCE, null, caller);
+                } catch (OperationDisabledException e) {
+                    logger.warn("Shutdown is currently disabled for instance " + id);
+                    if (returnMsg == null) {
+                        returnMsg = "Shutdown is currently disabled for instance " + id;
+                    } else {
+                        returnMsg += "\nShutdown is currently disabled for instance " + id;
+                    }
+                }
             }
 
             //checks every 3 seconds to see if one of the vms has entered propagation mode
@@ -263,17 +273,23 @@ public class DefaultRemoteAdminToolsMgmt implements RemoteAdminToolsManagement {
             for(int i = 0; i < vms.length; i++) {
                 String id = vms[i].getID();
                 Caller caller = vms[i].getCreator();
-                manager.trash(id, manager.INSTANCE, caller);
+                if (force || vms[i].getState().getState().equals("Propagated")) {
+                    manager.trash(id, manager.INSTANCE, caller);
+                } else {
+                    if (returnMsg == null) {
+                        returnMsg = "Instance " + id + " not trashed because it is was not shut down correctly and --force is off";
+                    } else {
+                        returnMsg += "\nInstance " + id + " not trashed because it is was not shut down correctly and --force is off";
+                    }
+                }
             }
-            return null;
+
+            return returnMsg;
         }
         catch (ManageException e) {
             throw new RemoteException(e.getMessage());
         }
         catch (DoesNotExistException e) {
-            throw new RemoteException(e.getMessage());
-        }
-        catch (OperationDisabledException e) {
             throw new RemoteException(e.getMessage());
         }
         catch (InterruptedException e) {
