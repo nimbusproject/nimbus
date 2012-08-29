@@ -46,6 +46,16 @@ _NIMBUS_IS_DEPRECATED
             It is now possible to select a kernel using the EC2 interface.
         </p>
     </li>
+    <li>
+        <p>
+            nimbus-admin --shutdown --all continues working even when it encounters Corrupted instances.
+        </p>
+    </li>
+    <li>
+        <p>
+            nimbus-admin --shutdown now has a --force flag to activate the hard shutdown if the soft shutdown fails.
+        </p>
+    </li>
 </ul>
 
 <i>2.10 - IaaS Services</i>
@@ -55,6 +65,34 @@ _NIMBUS_IS_DEPRECATED
             <i>Bug Fixes</i>
         </p>
 
+        <ul>
+            <li>
+                <p>
+                    <a href="https://github.com/nimbusproject/nimbus/issues/115">Return the right EC2 error when quota is exceeded</a>
+                </p>
+            </li>
+        </ul>
+        <ul>
+            <li>
+                <p>
+                    <a href="https://github.com/nimbusproject/nimbus/issues/113">Include expired but non-destroyed VMs in nimbus-admin output</a>
+                </p>
+            </li>
+        </ul>
+        <ul>
+            <li>
+                <p>
+                    <a href="https://github.com/nimbusproject/nimbus/issues/112">Make it possible to clean up instances in Corrupted state</a>
+                </p>
+            </li>
+        </ul>
+        <ul>
+            <li>
+                <p>
+                    <a href="https://github.com/nimbusproject/nimbus/issues/110">Allow newlines in Base64-encoded userdata</a>
+                </p>
+            </li>
+        </ul>
         <ul>
             <li>
                 <p>
@@ -143,6 +181,13 @@ _NIMBUS_IS_DEPRECATED
             <i>Bug Fixes</i>
         </p>
 
+        <ul>
+            <li>
+                <p>
+                    <a href="https://github.com/nimbusproject/nimbus/issues/114">Allow Cross Server Redirects in HTTPS staging</a>
+                </p>
+            </li>
+        </ul>
         <ul>
             <li>
                 <p>
