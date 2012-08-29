@@ -11,7 +11,7 @@
 # I. Globals
 # #########################################################{{{
 
-VERSION = "2.10RC1"
+VERSION = "2.10RC2"
 
 # Apache License 2.0:
 LICENSE = """
