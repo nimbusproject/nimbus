@@ -199,7 +199,7 @@ public class DefaultRequestSI extends DefaultRun implements RequestSI {
                                                              req.getInstanceCount().intValue(),
                                                              req.getInstanceCount().intValue(),
                                                              true);
-        final NIC[] nics = this.getNICs(ra.getNetwork());
+        final NIC[] nics = this.getNICs(ra.getPublicNetwork(), ra.getPrivateNetwork());
 
         final RequiredVMM reqVMM = this.RAs.getRequiredVMM();
 

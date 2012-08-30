@@ -62,10 +62,14 @@ public class DefaultResourceAllocations implements ResourceAllocations {
     protected String xlargeName;
     protected String customName;
 
-    protected String smallNetwork = null;
-    protected String largeNetwork = null;
-    protected String xlargeNetwork = null;
-    protected String customNetwork = null;
+    protected String smallPublicNetwork = null;
+    protected String smallPrivateNetwork = null;
+    protected String largePublicNetwork = null;
+    protected String largePrivateNetwork = null;
+    protected String xlargePublicNetwork = null;
+    protected String xlargePrivateNetwork = null;
+    protected String customPublicNetwork = null;
+    protected String customPrivateNetwork = null;
 
     protected String unknownString;
 
@@ -165,20 +169,36 @@ public class DefaultResourceAllocations implements ResourceAllocations {
     // -------------------------------------------------------------------------
     // SET
     // -------------------------------------------------------------------------
-    public void setSmallNetwork(String smallNetwork) {
-        this.smallNetwork = smallNetwork;
+    public void setSmallPublicNetwork(String smallPublicNetwork) {
+        this.smallPublicNetwork = smallPublicNetwork;
     }
 
-    public void setCustomNetwork(String customNetwork) {
-        this.customNetwork = customNetwork;
+    public void setSmallPrivateNetwork(String smallPrivateNetwork) {
+        this.smallPrivateNetwork = smallPrivateNetwork;
     }
 
-    public void setLargeNetwork(String largeNetwork) {
-        this.largeNetwork = largeNetwork;
+    public void setCustomPublicNetwork(String customPublicNetwork) {
+        this.customPublicNetwork = customPublicNetwork;
     }
 
-    public void setXlargeNetwork(String xlargeNetwork) {
-        this.xlargeNetwork = xlargeNetwork;
+    public void setCustomPrivateNetwork(String customPrivateNetwork) {
+        this.customPrivateNetwork = customPrivateNetwork;
+    }
+
+    public void setLargePublicNetwork(String largePublicNetwork) {
+        this.largePublicNetwork = largePublicNetwork;
+    }
+
+    public void setLargePrivateNetwork(String largePrivateNetwork) {
+        this.largePrivateNetwork = largePrivateNetwork;
+    }
+
+    public void setXlargePublicNetwork(String xlargePublicNetwork) {
+        this.xlargePublicNetwork = xlargePublicNetwork;
+    }
+
+    public void setXlargePrivateNetwork(String xlargePrivateNetwork) {
+        this.xlargePrivateNetwork = xlargePrivateNetwork;
     }
 
     public void setCustomMemory(int customMemory) {
@@ -263,20 +283,36 @@ public class DefaultResourceAllocations implements ResourceAllocations {
     // -------------------------------------------------------------------------
     // implements ResourceAllocations
     // -------------------------------------------------------------------------
-    public String getSmallNetwork() {
-        return this.smallNetwork;
+    public String getSmallPublicNetwork() {
+        return this.smallPublicNetwork;
     }
 
-    public String getCustomNetwork() {
-        return this.customNetwork;
+    public String getSmallPrivateNetwork() {
+        return this.smallPrivateNetwork;
     }
 
-    public String getLargeNetwork() {
-        return this.largeNetwork;
+    public String getCustomPublicNetwork() {
+        return this.customPublicNetwork;
     }
 
-    public String getXlargeNetwork() {
-        return this.xlargeNetwork;
+    public String getCustomPrivateNetwork() {
+        return this.customPrivateNetwork;
+    }
+
+    public String getLargePublicNetwork() {
+        return this.largePublicNetwork;
+    }
+
+    public String getLargePrivateNetwork() {
+        return this.largePrivateNetwork;
+    }
+
+    public String getXlargePublicNetwork() {
+        return this.xlargePublicNetwork;
+    }
+
+    public String getXlargePrivateNetwork() {
+        return this.xlargePrivateNetwork;
     }
 
     public String getSpotInstanceType(){
@@ -311,14 +347,14 @@ public class DefaultResourceAllocations implements ResourceAllocations {
         return this.vmmVersion;
     }
 
-    protected String getMatchingName(int memory, int cpus, String network) {
-        if (this.smallMemory == memory && this.smallCPUs == cpus && this.smallNetwork.equals(network)) {
+    protected String getMatchingName(int memory, int cpus, String publicNetwork, String privateNetwork) {
+        if (this.smallMemory == memory && this.smallCPUs == cpus && this.smallPublicNetwork.equals(publicNetwork) && this.smallPrivateNetwork.equals(privateNetwork)) {
             return this.getSmallName();
-        } else if (this.largeMemory == memory && this.largeCPUs == cpus && this.largeNetwork.equals(network)) {
+        } else if (this.largeMemory == memory && this.largeCPUs == cpus && this.largePublicNetwork.equals(publicNetwork) && this.largePrivateNetwork.equals(privateNetwork)) {
             return this.getLargeName();
-        } else if (this.xlargeMemory == memory && this.xlargeCPUs == cpus && this.xlargeNetwork.equals(network)) {
+        } else if (this.xlargeMemory == memory && this.xlargeCPUs == cpus && this.xlargePublicNetwork.equals(publicNetwork) && this.xlargePrivateNetwork.equals(privateNetwork)) {
             return this.getXlargeName();
-        } else if (this.customMemory == memory && this.customCPUs == cpus && this.customNetwork.equals(network)) {
+        } else if (this.customMemory == memory && this.customCPUs == cpus && this.customPublicNetwork.equals(publicNetwork) && this.customPrivateNetwork.equals(privateNetwork)) {
             return this.getCustomName();
         } else {
             return this.unknownString;
@@ -333,12 +369,16 @@ public class DefaultResourceAllocations implements ResourceAllocations {
         }
 
         // Undefined networks in elastic.conf are declared with empty strings
-        String network = ra.getNetwork();
-        if (network == null) {
-                network = "";
+        String publicNetwork = ra.getPublicNetwork();
+        if (publicNetwork == null) {
+                publicNetwork = "";
+        }
+        String privateNetwork = ra.getPrivateNetwork();
+        if (privateNetwork == null) {
+                privateNetwork = "";
         }
 
-        return this.getMatchingName(ra.getMemory(), ra.getIndCpuCount(), network);
+        return this.getMatchingName(ra.getMemory(), ra.getIndCpuCount(), publicNetwork, privateNetwork);
     }
 
     public ResourceAllocation getMatchingRA(String name,
@@ -370,7 +410,8 @@ public class DefaultResourceAllocations implements ResourceAllocations {
 
         Integer cpus = getInstanceCPUs(cmpName);
 
-        String network = getInstanceNetwork(cmpName);
+        String publicNetwork = getInstancePublicNetwork(cmpName);
+        String privateNetwork = getInstancePrivateNetwork(cmpName);
 
         ra.setIndCpuCount(cpus);
 
@@ -378,7 +419,8 @@ public class DefaultResourceAllocations implements ResourceAllocations {
         
         ra.setArchitecture(this.cpuArch);
 
-        ra.setNetwork(network);
+        ra.setPublicNetwork(publicNetwork);
+        ra.setPrivateNetwork(privateNetwork);
 
         return ra;
     }
@@ -415,22 +457,37 @@ public class DefaultResourceAllocations implements ResourceAllocations {
         }
     }
 
-    protected String getInstanceNetwork(final String cmpName)
+    protected String getInstancePublicNetwork(final String cmpName)
             throws CannotTranslateException {
         if (cmpName.equals(this.getSmallName())) {
-            return this.smallNetwork;
+            return this.smallPublicNetwork;
         } else if (cmpName.equals(this.getLargeName())) {
-            return this.largeNetwork;
+            return this.largePublicNetwork;
         } else if (cmpName.equals(this.getXlargeName())) {
-            return this.xlargeNetwork;
+            return this.xlargePublicNetwork;
         } else if (cmpName.equals(this.getCustomName())) {
-            return this.customNetwork;
+            return this.customPublicNetwork;
         } else {
             throw new CannotTranslateException(
                     "Unknown instance type '" + cmpName + "'");
         }
     }
 
+    protected String getInstancePrivateNetwork(final String cmpName)
+            throws CannotTranslateException {
+        if (cmpName.equals(this.getSmallName())) {
+            return this.smallPrivateNetwork;
+        } else if (cmpName.equals(this.getLargeName())) {
+            return this.largePrivateNetwork;
+        } else if (cmpName.equals(this.getXlargeName())) {
+            return this.xlargePrivateNetwork;
+        } else if (cmpName.equals(this.getCustomName())) {
+            return this.customPrivateNetwork;
+        } else {
+            throw new CannotTranslateException(
+                    "Unknown instance type '" + cmpName + "'");
+        }
+    }
 
     public RequiredVMM getRequiredVMM() {
         return this.requestThisVMM;

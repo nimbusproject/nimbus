@@ -36,5 +36,6 @@ public interface ResourceAllocation {
     public int getMemory();
     public int getNodeNumber();
     public boolean isSpotInstance();
-    public String getNetwork();
+    public String getPublicNetwork();
+    public String getPrivateNetwork();
 }

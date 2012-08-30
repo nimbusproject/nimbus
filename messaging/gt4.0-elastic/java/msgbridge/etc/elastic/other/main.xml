@@ -142,10 +142,14 @@
 
          <constructor-arg ref="nimbus-elastic.rm.modulelocator" />
 
-         <property name="smallNetwork" value="$ELASTIC{network.small}" />
-         <property name="largeNetwork" value="$ELASTIC{network.large}" />
-         <property name="xlargeNetwork" value="$ELASTIC{network.xlarge}" />
-         <property name="customNetwork" value="$ELASTIC{network.custom}" />
+         <property name="smallPublicNetwork" value="$ELASTIC{network.public.small}" />
+         <property name="smallPrivateNetwork" value="$ELASTIC{network.private.small}" />
+         <property name="largePublicNetwork" value="$ELASTIC{network.public.large}" />
+         <property name="largePrivateNetwork" value="$ELASTIC{network.private.large}" />
+         <property name="xlargePublicNetwork" value="$ELASTIC{network.public.xlarge}" />
+         <property name="xlargePrivateNetwork" value="$ELASTIC{network.private.xlarge}" />
+         <property name="customPublicNetwork" value="$ELASTIC{network.public.custom}" />
+         <property name="customPrivateNetwork" value="$ELASTIC{network.private.custom}" />
 
          <property name="smallMemory" value="$ELASTIC{memory.small}" /> 
          <property name="largeMemory" value="$ELASTIC{memory.large}" />

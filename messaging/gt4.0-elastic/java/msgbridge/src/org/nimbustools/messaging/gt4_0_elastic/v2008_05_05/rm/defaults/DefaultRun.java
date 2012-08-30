@@ -188,7 +188,7 @@ public class DefaultRun implements Run {
                                                              req.getMinCount(),
                                                              req.getMaxCount(),
                                                              false);
-        final NIC[] nics = this.getNICs(ra.getNetwork());
+        final NIC[] nics = this.getNICs(ra.getPublicNetwork(), ra.getPrivateNetwork());
         final RequiredVMM reqVMM = this.RAs.getRequiredVMM();
 
         String userData = null;
@@ -351,7 +351,7 @@ public class DefaultRun implements Run {
     // NETWORK REQUEST
     // -------------------------------------------------------------------------
 
-    protected NIC[] getNICs(String networkName) throws CannotTranslateException {
+    protected NIC[] getNICs(String publicNetworkName, String privateNetworkName) throws CannotTranslateException {
 
         // if the network mappings are the same value, that currently means
         // only make one real NIC request
@@ -365,11 +365,35 @@ public class DefaultRun implements Run {
         }
 
         final NIC[] nics;
-        if (networkName != null && !networkName.trim().equals("")) {
-            nics = new NIC[1];
-            networkName = networkName.trim();
-            logger.info("Using network name " + networkName);
-            nics[0] = this.oneRequestedNIC(networkName, "autoeth0");
+
+        /* Check that when one of public and private is set, they are both set */
+        if (publicNetworkName != null && !publicNetworkName.trim().equals("")) {
+            if (privateNetworkName == null || privateNetworkName.trim().equals("")) {
+                throw new CannotTranslateException("Illegal Networks " +
+                        "implementation, public network set but null private network mapping");
+            }
+        }
+        if (privateNetworkName != null && !privateNetworkName.trim().equals("")) {
+            if (publicNetworkName == null || publicNetworkName.trim().equals("")) {
+                throw new CannotTranslateException("Illegal Networks " +
+                        "implementation, private network set but null public network mapping");
+            }
+        }
+
+        if (publicNetworkName != null && !publicNetworkName.trim().equals("")) {
+            if (publicNetworkName.trim().equals(privateNetworkName.trim())) {
+                nics = new NIC[1];
+                publicNetworkName = publicNetworkName.trim();
+                logger.info("Using network name " + publicNetworkName);
+                nics[0] = this.oneRequestedNIC(publicNetworkName, "autoeth0");
+            } else {
+                nics = new NIC[2];
+                publicNetworkName = publicNetworkName.trim();
+                privateNetworkName = privateNetworkName.trim();
+                logger.info("Using public network name " + publicNetworkName + " and private network name " + privateNetworkName);
+                nics[0] = this.oneRequestedNIC(publicNetworkName, "autoeth0");
+                nics[1] = this.oneRequestedNIC(privateNetworkName, "autoeth1");
+            }
         }
         else if (pubNet.equals(privNet)) {
             nics = new NIC[1];
@@ -541,7 +565,11 @@ public class DefaultRun implements Run {
         String privateAssignedIp = null;
         String publicAssignedIp = null;
 
-        logger.info("Using network " + netName);
+        if (netName2 != null) {
+            logger.info("Using networks " + netName + " and " + netName2);
+        } else {
+            logger.info("Using network " + netName);
+        }
         if (this.networks.isPrivateNetwork(netName)) {
             riit.setPrivateDnsName(hostname);
             riit.setPrivateIpAddress(ipAddress);

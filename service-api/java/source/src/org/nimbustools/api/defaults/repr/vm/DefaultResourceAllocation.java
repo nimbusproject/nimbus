@@ -31,7 +31,8 @@ public class DefaultResourceAllocation implements _ResourceAllocation {
     private int memory;
     private int nodeNumber;
     private boolean spotInstance;
-    private String network;
+    private String publicNetwork;
+    private String privateNetwork;
 
     // -------------------------------------------------------------------------
     // implements org.nimbustools.api.repr.vm.ResourceAllocation
@@ -49,10 +50,13 @@ public class DefaultResourceAllocation implements _ResourceAllocation {
         return this.indCpuCount;
     }
 
-    public String getNetwork() {
-        return this.network;
+    public String getPublicNetwork() {
+        return this.publicNetwork;
     }
 
+    public String getPrivateNetwork() {
+        return this.privateNetwork;
+    }
 
     public int getCpuPercentage() {
         return this.cpuPercentage;
@@ -94,8 +98,12 @@ public class DefaultResourceAllocation implements _ResourceAllocation {
         this.memory = memory;
     }
 
-    public void setNetwork(String network) {
-        this.network = network;
+    public void setPublicNetwork(String publicNetwork) {
+        this.publicNetwork = publicNetwork;
+    }
+
+    public void setPrivateNetwork(String privateNetwork) {
+        this.privateNetwork = privateNetwork;
     }
 
     public void setNodeNumber(int nodeNumber) {
