@@ -399,12 +399,14 @@ public class DefaultResourceAllocations implements ResourceAllocations {
         String privateNetwork = null;
 
         final NIC[] nics = vm.getNics();
-        if (nics.length == 1) {
-            final String network = nics[0].getNetworkName();
-            publicNetwork = privateNetwork = network;
-        } else if (nics.length >= 2) {
-            publicNetwork = nics[0].getNetworkName();
-            privateNetwork = nics[1].getNetworkName();
+        if (nics != null) {
+            if (nics.length == 1) {
+                final String network = nics[0].getNetworkName();
+                publicNetwork = privateNetwork = network;
+            } else if (nics.length >= 2) {
+                publicNetwork = nics[0].getNetworkName();
+                privateNetwork = nics[1].getNetworkName();
+            }
         }
 
         return this.getMatchingName(ra.getMemory(), ra.getIndCpuCount(), publicNetwork, privateNetwork, managerPublicNetwork, managerPrivateNetwork);
