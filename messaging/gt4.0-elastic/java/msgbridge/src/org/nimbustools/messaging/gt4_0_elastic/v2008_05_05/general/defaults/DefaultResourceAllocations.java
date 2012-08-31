@@ -20,8 +20,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.nimbustools.messaging.gt4_0_elastic.v2008_05_05.general.ResourceAllocations;
-import org.nimbustools.api.repr.vm.ResourceAllocation;
+import org.nimbustools.api.repr.vm.NIC;
 import org.nimbustools.api.repr.vm.RequiredVMM;
+import org.nimbustools.api.repr.vm.ResourceAllocation;
+import org.nimbustools.api.repr.vm.VM;
 import org.nimbustools.api.repr.CannotTranslateException;
 import org.nimbustools.api.repr.ReprFactory;
 import org.nimbustools.api._repr.vm._ResourceAllocation;
@@ -347,38 +349,65 @@ public class DefaultResourceAllocations implements ResourceAllocations {
         return this.vmmVersion;
     }
 
-    protected String getMatchingName(int memory, int cpus, String publicNetwork, String privateNetwork) {
-        if (this.smallMemory == memory && this.smallCPUs == cpus && this.smallPublicNetwork.equals(publicNetwork) && this.smallPrivateNetwork.equals(privateNetwork)) {
+    protected boolean matchingNetwork(String publicNetwork,
+                                      String privateNetwork,
+                                      String instanceTypePublicNetwork,
+                                      String instanceTypePrivateNetwork,
+                                      String managerPublicNetwork,
+                                      String managerPrivateNetwork) {
+        if ((instanceTypePublicNetwork == null || instanceTypePublicNetwork.trim().equals("")) &&
+            (instanceTypePrivateNetwork == null || instanceTypePrivateNetwork.trim().equals(""))) {
+            return managerPublicNetwork.equals(publicNetwork) && managerPrivateNetwork.equals(privateNetwork);
+        } else {
+            return instanceTypePublicNetwork.equals(publicNetwork) && instanceTypePrivateNetwork.equals(privateNetwork);
+        }
+    }
+
+    /* To match a VM with an instance type, we must have:
+     * - same amount of memory as the instance type
+     * - same number of CPUs as the instance type
+     * - if the instance type network configuration is null or empty, the VM network settings match the manager configuration
+     *   else the instance type network configuration match the VM network settings
+     */
+    protected String getMatchingName(int memory, int cpus, String publicNetwork, String privateNetwork, String managerPublicNetwork, String managerPrivateNetwork) {
+        String ret;
+        if (this.smallMemory == memory && this.smallCPUs == cpus &&
+            matchingNetwork(publicNetwork, privateNetwork, smallPublicNetwork, smallPrivateNetwork, managerPublicNetwork, managerPrivateNetwork)) {
             return this.getSmallName();
-        } else if (this.largeMemory == memory && this.largeCPUs == cpus && this.largePublicNetwork.equals(publicNetwork) && this.largePrivateNetwork.equals(privateNetwork)) {
+        } else if (this.largeMemory == memory && this.largeCPUs == cpus &&
+            matchingNetwork(publicNetwork, privateNetwork, largePublicNetwork, largePrivateNetwork, managerPublicNetwork, managerPrivateNetwork)) {
             return this.getLargeName();
-        } else if (this.xlargeMemory == memory && this.xlargeCPUs == cpus && this.xlargePublicNetwork.equals(publicNetwork) && this.xlargePrivateNetwork.equals(privateNetwork)) {
+        } else if (this.xlargeMemory == memory && this.xlargeCPUs == cpus &&
+            matchingNetwork(publicNetwork, privateNetwork, xlargePublicNetwork, xlargePrivateNetwork, managerPublicNetwork, managerPrivateNetwork)) {
             return this.getXlargeName();
-        } else if (this.customMemory == memory && this.customCPUs == cpus && this.customPublicNetwork.equals(publicNetwork) && this.customPrivateNetwork.equals(privateNetwork)) {
+        } else if (this.customMemory == memory && this.customCPUs == cpus &&
+            matchingNetwork(publicNetwork, privateNetwork, customPublicNetwork, customPrivateNetwork, managerPublicNetwork, managerPrivateNetwork)) {
             return this.getCustomName();
         } else {
             return this.unknownString;
         }
     }
 
-    public String getMatchingName(ResourceAllocation ra)
+    public String getMatchingName(VM vm, ResourceAllocation ra, String managerPublicNetwork, String managerPrivateNetwork)
             throws CannotTranslateException {
 
         if (ra == null) {
             throw new CannotTranslateException("RA is missing");
         }
 
-        // Undefined networks in elastic.conf are declared with empty strings
-        String publicNetwork = ra.getPublicNetwork();
-        if (publicNetwork == null) {
-                publicNetwork = "";
-        }
-        String privateNetwork = ra.getPrivateNetwork();
-        if (privateNetwork == null) {
-                privateNetwork = "";
+        String publicNetwork = null;
+        String privateNetwork = null;
+
+        final NIC[] nics = vm.getNics();
+        if (nics.length == 1) {
+            final String network = nics[0].getNetworkName();
+            publicNetwork = privateNetwork = network;
+        } else if (nics.length >= 2) {
+            publicNetwork = nics[0].getNetworkName();
+            privateNetwork = nics[1].getNetworkName();
         }
 
-        return this.getMatchingName(ra.getMemory(), ra.getIndCpuCount(), publicNetwork, privateNetwork);
+        return this.getMatchingName(ra.getMemory(), ra.getIndCpuCount(), publicNetwork, privateNetwork, managerPublicNetwork, managerPrivateNetwork);
     }
 
     public ResourceAllocation getMatchingRA(String name,

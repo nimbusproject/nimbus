@@ -423,7 +423,7 @@ public class DefaultDescribe implements Describe {
             throw new CannotTranslateException("ra is missing");
         }
 
-        return this.RAs.getMatchingName(ra);
+        return this.RAs.getMatchingName(vm, ra, this.networks.getManagerPublicNetworkName(), this.networks.getManagerPrivateNetworkName());
     }
 
     public InstanceStateType getState(VM vm)
