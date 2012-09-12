@@ -27,7 +27,7 @@ object_types[object_type_s3] = 1
 object_types[object_type_gridftp] = 2
 object_types[object_type_hdfs] = 3
 
-Version = "2.10RC2"
+Version = "2.10"
 
 def long_help_callback(option, opt, value, parser, all_opts):
     for o in all_opts:
