@@ -405,7 +405,7 @@ class DefaultImageEditing:
                 self.c.log.error(errmsg)
                 raise UnexpectedError(errmsg)
             else:
-                self.c.log.info("ungzip'd '%s'" + path)
+                self.c.log.info("ungzip'd '%s'" % path)
                 newpath = path[:-3] # remove '.gz'
                 if not os.path.exists(newpath):
                     errstr = "gunzip'd %s but the expected result file does not exist: '%s'" % newpath
