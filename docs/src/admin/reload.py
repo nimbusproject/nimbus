@@ -2,7 +2,7 @@ import sys
 import os
 import tempfile
 
-(osh, tmp_file)  = tempfile.mkstemp()
+(osh, tmp_file) = tempfile.mkstemp()
 old_nimbus = sys.argv[1]
 new_nimbus = sys.argv[2]
 
