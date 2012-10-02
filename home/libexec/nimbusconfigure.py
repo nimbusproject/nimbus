@@ -652,15 +652,12 @@ def copy_accounting_db(setup, old_db_path):
     
     # The one we're about to replace
     new_db_path = os.path.join(setup.gtdir, 'var/nimbus/WorkspaceAccountingDB')
-    if not os.path.isdir(new_db_path):
-        raise IncompatibleEnvironment("Could not find current Accounting DB: %s"
-                % new_db_path)
-
-    # back this up, just in case this script is used in an odd way
-    backup_db_path = os.path.join(setup.gtdir, 'var/nimbus/.prev-accountingDB')
-    print "\nBacking up accounting DB to: %s ... " % backup_db_path
-    shutil.move(new_db_path, backup_db_path)
-    print " - Done."
+    if os.path.isdir(new_db_path):
+        # back this up, just in case this script is used in an odd way
+        backup_db_path = os.path.join(setup.gtdir, 'var/nimbus/.prev-accountingDB')
+        print "\nBacking up accounting DB to: %s ... " % backup_db_path
+        shutil.move(new_db_path, backup_db_path)
+        print " - Done."
 
     print "\nImporting accounting DB to: %s ... " % new_db_path
     shutil.copytree(old_db_path, new_db_path)
