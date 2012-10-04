@@ -24,7 +24,7 @@ f = open(tmp_file, "r")
 for line in f:
     parts = line.split(',')
 
-    new_cmd = "%s/bin/nimbus-nodes --add '%s' -p '%s' -m '%s' -n '%s'" % (new_nimbus, parts[0], parts[1], parts[2], parts[3])
+    new_cmd = "%s/bin/nimbus-nodes --add '%s' -p '%s' -m '%s' -n '%s'" % (new_nimbus, parts[0], parts[1], parts[2], parts[4])
 
     os.system(new_cmd)
 
