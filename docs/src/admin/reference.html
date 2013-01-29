@@ -58,6 +58,11 @@ _NIMBUS_IS_DEPRECATED
     </li>
     <li>
         <p>
+            <a href="#expose-vmm">Exposing VMM details to users</a>
+        </p>
+    </li>
+    <li>
+        <p>
             <a href="#elastic">Enabling the EC2 SOAP frontend</a>
         </p>
     </li>
@@ -871,6 +876,25 @@ $
 
 <p>
     Todo: speak of nimbus-new-user integration
+</p>
+
+
+
+
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+<!-- *********************************************************************** -->
+
+
+<br />
+
+<a name="expose-vmm"> </a>
+<h2>Exposing VMM details to users _NAMELINK(expose-vmm)</h2>
+
+<p>
+    By default, users don't know on which VMM their virtual machines are running.
+    This can be exposed to users by setting <tt class="literal">details.hostname=true</tt> in <tt class="literal">$NIMBUS_HOME/services/etc/nimbus/workspace-service/other/common.conf</tt>.
+    Users will get a <i>Details</i> line with the VMM hostname in the output of <tt class="literal">--status<tt> with cloud-client.
 </p>
 
 
