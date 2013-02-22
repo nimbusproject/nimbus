@@ -9,8 +9,8 @@
       <root url="jar://$PROJECT_DIR$/lib/workspaceservice/derbyclient.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/workspaceservice/derbytools.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/workspaceservice/derbyrun.jar!/" />
-      <root url="jar://$PROJECT_DIR$/lib/workspaceservice/junixsocket-rmi-1.3.jar!/" />
-      <root url="jar://$PROJECT_DIR$/lib/workspaceservice/junixsocket-1.3.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/workspaceservice/junixsocket-rmi-1.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/workspaceservice/junixsocket-1.4.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/workspaceservice/sqlitejdbc-v056.jar!/" />
     </CLASSES>
     <JAVADOC />
