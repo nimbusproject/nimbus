@@ -140,18 +140,19 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+# NOTE: This is disabled for now, since there are no longer any native libraries
 # add in native libraries
-LIBNATIVE="$CONTAINER_DIR/lib-native"
-mkdir -p $LIBNATIVE
-if [ $? -ne 0 ]; then
-    echo "Creation of $LIBNATIVE directory failed"
-    exit 1
-fi
-cp $NIMBUS_SRC/lib/native/* $LIBNATIVE/
-if [ $? -ne 0 ]; then
-    echo "Deployment of native libs failed"
-    exit 1
-fi
+#LIBNATIVE="$CONTAINER_DIR/lib-native"
+#mkdir -p $LIBNATIVE
+#if [ $? -ne 0 ]; then
+#    echo "Creation of $LIBNATIVE directory failed"
+#    exit 1
+#fi
+#cp $NIMBUS_SRC/lib/native/* $LIBNATIVE/
+#if [ $? -ne 0 ]; then
+#    echo "Deployment of native libs failed"
+#    exit 1
+#fi
 
 # create domain sockets privileged directory
 PRIVILEGED="$NIMBUS_HOME/var/run/privileged"
