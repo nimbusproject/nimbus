@@ -86,11 +86,16 @@ MKDIR="/bin/mkdir"
 CHMOD="/bin/chmod"
 MODPROBE="/sbin/modprobe"
 EXPR="/usr/bin/expr"
+PKILL="/usr/bin/pkill"
 
 # qemu-nbd is used when an HD image is in qcow2 format.
 # It will be used to attach the HD image as an nbd device, which allows to
 # mount the root partition inside.
+#
+# Make sure QEMU_NBD is the full path to the qemu-nbd executable, and
+# QEMU_NBD_NAME matches its process name (usually qemu-nbd).
 QEMU_NBD="/usr/bin/qemu-nbd"
+QEMU_NBD_NAME="qemu-nbd"
 
 FLOCKFILE=/opt/nimbus/var/workspace-control/lock/loopback.lock
 FLOCK=/usr/bin/flock
@@ -348,6 +353,29 @@ function qemu_nbd_disconnect () {
       echo "  - successful"
     fi
   fi
+
+  # Sometimes qemu-nbd process get stuck and a disconnect is not enough.
+  # So we kill them.
+  cmd="$PKILL -9 $QEMU_NBD_NAME"
+
+  echo "command = $cmd"
+  if [ "$DRYRUN" != "true" ]; then
+    ( $cmd )
+    if [ $? -eq 0 ]; then
+      # One or more processes matched the criteria:
+      # let's log some info
+      echo "  - successful"
+      echo ""
+      echo "!!! We killed some (stuck?) $QEMU_NBD_NAME processes !!!"
+      echo ""
+    elif [ $? -eq 1 ]; then
+      echo "  - successful (no process killed)"
+    else
+      problem="true"
+      echo "  - failed"
+    fi
+  fi
+
 }
 
 (
@@ -376,7 +404,14 @@ if [ "$subcommand" = "QCOWONE" ]; then
 
   echo "command = $cmd"
   if [ "$DRYRUN" != "true" ]; then
-    ( $cmd )
+    (
+      # Close the lock file descriptor in this subshell, otherwise it stays
+      # locked in the qemu-nbd daemonized process.  If qemu-nbd hangs, further
+      # mount-alter won't be able to flock.
+      exec 200>&-
+      $cmd
+    )
+
     if [ $? -ne 0 ]; then
       # xm will print to stderr
       exit 6
