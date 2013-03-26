@@ -244,14 +244,14 @@ dynamic_ownership = 0
 
 
 <p>
-  First, make the nimbus user a member of the root group:
+  First, make the nimbus user a member of the libvirtd group:
 </p>
 <div class="panel"><pre>
 root # usermod -a -G libvirtd nimbus
 </pre></div>
 
 <p>
-  Make the libvirt domain socket available for reading and writing by the root group by enabling the following configurations in <tt class="literal">/etc/libvirt/libvirtd.conf</tt>
+  Make the libvirt domain socket available for reading and writing by the libvirtd group by enabling the following configurations in <tt class="literal">/etc/libvirt/libvirtd.conf</tt>
 </p>
 
 <div class="panel"><pre>
@@ -260,6 +260,10 @@ unix_sock_ro_perms = "0770"
 unix_sock_rw_perms = "0770"
 unix_sock_dir = "/var/run/libvirt"
 </pre></div>
+
+<p>
+  On some distributions you may need to specify <tt class="literal">auth_unix_rw = "none"</tt> if libvirt defaults to using PolicyKit.
+</p>
 
 <div class="note">
   <tt class="literal">libvirtd</tt> needs to be restarted for any changes to take effect.  Validate your changes by checking the permissions with "ls" again.
@@ -402,7 +406,8 @@ nimbus $ gunzip ubuntu10.10.gz
 </pre></div>
 <p>
 This is an ubuntu 10.10 base install image with an on-board kernel.  It runs
-ssh when it boots.  This image does not run the context agent.
+ssh when it boots. However, root password logins are disabled (both on console
+and SSH).  This image does not run the context agent.
 </p>
 </div>
 
