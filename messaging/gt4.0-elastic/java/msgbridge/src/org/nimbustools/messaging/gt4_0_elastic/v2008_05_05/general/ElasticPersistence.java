@@ -49,7 +49,7 @@ public interface ElasticPersistence {
             "fingerprint from ssh_keypairs where owner = ?";
     String INSERT_SSH_KEY = "insert into ssh_keypairs " +
             "(owner, keyname, pubkey, fingerprint) values(?,?,?,?)";
-    String UPDATE_SSH_KEY = "updatessh_keypairs " +
+    String UPDATE_SSH_KEY = "update ssh_keypairs " +
             "set pubkey = ?, fingerprint = ? where owner = ? and keyname = ?";
     String DELETE_SSH_KEY = "delete from ssh_keypairs " +
             "where owner = ? and keyname = ?";
