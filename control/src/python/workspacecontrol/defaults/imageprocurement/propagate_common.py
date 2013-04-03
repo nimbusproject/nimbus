@@ -219,7 +219,7 @@ class DefaultImageProcurement:
         else:
             raise InvalidConfig("'%s' exists on the filesystem but is not rwx"
                        % blankspacedir)
-        self.c.log.debug("blankspace partition directory (per-instance blankspace): %s" % self.blankspacedir)
+        self.c.log.debug("blankspace partition directory (per-instance blankspace): %s" % blankspacedir)
         return blankspacedir
 
     def _validate_blankspacecreate(self):
