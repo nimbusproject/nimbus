@@ -241,15 +241,21 @@ class Platform:
             return None
         
         self.c.log.debug("found VM with name '%s'" % handle)
-            
-        rvm_cls = self.c.get_class_by_keyword("RunningVM")
-        rvm = rvm_cls()
-        rvm.wchandle = handle
-        rvm.vmm_id = vm.ID()
-        rvm.vmm_uuid = vm.UUIDString()
-        rvm.xmldesc = vm.XMLDesc(0)
-        rvm.ostype = vm.OSType()
-        
+
+        try:
+            rvm_cls = self.c.get_class_by_keyword("RunningVM")
+            rvm = rvm_cls()
+            rvm.wchandle = handle
+            rvm.vmm_id = vm.ID()
+            rvm.vmm_uuid = vm.UUIDString()
+            rvm.xmldesc = vm.XMLDesc(0)
+            rvm.ostype = vm.OSType()
+        except libvirt.libvirtError, e:
+            shorterr = "Problem getting info from the VMM: %s" % str(e)
+            self.c.log.error(shorterr)
+            self.c.log.exception(e)
+            raise UnexpectedError(shorterr)
+
         infolist = vm.info()
         if not infolist:
             raise UnexpectedError("Problem obtaining VM information from libvirt")
