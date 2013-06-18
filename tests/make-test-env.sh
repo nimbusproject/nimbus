@@ -283,6 +283,9 @@ fi
 
 cp $src_dir/public  $install_dir/services/etc/nimbus/workspace-service/network-pools/public
 
+# Install test dependencies
+source $NIMBUS_HOME/ve/bin/activate
+easy_install pexpect
 
 echo $work_dir
 export NIMBUS_TEST_USER=$user_name
