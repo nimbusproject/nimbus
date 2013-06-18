@@ -38,7 +38,7 @@ if [ "X$2" == "X" ]; then
 
     echo "Making the Python virtual environment."
     echo ""
-    $PYTHON $source_dir/virtualenv.py -p $PYTHON $installdir
+    $PYTHON $source_dir/virtualenv.py --no-site-packages -p $PYTHON $installdir
     if [ $? -ne 0 ]; then
         echo "The virtural env installation failed"
         exit 1
