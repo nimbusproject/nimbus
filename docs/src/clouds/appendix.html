@@ -219,11 +219,8 @@ _EXAMPLE_CMD_END
     </li>
     <li>
         <p>
-            The image is an ext2/ext3 root partition file and it mounts to /dev/sda1
-        </p>
-		<p>
-            <B>NOTE:</B>On the University of Chicago installation, "/dev/xvda1" is currently
-			required in the <i>/etc/fstab</i> file instead of "/dev/sda1".
+            If the hypervisor is Xen, the image must be an ext2/ext3 root partition file and must mount to /dev/sda1.
+            If the hypervisor is KVM, the image must be a virtual disk with an MBR, with an ext2/ext3 root partition as first partition (/dev/sda1 or /dev/hda1).
         </p>
     </li>
     <li>
