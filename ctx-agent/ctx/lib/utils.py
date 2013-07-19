@@ -1,3 +1,4 @@
+import re
 import os
 import sys
 import time
@@ -65,6 +66,14 @@ def getlogfilepath():
 # #########################################################
 # Path/system utilities
 # #########################################################
+
+all_chars = (unichr(i) for i in xrange(0x110000))
+control_chars = ''.join(map(unichr, range(0,32) + range(127,160)))
+control_char_re = re.compile('[%s]' % re.escape(control_chars))
+
+def remove_control_chars(s):
+    """thanks to http://stackoverflow.com/a/93029"""
+    return control_char_re.sub('', s)
 
 def uuidgen():
     return commands.getoutput('uuidgen')
@@ -260,6 +269,7 @@ def ifconfig(ifname):
    
 def write_repl_file(path, outputtext, log_override=None):
     """TODO: switch this to use tempfile.mkstemp"""
+    outputtext = remove_control_chars(outputtext)
     log = getlog(override=log_override)
     f = None
     try:
