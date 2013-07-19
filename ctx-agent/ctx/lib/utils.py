@@ -50,7 +50,7 @@ def terminateok():
 # #########################################################
 # log path utils
 # #########################################################
- 
+
 def setlogfilepath(path):
     global _logfilepath
     _logfilepath = path
@@ -61,23 +61,35 @@ def getlogfilepath():
     except:
         return None
     return _logfilepath
-    
- 
+
+
 # #########################################################
 # Path/system utilities
 # #########################################################
 
-all_chars = (unichr(i) for i in xrange(0x110000))
-control_chars = ''.join(map(unichr, range(0,32) + range(127,160)))
-control_char_re = re.compile('[%s]' % re.escape(control_chars))
+def strip_control_characters(input):
 
-def remove_control_chars(s):
-    """thanks to http://stackoverflow.com/a/93029"""
-    return control_char_re.sub('', s)
+    if input:
+
+        # unicode invalid characters
+        RE_XML_ILLEGAL = u'([\u0000-\u0008\u000b-\u000c\u000e-\u001f\ufffe-\uffff])' + \
+                         u'|' + \
+                         u'([%s-%s][^%s-%s])|([^%s-%s][%s-%s])|([%s-%s]$)|(^[%s-%s])' % \
+                          (unichr(0xd800),unichr(0xdbff),unichr(0xdc00),unichr(0xdfff),
+                           unichr(0xd800),unichr(0xdbff),unichr(0xdc00),unichr(0xdfff),
+                           unichr(0xd800),unichr(0xdbff),unichr(0xdc00),unichr(0xdfff),
+                          )
+        input = re.sub(RE_XML_ILLEGAL, "", input)
+
+        # ascii control characters
+        input = re.sub(r"[\x01-\x09\x11-\x1F\x7F]", "", input)
+
+    return input
+
 
 def uuidgen():
     return commands.getoutput('uuidgen')
-        
+
 def modeStr(mode):
     string=""
     mode=stat.S_IMODE(mode)
@@ -88,7 +100,7 @@ def modeStr(mode):
             else:
                 string = string + "-"
     return string
-    
+
 def mode600(mode):
     mode = stat.S_IMODE(mode)
     if not mode & stat.S_IRUSR:
@@ -100,41 +112,41 @@ def mode600(mode):
             if mode & getattr(stat, "S_I"+ perm + i):
                 return False
     return True
-            
+
 class SimpleRunThread(Thread):
     """Run a command with timeout options, delay, stdin, etc."""
-    
+
     def __init__(self, cmd, killsig=-1, killtime=0, stdin=None, delay=None, log_override=None):
         """Populate the thread.
-        
+
         Required parameters:
-        
+
         * cmd -- command to run
-        
+
         Keyword parameters:
-        
-        * killsig -- signum to kill with, default is unset 
+
+        * killsig -- signum to kill with, default is unset
         (needed if you set a killtime)
-        
-        * killtime -- secs (float or int) to wait before kill, default is 
+
+        * killtime -- secs (float or int) to wait before kill, default is
         unset (if set, needs killsig parameter)
-        
+
         * stdin -- optional stdin to push, default is unset
-        
+
         * delay -- secs (float or int) to wait before invoking cmd
-        
+
         Properties available:
-        
+
         * stdout -- stdout data or None
-        
+
         * stderr -- stderr data or None
-        
+
         * killed -- boolean, set True if cmd was killed
-        
+
         * exception -- if kill won't work
-        
+
         """
-        
+
         Thread.__init__(self)
         self.cmd = cmd
         self.stdin = stdin
@@ -147,7 +159,7 @@ class SimpleRunThread(Thread):
         self.stderr = None
         self.killed = False
         self.log = getlog(override=log_override)
-        
+
     def run(self):
         if self.delay:
             self.log.debug("delaying for %.3f secs: '%s'" % (self.delay, self.cmd))
@@ -168,7 +180,7 @@ class SimpleRunThread(Thread):
             if p.poll() != -1:
                 done = True
             self.killtime -= 0.2
-            
+
         if not done and self.killsig != -1:
             try:
                 os.kill(p.pid, self.killsig)
@@ -177,7 +189,7 @@ class SimpleRunThread(Thread):
                 self.log.exception("problem killing")
                 self.exception = e
                 return
-                
+
         status = p.wait()
         if os.WIFSIGNALED(status):
             self.exit = "SIGNAL: " + str(os.WTERMSIG(status))
@@ -185,40 +197,40 @@ class SimpleRunThread(Thread):
             self.exit = str(os.WEXITSTATUS(status))
         else:
             self.exit = "UNKNOWN"
-            
+
         self.stdout = p.fromchild.read()
         self.stderr = p.childerr.read()
         p.fromchild.close()
         p.childerr.close()
         self.log.debug("program ended: '%s'" % self.cmd)
-        
+
 def runexe(cmd, killtime=2.0, retry=0):
     """Run a system program.
-    
+
     Required parameter:
-    
+
     * cmd -- command to run, string
-    
+
     * retry -- how many retry we will do when the exit status is non-zero
     Default is 0.
-    
+
     Keyword parameter:
-    
+
     * killtime -- how many seconds to wait before SIGKILL (int or float)
     Default is 2.0 seconds.
-    
+
     Return (exitcode, stdout, stderr)
-    
+
     * exitcode -- string exit code or msg
-    
+
     * stdout -- stdout or None
-    
+
     * stderr -- stderr or None
-    
+
     Raises IncompatibleEnvironment for serious issue (but not on non-zero exit)
-    
+
     """
-    
+
     for i in range(retry+1):
         if killtime > 0:
             thr = SimpleRunThread(cmd, killsig=signal.SIGKILL, killtime=killtime)
@@ -226,7 +238,7 @@ def runexe(cmd, killtime=2.0, retry=0):
             thr = SimpleRunThread(cmd)
         thr.start()
         thr.join()
-    
+
         # sudo child won't take signals
         if thr.exception:
             raise IncompatibleEnvironment(str(thr.exception))
@@ -235,9 +247,9 @@ def runexe(cmd, killtime=2.0, retry=0):
             break
         else:
             time.sleep(0.5)
-        
+
     return (thr.exit, thr.stdout, thr.stderr)
-       
+
 
 # ifconfig and _ifinfo are snippets from python mailing list (very nice)
 def _ifinfo(sock, addr, ifname):
@@ -266,10 +278,10 @@ def ifconfig(ifname):
     sock.close()
     return ifreq
 
-   
+
 def write_repl_file(path, outputtext, log_override=None):
     """TODO: switch this to use tempfile.mkstemp"""
-    outputtext = remove_control_chars(outputtext)
+    outputtext = strip_control_characters(outputtext)
     log = getlog(override=log_override)
     f = None
     try:
@@ -281,7 +293,7 @@ def write_repl_file(path, outputtext, log_override=None):
         except:
             exception_type = sys.exc_type
             try:
-                exceptname = exception_type.__name__ 
+                exceptname = exception_type.__name__
             except AttributeError:
                 exceptname = exception_type
             name = str(exceptname)
@@ -293,7 +305,7 @@ def write_repl_file(path, outputtext, log_override=None):
     finally:
         if f:
             f.close()
-            
+
     # chmod user-only read/write
     target = stat.S_IRUSR | stat.S_IWUSR
     try:
@@ -301,7 +313,7 @@ def write_repl_file(path, outputtext, log_override=None):
     except:
         exception_type = sys.exc_type
         try:
-            exceptname = exception_type.__name__ 
+            exceptname = exception_type.__name__
         except AttributeError:
             exceptname = exception_type
         name = str(exceptname)
@@ -309,16 +321,16 @@ def write_repl_file(path, outputtext, log_override=None):
         errmsg = "Problem chmod-ing '%s': %s: %s\n" % (path, name, err)
         log.error(errmsg)
         raise UnexpectedError(errmsg)
-        
+
     # make sure it happened
     midx = stat.ST_MODE
     errmsg = "Failed to modify '%s' to %s" % (path, modeStr(target))
     en2 = os.stat(path)
     if not mode600(en2[midx]):
         raise UnexpectedError(errmsg)
-        
+
     log.debug("Created '%s' and modified permissions to 600" % path)
-    
+
     f = None
     try:
         try:
@@ -328,7 +340,7 @@ def write_repl_file(path, outputtext, log_override=None):
         except:
             exception_type = sys.exc_type
             try:
-                exceptname = exception_type.__name__ 
+                exceptname = exception_type.__name__
             except AttributeError:
                 exceptname = exception_type
             name = str(exceptname)
@@ -342,5 +354,5 @@ def write_repl_file(path, outputtext, log_override=None):
             f.close()
 
     log.info("Wrote '%s'." % path)
-            
+
 # }}} END: Path/system utilities
