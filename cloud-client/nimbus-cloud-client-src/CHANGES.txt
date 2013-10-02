@@ -1,3 +1,7 @@
+nimbus-cloud-client-022
+-----------------------
+[*] Updated the default trusted X509 certificates to include the new FutureGrid
+    Alamo certificate chain.
 
 nimbus-cloud-client-021
 -----------------------
