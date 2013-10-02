@@ -1,0 +1,4 @@
+# EACL for AddTrust External CA Root
+ access_id_CA   X509    '/C=SE/O=AddTrust AB/OU=AddTrust External TTP Network/CN=AddTrust External CA Root'
+ pos_rights     globus  CA:sign
+ cond_subjects  globus  '"/C=SE/O=AddTrust AB/OU=AddTrust External TTP Network/CN=AddTrust External CA Root" "/C=US/ST=UT/L=Salt Lake City/O=The USERTRUST Network/OU=http://www.usertrust.com/CN=UTN-USERFirst-Hardware" "/C=US/O=Internet2/OU=InCommon/CN=InCommon Server CA"'
