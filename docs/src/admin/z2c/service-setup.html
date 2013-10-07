@@ -219,10 +219,10 @@ cloud properties : /tmp/newuser/cloud.properties
     (version must be >= 16).
 </p>
 <pre class="panel">
-$ curl -O http://www.nimbusproject.org/downloads/nimbus-cloud-client-021.tar.gz
+$ curl -O http://www.nimbusproject.org/downloads/nimbus-cloud-client-022.tar.gz
 </pre>
 <pre class="panel">
-$ tar xfz nimbus-cloud-client-021.tar.gz
+$ tar xfz nimbus-cloud-client-022.tar.gz
 </pre>
 
 <p>
@@ -235,7 +235,7 @@ $ tar xfz nimbus-cloud-client-021.tar.gz
     any credentials you already have in <tt class="literal">~/.nimbus/</tt>.
 </p>
 <pre class="panel">
-$ cp /tmp/newuser/cloud.properties nimbus-cloud-client-021/conf/
+$ cp /tmp/newuser/cloud.properties nimbus-cloud-client-022/conf/
 </pre>
 <pre class="panel">
 $ mkdir ~/.nimbus/
@@ -256,7 +256,7 @@ $ cp /tmp/newuser/*.pem ~/.nimbus/
     <tt class="literal">$NIMBUS_HOME/var/ca/trusted-certs/</tt>.
 </p>
 <pre class="panel">
-$ cp $NIMBUS_HOME/var/ca/trusted-certs/* nimbus-cloud-client-021/lib/certs/
+$ cp $NIMBUS_HOME/var/ca/trusted-certs/* nimbus-cloud-client-022/lib/certs/
 </pre>
 
 <a name="try"> </a>
@@ -268,7 +268,7 @@ $ cp $NIMBUS_HOME/var/ca/trusted-certs/* nimbus-cloud-client-021/lib/certs/
     or security problems.
 </p>
 <pre class="panel">
-$ cd nimbus-cloud-client-021/
+$ cd nimbus-cloud-client-022/
 </pre>
 <pre class="panel">
 $ ./bin/cloud-client.sh --status
