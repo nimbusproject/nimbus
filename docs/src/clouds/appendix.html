@@ -219,7 +219,7 @@ _EXAMPLE_CMD_END
     </li>
     <li>
         <p>
-            If the hypervisor is Xen, the image must be an ext2/ext3 root partition file and must mount to /dev/sda1.
+            If the hypervisor is Xen, the image must be an ext2/ext3 root partition file (i.e. just the file system without any MBR) and must mount to /dev/sda1. It must be configured to use Xen PV (paravirtualization mode).
             If the hypervisor is KVM, the image must be a virtual disk with an MBR, with an ext2/ext3 root partition as first partition (/dev/sda1 or /dev/hda1).
         </p>
     </li>
