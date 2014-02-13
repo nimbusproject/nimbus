@@ -572,7 +572,7 @@ Options:
 </pre></div>
 
 <p>
-  That image we downloaded is at <tt class="literal">/tmp/nimbus-z2c</tt>, that will be the value for the <tt class="literal">--image</tt> flag.
+That image we downloaded is at <tt class="literal">/tmp/nimbus-z2c</tt> or <tt class="literal">/tmp/ubuntu10.10</tt>, that will be the value for the <tt class="literal">--image</tt> flag.
 </p>
 
 <p>
@@ -580,9 +580,8 @@ Options:
 </p>
 
 <p>
-  The <tt class="literal">--mountpoint</tt> value will be <tt class="literal">sda1</tt> if you are using xen and 
-<tt class="literal">hda</tt> if you are using kvm
- for the nimbus-z2c image.
+  The <tt class="literal">--mountpoint</tt> value will be <tt class="literal">sda1</tt> if you are using xen with the nimbus-z2c image and 
+<tt class="literal">hda</tt> if you are using kvm with the ubuntu10.10 image.
 </p>
 
 <p>
@@ -598,7 +597,7 @@ nimbus $ ./sbin/libvirt-xml.sh  --image /tmp/nimbus-z2c --netsample \
 /tmp/control.netsample.txt --memory 256 --mountpoint sda1
 </pre></div>
 <div class="kvmpanel"><pre>
-nimbus $ ./sbin/libvirt-xml.sh  --image /tmp/nimbus-z2c --netsample \
+nimbus $ ./sbin/libvirt-xml.sh  --image /tmp/ubuntu10.10 --netsample \
 /tmp/control.netsample.txt --memory 256 --mountpoint hda
 </pre></div>
 
@@ -642,7 +641,7 @@ nimbus $ ./sbin/libvirt-xml.sh --image /tmp/nimbus-z2c --netsample \
 /tmp/control.netsample.txt --memory 256 --mountpoint sda1 > /tmp/z2c.xml
 </pre></div>
 <div class="kvmpanel"><pre>
-nimbus $ ./sbin/libvirt-xml.sh --image /tmp/nimbus-z2c --netsample \
+nimbus $ ./sbin/libvirt-xml.sh --image /tmp/ubuntu10.10 --netsample \
 /tmp/control.netsample.txt --memory 256 --mountpoint hda > /tmp/z2c.xml
 </pre></div>
 
@@ -768,7 +767,7 @@ $ echo $?
 0
 </pre></div>
 <div class="kvmpanel"><pre>
-$ ./sbin/control-test.sh --image /tmp/nimbus-z2c --netsample \
+$ ./sbin/control-test.sh --image /tmp/ubuntu10.10 --netsample \
 /tmp/control.netsample.txt --memory 256 --mountpoint hda
 
 $ echo $?
