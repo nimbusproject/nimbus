@@ -171,7 +171,7 @@ if [ "X" != "X$PREVIOUS_NIMBUS_HOME_VALIDATED" ]; then
     fi
     
     old_vmmdir="$PREVIOUS_NIMBUS_HOME_VALIDATED/services/etc/nimbus/workspace-service/vmm-pools"
-    vmm_cmd="$CONFIG_SCRIPT $EXTRA_CONFIG_SCRIPT_ARGS --import-vmms $old_vmmdir"
+    vmm_cmd="$CONFIG_SCRIPT $EXTRA_CONFIG_SCRIPT_ARGS --import-2.5-vmms $old_vmmdir"
 fi
 
 $CONFIG_SCRIPT $EXTRA_CONFIG_SCRIPT_ARGS
