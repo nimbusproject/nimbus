@@ -1273,7 +1273,9 @@ hostname = &lt;hostname&gt;
         directory, in hashed format.
     </li>
     <li><b>hostkey.pem</b> - The private key. Must be unencrypted and readable
-    by the Nimbus user.</li>
+    by the Nimbus user. Make sure it is in PKCS#1 format, which starts with
+    -----BEGIN RSA PRIVATE KEY-----. If not, you can use <em>openssl rsa</em>
+    to convert it.</li>
     <li><b>keystore.jks</b> - Some Nimbus services require this special Java
     Key Store format. The <em>nimbus-configure</em> program generates this
     file from the host cert and key. If you delete the file, it can
