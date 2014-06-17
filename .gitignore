@@ -34,7 +34,7 @@ setuptools-0.6c11-py2.7.egg
 /cumulus/conf/etc/cumulus_tests_https.ini
 /cumulus/conf/etc/env.sh
 /cumulus/deps/SQLAlchemy-0.6.8.tar.gz
-/cumulus/deps/Twisted-10.0.0.tar.bz2
+/cumulus/deps/Twisted-10.2.0.tar.bz2
 /cumulus/deps/boto-2.0b4.tar.gz
 /cumulus/deps/cumulus-deps.tar.gz
 /cumulus/deps/nose-0.11.3.tar.gz

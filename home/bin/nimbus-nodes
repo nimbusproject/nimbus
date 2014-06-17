@@ -14,7 +14,7 @@ CMD_OPTIONS="--conf ${CONF}"
 
 JARS="nimbus-workspace-service.jar nimbus-service-api.jar gson-1.4.jar \
 junixsocket-1.4.jar junixsocket-rmi-1.4.jar junixsocket-native-linux-1.4.jar \
-commons-cli-2.0.jar log4j-1.2.15.jar commons-logging.jar"
+junixsocket-native-macosx-1.4.jar commons-cli-2.0.jar log4j-1.2.15.jar commons-logging.jar"
 
 CLASSPATH=""
 for JAR in $JARS; do

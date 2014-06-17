@@ -1,7 +1,7 @@
 deps/boto-2.0b4.tar.gz
 deps/pyOpenSSL-0.10.tar.gz
 deps/zope.interface-3.6.1.tar.gz
-deps/Twisted-10.0.0.tar.bz2
+deps/Twisted-10.2.0.tar.bz2
 deps/nose-0.11.3.tar.gz
 deps/simplejson-2.1.6.tar.gz
 deps/SQLAlchemy-0.6.8.tar.gz
