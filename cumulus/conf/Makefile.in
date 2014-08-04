@@ -37,7 +37,7 @@ DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
 	$(top_srcdir)/etc/cumulus.ini.in \
 	$(top_srcdir)/etc/cumulus_tests.ini.in \
 	$(top_srcdir)/etc/cumulus_tests_https.ini.in \
-	$(top_srcdir)/etc/env.sh.in AUTHORS COPYING ChangeLog INSTALL \
+	$(top_srcdir)/etc/env.sh.in AUTHORS ChangeLog INSTALL \
 	NEWS install-sh missing
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
