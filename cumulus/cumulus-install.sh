@@ -139,6 +139,7 @@ if [ $? -ne 0 ]; then
     echo "configure failed"
     exit 1
 fi
+automake --add-missing
 make install
 if [ $? -ne 0 ]; then
     echo "make install failed"

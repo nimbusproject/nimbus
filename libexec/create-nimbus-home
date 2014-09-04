@@ -38,7 +38,8 @@ echo ""
 if [ ! -f $TMPDIR/$CONTAINER_TARNAME ]; then
     echo "Downloading service container.."
     echo ""
-    wget --no-check-certificate -c -O $TMPDIR/$CONTAINER_TARNAME $CONTAINER_URL
+
+    wget --no-check-certificate -c -O $TMPDIR/$CONTAINER_TARNAME $CONTAINER_URL || curl -L -o "$TMPDIR"/"$CONTAINER_TARNAME" "$CONTAINER_URL"
 
     if [ $? -ne 0 ]; then
     echo ""
