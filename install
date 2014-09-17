@@ -93,7 +93,6 @@ echo ""
 pyve_path=$NIMBUS_HOME/ve
 echo "Installing from $NIMBUS_SRC"
 
-cp $NIMBUS_SRC/cumulus/*.egg .
 $PYTHON_EXE $NIMBUS_SRC/cumulus/virtualenv.py --no-site-packages -p $PYTHON_EXE $pyve_path | tee -a $NIMBUS_HOME/install.log
 if [ $PIPESTATUS -ne 0 ]; then
     echo "ERROR: python virtualenv installation failed."
