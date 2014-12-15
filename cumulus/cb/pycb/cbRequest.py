@@ -708,6 +708,46 @@ class cbHeadObject(cbGetObject):
         self.setResponseCode(self.request, 200, 'OK')
         self.finish(self.request)
 
+
+class cbHeadBucket(cbGetBucket):
+    def __init__(self, request, user, bucketName, requestId, bucketIface):
+        cbRequest.__init__(self, request, user, requestId, bucketIface)
+        self.bucketName = bucketName
+
+    def list_bucket(self):
+        dirL = self.user.list_bucket(self.bucketName, self.request.args)
+        doc = Document()
+
+        # Create the <wml> base element
+        xList = doc.createElement("ListBucketResult")
+        xList.setAttribute("xmlns", "http://doc.s3.amazonaws.com/2006-03-01")
+        doc.appendChild(xList)
+
+        # Create the main <card> element
+        xName = doc.createElement("Name")
+        xList.appendChild(xName)
+        xNameText = doc.createTextNode(str(self.bucketName))
+        xName.appendChild(xNameText)
+
+        xIsTruncated = doc.createElement("IsTruncated")
+        xList.appendChild(xIsTruncated)
+        xIsTText = doc.createTextNode('false')
+        xIsTruncated.appendChild(xIsTText)
+
+        for obj in dirL:
+            xObj = obj.create_xml_element(doc)
+            xList.appendChild(xObj)
+
+        x = doc.toxml()
+
+        xLen = len(x)
+        self.set_common_headers()
+        self.setHeader(self.request, 'Content-Length', str(xLen))
+        self.setHeader(self.request, 'Connection', 'close')
+        self.setResponseCode(self.request, 200, 'OK')
+        self.finish(self.request)
+
+
 class cbCopyObject(cbRequest):
 
     def __init__(self, request, user, requestId, bucketIface, srcBucket, srcObject, dstBucket, dstObject):

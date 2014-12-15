@@ -14,6 +14,7 @@ from pycb.cbRequest import cbDeleteObject
 from pycb.cbRequest import cbPutBucket
 from pycb.cbRequest import cbPutObject
 from pycb.cbRequest import cbHeadObject
+from pycb.cbRequest import cbHeadBucket
 from pycb.cbRequest import cbCopyObject
 from pycb.cbRedirector import *
 from datetime import date, datetime
@@ -149,8 +150,11 @@ class CBService(resource.Resource):
             else:
                 cbR = cbDeleteObject(request, user, bucketName, objectName, requestId, pycb.config.bucket)
             return cbR
-        elif request.method == 'HEAD' and objectName != None:
-            cbR = cbHeadObject(request, user, bucketName, objectName, requestId, pycb.config.bucket)
+        elif request.method == 'HEAD':
+            if objectName == None:
+                cbR = cbHeadBucket(request, user, bucketName, requestId, pycb.config.bucket)
+            else:
+                cbR = cbHeadObject(request, user, bucketName, objectName, requestId, pycb.config.bucket)
             return cbR
 
         raise cbException('InvalidArgument')
