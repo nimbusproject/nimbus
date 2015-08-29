@@ -464,10 +464,9 @@ class cbGetObject(cbRequest):
         self.dataObj = dataObj
 
         self.set_common_headers()
-        self.setHeader(request, 'Content-Type', 'binary/octet-stream')
-        self.setHeader(request, 'Content-Length', str(dataObj.get_size()))
-
         (s,ct,self.etag) = self.user.get_info(self.bucketName, self.objectName)
+        self.setHeader(request, 'Content-Type', ct or 'binary/octet-stream')
+        self.setHeader(request, 'Content-Length', str(dataObj.get_size()))
 
         reactor.callInThread(self.sendFile, dataObj)
 
