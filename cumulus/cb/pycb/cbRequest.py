@@ -2,6 +2,8 @@ import os
 import sys
 import time
 from time import strftime
+import imp
+
 import stat
 import hashlib
 from xml.dom.minidom import Document, parseString
@@ -31,6 +33,35 @@ perms_strings['WRITE'] = "w"
 perms_strings['WRITE_ACP'] = "W"
 perms_strings['READ_ACP'] = "R"
 perms_strings['READ'] = "r"
+
+def find_module(name, predicate=None):
+    """Find a module with the name if this module have the predicate true.
+
+    Arguments:
+       - name: module name as a string.
+       - predicate: a function that accept one argument as the name of a module and return
+             True or False.
+    Return:
+       - The module imported
+    Raise:
+       - ImportError if the module wasn't found.
+
+    """
+
+    search_paths = sys.path[:]
+
+    if not predicate:
+        return __import__(name)
+
+    while 1:
+        fp, pathname, desc = imp.find_module(name, search_paths)
+        module = imp.load_module(name, fp, pathname, desc)
+
+        if predicate(module):
+            return module
+        else: 
+            search_paths = search_paths[1:]
+magic = find_module('magic', lambda magic: hasattr(magic, 'from_buffer'))
 
 def perm2string(p):
     global perms_strings
@@ -465,7 +496,8 @@ class cbGetObject(cbRequest):
 
         self.set_common_headers()
         (s,ct,self.etag) = self.user.get_info(self.bucketName, self.objectName)
-        self.setHeader(request, 'Content-Type', ct or 'binary/octet-stream')
+        self.setHeader(request, 'Content-Type', magic.from_buffer(dataObj.file.read(1024), mime=True) or 'application/octet-stream')
+        dataObj.file.seek(0)
         self.setHeader(request, 'Content-Length', str(dataObj.get_size()))
 
         reactor.callInThread(self.sendFile, dataObj)
