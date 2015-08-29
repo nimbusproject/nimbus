@@ -35,7 +35,8 @@ perms_strings['READ_ACP'] = "R"
 perms_strings['READ'] = "r"
 
 def find_module(name, predicate=None):
-    """Find a module with the name if this module have the predicate true.
+    """Find a module with the name if this module have the predicate true. 
+    Required for importing magic if other module with name "magic" installed
 
     Arguments:
        - name: module name as a string.
