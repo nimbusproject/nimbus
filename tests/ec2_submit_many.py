@@ -71,8 +71,7 @@ def main(argv=sys.argv[1:]):
         except:
             pass
 
-        ec2conn = EC2Connection(s3id, pw, host='locahost', port=ec2port, debug=2)
-        ec2conn.host = 'localhost'
+        ec2conn = EC2Connection(s3id, pw, host='localhost', port=ec2port, debug=2)
         print "getting image"
         image = ec2conn.get_image(imagename)
         print "running"
